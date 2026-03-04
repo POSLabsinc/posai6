@@ -441,7 +441,7 @@ export const ClockInOverlay = ({
   };
   const handleEnterPOSFromSummary = () => {
     // If mood check-in is enabled and we're on clock-in OR clock-out summary, show mood check-in
-    if (ENABLE_MOOD_CHECKIN && (clockInSummary || clockOutSummary) && !showMoodCheckIn) {
+    if (ENABLE_MOOD_CHECKIN && !SettingsManager.getControlCenterSettings().hideEmployeeFeedback && (clockInSummary || clockOutSummary) && !showMoodCheckIn) {
       setShowMoodCheckIn(true);
       return;
     }

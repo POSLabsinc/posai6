@@ -153,7 +153,7 @@ export function DraggableSidebar() {
       >
         <div 
           className={`h-full rounded-2xl flex ${isHorizontal ? 'flex-row' : 'flex-col'} gap-1 p-1.5`} 
-          style={{ background: 'hsl(var(--panel-glass))', boxShadow: 'var(--panel-glass-shadow)' }}
+          style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}
         >
           {/* Drag Handle + Lock Toggle */}
           <div className={`relative flex ${isHorizontal ? 'flex-row' : 'flex-col'} items-center gap-1 shrink-0`}>

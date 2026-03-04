@@ -1044,10 +1044,10 @@ export function PaymentDialog({
                     groupedByRecipient[contact].push(Number(idx));
                   });
 
-                  // Get voucher label for an index
+                  // Get voucher label for an index - short format for word cloud
                   const getVoucherLabel = (idx: number) => {
                     if (voucherItems.length > 0 && voucherItems[idx]) {
-                      return `$${voucherItems[idx].price.toFixed(2)} ${voucherItems[idx].name}`;
+                      return voucherItems[idx].name;
                     }
                     return `Voucher ${idx + 1}`;
                   };

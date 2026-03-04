@@ -122,6 +122,36 @@ export type Database = {
         }
         Relationships: []
       }
+      guest_feedback: {
+        Row: {
+          comment: string
+          created_at: string
+          feedback_date: string
+          guest_name: string
+          id: string
+          platform: string
+          sentiment: string
+        }
+        Insert: {
+          comment?: string
+          created_at?: string
+          feedback_date: string
+          guest_name: string
+          id?: string
+          platform?: string
+          sentiment?: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string
+          feedback_date?: string
+          guest_name?: string
+          id?: string
+          platform?: string
+          sentiment?: string
+        }
+        Relationships: []
+      }
       guests: {
         Row: {
           allergies: string[] | null
@@ -343,6 +373,95 @@ export type Database = {
           },
         ]
       }
+      order_items: {
+        Row: {
+          id: string
+          item_name: string
+          order_id: string
+          quantity: number
+          total_price: number
+          unit_price: number
+        }
+        Insert: {
+          id?: string
+          item_name: string
+          order_id: string
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Update: {
+          id?: string
+          item_name?: string
+          order_id?: string
+          quantity?: number
+          total_price?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          customer_name: string | null
+          discount_amount: number
+          employee_name: string | null
+          id: string
+          order_number: number
+          order_type: string
+          payment_type: string
+          platform: string | null
+          status: string
+          subtotal: number
+          tax_amount: number
+          tip_amount: number
+          total: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_name?: string | null
+          discount_amount?: number
+          employee_name?: string | null
+          id?: string
+          order_number?: number
+          order_type?: string
+          payment_type?: string
+          platform?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tip_amount?: number
+          total?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_name?: string | null
+          discount_amount?: number
+          employee_name?: string | null
+          id?: string
+          order_number?: number
+          order_type?: string
+          payment_type?: string
+          platform?: string | null
+          status?: string
+          subtotal?: number
+          tax_amount?: number
+          tip_amount?: number
+          total?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_add_ons: {
         Row: {
           add_on_id: string
@@ -494,6 +613,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      reservations: {
+        Row: {
+          color_category: string | null
+          created_at: string
+          end_time: string | null
+          guest_name: string
+          id: string
+          location: string | null
+          no_show: boolean
+          party_size: number
+          reservation_date: string
+          start_time: string
+          status: string
+          title: string | null
+          total_spent: number
+          updated_at: string
+        }
+        Insert: {
+          color_category?: string | null
+          created_at?: string
+          end_time?: string | null
+          guest_name: string
+          id?: string
+          location?: string | null
+          no_show?: boolean
+          party_size?: number
+          reservation_date: string
+          start_time?: string
+          status?: string
+          title?: string | null
+          total_spent?: number
+          updated_at?: string
+        }
+        Update: {
+          color_category?: string | null
+          created_at?: string
+          end_time?: string | null
+          guest_name?: string
+          id?: string
+          location?: string | null
+          no_show?: boolean
+          party_size?: number
+          reservation_date?: string
+          start_time?: string
+          status?: string
+          title?: string | null
+          total_spent?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_preferences: {
         Row: {

@@ -13,6 +13,7 @@ import { SessionOrderProvider } from "@/contexts/SessionOrderContext";
 import { UnifiedOrderProvider } from "@/contexts/UnifiedOrderContext";
 import { ThemePresetsProvider } from "@/contexts/ThemePresetsContext";
 import { useAutoRestart } from "@/hooks/useAutoRestart";
+import { useEndOfDayScheduler } from "@/hooks/useEndOfDayScheduler";
 import { AutoLockProvider } from "@/contexts/AutoLockContext";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
@@ -62,6 +63,7 @@ const queryClient = new QueryClient();
 // Inner component that can use hooks
 const AppInner = () => {
   useAutoRestart();
+  useEndOfDayScheduler();
   return (
     <BrowserRouter>
       <AutoLockProvider>

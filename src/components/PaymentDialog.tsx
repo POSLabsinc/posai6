@@ -50,6 +50,7 @@ export interface PaymentDialogProps {
   tax: number;
   total: number;
   containsVoucher?: boolean;
+  voucherCount?: number;
   onPaymentComplete?: (paymentHistory: PaymentHistoryItem[]) => void;
   onSaveSplit?: (config: {
     mode: 'seat' | 'evenly' | 'custom';
@@ -131,6 +132,7 @@ export function PaymentDialog({
   tax,
   total,
   containsVoucher = false,
+  voucherCount = 1,
   onPaymentComplete,
   onSaveSplit,
 }: PaymentDialogProps) {
@@ -146,6 +148,11 @@ export function PaymentDialog({
   
   // Voucher delivery step: shows voucher send modal before receipt
   const [voucherDeliveryDone, setVoucherDeliveryDone] = useState(false);
+  // Multi-voucher distribution states
+  const [voucherDeliveryMethod, setVoucherDeliveryMethod] = useState<'print' | 'text' | 'email' | null>(null);
+  const [voucherSendMode, setVoucherSendMode] = useState<'choose-method' | 'send-all' | 'send-individual'>('choose-method');
+  const [voucherSendAllContact, setVoucherSendAllContact] = useState('');
+  const [voucherIndividualContacts, setVoucherIndividualContacts] = useState<string[]>([]);
   // Dynamic payment methods
   const [visiblePaymentMethods, setVisiblePaymentMethods] = useState<PaymentMethodType[]>(initialPaymentMethods);
   const [dropdownPaymentMethods, setDropdownPaymentMethods] = useState<PaymentMethodType[]>(initialOtherPaymentMethods);
@@ -330,6 +337,10 @@ export function PaymentDialog({
       setTextReceiptStep('receipt');
       setEmailReceiptStep('receipt');
       setVoucherDeliveryDone(false);
+      setVoucherDeliveryMethod(null);
+      setVoucherSendMode('choose-method');
+      setVoucherSendAllContact('');
+      setVoucherIndividualContacts([]);
       // Reset split check states
       setSplitMode('evenly');
       setNumberOfChecks(2);
@@ -876,7 +887,7 @@ export function PaymentDialog({
           {paymentProcessed ? (
             // Voucher Delivery Modal - shown before receipt when order contains voucher
             containsVoucher && !voucherDeliveryDone ? (
-              <div className="flex-1 flex flex-col items-center py-8 px-6">
+              <div className="flex-1 flex flex-col items-center py-8 px-6 overflow-y-auto">
                 {/* Success Icon */}
                 <img src={tickSuccessIcon} alt="Success" className="w-14 h-14 mb-4" />
                 
@@ -894,42 +905,165 @@ export function PaymentDialog({
                   </div>
                 )}
 
-                {/* Voucher Send Options */}
-                <div className="w-full max-w-xs">
-                  <h3 className="text-white font-semibold text-center mb-4">How would you like to send the voucher?</h3>
-                  <div className="flex gap-4 justify-center mb-4">
-                    <button 
+                {/* Step 1: Choose delivery method */}
+                {voucherSendMode === 'choose-method' && (
+                  <div className="w-full max-w-xs">
+                    <h3 className="text-white font-semibold text-center mb-4">How would you like to send the voucher{voucherCount > 1 ? 's' : ''}?</h3>
+                    <div className="flex gap-4 justify-center mb-4">
+                      <button 
+                        onClick={() => {
+                          toast.success(`${voucherCount} voucher${voucherCount > 1 ? 's' : ''} sent to printer`);
+                          setVoucherDeliveryDone(true);
+                        }}
+                        className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        <Printer className="w-6 h-6 text-neutral-400" />
+                        <span className="text-neutral-400 text-sm">Print Voucher</span>
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setVoucherDeliveryMethod('text');
+                          if (voucherCount <= 1) {
+                            setVoucherSendMode('send-all');
+                          } else {
+                            setVoucherSendMode('send-all');
+                          }
+                        }}
+                        className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        <MessageSquare className="w-6 h-6 text-neutral-400" />
+                        <span className="text-neutral-400 text-sm">Text Voucher</span>
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setVoucherDeliveryMethod('email');
+                          if (voucherCount <= 1) {
+                            setVoucherSendMode('send-all');
+                          } else {
+                            setVoucherSendMode('send-all');
+                          }
+                        }}
+                        className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        <Mail className="w-6 h-6 text-neutral-400" />
+                        <span className="text-neutral-400 text-sm">Email Voucher</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Step 2: Send All or Send to Different Recipients */}
+                {voucherSendMode === 'send-all' && (
+                  <div className="w-full max-w-sm">
+                    <div className="flex items-center gap-2 mb-4">
+                      <button 
+                        onClick={() => {
+                          setVoucherSendMode('choose-method');
+                          setVoucherDeliveryMethod(null);
+                          setVoucherSendAllContact('');
+                        }}
+                        className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                      </button>
+                      <h3 className="text-white font-semibold">Send Voucher{voucherCount > 1 ? 's' : ''}</h3>
+                    </div>
+                    
+                    <p className="text-neutral-400 text-sm mb-3">
+                      {voucherCount > 1 
+                        ? `Send all ${voucherCount} vouchers to:` 
+                        : `Send voucher to:`}
+                    </p>
+                    <input
+                      type={voucherDeliveryMethod === 'email' ? 'email' : 'tel'}
+                      value={voucherSendAllContact}
+                      onChange={(e) => setVoucherSendAllContact(e.target.value)}
+                      placeholder={voucherDeliveryMethod === 'email' ? 'Enter email address' : 'Enter phone number'}
+                      className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-400 mb-4"
+                      autoFocus
+                    />
+
+                    <button
                       onClick={() => {
-                        toast.success('Voucher sent to printer');
+                        if (!voucherSendAllContact.trim()) {
+                          toast.error(`Please enter ${voucherDeliveryMethod === 'email' ? 'an email address' : 'a phone number'}`);
+                          return;
+                        }
+                        toast.success(`${voucherCount} voucher${voucherCount > 1 ? 's' : ''} sent to ${voucherSendAllContact}`);
                         setVoucherDeliveryDone(true);
                       }}
-                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                      className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors mb-3"
                     >
-                      <Printer className="w-6 h-6 text-neutral-400" />
-                      <span className="text-neutral-400 text-sm">Print Voucher</span>
+                      Send {voucherCount > 1 ? `All ${voucherCount} Vouchers` : 'Voucher'}
                     </button>
-                    <button 
+
+                    {voucherCount > 1 && (
+                      <button
+                        onClick={() => {
+                          setVoucherIndividualContacts(Array(voucherCount).fill(''));
+                          setVoucherSendMode('send-individual');
+                        }}
+                        className="w-full py-3 border border-neutral-600 hover:bg-neutral-800 text-neutral-300 font-medium rounded-lg transition-colors"
+                      >
+                        Send to Different Recipients
+                      </button>
+                    )}
+                  </div>
+                )}
+
+                {/* Step 3: Individual recipient entry */}
+                {voucherSendMode === 'send-individual' && (
+                  <div className="w-full max-w-sm">
+                    <div className="flex items-center gap-2 mb-4">
+                      <button 
+                        onClick={() => {
+                          setVoucherSendMode('send-all');
+                          setVoucherIndividualContacts([]);
+                        }}
+                        className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                      </button>
+                      <h3 className="text-white font-semibold">Send to Different Recipients</h3>
+                    </div>
+                    
+                    <div className="space-y-3 mb-4 max-h-[40vh] overflow-y-auto pr-1">
+                      {voucherIndividualContacts.map((contact, idx) => (
+                        <div key={idx} className="flex items-center gap-3">
+                          <span className="text-neutral-400 text-sm whitespace-nowrap min-w-[80px]">Voucher {idx + 1}</span>
+                          <span className="text-neutral-600">→</span>
+                          <input
+                            type={voucherDeliveryMethod === 'email' ? 'email' : 'tel'}
+                            value={contact}
+                            onChange={(e) => {
+                              const updated = [...voucherIndividualContacts];
+                              updated[idx] = e.target.value;
+                              setVoucherIndividualContacts(updated);
+                            }}
+                            placeholder={voucherDeliveryMethod === 'email' ? 'Email address' : 'Phone number'}
+                            className="flex-1 bg-neutral-800 border border-neutral-600 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-400"
+                            autoFocus={idx === 0}
+                          />
+                        </div>
+                      ))}
+                    </div>
+
+                    <button
                       onClick={() => {
-                        toast.success('Voucher sent via SMS');
+                        const allFilled = voucherIndividualContacts.every(c => c.trim() !== '');
+                        if (!allFilled) {
+                          toast.error(`Please enter ${voucherDeliveryMethod === 'email' ? 'an email' : 'a phone number'} for each voucher`);
+                          return;
+                        }
+                        toast.success(`${voucherCount} vouchers sent to individual recipients`);
                         setVoucherDeliveryDone(true);
                       }}
-                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                      className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
                     >
-                      <MessageSquare className="w-6 h-6 text-neutral-400" />
-                      <span className="text-neutral-400 text-sm">Text Voucher</span>
-                    </button>
-                    <button 
-                      onClick={() => {
-                        toast.success('Voucher sent via Email');
-                        setVoucherDeliveryDone(true);
-                      }}
-                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
-                    >
-                      <Mail className="w-6 h-6 text-neutral-400" />
-                      <span className="text-neutral-400 text-sm">Email Voucher</span>
+                      Send Vouchers
                     </button>
                   </div>
-                </div>
+                )}
               </div>
             ) :
             // Receipt Screen with Text/Email input handling

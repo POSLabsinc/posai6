@@ -6916,7 +6916,7 @@ const Orders = () => {
         </div>
 
         {/* Background Container for Order Content */}
-        <div className={`flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden mx-1 transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 min-h-0' : 'min-h-0'}`}>
+        <div className={`flex flex-col rounded-lg overflow-hidden mx-1 transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 min-h-0' : 'min-h-0'}`} style={{ background: 'hsl(var(--panel-glass))', boxShadow: 'var(--panel-glass-shadow)', border: '1px solid white' }}>
           {/* Order Type & Guest Info */}
           {isTableOrder ?
         <>
@@ -8152,8 +8152,8 @@ const Orders = () => {
           <div className="flex-1 flex gap-2 min-h-0">
             {/* Background Container for Order Content */}
             <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0 relative" style={{
-            background: '#7575754D',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+            background: 'hsl(var(--panel-glass))',
+            boxShadow: 'var(--panel-glass-shadow)'
           }}>
               {/* Add Guest Form Overlay */}
               {showAddGuestForm &&
@@ -8785,8 +8785,8 @@ const Orders = () => {
                   {orderItems.length > 0 &&
               <div className="p-2 border-t border-sidebar-border flex-shrink-0">
                 <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
-                  background: '#7575754D',
-                  boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+                  background: 'hsl(var(--panel-glass))',
+                  boxShadow: 'var(--panel-glass-shadow)'
                 }}>
                   <div className="flex justify-between gap-3">
                     <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
@@ -8887,8 +8887,8 @@ const Orders = () => {
             {isOrderActionsSidebarOpen && !showCreateVoucherForm &&
           <div className="w-[70px] flex flex-col flex-shrink-0 animate-slide-in-right">
                 <div className="flex-1 flex flex-col rounded-2xl p-1.5 gap-1" style={{
-              background: '#7575754D',
-              boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+              background: 'hsl(var(--panel-glass))',
+              boxShadow: 'var(--panel-glass-shadow)'
             }}>
                   {/* Transfer Check - Only show when items in cart */}
                   {orderItems.length > 0 &&

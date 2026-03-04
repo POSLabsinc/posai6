@@ -9,6 +9,7 @@ import FingerprintAuthModal, { FingerprintInlineAuth } from "@/components/Finger
 import { FaceIDInlineAuth } from "@/components/FaceIDAuthModal";
 import { ClockOutValidationModal } from "@/components/ClockOutValidationModal";
 import { ClockOutValidationMobile } from "@/components/ClockOutValidationMobile";
+import { SettingsManager } from "@/lib/settingsManager";
 import pinIndicatorIcon from "@/assets/icons/pin-indicator.svg";
 import pinIndicatorFilledIcon from "@/assets/icons/pin-indicator-filled.svg";
 import happyIcon from "@/assets/icons/emotions/happy.svg";
@@ -1211,7 +1212,7 @@ export const ClockOutOverlay = ({
         </div>
 
         {/* Action Buttons Row */}
-        <div className="grid grid-cols-3 gap-2 mt-2">
+        <div className={`grid ${SettingsManager.getControlCenterSettings().hideBreakButton ? 'grid-cols-2' : 'grid-cols-3'} gap-2 mt-2`}>
           <button
             onClick={handleClockOut}
             disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn}
@@ -1219,13 +1220,15 @@ export const ClockOutOverlay = ({
           >
             Clock Out
           </button>
-          <button
-            onClick={handleBreak}
-            disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn}
-            className="h-12 md:h-14 lg:h-16 keypad-btn-3d-break rounded-lg text-black text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed"
-          >
-            Break
-          </button>
+          {!SettingsManager.getControlCenterSettings().hideBreakButton && (
+            <button
+              onClick={handleBreak}
+              disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn}
+              className="h-12 md:h-14 lg:h-16 keypad-btn-3d-break rounded-lg text-black text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed"
+            >
+              Break
+            </button>
+          )}
           <button
             onClick={handleClockIn}
             disabled={isVerifying || pin.length !== PIN_LENGTH || isClockedIn}

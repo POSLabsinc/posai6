@@ -417,7 +417,7 @@ const MultiVoucherStep = ({
                 onClick={handleAddAnother}
                 className="flex items-center gap-1.5 px-3 py-1.5 border border-emerald-500/30 rounded-lg text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all text-xs font-medium w-fit"
               >
-                <Plus className="w-3.5 h-3.5" /> Add Another
+                <Plus className="w-3.5 h-3.5" /> Add another voucher
               </button>
             </div>
 
@@ -580,7 +580,7 @@ const MultiVoucherStep = ({
             {/* Add another + navigation */}
             <div className="flex items-center justify-between">
               <button onClick={handleAddAnother} className="flex items-center gap-1.5 px-3 py-1.5 border border-emerald-500/30 rounded-lg text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/50 transition-all text-xs font-medium w-fit">
-                <Plus className="w-3.5 h-3.5" /> Add another custom voucher
+                <Plus className="w-3.5 h-3.5" /> Add another voucher
               </button>
               <div className="flex items-center gap-1.5">
                 <button disabled={builderIndex <= 0} onClick={() => { setBuilderIndex(p => p - 1); }}

@@ -1079,9 +1079,8 @@ export function PaymentDialog({
                         const isSelected = selectedVoucherIndices.has(vIdx);
                         const assignedTo = voucherAssignments[vIdx];
                         const label = getVoucherLabel(vIdx);
-                        // Vary chip size based on price for word-cloud feel
-                        const price = voucherItems[vIdx]?.price ?? 0;
-                        const sizeClass = price >= 100 ? 'text-sm px-4 py-2.5' : price >= 50 ? 'text-xs px-3 py-2' : 'text-[11px] px-2.5 py-1.5';
+                        // Consistent chip size for all vouchers
+                        const sizeClass = 'text-xs px-3 py-2';
                         
                         return (
                           <button

@@ -48,6 +48,7 @@ const SingleVoucherStep = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [touched, setTouched] = useState({ voucherName: false, value: false });
+  const [voucherType, setVoucherType] = useState<'fixed' | 'percentage'>('fixed');
 
   const numericValue = posCurrencyToNumber(valueDigits);
   const minimumOrderValue = posCurrencyToNumber(minimumOrderDigits);
@@ -296,18 +297,32 @@ const SingleVoucherStep = ({
         ← Back to templates
       </button>
 
-      <div>
-        <label className={labelClass}>Voucher Name <span className="text-red-400">*</span></label>
-        <input
-          type="text"
-          value={voucherName}
-          onChange={(e) => onVoucherNameChange(e.target.value.slice(0, 50), true)}
-          placeholder="Enter custom voucher name"
-          autoFocus
-          onBlur={() => setTouched(p => ({ ...p, voucherName: true }))}
-          className={`${inputClass} ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
-        />
-        {touched.voucherName && !voucherName.trim() && <p className="text-red-400 text-xs mt-1">Voucher name is required</p>}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
+        <div>
+          <label className={labelClass}>Voucher Name <span className="text-red-400">*</span></label>
+          <input
+            type="text"
+            value={voucherName}
+            onChange={(e) => onVoucherNameChange(e.target.value.slice(0, 50), true)}
+            placeholder="Enter custom voucher name"
+            autoFocus
+            onBlur={() => setTouched(p => ({ ...p, voucherName: true }))}
+            className={`${inputClass} ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
+          />
+          {touched.voucherName && !voucherName.trim() && <p className="text-red-400 text-xs mt-1">Voucher name is required</p>}
+        </div>
+        <div>
+          <label className={labelClass}>Voucher Type</label>
+          <Select value={voucherType} onValueChange={(v) => setVoucherType(v as 'fixed' | 'percentage')}>
+            <SelectTrigger className="w-full min-w-[160px] bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="fixed">Fixed Amount</SelectItem>
+              <SelectItem value="percentage">Percentage (%)</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       {/* Row 1 */}
@@ -318,6 +333,7 @@ const SingleVoucherStep = ({
           rawDigits={valueDigits}
           onRawDigitsChange={(d) => { onValueDigitsChange(d); setTouched(p => ({ ...p, value: true })); }}
           error={touched.value && numericValue <= 0 ? "Amount required" : undefined}
+          prefix={voucherType === 'percentage' ? '%' : undefined}
         />
         <VoucherCurrencyInput
           label="Service Fee"

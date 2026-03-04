@@ -9143,6 +9143,7 @@ const Orders = () => {
       subtotal={subtotal}
       tax={tax}
       total={chargeAmount}
+      containsVoucher={orderItems.some(item => item.itemOrderType === 'VOUCHER')}
       onPaymentComplete={(history) => {
         console.log("Payment completed:", history);
       }}

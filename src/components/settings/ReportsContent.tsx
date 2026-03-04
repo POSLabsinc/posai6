@@ -117,7 +117,7 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
   const fieldRow = (label: string, icon: React.ReactNode, display: string, onClick: () => void, ref: React.RefObject<HTMLButtonElement>) => (
     <button
       ref={ref}
-      className="w-full flex items-center justify-between py-3.5 px-4"
+      className="w-full flex items-center justify-between py-3.5 px-4 bg-surface"
       onClick={onClick}
     >
       <div className="flex items-center gap-3">
@@ -218,7 +218,7 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
                 {orderSummary.map((item, i) => (
                   <div key={item.label}>
                     {i > 0 && <div className="h-px bg-border mx-4" />}
-                    <div className="flex items-center justify-between py-3.5 px-4">
+                    <div className="flex items-center justify-between py-3.5 px-4 bg-surface">
                       <span className="text-muted-foreground text-sm">{item.label}</span>
                       <span className={cn("text-sm font-medium", item.label === "Total" ? "text-foreground" : "text-muted-foreground")}>{item.value}</span>
                     </div>
@@ -242,7 +242,7 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
                 {paymentTypes.map((item, i) => (
                   <div key={item.type}>
                     {i > 0 && <div className="h-px bg-border mx-4" />}
-                    <div className="flex items-center py-3.5 px-4">
+                    <div className="flex items-center py-3.5 px-4 bg-surface">
                       <span className="flex-1 text-sm text-muted-foreground">{item.type}</span>
                       <span className="w-32 text-center text-sm text-muted-foreground">{item.transactions}</span>
                       <span className="w-28 text-right text-sm font-medium text-muted-foreground">{fmtCurrency(item.amount)}</span>
@@ -267,7 +267,7 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
                 {categories.map((item, i) => (
                   <div key={item.name}>
                     {i > 0 && <div className="h-px bg-border mx-4" />}
-                    <div className="flex items-center py-3.5 px-4">
+                    <div className="flex items-center py-3.5 px-4 bg-surface">
                       <span className="flex-1 text-sm text-muted-foreground">{item.name}</span>
                       <span className="w-32 text-center text-sm text-muted-foreground">{item.products}</span>
                       <span className="w-28 text-right text-sm font-medium text-muted-foreground">{fmtCurrency(item.sales)}</span>

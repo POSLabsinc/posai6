@@ -397,15 +397,6 @@ const MultiVoucherStep = ({
                       </button>
                     </div>
                   </div>
-                  {idx === 0 && (
-                    <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
-                      <SelectTrigger className="w-[140px] bg-neutral-800/40 border-neutral-700/50 text-white h-[42px] rounded-lg text-xs flex-shrink-0"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="fixed">Fixed Amount</SelectItem>
-                        <SelectItem value="percentage">Percentage (%)</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  )}
                   {customEntries.length > 1 && (
                     <button onClick={() => removeBuilderEntry(idx)} className="text-neutral-500 hover:text-red-400 transition-colors flex-shrink-0">
                       <X className="w-4 h-4" />
@@ -425,6 +416,16 @@ const MultiVoucherStep = ({
             <div className="bg-neutral-800/30 border border-neutral-700/50 rounded-lg p-3 space-y-2">
               <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Shared Settings</span>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
+                <div>
+                  <label className={labelClass}>Voucher Type</label>
+                  <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
+                    <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                      <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
+                      <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <VoucherCurrencyInput
                   label="Redeemable Value"
                   required

@@ -1,18 +1,23 @@
 
 
-## Plan: Move Voucher Type inline with Voucher Name rows
+## Plan: Separate Voucher Type dropdown from Voucher Name field
 
-Based on the screenshot, the expected layout is a single row containing: `[Enter voucher name] [- 1 +] [Fixed Amount ▾]` — all inline, no separate header labels.
+Based on the screenshot, the voucher name input + quantity controls are inside one bordered container, and the "Fixed Amount" dropdown is a **separate** bordered element next to it — not inside the same container.
 
 ### Changes in `src/components/voucher/MultiVoucherStep.tsx`
 
-**Shared Mode (lines 376-416):**
-- Remove the separate "Voucher Names" / "Voucher Type" header row (lines 377-389)
-- Add a simple "Voucher Names" label above the entries
-- Inside each voucher name row (`customEntries.map`), append the Voucher Type `<Select>` dropdown after the quantity controls (before the X button), matching the independent mode layout
+**Shared Mode (lines 378-411):**
+- Move the `<Select>` for `commonVoucherType` **outside** the voucher entry's bordered `div` (the `bg-neutral-800/40 border` container)
+- Wrap each entry row in a flex container: `[bordered name+qty box] [separate dropdown]`
+- The dropdown should only appear on the **first** entry row (since it's a common/shared setting), or appear once above/beside the entries. Based on the screenshot showing it next to one row, it will render on the first row only.
 
-**Independent Mode (lines 506-533):**
-- Already has the correct layout (name + qty + dropdown in one row). No changes needed — it already matches the screenshot.
+**Independent Mode (lines ~506-533):**
+- Apply the same pattern: move the `<Select>` outside the bordered input container so it sits as a sibling element.
 
-Both modes will use the same `commonVoucherType` state and render identically styled rows.
+### Layout structure per row:
+```text
+┌─────────────────────────────────┐  ┌──────────────┐
+│ Enter voucher name   [- 1 +]   │  │ Fixed Amount ▾│
+└─────────────────────────────────┘  └──────────────┘
+```
 

@@ -374,7 +374,7 @@ const MultiVoucherStep = ({
           <>
             {/* Voucher Names + Voucher Type row */}
             <div className="space-y-2">
-              <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider">Voucher Names</span>
+              
               {customEntries.map((ce, idx) => (
                 <div key={ce.id} className="flex items-center gap-2">
                   <div className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2 flex-1">

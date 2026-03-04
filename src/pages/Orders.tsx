@@ -95,6 +95,7 @@ import CreateVoucherForm from "@/components/CreateVoucherForm";
 import OpenPriceDialog from "@/components/OpenPriceDialog";
 import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
 import MessageKitchenDialog from "@/components/MessageKitchenDialog";
+import { useVoucherMode } from "@/contexts/VoucherModeContext";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6171,7 +6172,10 @@ const Orders = () => {
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [showVoucherDialog, setShowVoucherDialog] = useState(false);
-  const [voucherMode, setVoucherMode] = useState(false);
+  const [voucherModeLocal, setVoucherModeLocal] = useState(false);
+  const { setIsVoucherMode: setVoucherModeCtx } = useVoucherMode();
+  const voucherMode = voucherModeLocal;
+  const setVoucherMode = (v: boolean) => { setVoucherModeLocal(v); setVoucherModeCtx(v); };
   const [editingVoucherData, setEditingVoucherData] = useState<import('@/components/VoucherDialog').VoucherInitialData | null>(null);
   const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
   const [showOpenPriceDialog, setShowOpenPriceDialog] = useState(false);
@@ -8927,7 +8931,7 @@ const Orders = () => {
                   </button>
                   <button
                 onClick={() => { setVoucherMode(true); setEditingVoucherData(null); }}
-                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                className={`flex-1 flex flex-col items-center justify-center gap-1 rounded-xl transition-colors ${voucherMode ? 'bg-sidebar-accent text-sidebar-accent-foreground ring-2 ring-white' : 'hover:bg-sidebar-accent'}`}>
 
                     <Ticket className="w-5 h-5 text-white" />
                     <span className="text-[9px] text-white text-center leading-tight">Sell<br />Voucher</span>

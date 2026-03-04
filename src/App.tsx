@@ -15,6 +15,7 @@ import { ThemePresetsProvider } from "@/contexts/ThemePresetsContext";
 import { useAutoRestart } from "@/hooks/useAutoRestart";
 import { useEndOfDayScheduler } from "@/hooks/useEndOfDayScheduler";
 import { AutoLockProvider } from "@/contexts/AutoLockContext";
+import { VoucherModeProvider } from "@/contexts/VoucherModeContext";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
 import OrdersDesign1 from "./pages/OrdersDesign1";
@@ -131,9 +132,11 @@ const App = () => (
             <SessionOrderProvider>
             <UnifiedOrderProvider>
             <ThemePresetsProvider>
+            <VoucherModeProvider>
               <Toaster />
               <Sonner />
               <AppInner />
+            </VoucherModeProvider>
             </ThemePresetsProvider>
             </UnifiedOrderProvider>
           </SessionOrderProvider>

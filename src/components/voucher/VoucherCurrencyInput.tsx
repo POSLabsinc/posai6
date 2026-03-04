@@ -10,6 +10,8 @@ interface VoucherCurrencyInputProps {
   required?: boolean;
   error?: string;
   warning?: string;
+  /** Override the currency prefix symbol (e.g. "%" for percentage mode) */
+  prefix?: string;
 }
 
 /** Convert raw POS cents string → display string for editing */
@@ -91,6 +93,7 @@ const VoucherCurrencyInput = ({
   required,
   error,
   warning,
+  prefix,
 }: VoucherCurrencyInputProps) => {
   const [localValue, setLocalValue] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
@@ -172,7 +175,7 @@ const VoucherCurrencyInput = ({
       </label>
       <div className={`relative w-full bg-neutral-800 border rounded-lg transition-colors ${borderClass}`}>
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm pointer-events-none">
-          {CURRENCY_SYMBOL}
+          {prefix || CURRENCY_SYMBOL}
         </span>
         <input
           ref={inputRef}

@@ -9145,6 +9145,14 @@ const Orders = () => {
       total={chargeAmount}
       containsVoucher={orderItems.some(item => item.itemOrderType === 'VOUCHER')}
       voucherCount={orderItems.filter(item => item.itemOrderType === 'VOUCHER').reduce((sum, item) => sum + (item.qty || 1), 0)}
+      voucherItems={orderItems.filter(item => item.itemOrderType === 'VOUCHER').flatMap(item => {
+        const qty = item.qty || 1;
+        return Array.from({ length: qty }, (_, i) => ({
+          name: item.name,
+          price: item.price,
+          index: i,
+        }));
+      }).map((v, idx) => ({ ...v, index: idx }))}
       onPaymentComplete={(history) => {
         console.log("Payment completed:", history);
       }}

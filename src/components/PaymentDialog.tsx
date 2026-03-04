@@ -42,6 +42,12 @@ export interface PaymentHistoryItem {
   methodLabel: string;
 }
 
+export interface VoucherItemDetail {
+  name: string;
+  price: number;
+  index: number; // unique index across all voucher units (expanded by qty)
+}
+
 export interface PaymentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -51,6 +57,7 @@ export interface PaymentDialogProps {
   total: number;
   containsVoucher?: boolean;
   voucherCount?: number;
+  voucherItems?: VoucherItemDetail[];
   onPaymentComplete?: (paymentHistory: PaymentHistoryItem[]) => void;
   onSaveSplit?: (config: {
     mode: 'seat' | 'evenly' | 'custom';
@@ -133,6 +140,7 @@ export function PaymentDialog({
   total,
   containsVoucher = false,
   voucherCount = 1,
+  voucherItems = [],
   onPaymentComplete,
   onSaveSplit,
 }: PaymentDialogProps) {
@@ -152,7 +160,14 @@ export function PaymentDialog({
   const [voucherDeliveryMethod, setVoucherDeliveryMethod] = useState<'print' | 'text' | 'email' | null>(null);
   const [voucherSendMode, setVoucherSendMode] = useState<'choose-method' | 'send-all' | 'send-individual'>('choose-method');
   const [voucherSendAllContact, setVoucherSendAllContact] = useState('');
-  const [voucherRecipients, setVoucherRecipients] = useState<{ contact: string; selectedVouchers: number[] }[]>([]);
+  // Smart distribution: maps voucher index -> recipient contact string
+  const [voucherAssignments, setVoucherAssignments] = useState<Record<number, string>>({});
+  // Currently selected voucher indices for batch assignment
+  const [selectedVoucherIndices, setSelectedVoucherIndices] = useState<Set<number>>(new Set());
+  // Current contact input for assignment
+  const [assignContactInput, setAssignContactInput] = useState('');
+  // Track recent recipients used in this session
+  const [recentRecipients, setRecentRecipients] = useState<string[]>([]);
   // Dynamic payment methods
   const [visiblePaymentMethods, setVisiblePaymentMethods] = useState<PaymentMethodType[]>(initialPaymentMethods);
   const [dropdownPaymentMethods, setDropdownPaymentMethods] = useState<PaymentMethodType[]>(initialOtherPaymentMethods);
@@ -340,7 +355,10 @@ export function PaymentDialog({
       setVoucherDeliveryMethod(null);
       setVoucherSendMode('choose-method');
       setVoucherSendAllContact('');
-      setVoucherRecipients([]);
+      setVoucherAssignments({});
+      setSelectedVoucherIndices(new Set());
+      setAssignContactInput('');
+      setRecentRecipients([]);
       // Reset split check states
       setSplitMode('evenly');
       setNumberOfChecks(2);
@@ -1000,12 +1018,9 @@ export function PaymentDialog({
                     {voucherCount > 1 && (
                       <button
                         onClick={() => {
-                          // Initialize with 2 recipients, first gets all vouchers selected
-                          const allVoucherIndices = Array.from({ length: voucherCount }, (_, i) => i);
-                          setVoucherRecipients([
-                            { contact: '', selectedVouchers: allVoucherIndices },
-                            { contact: '', selectedVouchers: [] },
-                          ]);
+                          setVoucherAssignments({});
+                          setSelectedVoucherIndices(new Set());
+                          setAssignContactInput('');
                           setVoucherSendMode('send-individual');
                         }}
                         className="w-full py-3 border border-neutral-600 hover:bg-neutral-800 text-neutral-300 font-medium rounded-lg transition-colors"
@@ -1016,14 +1031,36 @@ export function PaymentDialog({
                   </div>
                 )}
 
-                {/* Step 3: Recipient-based distribution */}
-                {voucherSendMode === 'send-individual' && (
+                {/* Step 3: Smart voucher distribution with chip selection */}
+                {voucherSendMode === 'send-individual' && (() => {
+                  const assignedCount = Object.keys(voucherAssignments).length;
+                  const remainingCount = voucherCount - assignedCount;
+                  const selectedCount = selectedVoucherIndices.size;
+                  
+                  // Group assignments by recipient for summary
+                  const groupedByRecipient: Record<string, number[]> = {};
+                  Object.entries(voucherAssignments).forEach(([idx, contact]) => {
+                    if (!groupedByRecipient[contact]) groupedByRecipient[contact] = [];
+                    groupedByRecipient[contact].push(Number(idx));
+                  });
+
+                  // Get voucher label for an index
+                  const getVoucherLabel = (idx: number) => {
+                    if (voucherItems.length > 0 && voucherItems[idx]) {
+                      return `$${voucherItems[idx].price.toFixed(2)} ${voucherItems[idx].name}`;
+                    }
+                    return `Voucher ${idx + 1}`;
+                  };
+
+                  return (
                   <div className="w-full max-w-md">
-                    <div className="flex items-center gap-2 mb-4">
+                    <div className="flex items-center gap-2 mb-3">
                       <button 
                         onClick={() => {
                           setVoucherSendMode('send-all');
-                          setVoucherRecipients([]);
+                          setVoucherAssignments({});
+                          setSelectedVoucherIndices(new Set());
+                          setAssignContactInput('');
                         }}
                         className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
                       >
@@ -1031,119 +1068,179 @@ export function PaymentDialog({
                       </button>
                       <h3 className="text-white font-semibold">Send to Different Recipients</h3>
                     </div>
-                    
-                    <div className="space-y-4 mb-4 max-h-[50vh] overflow-y-auto pr-1">
-                      {voucherRecipients.map((recipient, rIdx) => {
-                        // Determine which vouchers are already assigned to OTHER recipients
-                        const assignedElsewhere = new Set<number>();
-                        voucherRecipients.forEach((r, i) => {
-                          if (i !== rIdx) r.selectedVouchers.forEach(v => assignedElsewhere.add(v));
-                        });
 
+                    {/* Remaining counter */}
+                    <div className="text-center mb-4">
+                      <span className={`text-sm font-medium ${remainingCount === 0 ? 'text-green-400' : 'text-amber-400'}`}>
+                        {remainingCount === 0 ? 'All vouchers assigned ✓' : `${remainingCount} voucher${remainingCount !== 1 ? 's' : ''} remaining`}
+                      </span>
+                    </div>
+
+                    {/* Voucher chips - selectable */}
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {Array.from({ length: voucherCount }, (_, vIdx) => {
+                        const isAssigned = voucherAssignments[vIdx] !== undefined;
+                        const isSelected = selectedVoucherIndices.has(vIdx);
+                        const assignedTo = voucherAssignments[vIdx];
+                        
                         return (
-                          <div key={rIdx} className="border border-neutral-700 rounded-lg p-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="text-white text-sm font-medium">Recipient {rIdx + 1}</span>
-                              {voucherRecipients.length > 2 && (
-                                <button
-                                  onClick={() => {
-                                    const updated = voucherRecipients.filter((_, i) => i !== rIdx);
-                                    setVoucherRecipients(updated);
-                                  }}
-                                  className="text-neutral-500 hover:text-red-400 transition-colors"
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
-                              )}
-                            </div>
-                            <input
-                              type={voucherDeliveryMethod === 'email' ? 'email' : 'tel'}
-                              value={recipient.contact}
-                              onChange={(e) => {
-                                const updated = [...voucherRecipients];
-                                updated[rIdx] = { ...updated[rIdx], contact: e.target.value };
-                                setVoucherRecipients(updated);
-                              }}
-                              placeholder={voucherDeliveryMethod === 'email' ? 'Email address' : 'Phone number'}
-                              className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-3 py-2 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-400 mb-2"
-                              autoFocus={rIdx === 0}
-                            />
-                            <p className="text-neutral-500 text-xs mb-1.5">Select vouchers to send:</p>
-                            <div className="flex flex-wrap gap-2">
-                              {Array.from({ length: voucherCount }, (_, vIdx) => {
-                                const isSelected = recipient.selectedVouchers.includes(vIdx);
-                                const isDisabled = !isSelected && assignedElsewhere.has(vIdx);
-                                return (
-                                  <button
-                                    key={vIdx}
-                                    disabled={isDisabled}
-                                    onClick={() => {
-                                      const updated = [...voucherRecipients];
-                                      const current = updated[rIdx].selectedVouchers;
-                                      if (isSelected) {
-                                        updated[rIdx] = { ...updated[rIdx], selectedVouchers: current.filter(v => v !== vIdx) };
-                                      } else {
-                                        updated[rIdx] = { ...updated[rIdx], selectedVouchers: [...current, vIdx] };
-                                      }
-                                      setVoucherRecipients(updated);
-                                    }}
-                                    className={`px-2.5 py-1 rounded text-xs font-medium transition-colors ${
-                                      isSelected 
-                                        ? 'bg-green-600 text-white' 
-                                        : isDisabled 
-                                          ? 'bg-neutral-800 text-neutral-600 cursor-not-allowed' 
-                                          : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
-                                    }`}
-                                  >
-                                    Voucher {vIdx + 1}
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          </div>
+                          <button
+                            key={vIdx}
+                            disabled={isAssigned}
+                            onClick={() => {
+                              setSelectedVoucherIndices(prev => {
+                                const next = new Set(prev);
+                                if (next.has(vIdx)) next.delete(vIdx);
+                                else next.add(vIdx);
+                                return next;
+                              });
+                            }}
+                            className={`relative px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
+                              isAssigned
+                                ? 'bg-green-600/20 border-green-600/40 text-green-300 cursor-default'
+                                : isSelected
+                                  ? 'bg-blue-600/30 border-blue-500 text-blue-200 ring-1 ring-blue-500'
+                                  : 'bg-neutral-800 border-neutral-600 text-neutral-300 hover:border-neutral-400 hover:bg-neutral-700'
+                            }`}
+                          >
+                            {isAssigned && (
+                              <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
+                                <Check className="w-2.5 h-2.5 text-white" />
+                              </span>
+                            )}
+                            <span className="block">{getVoucherLabel(vIdx)}</span>
+                            {isAssigned && (
+                              <span className="block text-[10px] text-green-400/70 mt-0.5 truncate max-w-[140px]">→ {assignedTo}</span>
+                            )}
+                          </button>
                         );
                       })}
                     </div>
 
-                    {/* Add another recipient */}
-                    <button
-                      onClick={() => {
-                        setVoucherRecipients(prev => [...prev, { contact: '', selectedVouchers: [] }]);
-                      }}
-                      className="w-full py-2 border border-dashed border-neutral-600 hover:border-neutral-400 text-neutral-400 hover:text-neutral-300 text-sm rounded-lg transition-colors mb-3"
-                    >
-                      + Add Another Recipient
-                    </button>
+                    {/* Floating action panel when vouchers are selected */}
+                    {selectedCount > 0 && (
+                      <div className="bg-neutral-800 border border-neutral-600 rounded-lg p-3 mb-4">
+                        <p className="text-white text-sm font-medium mb-2">
+                          {selectedCount} voucher{selectedCount !== 1 ? 's' : ''} selected
+                        </p>
+                        
+                        {/* Recent recipients suggestions */}
+                        {recentRecipients.length > 0 && (
+                          <div className="mb-2">
+                            <p className="text-neutral-500 text-xs mb-1">Recent Recipients</p>
+                            <div className="flex flex-wrap gap-1.5">
+                              {recentRecipients.map((r, i) => (
+                                <button
+                                  key={i}
+                                  onClick={() => setAssignContactInput(r)}
+                                  className="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 text-xs rounded-md transition-colors"
+                                >
+                                  {r}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        )}
 
+                        <input
+                          type={voucherDeliveryMethod === 'email' ? 'email' : 'tel'}
+                          value={assignContactInput}
+                          onChange={(e) => setAssignContactInput(e.target.value)}
+                          placeholder={voucherDeliveryMethod === 'email' ? 'Enter email address' : 'Enter phone number'}
+                          className="w-full bg-neutral-900 border border-neutral-600 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-400 mb-2"
+                          autoFocus
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => {
+                              if (!assignContactInput.trim()) {
+                                toast.error(`Please enter ${voucherDeliveryMethod === 'email' ? 'an email' : 'a phone number'}`);
+                                return;
+                              }
+                              // Assign selected vouchers to this contact
+                              const newAssignments = { ...voucherAssignments };
+                              selectedVoucherIndices.forEach(idx => {
+                                newAssignments[idx] = assignContactInput.trim();
+                              });
+                              setVoucherAssignments(newAssignments);
+                              // Add to recent recipients if not already there
+                              setRecentRecipients(prev => {
+                                const contact = assignContactInput.trim();
+                                if (prev.includes(contact)) return prev;
+                                return [contact, ...prev].slice(0, 5);
+                              });
+                              setSelectedVoucherIndices(new Set());
+                              setAssignContactInput('');
+                              toast.success(`${selectedCount} voucher${selectedCount !== 1 ? 's' : ''} assigned`);
+                            }}
+                            className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium text-sm rounded-lg transition-colors"
+                          >
+                            Assign Recipient
+                          </button>
+                          <button
+                            onClick={() => {
+                              setSelectedVoucherIndices(new Set());
+                              setAssignContactInput('');
+                            }}
+                            className="px-4 py-2.5 border border-neutral-600 hover:bg-neutral-700 text-neutral-400 text-sm rounded-lg transition-colors"
+                          >
+                            Clear
+                          </button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Grouped summary - show when some assignments exist */}
+                    {Object.keys(groupedByRecipient).length > 0 && (
+                      <div className="space-y-2 mb-4">
+                        <p className="text-neutral-500 text-xs font-medium uppercase tracking-wide">Distribution Summary</p>
+                        {Object.entries(groupedByRecipient).map(([contact, indices]) => (
+                          <div key={contact} className="flex items-center justify-between bg-neutral-800/60 border border-neutral-700 rounded-lg px-3 py-2">
+                            <div>
+                              <p className="text-white text-sm">{contact}</p>
+                              <p className="text-neutral-500 text-xs">{indices.length} voucher{indices.length !== 1 ? 's' : ''}</p>
+                            </div>
+                            <button
+                              onClick={() => {
+                                // Unassign all vouchers for this recipient
+                                const newAssignments = { ...voucherAssignments };
+                                indices.forEach(idx => delete newAssignments[idx]);
+                                setVoucherAssignments(newAssignments);
+                              }}
+                              className="text-neutral-500 hover:text-red-400 transition-colors p-1"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Send button */}
                     <button
                       onClick={() => {
-                        // Validate: every recipient with vouchers must have a contact
-                        const recipientsWithVouchers = voucherRecipients.filter(r => r.selectedVouchers.length > 0);
-                        if (recipientsWithVouchers.length === 0) {
-                          toast.error('Please assign at least one voucher to a recipient');
+                        if (assignedCount < voucherCount) {
+                          toast.error(`${remainingCount} voucher${remainingCount !== 1 ? 's' : ''} not yet assigned`);
                           return;
                         }
-                        const emptyContact = recipientsWithVouchers.find(r => !r.contact.trim());
-                        if (emptyContact) {
-                          toast.error(`Please enter ${voucherDeliveryMethod === 'email' ? 'an email' : 'a phone number'} for each recipient`);
-                          return;
-                        }
-                        // Check all vouchers are assigned
-                        const allAssigned = new Set(voucherRecipients.flatMap(r => r.selectedVouchers));
-                        if (allAssigned.size < voucherCount) {
-                          toast.error(`${voucherCount - allAssigned.size} voucher(s) not assigned to any recipient`);
-                          return;
-                        }
-                        const summary = recipientsWithVouchers.map(r => `${r.selectedVouchers.length} to ${r.contact}`).join(', ');
-                        toast.success(`Vouchers sent: ${summary}`);
+                        const summaryParts = Object.entries(groupedByRecipient).map(([contact, indices]) => 
+                          `${indices.length} to ${contact}`
+                        );
+                        toast.success(`Vouchers sent: ${summaryParts.join(', ')}`);
                         setVoucherDeliveryDone(true);
                       }}
-                      className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
+                      disabled={assignedCount < voucherCount}
+                      className={`w-full py-3 font-semibold rounded-lg transition-colors ${
+                        assignedCount >= voucherCount
+                          ? 'bg-green-600 hover:bg-green-700 text-white'
+                          : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                      }`}
                     >
                       Send Vouchers
                     </button>
                   </div>
-                )}
+                  );
+                })()}
               </div>
             ) :
             // Receipt Screen with Text/Email input handling

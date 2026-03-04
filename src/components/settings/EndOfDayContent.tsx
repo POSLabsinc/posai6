@@ -301,12 +301,18 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
         <div className="bg-surface rounded-2xl overflow-hidden mb-6">
           <div className="flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-base">Print End Of Day Report</span>
-            <Switch checked={printReport === "true"} onCheckedChange={(v) => updatePrintReport(v ? "true" : "false")} />
+            <Switch checked={printReport === "true"} onCheckedChange={(v) => {
+              updatePrintReport(v ? "true" : "false");
+              toast({ title: v ? "Print Report Enabled" : "Print Report Disabled", description: v ? "End of Day report will be printed daily when EOD runs." : "Report printing has been turned off." });
+            }} />
           </div>
            <div className="h-px bg-border mx-4" />
           <div className="flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-base">Include Employee Data</span>
-            <Switch checked={includeEmployeeData === "true"} onCheckedChange={(v) => updateIncludeEmployeeData(v ? "true" : "false")} />
+            <Switch checked={includeEmployeeData === "true"} onCheckedChange={(v) => {
+              updateIncludeEmployeeData(v ? "true" : "false");
+              toast({ title: v ? "Employee Data Included" : "Employee Data Excluded", description: v ? "Employee details will be included in the End of Day report." : "Employee data will not be included in reports." });
+            }} />
           </div>
           <div className="h-px bg-border mx-4" />
           <button onClick={() => setShowEmployeePicker(true)} className="w-full flex items-center justify-between py-3.5 px-4">

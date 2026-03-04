@@ -1054,7 +1054,7 @@ export function PaymentDialog({
 
                   return (
                   <div className="w-full max-w-md">
-                    <div className="flex items-center gap-2 mb-3">
+                    <div className="flex items-center gap-2 mb-4">
                       <button 
                         onClick={() => {
                           setVoucherSendMode('send-all');
@@ -1066,22 +1066,22 @@ export function PaymentDialog({
                       >
                         <ArrowLeft className="w-5 h-5 text-neutral-300" />
                       </button>
-                      <h3 className="text-white font-semibold">Send to Different Recipients</h3>
-                    </div>
-
-                    {/* Remaining counter */}
-                    <div className="text-center mb-4">
-                      <span className={`text-sm font-medium ${remainingCount === 0 ? 'text-green-400' : 'text-amber-400'}`}>
-                        {remainingCount === 0 ? 'All vouchers assigned ✓' : `${remainingCount} voucher${remainingCount !== 1 ? 's' : ''} remaining`}
+                      <h3 className="text-white font-semibold flex-1">Send to Different Recipients</h3>
+                      <span className={`text-xs font-medium px-2 py-1 rounded-full ${remainingCount === 0 ? 'bg-green-600/20 text-green-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                        {remainingCount === 0 ? 'All assigned ✓' : `${remainingCount} remaining`}
                       </span>
                     </div>
 
-                    {/* Voucher chips - selectable */}
-                    <div className="flex flex-wrap gap-2 mb-4">
+                    {/* Voucher chips - word cloud layout with varied sizes */}
+                    <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
                       {Array.from({ length: voucherCount }, (_, vIdx) => {
                         const isAssigned = voucherAssignments[vIdx] !== undefined;
                         const isSelected = selectedVoucherIndices.has(vIdx);
                         const assignedTo = voucherAssignments[vIdx];
+                        const label = getVoucherLabel(vIdx);
+                        // Vary chip size based on price for word-cloud feel
+                        const price = voucherItems[vIdx]?.price ?? 0;
+                        const sizeClass = price >= 100 ? 'text-sm px-4 py-2.5' : price >= 50 ? 'text-xs px-3 py-2' : 'text-[11px] px-2.5 py-1.5';
                         
                         return (
                           <button
@@ -1095,11 +1095,11 @@ export function PaymentDialog({
                                 return next;
                               });
                             }}
-                            className={`relative px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
+                            className={`relative rounded-full font-medium transition-all border whitespace-nowrap ${sizeClass} ${
                               isAssigned
                                 ? 'bg-green-600/20 border-green-600/40 text-green-300 cursor-default'
                                 : isSelected
-                                  ? 'bg-blue-600/30 border-blue-500 text-blue-200 ring-1 ring-blue-500'
+                                  ? 'bg-blue-600/30 border-blue-500 text-blue-200 ring-1 ring-blue-500 scale-105'
                                   : 'bg-neutral-800 border-neutral-600 text-neutral-300 hover:border-neutral-400 hover:bg-neutral-700'
                             }`}
                           >
@@ -1108,9 +1108,9 @@ export function PaymentDialog({
                                 <Check className="w-2.5 h-2.5 text-white" />
                               </span>
                             )}
-                            <span className="block">{getVoucherLabel(vIdx)}</span>
+                            <span>{label}</span>
                             {isAssigned && (
-                              <span className="block text-[10px] text-green-400/70 mt-0.5 truncate max-w-[140px]">→ {assignedTo}</span>
+                              <span className="ml-1 text-[10px] text-green-400/70">→ {assignedTo.length > 12 ? assignedTo.slice(0, 12) + '…' : assignedTo}</span>
                             )}
                           </button>
                         );

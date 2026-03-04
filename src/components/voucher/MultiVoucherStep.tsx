@@ -85,6 +85,7 @@ const MultiVoucherStep = ({
   const [builderIndex, setBuilderIndex] = useState(0);
   const [sharedRulesOn, setSharedRulesOn] = useState(true);
   const [sharedRules, setSharedRules] = useState<SharedRules>({ ...DEFAULT_SHARED_RULES });
+  const [commonVoucherType, setCommonVoucherType] = useState<'fixed' | 'percentage'>('fixed');
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -368,6 +369,20 @@ const MultiVoucherStep = ({
           />
         </div>
 
+        {/* Common Voucher Type */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
+          <div>
+            <label className={labelClass}>Voucher Type <span className="text-red-400">*</span></label>
+            <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
+              <SelectTrigger className="w-full min-w-[160px] bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="fixed">Fixed Amount</SelectItem>
+                <SelectItem value="percentage">Percentage (%)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
         {/* ===== SHARED MODE (ON) ===== */}
         {sharedRulesOn && (
           <>
@@ -413,22 +428,12 @@ const MultiVoucherStep = ({
             <div className="bg-neutral-800/30 border border-neutral-700/50 rounded-lg p-3 space-y-2">
               <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Shared Settings</span>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
-                <div>
-                  <label className={labelClass}>Voucher Type <span className="text-red-400">*</span></label>
-                  <Select value={sharedRules.voucherType} onValueChange={(v) => setSharedRules(p => ({ ...p, voucherType: v as 'fixed' | 'percentage' }))}>
-                    <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="fixed">Fixed Amount</SelectItem>
-                      <SelectItem value="percentage">Percentage (%)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
                 <VoucherCurrencyInput
                   label="Redeemable Value"
                   required
                   rawDigits={sharedRules.valueDigits}
                   onRawDigitsChange={(d) => setSharedRules(p => ({ ...p, valueDigits: d }))}
-                  prefix={sharedRules.voucherType === 'percentage' ? '%' : undefined}
+                  prefix={commonVoucherType === 'percentage' ? '%' : undefined}
                 />
                 <VoucherCurrencyInput
                   label="Service Fee"
@@ -520,22 +525,12 @@ const MultiVoucherStep = ({
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
-                <div>
-                  <label className={labelClass}>Voucher Type <span className="text-red-400">*</span></label>
-                  <Select value={entry.voucherType} onValueChange={(v) => updateCurrentEntry({ voucherType: v as 'fixed' | 'percentage' })}>
-                    <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="fixed">Fixed Amount</SelectItem>
-                      <SelectItem value="percentage">Percentage (%)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
                 <VoucherCurrencyInput
                   label="Redeemable Value"
                   required
                   rawDigits={entry.valueDigits}
                   onRawDigitsChange={(d) => updateCurrentEntry({ valueDigits: d })}
-                  prefix={entry.voucherType === 'percentage' ? '%' : undefined}
+                  prefix={commonVoucherType === 'percentage' ? '%' : undefined}
                 />
                 <VoucherCurrencyInput
                   label="Service Fee"

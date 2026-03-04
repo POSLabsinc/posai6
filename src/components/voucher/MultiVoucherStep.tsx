@@ -543,14 +543,14 @@ const MultiVoucherStep = ({
                   rawDigits={entry.serviceFeeDigits}
                   onRawDigitsChange={(d) => updateCurrentEntry({ serviceFeeDigits: d })}
                 />
-              </div>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <VoucherCurrencyInput
                   label="Minimum Order"
                   rawDigits={entry.minimumOrderDigits}
                   onRawDigitsChange={(d) => updateCurrentEntry({ minimumOrderDigits: d })}
                   warning={indepMinOrderWarning ? "⚠ Exceeds value" : undefined}
                 />
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <div>
                   <label className={labelClass}>Redemption Limit</label>
                   <Select value={entry.redemptionLimit} onValueChange={(v) => updateCurrentEntry({ redemptionLimit: v })}>

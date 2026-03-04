@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from "react";
+import { SettingsManager } from "@/lib/settingsManager";
 import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket } from "lucide-react";
@@ -6946,6 +6947,7 @@ const Orders = () => {
                 </div>
               </div>
               {/* Table Order Header - Row 2: Select seats */}
+              {!SettingsManager.getControlCenterSettings().hideSeatSelector && (
               <div className="flex items-center gap-1 px-2 py-1.5 border-b border-sidebar-border" role="group" aria-label="Select seats">
                 <span className="text-neutral-500 text-[10px] mr-0.5 self-center shrink-0">Select seats</span>
                 <button type="button" className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors" aria-label="Chair">
@@ -6975,6 +6977,7 @@ const Orders = () => {
                   </button>
             )}
               </div>
+              )}
             </> :
 
         <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
@@ -8196,6 +8199,7 @@ const Orders = () => {
                     </div>
                   </div>
                   {/* Table Order Header - Row 2: Select seats */}
+                  {!SettingsManager.getControlCenterSettings().hideSeatSelector && (
                   <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-sidebar-border" role="group" aria-label="Select seats">
                     <span className="text-neutral-500 text-xs mr-0.5 self-center shrink-0">Select seats</span>
                     <button type="button" className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors" aria-label="Chair">
@@ -8225,6 +8229,7 @@ const Orders = () => {
                       </button>
                 )}
                   </div>
+                  )}
                 </> :
 
             <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">

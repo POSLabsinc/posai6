@@ -375,6 +375,7 @@ export type Database = {
       }
       order_items: {
         Row: {
+          category: string
           id: string
           item_name: string
           order_id: string
@@ -383,6 +384,7 @@ export type Database = {
           unit_price: number
         }
         Insert: {
+          category?: string
           id?: string
           item_name: string
           order_id: string
@@ -391,6 +393,7 @@ export type Database = {
           unit_price?: number
         }
         Update: {
+          category?: string
           id?: string
           item_name?: string
           order_id?: string
@@ -419,6 +422,7 @@ export type Database = {
           order_type: string
           payment_type: string
           platform: string | null
+          refund_amount: number
           status: string
           subtotal: number
           tax_amount: number
@@ -436,6 +440,7 @@ export type Database = {
           order_type?: string
           payment_type?: string
           platform?: string | null
+          refund_amount?: number
           status?: string
           subtotal?: number
           tax_amount?: number
@@ -453,6 +458,7 @@ export type Database = {
           order_type?: string
           payment_type?: string
           platform?: string | null
+          refund_amount?: number
           status?: string
           subtotal?: number
           tax_amount?: number

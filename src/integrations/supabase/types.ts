@@ -122,6 +122,81 @@ export type Database = {
         }
         Relationships: []
       }
+      guests: {
+        Row: {
+          allergies: string[] | null
+          anniversary: string | null
+          avatar_bg: string | null
+          avatar_url: string | null
+          birthday: string | null
+          created_at: string
+          email: string | null
+          id: string
+          initials: string | null
+          is_archived: boolean
+          loyalty: string | null
+          name: string
+          notes_allergies: string | null
+          notes_general: string | null
+          notes_seating_preferences: string | null
+          notes_special_note: string | null
+          notes_special_relation: string | null
+          phone: string | null
+          since: string | null
+          tags: string[] | null
+          updated_at: string
+          vehicle: string | null
+        }
+        Insert: {
+          allergies?: string[] | null
+          anniversary?: string | null
+          avatar_bg?: string | null
+          avatar_url?: string | null
+          birthday?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          initials?: string | null
+          is_archived?: boolean
+          loyalty?: string | null
+          name: string
+          notes_allergies?: string | null
+          notes_general?: string | null
+          notes_seating_preferences?: string | null
+          notes_special_note?: string | null
+          notes_special_relation?: string | null
+          phone?: string | null
+          since?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          vehicle?: string | null
+        }
+        Update: {
+          allergies?: string[] | null
+          anniversary?: string | null
+          avatar_bg?: string | null
+          avatar_url?: string | null
+          birthday?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          initials?: string | null
+          is_archived?: boolean
+          loyalty?: string | null
+          name?: string
+          notes_allergies?: string | null
+          notes_general?: string | null
+          notes_seating_preferences?: string | null
+          notes_special_note?: string | null
+          notes_special_relation?: string | null
+          phone?: string | null
+          since?: string | null
+          tags?: string[] | null
+          updated_at?: string
+          vehicle?: string | null
+        }
+        Relationships: []
+      }
       menu_categories: {
         Row: {
           category_id: string

@@ -1125,11 +1125,6 @@ export function PaymentDialog({
                                   : 'bg-neutral-800 border-neutral-600 text-neutral-300 hover:border-neutral-400 hover:bg-neutral-700'
                             }`}
                           >
-                            {isAssigned && (
-                              <span className="absolute -top-1 -right-1 w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
-                                <Check className="w-2.5 h-2.5 text-white" />
-                              </span>
-                            )}
                             <span>{label}</span>
                             {isAssigned && (
                               <span className="ml-1 text-[10px] text-green-400/70">→ {assignedTo.length > 12 ? assignedTo.slice(0, 12) + '…' : assignedTo}</span>

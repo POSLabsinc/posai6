@@ -97,6 +97,22 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
     }
   };
 
+  const handleCancelUnpaidTickets = (enabled: boolean) => {
+    updateCancelUnpaidTickets(enabled ? "true" : "false");
+    if (enabled) {
+      const unpaidCount = orders.filter(o => o.status === "UNPAID" || o.status === "UN PAID").length;
+      if (unpaidCount > 0) {
+        updateOrders(prev => prev.map(o => 
+          (o.status === "UNPAID" || o.status === "UN PAID") ? { ...o, status: "Cancelled" } : o
+        ));
+        toast({
+          title: "Unpaid Tickets Cancelled",
+          description: `${unpaidCount} unpaid ticket${unpaidCount > 1 ? 's' : ''} have been cancelled.`,
+        });
+      }
+    }
+  };
+
   if (showSummary) {
     return (
       <div className="relative flex flex-col h-full bg-background">
@@ -268,7 +284,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
             { label: "Clock Out Employees", value: clockOutEmployees === "true", setter: (v: boolean) => updateClockOutEmployees(v ? "true" : "false") },
             { label: "Close Cash Drawer", value: closeCashDrawer === "true", setter: (v: boolean) => updateCloseCashDrawer(v ? "true" : "false") },
             { label: "Close Paid Orders", value: closePaidOrders === "true", setter: handleClosePaidOrders },
-            { label: "Cancel Unpaid Tickets", value: cancelUnpaidTickets === "true", setter: (v: boolean) => updateCancelUnpaidTickets(v ? "true" : "false") },
+            { label: "Cancel Unpaid Tickets", value: cancelUnpaidTickets === "true", setter: handleCancelUnpaidTickets },
           ].map((item, index, arr) => (
             <div key={item.label}>
               <div className="flex items-center justify-between py-3.5 px-4">

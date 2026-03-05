@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Check, CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Copy, Clock } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { getAllCategories } from "@/lib/productStore";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
 
 interface AddMenuContentProps {
   showHeader?: boolean;
@@ -16,6 +17,17 @@ interface AddMenuContentProps {
   onNavigate?: (path: string) => void;
   onAIClick?: () => void;
 }
+
+interface DaySchedule {
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
+}
+
+const ALL_DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
+
+const defaultDaySchedule = (): Record<string, DaySchedule> =>
+  Object.fromEntries(ALL_DAYS.map((d) => [d, { enabled: false, startTime: "12:00 AM", endTime: "11:59 PM" }]));
 
 const AddMenuContent = ({
   showHeader = true,
@@ -25,7 +37,7 @@ const AddMenuContent = ({
 }: AddMenuContentProps) => {
   const allCategories = getAllCategories();
   const [name, setName] = useState("");
-  
+
   const [enabled, setEnabled] = useState(true);
   const [activeForPOS, setActiveForPOS] = useState(false);
   const [activeForPOP, setActiveForPOP] = useState(false);
@@ -35,25 +47,61 @@ const AddMenuContent = ({
   const [showCategoriesSheet, setShowCategoriesSheet] = useState(false);
 
   // POS schedule state
-  const [posFromDate, setPosFromDate] = useState<Date | undefined>(undefined);
-  const [posToDate, setPosToDate] = useState<Date | undefined>(undefined);
-  const [showPosFromCalendar, setShowPosFromCalendar] = useState(false);
-  const [showPosToCalendar, setShowPosToCalendar] = useState(false);
-  const [posDays, setPosDays] = useState<string[]>(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
+  const [posStartDate, setPosStartDate] = useState<Date | undefined>(undefined);
+  const [posEndDate, setPosEndDate] = useState<Date | undefined>(undefined);
+  const [showStartCalendar, setShowStartCalendar] = useState(false);
+  const [showEndCalendar, setShowEndCalendar] = useState(false);
+  const [posDaySchedules, setPosDaySchedules] = useState<Record<string, DaySchedule>>(defaultDaySchedule());
+  const [showDaysSheet, setShowDaysSheet] = useState(false);
 
-  const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
-  const togglePosDay = (day: string) => {
-    setPosDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
-  };
+  // Time picker state
+  const [timePickerOpen, setTimePickerOpen] = useState(false);
+  const [timePickerDay, setTimePickerDay] = useState<string>("");
+  const [timePickerField, setTimePickerField] = useState<"startTime" | "endTime">("startTime");
 
   const formatSelection = (items: string[], placeholder: string) => {
     if (items.length === 0) return placeholder;
     if (items.length === 1) return items[0];
     return `${items.length} selected`;
   };
+
+  const toggleDayEnabled = (day: string) => {
+    setPosDaySchedules((prev) => ({
+      ...prev,
+      [day]: { ...prev[day], enabled: !prev[day].enabled },
+    }));
+  };
+
+  const openTimePicker = (day: string, field: "startTime" | "endTime") => {
+    setTimePickerDay(day);
+    setTimePickerField(field);
+    setTimePickerOpen(true);
+  };
+
+  const handleTimeConfirm = (time: string) => {
+    setPosDaySchedules((prev) => ({
+      ...prev,
+      [timePickerDay]: { ...prev[timePickerDay], [timePickerField]: time },
+    }));
+    setTimePickerOpen(false);
+  };
+
+  const copyTimeToAllDays = (sourceDay: string) => {
+    const source = posDaySchedules[sourceDay];
+    setPosDaySchedules((prev) => {
+      const updated = { ...prev };
+      for (const day of ALL_DAYS) {
+        if (updated[day].enabled) {
+          updated[day] = { ...updated[day], startTime: source.startTime, endTime: source.endTime };
+        }
+      }
+      return updated;
+    });
+    toast.success("Time copied to all selected days");
+  };
+
+  // Get selected days for the sheet
+  const selectedDayNames = ALL_DAYS.filter((d) => posDaySchedules[d].enabled);
 
   const handleSave = async () => {
     if (name.trim()) {
@@ -66,9 +114,7 @@ const AddMenuContent = ({
         toast.error("Failed to add menu");
         return;
       }
-      // Save selected categories to menu_categories junction table
       if (selectedCategories.length > 0) {
-        // Look up category IDs by name
         const { data: cats } = await supabase
           .from("categories")
           .select("id, name")
@@ -129,6 +175,7 @@ const AddMenuContent = ({
 
         {/* Keep Menu Active Group */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-3 divide-y divide-neutral-700/40">
+          {/* POS Toggle */}
           <div className="w-full flex items-center justify-between py-4 px-4">
             <div className="flex-1 mr-3">
               <span className="text-foreground text-base font-medium">Keep Menu Active for Point Of Sale</span>
@@ -137,85 +184,128 @@ const AddMenuContent = ({
             <Switch checked={activeForPOS} onCheckedChange={setActiveForPOS} />
           </div>
 
-          {/* POS Schedule - Date Range & Days */}
+          {/* POS Schedule Expanded */}
           {activeForPOS && (
-            <div className="border-t border-neutral-700/40">
-              {/* From Date */}
+            <div>
+              {/* Start Date */}
               <button
-                onClick={() => { setShowPosFromCalendar(!showPosFromCalendar); setShowPosToCalendar(false); }}
-                className="flex items-center justify-between w-full py-3.5 px-6 active:opacity-70 transition-opacity"
+                onClick={() => { setShowStartCalendar(!showStartCalendar); setShowEndCalendar(false); }}
+                className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity border-t border-neutral-700/30"
               >
-                <span className="text-foreground text-sm font-medium">From Date</span>
-                <div className="flex items-center gap-1.5">
+                <span className="text-foreground text-sm font-medium">Start Date</span>
+                <div className="flex items-center gap-1">
                   <span className="text-muted-foreground text-sm">
-                    {posFromDate ? format(posFromDate, "MM/dd/yyyy") : "Select"}
+                    {posStartDate ? format(posStartDate, "MM/dd/yyyy") : "Choose"}
                   </span>
-                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
               </button>
-              {showPosFromCalendar && (
-                <div className="px-4 pb-3 flex justify-center">
+              {showStartCalendar && (
+                <div className="px-2 pb-3 flex justify-center">
                   <Calendar
                     mode="single"
-                    selected={posFromDate}
-                    onSelect={(d) => { setPosFromDate(d); setShowPosFromCalendar(false); }}
+                    selected={posStartDate}
+                    onSelect={(d) => { setPosStartDate(d); setShowStartCalendar(false); }}
                     className={cn("p-3 pointer-events-auto rounded-xl bg-neutral-800/80")}
                   />
                 </div>
               )}
 
-              <div className="border-t border-neutral-700/20" />
-
-              {/* To Date */}
+              {/* End Date */}
               <button
-                onClick={() => { setShowPosToCalendar(!showPosToCalendar); setShowPosFromCalendar(false); }}
-                className="flex items-center justify-between w-full py-3.5 px-6 active:opacity-70 transition-opacity"
+                onClick={() => { setShowEndCalendar(!showEndCalendar); setShowStartCalendar(false); }}
+                className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity border-t border-neutral-700/30"
               >
-                <span className="text-foreground text-sm font-medium">To Date</span>
-                <div className="flex items-center gap-1.5">
+                <span className="text-foreground text-sm font-medium">End Date</span>
+                <div className="flex items-center gap-1">
                   <span className="text-muted-foreground text-sm">
-                    {posToDate ? format(posToDate, "MM/dd/yyyy") : "Select"}
+                    {posEndDate ? format(posEndDate, "MM/dd/yyyy") : "Choose"}
                   </span>
-                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
               </button>
-              {showPosToCalendar && (
-                <div className="px-4 pb-3 flex justify-center">
+              {showEndCalendar && (
+                <div className="px-2 pb-3 flex justify-center">
                   <Calendar
                     mode="single"
-                    selected={posToDate}
-                    onSelect={(d) => { setPosToDate(d); setShowPosToCalendar(false); }}
+                    selected={posEndDate}
+                    onSelect={(d) => { setPosEndDate(d); setShowEndCalendar(false); }}
                     className={cn("p-3 pointer-events-auto rounded-xl bg-neutral-800/80")}
                   />
                 </div>
               )}
 
-              <div className="border-t border-neutral-700/20" />
+              {/* Days Table Header */}
+              <div className="border-t border-neutral-700/30 px-4 py-2.5 flex items-center">
+                <span className="text-muted-foreground text-xs font-semibold w-[40%]">Days</span>
+                <span className="text-muted-foreground text-xs font-semibold w-[25%] text-center">Start Time</span>
+                <span className="text-muted-foreground text-xs font-semibold w-[25%] text-center">End Time</span>
+                <span className="w-[10%]" />
+              </div>
 
-              {/* Active Days */}
-              <div className="px-6 py-3.5">
-                <span className="text-foreground text-sm font-medium block mb-3">Active Days</span>
-                <div className="flex gap-1.5">
-                  {dayLabels.map((day) => {
-                    const isActive = posDays.includes(day);
-                    return (
-                      <button
-                        key={day}
-                        onClick={() => togglePosDay(day)}
-                        className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
-                          isActive
-                            ? "bg-foreground text-background"
-                            : "bg-neutral-800/40 text-muted-foreground"
+              {/* Day Rows */}
+              {ALL_DAYS.map((day) => {
+                const schedule = posDaySchedules[day];
+                return (
+                  <div
+                    key={day}
+                    className="border-t border-neutral-700/20 px-4 py-3 flex items-center"
+                  >
+                    {/* Checkbox + Day Name */}
+                    <button
+                      onClick={() => toggleDayEnabled(day)}
+                      className="flex items-center gap-2.5 w-[40%] active:opacity-70 transition-opacity"
+                    >
+                      <div
+                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                          schedule.enabled
+                            ? "bg-foreground border-foreground"
+                            : "border-neutral-600 bg-transparent"
                         }`}
                       >
-                        {day}
+                        {schedule.enabled && <Check className="w-3.5 h-3.5 text-background" />}
+                      </div>
+                      <span className={`text-sm font-medium ${schedule.enabled ? "text-foreground" : "text-muted-foreground"}`}>
+                        {day.charAt(0) + day.slice(1).toLowerCase()}
+                      </span>
+                    </button>
+
+                    {/* Start Time */}
+                    <button
+                      onClick={() => schedule.enabled && openTimePicker(day, "startTime")}
+                      className={`w-[25%] text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
+                      disabled={!schedule.enabled}
+                    >
+                      {schedule.startTime}
+                    </button>
+
+                    {/* End Time */}
+                    <button
+                      onClick={() => schedule.enabled && openTimePicker(day, "endTime")}
+                      className={`w-[25%] text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
+                      disabled={!schedule.enabled}
+                    >
+                      {schedule.endTime}
+                    </button>
+
+                    {/* Copy icon */}
+                    <div className="w-[10%] flex justify-center">
+                      <button
+                        onClick={() => schedule.enabled && copyTimeToAllDays(day)}
+                        disabled={!schedule.enabled}
+                        className={`p-1 rounded active:opacity-70 transition-opacity ${schedule.enabled ? "text-muted-foreground" : "text-muted-foreground/30"}`}
+                        title="Copy time to all selected days"
+                      >
+                        <Copy className="w-4 h-4" />
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
+
+          {/* POP Toggle */}
           <div className="w-full flex items-center justify-between py-4 px-4">
             <div className="flex-1 mr-3">
               <span className="text-foreground text-base font-medium">Keep Menu Active for Point Of Purchase</span>
@@ -223,6 +313,8 @@ const AddMenuContent = ({
             </div>
             <Switch checked={activeForPOP} onCheckedChange={setActiveForPOP} />
           </div>
+
+          {/* KIOSK Toggle */}
           <div className="w-full flex items-center justify-between py-4 px-4">
             <div className="flex-1 mr-3">
               <span className="text-foreground text-base font-medium">Keep Menu Active for KIOSK</span>
@@ -230,6 +322,8 @@ const AddMenuContent = ({
             </div>
             <Switch checked={activeForKiosk} onCheckedChange={setActiveForKiosk} />
           </div>
+
+          {/* Order-OS Toggle */}
           <div className="w-full flex items-center justify-between py-4 px-4">
             <div className="flex-1 mr-3">
               <span className="text-foreground text-base font-medium">Keep Menu Active for Order-OS</span>
@@ -274,7 +368,6 @@ const AddMenuContent = ({
           </button>
         </div>
         <p className="text-muted-foreground text-xs px-1 mt-1 mb-6">Assign this menu to specific revenue centers.</p>
-
       </div>
 
       {/* Categories Sheet */}
@@ -287,6 +380,14 @@ const AddMenuContent = ({
         title="Select Categories"
         options={allCategories}
         initialSelected={selectedCategories}
+      />
+
+      {/* Apple Wheel Time Picker */}
+      <AppleWheelTimePicker
+        isOpen={timePickerOpen}
+        onClose={() => setTimePickerOpen(false)}
+        onConfirm={handleTimeConfirm}
+        selectedTime={timePickerDay ? posDaySchedules[timePickerDay]?.[timePickerField] || "12:00 AM" : "12:00 AM"}
       />
     </div>
   );

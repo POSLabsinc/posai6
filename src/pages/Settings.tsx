@@ -43,6 +43,7 @@ import GroupsContent from "@/components/settings/GroupsContent";
 import AddGroupContent from "@/components/settings/AddGroupContent";
 import EditGroupContent from "@/components/settings/EditGroupContent";
 import TimedPricingContent from "@/components/settings/TimedPricingContent";
+import AddTimedPricingRuleContent from "@/components/settings/AddTimedPricingRuleContent";
 import AISettingsContent from "@/components/settings/AISettingsContent";
 import SupportContent from "@/components/settings/SupportContent";
 import FeedbackContent from "@/components/settings/FeedbackContent";
@@ -245,6 +246,19 @@ const getContentForRoute = (
   }
   if (pathname === '/settings/menu/timed-pricing') {
     return <TimedPricingContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/menu/timed-pricing/add') {
+    return <AddTimedPricingRuleContent onBack={() => navigate('/settings/menu/timed-pricing')} onSave={() => {}} />;
+  }
+  if (pathname.startsWith('/settings/menu/timed-pricing/edit/')) {
+    const ruleId = pathname.split('/').pop() || '';
+    const stored = localStorage.getItem('timed-pricing-rules');
+    let editRule = null;
+    try {
+      const rules = stored ? JSON.parse(stored) : [];
+      editRule = rules.find((r: any) => r.id === ruleId) || null;
+    } catch {}
+    return <AddTimedPricingRuleContent onBack={() => navigate('/settings/menu/timed-pricing')} onSave={() => {}} editRule={editRule} />;
   }
   if (pathname === '/settings/support') {
     return <SupportContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;

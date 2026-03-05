@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { ChevronLeft, Search, LocateFixed, MapPin, ChevronRight } from "lucide-react";
+import { useState, useCallback } from "react";
+import { ChevronLeft, Search, LocateFixed, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,7 +14,7 @@ import SettingsIcon from "@/components/settings/SettingsIcon";
 import { useDeviceStore } from "@/hooks/useDeviceStore";
 import CustomerSupportPinModal from "@/components/settings/CustomerSupportPinModal";
 import StoreChangeConfirmationModal from "@/components/settings/StoreChangeConfirmationModal";
-import StoreSelectionSheet from "@/components/settings/StoreSelectionSheet";
+import StoreSwitchProcessingScreen from "@/components/settings/StoreSwitchProcessingScreen";
 import type { Store } from "@/hooks/useDeviceStore";
 
 interface InfoRowProps {
@@ -70,28 +70,28 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
 
   const { currentStore, allStores, loading: storeLoading, switchStore } = useDeviceStore();
   const [showPinModal, setShowPinModal] = useState(false);
-  const [showStoreSelection, setShowStoreSelection] = useState(false);
   const [selectedStore, setSelectedStore] = useState<Store | null>(null);
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [showProcessing, setShowProcessing] = useState(false);
 
   const activeRevenueCenter = getActiveRevenueCenter();
 
-  const handlePinSuccess = () => {
+  const handlePinSuccess = (store: Store) => {
     setShowPinModal(false);
-    setShowStoreSelection(true);
-  };
-
-  const handleStoreSelected = (store: Store) => {
     setSelectedStore(store);
-    setShowStoreSelection(false);
     setShowConfirmation(true);
   };
 
   const handleConfirmSwitch = () => {
+    setShowConfirmation(false);
+    setShowProcessing(true);
+  };
+
+  const handleProcessingComplete = useCallback(() => {
     if (selectedStore) {
       switchStore(selectedStore.id);
     }
-  };
+  }, [selectedStore, switchStore]);
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
@@ -218,40 +218,43 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setShowPinModal(true)}
-                  className="px-4 py-2 rounded-xl bg-neutral-700/60 text-foreground text-sm font-medium hover:bg-neutral-600/60 active:bg-neutral-600 transition-colors"
-                >
-                  Change Store
-                </button>
+                <div className="flex flex-col items-end gap-1">
+                  <button
+                    onClick={() => setShowPinModal(true)}
+                    className="px-4 py-2 rounded-xl bg-neutral-700/60 text-foreground text-sm font-medium hover:bg-neutral-600/60 active:bg-neutral-600 transition-colors"
+                  >
+                    Change Store
+                  </button>
+                  <span className="text-neutral-600 text-[10px] font-medium">Customer Support Only</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* CS PIN Modal */}
+      {/* Step 1: Combined CS PIN + Store Selection Modal */}
       <CustomerSupportPinModal
         isOpen={showPinModal}
         onClose={() => setShowPinModal(false)}
         onSuccess={handlePinSuccess}
-      />
-
-      {/* Store Selection Sheet */}
-      <StoreSelectionSheet
-        isOpen={showStoreSelection}
         stores={allStores}
-        currentStoreId={currentStore?.id}
-        onSelect={handleStoreSelected}
-        onClose={() => setShowStoreSelection(false)}
+        currentStore={currentStore}
       />
 
-      {/* Confirmation Modal */}
+      {/* Step 2: Confirmation Modal */}
       <StoreChangeConfirmationModal
         isOpen={showConfirmation}
+        currentStoreName={currentStore ? `${currentStore.name} – ${currentStore.location}` : undefined}
         targetStoreName={selectedStore ? `${selectedStore.name} – ${selectedStore.location}` : undefined}
         onCancel={() => setShowConfirmation(false)}
         onConfirm={handleConfirmSwitch}
+      />
+
+      {/* Step 3: Processing Screen */}
+      <StoreSwitchProcessingScreen
+        isOpen={showProcessing}
+        onComplete={handleProcessingComplete}
       />
     </div>
   );

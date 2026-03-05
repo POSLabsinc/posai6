@@ -1,13 +1,22 @@
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Monitor, MapPin, ArrowRight } from "lucide-react";
 
 interface StoreChangeConfirmationModalProps {
   isOpen: boolean;
   onCancel: () => void;
   onConfirm: () => void;
+  currentStoreName?: string;
   targetStoreName?: string;
+  deviceName?: string;
 }
 
-const StoreChangeConfirmationModal = ({ isOpen, onCancel, onConfirm, targetStoreName }: StoreChangeConfirmationModalProps) => {
+const StoreChangeConfirmationModal = ({
+  isOpen,
+  onCancel,
+  onConfirm,
+  currentStoreName,
+  targetStoreName,
+  deviceName = "POS-Terminal-03",
+}: StoreChangeConfirmationModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -20,26 +29,49 @@ const StoreChangeConfirmationModal = ({ isOpen, onCancel, onConfirm, targetStore
           </div>
         </div>
 
-        <h3 className="text-foreground font-bold text-xl text-center mb-2">Change Store</h3>
+        <h3 className="text-foreground font-bold text-xl text-center mb-4">
+          Reassign POS Device
+        </h3>
 
-        {targetStoreName && (
-          <p className="text-center text-primary text-sm font-medium mb-3">
-            Switching to: {targetStoreName}
-          </p>
-        )}
+        {/* Summary */}
+        <div className="bg-neutral-800/60 rounded-xl p-4 mb-4 space-y-2.5">
+          <div className="flex items-center gap-3">
+            <Monitor className="w-4 h-4 text-neutral-500 shrink-0" />
+            <div className="flex items-center justify-between flex-1">
+              <span className="text-neutral-500 text-sm">Device</span>
+              <span className="text-foreground text-sm font-medium">{deviceName}</span>
+            </div>
+          </div>
+          <div className="h-px bg-neutral-700/50" />
+          <div className="flex items-center gap-3">
+            <MapPin className="w-4 h-4 text-neutral-500 shrink-0" />
+            <div className="flex items-center justify-between flex-1">
+              <span className="text-neutral-500 text-sm">Current</span>
+              <span className="text-foreground text-sm font-medium">{currentStoreName}</span>
+            </div>
+          </div>
+          <div className="h-px bg-neutral-700/50" />
+          <div className="flex items-center gap-3">
+            <ArrowRight className="w-4 h-4 text-primary shrink-0" />
+            <div className="flex items-center justify-between flex-1">
+              <span className="text-neutral-500 text-sm">New Store</span>
+              <span className="text-primary text-sm font-medium">{targetStoreName}</span>
+            </div>
+          </div>
+        </div>
 
-        <p className="text-muted-foreground text-sm text-center mb-4 leading-relaxed">
-          Changing the store will clear all local data from this device including:
+        <p className="text-muted-foreground text-sm text-center mb-3 leading-relaxed">
+          Switching the store will clear all local data from this device including:
         </p>
 
-        <div className="bg-neutral-800/60 rounded-xl p-4 mb-6 space-y-2">
+        <div className="bg-neutral-800/60 rounded-xl p-4 mb-4 space-y-2">
           {[
             "Menu data",
             "Categories",
             "Employees",
             "Departments",
             "Roles",
-            "Any store-specific configuration",
+            "Store configuration",
           ].map((item) => (
             <div key={item} className="flex items-center gap-2">
               <div className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
@@ -49,7 +81,7 @@ const StoreChangeConfirmationModal = ({ isOpen, onCancel, onConfirm, targetStore
         </div>
 
         <p className="text-muted-foreground text-xs text-center mb-6 leading-relaxed">
-          You will be logged out and the device will reload data for the selected store.
+          The device will automatically log out and reload data for the selected store.
         </p>
 
         <div className="flex gap-3">

@@ -114,12 +114,12 @@ const CustomerSupportPinModal = ({
                 ENTER CUSTOMER SUPPORT PIN
               </p>
               <div
-                className={`flex justify-center gap-2.5 mb-4 ${pinError ? "animate-shake" : ""}`}
+                className={`flex justify-start gap-2.5 mb-4 ${pinError ? "animate-shake" : ""}`}
               >
                 {Array.from({ length: PIN_LENGTH }).map((_, index) => (
                   <div
                     key={index}
-                    className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center text-xl font-bold transition-all ${
+                    className={`flex-1 h-12 rounded-xl border-2 flex items-center justify-center text-xl font-bold transition-all ${
                       pinVerified
                         ? "border-emerald-500 bg-emerald-500/10"
                         : index < pin.length
@@ -139,7 +139,7 @@ const CustomerSupportPinModal = ({
               </div>
 
               {!pinVerified && (
-                <div className="grid grid-cols-3 gap-2.5 w-full max-w-[280px] mx-auto">
+                <div className="grid grid-cols-3 gap-2.5 w-full">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                     <button
                       key={num}

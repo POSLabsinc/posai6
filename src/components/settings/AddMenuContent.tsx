@@ -6,9 +6,8 @@ import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
+import { AppleWheelDatePicker } from "@/components/ui/apple-wheel-date-picker";
 import { CompactTimePicker } from "@/components/ui/compact-time-picker";
 
 interface AddMenuContentProps {
@@ -47,10 +46,12 @@ const AddMenuContent = ({
   const [showCategoriesSheet, setShowCategoriesSheet] = useState(false);
 
   // POS schedule state
-  const [posStartDate, setPosStartDate] = useState<Date | undefined>(undefined);
-  const [posEndDate, setPosEndDate] = useState<Date | undefined>(undefined);
-  const [showStartCalendar, setShowStartCalendar] = useState(false);
-  const [showEndCalendar, setShowEndCalendar] = useState(false);
+  const [posStartDate, setPosStartDate] = useState<Date>(new Date());
+  const [posEndDate, setPosEndDate] = useState<Date>(new Date());
+  const [startDateSet, setStartDateSet] = useState(false);
+  const [endDateSet, setEndDateSet] = useState(false);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [posDaySchedules, setPosDaySchedules] = useState<Record<string, DaySchedule>>(defaultDaySchedule());
   const [showDaysSheet, setShowDaysSheet] = useState(false);
 
@@ -185,51 +186,45 @@ const AddMenuContent = ({
             <div>
               {/* Start Date */}
               <button
-                onClick={() => { setShowStartCalendar(!showStartCalendar); setShowEndCalendar(false); }}
+                onClick={() => { setShowStartDatePicker(true); setShowEndDatePicker(false); }}
                 className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity border-t border-neutral-700/30"
               >
                 <span className="text-foreground text-sm font-medium">Start Date</span>
                 <div className="flex items-center gap-1">
                   <span className="text-muted-foreground text-sm">
-                    {posStartDate ? format(posStartDate, "MM/dd/yyyy") : "Choose"}
+                    {startDateSet ? format(posStartDate, "MM/dd/yyyy") : "Choose"}
                   </span>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
               </button>
-              {showStartCalendar && (
-                <div className="px-2 pb-3 flex justify-center">
-                  <Calendar
-                    mode="single"
-                    selected={posStartDate}
-                    onSelect={(d) => { setPosStartDate(d); setShowStartCalendar(false); }}
-                    className={cn("p-3 pointer-events-auto rounded-xl bg-neutral-800/80")}
-                  />
-                </div>
-              )}
+              <AppleWheelDatePicker
+                isOpen={showStartDatePicker}
+                onClose={() => setShowStartDatePicker(false)}
+                onConfirm={() => { setStartDateSet(true); setShowStartDatePicker(false); }}
+                selectedDate={posStartDate}
+                onDateChange={setPosStartDate}
+              />
 
               {/* End Date */}
               <button
-                onClick={() => { setShowEndCalendar(!showEndCalendar); setShowStartCalendar(false); }}
+                onClick={() => { setShowEndDatePicker(true); setShowStartDatePicker(false); }}
                 className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity border-t border-neutral-700/30"
               >
                 <span className="text-foreground text-sm font-medium">End Date</span>
                 <div className="flex items-center gap-1">
                   <span className="text-muted-foreground text-sm">
-                    {posEndDate ? format(posEndDate, "MM/dd/yyyy") : "Choose"}
+                    {endDateSet ? format(posEndDate, "MM/dd/yyyy") : "Choose"}
                   </span>
                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
               </button>
-              {showEndCalendar && (
-                <div className="px-2 pb-3 flex justify-center">
-                  <Calendar
-                    mode="single"
-                    selected={posEndDate}
-                    onSelect={(d) => { setPosEndDate(d); setShowEndCalendar(false); }}
-                    className={cn("p-3 pointer-events-auto rounded-xl bg-neutral-800/80")}
-                  />
-                </div>
-              )}
+              <AppleWheelDatePicker
+                isOpen={showEndDatePicker}
+                onClose={() => setShowEndDatePicker(false)}
+                onConfirm={() => { setEndDateSet(true); setShowEndDatePicker(false); }}
+                selectedDate={posEndDate}
+                onDateChange={setPosEndDate}
+              />
 
               {/* Days Table Header */}
               <div className="border-t border-neutral-700/30 px-4 py-2.5 flex items-center">

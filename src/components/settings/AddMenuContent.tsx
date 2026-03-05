@@ -9,7 +9,7 @@ import { toast } from "sonner";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
-import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
+import { CompactTimePicker } from "@/components/ui/compact-time-picker";
 
 interface AddMenuContentProps {
   showHeader?: boolean;
@@ -54,10 +54,8 @@ const AddMenuContent = ({
   const [posDaySchedules, setPosDaySchedules] = useState<Record<string, DaySchedule>>(defaultDaySchedule());
   const [showDaysSheet, setShowDaysSheet] = useState(false);
 
-  // Time picker state
-  const [timePickerOpen, setTimePickerOpen] = useState(false);
-  const [timePickerDay, setTimePickerDay] = useState<string>("");
-  const [timePickerField, setTimePickerField] = useState<"startTime" | "endTime">("startTime");
+  // Track which day+field has inline picker open: e.g. "MONDAY-startTime"
+  const [activeTimePicker, setActiveTimePicker] = useState<string | null>(null);
 
   const formatSelection = (items: string[], placeholder: string) => {
     if (items.length === 0) return placeholder;
@@ -72,18 +70,16 @@ const AddMenuContent = ({
     }));
   };
 
-  const openTimePicker = (day: string, field: "startTime" | "endTime") => {
-    setTimePickerDay(day);
-    setTimePickerField(field);
-    setTimePickerOpen(true);
+  const toggleTimePicker = (day: string, field: "startTime" | "endTime") => {
+    const key = `${day}-${field}`;
+    setActiveTimePicker((prev) => (prev === key ? null : key));
   };
 
-  const handleTimeConfirm = (time: string) => {
+  const updateDayTime = (day: string, field: "startTime" | "endTime", time: string) => {
     setPosDaySchedules((prev) => ({
       ...prev,
-      [timePickerDay]: { ...prev[timePickerDay], [timePickerField]: time },
+      [day]: { ...prev[day], [field]: time },
     }));
-    setTimePickerOpen(false);
   };
 
   const copyTimeToAllDays = (sourceDay: string) => {
@@ -246,59 +242,76 @@ const AddMenuContent = ({
               {/* Day Rows */}
               {ALL_DAYS.map((day) => {
                 const schedule = posDaySchedules[day];
+                const startPickerKey = `${day}-startTime`;
+                const endPickerKey = `${day}-endTime`;
                 return (
-                  <div
-                    key={day}
-                    className="border-t border-neutral-700/20 px-4 py-3 flex items-center"
-                  >
-                    {/* Checkbox + Day Name */}
-                    <button
-                      onClick={() => toggleDayEnabled(day)}
-                      className="flex items-center gap-2.5 w-[40%] active:opacity-70 transition-opacity"
-                    >
-                      <div
-                        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                          schedule.enabled
-                            ? "bg-foreground border-foreground"
-                            : "border-neutral-600 bg-transparent"
-                        }`}
-                      >
-                        {schedule.enabled && <Check className="w-3.5 h-3.5 text-background" />}
-                      </div>
-                      <span className={`text-sm font-medium ${schedule.enabled ? "text-foreground" : "text-muted-foreground"}`}>
-                        {day.charAt(0) + day.slice(1).toLowerCase()}
-                      </span>
-                    </button>
-
-                    {/* Start Time */}
-                    <button
-                      onClick={() => schedule.enabled && openTimePicker(day, "startTime")}
-                      className={`w-[25%] text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
-                      disabled={!schedule.enabled}
-                    >
-                      {schedule.startTime}
-                    </button>
-
-                    {/* End Time */}
-                    <button
-                      onClick={() => schedule.enabled && openTimePicker(day, "endTime")}
-                      className={`w-[25%] text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
-                      disabled={!schedule.enabled}
-                    >
-                      {schedule.endTime}
-                    </button>
-
-                    {/* Copy icon */}
-                    <div className="w-[10%] flex justify-center">
+                  <div key={day} className="border-t border-neutral-700/20">
+                    <div className="px-4 py-3 flex items-center">
+                      {/* Checkbox + Day Name */}
                       <button
-                        onClick={() => schedule.enabled && copyTimeToAllDays(day)}
-                        disabled={!schedule.enabled}
-                        className={`p-1 rounded active:opacity-70 transition-opacity ${schedule.enabled ? "text-muted-foreground" : "text-muted-foreground/30"}`}
-                        title="Copy time to all selected days"
+                        onClick={() => toggleDayEnabled(day)}
+                        className="flex items-center gap-2.5 w-[40%] active:opacity-70 transition-opacity"
                       >
-                        <Copy className="w-4 h-4" />
+                        <div
+                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                            schedule.enabled
+                              ? "bg-foreground border-foreground"
+                              : "border-neutral-600 bg-transparent"
+                          }`}
+                        >
+                          {schedule.enabled && <Check className="w-3.5 h-3.5 text-background" />}
+                        </div>
+                        <span className={`text-sm font-medium ${schedule.enabled ? "text-foreground" : "text-muted-foreground"}`}>
+                          {day.charAt(0) + day.slice(1).toLowerCase()}
+                        </span>
                       </button>
+
+                      {/* Start Time */}
+                      <button
+                        onClick={() => schedule.enabled && toggleTimePicker(day, "startTime")}
+                        className={`w-[25%] text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
+                        disabled={!schedule.enabled}
+                      >
+                        {schedule.startTime}
+                      </button>
+
+                      {/* End Time */}
+                      <button
+                        onClick={() => schedule.enabled && toggleTimePicker(day, "endTime")}
+                        className={`w-[25%] text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
+                        disabled={!schedule.enabled}
+                      >
+                        {schedule.endTime}
+                      </button>
+
+                      {/* Copy icon */}
+                      <div className="w-[10%] flex justify-center">
+                        <button
+                          onClick={() => schedule.enabled && copyTimeToAllDays(day)}
+                          disabled={!schedule.enabled}
+                          className={`p-1 rounded active:opacity-70 transition-opacity ${schedule.enabled ? "text-muted-foreground" : "text-muted-foreground/30"}`}
+                          title="Copy time to all selected days"
+                        >
+                          <Copy className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
+
+                    {/* Inline Compact Time Picker for Start Time */}
+                    {activeTimePicker === startPickerKey && schedule.enabled && (
+                      <CompactTimePicker
+                        selectedTime={schedule.startTime}
+                        onTimeChange={(time) => updateDayTime(day, "startTime", time)}
+                      />
+                    )}
+
+                    {/* Inline Compact Time Picker for End Time */}
+                    {activeTimePicker === endPickerKey && schedule.enabled && (
+                      <CompactTimePicker
+                        selectedTime={schedule.endTime}
+                        onTimeChange={(time) => updateDayTime(day, "endTime", time)}
+                      />
+                    )}
                   </div>
                 );
               })}
@@ -380,14 +393,6 @@ const AddMenuContent = ({
         title="Select Categories"
         options={allCategories}
         initialSelected={selectedCategories}
-      />
-
-      {/* Apple Wheel Time Picker */}
-      <AppleWheelTimePicker
-        isOpen={timePickerOpen}
-        onClose={() => setTimePickerOpen(false)}
-        onConfirm={handleTimeConfirm}
-        selectedTime={timePickerDay ? posDaySchedules[timePickerDay]?.[timePickerField] || "12:00 AM" : "12:00 AM"}
       />
     </div>
   );

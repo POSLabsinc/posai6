@@ -68,54 +68,61 @@ const AppInner = () => {
   return (
     <BrowserRouter>
       <AutoLockProvider>
-      <Layout>
         <Routes>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/home" element={<Dashboard />} />
-          <Route path="/orders" element={<Orders />} />
-          <Route path="/orders-a" element={<OrdersA />} />
-          <Route path="/orders-d" element={<OrdersD />} />
-          <Route path="/orders-f" element={<OrdersF />} />
-          <Route path="/orders-design-1" element={<OrdersDesign1 />} />
-          <Route path="/orders-design-2" element={<OrdersDesign2 />} />
-          <Route path="/orders-design-3" element={<OrdersDesign3 />} />
-          <Route path="/orders-design-4" element={<OrdersDesign4 />} />
-          <Route path="/liquid-dashboard" element={<LiquidGlassDashboard />} />
-          <Route path="/liquid-orders" element={<LiquidGlassOrders />} />
-          <Route path="/liquid-menu" element={<LiquidGlassMenu />} />
-          <Route path="/liquid-checkout" element={<LiquidGlassCheckout />} />
-          <Route path="/liquid-orders-1a" element={<LiquidGlassOrders1A />} />
-          <Route path="/liquid-orders-1b" element={<LiquidGlassOrders1B />} />
-          <Route path="/liquid-orders-2a" element={<LiquidGlassOrders2A />} />
-          <Route path="/liquid-orders-2b" element={<LiquidGlassOrders2B />} />
-          <Route path="/liquid-orders-3a" element={<LiquidGlassOrders3A />} />
-          <Route path="/liquid-orders-3b" element={<LiquidGlassOrders3B />} />
-          <Route path="/liquid-orders-4a" element={<LiquidGlassOrders4A />} />
-          <Route path="/liquid-orders-4b" element={<LiquidGlassOrders4B />} />
-          <Route path="/liquid-orders-5a" element={<LiquidGlassOrders5A />} />
-          <Route path="/liquid-orders-5b" element={<LiquidGlassOrders5B />} />
-          <Route path="/tableorder" element={<TableOrder />} />
-          <Route path="/tableorder-a" element={<TableOrderA />} />
-          <Route path="/tableorder-b" element={<TableOrderB />} />
-          <Route path="/tableorder/:tableId" element={<TableOrderDetails />} />
-          <Route path="/tableorder/:tableId/merge" element={<MergeOrders />} />
-          <Route path="/tableorder/:tableId/transfer" element={<TransferOrders />} />
-          <Route path="/reservations" element={<FullReservationsView />} />
-          <Route path="/tickets" element={<Tickets />} />
-          <Route path="/closed-tickets" element={<ClosedTickets />} />
-          <Route path="/voucher" element={<Voucher />} />
-          <Route path="/settings" element={<Settings />} />
-          <Route path="/settings/payments/discounts" element={<DiscountsRoute />} />
-          <Route path="/settings/*" element={<Settings />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/reports" element={<Reports />} />
-          <Route path="/orderos" element={<OrderOS />} />
+          {/* Login renders outside the main Layout for a clean full-screen onboarding experience */}
           <Route path="/login" element={<Login />} />
-          <Route path="/kds" element={<KDS />} />
-          <Route path="/kds/messages" element={<KDSMessages />} />
-          <Route path="*" element={<NotFound />} />
+
+          {/* All other routes use the main POS layout */}
+          <Route path="*" element={
+            <Layout>
+              <Routes>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/home" element={<Dashboard />} />
+                <Route path="/orders" element={<Orders />} />
+                <Route path="/orders-a" element={<OrdersA />} />
+                <Route path="/orders-d" element={<OrdersD />} />
+                <Route path="/orders-f" element={<OrdersF />} />
+                <Route path="/orders-design-1" element={<OrdersDesign1 />} />
+                <Route path="/orders-design-2" element={<OrdersDesign2 />} />
+                <Route path="/orders-design-3" element={<OrdersDesign3 />} />
+                <Route path="/orders-design-4" element={<OrdersDesign4 />} />
+                <Route path="/liquid-dashboard" element={<LiquidGlassDashboard />} />
+                <Route path="/liquid-orders" element={<LiquidGlassOrders />} />
+                <Route path="/liquid-menu" element={<LiquidGlassMenu />} />
+                <Route path="/liquid-checkout" element={<LiquidGlassCheckout />} />
+                <Route path="/liquid-orders-1a" element={<LiquidGlassOrders1A />} />
+                <Route path="/liquid-orders-1b" element={<LiquidGlassOrders1B />} />
+                <Route path="/liquid-orders-2a" element={<LiquidGlassOrders2A />} />
+                <Route path="/liquid-orders-2b" element={<LiquidGlassOrders2B />} />
+                <Route path="/liquid-orders-3a" element={<LiquidGlassOrders3A />} />
+                <Route path="/liquid-orders-3b" element={<LiquidGlassOrders3B />} />
+                <Route path="/liquid-orders-4a" element={<LiquidGlassOrders4A />} />
+                <Route path="/liquid-orders-4b" element={<LiquidGlassOrders4B />} />
+                <Route path="/liquid-orders-5a" element={<LiquidGlassOrders5A />} />
+                <Route path="/liquid-orders-5b" element={<LiquidGlassOrders5B />} />
+                <Route path="/tableorder" element={<TableOrder />} />
+                <Route path="/tableorder-a" element={<TableOrderA />} />
+                <Route path="/tableorder-b" element={<TableOrderB />} />
+                <Route path="/tableorder/:tableId" element={<TableOrderDetails />} />
+                <Route path="/tableorder/:tableId/merge" element={<MergeOrders />} />
+                <Route path="/tableorder/:tableId/transfer" element={<TransferOrders />} />
+                <Route path="/reservations" element={<FullReservationsView />} />
+                <Route path="/tickets" element={<Tickets />} />
+                <Route path="/closed-tickets" element={<ClosedTickets />} />
+                <Route path="/voucher" element={<Voucher />} />
+                <Route path="/settings" element={<Settings />} />
+                <Route path="/settings/payments/discounts" element={<DiscountsRoute />} />
+                <Route path="/settings/*" element={<Settings />} />
+                <Route path="/account" element={<Account />} />
+                <Route path="/reports" element={<Reports />} />
+                <Route path="/orderos" element={<OrderOS />} />
+                <Route path="/kds" element={<KDS />} />
+                <Route path="/kds/messages" element={<KDSMessages />} />
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </Layout>
+          } />
         </Routes>
-      </Layout>
       </AutoLockProvider>
     </BrowserRouter>
   );

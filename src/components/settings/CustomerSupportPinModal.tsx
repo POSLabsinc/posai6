@@ -85,33 +85,29 @@ const CustomerSupportPinModal = ({
           </button>
         </div>
 
+        {/* Device Info - Horizontal */}
+        <div className="bg-neutral-800/60 rounded-xl p-4 mb-5 flex items-center gap-6">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <Monitor className="w-4 h-4 text-neutral-500 shrink-0" />
+            <span className="text-neutral-500 text-sm">Device Name</span>
+            <span className="text-foreground text-sm font-medium ml-auto">{deviceName}</span>
+          </div>
+          <div className="w-px h-8 bg-neutral-700/50" />
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            <MapPin className="w-4 h-4 text-neutral-500 shrink-0" />
+            <span className="text-neutral-500 text-sm">Current Store</span>
+            <span className="text-foreground text-sm font-medium ml-auto">
+              {currentStore
+                ? `${currentStore.name} – ${currentStore.location}`
+                : "Not assigned"}
+            </span>
+          </div>
+        </div>
+
         {/* Two-column layout */}
         <div className="flex gap-6">
-          {/* Left: Device Info + PIN */}
+          {/* Left: PIN */}
           <div className="flex-1 min-w-0">
-            {/* Device Info */}
-            <div className="bg-neutral-800/60 rounded-xl p-4 mb-5 space-y-2.5">
-              <div className="flex items-center gap-3">
-                <Monitor className="w-4 h-4 text-neutral-500 shrink-0" />
-                <div className="flex items-center justify-between flex-1">
-                  <span className="text-neutral-500 text-sm">Device Name</span>
-                  <span className="text-foreground text-sm font-medium">{deviceName}</span>
-                </div>
-              </div>
-              <div className="h-px bg-neutral-700/50" />
-              <div className="flex items-center gap-3">
-                <MapPin className="w-4 h-4 text-neutral-500 shrink-0" />
-                <div className="flex items-center justify-between flex-1">
-                  <span className="text-neutral-500 text-sm">Current Store</span>
-                  <span className="text-foreground text-sm font-medium">
-                    {currentStore
-                      ? `${currentStore.name} – ${currentStore.location}`
-                      : "Not assigned"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
             {/* PIN Section */}
             <div>
               <p className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">

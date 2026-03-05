@@ -59,7 +59,7 @@ const SupportContent = ({
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {showHeader && (
-        <div className="flex items-center justify-center py-4 border-b border-neutral-800/50 relative">
+        <div className="flex items-center justify-center py-4 border-b border-neutral-800/50 relative md:hidden">
           {onBack && (
             <button
               onClick={onBack}

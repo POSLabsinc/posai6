@@ -56,7 +56,7 @@ const SystemSettingsContent = ({
   const { getIconBgColor } = useAppearance();
   const [showMore, setShowMore] = useState(false);
   return <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {showHeader && <div className="flex items-center justify-center py-4 border-b border-neutral-800/50 relative">
+      {showHeader && <div className="flex items-center justify-center py-4 border-b border-neutral-800/50 relative md:hidden">
           {onBack && <button onClick={onBack} className="absolute left-4 w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>}

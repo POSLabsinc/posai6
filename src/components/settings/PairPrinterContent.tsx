@@ -43,17 +43,9 @@ const PairPrinterContent = ({ showHeader = true, onBack, onAIClick }: PairPrinte
         </div>
       )}
 
-      <div className={`${showHeader ? 'pt-2' : 'pt-0'} px-6 pb-28`}>
-        {/* Header Card */}
-        <div className="bg-neutral-800/60 rounded-2xl p-6 flex flex-col items-start mb-6">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
-            style={{ backgroundColor: getIconBgColor("#D6336C") }}
-          >
-            <img src={hardwarePrinterIcon} alt="Pair Printer" className="w-7 h-7 object-contain" />
-          </div>
-          <h2 className="text-foreground text-lg font-semibold mb-1">Pair Printer</h2>
-          <p className="text-neutral-500 text-sm leading-relaxed">
+      <div className="px-6 pb-28">
+        <div className="mb-4 px-1 pt-2">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Printers can generate various reports, such as sales summaries, inventory reports, and employee timecards, to help manage your business effectively.
           </p>
         </div>

@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, CalendarIcon } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { getAllCategories } from "@/lib/productStore";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 interface AddMenuContentProps {
   showHeader?: boolean;
@@ -30,6 +33,21 @@ const AddMenuContent = ({
   const [activeForOrderOS, setActiveForOrderOS] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showCategoriesSheet, setShowCategoriesSheet] = useState(false);
+
+  // POS schedule state
+  const [posFromDate, setPosFromDate] = useState<Date | undefined>(undefined);
+  const [posToDate, setPosToDate] = useState<Date | undefined>(undefined);
+  const [showPosFromCalendar, setShowPosFromCalendar] = useState(false);
+  const [showPosToCalendar, setShowPosToCalendar] = useState(false);
+  const [posDays, setPosDays] = useState<string[]>(["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]);
+
+  const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+  const togglePosDay = (day: string) => {
+    setPosDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
 
   const formatSelection = (items: string[], placeholder: string) => {
     if (items.length === 0) return placeholder;
@@ -118,6 +136,86 @@ const AddMenuContent = ({
             </div>
             <Switch checked={activeForPOS} onCheckedChange={setActiveForPOS} />
           </div>
+
+          {/* POS Schedule - Date Range & Days */}
+          {activeForPOS && (
+            <div className="border-t border-neutral-700/40">
+              {/* From Date */}
+              <button
+                onClick={() => { setShowPosFromCalendar(!showPosFromCalendar); setShowPosToCalendar(false); }}
+                className="flex items-center justify-between w-full py-3.5 px-6 active:opacity-70 transition-opacity"
+              >
+                <span className="text-foreground text-sm font-medium">From Date</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-muted-foreground text-sm">
+                    {posFromDate ? format(posFromDate, "MM/dd/yyyy") : "Select"}
+                  </span>
+                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </button>
+              {showPosFromCalendar && (
+                <div className="px-4 pb-3 flex justify-center">
+                  <Calendar
+                    mode="single"
+                    selected={posFromDate}
+                    onSelect={(d) => { setPosFromDate(d); setShowPosFromCalendar(false); }}
+                    className={cn("p-3 pointer-events-auto rounded-xl bg-neutral-800/80")}
+                  />
+                </div>
+              )}
+
+              <div className="border-t border-neutral-700/20" />
+
+              {/* To Date */}
+              <button
+                onClick={() => { setShowPosToCalendar(!showPosToCalendar); setShowPosFromCalendar(false); }}
+                className="flex items-center justify-between w-full py-3.5 px-6 active:opacity-70 transition-opacity"
+              >
+                <span className="text-foreground text-sm font-medium">To Date</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-muted-foreground text-sm">
+                    {posToDate ? format(posToDate, "MM/dd/yyyy") : "Select"}
+                  </span>
+                  <CalendarIcon className="w-4 h-4 text-muted-foreground" />
+                </div>
+              </button>
+              {showPosToCalendar && (
+                <div className="px-4 pb-3 flex justify-center">
+                  <Calendar
+                    mode="single"
+                    selected={posToDate}
+                    onSelect={(d) => { setPosToDate(d); setShowPosToCalendar(false); }}
+                    className={cn("p-3 pointer-events-auto rounded-xl bg-neutral-800/80")}
+                  />
+                </div>
+              )}
+
+              <div className="border-t border-neutral-700/20" />
+
+              {/* Active Days */}
+              <div className="px-6 py-3.5">
+                <span className="text-foreground text-sm font-medium block mb-3">Active Days</span>
+                <div className="flex gap-1.5">
+                  {dayLabels.map((day) => {
+                    const isActive = posDays.includes(day);
+                    return (
+                      <button
+                        key={day}
+                        onClick={() => togglePosDay(day)}
+                        className={`flex-1 py-2.5 rounded-xl text-xs font-medium transition-all ${
+                          isActive
+                            ? "bg-foreground text-background"
+                            : "bg-neutral-800/40 text-muted-foreground"
+                        }`}
+                      >
+                        {day}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
           <div className="w-full flex items-center justify-between py-4 px-4">
             <div className="flex-1 mr-3">
               <span className="text-foreground text-base font-medium">Keep Menu Active for Point Of Purchase</span>

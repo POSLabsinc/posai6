@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import { saveMenu, generateMenuId, Menu } from "@/lib/menuStore";
 import { getAllCategories } from "@/lib/productStore";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 interface AddMenuContentProps {
   showHeader?: boolean;
@@ -36,19 +37,17 @@ const AddMenuContent = ({
     return `${items.length} selected`;
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (name.trim()) {
-      const now = new Date().toISOString();
-      const menu: Menu = {
-        id: generateMenuId(),
+      const { error } = await supabase.from("menus").insert({
         name: name.trim(),
-        description: "",
         enabled,
-        categories: selectedCategories,
-        createdAt: now,
-        updatedAt: now,
-      };
-      saveMenu(menu);
+        description: "",
+      });
+      if (error) {
+        toast.error("Failed to add menu");
+        return;
+      }
     }
     onBack?.();
   };

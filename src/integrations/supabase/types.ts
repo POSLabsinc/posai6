@@ -74,6 +74,38 @@ export type Database = {
         }
         Relationships: []
       }
+      device_stores: {
+        Row: {
+          created_at: string
+          device_id: string
+          id: string
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          id?: string
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          id?: string
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "device_stores_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           assigned_job_types: string[]
@@ -718,6 +750,42 @@ export type Database = {
           status?: string
           title?: string | null
           total_spent?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      stores: {
+        Row: {
+          active: boolean
+          address: string
+          created_at: string
+          email: string | null
+          id: string
+          location: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          address?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          location?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          address?: string
+          created_at?: string
+          email?: string | null
+          id?: string
+          location?: string
+          name?: string
+          phone?: string | null
           updated_at?: string
         }
         Relationships: []

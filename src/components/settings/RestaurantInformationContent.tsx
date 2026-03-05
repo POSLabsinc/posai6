@@ -1,4 +1,5 @@
-import { ChevronLeft, Search, LocateFixed } from "lucide-react";
+import { useState } from "react";
+import { ChevronLeft, Search, LocateFixed, MapPin, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -10,6 +11,11 @@ import languageIcon from "@/assets/icons/language.png";
 import currencyIcon from "@/assets/icons/currency.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
+import { useDeviceStore } from "@/hooks/useDeviceStore";
+import CustomerSupportPinModal from "@/components/settings/CustomerSupportPinModal";
+import StoreChangeConfirmationModal from "@/components/settings/StoreChangeConfirmationModal";
+import StoreSelectionSheet from "@/components/settings/StoreSelectionSheet";
+import type { Store } from "@/hooks/useDeviceStore";
 
 interface InfoRowProps {
   label: string;
@@ -62,7 +68,31 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
     return "Not Set";
   };
 
+  const { currentStore, allStores, loading: storeLoading, switchStore } = useDeviceStore();
+  const [showPinModal, setShowPinModal] = useState(false);
+  const [showStoreSelection, setShowStoreSelection] = useState(false);
+  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
   const activeRevenueCenter = getActiveRevenueCenter();
+
+  const handlePinSuccess = () => {
+    setShowPinModal(false);
+    setShowStoreSelection(true);
+  };
+
+  const handleStoreSelected = (store: Store) => {
+    setSelectedStore(store);
+    setShowStoreSelection(false);
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmSwitch = () => {
+    if (selectedStore) {
+      switchStore(selectedStore.id);
+    }
+  };
+
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {showHeader && (
@@ -167,8 +197,67 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
               value="GBP £"
             />
           </div>
+
+          {/* Device Configuration */}
+          <div className="mt-6">
+            <h3 className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">DEVICE CONFIGURATION</h3>
+            <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
+              <div className="flex items-center justify-between w-full py-4 px-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-9 h-9 rounded-xl bg-indigo-600/80 flex items-center justify-center">
+                    <MapPin className="w-4.5 h-4.5 text-white" />
+                  </div>
+                  <div>
+                    <span className="text-foreground text-base font-medium">Current Store</span>
+                    <p className="text-neutral-500 text-sm mt-0.5">
+                      {storeLoading
+                        ? "Loading..."
+                        : currentStore
+                          ? `${currentStore.name} – ${currentStore.location}`
+                          : "No store assigned"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className="h-px bg-neutral-700/50 mx-5" />
+              <button
+                onClick={() => setShowPinModal(true)}
+                className="flex items-center justify-between w-full py-4 px-5 active:bg-neutral-700/30 transition-colors"
+              >
+                <div>
+                  <span className="text-foreground text-base font-medium">Change Store</span>
+                  <p className="text-neutral-500 text-xs mt-0.5">Customer Support Only</p>
+                </div>
+                <ChevronRight className="w-5 h-5 text-neutral-500" />
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
+      {/* CS PIN Modal */}
+      <CustomerSupportPinModal
+        isOpen={showPinModal}
+        onClose={() => setShowPinModal(false)}
+        onSuccess={handlePinSuccess}
+      />
+
+      {/* Store Selection Sheet */}
+      <StoreSelectionSheet
+        isOpen={showStoreSelection}
+        stores={allStores}
+        currentStoreId={currentStore?.id}
+        onSelect={handleStoreSelected}
+        onClose={() => setShowStoreSelection(false)}
+      />
+
+      {/* Confirmation Modal */}
+      <StoreChangeConfirmationModal
+        isOpen={showConfirmation}
+        targetStoreName={selectedStore ? `${selectedStore.name} – ${selectedStore.location}` : undefined}
+        onCancel={() => setShowConfirmation(false)}
+        onConfirm={handleConfirmSwitch}
+      />
     </div>
   );
 };

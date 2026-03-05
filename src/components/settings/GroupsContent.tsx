@@ -103,7 +103,7 @@ const GroupsContent = ({ showHeader = true, onBack, onAIClick }: GroupsContentPr
     return (
       <div className="h-full flex flex-col overflow-hidden bg-background">
         {showHeader && (
-          <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
             {onBack && (
               <button
                 onClick={onBack}

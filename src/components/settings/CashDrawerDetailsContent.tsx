@@ -186,7 +186,7 @@ const CashDrawerDetailsContent = ({
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Back Button - Circular style matching reference */}
       {showHeader && (
-        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+        <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
           <button
             onClick={handleBack}
             className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"

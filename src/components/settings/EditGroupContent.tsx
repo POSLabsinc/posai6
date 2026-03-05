@@ -142,7 +142,7 @@ const EditGroupContent = ({ showHeader = true, onBack, groupId: groupIdProp }: E
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto scrollbar-hide pt-6 px-6 pb-28">
+        <div className="flex-1 overflow-y-auto scrollbar-hide pt-0 px-6 pb-28">
           <h2 className="text-xs font-semibold tracking-wider text-[hsl(var(--text-subtle))] mb-3">Group Information</h2>
           <section className="rounded-2xl bg-[#26262699] overflow-hidden mb-6">
             <div className="flex items-center justify-between w-full px-8 py-5">

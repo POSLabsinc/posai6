@@ -126,7 +126,7 @@ const EditModifierContent = ({ modifier, onBack, onSave }: EditModifierContentPr
         <div className="w-10" />
       </div>
 
-      <div className="flex-1 overflow-y-auto scrollbar-hide pt-6 px-6 pb-28">
+      <div className="flex-1 overflow-y-auto scrollbar-hide pt-0 px-6 pb-28">
         {/* ORDER TYPE APPLICABLE */}
         <div className="mb-1">
           <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">

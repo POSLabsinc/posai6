@@ -250,7 +250,7 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Header - only shown in tablet/desktop right panel */}
       {showHeader && (
-        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+        <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
           {onBack && (
             <button
               onClick={onBack}

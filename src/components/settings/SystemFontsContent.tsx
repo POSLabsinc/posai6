@@ -39,7 +39,7 @@ const SystemFontsContent = ({ showHeader = true, onBack, onAIClick }: SystemFont
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {showHeader && (
-        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+        <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
           {onBack && (
             <button
               onClick={onBack}

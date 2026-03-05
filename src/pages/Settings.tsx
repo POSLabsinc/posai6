@@ -42,6 +42,7 @@ import EditDefaultModifierContent from "@/components/settings/EditDefaultModifie
 import GroupsContent from "@/components/settings/GroupsContent";
 import AddGroupContent from "@/components/settings/AddGroupContent";
 import EditGroupContent from "@/components/settings/EditGroupContent";
+import TimedPricingContent from "@/components/settings/TimedPricingContent";
 import AISettingsContent from "@/components/settings/AISettingsContent";
 import SupportContent from "@/components/settings/SupportContent";
 import FeedbackContent from "@/components/settings/FeedbackContent";
@@ -241,6 +242,9 @@ const getContentForRoute = (
         groupId={groupId}
       />
     );
+  }
+  if (pathname === '/settings/menu/timed-pricing') {
+    return <TimedPricingContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/support') {
     return <SupportContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;

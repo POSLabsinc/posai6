@@ -551,7 +551,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
   };
 
   return (
-    <div className="h-full overflow-y-auto scrollbar-hide px-6 pt-6 pb-28">
+    <div className="h-full overflow-y-auto scrollbar-hide px-6 pt-0 pb-28">
       {/* Header: Guest Book default or Guest Details for non-profile tabs */}
       {activeTab === "profile" ? (
         <div className="mb-6">

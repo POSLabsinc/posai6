@@ -3,11 +3,14 @@ import { useState, useRef, useEffect } from "react";
 interface CompactTimePickerProps {
   selectedTime: string;
   onTimeChange: (time: string) => void;
+  /** If true, renders as a floating overlay with backdrop. Default: true */
+  overlay?: boolean;
+  onClose?: () => void;
 }
 
 const ITEM_HEIGHT = 32;
 
-const CompactTimePicker = ({ selectedTime, onTimeChange }: CompactTimePickerProps) => {
+const CompactTimePicker = ({ selectedTime, onTimeChange, overlay = false, onClose }: CompactTimePickerProps) => {
   const parseTime = (timeStr: string) => {
     const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
     if (match) {
@@ -105,7 +108,7 @@ const CompactTimePicker = ({ selectedTime, onTimeChange }: CompactTimePickerProp
     </div>
   );
 
-  return (
+  const pickerContent = (
     <div className="mx-4 my-1 bg-neutral-800/80 rounded-xl overflow-hidden">
       <div className="relative px-3 py-1">
         {/* Selection bar */}
@@ -118,6 +121,19 @@ const CompactTimePicker = ({ selectedTime, onTimeChange }: CompactTimePickerProp
       </div>
     </div>
   );
+
+  if (overlay) {
+    return (
+      <>
+        <div className="fixed inset-0 z-40" onClick={onClose} />
+        <div className="absolute top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
+          {pickerContent}
+        </div>
+      </>
+    );
+  }
+
+  return pickerContent;
 };
 
 export { CompactTimePicker };

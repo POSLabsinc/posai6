@@ -313,29 +313,28 @@ const AddMenuContent = ({
                         )}
                       </div>
 
-                      {/* Copy / Paste icon */}
-                      <div className="w-[10%] flex justify-center">
-                        {copiedDay && copiedDay !== day ? (
+                      {/* Copy / Paste icons */}
+                      <div className="w-[10%] flex justify-center gap-0.5">
+                        <button
+                          onClick={() => schedule.enabled && copyDay(day)}
+                          disabled={!schedule.enabled}
+                          className={`p-1 rounded active:opacity-70 transition-opacity ${
+                            copiedDay === day
+                              ? "text-blue-400"
+                              : schedule.enabled ? "text-muted-foreground" : "text-muted-foreground/30"
+                          }`}
+                          title="Copy this day's schedule"
+                        >
+                          <Copy className="w-3.5 h-3.5" />
+                        </button>
+                        {copiedDay && copiedDay !== day && (
                           <button
                             onClick={() => schedule.enabled && pasteDay(day)}
                             disabled={!schedule.enabled}
                             className={`p-1 rounded active:opacity-70 transition-opacity ${schedule.enabled ? "text-green-400" : "text-muted-foreground/30"}`}
                             title="Paste copied schedule"
                           >
-                            <ClipboardPaste className="w-4 h-4" />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => schedule.enabled && copyDay(day)}
-                            disabled={!schedule.enabled}
-                            className={`p-1 rounded active:opacity-70 transition-opacity ${
-                              copiedDay === day
-                                ? "text-blue-400"
-                                : schedule.enabled ? "text-muted-foreground" : "text-muted-foreground/30"
-                            }`}
-                            title="Copy this day's schedule"
-                          >
-                            <Copy className="w-4 h-4" />
+                            <ClipboardPaste className="w-3.5 h-3.5" />
                           </button>
                         )}
                       </div>

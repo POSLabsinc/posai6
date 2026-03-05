@@ -189,7 +189,7 @@ const AppleWheelDatePicker = ({
     return (
       <>
         <div className="fixed inset-0 z-40" onClick={onClose} />
-        <div className="absolute top-full mt-1 z-50 overflow-hidden" style={{ width: 240 }}>
+        <div className="absolute top-full right-0 mt-1 z-50 overflow-hidden" style={{ width: 240 }}>
           {/* Header */}
           <div className="flex items-center justify-between px-2 py-2">
             <div className="flex items-center gap-1">

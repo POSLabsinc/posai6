@@ -100,7 +100,13 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         </div>
       )}
 
-      <div className="px-6 pb-28 pt-2">
+      <div className="px-6 pb-28">
+        <div className="mb-4 px-1 pt-2">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Configure advanced printing preferences for bills, receipts, kitchen tickets, and more.
+          </p>
+        </div>
+
         {/* Bills */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Bills</p>
         <ToggleOption label="Auto-Print Bills" description="Automatically print bills when an order is completed." checked={toBool(autoPrintBills)} onChange={(v) => setAutoPrintBills(String(v))} />

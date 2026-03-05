@@ -11,7 +11,7 @@ interface CustomerSupportPinModalProps {
   deviceName?: string;
 }
 
-const CS_PIN = "000000";
+const PIN_LENGTH = 4;
 
 const CustomerSupportPinModal = ({
   isOpen,
@@ -38,23 +38,15 @@ const CustomerSupportPinModal = ({
   if (!isOpen) return null;
 
   const handleDigit = (digit: string) => {
-    if (pin.length >= 6) return;
+    if (pin.length >= PIN_LENGTH) return;
     const newPin = pin + digit;
     setPin(newPin);
 
-    if (newPin.length === 6) {
-      if (newPin === CS_PIN) {
-        setTimeout(() => {
-          setPinVerified(true);
-          setPinError(false);
-        }, 200);
-      } else {
-        setPinError(true);
-        setTimeout(() => {
-          setPin("");
-          setPinError(false);
-        }, 600);
-      }
+    if (newPin.length === PIN_LENGTH) {
+      setTimeout(() => {
+        setPinVerified(true);
+        setPinError(false);
+      }, 200);
     }
   };
 
@@ -124,20 +116,18 @@ const CustomerSupportPinModal = ({
           <div
             className={`flex justify-center gap-2.5 mb-4 ${pinError ? "animate-shake" : ""}`}
           >
-            {[0, 1, 2, 3, 4, 5].map((index) => (
+            {Array.from({ length: PIN_LENGTH }).map((_, index) => (
               <div
                 key={index}
                 className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center text-xl font-bold transition-all ${
                   pinVerified
                     ? "border-emerald-500 bg-emerald-500/10"
                     : index < pin.length
-                      ? pinError
-                        ? "border-red-500 bg-red-500/10"
-                        : "border-neutral-400 bg-neutral-700"
+                      ? "border-neutral-400 bg-neutral-700"
                       : "border-neutral-600 bg-neutral-800"
                 }`}
               >
-                {pinVerified && index < 6 ? (
+                {pinVerified && index < PIN_LENGTH ? (
                   <span className="text-emerald-400">✱</span>
                 ) : index < pin.length ? (
                   <span className="text-foreground">✱</span>

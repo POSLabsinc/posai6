@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, Delete, MapPin, Check, Monitor } from "lucide-react";
+import { X, Delete, MapPin, Check, Monitor } from "lucide-react";
 import type { Store } from "@/hooks/useDeviceStore";
 
 interface CustomerSupportPinModalProps {
@@ -73,16 +73,16 @@ const CustomerSupportPinModal = ({
       <div className="bg-neutral-900 rounded-3xl w-full max-w-3xl p-6 pb-8">
         {/* Header */}
         <div className="relative flex items-center justify-center mb-5">
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute left-0 w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5 text-neutral-400" />
-          </button>
           <h3 className="text-foreground font-bold text-lg">
             Customer Support Authorization
           </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            className="absolute right-0 w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+          >
+            <X className="w-5 h-5 text-neutral-400" />
+          </button>
         </div>
 
         {/* Two-column layout */}
@@ -243,18 +243,12 @@ const CustomerSupportPinModal = ({
           </div>
         </div>
 
-        {/* Buttons */}
-        <div className="flex gap-3 mt-6">
-          <button
-            onClick={onClose}
-            className="flex-1 py-3 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors text-sm"
-          >
-            Cancel
-          </button>
+        {/* Button */}
+        <div className="mt-6">
           <button
             onClick={handleContinue}
             disabled={!canContinue}
-            className={`flex-1 py-3 rounded-xl font-medium transition-colors text-sm ${
+            className={`w-full py-3 rounded-xl font-medium transition-colors text-sm ${
               canContinue
                 ? "bg-primary text-primary-foreground hover:bg-primary/90 active:bg-primary/80"
                 : "bg-neutral-800 text-neutral-600 border border-neutral-700 cursor-not-allowed"

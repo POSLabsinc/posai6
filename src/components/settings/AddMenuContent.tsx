@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Check, Copy, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Copy, ClipboardPaste, Clock } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { getAllCategories } from "@/lib/productStore";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
@@ -57,6 +57,7 @@ const AddMenuContent = ({
 
   // Track which day+field has inline picker open: e.g. "MONDAY-startTime"
   const [activeTimePicker, setActiveTimePicker] = useState<string | null>(null);
+  const [copiedDay, setCopiedDay] = useState<string | null>(null);
 
   const formatSelection = (items: string[], placeholder: string) => {
     if (items.length === 0) return placeholder;
@@ -83,18 +84,19 @@ const AddMenuContent = ({
     }));
   };
 
-  const copyTimeToAllDays = (sourceDay: string) => {
-    const source = posDaySchedules[sourceDay];
-    setPosDaySchedules((prev) => {
-      const updated = { ...prev };
-      for (const day of ALL_DAYS) {
-        if (updated[day].enabled) {
-          updated[day] = { ...updated[day], startTime: source.startTime, endTime: source.endTime };
-        }
-      }
-      return updated;
-    });
-    toast.success("Time copied to all selected days");
+  const copyDay = (day: string) => {
+    setCopiedDay(day);
+    toast.success(`Copied ${day.charAt(0) + day.slice(1).toLowerCase()}'s schedule`);
+  };
+
+  const pasteDay = (targetDay: string) => {
+    if (!copiedDay) return;
+    const source = posDaySchedules[copiedDay];
+    setPosDaySchedules((prev) => ({
+      ...prev,
+      [targetDay]: { ...prev[targetDay], startTime: source.startTime, endTime: source.endTime },
+    }));
+    toast.success(`Pasted to ${targetDay.charAt(0) + targetDay.slice(1).toLowerCase()}`);
   };
 
   // Get selected days for the sheet
@@ -311,16 +313,31 @@ const AddMenuContent = ({
                         )}
                       </div>
 
-                      {/* Copy icon */}
+                      {/* Copy / Paste icon */}
                       <div className="w-[10%] flex justify-center">
-                        <button
-                          onClick={() => schedule.enabled && copyTimeToAllDays(day)}
-                          disabled={!schedule.enabled}
-                          className={`p-1 rounded active:opacity-70 transition-opacity ${schedule.enabled ? "text-muted-foreground" : "text-muted-foreground/30"}`}
-                          title="Copy time to all selected days"
-                        >
-                          <Copy className="w-4 h-4" />
-                        </button>
+                        {copiedDay && copiedDay !== day ? (
+                          <button
+                            onClick={() => schedule.enabled && pasteDay(day)}
+                            disabled={!schedule.enabled}
+                            className={`p-1 rounded active:opacity-70 transition-opacity ${schedule.enabled ? "text-green-400" : "text-muted-foreground/30"}`}
+                            title="Paste copied schedule"
+                          >
+                            <ClipboardPaste className="w-4 h-4" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => schedule.enabled && copyDay(day)}
+                            disabled={!schedule.enabled}
+                            className={`p-1 rounded active:opacity-70 transition-opacity ${
+                              copiedDay === day
+                                ? "text-blue-400"
+                                : schedule.enabled ? "text-muted-foreground" : "text-muted-foreground/30"
+                            }`}
+                            title="Copy this day's schedule"
+                          >
+                            <Copy className="w-4 h-4" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   </div>

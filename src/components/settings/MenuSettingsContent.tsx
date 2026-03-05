@@ -126,7 +126,7 @@ const MenuSettingsContent = ({
     }
 
       {/* Content */}
-      <div className={`flex-1 overflow-y-auto scrollbar-hide ${showHeader ? 'pt-6' : 'pt-0'} px-6 pb-28`}>
+      <div className={`flex-1 overflow-y-auto scrollbar-hide ${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Header Card */}
         <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{

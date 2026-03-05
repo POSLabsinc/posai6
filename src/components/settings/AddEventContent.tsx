@@ -295,35 +295,49 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
           <Divider />
 
           {/* Start Time */}
-          <button
-            onClick={() => { setShowStartTimePicker(!showStartTimePicker); setShowEndTimePicker(false); }}
-            className="flex items-center justify-between w-full px-4 py-3.5"
-          >
-            <span className="text-sm text-foreground font-medium">Start Time</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm text-primary">{startTime}</span>
-              <Clock className="w-4 h-4 text-primary shrink-0" />
-            </div>
-          </button>
-          {showStartTimePicker && (
-            <CompactTimePicker selectedTime={startTime} onTimeChange={setStartTime} />
-          )}
+          <div className="relative">
+            <button
+              onClick={() => { setShowStartTimePicker(!showStartTimePicker); setShowEndTimePicker(false); }}
+              className="flex items-center justify-between w-full px-4 py-3.5"
+            >
+              <span className="text-sm text-foreground font-medium">Start Time</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm text-primary">{startTime}</span>
+                <Clock className="w-4 h-4 text-primary shrink-0" />
+              </div>
+            </button>
+            {showStartTimePicker && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowStartTimePicker(false)} />
+                <div className="absolute right-4 top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
+                  <CompactTimePicker selectedTime={startTime} onTimeChange={setStartTime} />
+                </div>
+              </>
+            )}
+          </div>
           <Divider />
 
           {/* End Time */}
-          <button
-            onClick={() => { setShowEndTimePicker(!showEndTimePicker); setShowStartTimePicker(false); }}
-            className="flex items-center justify-between w-full px-4 py-3.5"
-          >
-            <span className="text-sm text-foreground font-medium">End Time</span>
-            <div className="flex items-center gap-1.5">
-              <span className="text-sm text-primary">{endTime}</span>
-              <Clock className="w-4 h-4 text-primary shrink-0" />
-            </div>
-          </button>
-          {showEndTimePicker && (
-            <CompactTimePicker selectedTime={endTime} onTimeChange={setEndTime} />
-          )}
+          <div className="relative">
+            <button
+              onClick={() => { setShowEndTimePicker(!showEndTimePicker); setShowStartTimePicker(false); }}
+              className="flex items-center justify-between w-full px-4 py-3.5"
+            >
+              <span className="text-sm text-foreground font-medium">End Time</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm text-primary">{endTime}</span>
+                <Clock className="w-4 h-4 text-primary shrink-0" />
+              </div>
+            </button>
+            {showEndTimePicker && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowEndTimePicker(false)} />
+                <div className="absolute right-4 top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
+                  <CompactTimePicker selectedTime={endTime} onTimeChange={setEndTime} />
+                </div>
+              </>
+            )}
+          </div>
         </div>
         <p className="text-[11px] text-neutral-500 mx-5 mt-1.5 mb-4">Choose the date and start/end times for this event</p>
 
@@ -362,19 +376,26 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
               <Divider />
 
               {/* End Time (for multi-day) */}
-              <button
-                onClick={() => setShowEndDateTimePicker(!showEndDateTimePicker)}
-                className="flex items-center justify-between w-full px-4 py-3.5"
-              >
-                <span className="text-sm text-foreground font-medium">End Time</span>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-sm text-primary">{endDateTime}</span>
-                  <Clock className="w-4 h-4 text-primary shrink-0" />
-                </div>
-              </button>
-              {showEndDateTimePicker && (
-                <CompactTimePicker selectedTime={endDateTime} onTimeChange={setEndDateTime} />
-              )}
+              <div className="relative">
+                <button
+                  onClick={() => setShowEndDateTimePicker(!showEndDateTimePicker)}
+                  className="flex items-center justify-between w-full px-4 py-3.5"
+                >
+                  <span className="text-sm text-foreground font-medium">End Time</span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm text-primary">{endDateTime}</span>
+                    <Clock className="w-4 h-4 text-primary shrink-0" />
+                  </div>
+                </button>
+                {showEndDateTimePicker && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setShowEndDateTimePicker(false)} />
+                    <div className="absolute right-4 top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
+                      <CompactTimePicker selectedTime={endDateTime} onTimeChange={setEndDateTime} />
+                    </div>
+                  </>
+                )}
+              </div>
             </>
           )}
         </div>

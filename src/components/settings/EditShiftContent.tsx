@@ -535,6 +535,7 @@ const EditShiftContent = ({ showHeader = true, onBack }: EditShiftContentProps) 
                         {isLastChecked && selectedDays.length > 0 && (
                           <>
                             <Divider />
+                            <div className="relative">
                             <button
                               onClick={() => { setShowDayStartTimePicker(!showDayStartTimePicker); setShowDayEndTimePicker(false); }}
                               className="flex items-center justify-between w-full px-8 py-3.5"
@@ -546,9 +547,16 @@ const EditShiftContent = ({ showHeader = true, onBack }: EditShiftContentProps) 
                               </div>
                             </button>
                             {showDayStartTimePicker && (
-                              <CompactTimePicker selectedTime={dayStartTime} onTimeChange={setDayStartTime} />
+                              <>
+                                <div className="fixed inset-0 z-40" onClick={() => setShowDayStartTimePicker(false)} />
+                                <div className="absolute right-4 top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
+                                  <CompactTimePicker selectedTime={dayStartTime} onTimeChange={setDayStartTime} />
+                                </div>
+                              </>
                             )}
+                            </div>
                             <Divider />
+                            <div className="relative">
                             <button
                               onClick={() => { setShowDayEndTimePicker(!showDayEndTimePicker); setShowDayStartTimePicker(false); }}
                               className="flex items-center justify-between w-full px-8 py-3.5"
@@ -560,8 +568,14 @@ const EditShiftContent = ({ showHeader = true, onBack }: EditShiftContentProps) 
                               </div>
                             </button>
                             {showDayEndTimePicker && (
-                              <CompactTimePicker selectedTime={dayEndTime} onTimeChange={setDayEndTime} />
+                              <>
+                                <div className="fixed inset-0 z-40" onClick={() => setShowDayEndTimePicker(false)} />
+                                <div className="absolute right-4 top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
+                                  <CompactTimePicker selectedTime={dayEndTime} onTimeChange={setDayEndTime} />
+                                </div>
+                              </>
                             )}
+                            </div>
                             <Divider />
                             <div className="flex items-center justify-between px-8 py-3.5">
                               <span className="text-sm text-foreground font-medium">Next day</span>
@@ -596,33 +610,47 @@ const EditShiftContent = ({ showHeader = true, onBack }: EditShiftContentProps) 
 
               {daySelectionMode !== "select" && (
                 <>
-                  <button
-                    onClick={() => { setShowDayStartTimePicker(!showDayStartTimePicker); setShowDayEndTimePicker(false); }}
-                    className="flex items-center justify-between w-full px-4 py-3.5"
-                  >
-                    <span className="text-sm text-foreground font-medium">Start Time</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm text-primary">{dayStartTime}</span>
-                      <Clock className="w-4 h-4 text-primary shrink-0" />
-                    </div>
-                  </button>
-                  {showDayStartTimePicker && (
-                    <CompactTimePicker selectedTime={dayStartTime} onTimeChange={setDayStartTime} />
-                  )}
+                  <div className="relative">
+                    <button
+                      onClick={() => { setShowDayStartTimePicker(!showDayStartTimePicker); setShowDayEndTimePicker(false); }}
+                      className="flex items-center justify-between w-full px-4 py-3.5"
+                    >
+                      <span className="text-sm text-foreground font-medium">Start Time</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm text-primary">{dayStartTime}</span>
+                        <Clock className="w-4 h-4 text-primary shrink-0" />
+                      </div>
+                    </button>
+                    {showDayStartTimePicker && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowDayStartTimePicker(false)} />
+                        <div className="absolute right-4 top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
+                          <CompactTimePicker selectedTime={dayStartTime} onTimeChange={setDayStartTime} />
+                        </div>
+                      </>
+                    )}
+                  </div>
                   <Divider />
-                  <button
-                    onClick={() => { setShowDayEndTimePicker(!showDayEndTimePicker); setShowDayStartTimePicker(false); }}
-                    className="flex items-center justify-between w-full px-4 py-3.5"
-                  >
-                    <span className="text-sm text-foreground font-medium">End Time</span>
-                    <div className="flex items-center gap-1.5">
-                      <span className="text-sm text-primary">{dayEndTime}</span>
-                      <Clock className="w-4 h-4 text-primary shrink-0" />
-                    </div>
-                  </button>
-                  {showDayEndTimePicker && (
-                    <CompactTimePicker selectedTime={dayEndTime} onTimeChange={setDayEndTime} />
-                  )}
+                  <div className="relative">
+                    <button
+                      onClick={() => { setShowDayEndTimePicker(!showDayEndTimePicker); setShowDayStartTimePicker(false); }}
+                      className="flex items-center justify-between w-full px-4 py-3.5"
+                    >
+                      <span className="text-sm text-foreground font-medium">End Time</span>
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-sm text-primary">{dayEndTime}</span>
+                        <Clock className="w-4 h-4 text-primary shrink-0" />
+                      </div>
+                    </button>
+                    {showDayEndTimePicker && (
+                      <>
+                        <div className="fixed inset-0 z-40" onClick={() => setShowDayEndTimePicker(false)} />
+                        <div className="absolute right-4 top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
+                          <CompactTimePicker selectedTime={dayEndTime} onTimeChange={setDayEndTime} />
+                        </div>
+                      </>
+                    )}
+                  </div>
                   <Divider />
                   <div className="flex items-center justify-between px-4 py-3.5">
                     <span className="text-sm text-foreground font-medium">Next day</span>
@@ -722,22 +750,29 @@ const EditShiftContent = ({ showHeader = true, onBack }: EditShiftContentProps) 
             <Divider />
 
             {/* Start Break Time */}
-            <button
-              onClick={() => setActiveBreakTimePicker(activeBreakTimePicker === idx ? null : idx)}
-              className="flex items-center justify-between w-full px-4 py-3.5"
-            >
-              <span className="text-sm text-foreground font-medium">Start Break Time</span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm text-neutral-400">{brk.startTime}</span>
-                <Clock className="w-4 h-4 text-neutral-500 shrink-0" />
-              </div>
-            </button>
-            {activeBreakTimePicker === idx && (
-              <CompactTimePicker
-                selectedTime={brk.startTime}
-                onTimeChange={(val) => updateBreak(idx, "startTime", val)}
-              />
-            )}
+            <div className="relative">
+              <button
+                onClick={() => setActiveBreakTimePicker(activeBreakTimePicker === idx ? null : idx)}
+                className="flex items-center justify-between w-full px-4 py-3.5"
+              >
+                <span className="text-sm text-foreground font-medium">Start Break Time</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm text-neutral-400">{brk.startTime}</span>
+                  <Clock className="w-4 h-4 text-neutral-500 shrink-0" />
+                </div>
+              </button>
+              {activeBreakTimePicker === idx && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setActiveBreakTimePicker(null)} />
+                  <div className="absolute right-4 top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
+                    <CompactTimePicker
+                      selectedTime={brk.startTime}
+                      onTimeChange={(val) => updateBreak(idx, "startTime", val)}
+                    />
+                  </div>
+                </>
+              )}
+            </div>
           </div>
         ))}
 

@@ -278,7 +278,7 @@ const AddMenuContent = ({
                         {activeTimePicker === startPickerKey && schedule.enabled && (
                           <>
                             <div className="fixed inset-0 z-40" onClick={() => setActiveTimePicker(null)} />
-                            <div className="absolute top-full mt-1 z-50 bg-neutral-900 border border-neutral-700 rounded-2xl shadow-2xl overflow-hidden" style={{ width: 200 }}>
+                            <div className="absolute top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
                               <CompactTimePicker
                                 selectedTime={schedule.startTime}
                                 onTimeChange={(time) => updateDayTime(day, "startTime", time)}
@@ -300,7 +300,7 @@ const AddMenuContent = ({
                         {activeTimePicker === endPickerKey && schedule.enabled && (
                           <>
                             <div className="fixed inset-0 z-40" onClick={() => setActiveTimePicker(null)} />
-                            <div className="absolute top-full mt-1 z-50 bg-neutral-900 border border-neutral-700 rounded-2xl shadow-2xl overflow-hidden" style={{ width: 200 }}>
+                            <div className="absolute top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
                               <CompactTimePicker
                                 selectedTime={schedule.endTime}
                                 onTimeChange={(time) => updateDayTime(day, "endTime", time)}

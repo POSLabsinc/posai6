@@ -65,13 +65,10 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isTextSizeDropdownOpen]);
 
-  const ToggleRow = ({ label, description, checked, onChange, isLast = false }: { label: string; description?: string; checked: boolean; onChange: (v: boolean) => void; isLast?: boolean }) => (
+  const ToggleRow = ({ label, checked, onChange, isLast = false }: { label: string; checked: boolean; onChange: (v: boolean) => void; isLast?: boolean }) => (
     <>
       <div className="flex items-center justify-between py-3.5 px-4">
-        <div className="flex-1 pr-3">
-          <span className="text-foreground text-base font-medium">{label}</span>
-          {description && <p className="text-neutral-500 text-xs mt-1 leading-relaxed">{description}</p>}
-        </div>
+        <span className="text-foreground text-base font-medium">{label}</span>
         <Switch checked={checked} onCheckedChange={onChange} />
       </div>
       {!isLast && <div className="h-px bg-neutral-700/50 mx-4" />}
@@ -110,36 +107,39 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
 
         {/* Bills */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Bills</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <ToggleRow label="Auto-Print Bills" description="Automatically print bills when an order is completed." checked={toBool(autoPrintBills)} onChange={(v) => setAutoPrintBills(String(v))} />
-          <ToggleRow label="Show Single Products" description="Display individual products on printed bills." checked={toBool(showSingleItems)} onChange={(v) => setShowSingleItems(String(v))} />
-          <ToggleRow label="Show Free Products" description="Include complimentary products on the bill." checked={toBool(showFreeItems)} onChange={(v) => setShowFreeItems(String(v))} />
-          <ToggleRow label="Show Free Modifiers" description="Include free modifiers on the bill for each product." checked={toBool(showFreeModifiers)} onChange={(v) => setShowFreeModifiers(String(v))} isLast />
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          <ToggleRow label="Auto-Print Bills" checked={toBool(autoPrintBills)} onChange={(v) => setAutoPrintBills(String(v))} />
+          <ToggleRow label="Show Single Products" checked={toBool(showSingleItems)} onChange={(v) => setShowSingleItems(String(v))} />
+          <ToggleRow label="Show Free Products" checked={toBool(showFreeItems)} onChange={(v) => setShowFreeItems(String(v))} />
+          <ToggleRow label="Show Free Modifiers" checked={toBool(showFreeModifiers)} onChange={(v) => setShowFreeModifiers(String(v))} isLast />
         </div>
+        <p className="text-neutral-500 text-xs mt-2 mb-6 px-1 leading-relaxed">Control how bills are printed, including auto-printing, displaying single products, free products, and free modifiers.</p>
 
         {/* Receipts */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Receipts</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <ToggleRow label="Auto-Print Receipt" description="Automatically print a receipt after every sale." checked={toBool(autoPrintReceipt)} onChange={(v) => setAutoPrintReceipt(String(v))} />
-          <ToggleRow label="Auto-Print Refund" description="Automatically print a receipt when a refund is processed." checked={toBool(autoPrintRefund)} onChange={(v) => setAutoPrintRefund(String(v))} />
-          <ToggleRow label="Itemized Receipt" description="Show a detailed breakdown of each product on the receipt." checked={toBool(itemizedReceipt)} onChange={(v) => setItemizedReceipt(String(v))} />
-          <ToggleRow label="Print Customer Copy" description="Print an additional copy of the receipt for the customer." checked={toBool(printCustomerCopy)} onChange={(v) => setPrintCustomerCopy(String(v))} />
-          <ToggleRow label="Show Suggested Tip" description="Display suggested tip amounts on the printed receipt." checked={toBool(showSuggestedTip)} onChange={(v) => setShowSuggestedTip(String(v))} />
-          <ToggleRow label="Print Time Clock Report" description="Allow printing of employee time clock reports." checked={toBool(printTimeClockReport)} onChange={(v) => setPrintTimeClockReport(String(v))} isLast />
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          <ToggleRow label="Auto-Print Receipt" checked={toBool(autoPrintReceipt)} onChange={(v) => setAutoPrintReceipt(String(v))} />
+          <ToggleRow label="Auto-Print Refund" checked={toBool(autoPrintRefund)} onChange={(v) => setAutoPrintRefund(String(v))} />
+          <ToggleRow label="Itemized Receipt" checked={toBool(itemizedReceipt)} onChange={(v) => setItemizedReceipt(String(v))} />
+          <ToggleRow label="Print Customer Copy" checked={toBool(printCustomerCopy)} onChange={(v) => setPrintCustomerCopy(String(v))} />
+          <ToggleRow label="Show Suggested Tip" checked={toBool(showSuggestedTip)} onChange={(v) => setShowSuggestedTip(String(v))} />
+          <ToggleRow label="Print Time Clock Report" checked={toBool(printTimeClockReport)} onChange={(v) => setPrintTimeClockReport(String(v))} isLast />
         </div>
+        <p className="text-neutral-500 text-xs mt-2 mb-6 px-1 leading-relaxed">Manage receipt printing preferences including auto-print, itemization, customer copies, suggested tips, and time clock reports.</p>
 
         {/* Kitchen Tickets */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Kitchen Tickets</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <ToggleRow label="Large Product Text" description="Increase the font size for product names on kitchen tickets." checked={toBool(largeItemText)} onChange={(v) => setLargeItemText(String(v))} />
-          <ToggleRow label="Large Order Number" description="Enlarge the order number for quick identification." checked={toBool(largeOrderNumber)} onChange={(v) => setLargeOrderNumber(String(v))} />
-          <ToggleRow label="Print Products Separately" description="Print each product on its own individual ticket." checked={toBool(printItemsSeparately)} onChange={(v) => setPrintItemsSeparately(String(v))} />
-          <ToggleRow label="Reverse Text Style" description="Swap text and background colours for improved readability." checked={toBool(reverseTextStyle)} onChange={(v) => setReverseTextStyle(String(v))} isLast />
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          <ToggleRow label="Large Product Text" checked={toBool(largeItemText)} onChange={(v) => setLargeItemText(String(v))} />
+          <ToggleRow label="Large Order Number" checked={toBool(largeOrderNumber)} onChange={(v) => setLargeOrderNumber(String(v))} />
+          <ToggleRow label="Print Products Separately" checked={toBool(printItemsSeparately)} onChange={(v) => setPrintItemsSeparately(String(v))} />
+          <ToggleRow label="Reverse Text Style" checked={toBool(reverseTextStyle)} onChange={(v) => setReverseTextStyle(String(v))} isLast />
         </div>
+        <p className="text-neutral-500 text-xs mt-2 mb-6 px-1 leading-relaxed">Customize kitchen ticket appearance including text size, order numbers, separate product printing, and text style.</p>
 
         {/* Modifiers */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Modifiers</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           <div>
             <button
               ref={triggerRef}
@@ -150,10 +150,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
               }}
               className="flex items-center justify-between w-full py-3.5 px-4"
             >
-              <div className="flex-1 pr-3 text-left">
-                <span className="text-foreground text-base font-medium">Modifier Text Size</span>
-                <p className="text-neutral-500 text-xs mt-1 leading-relaxed">Set the text size for modifiers on kitchen tickets.</p>
-              </div>
+              <span className="text-foreground text-base font-medium">Modifier Text Size</span>
               <div className="flex items-center gap-2">
                 <span className="text-neutral-500 text-sm">{modifierTextSize}</span>
                 <ChevronRight className="w-4 h-4 text-neutral-500" />
@@ -165,10 +162,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
             onClick={() => setIsOrderTypeSheetOpen(true)}
             className="flex items-center justify-between w-full py-3.5 px-4"
           >
-            <div className="flex-1 pr-3 text-left">
-              <span className="text-foreground text-base font-medium">Kitchen Order Ticket Print with</span>
-              <p className="text-neutral-500 text-xs mt-1 leading-relaxed">Choose which order types trigger kitchen ticket printing.</p>
-            </div>
+            <span className="text-foreground text-base font-medium">Kitchen Order Ticket Print with</span>
             <div className="flex items-center gap-2">
               <span className="text-neutral-500 text-sm">
                 {selectedOrderTypes.length > 0 ? selectedOrderTypes.join(", ") : "Select"}
@@ -177,6 +171,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
             </div>
           </button>
         </div>
+        <p className="text-neutral-500 text-xs mt-2 mb-6 px-1 leading-relaxed">Configure modifier text size on kitchen tickets and choose which order types trigger ticket printing.</p>
 
         {isTextSizeDropdownOpen && (
           <div
@@ -213,18 +208,15 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
 
         {/* Signatures & Tips */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Signatures & Tips</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <ToggleRow label="Signature & Tip Line" description="Include a signature and tip line on printed receipts." checked={toBool(signatureTipLine)} onChange={(v) => setSignatureTipLine(String(v))} />
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          <ToggleRow label="Signature & Tip Line" checked={toBool(signatureTipLine)} onChange={(v) => setSignatureTipLine(String(v))} />
           <div className="h-px bg-neutral-700/50 mx-4" />
-          <ToggleRow label="Require for Sales Over" description="Require a signature for transactions above a set amount." checked={toBool(requireForSalesOver)} onChange={(v) => setRequireForSalesOver(String(v))} />
+          <ToggleRow label="Require for Sales Over" checked={toBool(requireForSalesOver)} onChange={(v) => setRequireForSalesOver(String(v))} />
           {toBool(requireForSalesOver) && (
             <>
               <div className="h-px bg-neutral-700/50 mx-4" />
               <div className="flex items-center justify-between py-3.5 px-4">
-                <div className="flex-1 pr-3">
-                  <span className="text-foreground text-base font-medium">For Sales Over</span>
-                  <p className="text-neutral-500 text-xs mt-1 leading-relaxed">Set the minimum sale amount that requires a signature.</p>
-                </div>
+                <span className="text-foreground text-base font-medium">For Sales Over</span>
                 <div className="flex items-center gap-1">
                   <span className="text-neutral-500 text-sm">$</span>
                   <input
@@ -251,6 +243,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
             </>
           )}
         </div>
+        <p className="text-neutral-500 text-xs mt-2 mb-6 px-1 leading-relaxed">Add signature and tip lines to receipts and require signatures for sales above a set amount.</p>
       </div>
     </div>
   );

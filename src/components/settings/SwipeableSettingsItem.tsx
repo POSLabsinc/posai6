@@ -17,14 +17,22 @@ const SwipeableSettingsItem = ({
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startX = useRef(0);
+  const startTarget = useRef<EventTarget | null>(null);
   const currentX = useRef(0);
   const hasMoved = useRef(false);
 
   // Width for single archive button on right side (swipe left to reveal)
   const swipeWidth = -56;
 
+  const isInteractiveTarget = (target: EventTarget | null): boolean => {
+    if (!target || !(target instanceof HTMLElement)) return false;
+    const interactive = target.closest('button[role="switch"], [data-stop-tap]');
+    return !!interactive;
+  };
+
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
+    startTarget.current = e.target;
     hasMoved.current = false;
     setIsDragging(true);
   };
@@ -44,7 +52,9 @@ const SwipeableSettingsItem = ({
     setIsDragging(false);
     // If no significant movement, treat as tap
     if (!hasMoved.current && translateX === 0) {
-      onTap();
+      if (!isInteractiveTarget(startTarget.current)) {
+        onTap();
+      }
       return;
     }
     // Snap to open or closed position
@@ -57,6 +67,7 @@ const SwipeableSettingsItem = ({
 
   const handleMouseDown = (e: React.MouseEvent) => {
     startX.current = e.clientX;
+    startTarget.current = e.target;
     hasMoved.current = false;
     setIsDragging(true);
   };
@@ -75,7 +86,9 @@ const SwipeableSettingsItem = ({
     setIsDragging(false);
     // If no significant movement, treat as tap
     if (!hasMoved.current && translateX === 0) {
-      onTap();
+      if (!isInteractiveTarget(startTarget.current)) {
+        onTap();
+      }
       return;
     }
     if (translateX < swipeWidth / 2) {

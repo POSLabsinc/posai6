@@ -191,7 +191,11 @@ const CustomerSupportPinModal = ({
               AVAILABLE STORES
             </p>
             <div className="space-y-2 flex-1 overflow-y-auto scrollbar-hide max-h-[400px]">
-              {stores.map((store) => {
+              {[...stores].sort((a, b) => {
+                if (a.id === currentStore?.id) return -1;
+                if (b.id === currentStore?.id) return 1;
+                return 0;
+              }).map((store) => {
                 const isCurrent = store.id === currentStore?.id;
                 const isSelected = store.id === selectedStoreId;
                 return (

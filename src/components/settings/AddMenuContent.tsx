@@ -185,46 +185,52 @@ const AddMenuContent = ({
           {activeForPOS && (
             <div>
               {/* Start Date */}
-              <button
-                onClick={() => { setShowStartDatePicker(true); setShowEndDatePicker(false); }}
-                className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity border-t border-neutral-700/30"
-              >
-                <span className="text-foreground text-sm font-medium">Start Date</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground text-sm">
-                    {startDateSet ? format(posStartDate, "MM/dd/yyyy") : "Choose"}
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </button>
-              <AppleWheelDatePicker
-                isOpen={showStartDatePicker}
-                onClose={() => setShowStartDatePicker(false)}
-                onConfirm={() => { setStartDateSet(true); setShowStartDatePicker(false); }}
-                selectedDate={posStartDate}
-                onDateChange={setPosStartDate}
-              />
+              <div className="relative">
+                <button
+                  onClick={() => { setShowStartDatePicker(!showStartDatePicker); setShowEndDatePicker(false); }}
+                  className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity border-t border-neutral-700/30"
+                >
+                  <span className="text-foreground text-sm font-medium">Start Date</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground text-sm">
+                      {startDateSet ? format(posStartDate, "MM/dd/yyyy") : "Choose"}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                </button>
+                <AppleWheelDatePicker
+                  isOpen={showStartDatePicker}
+                  onClose={() => setShowStartDatePicker(false)}
+                  onConfirm={() => { setStartDateSet(true); setShowStartDatePicker(false); }}
+                  selectedDate={posStartDate}
+                  onDateChange={setPosStartDate}
+                  mode="inline"
+                />
+              </div>
 
               {/* End Date */}
-              <button
-                onClick={() => { setShowEndDatePicker(true); setShowStartDatePicker(false); }}
-                className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity border-t border-neutral-700/30"
-              >
-                <span className="text-foreground text-sm font-medium">End Date</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-muted-foreground text-sm">
-                    {endDateSet ? format(posEndDate, "MM/dd/yyyy") : "Choose"}
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </div>
-              </button>
-              <AppleWheelDatePicker
-                isOpen={showEndDatePicker}
-                onClose={() => setShowEndDatePicker(false)}
-                onConfirm={() => { setEndDateSet(true); setShowEndDatePicker(false); }}
-                selectedDate={posEndDate}
-                onDateChange={setPosEndDate}
-              />
+              <div className="relative">
+                <button
+                  onClick={() => { setShowEndDatePicker(!showEndDatePicker); setShowStartDatePicker(false); }}
+                  className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity border-t border-neutral-700/30"
+                >
+                  <span className="text-foreground text-sm font-medium">End Date</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground text-sm">
+                      {endDateSet ? format(posEndDate, "MM/dd/yyyy") : "Choose"}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                  </div>
+                </button>
+                <AppleWheelDatePicker
+                  isOpen={showEndDatePicker}
+                  onClose={() => setShowEndDatePicker(false)}
+                  onConfirm={() => { setEndDateSet(true); setShowEndDatePicker(false); }}
+                  selectedDate={posEndDate}
+                  onDateChange={setPosEndDate}
+                  mode="inline"
+                />
+              </div>
 
               {/* Days Table Header */}
               <div className="border-t border-neutral-700/30 px-4 py-2.5 flex items-center">

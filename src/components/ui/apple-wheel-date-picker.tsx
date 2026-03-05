@@ -7,6 +7,7 @@ interface AppleWheelDatePickerProps {
   onConfirm: () => void;
   selectedDate: Date;
   onDateChange: (date: Date) => void;
+  mode?: "fullscreen" | "inline";
 }
 
 const AppleWheelDatePicker = ({
@@ -15,6 +16,7 @@ const AppleWheelDatePicker = ({
   onConfirm,
   selectedDate,
   onDateChange,
+  mode = "fullscreen",
 }: AppleWheelDatePickerProps) => {
   const [selectedMonth, setSelectedMonth] = useState(selectedDate.getMonth());
   const [selectedDay, setSelectedDay] = useState(selectedDate.getDate());
@@ -122,6 +124,10 @@ const AppleWheelDatePicker = ({
 
   if (!isOpen) return null;
 
+  const WHEEL_HEIGHT = mode === "inline" ? 150 : 220;
+  const GRADIENT_HEIGHT = mode === "inline" ? 55 : 88;
+  const PADDING_ITEMS = mode === "inline" ? 1.5 : 2;
+
   const renderWheelColumn = (
     items: (string | number)[],
     selectedValue: number | string,
@@ -131,10 +137,9 @@ const AppleWheelDatePicker = ({
     align: "left" | "center" | "right" = "center"
   ) => {
     return (
-      <div className="relative h-[220px] overflow-hidden">
-        {/* Gradient overlays for fade effect */}
-        <div className="absolute inset-x-0 top-0 h-[88px] bg-gradient-to-b from-neutral-900 via-neutral-900/80 to-transparent z-10 pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-[88px] bg-gradient-to-t from-neutral-900 via-neutral-900/80 to-transparent z-10 pointer-events-none" />
+      <div className="relative overflow-hidden" style={{ height: WHEEL_HEIGHT }}>
+        <div className={`absolute inset-x-0 top-0 bg-gradient-to-b from-neutral-900 via-neutral-900/80 to-transparent z-10 pointer-events-none`} style={{ height: GRADIENT_HEIGHT }} />
+        <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-neutral-900 via-neutral-900/80 to-transparent z-10 pointer-events-none`} style={{ height: GRADIENT_HEIGHT }} />
 
         <div
           ref={ref}
@@ -142,8 +147,7 @@ const AppleWheelDatePicker = ({
           style={{ scrollSnapType: "y mandatory" }}
           onScroll={() => handleScroll(ref, items, setter, isDay)}
         >
-          {/* Padding items for centering */}
-          <div style={{ height: ITEM_HEIGHT * 2 }} />
+          <div style={{ height: ITEM_HEIGHT * PADDING_ITEMS }} />
           {items.map((item, index) => {
             const isSelected = isDay
               ? item === selectedValue
@@ -160,27 +164,58 @@ const AppleWheelDatePicker = ({
                 <span
                   className={`transition-all duration-150 ${
                     isSelected
-                      ? "text-foreground text-xl font-semibold"
-                      : "text-neutral-500 text-lg font-normal"
+                      ? mode === "inline" ? "text-foreground text-base font-semibold" : "text-foreground text-xl font-semibold"
+                      : mode === "inline" ? "text-neutral-500 text-sm font-normal" : "text-neutral-500 text-lg font-normal"
                   } ${
                     align === "left"
-                      ? "text-left w-full pl-4"
+                      ? "text-left w-full pl-2"
                       : align === "right"
-                      ? "text-right w-full pr-4"
+                      ? "text-right w-full pr-2"
                       : "text-center"
                   }`}
                 >
-                  {item}
+                  {typeof item === "string" && mode === "inline" ? item.slice(0, 3) : item}
                 </span>
               </div>
             );
           })}
-          {/* Padding items for centering */}
-          <div style={{ height: ITEM_HEIGHT * 2 }} />
+          <div style={{ height: ITEM_HEIGHT * PADDING_ITEMS }} />
         </div>
       </div>
     );
   };
+
+  if (mode === "inline") {
+    return (
+      <>
+        <div className="fixed inset-0 z-40" onClick={onClose} />
+        <div className="absolute top-full mt-1 z-50 overflow-hidden" style={{ width: 240 }}>
+          {/* Header */}
+          <div className="flex items-center justify-between px-2 py-2">
+            <div className="flex items-center gap-1">
+              <button onClick={goToPrevMonth} className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-neutral-800 transition-colors">
+                <ChevronLeft className="w-4 h-4 text-neutral-400" />
+              </button>
+              <button onClick={goToNextMonth} className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-neutral-800 transition-colors">
+                <ChevronRight className="w-4 h-4 text-neutral-400" />
+              </button>
+            </div>
+            <button onClick={onConfirm} className="text-foreground text-sm font-medium">Done</button>
+          </div>
+
+          <div className="relative">
+            <div className="absolute left-2 right-2 top-1/2 -translate-y-1/2 h-[36px] bg-neutral-800/50 rounded-lg pointer-events-none z-0" />
+            <div className="grid grid-cols-3 px-2 relative z-10">
+              {renderWheelColumn(months, selectedMonth, monthScrollRef, setSelectedMonth, false, "right")}
+              {renderWheelColumn(days, selectedDay, dayScrollRef, setSelectedDay, true, "center")}
+              {renderWheelColumn(years, selectedYear, yearScrollRef, setSelectedYear, false, "left")}
+            </div>
+          </div>
+          <div className="h-2" />
+        </div>
+      </>
+    );
+  }
 
   return (
     <div
@@ -191,44 +226,26 @@ const AppleWheelDatePicker = ({
         className="w-full max-w-md bg-neutral-900 rounded-t-3xl animate-in slide-in-from-bottom duration-300"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header with navigation */}
         <div className="flex items-center justify-between px-4 py-4">
           <div className="flex items-center gap-2">
-            <button
-              onClick={goToPrevMonth}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-neutral-800 transition-colors"
-            >
+            <button onClick={goToPrevMonth} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-neutral-800 transition-colors">
               <ChevronLeft className="w-5 h-5 text-neutral-400" />
             </button>
-            <button
-              onClick={goToNextMonth}
-              className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-neutral-800 transition-colors"
-            >
+            <button onClick={goToNextMonth} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-neutral-800 transition-colors">
               <ChevronRight className="w-5 h-5 text-neutral-400" />
             </button>
           </div>
-          <button onClick={onConfirm} className="text-foreground text-base font-medium">
-            Done
-          </button>
+          <button onClick={onConfirm} className="text-foreground text-base font-medium">Done</button>
         </div>
 
-        {/* Selection indicator bar */}
         <div className="relative">
           <div className="absolute left-4 right-4 top-1/2 -translate-y-1/2 h-[44px] bg-neutral-800/50 rounded-xl pointer-events-none z-0" />
-
-          {/* Three-column wheel picker */}
           <div className="grid grid-cols-3 px-4 relative z-10">
-            {/* Month Column */}
             {renderWheelColumn(months, selectedMonth, monthScrollRef, setSelectedMonth, false, "right")}
-
-            {/* Day Column */}
             {renderWheelColumn(days, selectedDay, dayScrollRef, setSelectedDay, true, "center")}
-
-            {/* Year Column */}
             {renderWheelColumn(years, selectedYear, yearScrollRef, setSelectedYear, false, "left")}
           </div>
         </div>
-
         <div className="h-8" />
       </div>
     </div>

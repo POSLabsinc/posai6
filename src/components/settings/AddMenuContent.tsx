@@ -267,22 +267,48 @@ const AddMenuContent = ({
                       </button>
 
                       {/* Start Time */}
-                      <button
-                        onClick={() => schedule.enabled && toggleTimePicker(day, "startTime")}
-                        className={`w-[25%] text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
-                        disabled={!schedule.enabled}
-                      >
-                        {schedule.startTime}
-                      </button>
+                      <div className="w-[25%] flex justify-center relative">
+                        <button
+                          onClick={() => schedule.enabled && toggleTimePicker(day, "startTime")}
+                          className={`text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
+                          disabled={!schedule.enabled}
+                        >
+                          {schedule.startTime}
+                        </button>
+                        {activeTimePicker === startPickerKey && schedule.enabled && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setActiveTimePicker(null)} />
+                            <div className="absolute top-full mt-1 z-50 bg-neutral-900 border border-neutral-700 rounded-2xl shadow-2xl overflow-hidden" style={{ width: 200 }}>
+                              <CompactTimePicker
+                                selectedTime={schedule.startTime}
+                                onTimeChange={(time) => updateDayTime(day, "startTime", time)}
+                              />
+                            </div>
+                          </>
+                        )}
+                      </div>
 
                       {/* End Time */}
-                      <button
-                        onClick={() => schedule.enabled && toggleTimePicker(day, "endTime")}
-                        className={`w-[25%] text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
-                        disabled={!schedule.enabled}
-                      >
-                        {schedule.endTime}
-                      </button>
+                      <div className="w-[25%] flex justify-center relative">
+                        <button
+                          onClick={() => schedule.enabled && toggleTimePicker(day, "endTime")}
+                          className={`text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
+                          disabled={!schedule.enabled}
+                        >
+                          {schedule.endTime}
+                        </button>
+                        {activeTimePicker === endPickerKey && schedule.enabled && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => setActiveTimePicker(null)} />
+                            <div className="absolute top-full mt-1 z-50 bg-neutral-900 border border-neutral-700 rounded-2xl shadow-2xl overflow-hidden" style={{ width: 200 }}>
+                              <CompactTimePicker
+                                selectedTime={schedule.endTime}
+                                onTimeChange={(time) => updateDayTime(day, "endTime", time)}
+                              />
+                            </div>
+                          </>
+                        )}
+                      </div>
 
                       {/* Copy icon */}
                       <div className="w-[10%] flex justify-center">
@@ -296,22 +322,6 @@ const AddMenuContent = ({
                         </button>
                       </div>
                     </div>
-
-                    {/* Inline Compact Time Picker for Start Time */}
-                    {activeTimePicker === startPickerKey && schedule.enabled && (
-                      <CompactTimePicker
-                        selectedTime={schedule.startTime}
-                        onTimeChange={(time) => updateDayTime(day, "startTime", time)}
-                      />
-                    )}
-
-                    {/* Inline Compact Time Picker for End Time */}
-                    {activeTimePicker === endPickerKey && schedule.enabled && (
-                      <CompactTimePicker
-                        selectedTime={schedule.endTime}
-                        onTimeChange={(time) => updateDayTime(day, "endTime", time)}
-                      />
-                    )}
                   </div>
                 );
               })}

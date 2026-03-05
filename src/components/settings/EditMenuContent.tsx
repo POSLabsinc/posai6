@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import { getMenus, saveMenu, Menu } from "@/lib/menuStore";
 import { getAllCategories } from "@/lib/productStore";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
 
 interface EditMenuContentProps {
   menuId: string;
@@ -22,17 +22,45 @@ const EditMenuContent = ({
   onAIClick,
 }: EditMenuContentProps) => {
   const allCategories = getAllCategories();
-  const originalMenu = getMenus().find((m) => m.id === menuId);
 
-  const [name, setName] = useState(originalMenu?.name ?? "");
+  const [loading, setLoading] = useState(true);
+  const [name, setName] = useState("");
+  const [enabled, setEnabled] = useState(true);
   const [activeForPOS, setActiveForPOS] = useState(false);
   const [activeForPOP, setActiveForPOP] = useState(false);
   const [activeForKiosk, setActiveForKiosk] = useState(false);
   const [activeForOrderOS, setActiveForOrderOS] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    originalMenu?.categories ?? []
-  );
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showCategoriesSheet, setShowCategoriesSheet] = useState(false);
+
+  useEffect(() => {
+    const fetchMenu = async () => {
+      const { data } = await supabase
+        .from("menus")
+        .select("id, name, enabled")
+        .eq("id", menuId)
+        .single();
+      if (data) {
+        setName(data.name);
+        setEnabled(data.enabled);
+      }
+
+      // Fetch linked categories
+      const { data: catData } = await supabase
+        .from("menu_categories")
+        .select("categories(name)")
+        .eq("menu_id", menuId);
+      if (catData) {
+        const catNames = catData
+          .map((c: any) => c.categories?.name)
+          .filter(Boolean);
+        setSelectedCategories(catNames);
+      }
+
+      setLoading(false);
+    };
+    fetchMenu();
+  }, [menuId]);
 
   const formatSelection = (items: string[], placeholder: string) => {
     if (items.length === 0) return placeholder;
@@ -40,25 +68,20 @@ const EditMenuContent = ({
     return `${items.length} selected`;
   };
 
-  const handleSave = () => {
-    if (name.trim() && originalMenu) {
-      const updated: Menu = {
-        ...originalMenu,
-        name: name.trim(),
-        description: "",
-        enabled: originalMenu.enabled,
-        categories: selectedCategories,
-        updatedAt: new Date().toISOString(),
-      };
-      saveMenu(updated);
+  const handleSave = async () => {
+    if (name.trim()) {
+      await supabase
+        .from("menus")
+        .update({ name: name.trim(), enabled })
+        .eq("id", menuId);
     }
     onBack?.();
   };
 
-  if (!originalMenu) {
+  if (loading) {
     return (
       <div className="h-full flex items-center justify-center">
-        <p className="text-muted-foreground text-sm">Menu not found.</p>
+        <p className="text-muted-foreground text-sm">Loading...</p>
       </div>
     );
   }

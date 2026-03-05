@@ -65,14 +65,22 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isTextSizeDropdownOpen]);
 
-  const ToggleRow = ({ label, checked, onChange, isLast = false }: { label: string; checked: boolean; onChange: (v: boolean) => void; isLast?: boolean }) => (
-    <>
-      <div className="flex items-center justify-between py-3.5 px-4">
-        <span className="text-foreground text-base font-medium">{label}</span>
-        <Switch checked={checked} onCheckedChange={onChange} />
+  const SettingOption = ({ label, description, children }: { label: string; description: string; children: React.ReactNode }) => (
+    <div className="mb-5">
+      <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+        <div className="flex items-center justify-between py-3.5 px-4">
+          <span className="text-foreground text-base font-medium">{label}</span>
+          {children}
+        </div>
       </div>
-      {!isLast && <div className="h-px bg-neutral-700/50 mx-4" />}
-    </>
+      <p className="text-neutral-500 text-xs mt-1.5 px-1 leading-relaxed">{description}</p>
+    </div>
+  );
+
+  const ToggleOption = ({ label, description, checked, onChange }: { label: string; description: string; checked: boolean; onChange: (v: boolean) => void }) => (
+    <SettingOption label={label} description={description}>
+      <Switch checked={checked} onCheckedChange={onChange} />
+    </SettingOption>
   );
 
   return (
@@ -107,71 +115,54 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
 
         {/* Bills */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Bills</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          <ToggleRow label="Auto-Print Bills" checked={toBool(autoPrintBills)} onChange={(v) => setAutoPrintBills(String(v))} />
-          <ToggleRow label="Show Single Products" checked={toBool(showSingleItems)} onChange={(v) => setShowSingleItems(String(v))} />
-          <ToggleRow label="Show Free Products" checked={toBool(showFreeItems)} onChange={(v) => setShowFreeItems(String(v))} />
-          <ToggleRow label="Show Free Modifiers" checked={toBool(showFreeModifiers)} onChange={(v) => setShowFreeModifiers(String(v))} isLast />
-        </div>
-        <p className="text-neutral-500 text-xs mt-2 mb-6 px-1 leading-relaxed">Control how bills are printed, including auto-printing, displaying single products, free products, and free modifiers.</p>
+        <ToggleOption label="Auto-Print Bills" description="Automatically print bills when an order is completed." checked={toBool(autoPrintBills)} onChange={(v) => setAutoPrintBills(String(v))} />
+        <ToggleOption label="Show Single Products" description="Display individual products on printed bills." checked={toBool(showSingleItems)} onChange={(v) => setShowSingleItems(String(v))} />
+        <ToggleOption label="Show Free Products" description="Include complimentary products on the bill." checked={toBool(showFreeItems)} onChange={(v) => setShowFreeItems(String(v))} />
+        <ToggleOption label="Show Free Modifiers" description="Include free modifiers on the bill for each product." checked={toBool(showFreeModifiers)} onChange={(v) => setShowFreeModifiers(String(v))} />
 
         {/* Receipts */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Receipts</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          <ToggleRow label="Auto-Print Receipt" checked={toBool(autoPrintReceipt)} onChange={(v) => setAutoPrintReceipt(String(v))} />
-          <ToggleRow label="Auto-Print Refund" checked={toBool(autoPrintRefund)} onChange={(v) => setAutoPrintRefund(String(v))} />
-          <ToggleRow label="Itemized Receipt" checked={toBool(itemizedReceipt)} onChange={(v) => setItemizedReceipt(String(v))} />
-          <ToggleRow label="Print Customer Copy" checked={toBool(printCustomerCopy)} onChange={(v) => setPrintCustomerCopy(String(v))} />
-          <ToggleRow label="Show Suggested Tip" checked={toBool(showSuggestedTip)} onChange={(v) => setShowSuggestedTip(String(v))} />
-          <ToggleRow label="Print Time Clock Report" checked={toBool(printTimeClockReport)} onChange={(v) => setPrintTimeClockReport(String(v))} isLast />
-        </div>
-        <p className="text-neutral-500 text-xs mt-2 mb-6 px-1 leading-relaxed">Manage receipt printing preferences including auto-print, itemization, customer copies, suggested tips, and time clock reports.</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Receipts</p>
+        <ToggleOption label="Auto-Print Receipt" description="Automatically print a receipt after every sale." checked={toBool(autoPrintReceipt)} onChange={(v) => setAutoPrintReceipt(String(v))} />
+        <ToggleOption label="Auto-Print Refund" description="Automatically print a receipt when a refund is processed." checked={toBool(autoPrintRefund)} onChange={(v) => setAutoPrintRefund(String(v))} />
+        <ToggleOption label="Itemized Receipt" description="Show a detailed breakdown of each product on the receipt." checked={toBool(itemizedReceipt)} onChange={(v) => setItemizedReceipt(String(v))} />
+        <ToggleOption label="Print Customer Copy" description="Print an additional copy of the receipt for the customer." checked={toBool(printCustomerCopy)} onChange={(v) => setPrintCustomerCopy(String(v))} />
+        <ToggleOption label="Show Suggested Tip" description="Display suggested tip amounts on the printed receipt." checked={toBool(showSuggestedTip)} onChange={(v) => setShowSuggestedTip(String(v))} />
+        <ToggleOption label="Print Time Clock Report" description="Allow printing of employee time clock reports." checked={toBool(printTimeClockReport)} onChange={(v) => setPrintTimeClockReport(String(v))} />
 
         {/* Kitchen Tickets */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Kitchen Tickets</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          <ToggleRow label="Large Product Text" checked={toBool(largeItemText)} onChange={(v) => setLargeItemText(String(v))} />
-          <ToggleRow label="Large Order Number" checked={toBool(largeOrderNumber)} onChange={(v) => setLargeOrderNumber(String(v))} />
-          <ToggleRow label="Print Products Separately" checked={toBool(printItemsSeparately)} onChange={(v) => setPrintItemsSeparately(String(v))} />
-          <ToggleRow label="Reverse Text Style" checked={toBool(reverseTextStyle)} onChange={(v) => setReverseTextStyle(String(v))} isLast />
-        </div>
-        <p className="text-neutral-500 text-xs mt-2 mb-6 px-1 leading-relaxed">Customize kitchen ticket appearance including text size, order numbers, separate product printing, and text style.</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Kitchen Tickets</p>
+        <ToggleOption label="Large Product Text" description="Increase the font size for product names on kitchen tickets." checked={toBool(largeItemText)} onChange={(v) => setLargeItemText(String(v))} />
+        <ToggleOption label="Large Order Number" description="Enlarge the order number for quick identification." checked={toBool(largeOrderNumber)} onChange={(v) => setLargeOrderNumber(String(v))} />
+        <ToggleOption label="Print Products Separately" description="Print each product on its own individual ticket." checked={toBool(printItemsSeparately)} onChange={(v) => setPrintItemsSeparately(String(v))} />
+        <ToggleOption label="Reverse Text Style" description="Swap text and background colours for improved readability." checked={toBool(reverseTextStyle)} onChange={(v) => setReverseTextStyle(String(v))} />
 
         {/* Modifiers */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Modifiers</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          <div>
-            <button
-              ref={triggerRef}
-              onClick={(e) => {
-                const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
-                setDropdownPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right + 16 });
-                setIsTextSizeDropdownOpen(!isTextSizeDropdownOpen);
-              }}
-              className="flex items-center justify-between w-full py-3.5 px-4"
-            >
-              <span className="text-foreground text-base font-medium">Modifier Text Size</span>
-              <div className="flex items-center gap-2">
-                <span className="text-neutral-500 text-sm">{modifierTextSize}</span>
-                <ChevronRight className="w-4 h-4 text-neutral-500" />
-              </div>
-            </button>
-          </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Modifiers</p>
+        <SettingOption label="Modifier Text Size" description="Set the text size for modifiers on kitchen tickets.">
+          <button
+            ref={triggerRef}
+            onClick={(e) => {
+              const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+              setDropdownPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right + 16 });
+              setIsTextSizeDropdownOpen(!isTextSizeDropdownOpen);
+            }}
+            className="flex items-center gap-2"
+          >
+            <span className="text-neutral-500 text-sm">{modifierTextSize}</span>
+            <ChevronRight className="w-4 h-4 text-neutral-500" />
+          </button>
+        </SettingOption>
+        <SettingOption label="Kitchen Order Ticket Print with" description="Choose which order types trigger kitchen ticket printing.">
           <button
             onClick={() => setIsOrderTypeSheetOpen(true)}
-            className="flex items-center justify-between w-full py-3.5 px-4"
+            className="flex items-center gap-2"
           >
-            <span className="text-foreground text-base font-medium">Kitchen Order Ticket Print with</span>
-            <div className="flex items-center gap-2">
-              <span className="text-neutral-500 text-sm">
-                {selectedOrderTypes.length > 0 ? selectedOrderTypes.join(", ") : "Select"}
-              </span>
-              <ChevronRight className="w-4 h-4 text-neutral-500" />
-            </div>
+            <span className="text-neutral-500 text-sm">
+              {selectedOrderTypes.length > 0 ? selectedOrderTypes.join(", ") : "Select"}
+            </span>
+            <ChevronRight className="w-4 h-4 text-neutral-500" />
           </button>
-        </div>
-        <p className="text-neutral-500 text-xs mt-2 mb-6 px-1 leading-relaxed">Configure modifier text size on kitchen tickets and choose which order types trigger ticket printing.</p>
+        </SettingOption>
 
         {isTextSizeDropdownOpen && (
           <div
@@ -207,43 +198,35 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         />
 
         {/* Signatures & Tips */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Signatures & Tips</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          <ToggleRow label="Signature & Tip Line" checked={toBool(signatureTipLine)} onChange={(v) => setSignatureTipLine(String(v))} />
-          <div className="h-px bg-neutral-700/50 mx-4" />
-          <ToggleRow label="Require for Sales Over" checked={toBool(requireForSalesOver)} onChange={(v) => setRequireForSalesOver(String(v))} />
-          {toBool(requireForSalesOver) && (
-            <>
-              <div className="h-px bg-neutral-700/50 mx-4" />
-              <div className="flex items-center justify-between py-3.5 px-4">
-                <span className="text-foreground text-base font-medium">For Sales Over</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-neutral-500 text-sm">$</span>
-                  <input
-                    type="text"
-                    inputMode="decimal"
-                    value={localSalesAmount}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (/^\d*\.?\d{0,2}$/.test(val)) {
-                        setLocalSalesAmount(val);
-                      }
-                    }}
-                    onBlur={() => {
-                      const num = parseFloat(localSalesAmount);
-                      const formatted = isNaN(num) ? "0.00" : num.toFixed(2);
-                      setLocalSalesAmount(formatted);
-                      setSalesOverAmount(formatted);
-                    }}
-                    className="bg-transparent text-neutral-500 text-sm text-right w-20 outline-none focus:text-foreground"
-                  />
-                  <ChevronRight className="w-4 h-4 text-neutral-500" />
-                </div>
-              </div>
-            </>
-          )}
-        </div>
-        <p className="text-neutral-500 text-xs mt-2 mb-6 px-1 leading-relaxed">Add signature and tip lines to receipts and require signatures for sales above a set amount.</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Signatures & Tips</p>
+        <ToggleOption label="Signature & Tip Line" description="Include a signature and tip line on printed receipts." checked={toBool(signatureTipLine)} onChange={(v) => setSignatureTipLine(String(v))} />
+        <ToggleOption label="Require for Sales Over" description="Require a signature for transactions above a set amount." checked={toBool(requireForSalesOver)} onChange={(v) => setRequireForSalesOver(String(v))} />
+        {toBool(requireForSalesOver) && (
+          <SettingOption label="For Sales Over" description="Set the minimum sale amount that requires a signature.">
+            <div className="flex items-center gap-1">
+              <span className="text-neutral-500 text-sm">$</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={localSalesAmount}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (/^\d*\.?\d{0,2}$/.test(val)) {
+                    setLocalSalesAmount(val);
+                  }
+                }}
+                onBlur={() => {
+                  const num = parseFloat(localSalesAmount);
+                  const formatted = isNaN(num) ? "0.00" : num.toFixed(2);
+                  setLocalSalesAmount(formatted);
+                  setSalesOverAmount(formatted);
+                }}
+                className="bg-transparent text-neutral-500 text-sm text-right w-20 outline-none focus:text-foreground"
+              />
+              <ChevronRight className="w-4 h-4 text-neutral-500" />
+            </div>
+          </SettingOption>
+        )}
       </div>
     </div>
   );

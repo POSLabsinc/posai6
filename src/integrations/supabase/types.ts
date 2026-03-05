@@ -373,6 +373,57 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string
+          bullets: Json
+          category: string
+          created_at: string
+          footer: string | null
+          has_update: boolean
+          headline: string
+          id: string
+          is_read: boolean
+          preview: string
+          time: string
+          title: string
+          version: string
+          version_date: string
+        }
+        Insert: {
+          body?: string
+          bullets?: Json
+          category?: string
+          created_at?: string
+          footer?: string | null
+          has_update?: boolean
+          headline?: string
+          id?: string
+          is_read?: boolean
+          preview?: string
+          time?: string
+          title: string
+          version?: string
+          version_date?: string
+        }
+        Update: {
+          body?: string
+          bullets?: Json
+          category?: string
+          created_at?: string
+          footer?: string | null
+          has_update?: boolean
+          headline?: string
+          id?: string
+          is_read?: boolean
+          preview?: string
+          time?: string
+          title?: string
+          version?: string
+          version_date?: string
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           category: string

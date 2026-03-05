@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Plus, Search, Mic, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
@@ -6,7 +6,6 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { Switch } from "@/components/ui/switch";
-import { useMenus, archiveMenu, unarchiveMenu, toggleMenuEnabled, type Menu } from "@/lib/menuStore";
 import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
@@ -22,6 +21,58 @@ import infoIcon from "@/assets/icons/info.png";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
 import { format } from "date-fns";
 
+interface DbMenu {
+  id: string;
+  name: string;
+  enabled: boolean;
+  archived: boolean;
+  created_at: string;
+  updated_at: string;
+  sort_order: number;
+}
+
+function useDbMenus() {
+  const [menus, setMenus] = useState<DbMenu[]>([]);
+
+  const fetchMenus = useCallback(async () => {
+    const { data } = await supabase
+      .from("menus")
+      .select("id, name, enabled, archived, created_at, updated_at, sort_order")
+      .order("sort_order");
+    if (data) setMenus(data);
+  }, []);
+
+  useEffect(() => {
+    fetchMenus();
+    const channel = supabase
+      .channel("menu-items-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "menus" }, () => {
+        fetchMenus();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [fetchMenus]);
+
+  const toggleEnabled = async (menu: DbMenu) => {
+    const newEnabled = !menu.enabled;
+    // Optimistic update
+    setMenus((prev) => prev.map((m) => m.id === menu.id ? { ...m, enabled: newEnabled } : m));
+    await supabase.from("menus").update({ enabled: newEnabled }).eq("id", menu.id);
+  };
+
+  const archiveMenu = async (menu: DbMenu) => {
+    setMenus((prev) => prev.map((m) => m.id === menu.id ? { ...m, archived: true, enabled: false } : m));
+    await supabase.from("menus").update({ archived: true, enabled: false }).eq("id", menu.id);
+  };
+
+  const unarchiveMenu = async (menu: DbMenu) => {
+    setMenus((prev) => prev.map((m) => m.id === menu.id ? { ...m, archived: false } : m));
+    await supabase.from("menus").update({ archived: false }).eq("id", menu.id);
+  };
+
+  return { menus, toggleEnabled, archiveMenu, unarchiveMenu };
+}
+
 interface MenuItemsContentProps {
   showHeader?: boolean;
   onBack?: () => void;
@@ -33,11 +84,11 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
   
-  const menus = useMenus();
+  const { menus, toggleEnabled, archiveMenu, unarchiveMenu } = useDbMenus();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
-  const [itemToArchive, setItemToArchive] = useState<Menu | null>(null);
+  const [itemToArchive, setItemToArchive] = useState<DbMenu | null>(null);
 
   const formatDate = (dateStr: string | undefined) => {
     if (!dateStr) return "—";
@@ -48,13 +99,13 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
     }
   };
 
-  const confirmArchiveItem = () => {
+  const confirmArchiveItem = async () => {
     if (itemToArchive) {
       if (itemToArchive.archived) {
-        unarchiveMenu(itemToArchive.id);
+        await unarchiveMenu(itemToArchive);
         toast({ description: `"${itemToArchive.name}" has been restored.`, duration: 3000 });
       } else {
-        archiveMenu(itemToArchive.id);
+        await archiveMenu(itemToArchive);
         toast({ description: `"${itemToArchive.name}" has been archived.`, duration: 3000 });
       }
       setItemToArchive(null);
@@ -162,8 +213,8 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
                       className="grid grid-cols-[1.5fr_120px_120px_80px_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors cursor-pointer"
                     >
                       <span className="text-[15px] font-semibold text-foreground text-left">{item.name}</span>
-                      <span className="text-[15px] text-[hsl(var(--text-subtle))] text-center">{formatDate(item.createdAt)}</span>
-                      <span className="text-[15px] text-[hsl(var(--text-subtle))] text-center">{formatDate(item.updatedAt)}</span>
+                      <span className="text-[15px] text-[hsl(var(--text-subtle))] text-center">{formatDate(item.created_at)}</span>
+                      <span className="text-[15px] text-[hsl(var(--text-subtle))] text-center">{formatDate(item.updated_at)}</span>
                       <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
                         {showArchived ? (
                           <button
@@ -175,10 +226,7 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
                         ) : (
                           <Switch
                             checked={item.enabled}
-                            onCheckedChange={async () => {
-                              toggleMenuEnabled(item.id);
-                              await supabase.from("menus").update({ enabled: !item.enabled }).eq("id", item.id);
-                            }}
+                            onCheckedChange={() => toggleEnabled(item)}
                           />
                         )}
                       </div>
@@ -307,10 +355,7 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
                       ) : (
                         <Switch
                           checked={item.enabled}
-                          onCheckedChange={async () => {
-                            toggleMenuEnabled(item.id);
-                            await supabase.from("menus").update({ enabled: !item.enabled }).eq("id", item.id);
-                          }}
+                          onCheckedChange={() => toggleEnabled(item)}
                         />
                       )}
                     </div>

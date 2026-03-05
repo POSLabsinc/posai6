@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { ChevronLeft, Search, Check, Plus, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface CashRegisterContentProps {
   showHeader?: boolean;
   onBack?: () => void;
+  onAIClick?: () => void;
 }
 
 interface DrawerDevice {
@@ -33,7 +36,8 @@ const DRAWER_MODELS = [
   "SUNMI REGISTER",
 ];
 
-const CashRegisterContent = ({ showHeader = true, onBack }: CashRegisterContentProps) => {
+const CashRegisterContent = ({ showHeader = true, onBack, onAIClick }: CashRegisterContentProps) => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { getIconBgColor } = useAppearance();
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("1");
@@ -58,7 +62,9 @@ const CashRegisterContent = ({ showHeader = true, onBack }: CashRegisterContentP
             </button>
           )}
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Cash Register</h1>
-          <div className="w-8 h-8" />
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
 

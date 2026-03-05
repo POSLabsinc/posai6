@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { ChevronLeft, Search, Check } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface CardReaderContentProps {
   showHeader?: boolean;
   onBack?: () => void;
+  onAIClick?: () => void;
 }
 
 interface DeviceEntry {
@@ -23,7 +26,8 @@ const MOCK_DEVICES: DeviceEntry[] = [
   { id: "4", name: "EOC-S1F2-9732", type: "ADYEN", serial: "693c63f0c97c611755586489" },
 ];
 
-const CardReaderContent = ({ showHeader = true, onBack }: CardReaderContentProps) => {
+const CardReaderContent = ({ showHeader = true, onBack, onAIClick }: CardReaderContentProps) => {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("4");
   const { getIconBgColor } = useAppearance();
@@ -43,7 +47,9 @@ const CardReaderContent = ({ showHeader = true, onBack }: CardReaderContentProps
             </button>
           )}
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Card Reader</h1>
-          <div className="w-8 h-8" />
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
 

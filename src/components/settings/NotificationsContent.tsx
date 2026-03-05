@@ -134,7 +134,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
       <div className={`${showHeader ? 'p-4' : 'px-4 pb-4 pt-0'} space-y-6`}>
         {/* Back button for desktop */}
         {showHeader && !isMobile && (
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3 mb-2 md:hidden">
             <button
               onClick={onBack}
               className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"

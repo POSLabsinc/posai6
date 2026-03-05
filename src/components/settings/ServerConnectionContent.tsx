@@ -17,7 +17,12 @@ const ServerConnectionContent = ({ showHeader = true, onBack, onAIClick }: Serve
 
   const handleCloudToggle = (checked: boolean) => {
     setCloudServerEnabled(checked);
-    if (checked) setEdgeOSEnabled(false);
+    if (checked) {
+      setEdgeOSEnabled(false);
+    } else {
+      // When Cloud Server is turned off, auto-enable edgeOS + Cloud Server
+      setEdgeOSEnabled(true);
+    }
   };
 
   const handleEdgeOSToggle = (checked: boolean) => {

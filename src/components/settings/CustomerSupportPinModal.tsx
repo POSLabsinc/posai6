@@ -138,41 +138,43 @@ const CustomerSupportPinModal = ({
                 ))}
               </div>
 
-              {!pinVerified && (
-                <div className="grid grid-cols-3 gap-2.5 w-full">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                    <button
-                      key={num}
-                      type="button"
-                      onClick={() => handleDigit(num.toString())}
-                      className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-lg font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-                    >
-                      {num}
-                    </button>
-                  ))}
+              <div className="grid grid-cols-3 gap-2.5 w-full">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                   <button
+                    key={num}
                     type="button"
-                    onClick={handleBackspace}
-                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+                    onClick={() => !pinVerified && handleDigit(num.toString())}
+                    disabled={pinVerified}
+                    className={`h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-lg font-semibold transition-colors ${pinVerified ? "opacity-40 cursor-not-allowed" : "hover:bg-neutral-700 active:bg-neutral-600"}`}
                   >
-                    <Delete className="w-4.5 h-4.5" />
+                    {num}
                   </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDigit("0")}
-                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-lg font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-                  >
-                    0
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleClear}
-                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-base font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-                  >
-                    C
-                  </button>
-                </div>
-              )}
+                ))}
+                <button
+                  type="button"
+                  onClick={() => !pinVerified && handleBackspace()}
+                  disabled={pinVerified}
+                  className={`h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground transition-colors flex items-center justify-center ${pinVerified ? "opacity-40 cursor-not-allowed" : "hover:bg-neutral-700 active:bg-neutral-600"}`}
+                >
+                  <Delete className="w-4.5 h-4.5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => !pinVerified && handleDigit("0")}
+                  disabled={pinVerified}
+                  className={`h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-lg font-semibold transition-colors ${pinVerified ? "opacity-40 cursor-not-allowed" : "hover:bg-neutral-700 active:bg-neutral-600"}`}
+                >
+                  0
+                </button>
+                <button
+                  type="button"
+                  onClick={() => !pinVerified && handleClear()}
+                  disabled={pinVerified}
+                  className={`h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-base font-bold text-destructive transition-colors ${pinVerified ? "opacity-40 cursor-not-allowed" : "hover:bg-neutral-700 active:bg-neutral-600"}`}
+                >
+                  C
+                </button>
+              </div>
 
               {pinVerified && (
                 <p className="text-emerald-400 text-xs text-center font-medium">

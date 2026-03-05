@@ -44,7 +44,7 @@ const WorkforceContent = ({
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      <div className={`${showHeader ? "pt-6" : "pt-0"} px-6 pb-28`}>
+      <div className={`${showHeader ? "pt-0" : "pt-0"} px-6 pb-28`}>
         {/* Header Card */}
         <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">
           <div

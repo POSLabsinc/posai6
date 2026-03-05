@@ -93,7 +93,8 @@ const getContentForRoute = (
     setCurrentDate: (d: Date) => void;
     currentMonth: Date;
     setCurrentMonth: (d: Date) => void;
-  }
+  },
+  isMobile?: boolean
 ) => {
   // If AI chat is active, show it in the right panel
   if (showAIChat) {
@@ -125,7 +126,7 @@ const getContentForRoute = (
     return <SecurityContent showHeader={true} onBack={() => navigate('/settings/account')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/system') {
-    return <SystemSettingsContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+    return <SystemSettingsContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/system/appearance') {
     return <AppearanceSettingsContent showHeader={true} onBack={() => navigate('/settings/system')} onAIClick={() => setShowAIChat(true)} onNavigate={navigate} />;
@@ -149,7 +150,7 @@ const getContentForRoute = (
     return <ControlCenterContent showHeader={true} onBack={() => navigate('/settings/system')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/payments') {
-    return <PaymentsSettingsContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+    return <PaymentsSettingsContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/payments/payment-methods') {
     return <PaymentMethodsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
@@ -179,7 +180,7 @@ const getContentForRoute = (
     return <CheckoutOptionsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/menu') {
-    return <MenuSettingsContent showHeader={false} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+    return <MenuSettingsContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/menu/menus/add') {
     return <AddMenuContent showHeader={true} onBack={() => navigate('/settings/menu/menu')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
@@ -242,7 +243,7 @@ const getContentForRoute = (
     );
   }
   if (pathname === '/settings/support') {
-    return <SupportContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+    return <SupportContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/support/feedback') {
     return <FeedbackContent showHeader={true} onBack={() => navigate('/settings/support')} onAIClick={() => setShowAIChat(true)} />;
@@ -263,13 +264,13 @@ const getContentForRoute = (
     return <ReportFraudContent showHeader={true} onBack={() => navigate('/settings/support/about')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/network') {
-    return <NetworkContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+    return <NetworkContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/network/servers') {
     return <ServerConnectionContent showHeader={true} onBack={() => navigate('/settings/network')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/hardware') {
-    return <HardwareContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+    return <HardwareContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/hardware/details') {
     return <HardwareDetailsContent showHeader={true} onBack={() => navigate('/settings/hardware')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
@@ -290,7 +291,7 @@ const getContentForRoute = (
     return <CashRegisterContent showHeader={true} onBack={() => navigate('/settings/hardware/details')} />;
   }
   if (pathname === '/settings/notifications') {
-    return <NotificationsContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+    return <NotificationsContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/notifications/all') {
     return <NotificationsListContent showHeader={false} onBack={() => navigate('/settings/notifications')} onAIClick={() => setShowAIChat(true)} />;
@@ -300,16 +301,16 @@ const getContentForRoute = (
     return <NotificationDetailContent showHeader={false} onBack={() => navigate('/settings/notifications/all')} onAIClick={() => setShowAIChat(true)} notificationId={id} />;
   }
   if (pathname === '/settings/reports') {
-    return <ReportsContent showHeader={false} onBack={() => navigate('/settings')} onAIClick={() => setShowAIChat(true)} />;
+    return <ReportsContent showHeader={isMobile} onBack={() => navigate('/settings')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/end-of-day') {
-    return <EndOfDayContent showHeader={false} onBack={() => navigate('/settings')} onAIClick={() => setShowAIChat(true)} />;
+    return <EndOfDayContent showHeader={isMobile} onBack={() => navigate('/settings')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/guest-book') {
-    return <GuestBookContent showHeader={false} onBack={() => navigate('/settings/account')} onAIClick={() => setShowAIChat(true)} />;
+    return <GuestBookContent showHeader={isMobile} onBack={() => navigate('/settings')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/workforce') {
-    return <WorkforceContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+    return <WorkforceContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/workforce/employee') {
     return <EmployeeContent showHeader={true} onBack={() => navigate('/settings/workforce')} onAIClick={() => setShowAIChat(true)} />;
@@ -420,6 +421,17 @@ const Settings = () => {
             {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded, { viewMode: shiftViewMode, setViewMode: setShiftViewMode, currentWeek: shiftCurrentWeek, setCurrentWeek: setShiftCurrentWeek, currentDate: shiftCurrentDate, setCurrentDate: setShiftCurrentDate, currentMonth: shiftCurrentMonth, setCurrentMonth: setShiftCurrentMonth })}
           </div>
         </div>
+      </div>
+    );
+  }
+
+  // On mobile, if we're on a sub-route, show the content fullscreen instead of navigation
+  const isSubRoute = isMobile && location.pathname !== '/settings';
+
+  if (isSubRoute) {
+    return (
+      <div className="h-full overflow-y-auto scrollbar-hide">
+        {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded, { viewMode: shiftViewMode, setViewMode: setShiftViewMode, currentWeek: shiftCurrentWeek, setCurrentWeek: setShiftCurrentWeek, currentDate: shiftCurrentDate, setCurrentDate: setShiftCurrentDate, currentMonth: shiftCurrentMonth, setCurrentMonth: setShiftCurrentMonth }, true)}
       </div>
     );
   }

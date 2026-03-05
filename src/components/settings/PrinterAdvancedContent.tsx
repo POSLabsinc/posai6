@@ -109,12 +109,12 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Bills</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
           <ToggleRow label="Auto-Print Bills" checked={toBool(autoPrintBills)} onChange={(v) => setAutoPrintBills(String(v))} />
-          <ToggleRow label="Show Single Items" checked={toBool(showSingleItems)} onChange={(v) => setShowSingleItems(String(v))} />
-          <ToggleRow label="Show Free Items" checked={toBool(showFreeItems)} onChange={(v) => setShowFreeItems(String(v))} />
+          <ToggleRow label="Show Single Products" checked={toBool(showSingleItems)} onChange={(v) => setShowSingleItems(String(v))} />
+          <ToggleRow label="Show Free Products" checked={toBool(showFreeItems)} onChange={(v) => setShowFreeItems(String(v))} />
           <ToggleRow label="Show Free Modifiers" checked={toBool(showFreeModifiers)} onChange={(v) => setShowFreeModifiers(String(v))} isLast />
         </div>
         <p className="text-neutral-500 text-xs px-4 mt-1.5 mb-6">
-          These settings let you customise how customer bills are printed, including automatic printing and whether individual items, complimentary items, and free modifiers appear on the receipt. This helps you control the level of detail shown to customers.
+          These settings let you customise how customer bills are printed, including automatic printing and whether individual products, complimentary products, and free modifiers appear on the receipt. This helps you control the level of detail shown to customers.
         </p>
 
         {/* Receipts */}
@@ -134,13 +134,13 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         {/* Kitchen Tickets */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Kitchen Tickets</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
-          <ToggleRow label="Large Item Text" checked={toBool(largeItemText)} onChange={(v) => setLargeItemText(String(v))} />
+          <ToggleRow label="Large Product Text" checked={toBool(largeItemText)} onChange={(v) => setLargeItemText(String(v))} />
           <ToggleRow label="Large Order Number" checked={toBool(largeOrderNumber)} onChange={(v) => setLargeOrderNumber(String(v))} />
-          <ToggleRow label="Print Items Separately" checked={toBool(printItemsSeparately)} onChange={(v) => setPrintItemsSeparately(String(v))} />
+          <ToggleRow label="Print Products Separately" checked={toBool(printItemsSeparately)} onChange={(v) => setPrintItemsSeparately(String(v))} />
           <ToggleRow label="Reverse Text Style" checked={toBool(reverseTextStyle)} onChange={(v) => setReverseTextStyle(String(v))} isLast />
         </div>
         <p className="text-neutral-500 text-xs px-4 mt-1.5 mb-6">
-          These settings control how kitchen tickets are printed, including adjusting text size for better visibility, enlarging the order number, printing items separately, and reversing the text style for clearer readability in the kitchen. This helps improve speed, accuracy, and visibility for kitchen staff during busy service hours.
+          These settings control how kitchen tickets are printed, including adjusting text size for better visibility, enlarging the order number, printing products separately, and reversing the text style for clearer readability in the kitchen. This helps improve speed, accuracy, and visibility for kitchen staff during busy service hours.
         </p>
 
         {/* Modifiers */}

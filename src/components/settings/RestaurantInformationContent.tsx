@@ -13,8 +13,6 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
 import { useDeviceStore } from "@/hooks/useDeviceStore";
 import CustomerSupportPinModal from "@/components/settings/CustomerSupportPinModal";
-import StoreChangeConfirmationModal from "@/components/settings/StoreChangeConfirmationModal";
-import StoreSwitchProcessingScreen from "@/components/settings/StoreSwitchProcessingScreen";
 import type { Store } from "@/hooks/useDeviceStore";
 
 interface InfoRowProps {
@@ -70,28 +68,12 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
 
   const { currentStore, allStores, loading: storeLoading, switchStore } = useDeviceStore();
   const [showPinModal, setShowPinModal] = useState(false);
-  const [selectedStore, setSelectedStore] = useState<Store | null>(null);
-  const [showConfirmation, setShowConfirmation] = useState(false);
-  const [showProcessing, setShowProcessing] = useState(false);
 
   const activeRevenueCenter = getActiveRevenueCenter();
 
-  const handlePinSuccess = (store: Store) => {
-    setShowPinModal(false);
-    setSelectedStore(store);
-    setShowConfirmation(true);
-  };
-
-  const handleConfirmSwitch = () => {
-    setShowConfirmation(false);
-    setShowProcessing(true);
-  };
-
-  const handleProcessingComplete = useCallback(() => {
-    if (selectedStore) {
-      switchStore(selectedStore.id);
-    }
-  }, [selectedStore, switchStore]);
+  const handleSwitchStore = useCallback((store: Store) => {
+    switchStore(store.id);
+  }, [switchStore]);
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
@@ -218,40 +200,27 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
                     </p>
                   </div>
                 </div>
-                <button
-                  onClick={() => setShowPinModal(true)}
-                  className="px-4 py-2 rounded-xl bg-neutral-700/60 text-foreground text-sm font-medium hover:bg-neutral-600/60 active:bg-neutral-600 transition-colors"
-                >
-                  Change Store
-                </button>
+                <div className="flex flex-col items-end gap-1">
+                  <button
+                    onClick={() => setShowPinModal(true)}
+                    className="px-4 py-2 rounded-xl bg-neutral-700/60 text-foreground text-sm font-medium hover:bg-neutral-600/60 active:bg-neutral-600 transition-colors"
+                  >
+                    Change Store
+                  </button>
+                  <span className="text-neutral-600 text-[10px]">Customer Support Only</span>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Step 1: Combined CS PIN + Store Selection Modal */}
       <CustomerSupportPinModal
         isOpen={showPinModal}
         onClose={() => setShowPinModal(false)}
-        onSuccess={handlePinSuccess}
+        onSwitchStore={handleSwitchStore}
         stores={allStores}
         currentStore={currentStore}
-      />
-
-      {/* Step 2: Confirmation Modal */}
-      <StoreChangeConfirmationModal
-        isOpen={showConfirmation}
-        currentStoreName={currentStore ? `${currentStore.name} – ${currentStore.location}` : undefined}
-        targetStoreName={selectedStore ? `${selectedStore.name} – ${selectedStore.location}` : undefined}
-        onCancel={() => setShowConfirmation(false)}
-        onConfirm={handleConfirmSwitch}
-      />
-
-      {/* Step 3: Processing Screen */}
-      <StoreSwitchProcessingScreen
-        isOpen={showProcessing}
-        onComplete={handleProcessingComplete}
       />
     </div>
   );

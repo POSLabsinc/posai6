@@ -11,7 +11,7 @@ interface CustomerSupportPinModalProps {
   deviceName?: string;
 }
 
-const PIN_LENGTH = 6;
+const PIN_LENGTH = 4;
 
 const PROCESSING_STEPS = [
   "Clearing device data",
@@ -232,7 +232,7 @@ const CustomerSupportPinModal = ({
           {/* Right: PIN */}
           <div className="flex-1 min-w-0">
             <p className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">
-              ENTER CUSTOMER SUPPORT PIN
+              ENTER CUSTOMER SUPPORT PIN TO SWITCH STORE
             </p>
             <div
               className={`flex justify-start gap-2 mb-4 ${pinError ? "animate-shake" : ""}`}

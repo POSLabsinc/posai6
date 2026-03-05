@@ -393,7 +393,7 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
   const isWeather = notification.category === "weather";
 
   return (
-    <div className="p-6 pb-28 max-w-3xl mx-auto">
+    <div className="p-0 px-6 pb-28 max-w-3xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-4 mb-4">
         <NotificationAvatar notification={notification} size="lg" />

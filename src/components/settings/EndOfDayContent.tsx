@@ -116,7 +116,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
   if (showSummary) {
     return (
       <div className="relative flex flex-col h-full bg-background">
-      <div className="flex-1 overflow-y-auto pt-6 px-6 pb-28">
+      <div className="flex-1 overflow-y-auto pt-0 px-6 pb-28">
           {/* Header with back button and centered title */}
           <div className="flex items-center mb-3 relative">
             <button

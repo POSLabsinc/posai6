@@ -99,7 +99,7 @@ const PaymentMethodsContent = ({ showHeader = true, onBack, onAIClick }: Payment
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {showHeader && (
-        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+        <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
           {onBack && (
             <button
               onClick={onBack}
@@ -117,7 +117,7 @@ const PaymentMethodsContent = ({ showHeader = true, onBack, onAIClick }: Payment
         </div>
       )}
 
-      <div className="px-6 pb-28 pt-4">
+      <div className="px-6 pb-28 pt-0">
         {/* Description */}
         <div className="mb-4 px-1">
           <p className="text-sm text-muted-foreground leading-relaxed">

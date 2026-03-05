@@ -131,7 +131,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      <div className={`${showHeader ? 'p-4' : 'px-4 pb-4 pt-0'} space-y-6`}>
+      <div className={`${showHeader ? 'pt-6' : 'pt-0'} px-6 pb-28 space-y-6`}>
         {/* Back button for desktop */}
         {showHeader && !isMobile && (
           <div className="flex items-center gap-3 mb-2 md:hidden">

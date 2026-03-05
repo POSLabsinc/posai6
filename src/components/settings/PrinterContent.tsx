@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import hardwarePrinterIcon from "@/assets/icons/hardware-printer.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
@@ -9,10 +10,12 @@ interface PrinterContentProps {
   showHeader?: boolean;
   onBack?: () => void;
   onNavigate?: (path: string) => void;
+  onAIClick?: () => void;
 }
 
-const PrinterContent = ({ showHeader = true, onBack, onNavigate }: PrinterContentProps) => {
+const PrinterContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: PrinterContentProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
@@ -27,7 +30,9 @@ const PrinterContent = ({ showHeader = true, onBack, onNavigate }: PrinterConten
             </button>
           )}
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Printer</h1>
-          <div className="w-8 h-8" />
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
 

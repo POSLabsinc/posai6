@@ -218,15 +218,12 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
                     </p>
                   </div>
                 </div>
-                <div className="flex flex-col items-end gap-1">
-                  <button
-                    onClick={() => setShowPinModal(true)}
-                    className="px-4 py-2 rounded-xl bg-neutral-700/60 text-foreground text-sm font-medium hover:bg-neutral-600/60 active:bg-neutral-600 transition-colors"
-                  >
-                    Change Store
-                  </button>
-                  <span className="text-neutral-600 text-[10px] font-medium">Customer Support Only</span>
-                </div>
+                <button
+                  onClick={() => setShowPinModal(true)}
+                  className="px-4 py-2 rounded-xl bg-neutral-700/60 text-foreground text-sm font-medium hover:bg-neutral-600/60 active:bg-neutral-600 transition-colors"
+                >
+                  Change Store
+                </button>
               </div>
             </div>
           </div>

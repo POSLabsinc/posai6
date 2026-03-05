@@ -20,6 +20,7 @@ import addonsIcon from "@/assets/icons/menu-addons.png";
 import productsIcon from "@/assets/icons/menu-products.png";
 import defaultModifiersIcon from "@/assets/icons/menu-default-modifiers.png";
 import groupsIcon from "@/assets/icons/menu-groups.png";
+import timedPricingIcon from "@/assets/icons/menu-timed-pricing.png";
 import settingsMenuIcon from "@/assets/icons/settings-menu.png";
 interface MenuSettingsContentProps {
   showHeader?: boolean;
@@ -76,6 +77,12 @@ const menuItems: MenuItemData[] = [{
   label: "Groups",
   iconBgColor: "#000000",
   description: "Organize modifier options into logical groups with selection rules like required, optional, or multi-select."
+}, {
+  id: "timed-pricing",
+  iconSrc: timedPricingIcon,
+  label: "Timed Pricing",
+  iconBgColor: "#0088FF",
+  description: "Set up time-based pricing rules to automatically adjust product prices during happy hours, peak times, or scheduled promotions."
 }];
 const additionalOptions = [{
   id: "menu-sort",

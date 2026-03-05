@@ -218,18 +218,13 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
                     </p>
                   </div>
                 </div>
+                <button
+                  onClick={() => setShowPinModal(true)}
+                  className="px-4 py-2 rounded-xl bg-neutral-700/60 text-foreground text-sm font-medium hover:bg-neutral-600/60 active:bg-neutral-600 transition-colors"
+                >
+                  Change Store
+                </button>
               </div>
-              <div className="h-px bg-neutral-700/50 mx-5" />
-              <button
-                onClick={() => setShowPinModal(true)}
-                className="flex items-center justify-between w-full py-4 px-5 active:bg-neutral-700/30 transition-colors"
-              >
-                <div>
-                  <span className="text-foreground text-base font-medium">Change Store</span>
-                  <p className="text-neutral-500 text-xs mt-0.5">Customer Support Only</p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-neutral-500" />
-              </button>
             </div>
           </div>
         </div>

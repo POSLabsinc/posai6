@@ -2,7 +2,6 @@ import { useState } from "react";
 import { ChevronLeft, Search, Check, Plus, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
-import hardwareCashRegisterIcon from "@/assets/icons/hardware-cash-register.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface CashRegisterContentProps {
@@ -63,17 +62,9 @@ const CashRegisterContent = ({ showHeader = true, onBack }: CashRegisterContentP
         </div>
       )}
 
-      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
-        {/* Header Card */}
-        <div className="bg-neutral-800/60 rounded-2xl p-6 flex flex-col items-start mb-6">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
-            style={{ backgroundColor: getIconBgColor("#5E4DD8") }}
-          >
-            <img src={hardwareCashRegisterIcon} alt="Cash Register" className="w-7 h-7 object-contain" />
-          </div>
-          <h2 className="text-foreground text-lg font-semibold mb-1">Cash Drawer</h2>
-          <p className="text-neutral-500 text-sm leading-relaxed">
+      <div className="px-6 pb-28">
+        <div className="mb-4 px-1 pt-2">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Administer the cash drawer to ensure smooth handling of your payments.
           </p>
         </div>

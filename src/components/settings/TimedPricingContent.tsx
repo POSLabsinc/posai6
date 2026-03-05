@@ -180,6 +180,7 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
             </div>
 
             <button
+              onClick={() => navigate('/settings/menu/timed-pricing/add')}
               className="h-12 rounded-full px-5 lg:px-10 flex-shrink-0 flex items-center justify-center gap-2 bg-neutral-800/60 text-foreground active:opacity-70 transition-opacity"
             >
               <Plus className="h-5 w-5" />
@@ -202,7 +203,7 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
               filteredRules.map((rule, index) => (
                 <div key={rule.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50" />}
-                  <div className="grid grid-cols-[1.2fr_110px_140px_100px_80px_60px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors">
+                  <button onClick={() => navigate(`/settings/menu/timed-pricing/edit/${rule.id}`)} className="grid grid-cols-[1.2fr_110px_140px_100px_80px_60px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors cursor-pointer">
                     <div className="flex items-center gap-3">
                       <div
                         className="w-3 h-3 rounded-full flex-shrink-0"
@@ -230,7 +231,7 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
                         onCheckedChange={(checked) => handleToggle(rule.id, checked)}
                       />
                     </div>
-                  </div>
+                  </button>
                 </div>
               ))
             ) : (
@@ -304,7 +305,7 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
         {/* Add button */}
         <div className="flex gap-3 mb-4">
-          <button className="flex-1 py-4 bg-neutral-800 rounded-full flex items-center justify-center gap-2 active:opacity-70 transition-opacity">
+          <button onClick={() => navigate('/settings/menu/timed-pricing/add')} className="flex-1 py-4 bg-neutral-800 rounded-full flex items-center justify-center gap-2 active:opacity-70 transition-opacity">
             <Plus className="w-5 h-5 text-foreground" />
             <span className="text-foreground font-medium text-base">Add Rule</span>
           </button>
@@ -338,7 +339,7 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
             filteredRules.map((rule, index) => (
               <div key={rule.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
-                <div className="flex items-center justify-between py-4 px-4">
+                <button onClick={() => navigate(`/settings/menu/timed-pricing/edit/${rule.id}`)} className="flex items-center justify-between py-4 px-4 w-full active:opacity-70 transition-opacity">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div
                       className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
@@ -366,7 +367,7 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
                       onCheckedChange={(checked) => handleToggle(rule.id, checked)}
                     />
                   </div>
-                </div>
+                </button>
               </div>
             ))
           ) : (

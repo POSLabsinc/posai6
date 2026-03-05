@@ -39,14 +39,30 @@ const AddMenuContent = ({
 
   const handleSave = async () => {
     if (name.trim()) {
-      const { error } = await supabase.from("menus").insert({
+      const { data, error } = await supabase.from("menus").insert({
         name: name.trim(),
         enabled,
         description: "",
-      });
-      if (error) {
+      }).select("id").single();
+      if (error || !data) {
         toast.error("Failed to add menu");
         return;
+      }
+      // Save selected categories to menu_categories junction table
+      if (selectedCategories.length > 0) {
+        // Look up category IDs by name
+        const { data: cats } = await supabase
+          .from("categories")
+          .select("id, name")
+          .in("name", selectedCategories);
+        if (cats && cats.length > 0) {
+          const rows = cats.map((c, i) => ({
+            menu_id: data.id,
+            category_id: c.id,
+            sort_order: i,
+          }));
+          await supabase.from("menu_categories").insert(rows);
+        }
       }
     }
     onBack?.();

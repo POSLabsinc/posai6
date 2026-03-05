@@ -6077,6 +6077,16 @@ const Orders = () => {
   const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
 
+  // Sync selected menu & category when menu list changes (e.g. toggle on/off in settings)
+  useEffect(() => {
+    if (menuList.length > 0) {
+      // If the currently selected menu is no longer in the list, select the first one
+      if (!menuList.includes(selectedMenu)) {
+        setSelectedMenu(menuList[0]);
+      }
+    }
+  }, [menuList]);
+
   // Sync active category/subcategory when menu data loads from DB
   useEffect(() => {
     if (menuList.length > 0 && menuCategories[selectedMenu]?.length) {

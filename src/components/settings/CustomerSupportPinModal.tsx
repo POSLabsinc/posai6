@@ -70,7 +70,7 @@ const CustomerSupportPinModal = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
-      <div className="bg-neutral-900 rounded-3xl w-full max-w-md p-6 pb-8 max-h-[90vh] overflow-y-auto scrollbar-hide">
+      <div className="bg-neutral-900 rounded-3xl w-full max-w-3xl p-6 pb-8">
         {/* Header */}
         <div className="relative flex items-center justify-center mb-5">
           <button
@@ -85,157 +85,166 @@ const CustomerSupportPinModal = ({
           </h3>
         </div>
 
-        {/* Device Info */}
-        <div className="bg-neutral-800/60 rounded-xl p-4 mb-5 space-y-2.5">
-          <div className="flex items-center gap-3">
-            <Monitor className="w-4 h-4 text-neutral-500 shrink-0" />
-            <div className="flex items-center justify-between flex-1">
-              <span className="text-neutral-500 text-sm">Device Name</span>
-              <span className="text-foreground text-sm font-medium">{deviceName}</span>
-            </div>
-          </div>
-          <div className="h-px bg-neutral-700/50" />
-          <div className="flex items-center gap-3">
-            <MapPin className="w-4 h-4 text-neutral-500 shrink-0" />
-            <div className="flex items-center justify-between flex-1">
-              <span className="text-neutral-500 text-sm">Current Store</span>
-              <span className="text-foreground text-sm font-medium">
-                {currentStore
-                  ? `${currentStore.name} – ${currentStore.location}`
-                  : "Not assigned"}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* PIN Section */}
-        <div className="mb-5">
-          <p className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">
-            ENTER CUSTOMER SUPPORT PIN
-          </p>
-          <div
-            className={`flex justify-center gap-2.5 mb-4 ${pinError ? "animate-shake" : ""}`}
-          >
-            {Array.from({ length: PIN_LENGTH }).map((_, index) => (
-              <div
-                key={index}
-                className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center text-xl font-bold transition-all ${
-                  pinVerified
-                    ? "border-emerald-500 bg-emerald-500/10"
-                    : index < pin.length
-                      ? "border-neutral-400 bg-neutral-700"
-                      : "border-neutral-600 bg-neutral-800"
-                }`}
-              >
-                {pinVerified && index < PIN_LENGTH ? (
-                  <span className="text-emerald-400">✱</span>
-                ) : index < pin.length ? (
-                  <span className="text-foreground">✱</span>
-                ) : (
-                  ""
-                )}
+        {/* Two-column layout */}
+        <div className="flex gap-6">
+          {/* Left: Device Info + PIN */}
+          <div className="flex-1 min-w-0">
+            {/* Device Info */}
+            <div className="bg-neutral-800/60 rounded-xl p-4 mb-5 space-y-2.5">
+              <div className="flex items-center gap-3">
+                <Monitor className="w-4 h-4 text-neutral-500 shrink-0" />
+                <div className="flex items-center justify-between flex-1">
+                  <span className="text-neutral-500 text-sm">Device Name</span>
+                  <span className="text-foreground text-sm font-medium">{deviceName}</span>
+                </div>
               </div>
-            ))}
-          </div>
-
-          {!pinVerified && (
-            <div className="grid grid-cols-3 gap-2.5 w-full max-w-[280px] mx-auto">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                <button
-                  key={num}
-                  type="button"
-                  onClick={() => handleDigit(num.toString())}
-                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-lg font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-                >
-                  {num}
-                </button>
-              ))}
-              <button
-                type="button"
-                onClick={handleBackspace}
-                className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
-              >
-                <Delete className="w-4.5 h-4.5" />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDigit("0")}
-                className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-lg font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-              >
-                0
-              </button>
-              <button
-                type="button"
-                onClick={handleClear}
-                className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-base font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-              >
-                C
-              </button>
+              <div className="h-px bg-neutral-700/50" />
+              <div className="flex items-center gap-3">
+                <MapPin className="w-4 h-4 text-neutral-500 shrink-0" />
+                <div className="flex items-center justify-between flex-1">
+                  <span className="text-neutral-500 text-sm">Current Store</span>
+                  <span className="text-foreground text-sm font-medium">
+                    {currentStore
+                      ? `${currentStore.name} – ${currentStore.location}`
+                      : "Not assigned"}
+                  </span>
+                </div>
+              </div>
             </div>
-          )}
 
-          {pinVerified && (
-            <p className="text-emerald-400 text-xs text-center font-medium">
-              PIN verified successfully
-            </p>
-          )}
-        </div>
-
-        {/* Store Selection */}
-        <div className="mb-6">
-          <p className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">
-            AVAILABLE STORES
-          </p>
-          <div className="space-y-2">
-            {stores.map((store) => {
-              const isCurrent = store.id === currentStore?.id;
-              const isSelected = store.id === selectedStoreId;
-              return (
-                <button
-                  key={store.id}
-                  onClick={() => setSelectedStoreId(store.id)}
-                  className={`w-full flex items-center gap-3.5 p-3.5 rounded-xl transition-colors text-left ${
-                    isSelected
-                      ? isCurrent
-                        ? "bg-neutral-700/40 border border-neutral-600"
-                        : "bg-primary/10 border border-primary/30"
-                      : "bg-neutral-800/60 hover:bg-neutral-700/60 active:bg-neutral-600/60 border border-transparent"
-                  }`}
-                >
+            {/* PIN Section */}
+            <div>
+              <p className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">
+                ENTER CUSTOMER SUPPORT PIN
+              </p>
+              <div
+                className={`flex justify-center gap-2.5 mb-4 ${pinError ? "animate-shake" : ""}`}
+              >
+                {Array.from({ length: PIN_LENGTH }).map((_, index) => (
                   <div
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                      isSelected
-                        ? isCurrent
-                          ? "border-neutral-400 bg-neutral-400"
-                          : "border-primary bg-primary"
-                        : "border-neutral-600"
+                    key={index}
+                    className={`w-11 h-11 rounded-xl border-2 flex items-center justify-center text-xl font-bold transition-all ${
+                      pinVerified
+                        ? "border-emerald-500 bg-emerald-500/10"
+                        : index < pin.length
+                          ? "border-neutral-400 bg-neutral-700"
+                          : "border-neutral-600 bg-neutral-800"
                     }`}
                   >
-                    {isSelected && (
-                      <div className="w-2 h-2 rounded-full bg-white" />
+                    {pinVerified && index < PIN_LENGTH ? (
+                      <span className="text-emerald-400">✱</span>
+                    ) : index < pin.length ? (
+                      <span className="text-foreground">✱</span>
+                    ) : (
+                      ""
                     )}
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-foreground font-medium text-sm truncate">
-                      {store.name} – {store.location}
-                    </p>
-                    <p className="text-neutral-500 text-xs truncate mt-0.5">
-                      {store.address}
-                    </p>
-                  </div>
-                  {isCurrent && (
-                    <span className="text-neutral-500 text-[10px] font-medium bg-neutral-700/60 px-2 py-0.5 rounded-full shrink-0">
-                      Current
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+                ))}
+              </div>
+
+              {!pinVerified && (
+                <div className="grid grid-cols-3 gap-2.5 w-full max-w-[280px] mx-auto">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => handleDigit(num.toString())}
+                      className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-lg font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                    >
+                      {num}
+                    </button>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={handleBackspace}
+                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+                  >
+                    <Delete className="w-4.5 h-4.5" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleDigit("0")}
+                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-lg font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  >
+                    0
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-base font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  >
+                    C
+                  </button>
+                </div>
+              )}
+
+              {pinVerified && (
+                <p className="text-emerald-400 text-xs text-center font-medium">
+                  PIN verified successfully
+                </p>
+              )}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px bg-neutral-700/50 self-stretch" />
+
+          {/* Right: Store Selection */}
+          <div className="flex-1 min-w-0 flex flex-col">
+            <p className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">
+              AVAILABLE STORES
+            </p>
+            <div className="space-y-2 flex-1 overflow-y-auto scrollbar-hide max-h-[400px]">
+              {stores.map((store) => {
+                const isCurrent = store.id === currentStore?.id;
+                const isSelected = store.id === selectedStoreId;
+                return (
+                  <button
+                    key={store.id}
+                    onClick={() => setSelectedStoreId(store.id)}
+                    className={`w-full flex items-center gap-3.5 p-3.5 rounded-xl transition-colors text-left ${
+                      isSelected
+                        ? isCurrent
+                          ? "bg-neutral-700/40 border border-neutral-600"
+                          : "bg-primary/10 border border-primary/30"
+                        : "bg-neutral-800/60 hover:bg-neutral-700/60 active:bg-neutral-600/60 border border-transparent"
+                    }`}
+                  >
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                        isSelected
+                          ? isCurrent
+                            ? "border-neutral-400 bg-neutral-400"
+                            : "border-primary bg-primary"
+                          : "border-neutral-600"
+                      }`}
+                    >
+                      {isSelected && (
+                        <div className="w-2 h-2 rounded-full bg-white" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-foreground font-medium text-sm truncate">
+                        {store.name} – {store.location}
+                      </p>
+                      <p className="text-neutral-500 text-xs truncate mt-0.5">
+                        {store.address}
+                      </p>
+                    </div>
+                    {isCurrent && (
+                      <span className="text-neutral-500 text-[10px] font-medium bg-neutral-700/60 px-2 py-0.5 rounded-full shrink-0">
+                        Current
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
           </div>
         </div>
 
         {/* Buttons */}
-        <div className="flex gap-3">
+        <div className="flex gap-3 mt-6">
           <button
             onClick={onClose}
             className="flex-1 py-3 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors text-sm"

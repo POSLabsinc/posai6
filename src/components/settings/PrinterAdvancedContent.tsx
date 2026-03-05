@@ -100,19 +100,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         </div>
       )}
 
-      <div className="px-6 pb-28">
-        {/* Header Card */}
-        <div className="bg-neutral-800/60 rounded-2xl p-6 flex flex-col items-start mb-6">
-          <div
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
-            style={{ backgroundColor: getIconBgColor("#5E4DD8") }}
-          >
-            <img src={hardwarePrinterIcon} alt="Advanced Settings" className="w-7 h-7 object-contain" />
-          </div>
-          <h2 className="text-foreground text-lg font-semibold mb-1">Advanced Settings</h2>
-          <p className="text-neutral-500 text-sm leading-relaxed">Configure advanced printing preferences for bills, receipts, kitchen tickets, and more.</p>
-        </div>
-
+      <div className="px-6 pb-28 pt-2">
         {/* Bills */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Bills</p>
         <ToggleOption label="Auto-Print Bills" description="Automatically print bills when an order is completed." checked={toBool(autoPrintBills)} onChange={(v) => setAutoPrintBills(String(v))} />

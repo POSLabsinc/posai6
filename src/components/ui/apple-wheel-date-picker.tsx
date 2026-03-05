@@ -124,9 +124,9 @@ const AppleWheelDatePicker = ({
 
   if (!isOpen) return null;
 
-  const WHEEL_HEIGHT = mode === "inline" ? 150 : 220;
-  const GRADIENT_HEIGHT = mode === "inline" ? 55 : 88;
-  const PADDING_ITEMS = mode === "inline" ? 1.5 : 2;
+  const WHEEL_HEIGHT = mode === "inline" ? 96 : 220;
+  const GRADIENT_HEIGHT = mode === "inline" ? 28 : 88;
+  const PADDING_ITEMS = mode === "inline" ? 1 : 2;
 
   const renderWheelColumn = (
     items: (string | number)[],
@@ -137,9 +137,9 @@ const AppleWheelDatePicker = ({
     align: "left" | "center" | "right" = "center"
   ) => {
     return (
-      <div className="relative overflow-hidden" style={{ height: WHEEL_HEIGHT }}>
-        <div className={`absolute inset-x-0 top-0 bg-gradient-to-b from-neutral-900 via-neutral-900/80 to-transparent z-10 pointer-events-none`} style={{ height: GRADIENT_HEIGHT }} />
-        <div className={`absolute inset-x-0 bottom-0 bg-gradient-to-t from-neutral-900 via-neutral-900/80 to-transparent z-10 pointer-events-none`} style={{ height: GRADIENT_HEIGHT }} />
+      <div className="relative overflow-hidden flex-1" style={{ height: WHEEL_HEIGHT }}>
+        <div className={`absolute inset-x-0 top-0 z-10 pointer-events-none ${mode === "inline" ? "bg-gradient-to-b from-neutral-800 to-transparent" : "bg-gradient-to-b from-neutral-900 via-neutral-900/80 to-transparent"}`} style={{ height: GRADIENT_HEIGHT }} />
+        <div className={`absolute inset-x-0 bottom-0 z-10 pointer-events-none ${mode === "inline" ? "bg-gradient-to-t from-neutral-800 to-transparent" : "bg-gradient-to-t from-neutral-900 via-neutral-900/80 to-transparent"}`} style={{ height: GRADIENT_HEIGHT }} />
 
         <div
           ref={ref}
@@ -164,14 +164,8 @@ const AppleWheelDatePicker = ({
                 <span
                   className={`transition-all duration-150 ${
                     isSelected
-                      ? mode === "inline" ? "text-foreground text-base font-semibold" : "text-foreground text-xl font-semibold"
-                      : mode === "inline" ? "text-neutral-500 text-sm font-normal" : "text-neutral-500 text-lg font-normal"
-                  } ${
-                    align === "left"
-                      ? "text-left w-full pl-2"
-                      : align === "right"
-                      ? "text-right w-full pr-2"
-                      : "text-center"
+                      ? mode === "inline" ? "text-foreground text-xs font-semibold" : "text-foreground text-xl font-semibold"
+                      : mode === "inline" ? "text-neutral-500 text-xs font-normal" : "text-neutral-500 text-lg font-normal"
                   }`}
                 >
                   {typeof item === "string" && mode === "inline" ? item.slice(0, 3) : item}
@@ -189,29 +183,17 @@ const AppleWheelDatePicker = ({
     return (
       <>
         <div className="fixed inset-0 z-40" onClick={onClose} />
-        <div className="absolute top-full right-0 mt-1 z-50 overflow-hidden" style={{ width: 240 }}>
-          {/* Header */}
-          <div className="flex items-center justify-between px-2 py-2">
-            <div className="flex items-center gap-1">
-              <button onClick={goToPrevMonth} className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-neutral-800 transition-colors">
-                <ChevronLeft className="w-4 h-4 text-neutral-400" />
-              </button>
-              <button onClick={goToNextMonth} className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-neutral-800 transition-colors">
-                <ChevronRight className="w-4 h-4 text-neutral-400" />
-              </button>
-            </div>
-            <button onClick={onConfirm} className="text-foreground text-sm font-medium">Done</button>
-          </div>
-
-          <div className="relative">
-            <div className="absolute left-2 right-2 top-1/2 -translate-y-1/2 h-[36px] bg-neutral-800/50 rounded-lg pointer-events-none z-0" />
-            <div className="grid grid-cols-3 px-2 relative z-10">
-              {renderWheelColumn(months, selectedMonth, monthScrollRef, setSelectedMonth, false, "right")}
-              {renderWheelColumn(days, selectedDay, dayScrollRef, setSelectedDay, true, "center")}
-              {renderWheelColumn(years, selectedYear, yearScrollRef, setSelectedYear, false, "left")}
+        <div className="absolute top-full right-0 mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
+          <div className="mx-0 my-1 bg-neutral-800/80 rounded-xl overflow-hidden">
+            <div className="relative px-3 py-1">
+              <div className="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-[32px] bg-neutral-700/50 rounded-lg pointer-events-none z-0" />
+              <div className="flex relative z-10">
+                {renderWheelColumn(months, selectedMonth, monthScrollRef, setSelectedMonth, false, "right")}
+                {renderWheelColumn(days, selectedDay, dayScrollRef, setSelectedDay, true, "center")}
+                {renderWheelColumn(years, selectedYear, yearScrollRef, setSelectedYear, false, "left")}
+              </div>
             </div>
           </div>
-          <div className="h-2" />
         </div>
       </>
     );

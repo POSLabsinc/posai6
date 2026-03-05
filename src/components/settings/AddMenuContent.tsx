@@ -200,10 +200,10 @@ const AddMenuContent = ({
                 </button>
                 <AppleWheelDatePicker
                   isOpen={showStartDatePicker}
-                  onClose={() => setShowStartDatePicker(false)}
+                  onClose={() => { setStartDateSet(true); setShowStartDatePicker(false); }}
                   onConfirm={() => { setStartDateSet(true); setShowStartDatePicker(false); }}
                   selectedDate={posStartDate}
-                  onDateChange={setPosStartDate}
+                  onDateChange={(d) => { setPosStartDate(d); setStartDateSet(true); }}
                   mode="inline"
                 />
               </div>
@@ -224,10 +224,10 @@ const AddMenuContent = ({
                 </button>
                 <AppleWheelDatePicker
                   isOpen={showEndDatePicker}
-                  onClose={() => setShowEndDatePicker(false)}
+                  onClose={() => { setEndDateSet(true); setShowEndDatePicker(false); }}
                   onConfirm={() => { setEndDateSet(true); setShowEndDatePicker(false); }}
                   selectedDate={posEndDate}
-                  onDateChange={setPosEndDate}
+                  onDateChange={(d) => { setPosEndDate(d); setEndDateSet(true); }}
                   mode="inline"
                 />
               </div>

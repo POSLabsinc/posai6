@@ -166,7 +166,70 @@ const CustomerSupportPinModal = ({
 
         {/* Two-column layout */}
         <div className="flex gap-6">
-          {/* Left: PIN */}
+          {/* Left: Store Selection */}
+          <div className="flex-1 min-w-0 flex flex-col">
+            <p className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">
+              SELECT NEW STORE
+            </p>
+            <p className="text-neutral-500 text-xs mb-3 px-1">Available Stores</p>
+            <div className="space-y-2 flex-1 overflow-y-auto scrollbar-hide max-h-[340px]">
+              {[...stores]
+                .sort((a, b) => {
+                  if (a.id === currentStore?.id) return -1;
+                  if (b.id === currentStore?.id) return 1;
+                  return 0;
+                })
+                .map((store) => {
+                  const isCurrent = store.id === currentStore?.id;
+                  const isSelected = store.id === selectedStoreId;
+                  return (
+                    <button
+                      key={store.id}
+                      onClick={() => setSelectedStoreId(store.id)}
+                      className={`w-full flex items-center gap-3.5 p-3.5 rounded-xl transition-colors text-left ${
+                        isSelected
+                          ? isCurrent
+                            ? "bg-neutral-700/40 border border-neutral-600"
+                            : "bg-primary/10 border border-primary/30"
+                          : "bg-neutral-800/60 hover:bg-neutral-700/60 active:bg-neutral-600/60 border border-transparent"
+                      }`}
+                    >
+                      <div
+                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
+                          isSelected
+                            ? isCurrent
+                              ? "border-neutral-400 bg-neutral-400"
+                              : "border-primary bg-primary"
+                            : "border-neutral-600"
+                        }`}
+                      >
+                        {isSelected && (
+                          <div className="w-2 h-2 rounded-full bg-white" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-foreground font-medium text-sm truncate">
+                          {store.name} – {store.location}
+                        </p>
+                        <p className="text-neutral-500 text-xs truncate mt-0.5">
+                          {store.address}
+                        </p>
+                      </div>
+                      {isCurrent && (
+                        <span className="text-neutral-500 text-[10px] font-medium bg-neutral-700/60 px-2 py-0.5 rounded-full shrink-0">
+                          Current
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="w-px bg-neutral-700/50 self-stretch" />
+
+          {/* Right: PIN */}
           <div className="flex-1 min-w-0">
             <p className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">
               ENTER CUSTOMER SUPPORT PIN
@@ -239,69 +302,6 @@ const CustomerSupportPinModal = ({
                 PIN verified successfully
               </p>
             )}
-          </div>
-
-          {/* Divider */}
-          <div className="w-px bg-neutral-700/50 self-stretch" />
-
-          {/* Right: Store Selection */}
-          <div className="flex-1 min-w-0 flex flex-col">
-            <p className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">
-              SELECT NEW STORE
-            </p>
-            <p className="text-neutral-500 text-xs mb-3 px-1">Available Stores</p>
-            <div className="space-y-2 flex-1 overflow-y-auto scrollbar-hide max-h-[340px]">
-              {[...stores]
-                .sort((a, b) => {
-                  if (a.id === currentStore?.id) return -1;
-                  if (b.id === currentStore?.id) return 1;
-                  return 0;
-                })
-                .map((store) => {
-                  const isCurrent = store.id === currentStore?.id;
-                  const isSelected = store.id === selectedStoreId;
-                  return (
-                    <button
-                      key={store.id}
-                      onClick={() => setSelectedStoreId(store.id)}
-                      className={`w-full flex items-center gap-3.5 p-3.5 rounded-xl transition-colors text-left ${
-                        isSelected
-                          ? isCurrent
-                            ? "bg-neutral-700/40 border border-neutral-600"
-                            : "bg-primary/10 border border-primary/30"
-                          : "bg-neutral-800/60 hover:bg-neutral-700/60 active:bg-neutral-600/60 border border-transparent"
-                      }`}
-                    >
-                      <div
-                        className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${
-                          isSelected
-                            ? isCurrent
-                              ? "border-neutral-400 bg-neutral-400"
-                              : "border-primary bg-primary"
-                            : "border-neutral-600"
-                        }`}
-                      >
-                        {isSelected && (
-                          <div className="w-2 h-2 rounded-full bg-white" />
-                        )}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-foreground font-medium text-sm truncate">
-                          {store.name} – {store.location}
-                        </p>
-                        <p className="text-neutral-500 text-xs truncate mt-0.5">
-                          {store.address}
-                        </p>
-                      </div>
-                      {isCurrent && (
-                        <span className="text-neutral-500 text-[10px] font-medium bg-neutral-700/60 px-2 py-0.5 rounded-full shrink-0">
-                          Current
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
-            </div>
           </div>
         </div>
 

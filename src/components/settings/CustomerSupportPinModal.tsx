@@ -139,17 +139,10 @@ const CustomerSupportPinModal = ({
     <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4">
       <div className="bg-neutral-900 rounded-3xl w-full max-w-3xl p-6 pb-8">
         {/* Header */}
-        <div className="relative flex items-center justify-center mb-5">
+        <div className="flex items-center justify-center mb-5">
           <h3 className="text-foreground font-bold text-lg">
             Customer Support Authorization
           </h3>
-          <button
-            type="button"
-            onClick={onClose}
-            className="absolute right-0 w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-          >
-            <X className="w-5 h-5 text-neutral-400" />
-          </button>
         </div>
 
         {/* Device Info */}

@@ -5,6 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import hardwarePrinterIcon from "@/assets/icons/hardware-printer.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { usePreference } from "@/hooks/usePreference";
 
 interface PrinterAdvancedContentProps {
   showHeader?: boolean;
@@ -14,36 +15,42 @@ interface PrinterAdvancedContentProps {
 const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedContentProps) => {
   const isMobile = useIsMobile();
   const { getIconBgColor } = useAppearance();
-  const [settings, setSettings] = useState({
-    autoPrintBills: true,
-    showSingleItems: false,
-    showFreeItems: false,
-    showFreeModifiers: false,
-    autoPrintReceipt: true,
-    autoPrintRefund: false,
-    itemizedReceipt: true,
-    printCustomerCopy: false,
-    showSuggestedTip: true,
-    printTimeClockReport: false,
-    largeItemText: false,
-    largeOrderNumber: true,
-    printItemsSeparately: false,
-    reverseTextStyle: false,
-    signatureTipLine: true,
-    requireForSalesOver: false,
-  });
 
-  const [salesOverAmount, setSalesOverAmount] = useState("0.00");
+  // All settings persisted via usePreference
+  const { value: autoPrintBills, update: setAutoPrintBills } = usePreference("printer_auto_print_bills", "true");
+  const { value: showSingleItems, update: setShowSingleItems } = usePreference("printer_show_single_items", "false");
+  const { value: showFreeItems, update: setShowFreeItems } = usePreference("printer_show_free_items", "false");
+  const { value: showFreeModifiers, update: setShowFreeModifiers } = usePreference("printer_show_free_modifiers", "false");
+  const { value: autoPrintReceipt, update: setAutoPrintReceipt } = usePreference("printer_auto_print_receipt", "true");
+  const { value: autoPrintRefund, update: setAutoPrintRefund } = usePreference("printer_auto_print_refund", "false");
+  const { value: itemizedReceipt, update: setItemizedReceipt } = usePreference("printer_itemized_receipt", "true");
+  const { value: printCustomerCopy, update: setPrintCustomerCopy } = usePreference("printer_print_customer_copy", "false");
+  const { value: showSuggestedTip, update: setShowSuggestedTip } = usePreference("printer_show_suggested_tip", "true");
+  const { value: printTimeClockReport, update: setPrintTimeClockReport } = usePreference("printer_print_time_clock_report", "false");
+  const { value: largeItemText, update: setLargeItemText } = usePreference("printer_large_item_text", "false");
+  const { value: largeOrderNumber, update: setLargeOrderNumber } = usePreference("printer_large_order_number", "true");
+  const { value: printItemsSeparately, update: setPrintItemsSeparately } = usePreference("printer_print_items_separately", "false");
+  const { value: reverseTextStyle, update: setReverseTextStyle } = usePreference("printer_reverse_text_style", "false");
+  const { value: signatureTipLine, update: setSignatureTipLine } = usePreference("printer_signature_tip_line", "true");
+  const { value: requireForSalesOver, update: setRequireForSalesOver } = usePreference("printer_require_for_sales_over", "false");
+  const { value: salesOverAmount, update: setSalesOverAmount } = usePreference("printer_sales_over_amount", "0.00");
+  const { value: modifierTextSize, update: setModifierTextSize } = usePreference("printer_modifier_text_size", "Tall");
+  const { value: selectedOrderTypesStr, update: setSelectedOrderTypesStr } = usePreference("printer_kitchen_order_types", "");
 
-  const [modifierTextSize, setModifierTextSize] = useState<string>("Tall");
+  const selectedOrderTypes = selectedOrderTypesStr ? selectedOrderTypesStr.split(",") : [];
 
-  const orderTypeOptions = ["Dine In", "Takeout", "Delivery", "Drive Thru", "Curbside", "Catering"];
-  const [selectedOrderTypes, setSelectedOrderTypes] = useState<string[]>([]);
+  const toBool = (v: string) => v === "true";
+
   const [isOrderTypeSheetOpen, setIsOrderTypeSheetOpen] = useState(false);
   const [isTextSizeDropdownOpen, setIsTextSizeDropdownOpen] = useState(false);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
   const dropdownRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const orderTypeOptions = ["Dine In", "Takeout", "Delivery", "Drive Thru", "Curbside", "Catering"];
+
+  // Local state for the sales amount input (only persists on blur)
+  const [localSalesAmount, setLocalSalesAmount] = useState(salesOverAmount);
+  useEffect(() => { setLocalSalesAmount(salesOverAmount); }, [salesOverAmount]);
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -58,15 +65,11 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [isTextSizeDropdownOpen]);
 
-  const toggle = (key: keyof typeof settings) => {
-    setSettings(prev => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const ToggleRow = ({ label, settingKey, isLast = false }: { label: string; settingKey: keyof typeof settings; isLast?: boolean }) => (
+  const ToggleRow = ({ label, checked, onChange, isLast = false }: { label: string; checked: boolean; onChange: (v: boolean) => void; isLast?: boolean }) => (
     <>
       <div className="flex items-center justify-between py-3.5 px-4">
         <span className="text-foreground text-base font-medium">{label}</span>
-        <Switch checked={settings[settingKey] as boolean} onCheckedChange={() => toggle(settingKey)} />
+        <Switch checked={checked} onCheckedChange={onChange} />
       </div>
       {!isLast && <div className="h-px bg-neutral-700/50 mx-4" />}
     </>
@@ -89,7 +92,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         </div>
       )}
 
-      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
+      <div className="px-6 pb-28">
         {/* Header Card */}
         <div className="bg-neutral-800/60 rounded-2xl p-6 flex flex-col items-start mb-6">
           <div
@@ -105,10 +108,10 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         {/* Bills */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Bills</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
-          <ToggleRow label="Auto-Print Bills" settingKey="autoPrintBills" />
-          <ToggleRow label="Show Single Items" settingKey="showSingleItems" />
-          <ToggleRow label="Show Free Items" settingKey="showFreeItems" />
-          <ToggleRow label="Show Free Modifiers" settingKey="showFreeModifiers" isLast />
+          <ToggleRow label="Auto-Print Bills" checked={toBool(autoPrintBills)} onChange={(v) => setAutoPrintBills(String(v))} />
+          <ToggleRow label="Show Single Items" checked={toBool(showSingleItems)} onChange={(v) => setShowSingleItems(String(v))} />
+          <ToggleRow label="Show Free Items" checked={toBool(showFreeItems)} onChange={(v) => setShowFreeItems(String(v))} />
+          <ToggleRow label="Show Free Modifiers" checked={toBool(showFreeModifiers)} onChange={(v) => setShowFreeModifiers(String(v))} isLast />
         </div>
         <p className="text-neutral-500 text-xs px-4 mt-1.5 mb-6">
           These settings let you customise how customer bills are printed, including automatic printing and whether individual items, complimentary items, and free modifiers appear on the receipt. This helps you control the level of detail shown to customers.
@@ -117,12 +120,12 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         {/* Receipts */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Receipts</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
-          <ToggleRow label="Auto-Print Receipt" settingKey="autoPrintReceipt" />
-          <ToggleRow label="Auto-Print Refund" settingKey="autoPrintRefund" />
-          <ToggleRow label="Itemized Receipt" settingKey="itemizedReceipt" />
-          <ToggleRow label="Print Customer Copy" settingKey="printCustomerCopy" />
-          <ToggleRow label="Show Suggested Tip" settingKey="showSuggestedTip" />
-          <ToggleRow label="Print Time Clock Report" settingKey="printTimeClockReport" isLast />
+          <ToggleRow label="Auto-Print Receipt" checked={toBool(autoPrintReceipt)} onChange={(v) => setAutoPrintReceipt(String(v))} />
+          <ToggleRow label="Auto-Print Refund" checked={toBool(autoPrintRefund)} onChange={(v) => setAutoPrintRefund(String(v))} />
+          <ToggleRow label="Itemized Receipt" checked={toBool(itemizedReceipt)} onChange={(v) => setItemizedReceipt(String(v))} />
+          <ToggleRow label="Print Customer Copy" checked={toBool(printCustomerCopy)} onChange={(v) => setPrintCustomerCopy(String(v))} />
+          <ToggleRow label="Show Suggested Tip" checked={toBool(showSuggestedTip)} onChange={(v) => setShowSuggestedTip(String(v))} />
+          <ToggleRow label="Print Time Clock Report" checked={toBool(printTimeClockReport)} onChange={(v) => setPrintTimeClockReport(String(v))} isLast />
         </div>
         <p className="text-neutral-500 text-xs px-4 mt-1.5 mb-6">
           These settings allow you to control how receipts are printed, including automatic printing for sales and refunds, whether receipts are itemised, if a customer copy is printed, whether suggested tips are shown, and if time clock reports can be printed. This helps you manage the level of detail and automation for receipt printing in your restaurant.
@@ -131,10 +134,10 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         {/* Kitchen Tickets */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Kitchen Tickets</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
-          <ToggleRow label="Large Item Text" settingKey="largeItemText" />
-          <ToggleRow label="Large Order Number" settingKey="largeOrderNumber" />
-          <ToggleRow label="Print Items Separately" settingKey="printItemsSeparately" />
-          <ToggleRow label="Reverse Text Style" settingKey="reverseTextStyle" isLast />
+          <ToggleRow label="Large Item Text" checked={toBool(largeItemText)} onChange={(v) => setLargeItemText(String(v))} />
+          <ToggleRow label="Large Order Number" checked={toBool(largeOrderNumber)} onChange={(v) => setLargeOrderNumber(String(v))} />
+          <ToggleRow label="Print Items Separately" checked={toBool(printItemsSeparately)} onChange={(v) => setPrintItemsSeparately(String(v))} />
+          <ToggleRow label="Reverse Text Style" checked={toBool(reverseTextStyle)} onChange={(v) => setReverseTextStyle(String(v))} isLast />
         </div>
         <p className="text-neutral-500 text-xs px-4 mt-1.5 mb-6">
           These settings control how kitchen tickets are printed, including adjusting text size for better visibility, enlarging the order number, printing items separately, and reversing the text style for clearer readability in the kitchen. This helps improve speed, accuracy, and visibility for kitchen staff during busy service hours.
@@ -203,7 +206,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         <MultiSelectSheet
           isOpen={isOrderTypeSheetOpen}
           onClose={(items) => {
-            setSelectedOrderTypes(items);
+            setSelectedOrderTypesStr(items.join(","));
             setIsOrderTypeSheetOpen(false);
           }}
           initialSelected={selectedOrderTypes}
@@ -214,29 +217,31 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         {/* Signatures & Tips */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Signatures & Tips</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
-          <ToggleRow label="Signature & Tip Line" settingKey="signatureTipLine" />
+          <ToggleRow label="Signature & Tip Line" checked={toBool(signatureTipLine)} onChange={(v) => setSignatureTipLine(String(v))} />
           <div className="h-px bg-neutral-700/50 mx-4" />
-          <ToggleRow label="Require for Sales Over" settingKey="requireForSalesOver" />
-          {settings.requireForSalesOver && (
+          <ToggleRow label="Require for Sales Over" checked={toBool(requireForSalesOver)} onChange={(v) => setRequireForSalesOver(String(v))} />
+          {toBool(requireForSalesOver) && (
             <>
               <div className="h-px bg-neutral-700/50 mx-4" />
               <div className="flex items-center justify-between py-3.5 px-4">
                 <span className="text-foreground text-base font-medium">For Sales Over</span>
                 <div className="flex items-center gap-1">
-                  <span className="text-neutral-500 text-sm">£</span>
+                  <span className="text-neutral-500 text-sm">$</span>
                   <input
                     type="text"
                     inputMode="decimal"
-                    value={salesOverAmount}
+                    value={localSalesAmount}
                     onChange={(e) => {
                       const val = e.target.value;
                       if (/^\d*\.?\d{0,2}$/.test(val)) {
-                        setSalesOverAmount(val);
+                        setLocalSalesAmount(val);
                       }
                     }}
                     onBlur={() => {
-                      const num = parseFloat(salesOverAmount);
-                      setSalesOverAmount(isNaN(num) ? "0.00" : num.toFixed(2));
+                      const num = parseFloat(localSalesAmount);
+                      const formatted = isNaN(num) ? "0.00" : num.toFixed(2);
+                      setLocalSalesAmount(formatted);
+                      setSalesOverAmount(formatted);
                     }}
                     className="bg-transparent text-neutral-500 text-sm text-right w-20 outline-none focus:text-foreground"
                   />

@@ -1,0 +1,1 @@
+ALTER TABLE public.menus ADD COLUMN channel_schedules jsonb NOT NULL DEFAULT '{}'::jsonb;

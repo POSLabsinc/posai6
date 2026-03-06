@@ -298,6 +298,7 @@ export type Database = {
       menus: {
         Row: {
           archived: boolean
+          channel_schedules: Json
           created_at: string
           description: string | null
           enabled: boolean
@@ -309,6 +310,7 @@ export type Database = {
         }
         Insert: {
           archived?: boolean
+          channel_schedules?: Json
           created_at?: string
           description?: string | null
           enabled?: boolean
@@ -320,6 +322,7 @@ export type Database = {
         }
         Update: {
           archived?: boolean
+          channel_schedules?: Json
           created_at?: string
           description?: string | null
           enabled?: boolean

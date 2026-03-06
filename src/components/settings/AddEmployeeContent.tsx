@@ -132,6 +132,7 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
     }
 
     try {
+      let savedEmployeeId = editEmployee?.id;
       if (isEditMode) {
         await updateEmployee.mutateAsync({
           id: editEmployee.id,
@@ -144,16 +145,34 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
           revenue_center: revenueCenter || undefined,
           assigned_job_types: jobType ? [jobType] : undefined,
         });
+        // Save store assignments
+        if (assignedStoreIds.length > 0) {
+          await saveEmployeeStores.mutateAsync({
+            employeeId: editEmployee.id,
+            storeIds: assignedStoreIds,
+            primaryStoreId,
+          });
+        }
         toast.success("Employee updated successfully");
       } else {
-        await addEmployee.mutateAsync({
+        // For new employees, we need the ID back to save store assignments
+        const { data: newEmp } = await (supabase as any).from("employees").insert({
           full_name: `${firstName.trim()} ${lastName.trim()}`,
           role: role || "Server",
           email: email.trim() || undefined,
           phone: phone.trim() ? `${selectedCountry.dialCode} ${phone.trim()}` : undefined,
           hourly_rate: hourlyRate ? parseFloat(hourlyRate) : 0,
           pin: pin.length === 4 ? pin : undefined,
-        });
+        }).select("id").single();
+        if (newEmp) savedEmployeeId = newEmp.id;
+        // Save store assignments for new employee
+        if (savedEmployeeId && assignedStoreIds.length > 0) {
+          await saveEmployeeStores.mutateAsync({
+            employeeId: savedEmployeeId,
+            storeIds: assignedStoreIds,
+            primaryStoreId,
+          });
+        }
         toast.success("Employee added successfully");
       }
       goBack();

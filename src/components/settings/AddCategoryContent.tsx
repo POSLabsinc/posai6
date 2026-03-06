@@ -14,9 +14,10 @@ interface AddCategoryContentProps {
     parentCategory: string;
     products: string[];
   }) => void;
+  parentCategoryOptions?: string[];
 }
 
-const AddCategoryContent = ({ onBack, onSave }: AddCategoryContentProps) => {
+const AddCategoryContent = ({ onBack, onSave, parentCategoryOptions = [] }: AddCategoryContentProps) => {
   const [name, setName] = useState("");
   const [position, setPosition] = useState<number | null>(null);
   const [courseName, setCourseName] = useState("");
@@ -31,7 +32,7 @@ const AddCategoryContent = ({ onBack, onSave }: AddCategoryContentProps) => {
   const [showProductsSheet, setShowProductsSheet] = useState(false);
 
   const printerOptions = ["Kitchen Printer", "Bar Printer", "Receipt Printer", "Label Printer"];
-  const categoryOptions = ["Food", "Drinks", "Desserts", "Appetizers", "Main Course", "Sides"];
+  const categoryOptions = parentCategoryOptions;
   const productOptions = ["Burger", "Pizza", "Pasta", "Salad", "Coffee", "Tea", "Soda", "Wine", "Beer"];
 
   const handleBack = () => {

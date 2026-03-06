@@ -435,7 +435,7 @@ const Settings = () => {
     return (
       <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden">
         <div className="flex flex-1 h-full overflow-hidden">
-          <div className="w-full h-full overflow-y-auto scrollbar-hide">
+          <div key={location.pathname} className="w-full h-full overflow-y-auto scrollbar-hide">
             {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded, { viewMode: shiftViewMode, setViewMode: setShiftViewMode, currentWeek: shiftCurrentWeek, setCurrentWeek: setShiftCurrentWeek, currentDate: shiftCurrentDate, setCurrentDate: setShiftCurrentDate, currentMonth: shiftCurrentMonth, setCurrentMonth: setShiftCurrentMonth })}
           </div>
         </div>
@@ -448,7 +448,7 @@ const Settings = () => {
 
   if (isSubRoute) {
     return (
-      <div className="h-full overflow-y-auto scrollbar-hide">
+      <div key={location.pathname} className="h-full overflow-y-auto scrollbar-hide">
         {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded, { viewMode: shiftViewMode, setViewMode: setShiftViewMode, currentWeek: shiftCurrentWeek, setCurrentWeek: setShiftCurrentWeek, currentDate: shiftCurrentDate, setCurrentDate: setShiftCurrentDate, currentMonth: shiftCurrentMonth, setCurrentMonth: setShiftCurrentMonth }, true)}
       </div>
     );
@@ -469,7 +469,7 @@ const Settings = () => {
       {/* Right Panel - Content area with independent scroll (Tablet/Desktop only) */}
       {!isMobile && (
         <div className="flex flex-1 h-full overflow-hidden">
-          <div className="w-full h-full overflow-y-auto scrollbar-hide">
+          <div key={location.pathname} className="w-full h-full overflow-y-auto scrollbar-hide">
             {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded, { viewMode: shiftViewMode, setViewMode: setShiftViewMode, currentWeek: shiftCurrentWeek, setCurrentWeek: setShiftCurrentWeek, currentDate: shiftCurrentDate, setCurrentDate: setShiftCurrentDate, currentMonth: shiftCurrentMonth, setCurrentMonth: setShiftCurrentMonth })}
           </div>
         </div>

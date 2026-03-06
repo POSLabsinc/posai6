@@ -351,6 +351,9 @@ const getContentForRoute = (
   if (pathname === '/settings/workforce/shift/add-open-shift') {
     return <AddOpenShiftContent showHeader={true} onBack={() => navigate('/settings/workforce/shift')} />;
   }
+  if (pathname === '/settings/ai-assistant') {
+    return <AISettingsContent showHeader={true} onBack={() => navigate('/settings')} />;
+  }
   // Default to Account panel
   return <AccountPanel showHeader={true} />;
 };

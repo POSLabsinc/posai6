@@ -59,7 +59,10 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
   const [payrollEnabled, setPayrollEnabled] = useState(false);
   const [jobType, setJobType] = useState("");
   const [hourlyRate, setHourlyRate] = useState("");
-
+  const [assignedStoreIds, setAssignedStoreIds] = useState<string[]>([]);
+  const [primaryStoreId, setPrimaryStoreId] = useState<string | null>(null);
+  const [showStorePicker, setShowStorePicker] = useState(false);
+  const [storeSearch, setStoreSearch] = useState("");
   // Pre-fill fields in edit mode
   useEffect(() => {
     if (editEmployee) {

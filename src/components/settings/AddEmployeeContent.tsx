@@ -119,18 +119,33 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
     }
 
     try {
-      await addEmployee.mutateAsync({
-        full_name: `${firstName.trim()} ${lastName.trim()}`,
-        role: role || "Server",
-        email: email.trim() || undefined,
-        phone: phone.trim() ? `${selectedCountry.dialCode} ${phone.trim()}` : undefined,
-        hourly_rate: hourlyRate ? parseFloat(hourlyRate) : 0,
-        pin: pin.length === 4 ? pin : undefined,
-      });
-      toast.success("Employee added successfully");
+      if (isEditMode) {
+        await updateEmployee.mutateAsync({
+          id: editEmployee.id,
+          full_name: `${firstName.trim()} ${lastName.trim()}`,
+          role: role || "Server",
+          email: email.trim() || null,
+          phone: phone.trim() ? `${selectedCountry.dialCode} ${phone.trim()}` : null,
+          hourly_rate: hourlyRate ? parseFloat(hourlyRate) : 0,
+          pin: pin.length === 4 ? pin : undefined,
+          revenue_center: revenueCenter || undefined,
+          assigned_job_types: jobType ? [jobType] : undefined,
+        });
+        toast.success("Employee updated successfully");
+      } else {
+        await addEmployee.mutateAsync({
+          full_name: `${firstName.trim()} ${lastName.trim()}`,
+          role: role || "Server",
+          email: email.trim() || undefined,
+          phone: phone.trim() ? `${selectedCountry.dialCode} ${phone.trim()}` : undefined,
+          hourly_rate: hourlyRate ? parseFloat(hourlyRate) : 0,
+          pin: pin.length === 4 ? pin : undefined,
+        });
+        toast.success("Employee added successfully");
+      }
       goBack();
     } catch {
-      toast.error("Failed to add employee");
+      toast.error(isEditMode ? "Failed to update employee" : "Failed to add employee");
     }
   };
 
@@ -145,7 +160,7 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
         >
           <ChevronLeft className="w-5 h-5 text-foreground" />
         </button>
-        <h1 className="text-base font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Add New Employee</h1>
+        <h1 className="text-base font-semibold text-foreground absolute left-1/2 -translate-x-1/2">{isEditMode ? "Edit Employee" : "Add New Employee"}</h1>
       </div>
       )}
 

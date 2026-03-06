@@ -35,15 +35,14 @@ const revenueCenters = ["Bar", "Restaurant", "Takeout", "Delivery", "Catering", 
 const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentProps) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const editEmployee = (location.state as any)?.editEmployee;
+  const isEditMode = !!editEmployee;
   const addEmployee = useAddEmployee();
   const updateEmployee = useUpdateEmployee();
   const saveEmployeeStores = useSaveEmployeeStores();
   const { data: allStores = [] } = useStores();
   const { data: existingEmployeeStores = [] } = useEmployeeStores(editEmployee?.id || null);
   const goBack = onBack || (() => navigate("/settings/workforce/employee"));
-
-  const editEmployee = (location.state as any)?.editEmployee;
-  const isEditMode = !!editEmployee;
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");

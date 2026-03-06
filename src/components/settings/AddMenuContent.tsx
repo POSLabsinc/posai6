@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import { getAllCategories } from "@/lib/productStore";
+import { getParentCategories } from "@/lib/productStore";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
@@ -46,7 +46,7 @@ const AddMenuContent = ({
   onNavigate,
   onAIClick,
 }: AddMenuContentProps) => {
-  const allCategories = getAllCategories();
+  const allCategories = getParentCategories();
   const [name, setName] = useState("");
   const [enabled, setEnabled] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);

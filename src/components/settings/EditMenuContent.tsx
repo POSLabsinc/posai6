@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import { getAllCategories } from "@/lib/productStore";
+import { getParentCategories } from "@/lib/productStore";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,7 +48,7 @@ const EditMenuContent = ({
   onNavigate,
   onAIClick,
 }: EditMenuContentProps) => {
-  const allCategories = getAllCategories();
+  const allCategories = getParentCategories();
 
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");

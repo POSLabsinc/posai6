@@ -156,6 +156,24 @@ export const getAllCategories = (): string[] => {
   return [...cats];
 };
 
+// ── Parent categories only (from categories-settings localStorage) ──────
+export const getParentCategories = (): string[] => {
+  try {
+    const stored = localStorage.getItem("categories-settings");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        return parsed
+          .filter((c: any) => !c.archived && (c.parent === "Parent Category" || c.parent === "-"))
+          .map((c: any) => c.name);
+      }
+    }
+  } catch (e) {
+    console.error("Failed to parse categories from localStorage", e);
+  }
+  return [];
+};
+
 // ── Product names list for tax/discount applicable-products selectors ────
 export const getAllProductNames = (): string[] => {
   const products = getAllUnifiedProducts().filter((p) => !p.archived);

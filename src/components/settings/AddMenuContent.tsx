@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import { getParentCategories } from "@/lib/productStore";
+import { supabase } from "@/integrations/supabase/client";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import OrganizeCategoriesContent from "./OrganizeCategoriesContent";
 import MenuScheduleSection, { defaultDaySchedule } from "./MenuScheduleSection";
@@ -46,7 +45,7 @@ const AddMenuContent = ({
   onNavigate,
   onAIClick,
 }: AddMenuContentProps) => {
-  const allCategories = getParentCategories();
+  const [allCategories, setAllCategories] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [enabled, setEnabled] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -68,6 +67,19 @@ const AddMenuContent = ({
     kiosk: createScheduleState(),
     orderos: createScheduleState(),
   });
+
+  // Fetch real categories from database
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data } = await supabase
+        .from("categories")
+        .select("name")
+        .eq("active", true)
+        .order("sort_order");
+      if (data) setAllCategories(data.map(c => c.name));
+    };
+    fetchCategories();
+  }, []);
 
   const serializeSchedules = (channels: Record<string, boolean>, scheds: Record<string, ScheduleState>) => {
     const result: Record<string, any> = {};

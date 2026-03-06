@@ -58,7 +58,7 @@ You MUST respond with valid JSON:
 {"type": "update_setting", "setting": "Name", "path": "Path", "currentValue": "Old", "newValue": "New", "settingType": "menu|product|category|modifierGroup|modifier|addOn|gratuity|discount|tax|serviceCharge|appearance|controlCenter|checkoutOptions", "operation": "add|update|archive|enable|disable", "data": {...}, "autoApply": true|false}
 
 #### Menu operations (settingType: "menu"):
-- add: {"name": "Menu Name", "description": "optional desc", "revenueCenters": ["Dine Center","Takeaway Center"], "channels": {"dineIn": true, "takeaway": true, "delivery": false}, "categoryNames": ["Starters","Mains"]} — creates a new menu AND links categories
+- add: {"name": "Menu Name", "description": "optional desc", "revenueCenters": ["Dine Center","Takeaway Center"], "channels": {"dineIn": true, "takeaway": true, "delivery": false}, "categoryNames": ["Starters","Mains"], "devices": ["POS Terminal", "Kiosk"]} — creates a new menu AND links categories
 - enable/disable: {"id": "uuid", "enabled": true/false} — toggle menu
 - update: {"id": "uuid", "name": "New Name"} — rename
 - archive: {"id": "uuid"} — archive menu

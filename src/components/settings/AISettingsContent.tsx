@@ -20,6 +20,7 @@ interface Message {
   navigateTo?: string;
   isStreaming?: boolean;
   quickReplies?: string[];
+  multiSelect?: boolean;
 }
 
 interface PendingChange {
@@ -171,6 +172,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [appliedChanges, setAppliedChanges] = useState<AppliedChange[]>([]);
+  const [multiSelectState, setMultiSelectState] = useState<Record<string, string[]>>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -591,11 +593,12 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         appliedChange,
         navigateTo,
         quickReplies: data.quickReplies || undefined,
+        multiSelect: data.multiSelect === true,
       };
 
       // Clear quickReplies from previous assistant messages
       setMessages((prev) => [
-        ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined } : msg),
+        ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined, multiSelect: undefined } : msg),
         assistantMessage,
       ]);
       setConversationHistory((prev) => [...prev, { role: "assistant", content: data.message }]);
@@ -926,16 +929,81 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   {/* Quick Reply Buttons */}
                   {message.quickReplies && message.quickReplies.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">
-                      {message.quickReplies.map((reply) => (
-                        <button
-                          key={reply}
-                          onClick={() => handleSendMessage(reply)}
-                          disabled={isTyping}
-                          className="px-4 py-2.5 rounded-full bg-neutral-800/80 text-sm text-foreground border border-neutral-600/50 active:opacity-70 active:scale-95 transition-all hover:bg-neutral-700/80 disabled:opacity-40 font-medium"
-                        >
-                          {reply}
-                        </button>
-                      ))}
+                      {message.multiSelect ? (
+                        <>
+                          {message.quickReplies.filter(r => r !== "Done" && r !== "Skip").map((reply) => {
+                            const selected = (multiSelectState[message.id] || []).includes(reply);
+                            return (
+                              <button
+                                key={reply}
+                                onClick={() => {
+                                  setMultiSelectState(prev => {
+                                    const current = prev[message.id] || [];
+                                    if (reply === "All" || reply === "All Devices") {
+                                      const allOptions = message.quickReplies!.filter(r => r !== "Done" && r !== "Skip" && r !== "All" && r !== "All Devices");
+                                      return { ...prev, [message.id]: allOptions };
+                                    }
+                                    return {
+                                      ...prev,
+                                      [message.id]: current.includes(reply)
+                                        ? current.filter(r => r !== reply)
+                                        : [...current, reply]
+                                    };
+                                  });
+                                }}
+                                disabled={isTyping}
+                                className={cn(
+                                  "px-4 py-2.5 rounded-full text-sm border active:scale-95 transition-all font-medium",
+                                  selected
+                                    ? "bg-primary text-primary-foreground border-primary"
+                                    : "bg-neutral-800/80 text-foreground border-neutral-600/50 hover:bg-neutral-700/80"
+                                )}
+                              >
+                                {selected && <span className="mr-1.5">✓</span>}
+                                {reply}
+                              </button>
+                            );
+                          })}
+                          <button
+                            onClick={() => {
+                              const selected = multiSelectState[message.id] || [];
+                              if (selected.length > 0) {
+                                handleSendMessage(selected.join(", "));
+                                setMultiSelectState(prev => { const n = {...prev}; delete n[message.id]; return n; });
+                              }
+                            }}
+                            disabled={isTyping || !(multiSelectState[message.id]?.length)}
+                            className={cn(
+                              "px-5 py-2.5 rounded-full text-sm font-semibold transition-all active:scale-95",
+                              (multiSelectState[message.id]?.length)
+                                ? "bg-green-500 text-white border border-green-400"
+                                : "bg-neutral-700/40 text-neutral-500 border border-neutral-700/50"
+                            )}
+                          >
+                            ✓ Done
+                          </button>
+                          {message.quickReplies.includes("Skip") && (
+                            <button
+                              onClick={() => handleSendMessage("Skip")}
+                              disabled={isTyping}
+                              className="px-4 py-2.5 rounded-full text-sm text-neutral-400 border border-neutral-700/50 bg-neutral-800/40 hover:bg-neutral-700/60 transition-all active:scale-95 font-medium"
+                            >
+                              Skip
+                            </button>
+                          )}
+                        </>
+                      ) : (
+                        message.quickReplies.map((reply) => (
+                          <button
+                            key={reply}
+                            onClick={() => handleSendMessage(reply)}
+                            disabled={isTyping}
+                            className="px-4 py-2.5 rounded-full bg-neutral-800/80 text-sm text-foreground border border-neutral-600/50 active:opacity-70 active:scale-95 transition-all hover:bg-neutral-700/80 disabled:opacity-40 font-medium"
+                          >
+                            {reply}
+                          </button>
+                        ))
+                      )}
                     </div>
                   )}
                 </div>

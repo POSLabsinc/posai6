@@ -6,6 +6,8 @@ import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 
+const REVENUE_CENTERS = ["Full Service", "Quick Service"];
+
 interface EditMenuContentProps {
   menuId: string;
   showHeader?: boolean;
@@ -32,6 +34,8 @@ const EditMenuContent = ({
   const [activeForOrderOS, setActiveForOrderOS] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showCategoriesSheet, setShowCategoriesSheet] = useState(false);
+  const [showRevenueCentersSheet, setShowRevenueCentersSheet] = useState(false);
+  const [selectedRevenueCenters, setSelectedRevenueCenters] = useState<string[]>([]);
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -188,9 +192,15 @@ const EditMenuContent = ({
 
         {/* Revenue Centers */}
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
-          <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
+          <button
+            className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
+            onClick={() => setShowRevenueCentersSheet(true)}
+          >
             <span className="text-foreground text-base font-medium">Revenue Centers</span>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <div className="flex items-center gap-1">
+              <span className="text-muted-foreground text-base">{formatSelection(selectedRevenueCenters, "None")}</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </div>
           </button>
         </div>
         <p className="text-muted-foreground text-xs px-1 mt-1 mb-6">Assign this menu to specific revenue centers.</p>
@@ -207,6 +217,18 @@ const EditMenuContent = ({
         title="Select Categories"
         options={allCategories}
         initialSelected={selectedCategories}
+      />
+
+      {/* Revenue Centers Sheet */}
+      <MultiSelectSheet
+        isOpen={showRevenueCentersSheet}
+        onClose={(selected) => {
+          setSelectedRevenueCenters(selected);
+          setShowRevenueCentersSheet(false);
+        }}
+        title="Select Revenue Centers"
+        options={REVENUE_CENTERS}
+        initialSelected={selectedRevenueCenters}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ChevronLeft, ChevronRight, User, Camera, Search, X, Briefcase, UtensilsCrossed, Wine, ShoppingBag, LayoutGrid, Truck, PartyPopper, Armchair, Coffee, ConciergeBell, Delete } from "lucide-react";
-import { useAddEmployee, useUpdateEmployee } from "@/hooks/use-employees";
+import { ChevronLeft, ChevronRight, User, Camera, Search, X, Briefcase, UtensilsCrossed, Wine, ShoppingBag, LayoutGrid, Truck, PartyPopper, Armchair, Coffee, ConciergeBell, Delete, MapPin, Check, Star } from "lucide-react";
+import { useAddEmployee, useUpdateEmployee, useStores, useEmployeeStores, useSaveEmployeeStores } from "@/hooks/use-employees";
 import { toast } from "sonner";
 import { countryCodes, type CountryCode } from "@/components/CountryCodeSelector";
 import serverIcon from "@/assets/icons/jobs/server.svg";

@@ -407,10 +407,23 @@ serve(async (req) => {
       parsedResponse = { message: content, action: { type: "info" } };
     }
 
-    return new Response(
-      JSON.stringify(parsedResponse),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-    );
+    // CRITICAL: Sanitize the message field — strip any JSON/code that leaked into it
+    if (parsedResponse.message && typeof parsedResponse.message === "string") {
+      let msg = parsedResponse.message;
+      // Remove any JSON blocks embedded in the message
+      msg = msg.replace(/```json[\s\S]*?```/g, "").trim();
+      msg = msg.replace(/```[\s\S]*?```/g, "").trim();
+      // Remove standalone JSON objects (lines starting with { and ending with })
+      msg = msg.replace(/^\s*\{[\s\S]*\}\s*$/m, "").trim();
+      // Remove lines that look like JSON keys (e.g., "message":, "action":, "quickReplies":)
+      msg = msg.replace(/^\s*"(message|action|quickReplies|multiSelect|type)"[\s\S]*$/gm, "").trim();
+      // Remove orphan braces/brackets lines
+      msg = msg.replace(/^\s*[\{\}\[\],]\s*$/gm, "").trim();
+      // Clean up multiple blank lines
+      msg = msg.replace(/\n{3,}/g, "\n\n").trim();
+      if (!msg) msg = "Got it! What would you like to do next?";
+      parsedResponse.message = msg;
+    }
 
   } catch (error) {
     console.error("Error in ai-settings-chat:", error);

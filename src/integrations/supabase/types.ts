@@ -303,6 +303,7 @@ export type Database = {
           enabled: boolean
           id: string
           name: string
+          revenue_centers: string[]
           sort_order: number
           updated_at: string
         }
@@ -313,6 +314,7 @@ export type Database = {
           enabled?: boolean
           id?: string
           name: string
+          revenue_centers?: string[]
           sort_order?: number
           updated_at?: string
         }
@@ -323,6 +325,7 @@ export type Database = {
           enabled?: boolean
           id?: string
           name?: string
+          revenue_centers?: string[]
           sort_order?: number
           updated_at?: string
         }

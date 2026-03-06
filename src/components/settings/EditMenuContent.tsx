@@ -41,12 +41,13 @@ const EditMenuContent = ({
     const fetchMenu = async () => {
       const { data } = await supabase
         .from("menus")
-        .select("id, name, enabled")
+        .select("id, name, enabled, revenue_centers")
         .eq("id", menuId)
         .single();
       if (data) {
         setName(data.name);
         setEnabled(data.enabled);
+        setSelectedRevenueCenters((data as any).revenue_centers || []);
       }
 
       // Fetch linked categories
@@ -76,7 +77,7 @@ const EditMenuContent = ({
     if (name.trim()) {
       await supabase
         .from("menus")
-        .update({ name: name.trim(), enabled })
+        .update({ name: name.trim(), enabled, revenue_centers: selectedRevenueCenters } as any)
         .eq("id", menuId);
     }
     onBack?.();

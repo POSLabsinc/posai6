@@ -132,6 +132,9 @@ const EditMenuContent = ({
   };
 
   const handleSave = async () => {
+    // Navigate immediately so UI doesn't freeze
+    onBack?.();
+    
     if (name.trim()) {
       const channelSchedulesData: Record<string, any> = {};
       for (const key of Object.keys(activeChannels)) {
@@ -149,7 +152,6 @@ const EditMenuContent = ({
         .update({ name: name.trim(), enabled, revenue_centers: selectedRevenueCenters, channel_schedules: channelSchedulesData } as any)
         .eq("id", menuId);
     }
-    onBack?.();
   };
 
   if (loading) {

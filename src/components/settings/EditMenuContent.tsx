@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-
+import { getAllCategories } from "@/lib/productStore";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
@@ -48,21 +48,7 @@ const EditMenuContent = ({
   onNavigate,
   onAIClick,
 }: EditMenuContentProps) => {
-  const [allCategories, setAllCategories] = useState<string[]>([]);
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      const { data } = await supabase
-        .from("categories")
-        .select("name")
-        .eq("active", true)
-        .order("sort_order", { ascending: true });
-      if (data) {
-        setAllCategories(data.map((c) => c.name));
-      }
-    };
-    fetchCategories();
-  }, []);
+  const allCategories = getAllCategories();
 
   const [loading, setLoading] = useState(true);
   const [name, setName] = useState("");

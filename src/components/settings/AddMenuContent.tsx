@@ -53,6 +53,7 @@ const AddMenuContent = ({
   const [showCategoriesSheet, setShowCategoriesSheet] = useState(false);
   const [showOrganizeScreen, setShowOrganizeScreen] = useState(false);
   const [showRevenueCentersSheet, setShowRevenueCentersSheet] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [selectedRevenueCenters, setSelectedRevenueCenters] = useState<string[]>([]);
 
   // Toggle states for each channel
@@ -94,6 +95,8 @@ const AddMenuContent = ({
   };
 
   const handleSave = async () => {
+    if (isSaving) return;
+    setIsSaving(true);
     try {
       if (name.trim()) {
         const { data, error } = await supabase.from("menus").insert({
@@ -140,6 +143,8 @@ const AddMenuContent = ({
     } catch (err) {
       console.error("Error saving menu:", err);
       toast.error("Failed to save menu");
+    } finally {
+      setIsSaving(false);
     }
     onBack?.();
   };

@@ -584,10 +584,30 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         navigateTo = action.path;
       }
 
+      // Sanitize message: strip any JSON/code that leaked into the message
+      let messageText = data.message || "I'm not sure how to help with that. Could you rephrase?";
+      // If the entire message looks like JSON, extract just the "message" field
+      if (messageText.trim().startsWith("{") || messageText.trim().startsWith("```")) {
+        try {
+          let clean = messageText.trim();
+          if (clean.startsWith("```json")) clean = clean.slice(7);
+          if (clean.startsWith("```")) clean = clean.slice(3);
+          if (clean.endsWith("```")) clean = clean.slice(0, -3);
+          const parsed = JSON.parse(clean.trim());
+          if (parsed.message) messageText = parsed.message;
+        } catch {
+          // Strip code blocks if present
+          messageText = messageText.replace(/```[\s\S]*?```/g, "").trim();
+          // Strip JSON-like content
+          messageText = messageText.replace(/\{[\s\S]*\}/g, "").trim();
+          if (!messageText) messageText = "Got it! What would you like to do next?";
+        }
+      }
+
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: data.message || "I'm not sure how to help with that. Could you rephrase?",
+        content: messageText,
         timestamp: new Date(),
         pendingChange,
         appliedChange,

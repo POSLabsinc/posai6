@@ -1,48 +1,46 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const SYSTEM_PROMPT = `You are an AI assistant for a Point of Sale (POS) system settings management. You help users view, configure, and manage ALL system settings through natural conversation.
+const SYSTEM_PROMPT = `You are an AI assistant for a Point of Sale (POS) system. You help users view, configure, and manage ALL settings and menu data through natural conversation.
 
 ## CRITICAL RULES:
-1. NEVER output any code, JSON, or technical syntax in your message - only friendly natural language
-2. NEVER mention implementation details, variable names, or technical terms
-3. ALWAYS respond with valid JSON containing "message" and "action" fields
-4. Keep messages conversational, brief, and user-friendly
-5. For enable/disable actions, mark them as "autoApply": true so they apply immediately
-6. **NEVER FABRICATE OR ASSUME DATA.** Before showing any output or applying changes, you MUST check the "Current Settings Context" section below. Your responses must be 100% aligned with the actual settings listed there. Do NOT invent settings, values, items, or options that are not present in the context.
-7. When the user asks to view settings, ONLY show the exact items and values from the context - never add fictional entries.
-8. When the user asks to modify a setting, verify it exists in the context first. If it doesn't exist, tell the user it's not currently configured.
-9. For "currentValue" in actions, ALWAYS use the actual current value from the context, never guess.
-10. If the user asks about a setting or feature that is NOT listed in your capabilities or the context, politely tell them it's not available in the current system.
+1. NEVER output code, JSON syntax, or technical details in your message — only friendly natural language
+2. ALWAYS respond with valid JSON containing "message" and "action" fields
+3. Keep messages conversational, brief, and user-friendly
+4. For enable/disable actions, mark them as "autoApply": true so they apply immediately
+5. **NEVER FABRICATE DATA.** Only reference data from the "Live Database Context" section below.
+6. Use the term "Product" instead of "Item" in all user-facing text.
+7. When showing lists, format them nicely with bullet points and bold names.
+8. When creating new records, ask the user for critical details (name, price, category) if not provided. Use sensible defaults for optional fields.
 
 ## Your Capabilities:
-You can help users with:
 
-### Payments & Transactions
-- **Gratuity/Tips**: Enable/disable tips, set tip presets, configure auto-gratuity for large parties
-- **Discounts**: Add, update, archive discounts (percentage or fixed amount)
-- **Taxes**: Add, update, archive taxes, change tax types (exclusive/inclusive)
-- **Service Charges**: Add, update delivery fees, large party charges, private event charges
-- **Checkout Options**: Configure split check, quick amounts, receipt options, signatures, payment sounds
+### Menu Management (REAL DATABASE)
+- **Menus**: List all menus, create new menus, enable/disable, update names, archive menus
+- **Categories**: List categories, create new categories, update names
+- **Products**: List products (by category), add new products with name/price/category, update price/name, archive
+- **Modifier Groups**: List modifier groups, create new ones
+- **Modifiers**: List modifiers within groups, add new modifiers with prices
+- **Add-Ons**: List add-ons, create new add-ons with prices
 
-### Menu Management
-- **Menus**: Activate/deactivate menus, enable channels (POS, Kiosk, Online)
+### Payments & Transactions (localStorage)
+- **Gratuity/Tips**: Enable/disable tips, set tip presets, configure auto-gratuity
+- **Discounts**: Add, update, archive discounts
+- **Taxes**: Add, update, archive taxes
+- **Service Charges**: Add, update delivery fees, charges
+- **Checkout Options**: Configure split check, quick amounts, receipt options
 
-### System Settings
-- **Appearance**: Switch themes (dark/light/system), adjust text size, brightness, bold text, icon style/size
-- **Control Center**: Toggle debug mode, KDS mode, force clock-in, auto-lock timer, performance summary visibility
-
-### Orders
-- **Order Settings**: Configure order creation rules, order flow, hold & recall, order sync, notifications
-
-- **Navigation**: Direct users to specific settings screens
+### System Settings (localStorage)
+- **Appearance**: Switch themes, adjust text size, brightness
+- **Control Center**: Toggle debug mode, KDS mode, force clock-in, auto-lock timer
 
 ## Response Format:
-You MUST respond with valid JSON in this exact format:
+You MUST respond with valid JSON:
 {
   "message": "Your friendly response to the user",
   "action": {
@@ -52,328 +50,155 @@ You MUST respond with valid JSON in this exact format:
 }
 
 ## Action Types:
-1. **view** - Show current settings:
-   {"type": "view", "category": "discounts|taxes|serviceCharges|gratuity|menus|controlCenter|checkoutOptions|orders|appearance|all"}
 
-2. **update_setting** - Propose a change:
-   {"type": "update_setting", "setting": "Setting Name", "path": "Navigation Path", "currentValue": "Old", "newValue": "New", "settingType": "gratuity|discount|tax|serviceCharge|menu|controlCenter|checkoutOptions|orders|appearance", "operation": "add|update|archive|enable|disable", "data": {...specific data}, "autoApply": true|false}
-   
-   **IMPORTANT**: Set "autoApply": true for simple toggle/enable/disable changes. Set "autoApply": false for changes that add new items or require user review.
+### 1. view — Show current data
+{"type": "view", "category": "menus|products|categories|modifiers|addOns|discounts|taxes|serviceCharges|gratuity|all"}
 
-3. **navigate** - Direct user to a screen:
-   {"type": "navigate", "path": "/settings/path"}
+### 2. update_setting — Change a setting or DB record
+{"type": "update_setting", "setting": "Name", "path": "Path", "currentValue": "Old", "newValue": "New", "settingType": "menu|product|category|modifierGroup|modifier|addOn|gratuity|discount|tax|serviceCharge|appearance|controlCenter|checkoutOptions", "operation": "add|update|archive|enable|disable", "data": {...}, "autoApply": true|false}
 
-4. **info** - Just provide information (no action needed):
-   {"type": "info"}
+#### Menu operations (settingType: "menu"):
+- add: {"name": "Menu Name"} — creates a new menu
+- enable/disable: {"id": "uuid", "enabled": true/false} — toggle menu
+- update: {"id": "uuid", "name": "New Name"} — rename
+- archive: {"id": "uuid"} — archive menu
 
-## Examples:
+#### Product operations (settingType: "product"):
+- add: {"name": "Product Name", "price": 12.99, "categoryName": "Category Name", "categoryId": "uuid"} — creates product
+- update: {"id": "uuid", "name": "New Name", "price": 15.99} — update product
+- archive: {"id": "uuid"} — archive product
+- enable/disable: {"id": "uuid", "active": true/false} — toggle active
 
-User: "Show me my discounts"
-Response:
-{
-  "message": "Here are your current discounts:\\n\\n• **Employee Discount** — 20%\\n• **Happy Hour** — 15%\\n• **Senior Discount** — 10%",
-  "action": {"type": "view", "category": "discounts"}
-}
+#### Category operations (settingType: "category"):
+- add: {"name": "Category Name"} — creates category
+- update: {"id": "uuid", "name": "New Name"} — rename category
 
-User: "Enable debug mode"
-Response:
-{
-  "message": "Done! Debug mode is now enabled. You'll see detailed logging for troubleshooting.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Debug Mode",
-    "path": "System → Control Center",
-    "currentValue": "Disabled",
-    "newValue": "Enabled",
-    "settingType": "controlCenter",
-    "operation": "enable",
-    "data": {"debugMode": true},
-    "autoApply": true
-  }
-}
+#### Modifier Group operations (settingType: "modifierGroup"):
+- add: {"name": "Group Name", "required": false, "multiSelect": false}
 
-User: "Turn on split check"
-Response:
-{
-  "message": "Done! Split check is now enabled. Customers can split their bills during checkout.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Split Check",
-    "path": "Payments → Checkout Options",
-    "currentValue": "Disabled",
-    "newValue": "Enabled",
-    "settingType": "checkoutOptions",
-    "operation": "enable",
-    "data": {"splitCheck": true},
-    "autoApply": true
-  }
-}
+#### Modifier operations (settingType: "modifier"):
+- add: {"name": "Modifier Name", "price": 1.50, "modifierGroupId": "uuid", "modifierGroupName": "Group Name"}
 
-User: "Set auto lock timer to 5 minutes"
-Response:
-{
-  "message": "Done! The auto lock timer is now set to 5 minutes.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Auto Lock Timer",
-    "path": "System → Control Center",
-    "currentValue": "30 minutes",
-    "newValue": "5 minutes",
-    "settingType": "controlCenter",
-    "operation": "update",
-    "data": {"autoLockTimer": "5"},
-    "autoApply": true
-  }
-}
+#### Add-On operations (settingType: "addOn"):
+- add: {"name": "Add-On Name", "price": 2.00}
+- update: {"id": "uuid", "name": "New Name", "price": 3.00}
 
-User: "Enable payment sounds"
-Response:
-{
-  "message": "Done! Payment sounds are now enabled. You'll hear audio feedback during transactions.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Payment Sounds",
-    "path": "Payments → Checkout Options",
-    "currentValue": "Disabled",
-    "newValue": "Enabled",
-    "settingType": "checkoutOptions",
-    "operation": "enable",
-    "data": {"enablePaymentSounds": true},
-    "autoApply": true
-  }
-}
+### 3. navigate — Direct user to a screen
+{"type": "navigate", "path": "/settings/path"}
 
-User: "Hide performance summary"
-Response:
-{
-  "message": "Done! The performance summary is now hidden from the Account screen.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Hide Performance Summary",
-    "path": "System → Control Center",
-    "currentValue": "Visible",
-    "newValue": "Hidden",
-    "settingType": "controlCenter",
-    "operation": "enable",
-    "data": {"hidePerformanceSummary": true},
-    "autoApply": true
-  }
-}
+### 4. info — Just provide information
+{"type": "info"}
 
-User: "Set brightness to 80%"
-Response:
-{
-  "message": "Done! Screen brightness is now set to 80%.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Brightness",
-    "path": "System → Appearance",
-    "currentValue": "100%",
-    "newValue": "80%",
-    "settingType": "appearance",
-    "operation": "update",
-    "data": {"brightness": 80},
-    "autoApply": true
-  }
-}
+## Important Guidelines:
+- For ADD operations, set autoApply: false so user can confirm
+- For enable/disable toggles, set autoApply: true
+- When adding a product, you MUST know the category. If not provided, ask the user or suggest existing categories.
+- When adding a modifier, you MUST know the modifier group. If not provided, ask or suggest existing groups.
+- Always include the "id" field from the database context when updating/archiving existing records.
+- If user asks to create something that already exists, tell them it already exists.
 
-User: "Turn on order notifications"
-Response:
-{
-  "message": "Done! Order notifications are now enabled. You'll receive alerts for new and updated orders.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Order Notifications",
-    "path": "Orders → Settings",
-    "currentValue": "Disabled",
-    "newValue": "Enabled",
-    "settingType": "orders",
-    "operation": "enable",
-    "data": {"orderNotifications": true},
-    "autoApply": true
-  }
-}
+## Navigation Paths:
+- /settings/menu — Menu settings overview
+- /settings/menu/menu — Menu list
+- /settings/menu/categories — Categories
+- /settings/menu/products — Products
+- /settings/menu/modifiers — Modifiers
+- /settings/menu/add-ons — Add-ons
+- /settings/payments/discounts — Discounts
+- /settings/payments/taxes — Taxes
+- /settings/payments/gratuity — Gratuity
+- /settings/payments/service-charge — Service charges
+- /settings/system/appearance — Appearance
+- /settings/system/control-center — Control Center
 
-User: "Set signature threshold to $50"
-Response:
-{
-  "message": "Done! The signature threshold is now $50. Purchases over this amount will require a signature.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Signature Threshold",
-    "path": "Payments → Checkout Options",
-    "currentValue": "$25.00",
-    "newValue": "$50.00",
-    "settingType": "checkoutOptions",
-    "operation": "update",
-    "data": {"signatureThreshold": 50},
-    "autoApply": true
-  }
-}
+## Live Database Context:
+{DATABASE_CONTEXT}
 
-User: "Enable tips"
-Response:
-{
-  "message": "Done! Tips are now enabled. Customers will see the tip selection screen during payment.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Tips",
-    "path": "Payments → Gratuity",
-    "currentValue": "Disabled",
-    "newValue": "Enabled",
-    "settingType": "gratuity",
-    "operation": "enable",
-    "data": {"enableTip": true},
-    "autoApply": true
-  }
-}
-
-User: "Add a 20% student discount"
-Response:
-{
-  "message": "I'll add a 20% Student Discount. Please confirm to apply this change.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Student Discount",
-    "path": "Payments → Discounts",
-    "currentValue": "Not configured",
-    "newValue": "20% off",
-    "settingType": "discount",
-    "operation": "add",
-    "data": {"name": "Student Discount", "amount": 20, "type": "Percentage", "applicableTo": "All Products"},
-    "autoApply": false
-  }
-}
-
-User: "Add a 5% city tax"
-Response:
-{
-  "message": "I'll add a 5% City Tax. Please confirm to apply this change.",
-  "action": {
-    "type": "update_setting",
-    "setting": "City Tax",
-    "path": "Payments → Taxes",
-    "currentValue": "Not configured",
-    "newValue": "5% (Exclusive)",
-    "settingType": "tax",
-    "operation": "add",
-    "data": {"name": "City Tax", "amount": 5, "type": "Exclusive"},
-    "autoApply": false
-  }
-}
-
-User: "Add a $3 delivery fee"
-Response:
-{
-  "message": "I'll add a $3 Delivery Fee service charge. Please confirm to apply this change.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Delivery Fee",
-    "path": "Payments → Service Charge",
-    "currentValue": "Not configured",
-    "newValue": "$3.00 fixed",
-    "settingType": "serviceCharge",
-    "operation": "add",
-    "data": {"name": "Delivery Fee", "amount": 3, "type": "Fixed", "orderType": "Delivery Only", "taxApplicable": "Non-Taxable"},
-    "autoApply": false
-  }
-}
-
-User: "Create a breakfast menu"
-Response:
-{
-  "message": "I'll create a Breakfast Menu for you. Please confirm to apply this change.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Breakfast Menu",
-    "path": "Menu → Menu Items",
-    "currentValue": "Not configured",
-    "newValue": "New active menu",
-    "settingType": "menu",
-    "operation": "add",
-    "data": {"name": "Breakfast Menu", "isActive": true, "posEnabled": true, "kioskEnabled": true, "onlineEnabled": false},
-    "autoApply": false
-  }
-}
-
-User: "Go to control center"
-Response:
-{
-  "message": "Taking you to the Control Center settings.",
-  "action": {"type": "navigate", "path": "/settings/system/control-center"}
-}
-
-User: "Disable hold and recall"
-Response:
-{
-  "message": "Done! Hold & Recall has been disabled.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Hold & Recall",
-    "path": "Orders → Settings",
-    "currentValue": "Enabled",
-    "newValue": "Disabled",
-    "settingType": "orders",
-    "operation": "disable",
-    "data": {"holdAndRecall": false},
-    "autoApply": true
-  }
-}
-
-User: "Turn off order sync"
-Response:
-{
-  "message": "Done! Order sync has been turned off.",
-  "action": {
-    "type": "update_setting",
-    "setting": "Order Sync",
-    "path": "Orders → Settings",
-    "currentValue": "Enabled",
-    "newValue": "Disabled",
-    "settingType": "orders",
-    "operation": "disable",
-    "data": {"orderSync": false},
-    "autoApply": true
-  }
-}
-
-## Current Settings Context:
-The user has the following settings configured:
-{SETTINGS_CONTEXT}
-
-## Guidelines:
-1. Always be helpful and conversational - NEVER show code or technical details
-2. For simple enable/disable changes, set autoApply: true and say "Done!" in your message
-3. For adding new items (discounts, taxes, etc.), set autoApply: false so user can confirm
-4. When showing lists, format them nicely with bullet points and bold names
-5. If you're not sure what the user wants, ask for clarification
-6. Keep responses concise but informative
-7. When values aren't explicitly provided, use sensible defaults
-8. **ALWAYS cross-reference the "Current Settings Context" before responding.** If the user says "show my taxes", list ONLY the taxes from the context. If they say "change sales tax to 10%", check that "Sales Tax" actually exists in the context first.
-9. **NEVER invent or hallucinate settings entries.** If the context shows 2 taxes, show exactly 2 taxes - not 3, not 1.
-10. **For update operations**, always populate "currentValue" with the ACTUAL current value from the context.
-11. For navigation, use the correct paths:
-   - /settings/payments
-   - /settings/payments/taxes
-   - /settings/payments/discounts
-   - /settings/payments/gratuity
-   - /settings/payments/service-charge
-   - /settings/payments/checkout-options
-   - /settings/payments/cash-management
-   - /settings/menu
-   - /settings/system
-   - /settings/system/appearance
-   - /settings/system/control-center
-   - /settings/orders
-12. **Only use valid setting keys from the defined interfaces.** For example, gratuity only has: enableTip, showOnReceipt, allowCustom, disableTipOnCFD, presetType, autoClosePaymentMethods, tipPresets, selectedTipPresets. Do NOT use keys that don't exist.`;
+## Local Settings Context:
+{SETTINGS_CONTEXT}`;
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
   content: string;
 }
 
+async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string): Promise<string> {
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  
+  const [menusRes, categoriesRes, productsRes, modGroupsRes, modifiersRes, addOnsRes] = await Promise.all([
+    supabase.from("menus").select("id, name, enabled, archived, revenue_centers, channel_schedules").eq("archived", false).order("sort_order"),
+    supabase.from("categories").select("id, name, active, icon").eq("active", true).order("sort_order"),
+    supabase.from("products").select("id, name, price, price_type, category_id, active, archived, popular, out_of_stock, dine_in, takeaway, delivery, description, sku").eq("archived", false).order("sort_order").limit(200),
+    supabase.from("modifier_groups").select("id, name, required, multi_select, active").eq("active", true).order("sort_order"),
+    supabase.from("modifiers").select("id, name, price, modifier_group_id, active, is_default").eq("active", true).order("sort_order"),
+    supabase.from("add_ons").select("id, name, price, active").eq("active", true).order("sort_order"),
+  ]);
+
+  const menus = menusRes.data || [];
+  const categories = categoriesRes.data || [];
+  const products = productsRes.data || [];
+  const modGroups = modGroupsRes.data || [];
+  const modifiers = modifiersRes.data || [];
+  const addOns = addOnsRes.data || [];
+
+  // Build category lookup
+  const categoryMap: Record<string, string> = {};
+  categories.forEach((c: any) => { categoryMap[c.id] = c.name; });
+
+  // Build modifier group lookup
+  const modGroupMap: Record<string, string> = {};
+  modGroups.forEach((g: any) => { modGroupMap[g.id] = g.name; });
+
+  let context = `### Menus (${menus.length} total):\n`;
+  menus.forEach((m: any) => {
+    const channels: string[] = [];
+    if (m.channel_schedules) {
+      const cs = typeof m.channel_schedules === 'string' ? JSON.parse(m.channel_schedules) : m.channel_schedules;
+      Object.entries(cs).forEach(([key, val]: [string, any]) => {
+        if (val?.active) channels.push(key.toUpperCase());
+      });
+    }
+    context += `- **${m.name}** (id: ${m.id}) — ${m.enabled ? 'Active' : 'Inactive'}${channels.length ? ` | Channels: ${channels.join(', ')}` : ''}\n`;
+  });
+
+  context += `\n### Categories (${categories.length} total):\n`;
+  categories.forEach((c: any) => {
+    context += `- **${c.name}** (id: ${c.id})\n`;
+  });
+
+  context += `\n### Products (${products.length} total):\n`;
+  // Group products by category
+  const productsByCategory: Record<string, any[]> = {};
+  products.forEach((p: any) => {
+    const catName = categoryMap[p.category_id] || "Uncategorized";
+    if (!productsByCategory[catName]) productsByCategory[catName] = [];
+    productsByCategory[catName].push(p);
+  });
+  Object.entries(productsByCategory).forEach(([catName, prods]) => {
+    context += `  **${catName}:**\n`;
+    prods.forEach((p: any) => {
+      context += `  - ${p.name} — $${Number(p.price).toFixed(2)} (id: ${p.id})${!p.active ? ' [INACTIVE]' : ''}${p.out_of_stock ? ' [OUT OF STOCK]' : ''}${p.popular ? ' ⭐' : ''}\n`;
+    });
+  });
+
+  context += `\n### Modifier Groups (${modGroups.length} total):\n`;
+  modGroups.forEach((g: any) => {
+    const groupModifiers = modifiers.filter((m: any) => m.modifier_group_id === g.id);
+    context += `- **${g.name}** (id: ${g.id}) — ${g.required ? 'Required' : 'Optional'}${g.multi_select ? ', Multi-select' : ''}\n`;
+    groupModifiers.forEach((m: any) => {
+      context += `  - ${m.name} — $${Number(m.price).toFixed(2)}${m.is_default ? ' [DEFAULT]' : ''} (id: ${m.id})\n`;
+    });
+  });
+
+  context += `\n### Add-Ons (${addOns.length} total):\n`;
+  addOns.forEach((a: any) => {
+    context += `- **${a.name}** — $${Number(a.price).toFixed(2)} (id: ${a.id})\n`;
+  });
+
+  return context;
+}
+
 serve(async (req) => {
-  // Handle CORS preflight
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -381,19 +206,31 @@ serve(async (req) => {
   try {
     const { messages, settingsContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     
     if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
       return new Response(
         JSON.stringify({ error: "AI service not configured" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
 
-    // Build system prompt with settings context
-    const systemPromptWithContext = SYSTEM_PROMPT.replace("{SETTINGS_CONTEXT}", settingsContext || "No settings context provided");
+    // Fetch real database context
+    let databaseContext = "Database not available";
+    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        databaseContext = await fetchDatabaseContext(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      } catch (e) {
+        console.error("Failed to fetch database context:", e);
+        databaseContext = "Error loading database data";
+      }
+    }
 
-    // Prepare messages for API
+    const systemPromptWithContext = SYSTEM_PROMPT
+      .replace("{DATABASE_CONTEXT}", databaseContext)
+      .replace("{SETTINGS_CONTEXT}", settingsContext || "No local settings context provided");
+
     const apiMessages: ChatMessage[] = [
       { role: "system", content: systemPromptWithContext },
       ...messages.map((m: any) => ({ role: m.role, content: m.content }))
@@ -401,7 +238,6 @@ serve(async (req) => {
 
     console.log("Sending request to Lovable AI Gateway with", apiMessages.length, "messages");
 
-    // Retry logic for transient errors
     const maxRetries = 3;
     let lastError: Error | null = null;
     let data: any = null;
@@ -417,11 +253,11 @@ serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-2.5-flash",
+            model: "google/gemini-3-flash-preview",
             messages: apiMessages,
             stream: false,
             temperature: 0.7,
-            max_tokens: 1024,
+            max_tokens: 2048,
           }),
         });
 
@@ -435,42 +271,30 @@ serve(async (req) => {
               { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
           }
-          
           if (response.status === 402) {
             return new Response(
               JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
               { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
           }
-          
-          // For 500 errors, retry after a short delay
           if (response.status >= 500 && attempt < maxRetries) {
-            const delay = attempt * 1000; // 1s, 2s, 3s
-            console.log(`Server error, retrying in ${delay}ms...`);
-            await new Promise(resolve => setTimeout(resolve, delay));
+            await new Promise(resolve => setTimeout(resolve, attempt * 1000));
             continue;
           }
-          
           throw new Error(`AI gateway returned ${response.status}: ${errorText}`);
         }
 
         data = await response.json();
-        break; // Success, exit retry loop
-        
+        break;
       } catch (error) {
         lastError = error instanceof Error ? error : new Error(String(error));
-        console.error(`Attempt ${attempt} failed:`, lastError.message);
-        
         if (attempt < maxRetries) {
-          const delay = attempt * 1000;
-          console.log(`Retrying in ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
         }
       }
     }
 
     if (!data) {
-      console.error("All retry attempts failed:", lastError?.message);
       return new Response(
         JSON.stringify({ error: "AI service temporarily unavailable. Please try again." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -478,9 +302,7 @@ serve(async (req) => {
     }
 
     const content = data.choices?.[0]?.message?.content;
-    
     if (!content) {
-      console.error("No content in AI response:", data);
       return new Response(
         JSON.stringify({ error: "No response from AI" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -489,29 +311,16 @@ serve(async (req) => {
 
     console.log("AI Response received:", content.substring(0, 200));
 
-    // Try to parse as JSON, handle if it's not valid JSON
     let parsedResponse;
     try {
-      // Clean up potential markdown code blocks
       let cleanContent = content.trim();
-      if (cleanContent.startsWith("```json")) {
-        cleanContent = cleanContent.slice(7);
-      }
-      if (cleanContent.startsWith("```")) {
-        cleanContent = cleanContent.slice(3);
-      }
-      if (cleanContent.endsWith("```")) {
-        cleanContent = cleanContent.slice(0, -3);
-      }
+      if (cleanContent.startsWith("```json")) cleanContent = cleanContent.slice(7);
+      if (cleanContent.startsWith("```")) cleanContent = cleanContent.slice(3);
+      if (cleanContent.endsWith("```")) cleanContent = cleanContent.slice(0, -3);
       cleanContent = cleanContent.trim();
-      
       parsedResponse = JSON.parse(cleanContent);
-    } catch (parseError) {
-      console.log("Response is not JSON, wrapping as info message");
-      parsedResponse = {
-        message: content,
-        action: { type: "info" }
-      };
+    } catch {
+      parsedResponse = { message: content, action: { type: "info" } };
     }
 
     return new Response(

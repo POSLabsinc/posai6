@@ -131,9 +131,10 @@ const EditMenuContent = ({
     setSchedules((prev) => ({ ...prev, [key]: { ...prev[key], ...partial } }));
   };
 
-  const handleSave = async () => {
-    // Navigate immediately so UI doesn't freeze
-    onBack?.();
+  const handleSave = () => {
+    if (onBack) {
+      onBack();
+    }
     
     if (name.trim()) {
       const channelSchedulesData: Record<string, any> = {};
@@ -147,7 +148,7 @@ const EditMenuContent = ({
           daySchedules: schedules[key].daySchedules,
         };
       }
-      await supabase
+      supabase
         .from("menus")
         .update({ name: name.trim(), enabled, revenue_centers: selectedRevenueCenters, channel_schedules: channelSchedulesData } as any)
         .eq("id", menuId);
@@ -165,11 +166,12 @@ const EditMenuContent = ({
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">
       {/* Header */}
-      <div className="flex items-center justify-center py-4 px-4 relative z-10 flex-shrink-0">
+      <div className="flex items-center justify-between py-4 px-4 flex-shrink-0">
         {onBack ? (
           <button
-            onClick={handleSave}
-            className="absolute left-4 w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center active:opacity-70 transition-opacity z-10"
+            type="button"
+            onClick={() => handleSave()}
+            className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center active:opacity-70 transition-opacity"
             aria-label="Back"
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
@@ -179,11 +181,12 @@ const EditMenuContent = ({
         )}
         <h1 className="text-lg font-semibold text-foreground">Edit Menu</h1>
         <button
-          className="absolute right-4 z-10 w-12 h-12 flex items-center justify-center"
+          type="button"
+          className="w-12 h-12 flex items-center justify-center"
           onClick={onAIClick || (() => {})}
           aria-label="AI Assistant"
         >
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => {})} />
+          <AnimatedAIIcon size={24} />
         </button>
       </div>
 

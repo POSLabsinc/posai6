@@ -7,7 +7,7 @@ interface AnimatedAIIconProps {
 
 const AnimatedAIIcon = ({ onClick, size = 32 }: AnimatedAIIconProps) => {
   return (
-    <button
+    <div
       onClick={onClick}
       className="ai-icon-btn relative flex-shrink-0 active:opacity-80 cursor-pointer overflow-visible"
       style={{ width: size + 24, height: size + 24, minWidth: size + 24, minHeight: size + 24 }}
@@ -135,7 +135,7 @@ const AnimatedAIIcon = ({ onClick, size = 32 }: AnimatedAIIconProps) => {
           100% { transform: translate(-12px, -12px); opacity: 0.8; }
         }
       `}</style>
-    </button>
+    </div>
   );
 };
 

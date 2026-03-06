@@ -68,6 +68,21 @@ const AddMenuContent = ({
     orderos: createScheduleState(),
   });
 
+  const serializeSchedules = (channels: Record<string, boolean>, scheds: Record<string, ScheduleState>) => {
+    const result: Record<string, any> = {};
+    for (const key of Object.keys(channels)) {
+      result[key] = {
+        active: channels[key],
+        startDate: scheds[key].startDate.toISOString(),
+        endDate: scheds[key].endDate.toISOString(),
+        startDateSet: scheds[key].startDateSet,
+        endDateSet: scheds[key].endDateSet,
+        daySchedules: scheds[key].daySchedules,
+      };
+    }
+    return result;
+  };
+
   const formatSelection = (items: string[], placeholder: string) => {
     if (items.length === 0) return placeholder;
     if (items.length === 1) return items[0];
@@ -85,7 +100,8 @@ const AddMenuContent = ({
         enabled,
         description: "",
         revenue_centers: selectedRevenueCenters,
-      }).select("id").single();
+        channel_schedules: serializeSchedules(activeChannels, schedules),
+      } as any).select("id").single();
       if (error || !data) {
         toast.error("Failed to add menu");
         return;

@@ -73,13 +73,36 @@ const EditMenuContent = ({
     const fetchMenu = async () => {
       const { data } = await supabase
         .from("menus")
-        .select("id, name, enabled, revenue_centers")
+        .select("id, name, enabled, revenue_centers, channel_schedules")
         .eq("id", menuId)
         .single();
       if (data) {
         setName(data.name);
         setEnabled(data.enabled);
         setSelectedRevenueCenters((data as any).revenue_centers || []);
+        // Load channel schedules
+        const cs = (data as any).channel_schedules;
+        if (cs && typeof cs === 'object') {
+          const newChannels: Record<string, boolean> = { pos: false, pop: false, kiosk: false, orderos: false };
+          const newSchedules: Record<string, ScheduleState> = {
+            pos: createScheduleState(), pop: createScheduleState(),
+            kiosk: createScheduleState(), orderos: createScheduleState(),
+          };
+          for (const key of Object.keys(newChannels)) {
+            if (cs[key]) {
+              newChannels[key] = cs[key].active || false;
+              newSchedules[key] = {
+                startDate: cs[key].startDate ? new Date(cs[key].startDate) : new Date(),
+                endDate: cs[key].endDate ? new Date(cs[key].endDate) : new Date(),
+                startDateSet: cs[key].startDateSet || false,
+                endDateSet: cs[key].endDateSet || false,
+                daySchedules: cs[key].daySchedules || defaultDaySchedule(),
+              };
+            }
+          }
+          setActiveChannels(newChannels);
+          setSchedules(newSchedules);
+        }
       }
 
       const { data: catData } = await supabase
@@ -110,9 +133,20 @@ const EditMenuContent = ({
 
   const handleSave = async () => {
     if (name.trim()) {
+      const channelSchedulesData: Record<string, any> = {};
+      for (const key of Object.keys(activeChannels)) {
+        channelSchedulesData[key] = {
+          active: activeChannels[key],
+          startDate: schedules[key].startDate.toISOString(),
+          endDate: schedules[key].endDate.toISOString(),
+          startDateSet: schedules[key].startDateSet,
+          endDateSet: schedules[key].endDateSet,
+          daySchedules: schedules[key].daySchedules,
+        };
+      }
       await supabase
         .from("menus")
-        .update({ name: name.trim(), enabled, revenue_centers: selectedRevenueCenters } as any)
+        .update({ name: name.trim(), enabled, revenue_centers: selectedRevenueCenters, channel_schedules: channelSchedulesData } as any)
         .eq("id", menuId);
     }
     onBack?.();

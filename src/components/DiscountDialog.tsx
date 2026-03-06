@@ -12,8 +12,8 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, ChevronDown, ChevronUp, MessageSquare } from "lucide-react";
+
+import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, MessageSquare } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -46,20 +46,35 @@ interface DiscountDialogProps {
   subtotal: number;
 }
 
-// Categorized reasons for structured analytics
-const REASON_CATEGORIES: Record<string, string[]> = {
-  "Food Quality": ["Food Cold", "Undercooked", "Overcooked", "Prepared Incorrectly", "Too Much Salt", "Foreign Object in Food"],
-  "Order Error": ["Wrong Item", "Duplicate Order", "Kitchen Error", "Wrong Menu Product"],
-  "Service Issue": ["Guest Complaint", "Long Wait Time", "QSA", "Food Allergy"],
-  "Inventory": ["Out of Stock"],
-  "Promotion / Internal": ["Birthday Comp", "Manager Comp", "Employee Meal"],
-};
+// High-frequency flat reason chips (dynamically orderable in production)
+const QUICK_REASONS = [
+  "Food Cold",
+  "Prepared Incorrectly",
+  "Wrong Item",
+  "Guest Complaint",
+  "Long Wait Time",
+  "Out of Stock",
+  "Manager Comp",
+  "Birthday Comp",
+  "Employee Meal",
+];
 
-// Flat list for quick reference
-const ALL_REASONS = Object.values(REASON_CATEGORIES).flat();
-
-// AI-suggested reasons based on common patterns (simulated context)
+// AI-suggested reasons (top 3 contextual)
 const AI_SUGGESTED_REASONS = ["Guest Complaint", "Wrong Item", "Food Cold"];
+
+// Category mapping for analytics (reason → category)
+const REASON_TO_CATEGORY: Record<string, string> = {
+  "Food Cold": "Food Quality",
+  "Prepared Incorrectly": "Food Quality",
+  "Wrong Item": "Order Error",
+  "Guest Complaint": "Service Issue",
+  "Long Wait Time": "Service Issue",
+  "Out of Stock": "Inventory",
+  "Manager Comp": "Promotion / Internal",
+  "Birthday Comp": "Promotion / Internal",
+  "Employee Meal": "Promotion / Internal",
+  "Other": "Other",
+};
 
 // Smart comment suggestions based on typing
 const COMMENT_SUGGESTIONS: Record<string, string[]> = {
@@ -104,7 +119,7 @@ export function DiscountDialog({
   const [expandedDiscountId, setExpandedDiscountId] = useState<string | null>(null);
   const [reasonDataMap, setReasonDataMap] = useState<Record<string, DiscountReasonData>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
-  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  
   const [commentText, setCommentText] = useState<Record<string, string>>({});
   const isMobile = useIsMobile();
   const notesRef = useRef<HTMLTextAreaElement>(null);
@@ -116,7 +131,7 @@ export function DiscountDialog({
       setExpandedDiscountId(null);
       setReasonDataMap({});
       setValidationErrors({});
-      setExpandedCategory(null);
+      
       setCommentText({});
     }
   }, [open, currentDiscounts]);
@@ -172,7 +187,7 @@ export function DiscountDialog({
   };
 
   const handleReasonSelect = (discountId: string, reason: string) => {
-    const category = Object.entries(REASON_CATEGORIES).find(([_, reasons]) => reasons.includes(reason))?.[0] || "Other";
+    const category = REASON_TO_CATEGORY[reason] || "Other";
     setReasonDataMap(m => ({
       ...m,
       [discountId]: { ...m[discountId], reason, reasonCategory: category, notes: m[discountId]?.notes || null },
@@ -241,16 +256,16 @@ export function DiscountDialog({
           <div>
             <div className="flex items-center gap-1.5 mb-2">
               <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <label className="text-xs font-semibold text-amber-400">AI Suggested</label>
+              <label className="text-xs font-semibold text-amber-400">Suggested</label>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {AI_SUGGESTED_REASONS.map((reason) => (
                 <button
                   key={reason}
                   onClick={() => handleReasonSelect(discount.id, reason)}
-                  className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                  className={`px-3.5 py-2.5 rounded-full text-xs font-medium transition-all ${
                     data.reason === reason
-                      ? "bg-primary text-primary-foreground ring-2 ring-primary/30"
+                      ? "bg-foreground text-background ring-2 ring-foreground/30"
                       : "bg-accent/60 text-foreground hover:bg-accent border border-border/50"
                   }`}
                 >
@@ -261,77 +276,37 @@ export function DiscountDialog({
             </div>
           </div>
 
-          {/* Categorized Quick Select */}
+          {/* Flat reason chips */}
           <div>
             <label className="text-xs font-medium text-muted-foreground block mb-2">
-              All Reasons {isRequired && <span className="text-destructive">*</span>}
+              Reason {isRequired && <span className="text-destructive">*</span>}
             </label>
-            <div className="space-y-1 rounded-lg border border-border bg-card/50 overflow-hidden">
-              {Object.entries(REASON_CATEGORIES).map(([category, reasons]) => {
-                const isOpen = expandedCategory === category;
-                const hasSelectedInCategory = reasons.some(r => r === data.reason);
-
-                return (
-                  <div key={category}>
-                    <button
-                      onClick={() => setExpandedCategory(isOpen ? null : category)}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors ${
-                        hasSelectedInCategory
-                          ? "bg-primary/10 text-primary font-medium"
-                          : "text-foreground hover:bg-accent/30"
-                      }`}
-                    >
-                      <span>{category}</span>
-                      <div className="flex items-center gap-1.5">
-                        {hasSelectedInCategory && (
-                          <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">{data.reason}</span>
-                        )}
-                        {isOpen ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
-                      </div>
-                    </button>
-                    <AnimatePresence>
-                      {isOpen && (
-                        <motion.div
-                          initial={{ height: 0 }}
-                          animate={{ height: "auto" }}
-                          exit={{ height: 0 }}
-                          transition={{ duration: 0.2 }}
-                          className="overflow-hidden"
-                        >
-                          <div className="flex flex-wrap gap-1.5 px-3 pb-2.5">
-                            {reasons.map((reason) => (
-                              <button
-                                key={reason}
-                                onClick={() => handleReasonSelect(discount.id, reason)}
-                                className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
-                                  data.reason === reason
-                                    ? "bg-primary text-primary-foreground"
-                                    : "bg-accent/40 text-foreground hover:bg-accent/70 border border-border/30"
-                                }`}
-                              >
-                                {data.reason === reason && <Check className="w-3 h-3 inline mr-1" />}
-                                {reason}
-                              </button>
-                            ))}
-                          </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                );
-              })}
-
-              {/* Other option */}
+            <div className="flex flex-wrap gap-1.5">
+              {QUICK_REASONS.filter(r => !AI_SUGGESTED_REASONS.includes(r)).map((reason) => (
+                <button
+                  key={reason}
+                  onClick={() => handleReasonSelect(discount.id, reason)}
+                  className={`px-3.5 py-2.5 rounded-full text-xs font-medium transition-all ${
+                    data.reason === reason
+                      ? "bg-foreground text-background ring-2 ring-foreground/30"
+                      : "bg-accent/60 text-foreground hover:bg-accent border border-border/50"
+                  }`}
+                >
+                  {data.reason === reason && <Check className="w-3 h-3 inline mr-1" />}
+                  {reason}
+                </button>
+              ))}
+              {/* Other chip */}
               <button
                 onClick={() => handleReasonSelect(discount.id, "Other")}
-                className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${
+                className={`px-3.5 py-2.5 rounded-full text-xs font-medium transition-all ${
                   data.reason === "Other"
-                    ? "bg-primary/10 text-primary font-medium"
-                    : "text-foreground hover:bg-accent/30"
+                    ? "bg-foreground text-background ring-2 ring-foreground/30"
+                    : "bg-accent/60 text-foreground hover:bg-accent border border-border/50"
                 }`}
               >
+                {data.reason === "Other" && <Check className="w-3 h-3 inline mr-1" />}
                 Other
-                {data.reason === "Other" && <Check className="w-3 h-3 inline ml-1.5" />}
               </button>
             </div>
           </div>
@@ -364,7 +339,7 @@ export function DiscountDialog({
                   setCommentText(prev => ({ ...prev, [discount.id]: val }));
                   handleNotesChange(discount.id, val);
                 }}
-                placeholder="Add details..."
+                placeholder={data.reason === "Other" ? "Describe the reason..." : "Add details..."}
                 maxLength={200}
                 rows={2}
                 className="w-full px-3 py-2.5 rounded-lg border border-border bg-card/50 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:border-primary/50 transition-colors"

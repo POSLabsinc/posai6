@@ -6045,22 +6045,39 @@ const Orders = () => {
   const { menuList, menuCategories } = useSupabaseMenus();
 
   // Merge dynamic subcategories from category settings with hardcoded fallback
+  const dynamicSubcategories = useMemo(() => getDynamicCategorySubcategories(), []);
   const mergedCategorySubcategories = useMemo(() => {
-    const dynamic = getDynamicCategorySubcategories();
     // Dynamic takes priority, fall back to hardcoded
-    return { ...categorySubcategories, ...dynamic };
-  }, []);
+    return { ...categorySubcategories, ...dynamicSubcategories };
+  }, [dynamicSubcategories]);
+
+  // Augment menuCategories with localStorage-only parent categories that aren't in the DB yet
+  const augmentedMenuCategories = useMemo(() => {
+    const result: Record<string, string[]> = { ...menuCategories };
+    // For each menu, check if any dynamic parent categories should be included
+    // This handles the case where categories exist in localStorage but haven't been synced to DB
+    for (const menuName of menuList) {
+      const dbCats = result[menuName] || [];
+      // Check if any dynamic parent categories reference this menu
+      // Also ensure parent categories with children show up
+      for (const [parentName, children] of Object.entries(dynamicSubcategories)) {
+        if (dbCats.includes(parentName) && !result[menuName]?.includes(parentName)) {
+          result[menuName] = [...(result[menuName] || []), parentName];
+        }
+      }
+    }
+    return result;
+  }, [menuCategories, menuList, dynamicSubcategories]);
 
   // Build dynamic menu items from category-assigned products
   const dynamicMenuItems = useMemo(() => {
-    const dynamic = getDynamicCategorySubcategories();
     const result: MenuItemsStructure = {};
     // For each menu, build category → subcategory → products
     for (const menuName of menuList) {
-      const cats = menuCategories[menuName] || [];
+      const cats = augmentedMenuCategories[menuName] || [];
       const catItems: CategoryItems = {};
       for (const cat of cats) {
-        const subs = dynamic[cat] || categorySubcategories[cat] || [];
+        const subs = dynamicSubcategories[cat] || categorySubcategories[cat] || [];
         const subItems: SubcategoryItems = {};
         for (const sub of subs) {
           // Get products assigned to this subcategory
@@ -6093,7 +6110,7 @@ const Orders = () => {
       }
     }
     return result;
-  }, [menuList, menuCategories]);
+  }, [menuList, augmentedMenuCategories, dynamicSubcategories]);
 
   const addItemMode = searchParams.get('mode') === 'addItem';
   const transferNewMode = searchParams.get('mode') === 'transferNew';
@@ -6122,7 +6139,7 @@ const Orders = () => {
 
   // Helper to get first category and subcategory for a menu
   const getFirstCategoryAndSubcategory = (menu: string) => {
-    const categories = menuCategories[menu] || [];
+    const categories = augmentedMenuCategories[menu] || [];
     const firstCategory = categories[0] || "";
     const subcategories = mergedCategorySubcategories[firstCategory] || [];
     const firstSubcategory = subcategories[0] || "";
@@ -6155,8 +6172,8 @@ const Orders = () => {
 
   // Sync active category/subcategory when menu data loads from DB
   useEffect(() => {
-    if (menuList.length > 0 && menuCategories[selectedMenu]?.length) {
-      const cats = menuCategories[selectedMenu];
+    if (menuList.length > 0 && augmentedMenuCategories[selectedMenu]?.length) {
+      const cats = augmentedMenuCategories[selectedMenu];
       if (!activeCategory || !cats.includes(activeCategory)) {
         const firstCat = cats[0] || "";
         setActiveCategory(firstCat);
@@ -6164,7 +6181,7 @@ const Orders = () => {
         setActiveSubcategory(subs[0] || "");
       }
     }
-  }, [menuList, menuCategories, selectedMenu]);
+  }, [menuList, augmentedMenuCategories, selectedMenu]);
   const [existingItems, setExistingItems] = useState<OrderItem[]>([]);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
@@ -8023,7 +8040,7 @@ const Orders = () => {
               <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-8 lg:w-9 h-6 md:h-8 lg:h-9" />
             </Button>}
           {/* Categories */}
-          {(menuCategories[selectedMenu] || []).map((cat) => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2.5 md:px-4 lg:px-6 h-7 md:h-8 lg:h-9 text-[11px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
+          {(augmentedMenuCategories[selectedMenu] || []).map((cat) => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2.5 md:px-4 lg:px-6 h-7 md:h-8 lg:h-9 text-[11px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
         </div>

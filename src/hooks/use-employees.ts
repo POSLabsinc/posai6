@@ -150,7 +150,7 @@ export const useUpdateEmployee = () => {
   });
 };
 
-
+export const useEmployeeByPin = () => {
   return useMutation({
     mutationFn: async (pin: string) => {
       const { data, error } = await (supabase as any)

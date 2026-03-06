@@ -1,0 +1,1 @@
+ALTER TABLE public.menus ADD COLUMN revenue_centers text[] NOT NULL DEFAULT '{}';

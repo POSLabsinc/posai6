@@ -112,6 +112,7 @@ const AddMenuContent = ({
         name: name.trim(),
         enabled,
         description: "",
+        revenue_centers: selectedRevenueCenters,
       }).select("id").single();
       if (error || !data) {
         toast.error("Failed to add menu");

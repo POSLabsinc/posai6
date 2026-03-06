@@ -106,6 +106,45 @@ export type Database = {
           },
         ]
       }
+      employee_stores: {
+        Row: {
+          created_at: string
+          employee_id: string
+          id: string
+          is_primary: boolean
+          store_id: string
+        }
+        Insert: {
+          created_at?: string
+          employee_id: string
+          id?: string
+          is_primary?: boolean
+          store_id: string
+        }
+        Update: {
+          created_at?: string
+          employee_id?: string
+          id?: string
+          is_primary?: boolean
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_stores_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "employee_stores_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employees: {
         Row: {
           assigned_job_types: string[]

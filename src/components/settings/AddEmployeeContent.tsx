@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { ChevronLeft, ChevronRight, User, Camera, Search, X, Briefcase, UtensilsCrossed, Wine, ShoppingBag, LayoutGrid, Truck, PartyPopper, Armchair, Coffee, ConciergeBell, Delete } from "lucide-react";
-import { useAddEmployee, useUpdateEmployee } from "@/hooks/use-employees";
+import { ChevronLeft, ChevronRight, User, Camera, Search, X, Briefcase, UtensilsCrossed, Wine, ShoppingBag, LayoutGrid, Truck, PartyPopper, Armchair, Coffee, ConciergeBell, Delete, MapPin, Check, Star } from "lucide-react";
+import { useAddEmployee, useUpdateEmployee, useStores, useEmployeeStores, useSaveEmployeeStores } from "@/hooks/use-employees";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { countryCodes, type CountryCode } from "@/components/CountryCodeSelector";
 import serverIcon from "@/assets/icons/jobs/server.svg";
@@ -35,12 +36,14 @@ const revenueCenters = ["Bar", "Restaurant", "Takeout", "Delivery", "Catering", 
 const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentProps) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const addEmployee = useAddEmployee();
-  const updateEmployee = useUpdateEmployee();
-  const goBack = onBack || (() => navigate("/settings/workforce/employee"));
-
   const editEmployee = (location.state as any)?.editEmployee;
   const isEditMode = !!editEmployee;
+  const addEmployee = useAddEmployee();
+  const updateEmployee = useUpdateEmployee();
+  const saveEmployeeStores = useSaveEmployeeStores();
+  const { data: allStores = [] } = useStores();
+  const { data: existingEmployeeStores = [] } = useEmployeeStores(editEmployee?.id || null);
+  const goBack = onBack || (() => navigate("/settings/workforce/employee"));
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -57,7 +60,10 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
   const [payrollEnabled, setPayrollEnabled] = useState(false);
   const [jobType, setJobType] = useState("");
   const [hourlyRate, setHourlyRate] = useState("");
-
+  const [assignedStoreIds, setAssignedStoreIds] = useState<string[]>([]);
+  const [primaryStoreId, setPrimaryStoreId] = useState<string | null>(null);
+  const [showStorePicker, setShowStorePicker] = useState(false);
+  const [storeSearch, setStoreSearch] = useState("");
   // Pre-fill fields in edit mode
   useEffect(() => {
     if (editEmployee) {
@@ -88,6 +94,14 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
     }
   }, [editEmployee]);
 
+  // Pre-fill store assignments in edit mode
+  useEffect(() => {
+    if (existingEmployeeStores.length > 0) {
+      setAssignedStoreIds(existingEmployeeStores.map((es: any) => es.store_id));
+      const primary = existingEmployeeStores.find((es: any) => es.is_primary);
+      setPrimaryStoreId(primary ? primary.store_id : existingEmployeeStores[0].store_id);
+    }
+  }, [existingEmployeeStores]);
   // Dropdown/popup states
   const [showRolePicker, setShowRolePicker] = useState(false);
   const [showRevenuePicker, setShowRevenuePicker] = useState(false);
@@ -119,6 +133,7 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
     }
 
     try {
+      let savedEmployeeId = editEmployee?.id;
       if (isEditMode) {
         await updateEmployee.mutateAsync({
           id: editEmployee.id,
@@ -131,16 +146,34 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
           revenue_center: revenueCenter || undefined,
           assigned_job_types: jobType ? [jobType] : undefined,
         });
+        // Save store assignments
+        if (assignedStoreIds.length > 0) {
+          await saveEmployeeStores.mutateAsync({
+            employeeId: editEmployee.id,
+            storeIds: assignedStoreIds,
+            primaryStoreId,
+          });
+        }
         toast.success("Employee updated successfully");
       } else {
-        await addEmployee.mutateAsync({
+        // For new employees, we need the ID back to save store assignments
+        const { data: newEmp } = await (supabase as any).from("employees").insert({
           full_name: `${firstName.trim()} ${lastName.trim()}`,
           role: role || "Server",
           email: email.trim() || undefined,
           phone: phone.trim() ? `${selectedCountry.dialCode} ${phone.trim()}` : undefined,
           hourly_rate: hourlyRate ? parseFloat(hourlyRate) : 0,
           pin: pin.length === 4 ? pin : undefined,
-        });
+        }).select("id").single();
+        if (newEmp) savedEmployeeId = newEmp.id;
+        // Save store assignments for new employee
+        if (savedEmployeeId && assignedStoreIds.length > 0) {
+          await saveEmployeeStores.mutateAsync({
+            employeeId: savedEmployeeId,
+            storeIds: assignedStoreIds,
+            primaryStoreId,
+          });
+        }
         toast.success("Employee added successfully");
       }
       goBack();
@@ -697,9 +730,175 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
           </div>
         </div>
 
+        {/* Store Access */}
+        <div className="mx-4 mb-1">
+          <span className="text-xs text-neutral-500 font-medium tracking-wider px-1">Store Access</span>
+        </div>
+        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
+          {/* Assigned Stores */}
+          <button
+            onClick={() => { setShowStorePicker(true); setStoreSearch(""); }}
+            className="flex items-center justify-between w-full px-4 py-3.5 border-b border-neutral-700/30"
+          >
+            <span className="text-sm text-foreground font-medium">Assigned Stores</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-neutral-400">
+                {assignedStoreIds.length > 0 ? `${assignedStoreIds.length} selected` : "Choose"}
+              </span>
+              <ChevronRight className="w-4 h-4 text-neutral-600" />
+            </div>
+          </button>
+
+          {/* Assigned store chips */}
+          {assignedStoreIds.length > 0 && (
+            <div className="px-4 py-3 flex flex-wrap gap-2 border-b border-neutral-700/30">
+              {assignedStoreIds.map(sid => {
+                const store = allStores.find(s => s.id === sid);
+                if (!store) return null;
+                return (
+                  <div key={sid} className="flex items-center gap-1.5 bg-neutral-700/50 rounded-lg px-3 py-1.5">
+                    <MapPin className="w-3 h-3 text-neutral-400" />
+                    <span className="text-xs text-foreground">{store.name}</span>
+                    {sid === primaryStoreId && (
+                      <Star className="w-3 h-3 text-amber-400 fill-amber-400" />
+                    )}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const newIds = assignedStoreIds.filter(id => id !== sid);
+                        setAssignedStoreIds(newIds);
+                        if (primaryStoreId === sid) {
+                          setPrimaryStoreId(newIds.length > 0 ? newIds[0] : null);
+                        }
+                      }}
+                      className="ml-0.5"
+                    >
+                      <X className="w-3 h-3 text-neutral-500" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Primary Store */}
+          {assignedStoreIds.length > 1 && (
+            <div className="px-4 py-3.5">
+              <span className="text-sm text-foreground font-medium mb-2 block">Primary Store</span>
+              <div className="flex flex-col gap-1 mt-1">
+                {assignedStoreIds.map(sid => {
+                  const store = allStores.find(s => s.id === sid);
+                  if (!store) return null;
+                  return (
+                    <button
+                      key={sid}
+                      onClick={() => setPrimaryStoreId(sid)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                        primaryStoreId === sid ? "bg-foreground/10" : "active:bg-foreground/5"
+                      }`}
+                    >
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
+                        primaryStoreId === sid ? "border-amber-400" : "border-neutral-600"
+                      }`}>
+                        {primaryStoreId === sid && <div className="w-2 h-2 rounded-full bg-amber-400" />}
+                      </div>
+                      <MapPin className="w-3.5 h-3.5 text-neutral-400" />
+                      <span className="text-sm text-foreground">{store.name}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Store Picker Popup */}
+        {showStorePicker && (
+          <>
+            <div className="fixed inset-0 bg-black/60 z-40" onClick={() => setShowStorePicker(false)} />
+            <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[90%] max-w-sm">
+              <button
+                onClick={() => setShowStorePicker(false)}
+                className="absolute -top-3 -right-3 z-50 w-8 h-8 rounded-full bg-neutral-700 border border-neutral-600 flex items-center justify-center active:opacity-70"
+              >
+                <X className="w-4 h-4 text-foreground" />
+              </button>
+              <div className="bg-neutral-900 border border-neutral-700 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[70vh]">
+                <div className="p-5 pb-3">
+                  <h3 className="text-foreground font-semibold text-base mb-3 text-center">Select Stores</h3>
+                  <div className="flex items-center gap-2 bg-neutral-800 rounded-xl px-3 py-2.5 mb-1">
+                    <Search className="w-4 h-4 text-neutral-500 shrink-0" />
+                    <input
+                      type="text"
+                      value={storeSearch}
+                      onChange={(e) => setStoreSearch(e.target.value)}
+                      placeholder="Search stores..."
+                      autoFocus
+                      className="flex-1 bg-transparent text-foreground text-sm placeholder:text-neutral-500 outline-none"
+                    />
+                  </div>
+                </div>
+                <div className="flex-1 overflow-y-auto border-t border-neutral-700/50">
+                  {allStores
+                    .filter(s => s.name.toLowerCase().includes(storeSearch.toLowerCase()) || s.location.toLowerCase().includes(storeSearch.toLowerCase()))
+                    .map(store => {
+                      const isSelected = assignedStoreIds.includes(store.id);
+                      return (
+                        <button
+                          key={store.id}
+                          onClick={() => {
+                            if (isSelected) {
+                              const newIds = assignedStoreIds.filter(id => id !== store.id);
+                              setAssignedStoreIds(newIds);
+                              if (primaryStoreId === store.id) {
+                                setPrimaryStoreId(newIds.length > 0 ? newIds[0] : null);
+                              }
+                            } else {
+                              const newIds = [...assignedStoreIds, store.id];
+                              setAssignedStoreIds(newIds);
+                              if (!primaryStoreId) setPrimaryStoreId(store.id);
+                            }
+                          }}
+                          className={`w-full flex items-center gap-3 px-5 py-3.5 text-left transition-colors ${
+                            isSelected ? 'bg-neutral-700/40' : 'active:bg-neutral-800'
+                          }`}
+                        >
+                          <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                            isSelected ? "bg-foreground border-foreground" : "border-neutral-600"
+                          }`}>
+                            {isSelected && <Check className="w-3 h-3 text-background" />}
+                          </div>
+                          <MapPin className="w-4 h-4 text-neutral-400" />
+                          <div className="flex-1">
+                            <span className="text-foreground text-sm block">{store.name}</span>
+                            {store.location && <span className="text-neutral-500 text-xs">{store.location}</span>}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  {allStores.length === 0 && (
+                    <div className="p-6 text-center">
+                      <MapPin className="w-8 h-8 text-neutral-600 mx-auto mb-2" />
+                      <p className="text-sm text-neutral-500">No stores available</p>
+                    </div>
+                  )}
+                </div>
+                <div className="p-4 border-t border-neutral-700/50">
+                  <button
+                    onClick={() => setShowStorePicker(false)}
+                    className="w-full py-3 rounded-xl bg-foreground text-background font-medium text-sm active:opacity-80 transition-opacity"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
         <div className="mx-4 px-1 mb-6">
           <p className="text-xs text-neutral-600 leading-relaxed">
-            Manage payroll by specifying employee pay type, rates, and roles.
+            Manage store access to control POS login permissions and workforce scheduling across locations.
           </p>
         </div>
       </div>

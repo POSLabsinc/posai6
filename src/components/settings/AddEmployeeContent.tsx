@@ -93,6 +93,14 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
     }
   }, [editEmployee]);
 
+  // Pre-fill store assignments in edit mode
+  useEffect(() => {
+    if (existingEmployeeStores.length > 0) {
+      setAssignedStoreIds(existingEmployeeStores.map((es: any) => es.store_id));
+      const primary = existingEmployeeStores.find((es: any) => es.is_primary);
+      setPrimaryStoreId(primary ? primary.store_id : existingEmployeeStores[0].store_id);
+    }
+  }, [existingEmployeeStores]);
   // Dropdown/popup states
   const [showRolePicker, setShowRolePicker] = useState(false);
   const [showRevenuePicker, setShowRevenuePicker] = useState(false);

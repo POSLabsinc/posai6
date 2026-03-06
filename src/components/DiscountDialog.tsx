@@ -264,7 +264,7 @@ export function DiscountDialog({
           <div>
             <div className="flex items-center gap-1.5 mb-2">
               <Zap className="w-3.5 h-3.5 text-amber-400" />
-              <label className="text-xs font-semibold text-amber-400">Suggested</label>
+              <label className="text-xs font-semibold text-amber-400">AI Suggested</label>
             </div>
             <div className="flex flex-wrap gap-1.5">
               {AI_SUGGESTED_REASONS.map((reason) => (

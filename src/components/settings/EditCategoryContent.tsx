@@ -25,9 +25,10 @@ interface EditCategoryContentProps {
     parentCategory: string;
     products: string[];
   }) => void;
+  parentCategoryOptions?: string[];
 }
 
-const EditCategoryContent = ({ category, onBack, onSave }: EditCategoryContentProps) => {
+const EditCategoryContent = ({ category, onBack, onSave, parentCategoryOptions = [] }: EditCategoryContentProps) => {
   const [name, setName] = useState(category.name);
   const [position, setPosition] = useState<number | null>(category.position);
   const [courseName, setCourseName] = useState("");
@@ -35,7 +36,7 @@ const EditCategoryContent = ({ category, onBack, onSave }: EditCategoryContentPr
   const [menuDisplayName, setMenuDisplayName] = useState(category.name);
   const [selectedPrinters, setSelectedPrinters] = useState<string[]>([]);
   const [selectedParentCategory, setSelectedParentCategory] = useState<string[]>(
-    category.parent !== "-" ? [category.parent] : []
+    category.parent !== "-" && category.parent !== "Parent Category" ? [category.parent] : []
   );
   const [selectedProducts, setSelectedProducts] = useState<string[]>([]);
 
@@ -44,7 +45,7 @@ const EditCategoryContent = ({ category, onBack, onSave }: EditCategoryContentPr
   const [showProductsSheet, setShowProductsSheet] = useState(false);
 
   const printerOptions = ["Kitchen Printer", "Bar Printer", "Receipt Printer", "Label Printer"];
-  const categoryOptions = ["Food", "Drinks", "Desserts", "Appetizers", "Main Course", "Sides"];
+  const categoryOptions = parentCategoryOptions.filter((name) => name !== category.name);
   const productOptions = ["Burger", "Pizza", "Pasta", "Salad", "Coffee", "Tea", "Soda", "Wine", "Beer"];
 
   const handleBack = () => {

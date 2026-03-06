@@ -154,6 +154,13 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
     });
   }, [categories, searchQuery, showArchived]);
 
+  // Compute dynamic parent category names (categories that ARE parent categories)
+  const parentCategoryNames = useMemo(() => {
+    return categories
+      .filter((c) => !c.archived && (c.parent === "Parent Category" || c.parent === "-"))
+      .map((c) => c.name);
+  }, [categories]);
+
   // Show Add Category Screen
   if (showAddScreen) {
     return (
@@ -163,6 +170,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           handleAddCategory(data);
           setShowAddScreen(false);
         }}
+        parentCategoryOptions={parentCategoryNames}
       />
     );
   }
@@ -177,6 +185,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           handleEditCategory(data);
           setEditingCategory(null);
         }}
+        parentCategoryOptions={parentCategoryNames}
       />
     );
   }

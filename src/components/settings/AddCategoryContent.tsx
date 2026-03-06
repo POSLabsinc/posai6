@@ -15,9 +15,10 @@ interface AddCategoryContentProps {
     products: string[];
   }) => void;
   parentCategoryOptions?: string[];
+  productOptions?: string[];
 }
 
-const AddCategoryContent = ({ onBack, onSave, parentCategoryOptions = [] }: AddCategoryContentProps) => {
+const AddCategoryContent = ({ onBack, onSave, parentCategoryOptions = [], productOptions = [] }: AddCategoryContentProps) => {
   const [name, setName] = useState("");
   const [position, setPosition] = useState<number | null>(null);
   const [courseName, setCourseName] = useState("");
@@ -33,7 +34,6 @@ const AddCategoryContent = ({ onBack, onSave, parentCategoryOptions = [] }: AddC
 
   const printerOptions = ["Kitchen Printer", "Bar Printer", "Receipt Printer", "Label Printer"];
   const categoryOptions = parentCategoryOptions;
-  const productOptions = ["Burger", "Pizza", "Pasta", "Salad", "Coffee", "Tea", "Soda", "Wine", "Beer"];
 
   const handleBack = () => {
     if (name) {

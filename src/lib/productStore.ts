@@ -174,6 +174,57 @@ export const getParentCategories = (): string[] => {
   return [];
 };
 
+// ── Dynamic category hierarchy from categories-settings localStorage ────
+
+interface CategorySetting {
+  id: string;
+  name: string;
+  parent: string;
+  products?: string[];
+  archived?: boolean;
+}
+
+const getCategorySettings = (): CategorySetting[] => {
+  try {
+    const stored = localStorage.getItem("categories-settings");
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) return parsed.filter((c: any) => !c.archived);
+    }
+  } catch (e) {
+    console.error("Failed to parse categories from localStorage", e);
+  }
+  return [];
+};
+
+/**
+ * Returns a mapping of parent category name → child category names[].
+ * Built dynamically from categories-settings localStorage.
+ */
+export const getDynamicCategorySubcategories = (): Record<string, string[]> => {
+  const cats = getCategorySettings();
+  const result: Record<string, string[]> = {};
+  // Find all parent categories
+  const parents = cats.filter(c => c.parent === "Parent Category" || c.parent === "-");
+  for (const parent of parents) {
+    // Find children whose parent matches this category's name
+    const children = cats
+      .filter(c => c.parent === parent.name)
+      .map(c => c.name);
+    result[parent.name] = children;
+  }
+  return result;
+};
+
+/**
+ * Returns products assigned to a specific category (by name).
+ */
+export const getCategoryProducts = (categoryName: string): string[] => {
+  const cats = getCategorySettings();
+  const cat = cats.find(c => c.name === categoryName);
+  return cat?.products || [];
+};
+
 // ── Product names list for tax/discount applicable-products selectors ────
 export const getAllProductNames = (): string[] => {
   const products = getAllUnifiedProducts().filter((p) => !p.archived);

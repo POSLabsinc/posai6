@@ -19,6 +19,7 @@ interface Message {
   appliedChange?: AppliedChange;
   navigateTo?: string;
   isStreaming?: boolean;
+  quickReplies?: string[];
 }
 
 interface PendingChange {
@@ -589,9 +590,14 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         pendingChange,
         appliedChange,
         navigateTo,
+        quickReplies: data.quickReplies || undefined,
       };
 
-      setMessages((prev) => [...prev, assistantMessage]);
+      // Clear quickReplies from previous assistant messages
+      setMessages((prev) => [
+        ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined } : msg),
+        assistantMessage,
+      ]);
       setConversationHistory((prev) => [...prev, { role: "assistant", content: data.message }]);
       setIsTyping(false);
 
@@ -916,6 +922,22 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   
                   {/* Navigate Button */}
                   {message.navigateTo && renderNavigateButton(message.navigateTo)}
+
+                  {/* Quick Reply Buttons */}
+                  {message.quickReplies && message.quickReplies.length > 0 && (
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      {message.quickReplies.map((reply) => (
+                        <button
+                          key={reply}
+                          onClick={() => handleSendMessage(reply)}
+                          disabled={isTyping}
+                          className="px-4 py-2.5 rounded-full bg-neutral-800/80 text-sm text-foreground border border-neutral-600/50 active:opacity-70 active:scale-95 transition-all hover:bg-neutral-700/80 disabled:opacity-40 font-medium"
+                        >
+                          {reply}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
                 {message.role === "user" && (
                   <Avatar className="w-8 h-8 rounded-lg flex-shrink-0">

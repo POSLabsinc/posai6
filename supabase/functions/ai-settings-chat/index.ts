@@ -94,9 +94,9 @@ Ask: "**Step 1 of 7 — Menu Name**\nWhat would you like to name this menu?"
 quickReplies: ["Breakfast Menu", "Lunch Menu", "Dinner Menu", "Brunch Menu", "Happy Hour", "Kids Menu"]
 
 **Step 2 — Description** (multiSelect: false):
-IMPORTANT: Suggest 2-3 pre-written descriptions based on the menu name chosen. Example for "Lunch Menu":
-Ask: "**Step 2 of 7 — Description**\nHere are some suggested descriptions, or tap Skip:"
-quickReplies: ["Light & fresh midday favorites", "Classic lunch combos & specials", "Quick bites for the afternoon rush", "Skip"]
+Your message should ONLY say something like: "**Step 2 of 7 — Description**\n\nHere are some suggested descriptions for **[Menu Name]**, tap one to use it or type your own:"
+DO NOT include any JSON, code, or technical content in the message. The quickReplies array handles the options.
+quickReplies: ["After-hours bites & drinks", "Midnight snacks & favorites", "The late night social menu", "Skip"]
 
 **Step 3 — Revenue Centers** (multiSelect: true):
 Ask: "**Step 3 of 7 — Revenue Centers**\nSelect all that apply, then tap Done:"

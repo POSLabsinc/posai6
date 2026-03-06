@@ -91,7 +91,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
     const newCategory: Category = {
       id: Date.now().toString(),
       name: categoryData.name,
-      parent: categoryData.parentCategory || "-",
+      parent: categoryData.parentCategory || "Parent Category",
       position: categoryData.position || categories.length + 1,
       course: categoryData.coursePosition,
       archived: false,
@@ -119,7 +119,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
         ? {
             ...cat,
             name: categoryData.name,
-            parent: categoryData.parentCategory || "-",
+            parent: categoryData.parentCategory || "Parent Category",
             position: categoryData.position || cat.position,
             course: categoryData.coursePosition,
           }

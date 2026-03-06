@@ -69,6 +69,19 @@ const EditMenuContent = ({
     orderos: createScheduleState(),
   });
 
+  // Fetch real categories from database
+  useEffect(() => {
+    const fetchCategories = async () => {
+      const { data } = await supabase
+        .from("categories")
+        .select("name")
+        .eq("active", true)
+        .order("sort_order");
+      if (data) setAllCategories(data.map(c => c.name));
+    };
+    fetchCategories();
+  }, []);
+
   useEffect(() => {
     const fetchMenu = async () => {
       const { data } = await supabase

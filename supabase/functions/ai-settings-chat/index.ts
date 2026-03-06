@@ -94,9 +94,9 @@ Ask: "**Step 1 of 7 — Menu Name**\nWhat would you like to name this menu?"
 quickReplies: ["Breakfast Menu", "Lunch Menu", "Dinner Menu", "Brunch Menu", "Happy Hour", "Kids Menu"]
 
 **Step 2 — Description** (multiSelect: false):
-IMPORTANT: Suggest 2-3 pre-written descriptions based on the menu name chosen. Example for "Lunch Menu":
-Ask: "**Step 2 of 7 — Description**\nHere are some suggested descriptions, or tap Skip:"
-quickReplies: ["Light & fresh midday favorites", "Classic lunch combos & specials", "Quick bites for the afternoon rush", "Skip"]
+Your message should ONLY say something like: "**Step 2 of 7 — Description**\n\nHere are some suggested descriptions for **[Menu Name]**, tap one to use it or type your own:"
+DO NOT include any JSON, code, or technical content in the message. The quickReplies array handles the options.
+quickReplies: ["After-hours bites & drinks", "Midnight snacks & favorites", "The late night social menu", "Skip"]
 
 **Step 3 — Revenue Centers** (multiSelect: true):
 Ask: "**Step 3 of 7 — Revenue Centers**\nSelect all that apply, then tap Done:"
@@ -405,6 +405,24 @@ serve(async (req) => {
       parsedResponse = JSON.parse(cleanContent);
     } catch {
       parsedResponse = { message: content, action: { type: "info" } };
+    }
+
+    // CRITICAL: Sanitize the message field — strip any JSON/code that leaked into it
+    if (parsedResponse.message && typeof parsedResponse.message === "string") {
+      let msg = parsedResponse.message;
+      // Remove any JSON blocks embedded in the message
+      msg = msg.replace(/```json[\s\S]*?```/g, "").trim();
+      msg = msg.replace(/```[\s\S]*?```/g, "").trim();
+      // Remove standalone JSON objects (lines starting with { and ending with })
+      msg = msg.replace(/^\s*\{[\s\S]*\}\s*$/m, "").trim();
+      // Remove lines that look like JSON keys (e.g., "message":, "action":, "quickReplies":)
+      msg = msg.replace(/^\s*"(message|action|quickReplies|multiSelect|type)"[\s\S]*$/gm, "").trim();
+      // Remove orphan braces/brackets lines
+      msg = msg.replace(/^\s*[\{\}\[\],]\s*$/gm, "").trim();
+      // Clean up multiple blank lines
+      msg = msg.replace(/\n{3,}/g, "\n\n").trim();
+      if (!msg) msg = "Got it! What would you like to do next?";
+      parsedResponse.message = msg;
     }
 
     return new Response(

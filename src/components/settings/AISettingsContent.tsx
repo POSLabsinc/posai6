@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
+import { supabase } from "@/integrations/supabase/client";
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -219,143 +220,75 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   }, []);
 
   // Execute the pending action based on type and data
-  const executeAction = useCallback((pendingChange: PendingChange) => {
+  const executeAction = useCallback(async (pendingChange: PendingChange): Promise<boolean> => {
     const { settingType, operation, data } = pendingChange;
     
-    console.log('[AISettingsContent] executeAction called with:', { settingType, operation, data });
-    
-    if (!settingType || !data) {
-      console.warn('[AISettingsContent] Missing settingType or data:', { settingType, data });
-      return false;
-    }
+    if (!settingType || !data) return false;
 
     try {
-      // Validate that update/archive operations target existing items
-      const validateExists = (finder: () => any, itemName: string, itemType: string): boolean => {
-        if (!finder()) {
-          console.warn(`[AISettingsContent] ${itemType} "${itemName}" not found - cannot ${operation}`);
-          toast({
-            title: "Item not found",
-            description: `"${itemName}" doesn't exist in your ${itemType}s. Please check the name and try again.`,
-            variant: "destructive",
-          });
-          return false;
-        }
-        return true;
-      };
+      // Database-backed types (menus, products, categories, modifiers, add-ons)
+      const dbTypes = ["menu", "product", "category", "modifierGroup", "modifier", "addOn"];
+      
+      if (dbTypes.includes(settingType)) {
+        return await executeDbAction(settingType, operation || "add", data);
+      }
 
+      // localStorage-backed types (settings)
       switch (settingType) {
         case "gratuity":
           SettingsManager.updateGratuitySettings(data);
           break;
-        
         case "discount":
           if (operation === "add") {
-            SettingsManager.addDiscount({
-              name: data.name,
-              amount: data.amount,
-              type: data.type || "Percentage",
-              archived: false,
-              applicableTo: data.applicableTo || "All Products",
-              requiresManagerPin: data.requiresManagerPin || false,
-            });
+            SettingsManager.addDiscount({ name: data.name, amount: data.amount, type: data.type || "Percentage", archived: false, applicableTo: data.applicableTo || "All Products", requiresManagerPin: data.requiresManagerPin || false });
           } else if (operation === "update") {
             const discount = SettingsManager.findDiscountByName(data.name);
-            if (!validateExists(() => discount, data.name, "discount")) return false;
-            SettingsManager.updateDiscount(discount!.id, data);
+            if (!discount) { toast({ title: "Not found", description: `Discount "${data.name}" not found.`, variant: "destructive" }); return false; }
+            SettingsManager.updateDiscount(discount.id, data);
           } else if (operation === "archive") {
             const discount = SettingsManager.findDiscountByName(data.name);
-            if (!validateExists(() => discount, data.name, "discount")) return false;
-            SettingsManager.archiveDiscount(discount!.id);
+            if (!discount) { toast({ title: "Not found", description: `Discount "${data.name}" not found.`, variant: "destructive" }); return false; }
+            SettingsManager.archiveDiscount(discount.id);
           }
           break;
-        
         case "tax":
           if (operation === "add") {
-            SettingsManager.addTax({
-              name: data.name,
-              amount: data.amount,
-              type: data.type || "Exclusive",
-              archived: false,
-            });
+            SettingsManager.addTax({ name: data.name, amount: data.amount, type: data.type || "Exclusive", archived: false });
           } else if (operation === "update") {
             const tax = SettingsManager.findTaxByName(data.name);
-            if (!validateExists(() => tax, data.name, "tax")) return false;
-            SettingsManager.updateTax(tax!.id, data);
+            if (!tax) { toast({ title: "Not found", description: `Tax "${data.name}" not found.`, variant: "destructive" }); return false; }
+            SettingsManager.updateTax(tax.id, data);
           } else if (operation === "archive") {
             const tax = SettingsManager.findTaxByName(data.name);
-            if (!validateExists(() => tax, data.name, "tax")) return false;
-            SettingsManager.archiveTax(tax!.id);
+            if (!tax) { toast({ title: "Not found", description: `Tax "${data.name}" not found.`, variant: "destructive" }); return false; }
+            SettingsManager.archiveTax(tax.id);
           }
           break;
-        
         case "serviceCharge":
           if (operation === "add") {
-            SettingsManager.addServiceCharge({
-              name: data.name,
-              amount: data.amount,
-              type: data.type || "Fixed",
-              archived: false,
-              orderType: data.orderType || "All Orders",
-              automaticApply: data.automaticApply || false,
-              minSeats: data.minSeats,
-              taxApplicable: data.taxApplicable || "Taxable",
-            });
+            SettingsManager.addServiceCharge({ name: data.name, amount: data.amount, type: data.type || "Fixed", archived: false, orderType: data.orderType || "All Orders", automaticApply: data.automaticApply || false, minSeats: data.minSeats, taxApplicable: data.taxApplicable || "Taxable" });
           } else if (operation === "update") {
             const charge = SettingsManager.findServiceChargeByName(data.name);
-            if (!validateExists(() => charge, data.name, "service charge")) return false;
-            SettingsManager.updateServiceCharge(charge!.id, data);
+            if (!charge) { toast({ title: "Not found", description: `Service charge "${data.name}" not found.`, variant: "destructive" }); return false; }
+            SettingsManager.updateServiceCharge(charge.id, data);
           } else if (operation === "archive") {
             const charge = SettingsManager.findServiceChargeByName(data.name);
-            if (!validateExists(() => charge, data.name, "service charge")) return false;
-            SettingsManager.archiveServiceCharge(charge!.id);
+            if (!charge) { toast({ title: "Not found", description: `Service charge "${data.name}" not found.`, variant: "destructive" }); return false; }
+            SettingsManager.archiveServiceCharge(charge.id);
           }
           break;
-        
-        case "menu":
-          console.log('[AISettingsContent] Processing menu case with operation:', operation);
-          if (operation === "add") {
-            const newMenu = SettingsManager.addMenuItem({
-              name: data.name,
-              isActive: data.isActive !== undefined ? data.isActive : true,
-              startDate: data.startDate || new Date().toISOString().split('T')[0],
-              endDate: data.endDate,
-              posEnabled: data.posEnabled !== undefined ? data.posEnabled : true,
-              popEnabled: data.popEnabled,
-              kioskEnabled: data.kioskEnabled,
-              onlineEnabled: data.onlineEnabled,
-            });
-            console.log('[AISettingsContent] Menu added successfully:', newMenu);
-          } else if (operation === "update") {
-            const menu = SettingsManager.findMenuByName(data.name);
-            if (menu) {
-              SettingsManager.updateMenuItem(menu.id, data);
-            }
-          } else {
-            // Default update behavior
-            const menu = SettingsManager.findMenuByName(data.name);
-            if (menu) {
-              SettingsManager.updateMenuItem(menu.id, data);
-            }
-          }
-          break;
-        
         case "appearance":
           SettingsManager.updateAppearanceSettings(data);
           break;
-        
         case "controlCenter":
           SettingsManager.updateControlCenterSettings(data);
           break;
-        
         case "checkoutOptions":
           SettingsManager.updateCheckoutOptionsSettings(data);
           break;
-        
         case "orders":
           SettingsManager.updateOrdersSettings(data);
           break;
-        
         default:
           console.warn("Unknown setting type:", settingType);
           return false;
@@ -366,6 +299,138 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       return false;
     }
   }, []);
+
+  // Execute database-backed actions via Supabase
+  const executeDbAction = async (settingType: string, operation: string, data: any): Promise<boolean> => {
+    try {
+      switch (settingType) {
+        case "menu": {
+          if (operation === "add") {
+            const { error } = await (supabase as any).from("menus").insert({ name: data.name, enabled: true });
+            if (error) throw error;
+          } else if (operation === "enable" || operation === "disable") {
+            const enabled = operation === "enable" || data.enabled === true;
+            const { error } = await (supabase as any).from("menus").update({ enabled }).eq("id", data.id);
+            if (error) throw error;
+          } else if (operation === "update") {
+            const updates: any = {};
+            if (data.name) updates.name = data.name;
+            if (data.enabled !== undefined) updates.enabled = data.enabled;
+            const { error } = await (supabase as any).from("menus").update(updates).eq("id", data.id);
+            if (error) throw error;
+          } else if (operation === "archive") {
+            const { error } = await (supabase as any).from("menus").update({ archived: true }).eq("id", data.id);
+            if (error) throw error;
+          }
+          break;
+        }
+        case "product": {
+          if (operation === "add") {
+            // If categoryName provided but no categoryId, look it up
+            let categoryId = data.categoryId;
+            if (!categoryId && data.categoryName) {
+              const { data: cats } = await (supabase as any).from("categories").select("id").ilike("name", data.categoryName).limit(1);
+              if (cats && cats.length > 0) categoryId = cats[0].id;
+            }
+            if (!categoryId) {
+              toast({ title: "Category required", description: "Please specify a valid category for this product.", variant: "destructive" });
+              return false;
+            }
+            const { error } = await (supabase as any).from("products").insert({
+              name: data.name,
+              price: data.price || 0,
+              category_id: categoryId,
+              description: data.description || "",
+            });
+            if (error) throw error;
+          } else if (operation === "update") {
+            const updates: any = {};
+            if (data.name) updates.name = data.name;
+            if (data.price !== undefined) updates.price = data.price;
+            if (data.description !== undefined) updates.description = data.description;
+            if (data.active !== undefined) updates.active = data.active;
+            const { error } = await (supabase as any).from("products").update(updates).eq("id", data.id);
+            if (error) throw error;
+          } else if (operation === "archive") {
+            const { error } = await (supabase as any).from("products").update({ archived: true }).eq("id", data.id);
+            if (error) throw error;
+          } else if (operation === "enable" || operation === "disable") {
+            const active = operation === "enable" || data.active === true;
+            const { error } = await (supabase as any).from("products").update({ active }).eq("id", data.id);
+            if (error) throw error;
+          }
+          break;
+        }
+        case "category": {
+          if (operation === "add") {
+            const { error } = await (supabase as any).from("categories").insert({ name: data.name });
+            if (error) throw error;
+          } else if (operation === "update") {
+            const updates: any = {};
+            if (data.name) updates.name = data.name;
+            const { error } = await (supabase as any).from("categories").update(updates).eq("id", data.id);
+            if (error) throw error;
+          }
+          break;
+        }
+        case "modifierGroup": {
+          if (operation === "add") {
+            const { error } = await (supabase as any).from("modifier_groups").insert({
+              name: data.name,
+              required: data.required || false,
+              multi_select: data.multiSelect || false,
+            });
+            if (error) throw error;
+          }
+          break;
+        }
+        case "modifier": {
+          if (operation === "add") {
+            let modifierGroupId = data.modifierGroupId;
+            if (!modifierGroupId && data.modifierGroupName) {
+              const { data: groups } = await (supabase as any).from("modifier_groups").select("id").ilike("name", data.modifierGroupName).limit(1);
+              if (groups && groups.length > 0) modifierGroupId = groups[0].id;
+            }
+            if (!modifierGroupId) {
+              toast({ title: "Modifier group required", description: "Please specify which modifier group this modifier belongs to.", variant: "destructive" });
+              return false;
+            }
+            const { error } = await (supabase as any).from("modifiers").insert({
+              name: data.name,
+              price: data.price || 0,
+              modifier_group_id: modifierGroupId,
+            });
+            if (error) throw error;
+          }
+          break;
+        }
+        case "addOn": {
+          if (operation === "add") {
+            const { error } = await (supabase as any).from("add_ons").insert({
+              name: data.name,
+              price: data.price || 0,
+            });
+            if (error) throw error;
+          } else if (operation === "update") {
+            const updates: any = {};
+            if (data.name) updates.name = data.name;
+            if (data.price !== undefined) updates.price = data.price;
+            const { error } = await (supabase as any).from("add_ons").update(updates).eq("id", data.id);
+            if (error) throw error;
+          }
+          break;
+        }
+        default:
+          return false;
+      }
+      toast({ title: "Success", description: `${data.name || "Record"} has been ${operation === "add" ? "created" : operation + "d"} successfully.` });
+      return true;
+    } catch (error: any) {
+      console.error("DB action error:", error);
+      toast({ title: "Database Error", description: error.message || "Failed to execute the change.", variant: "destructive" });
+      return false;
+    }
+  };
 
   const handleSendMessage = async (content: string) => {
     if (!content.trim()) return;
@@ -453,7 +518,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
         // Auto-apply if marked as autoApply (for simple toggle/enable/disable changes)
         if (action.autoApply === true) {
-          const success = executeAction(change);
+          const success = await executeAction(change);
           if (success) {
             change.status = "applied";
             appliedChange = {
@@ -502,9 +567,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     }
   };
 
-  const handleApplyChange = (messageId: string, change: PendingChange) => {
-    // Execute the action
-    const success = executeAction(change);
+  const handleApplyChange = async (messageId: string, change: PendingChange) => {
+    const success = await executeAction(change);
     
     if (!success) {
       toast({

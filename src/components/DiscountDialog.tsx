@@ -269,7 +269,7 @@ export function DiscountDialog({
                       : "bg-accent/60 text-foreground hover:bg-accent border border-border/50"
                   }`}
                 >
-                  {data.reason === reason && <Check className="w-3 h-3 inline mr-1" />}
+                  
                   {reason}
                 </button>
               ))}
@@ -292,7 +292,7 @@ export function DiscountDialog({
                       : "bg-accent/60 text-foreground hover:bg-accent border border-border/50"
                   }`}
                 >
-                  {data.reason === reason && <Check className="w-3 h-3 inline mr-1" />}
+                  
                   {reason}
                 </button>
               ))}
@@ -305,7 +305,7 @@ export function DiscountDialog({
                     : "bg-accent/60 text-foreground hover:bg-accent border border-border/50"
                 }`}
               >
-                {data.reason === "Other" && <Check className="w-3 h-3 inline mr-1" />}
+                
                 Other
               </button>
             </div>

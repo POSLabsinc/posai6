@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
+import { getDynamicCategorySubcategories, getCategoryProducts } from "@/lib/productStore";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
@@ -5584,30 +5585,44 @@ const menuItemsData: MenuItemsStructure = {
 };
 
 // Helper function to get items based on menu, category, and subcategory
-const getMenuItems = (menu: string, category: string, subcategory: string): MenuItem[] => {
+const getMenuItems = (menu: string, category: string, subcategory: string, dynamicData?: MenuItemsStructure): MenuItem[] => {
+  const items: MenuItem[] = [];
+  // Check hardcoded data
   const menuData = menuItemsData[menu];
-  if (!menuData) return [];
-  const categoryData = menuData[category];
-  if (!categoryData) return [];
-  const items = categoryData[subcategory];
-  if (!items) return [];
+  if (menuData?.[category]?.[subcategory]) {
+    items.push(...menuData[category][subcategory]);
+  }
+  // Check dynamic data
+  if (dynamicData?.[menu]?.[category]?.[subcategory]) {
+    items.push(...dynamicData[menu][category][subcategory]);
+  }
   return items;
 };
 
 // Get all items for a category (when no subcategory selected)
-const getAllCategoryItems = (menu: string, category: string): MenuItem[] => {
+const getAllCategoryItems = (menu: string, category: string, dynamicData?: MenuItemsStructure): MenuItem[] => {
+  const items: MenuItem[] = [];
   const menuData = menuItemsData[menu];
-  if (!menuData) return [];
-  const categoryData = menuData[category];
-  if (!categoryData) return [];
-  return Object.values(categoryData).flat();
+  if (menuData?.[category]) {
+    items.push(...Object.values(menuData[category]).flat());
+  }
+  if (dynamicData?.[menu]?.[category]) {
+    items.push(...Object.values(dynamicData[menu][category]).flat());
+  }
+  return items;
 };
 
 // Get all items for a menu (when no category selected)
-const getAllMenuItems = (menu: string): MenuItem[] => {
+const getAllMenuItems = (menu: string, dynamicData?: MenuItemsStructure): MenuItem[] => {
+  const items: MenuItem[] = [];
   const menuData = menuItemsData[menu];
-  if (!menuData) return [];
-  return Object.values(menuData).flatMap((cat) => Object.values(cat).flat());
+  if (menuData) {
+    items.push(...Object.values(menuData).flatMap((cat) => Object.values(cat).flat()));
+  }
+  if (dynamicData?.[menu]) {
+    items.push(...Object.values(dynamicData[menu]).flatMap((cat) => Object.values(cat).flat()));
+  }
+  return items;
 };
 interface OrderItem {
   id: number;
@@ -6029,6 +6044,57 @@ const Orders = () => {
   // Fetch menus from database - only enabled & non-archived menus appear
   const { menuList, menuCategories } = useSupabaseMenus();
 
+  // Merge dynamic subcategories from category settings with hardcoded fallback
+  const mergedCategorySubcategories = useMemo(() => {
+    const dynamic = getDynamicCategorySubcategories();
+    // Dynamic takes priority, fall back to hardcoded
+    return { ...categorySubcategories, ...dynamic };
+  }, []);
+
+  // Build dynamic menu items from category-assigned products
+  const dynamicMenuItems = useMemo(() => {
+    const dynamic = getDynamicCategorySubcategories();
+    const result: MenuItemsStructure = {};
+    // For each menu, build category → subcategory → products
+    for (const menuName of menuList) {
+      const cats = menuCategories[menuName] || [];
+      const catItems: CategoryItems = {};
+      for (const cat of cats) {
+        const subs = dynamic[cat] || categorySubcategories[cat] || [];
+        const subItems: SubcategoryItems = {};
+        for (const sub of subs) {
+          // Get products assigned to this subcategory
+          const productNames = getCategoryProducts(sub);
+          if (productNames.length > 0) {
+            subItems[sub] = productNames.map((name, idx) => ({
+              id: idx + 10000,
+              name,
+              price: 0,
+              isOpenPrice: true,
+            }));
+          }
+        }
+        // Also get products directly assigned to the parent category
+        const parentProducts = getCategoryProducts(cat);
+        if (parentProducts.length > 0 && Object.keys(subItems).length === 0) {
+          subItems[cat] = parentProducts.map((name, idx) => ({
+            id: idx + 20000,
+            name,
+            price: 0,
+            isOpenPrice: true,
+          }));
+        }
+        if (Object.keys(subItems).length > 0) {
+          catItems[cat] = subItems;
+        }
+      }
+      if (Object.keys(catItems).length > 0) {
+        result[menuName] = catItems;
+      }
+    }
+    return result;
+  }, [menuList, menuCategories]);
+
   const addItemMode = searchParams.get('mode') === 'addItem';
   const transferNewMode = searchParams.get('mode') === 'transferNew';
   const transferItemsParam = searchParams.get('transferItems');
@@ -6058,7 +6124,7 @@ const Orders = () => {
   const getFirstCategoryAndSubcategory = (menu: string) => {
     const categories = menuCategories[menu] || [];
     const firstCategory = categories[0] || "";
-    const subcategories = categorySubcategories[firstCategory] || [];
+    const subcategories = mergedCategorySubcategories[firstCategory] || [];
     const firstSubcategory = subcategories[0] || "";
     return {
       firstCategory,
@@ -6094,7 +6160,7 @@ const Orders = () => {
       if (!activeCategory || !cats.includes(activeCategory)) {
         const firstCat = cats[0] || "";
         setActiveCategory(firstCat);
-        const subs = categorySubcategories[firstCat] || [];
+        const subs = mergedCategorySubcategories[firstCat] || [];
         setActiveSubcategory(subs[0] || "");
       }
     }
@@ -6764,7 +6830,7 @@ const Orders = () => {
   // Handle category change - auto-select first subcategory
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
-    const subcategories = categorySubcategories[category] || [];
+    const subcategories = mergedCategorySubcategories[category] || [];
     const firstSubcategory = subcategories[0] || "";
     setActiveSubcategory(firstSubcategory);
   };
@@ -7967,7 +8033,7 @@ const Orders = () => {
         {/* Subcategories based on selected category - Hidden in search mode on mobile */}
         <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[7rem] lg:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
           <div className={`flex gap-1 md:gap-1.5 lg:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
-            {(categorySubcategories[activeCategory] || []).map((sub) => <Button key={sub} variant="outline" className={`rounded-md px-3 md:px-4 lg:px-6 h-7 md:h-7 lg:h-8 text-[11px] md:text-[10px] lg:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`}`} onClick={() => setActiveSubcategory(sub)}>
+            {(mergedCategorySubcategories[activeCategory] || []).map((sub) => <Button key={sub} variant="outline" className={`rounded-md px-3 md:px-4 lg:px-6 h-7 md:h-7 lg:h-8 text-[11px] md:text-[10px] lg:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`}`} onClick={() => setActiveSubcategory(sub)}>
                 {sub}
               </Button>)}
           </div>
@@ -7983,13 +8049,13 @@ const Orders = () => {
 
               // When there's a search query, always search across ALL menu items
               if (searchQuery.trim()) {
-                currentItems = getAllMenuItems(selectedMenu);
+                currentItems = getAllMenuItems(selectedMenu, dynamicMenuItems);
               } else if (activeSubcategory) {
-                currentItems = getMenuItems(selectedMenu, activeCategory, activeSubcategory);
+                currentItems = getMenuItems(selectedMenu, activeCategory, activeSubcategory, dynamicMenuItems);
               } else if (activeCategory) {
-                currentItems = getAllCategoryItems(selectedMenu, activeCategory);
+                currentItems = getAllCategoryItems(selectedMenu, activeCategory, dynamicMenuItems);
               } else {
-                currentItems = getAllMenuItems(selectedMenu);
+                currentItems = getAllMenuItems(selectedMenu, dynamicMenuItems);
               }
 
               // Filter items based on search query

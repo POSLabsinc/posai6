@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Plus, Search, Mic, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,6 +27,7 @@ interface Category {
   position: number;
   course: number | null;
   archived: boolean;
+  products?: string[];
 }
 
 interface CategoriesContentProps {
@@ -72,6 +74,23 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [itemToArchive, setItemToArchive] = useState<Category | null>(null);
+  const [dbProductNames, setDbProductNames] = useState<string[]>([]);
+
+  // Fetch product names from Supabase for the product selector
+  useEffect(() => {
+    const fetchProducts = async () => {
+      const { data } = await supabase
+        .from("products")
+        .select("name")
+        .eq("active", true)
+        .eq("archived", false)
+        .order("name");
+      if (data) {
+        setDbProductNames(data.map((p) => p.name));
+      }
+    };
+    fetchProducts();
+  }, []);
 
   const saveCategories = (newItems: Category[]) => {
     setCategories(newItems);
@@ -95,6 +114,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
       position: categoryData.position || categories.length + 1,
       course: categoryData.coursePosition,
       archived: false,
+      products: categoryData.products,
     };
     saveCategories([...categories, newCategory]);
     toast({
@@ -122,6 +142,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
             parent: categoryData.parentCategory || "Parent Category",
             position: categoryData.position || cat.position,
             course: categoryData.coursePosition,
+            products: categoryData.products,
           }
         : cat
     );
@@ -171,6 +192,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           setShowAddScreen(false);
         }}
         parentCategoryOptions={parentCategoryNames}
+        productOptions={dbProductNames}
       />
     );
   }
@@ -186,6 +208,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           setEditingCategory(null);
         }}
         parentCategoryOptions={parentCategoryNames}
+        productOptions={dbProductNames}
       />
     );
   }

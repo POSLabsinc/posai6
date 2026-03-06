@@ -425,7 +425,11 @@ serve(async (req) => {
       parsedResponse.message = msg;
     }
 
-  } catch (error) {
+    return new Response(
+      JSON.stringify(parsedResponse),
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
+
     console.error("Error in ai-settings-chat:", error);
     return new Response(
       JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),

@@ -165,11 +165,11 @@ const EditMenuContent = ({
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">
       {/* Header */}
-      <div className="flex items-center justify-center py-4 px-4 relative">
+      <div className="flex items-center justify-center py-4 px-4 relative z-10 flex-shrink-0">
         {onBack ? (
           <button
             onClick={handleSave}
-            className="absolute left-4 w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center active:opacity-70 transition-opacity"
+            className="absolute left-4 w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center active:opacity-70 transition-opacity z-10"
             aria-label="Back"
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
@@ -178,9 +178,13 @@ const EditMenuContent = ({
           <div className="w-12 h-12" />
         )}
         <h1 className="text-lg font-semibold text-foreground">Edit Menu</h1>
-        <div className="absolute right-4 overflow-visible flex items-center justify-center pointer-events-auto" style={{ width: 32, height: 32 }}>
+        <button
+          className="absolute right-4 z-10 w-12 h-12 flex items-center justify-center"
+          onClick={onAIClick || (() => {})}
+          aria-label="AI Assistant"
+        >
           <AnimatedAIIcon size={24} onClick={onAIClick || (() => {})} />
-        </div>
+        </button>
       </div>
 
       {/* Form */}

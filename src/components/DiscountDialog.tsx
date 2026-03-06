@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import {
   Dialog,
   DialogContent,
@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle } from "lucide-react";
+import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, ChevronDown, ChevronUp, MessageSquare } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -28,6 +28,7 @@ interface Discount {
 
 interface DiscountReasonData {
   reason: string | null;
+  reasonCategory: string | null;
   notes: string | null;
 }
 
@@ -45,19 +46,33 @@ interface DiscountDialogProps {
   subtotal: number;
 }
 
-const DISCOUNT_REASONS = [
-  "QSA",
-  "Food Cold",
-  "Too Much Salt",
-  "Undercooked",
-  "OverCooked",
-  "Prepared Incorrectly",
-  "Food Allergy",
-  "Foreign Object in Food",
-  "Wrong Menu Product",
-  "Out of Stock",
-  "Other",
-];
+// Categorized reasons for structured analytics
+const REASON_CATEGORIES: Record<string, string[]> = {
+  "Food Quality": ["Food Cold", "Undercooked", "Overcooked", "Prepared Incorrectly", "Too Much Salt", "Foreign Object in Food"],
+  "Order Error": ["Wrong Item", "Duplicate Order", "Kitchen Error", "Wrong Menu Product"],
+  "Service Issue": ["Guest Complaint", "Long Wait Time", "QSA", "Food Allergy"],
+  "Inventory": ["Out of Stock"],
+  "Promotion / Internal": ["Birthday Comp", "Manager Comp", "Employee Meal"],
+};
+
+// Flat list for quick reference
+const ALL_REASONS = Object.values(REASON_CATEGORIES).flat();
+
+// AI-suggested reasons based on common patterns (simulated context)
+const AI_SUGGESTED_REASONS = ["Guest Complaint", "Wrong Item", "Food Cold"];
+
+// Smart comment suggestions based on typing
+const COMMENT_SUGGESTIONS: Record<string, string[]> = {
+  "wrong": ["Wrong item served", "Incorrect modifier applied", "Wrong table order", "Wrong size/portion"],
+  "cold": ["Food served cold", "Dish delayed before serving", "Refire requested"],
+  "wait": ["Long wait time (15+ min)", "Kitchen backed up", "Understaffed"],
+  "comp": ["Manager approved comp", "Regular guest accommodation", "Service recovery"],
+  "allerg": ["Allergen present in dish", "Cross-contamination concern", "Guest allergy not noted"],
+  "under": ["Undercooked protein", "Raw center", "Not heated through"],
+  "over": ["Overcooked/burnt", "Dried out", "Charred"],
+  "duplic": ["Duplicate order sent", "Double-fired by kitchen", "POS entry error"],
+  "stock": ["Item 86'd mid-service", "Ingredient unavailable", "Substitution refused"],
+};
 
 const availableDiscounts: Discount[] = [
   { id: "employee", name: "Employee Discount", type: "percentage", value: 20, icon: Briefcase },
@@ -89,6 +104,8 @@ export function DiscountDialog({
   const [expandedDiscountId, setExpandedDiscountId] = useState<string | null>(null);
   const [reasonDataMap, setReasonDataMap] = useState<Record<string, DiscountReasonData>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
+  const [expandedCategory, setExpandedCategory] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState<Record<string, string>>({});
   const isMobile = useIsMobile();
   const notesRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -99,6 +116,8 @@ export function DiscountDialog({
       setExpandedDiscountId(null);
       setReasonDataMap({});
       setValidationErrors({});
+      setExpandedCategory(null);
+      setCommentText({});
     }
   }, [open, currentDiscounts]);
 
@@ -153,9 +172,10 @@ export function DiscountDialog({
   };
 
   const handleReasonSelect = (discountId: string, reason: string) => {
+    const category = Object.entries(REASON_CATEGORIES).find(([_, reasons]) => reasons.includes(reason))?.[0] || "Other";
     setReasonDataMap(m => ({
       ...m,
-      [discountId]: { ...m[discountId], reason, notes: m[discountId]?.notes || null },
+      [discountId]: { ...m[discountId], reason, reasonCategory: category, notes: m[discountId]?.notes || null },
     }));
     setValidationErrors(e => {
       const next = { ...e };
@@ -167,8 +187,18 @@ export function DiscountDialog({
   const handleNotesChange = (discountId: string, notes: string) => {
     setReasonDataMap(m => ({
       ...m,
-      [discountId]: { ...m[discountId], reason: m[discountId]?.reason || null, notes: notes || null },
+      [discountId]: { ...m[discountId], reason: m[discountId]?.reason || null, reasonCategory: m[discountId]?.reasonCategory || null, notes: notes || null },
     }));
+  };
+
+  // Smart comment suggestions based on what user is typing
+  const getSmartSuggestions = (text: string): string[] => {
+    if (!text || text.length < 3) return [];
+    const lower = text.toLowerCase();
+    for (const [key, suggestions] of Object.entries(COMMENT_SUGGESTIONS)) {
+      if (lower.includes(key)) return suggestions;
+    }
+    return [];
   };
 
   const calculateDiscountAmount = (discount: Discount) => {
@@ -190,10 +220,13 @@ export function DiscountDialog({
     d => isReasonRequired(d) && !reasonDataMap[d.id]?.reason
   );
 
+
   const renderReasonSection = (discount: Discount) => {
-    const data = reasonDataMap[discount.id] || { reason: null, notes: null };
+    const data = reasonDataMap[discount.id] || { reason: null, reasonCategory: null, notes: null };
     const error = validationErrors[discount.id];
     const isRequired = isReasonRequired(discount);
+    const currentComment = commentText[discount.id] || "";
+    const smartSuggestions = getSmartSuggestions(currentComment);
 
     return (
       <motion.div
@@ -203,48 +236,138 @@ export function DiscountDialog({
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className="overflow-hidden"
       >
-        <div className="px-3 pb-3 pt-2 space-y-2">
-          <label className="text-xs font-medium text-muted-foreground block">
-            Reason {isRequired && <span className="text-red-400">*</span>}
-          </label>
+        <div className="px-3 pb-3 pt-2 space-y-3">
+          {/* AI Suggested Reasons */}
+          <div>
+            <div className="flex items-center gap-1.5 mb-2">
+              <Zap className="w-3.5 h-3.5 text-amber-400" />
+              <label className="text-xs font-semibold text-amber-400">AI Suggested</label>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {AI_SUGGESTED_REASONS.map((reason) => (
+                <button
+                  key={reason}
+                  onClick={() => handleReasonSelect(discount.id, reason)}
+                  className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                    data.reason === reason
+                      ? "bg-primary text-primary-foreground ring-2 ring-primary/30"
+                      : "bg-accent/60 text-foreground hover:bg-accent border border-border/50"
+                  }`}
+                >
+                  {data.reason === reason && <Check className="w-3 h-3 inline mr-1" />}
+                  {reason}
+                </button>
+              ))}
+            </div>
+          </div>
 
-          <div className="max-h-[200px] overflow-y-auto rounded-lg border border-border bg-neutral-800/50">
-            {DISCOUNT_REASONS.map((reason) => (
+          {/* Categorized Quick Select */}
+          <div>
+            <label className="text-xs font-medium text-muted-foreground block mb-2">
+              All Reasons {isRequired && <span className="text-destructive">*</span>}
+            </label>
+            <div className="space-y-1 rounded-lg border border-border bg-card/50 overflow-hidden">
+              {Object.entries(REASON_CATEGORIES).map(([category, reasons]) => {
+                const isOpen = expandedCategory === category;
+                const hasSelectedInCategory = reasons.some(r => r === data.reason);
+
+                return (
+                  <div key={category}>
+                    <button
+                      onClick={() => setExpandedCategory(isOpen ? null : category)}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 text-sm transition-colors ${
+                        hasSelectedInCategory
+                          ? "bg-primary/10 text-primary font-medium"
+                          : "text-foreground hover:bg-accent/30"
+                      }`}
+                    >
+                      <span>{category}</span>
+                      <div className="flex items-center gap-1.5">
+                        {hasSelectedInCategory && (
+                          <span className="text-[10px] bg-primary/20 text-primary px-1.5 py-0.5 rounded-full">{data.reason}</span>
+                        )}
+                        {isOpen ? <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" /> : <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />}
+                      </div>
+                    </button>
+                    <AnimatePresence>
+                      {isOpen && (
+                        <motion.div
+                          initial={{ height: 0 }}
+                          animate={{ height: "auto" }}
+                          exit={{ height: 0 }}
+                          transition={{ duration: 0.2 }}
+                          className="overflow-hidden"
+                        >
+                          <div className="flex flex-wrap gap-1.5 px-3 pb-2.5">
+                            {reasons.map((reason) => (
+                              <button
+                                key={reason}
+                                onClick={() => handleReasonSelect(discount.id, reason)}
+                                className={`px-3 py-2 rounded-full text-xs font-medium transition-all ${
+                                  data.reason === reason
+                                    ? "bg-primary text-primary-foreground"
+                                    : "bg-accent/40 text-foreground hover:bg-accent/70 border border-border/30"
+                                }`}
+                              >
+                                {data.reason === reason && <Check className="w-3 h-3 inline mr-1" />}
+                                {reason}
+                              </button>
+                            ))}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                );
+              })}
+
+              {/* Other option */}
               <button
-                key={reason}
-                onClick={() => handleReasonSelect(discount.id, reason)}
-                className={`w-full text-left px-3 py-2.5 text-sm transition-colors border-b border-border/30 last:border-b-0 flex items-center justify-between ${
-                  data.reason === reason
-                    ? "bg-primary/15 text-primary font-medium"
-                    : "text-foreground hover:bg-neutral-700/50"
+                onClick={() => handleReasonSelect(discount.id, "Other")}
+                className={`w-full text-left px-3 py-2.5 text-sm transition-colors ${
+                  data.reason === "Other"
+                    ? "bg-primary/10 text-primary font-medium"
+                    : "text-foreground hover:bg-accent/30"
                 }`}
               >
-                <span>{reason}</span>
-                {data.reason === reason && <Check className="w-3.5 h-3.5 text-primary" />}
+                Other
+                {data.reason === "Other" && <Check className="w-3 h-3 inline ml-1.5" />}
               </button>
-            ))}
+            </div>
           </div>
 
           {error && (
             <div className="flex items-center gap-1">
-              <AlertCircle className="w-3 h-3 text-red-400" />
-              <p className="text-xs text-red-400">{error}</p>
+              <AlertCircle className="w-3 h-3 text-destructive" />
+              <p className="text-xs text-destructive">{error}</p>
             </div>
           )}
 
-          {data.reason === "Other" && (
-            <div>
-              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-                Notes (optional)
-              </label>
+          {/* Comment field — shown when ANY reason is selected */}
+          {data.reason && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="flex items-center gap-1.5 mb-1.5">
+                <MessageSquare className="w-3.5 h-3.5 text-muted-foreground" />
+                <label className="text-xs font-medium text-muted-foreground">
+                  Comment {data.reason === "Other" ? <span className="text-destructive">*</span> : "(optional)"}
+                </label>
+              </div>
               <textarea
                 ref={notesRef}
-                value={data.notes || ""}
-                onChange={(e) => handleNotesChange(discount.id, e.target.value)}
-                placeholder="Please specify."
+                value={currentComment}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  setCommentText(prev => ({ ...prev, [discount.id]: val }));
+                  handleNotesChange(discount.id, val);
+                }}
+                placeholder="Add details..."
                 maxLength={200}
-                rows={3}
-                className="w-full px-3 py-2.5 rounded-lg border border-border bg-neutral-800/50 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:border-primary/50 transition-colors"
+                rows={2}
+                className="w-full px-3 py-2.5 rounded-lg border border-border bg-card/50 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:border-primary/50 transition-colors"
                 onFocus={() => {
                   setTimeout(() => {
                     notesRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
@@ -252,9 +375,36 @@ export function DiscountDialog({
                 }}
               />
               <p className="text-[10px] text-muted-foreground text-right mt-0.5">
-                {(data.notes || "").length}/200
+                {currentComment.length}/200
               </p>
-            </div>
+
+              {/* Smart suggestions while typing */}
+              {smartSuggestions.length > 0 && (
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  className="mt-1.5"
+                >
+                  <p className="text-[10px] text-muted-foreground mb-1 flex items-center gap-1">
+                    <Zap className="w-2.5 h-2.5 text-amber-400" /> Suggestions
+                  </p>
+                  <div className="flex flex-wrap gap-1">
+                    {smartSuggestions.map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => {
+                          setCommentText(prev => ({ ...prev, [discount.id]: s }));
+                          handleNotesChange(discount.id, s);
+                        }}
+                        className="px-2 py-1 rounded-md text-[11px] bg-amber-400/10 text-amber-300 hover:bg-amber-400/20 border border-amber-400/20 transition-colors"
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
           )}
         </div>
       </motion.div>

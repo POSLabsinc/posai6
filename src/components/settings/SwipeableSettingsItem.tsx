@@ -1,10 +1,11 @@
 import { useState, useRef } from "react";
-import { Archive } from "lucide-react";
+import { Archive, Pencil } from "lucide-react";
 
 interface SwipeableSettingsItemProps {
   children: React.ReactNode;
   onTap: () => void;
   onArchive: () => void;
+  onEdit?: () => void;
   isArchived?: boolean;
 }
 
@@ -12,6 +13,7 @@ const SwipeableSettingsItem = ({
   children, 
   onTap, 
   onArchive,
+  onEdit,
   isArchived = false
 }: SwipeableSettingsItemProps) => {
   const [translateX, setTranslateX] = useState(0);
@@ -21,8 +23,8 @@ const SwipeableSettingsItem = ({
   const currentX = useRef(0);
   const hasMoved = useRef(false);
 
-  // Width for single archive button on right side (swipe left to reveal)
-  const swipeWidth = -56;
+  // Width for action buttons on right side (swipe left to reveal)
+  const swipeWidth = onEdit ? -112 : -56;
 
   const isInteractiveTarget = (target: EventTarget | null): boolean => {
     if (!target || !(target instanceof HTMLElement)) return false;
@@ -122,6 +124,15 @@ const SwipeableSettingsItem = ({
       {/* Right side action buttons (revealed when swiping left) */}
       {isRevealed && (
         <div className="absolute right-0 top-0 bottom-0 flex items-center">
+          {/* Edit button */}
+          {onEdit && (
+            <button
+              onClick={() => handleAction(onEdit)}
+              className="w-14 h-full flex items-center justify-center bg-blue-600 transition-colors active:opacity-70"
+            >
+              <Pencil className="w-5 h-5 text-white" />
+            </button>
+          )}
           {/* Archive button */}
           <button
             onClick={() => handleAction(onArchive)}

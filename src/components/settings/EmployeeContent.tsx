@@ -285,6 +285,7 @@ const EmployeeContent = ({
                         <SwipeableSettingsItem
                           key={employee.id}
                           onTap={() => setExpandedEmployee(isExpanded ? null : employee.id)}
+                          onEdit={() => navigate(`/settings/workforce/employee/add`, { state: { editEmployee: employee } })}
                           onArchive={() => handleArchive(employee)}
                           isArchived={employee.is_archived}
                         >

@@ -139,6 +139,17 @@ export const useAddEmployee = () => {
   });
 };
 
+export const useUpdateEmployee = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ id, ...data }: { id: string; full_name?: string; role?: string; phone?: string | null; email?: string | null; hourly_rate?: number; pin?: string; revenue_center?: string; assigned_job_types?: string[] }) => {
+      const { error } = await (supabase as any).from("employees").update(data).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["employees"] }),
+  });
+};
+
 export const useEmployeeByPin = () => {
   return useMutation({
     mutationFn: async (pin: string) => {

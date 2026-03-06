@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight, User, Camera, Search, X, Briefcase, UtensilsCrossed, Wine, ShoppingBag, LayoutGrid, Truck, PartyPopper, Armchair, Coffee, ConciergeBell, Delete } from "lucide-react";
-import { useAddEmployee } from "@/hooks/use-employees";
+import { useAddEmployee, useUpdateEmployee } from "@/hooks/use-employees";
 import { toast } from "sonner";
 import { countryCodes, type CountryCode } from "@/components/CountryCodeSelector";
 import serverIcon from "@/assets/icons/jobs/server.svg";
@@ -34,8 +34,13 @@ const revenueCenters = ["Bar", "Restaurant", "Takeout", "Delivery", "Catering", 
 
 const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentProps) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const addEmployee = useAddEmployee();
+  const updateEmployee = useUpdateEmployee();
   const goBack = onBack || (() => navigate("/settings/workforce/employee"));
+
+  const editEmployee = (location.state as any)?.editEmployee;
+  const isEditMode = !!editEmployee;
 
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -52,6 +57,36 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
   const [payrollEnabled, setPayrollEnabled] = useState(false);
   const [jobType, setJobType] = useState("");
   const [hourlyRate, setHourlyRate] = useState("");
+
+  // Pre-fill fields in edit mode
+  useEffect(() => {
+    if (editEmployee) {
+      const nameParts = (editEmployee.full_name || "").split(" ");
+      setFirstName(nameParts[0] || "");
+      setLastName(nameParts.slice(1).join(" ") || "");
+      setEmail(editEmployee.email || "");
+      setRole(editEmployee.role || "");
+      setRevenueCenter(editEmployee.revenue_center || "");
+      setHourlyRate(editEmployee.hourly_rate ? String(editEmployee.hourly_rate) : "");
+      setPin(editEmployee.pin && editEmployee.pin !== "0000" ? editEmployee.pin : "");
+      // Parse phone - try to extract country code and number
+      if (editEmployee.phone) {
+        const phoneParts = editEmployee.phone.split(" ");
+        if (phoneParts.length >= 2) {
+          const dialCode = phoneParts[0];
+          const matchedCountry = countryCodes.find(c => c.dialCode === dialCode);
+          if (matchedCountry) setSelectedCountry(matchedCountry);
+          setPhone(phoneParts.slice(1).join(""));
+        } else {
+          setPhone(editEmployee.phone);
+        }
+      }
+      // Job type from assigned_job_types
+      if (editEmployee.assigned_job_types?.length > 0) {
+        setJobType(editEmployee.assigned_job_types[0]);
+      }
+    }
+  }, [editEmployee]);
 
   // Dropdown/popup states
   const [showRolePicker, setShowRolePicker] = useState(false);
@@ -84,18 +119,33 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
     }
 
     try {
-      await addEmployee.mutateAsync({
-        full_name: `${firstName.trim()} ${lastName.trim()}`,
-        role: role || "Server",
-        email: email.trim() || undefined,
-        phone: phone.trim() ? `${selectedCountry.dialCode} ${phone.trim()}` : undefined,
-        hourly_rate: hourlyRate ? parseFloat(hourlyRate) : 0,
-        pin: pin.length === 4 ? pin : undefined,
-      });
-      toast.success("Employee added successfully");
+      if (isEditMode) {
+        await updateEmployee.mutateAsync({
+          id: editEmployee.id,
+          full_name: `${firstName.trim()} ${lastName.trim()}`,
+          role: role || "Server",
+          email: email.trim() || null,
+          phone: phone.trim() ? `${selectedCountry.dialCode} ${phone.trim()}` : null,
+          hourly_rate: hourlyRate ? parseFloat(hourlyRate) : 0,
+          pin: pin.length === 4 ? pin : undefined,
+          revenue_center: revenueCenter || undefined,
+          assigned_job_types: jobType ? [jobType] : undefined,
+        });
+        toast.success("Employee updated successfully");
+      } else {
+        await addEmployee.mutateAsync({
+          full_name: `${firstName.trim()} ${lastName.trim()}`,
+          role: role || "Server",
+          email: email.trim() || undefined,
+          phone: phone.trim() ? `${selectedCountry.dialCode} ${phone.trim()}` : undefined,
+          hourly_rate: hourlyRate ? parseFloat(hourlyRate) : 0,
+          pin: pin.length === 4 ? pin : undefined,
+        });
+        toast.success("Employee added successfully");
+      }
       goBack();
     } catch {
-      toast.error("Failed to add employee");
+      toast.error(isEditMode ? "Failed to update employee" : "Failed to add employee");
     }
   };
 
@@ -110,7 +160,7 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
         >
           <ChevronLeft className="w-5 h-5 text-foreground" />
         </button>
-        <h1 className="text-base font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Add New Employee</h1>
+        <h1 className="text-base font-semibold text-foreground absolute left-1/2 -translate-x-1/2">{isEditMode ? "Edit Employee" : "Add New Employee"}</h1>
       </div>
       )}
 

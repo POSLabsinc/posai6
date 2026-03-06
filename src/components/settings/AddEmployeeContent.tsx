@@ -37,6 +37,9 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
   const location = useLocation();
   const addEmployee = useAddEmployee();
   const updateEmployee = useUpdateEmployee();
+  const saveEmployeeStores = useSaveEmployeeStores();
+  const { data: allStores = [] } = useStores();
+  const { data: existingEmployeeStores = [] } = useEmployeeStores(editEmployee?.id || null);
   const goBack = onBack || (() => navigate("/settings/workforce/employee"));
 
   const editEmployee = (location.state as any)?.editEmployee;

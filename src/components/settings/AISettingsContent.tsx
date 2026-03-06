@@ -19,6 +19,7 @@ interface Message {
   appliedChange?: AppliedChange;
   navigateTo?: string;
   isStreaming?: boolean;
+  quickReplies?: string[];
 }
 
 interface PendingChange {

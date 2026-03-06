@@ -1,15 +1,14 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Check, Copy, ClipboardPaste, Clock } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { getAllCategories } from "@/lib/productStore";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { format } from "date-fns";
-import { AppleWheelDatePicker } from "@/components/ui/apple-wheel-date-picker";
-import { CompactTimePicker } from "@/components/ui/compact-time-picker";
 import OrganizeCategoriesContent from "./OrganizeCategoriesContent";
+import MenuScheduleSection, { defaultDaySchedule } from "./MenuScheduleSection";
+import type { DaySchedule } from "./MenuScheduleSection";
 
 interface AddMenuContentProps {
   showHeader?: boolean;
@@ -18,16 +17,28 @@ interface AddMenuContentProps {
   onAIClick?: () => void;
 }
 
-interface DaySchedule {
-  enabled: boolean;
-  startTime: string;
-  endTime: string;
+interface ScheduleState {
+  startDate: Date;
+  endDate: Date;
+  startDateSet: boolean;
+  endDateSet: boolean;
+  daySchedules: Record<string, DaySchedule>;
 }
 
-const ALL_DAYS = ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY"] as const;
+const createScheduleState = (): ScheduleState => ({
+  startDate: new Date(),
+  endDate: new Date(),
+  startDateSet: false,
+  endDateSet: false,
+  daySchedules: defaultDaySchedule(),
+});
 
-const defaultDaySchedule = (): Record<string, DaySchedule> =>
-  Object.fromEntries(ALL_DAYS.map((d) => [d, { enabled: false, startTime: "12:00 AM", endTime: "11:59 PM" }]));
+const SCHEDULE_CHANNELS = [
+  { key: "pos", label: "Keep Menu Active for Point Of Sale", desc: "Display this menu on Point of Sale terminals" },
+  { key: "pop", label: "Keep Menu Active for Point Of Purchase", desc: "Display this menu on purchase screens" },
+  { key: "kiosk", label: "Keep Menu Active for KIOSK", desc: "Display this menu on self-service kiosks" },
+  { key: "orderos", label: "Keep Menu Active for Order-OS", desc: "Display this menu on Order-OS devices" },
+] as const;
 
 const AddMenuContent = ({
   showHeader = true,
@@ -37,31 +48,25 @@ const AddMenuContent = ({
 }: AddMenuContentProps) => {
   const allCategories = getAllCategories();
   const [name, setName] = useState("");
-
   const [enabled, setEnabled] = useState(true);
-  const [activeForPOS, setActiveForPOS] = useState(false);
-  const [activeForPOP, setActiveForPOP] = useState(false);
-  const [activeForKiosk, setActiveForKiosk] = useState(false);
-  const [activeForOrderOS, setActiveForOrderOS] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [showCategoriesSheet, setShowCategoriesSheet] = useState(false);
   const [showOrganizeScreen, setShowOrganizeScreen] = useState(false);
   const [showRevenueCentersSheet, setShowRevenueCentersSheet] = useState(false);
   const [selectedRevenueCenters, setSelectedRevenueCenters] = useState<string[]>([]);
 
-  // POS schedule state
-  const [posStartDate, setPosStartDate] = useState<Date>(new Date());
-  const [posEndDate, setPosEndDate] = useState<Date>(new Date());
-  const [startDateSet, setStartDateSet] = useState(false);
-  const [endDateSet, setEndDateSet] = useState(false);
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-  const [posDaySchedules, setPosDaySchedules] = useState<Record<string, DaySchedule>>(defaultDaySchedule());
-  const [showDaysSheet, setShowDaysSheet] = useState(false);
+  // Toggle states for each channel
+  const [activeChannels, setActiveChannels] = useState<Record<string, boolean>>({
+    pos: false, pop: false, kiosk: false, orderos: false,
+  });
 
-  // Track which day+field has inline picker open: e.g. "MONDAY-startTime"
-  const [activeTimePicker, setActiveTimePicker] = useState<string | null>(null);
-  const [copiedDay, setCopiedDay] = useState<string | null>(null);
+  // Schedule states for each channel
+  const [schedules, setSchedules] = useState<Record<string, ScheduleState>>({
+    pos: createScheduleState(),
+    pop: createScheduleState(),
+    kiosk: createScheduleState(),
+    orderos: createScheduleState(),
+  });
 
   const formatSelection = (items: string[], placeholder: string) => {
     if (items.length === 0) return placeholder;
@@ -69,42 +74,9 @@ const AddMenuContent = ({
     return `${items.length} selected`;
   };
 
-  const toggleDayEnabled = (day: string) => {
-    setPosDaySchedules((prev) => ({
-      ...prev,
-      [day]: { ...prev[day], enabled: !prev[day].enabled },
-    }));
+  const updateSchedule = (key: string, partial: Partial<ScheduleState>) => {
+    setSchedules((prev) => ({ ...prev, [key]: { ...prev[key], ...partial } }));
   };
-
-  const toggleTimePicker = (day: string, field: "startTime" | "endTime") => {
-    const key = `${day}-${field}`;
-    setActiveTimePicker((prev) => (prev === key ? null : key));
-  };
-
-  const updateDayTime = (day: string, field: "startTime" | "endTime", time: string) => {
-    setPosDaySchedules((prev) => ({
-      ...prev,
-      [day]: { ...prev[day], [field]: time },
-    }));
-  };
-
-  const copyDay = (day: string) => {
-    setCopiedDay(day);
-    toast.success(`Copied ${day.charAt(0) + day.slice(1).toLowerCase()}'s schedule`);
-  };
-
-  const pasteDay = (targetDay: string) => {
-    if (!copiedDay) return;
-    const source = posDaySchedules[copiedDay];
-    setPosDaySchedules((prev) => ({
-      ...prev,
-      [targetDay]: { ...prev[targetDay], startTime: source.startTime, endTime: source.endTime },
-    }));
-    toast.success(`Pasted to ${targetDay.charAt(0) + targetDay.slice(1).toLowerCase()}`);
-  };
-
-  // Get selected days for the sheet
-  const selectedDayNames = ALL_DAYS.filter((d) => posDaySchedules[d].enabled);
 
   const handleSave = async () => {
     if (name.trim()) {
@@ -191,203 +163,37 @@ const AddMenuContent = ({
 
         {/* Keep Menu Active Group */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-3 divide-y divide-neutral-700/40">
-          {/* POS Toggle */}
-          <div className="w-full flex items-center justify-between py-4 px-4">
-            <div className="flex-1 mr-3">
-              <span className="text-foreground text-base font-medium">Keep Menu Active for Point Of Sale</span>
-              <p className="text-muted-foreground text-xs mt-0.5">Display this menu on Point of Sale terminals</p>
-            </div>
-            <Switch checked={activeForPOS} onCheckedChange={setActiveForPOS} />
-          </div>
-
-          {/* POS Schedule Expanded */}
-          {activeForPOS && (
-            <div>
-              {/* Start Date */}
-              <div className="relative">
-                <button
-                  onClick={() => { setShowStartDatePicker(!showStartDatePicker); setShowEndDatePicker(false); }}
-                  className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity border-t border-neutral-700/30"
-                >
-                  <span className="text-foreground text-sm font-medium">Start Date</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground text-sm">
-                      {startDateSet ? format(posStartDate, "MM/dd/yyyy") : "Choose"}
-                    </span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                </button>
-                <AppleWheelDatePicker
-                  isOpen={showStartDatePicker}
-                  onClose={() => { setStartDateSet(true); setShowStartDatePicker(false); }}
-                  onConfirm={() => { setStartDateSet(true); setShowStartDatePicker(false); }}
-                  selectedDate={posStartDate}
-                  onDateChange={(d) => { setPosStartDate(d); setStartDateSet(true); }}
-                  mode="inline"
+          {SCHEDULE_CHANNELS.map(({ key, label, desc }) => (
+            <div key={key}>
+              {/* Toggle Row */}
+              <div className="w-full flex items-center justify-between py-4 px-4">
+                <div className="flex-1 mr-3">
+                  <span className="text-foreground text-base font-medium">{label}</span>
+                  <p className="text-muted-foreground text-xs mt-0.5">{desc}</p>
+                </div>
+                <Switch
+                  checked={activeChannels[key]}
+                  onCheckedChange={(v) => setActiveChannels((prev) => ({ ...prev, [key]: v }))}
                 />
               </div>
 
-              {/* End Date */}
-              <div className="relative">
-                <button
-                  onClick={() => { setShowEndDatePicker(!showEndDatePicker); setShowStartDatePicker(false); }}
-                  className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity border-t border-neutral-700/30"
-                >
-                  <span className="text-foreground text-sm font-medium">End Date</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-muted-foreground text-sm">
-                      {endDateSet ? format(posEndDate, "MM/dd/yyyy") : "Choose"}
-                    </span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                </button>
-                <AppleWheelDatePicker
-                  isOpen={showEndDatePicker}
-                  onClose={() => { setEndDateSet(true); setShowEndDatePicker(false); }}
-                  onConfirm={() => { setEndDateSet(true); setShowEndDatePicker(false); }}
-                  selectedDate={posEndDate}
-                  onDateChange={(d) => { setPosEndDate(d); setEndDateSet(true); }}
-                  mode="inline"
+              {/* Schedule Section (expanded when active) */}
+              {activeChannels[key] && (
+                <MenuScheduleSection
+                  startDate={schedules[key].startDate}
+                  endDate={schedules[key].endDate}
+                  onStartDateChange={(d) => updateSchedule(key, { startDate: d })}
+                  onEndDateChange={(d) => updateSchedule(key, { endDate: d })}
+                  startDateSet={schedules[key].startDateSet}
+                  endDateSet={schedules[key].endDateSet}
+                  onStartDateSetChange={(v) => updateSchedule(key, { startDateSet: v })}
+                  onEndDateSetChange={(v) => updateSchedule(key, { endDateSet: v })}
+                  daySchedules={schedules[key].daySchedules}
+                  onDaySchedulesChange={(s) => updateSchedule(key, { daySchedules: s })}
                 />
-              </div>
-
-              {/* Days Table Header */}
-              <div className="border-t border-neutral-700/30 px-4 py-2.5 flex items-center">
-                <span className="text-muted-foreground text-xs font-semibold w-[40%]">Days</span>
-                <span className="text-muted-foreground text-xs font-semibold w-[25%] text-center">Start Time</span>
-                <span className="text-muted-foreground text-xs font-semibold w-[25%] text-center">End Time</span>
-                <span className="w-[10%]" />
-              </div>
-
-              {/* Day Rows */}
-              {ALL_DAYS.map((day) => {
-                const schedule = posDaySchedules[day];
-                const startPickerKey = `${day}-startTime`;
-                const endPickerKey = `${day}-endTime`;
-                return (
-                  <div key={day} className="border-t border-neutral-700/20">
-                    <div className="px-4 py-3 flex items-center">
-                      {/* Checkbox + Day Name */}
-                      <button
-                        onClick={() => toggleDayEnabled(day)}
-                        className="flex items-center gap-2.5 w-[40%] active:opacity-70 transition-opacity"
-                      >
-                        <div
-                          className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
-                            schedule.enabled
-                              ? "bg-foreground border-foreground"
-                              : "border-neutral-600 bg-transparent"
-                          }`}
-                        >
-                          {schedule.enabled && <Check className="w-3.5 h-3.5 text-background" />}
-                        </div>
-                        <span className={`text-sm font-medium ${schedule.enabled ? "text-foreground" : "text-muted-foreground"}`}>
-                          {day.charAt(0) + day.slice(1).toLowerCase()}
-                        </span>
-                      </button>
-
-                      {/* Start Time */}
-                      <div className="w-[25%] flex justify-center relative">
-                        <button
-                          onClick={() => schedule.enabled && toggleTimePicker(day, "startTime")}
-                          className={`text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
-                          disabled={!schedule.enabled}
-                        >
-                          {schedule.startTime}
-                        </button>
-                        {activeTimePicker === startPickerKey && schedule.enabled && (
-                          <>
-                            <div className="fixed inset-0 z-40" onClick={() => setActiveTimePicker(null)} />
-                            <div className="absolute top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
-                              <CompactTimePicker
-                                selectedTime={schedule.startTime}
-                                onTimeChange={(time) => updateDayTime(day, "startTime", time)}
-                              />
-                            </div>
-                          </>
-                        )}
-                      </div>
-
-                      {/* End Time */}
-                      <div className="w-[25%] flex justify-center relative">
-                        <button
-                          onClick={() => schedule.enabled && toggleTimePicker(day, "endTime")}
-                          className={`text-center text-sm ${schedule.enabled ? "text-foreground" : "text-muted-foreground/50"}`}
-                          disabled={!schedule.enabled}
-                        >
-                          {schedule.endTime}
-                        </button>
-                        {activeTimePicker === endPickerKey && schedule.enabled && (
-                          <>
-                            <div className="fixed inset-0 z-40" onClick={() => setActiveTimePicker(null)} />
-                            <div className="absolute top-full mt-1 z-50 overflow-hidden" style={{ width: 200 }}>
-                              <CompactTimePicker
-                                selectedTime={schedule.endTime}
-                                onTimeChange={(time) => updateDayTime(day, "endTime", time)}
-                              />
-                            </div>
-                          </>
-                        )}
-                      </div>
-
-                      {/* Copy / Paste icons */}
-                      <div className="w-[10%] flex justify-center gap-0.5">
-                        <button
-                          onClick={() => schedule.enabled && copyDay(day)}
-                          disabled={!schedule.enabled}
-                          className={`p-1 rounded active:opacity-70 transition-opacity ${
-                            copiedDay === day
-                              ? "text-blue-400"
-                              : schedule.enabled ? "text-muted-foreground" : "text-muted-foreground/30"
-                          }`}
-                          title="Copy this day's schedule"
-                        >
-                          <Copy className="w-3.5 h-3.5" />
-                        </button>
-                        {copiedDay && copiedDay !== day && (
-                          <button
-                            onClick={() => schedule.enabled && pasteDay(day)}
-                            disabled={!schedule.enabled}
-                            className={`p-1 rounded active:opacity-70 transition-opacity ${schedule.enabled ? "text-green-400" : "text-muted-foreground/30"}`}
-                            title="Paste copied schedule"
-                          >
-                            <ClipboardPaste className="w-3.5 h-3.5" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
+              )}
             </div>
-          )}
-
-          {/* POP Toggle */}
-          <div className="w-full flex items-center justify-between py-4 px-4">
-            <div className="flex-1 mr-3">
-              <span className="text-foreground text-base font-medium">Keep Menu Active for Point Of Purchase</span>
-              <p className="text-muted-foreground text-xs mt-0.5">Display this menu on purchase screens</p>
-            </div>
-            <Switch checked={activeForPOP} onCheckedChange={setActiveForPOP} />
-          </div>
-
-          {/* KIOSK Toggle */}
-          <div className="w-full flex items-center justify-between py-4 px-4">
-            <div className="flex-1 mr-3">
-              <span className="text-foreground text-base font-medium">Keep Menu Active for KIOSK</span>
-              <p className="text-muted-foreground text-xs mt-0.5">Display this menu on self-service kiosks</p>
-            </div>
-            <Switch checked={activeForKiosk} onCheckedChange={setActiveForKiosk} />
-          </div>
-
-          {/* Order-OS Toggle */}
-          <div className="w-full flex items-center justify-between py-4 px-4">
-            <div className="flex-1 mr-3">
-              <span className="text-foreground text-base font-medium">Keep Menu Active for Order-OS</span>
-              <p className="text-muted-foreground text-xs mt-0.5">Display this menu on Order-OS devices</p>
-            </div>
-            <Switch checked={activeForOrderOS} onCheckedChange={setActiveForOrderOS} />
-          </div>
+          ))}
         </div>
 
         {/* Categories */}

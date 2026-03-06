@@ -178,3 +178,70 @@ export const useArchiveEmployee = () => {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["employees"] }),
   });
 };
+
+// Store Access hooks
+export interface EmployeeStore {
+  id: string;
+  employee_id: string;
+  store_id: string;
+  is_primary: boolean;
+}
+
+export const useStores = () => {
+  return useQuery({
+    queryKey: ["stores"],
+    queryFn: async () => {
+      const { data, error } = await (supabase as any)
+        .from("stores")
+        .select("*")
+        .eq("active", true)
+        .order("name");
+      if (error) throw error;
+      return data as { id: string; name: string; location: string; address: string }[];
+    },
+  });
+};
+
+export const useEmployeeStores = (employeeId: string | null) => {
+  return useQuery({
+    queryKey: ["employee_stores", employeeId],
+    queryFn: async () => {
+      if (!employeeId) return [];
+      const { data, error } = await (supabase as any)
+        .from("employee_stores")
+        .select("*")
+        .eq("employee_id", employeeId);
+      if (error) throw error;
+      return data as EmployeeStore[];
+    },
+    enabled: !!employeeId,
+  });
+};
+
+export const useSaveEmployeeStores = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ employeeId, storeIds, primaryStoreId }: { employeeId: string; storeIds: string[]; primaryStoreId: string | null }) => {
+      // Delete existing assignments
+      const { error: delError } = await (supabase as any)
+        .from("employee_stores")
+        .delete()
+        .eq("employee_id", employeeId);
+      if (delError) throw delError;
+
+      // Insert new assignments
+      if (storeIds.length > 0) {
+        const rows = storeIds.map(sid => ({
+          employee_id: employeeId,
+          store_id: sid,
+          is_primary: sid === primaryStoreId,
+        }));
+        const { error: insError } = await (supabase as any)
+          .from("employee_stores")
+          .insert(rows);
+        if (insError) throw insError;
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["employee_stores"] }),
+  });
+};

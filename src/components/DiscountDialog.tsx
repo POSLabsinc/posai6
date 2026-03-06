@@ -187,6 +187,14 @@ export function DiscountDialog({
   };
 
   const handleReasonSelect = (discountId: string, reason: string) => {
+    const current = reasonDataMap[discountId];
+    if (current?.reason === reason) {
+      setReasonDataMap(m => ({
+        ...m,
+        [discountId]: { reason: null, reasonCategory: null, notes: null },
+      }));
+      return;
+    }
     const category = REASON_TO_CATEGORY[reason] || "Other";
     setReasonDataMap(m => ({
       ...m,

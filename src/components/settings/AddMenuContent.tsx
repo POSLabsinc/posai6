@@ -107,16 +107,29 @@ const AddMenuContent = ({
         return;
       }
       if (selectedCategories.length > 0) {
-        const { data: cats } = await supabase
+        // First check which categories exist in the DB
+        const { data: existingCats } = await supabase
           .from("categories")
           .select("id, name")
           .in("name", selectedCategories);
-        if (cats && cats.length > 0) {
-          const rows = cats.map((c, i) => ({
-            menu_id: data.id,
-            category_id: c.id,
-            sort_order: i,
-          }));
+        const existingNames = new Set((existingCats || []).map(c => c.name));
+        // Create any categories that only exist in localStorage
+        const missingNames = selectedCategories.filter(n => !existingNames.has(n));
+        let allCats = [...(existingCats || [])];
+        if (missingNames.length > 0) {
+          const { data: newCats } = await supabase
+            .from("categories")
+            .insert(missingNames.map((n, i) => ({ name: n, sort_order: (existingCats?.length || 0) + i })))
+            .select("id, name");
+          if (newCats) allCats.push(...newCats);
+        }
+        if (allCats.length > 0) {
+          const rows = selectedCategories
+            .map((name, i) => {
+              const cat = allCats.find(c => c.name === name);
+              return cat ? { menu_id: data.id, category_id: cat.id, sort_order: i } : null;
+            })
+            .filter(Boolean);
           await supabase.from("menu_categories").insert(rows);
         }
       }

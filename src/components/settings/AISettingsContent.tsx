@@ -593,11 +593,12 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         appliedChange,
         navigateTo,
         quickReplies: data.quickReplies || undefined,
+        multiSelect: data.multiSelect === true,
       };
 
       // Clear quickReplies from previous assistant messages
       setMessages((prev) => [
-        ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined } : msg),
+        ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined, multiSelect: undefined } : msg),
         assistantMessage,
       ]);
       setConversationHistory((prev) => [...prev, { role: "assistant", content: data.message }]);

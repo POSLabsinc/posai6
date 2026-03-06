@@ -77,7 +77,7 @@ const menuSuggestionChips: SuggestionChip[] = [
   { label: "View menus", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all my menus" },
   { label: "View categories", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me all menu categories" },
   { label: "View modifiers", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show me all modifiers" },
-  { label: "Add menu item", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Add a new menu item" },
+  { label: "Add new menu", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "I want to add a new menu" },
   { label: "View products", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all products" },
   { label: "Default modifiers", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me default modifiers" },
 ];
@@ -306,8 +306,47 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       switch (settingType) {
         case "menu": {
           if (operation === "add") {
-            const { error } = await (supabase as any).from("menus").insert({ name: data.name, enabled: true });
+            // Build channel_schedules from channels object
+            const channelSchedules: Record<string, any> = {};
+            if (data.channels) {
+              if (data.channels.dineIn) channelSchedules["dine-in"] = { active: true };
+              if (data.channels.takeaway) channelSchedules["takeaway"] = { active: true };
+              if (data.channels.delivery) channelSchedules["delivery"] = { active: true };
+            }
+
+            const { data: menuRow, error } = await (supabase as any).from("menus").insert({
+              name: data.name,
+              description: data.description || "",
+              enabled: true,
+              revenue_centers: data.revenueCenters || [],
+              channel_schedules: Object.keys(channelSchedules).length > 0 ? channelSchedules : {},
+            }).select("id").single();
             if (error) throw error;
+
+            // Link categories if provided
+            if (menuRow?.id && data.categoryNames && data.categoryNames.length > 0) {
+              // Resolve category names to IDs
+              const { data: allCats } = await (supabase as any).from("categories").select("id, name");
+              const catMap: Record<string, string> = {};
+              (allCats || []).forEach((c: any) => { catMap[c.name.toLowerCase()] = c.id; });
+
+              const linksToInsert: any[] = [];
+              let sortIdx = 0;
+              for (const catName of data.categoryNames) {
+                let catId = catMap[catName.toLowerCase()];
+                // If category doesn't exist, create it
+                if (!catId) {
+                  const { data: newCat } = await (supabase as any).from("categories").insert({ name: catName }).select("id").single();
+                  if (newCat) catId = newCat.id;
+                }
+                if (catId) {
+                  linksToInsert.push({ menu_id: menuRow.id, category_id: catId, sort_order: sortIdx++ });
+                }
+              }
+              if (linksToInsert.length > 0) {
+                await (supabase as any).from("menu_categories").insert(linksToInsert);
+              }
+            }
           } else if (operation === "enable" || operation === "disable") {
             const enabled = operation === "enable" || data.enabled === true;
             const { error } = await (supabase as any).from("menus").update({ enabled }).eq("id", data.id);

@@ -623,18 +623,42 @@ const KDS = () => {
     return () => clearInterval(interval);
   }, [knownIds, soundEnabled]);
 
-  // Poll pending message count for badge
+  // Poll pending messages for badge + attached messages
+  const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
   useEffect(() => {
     const load = () => {
       try {
-        const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
-        const count = queue.filter((m: any) => m.status !== "acknowledged").length;
+        const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]").map((m: any) => ({ ...m, status: m.status || "pending" }));
+        setKdsMessages(queue);
+        const count = queue.filter(m => m.status !== "acknowledged").length;
         setPendingMessageCount(count);
-      } catch { setPendingMessageCount(0); }
+      } catch { setPendingMessageCount(0); setKdsMessages([]); }
     };
     load();
     const interval = setInterval(load, 2000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Build a map of table number -> pending messages for that table
+  const messagesByTable = useMemo(() => {
+    const map = new Map<string, KDSMessageData[]>();
+    kdsMessages.filter(m => m.status === "pending" && (m.table_number || m.table_id)).forEach(msg => {
+      const tableKey = (msg.table_number || msg.table_id || "").replace(/^T\.?\s*/i, "").trim().toUpperCase();
+      if (!tableKey) return;
+      const arr = map.get(tableKey) || [];
+      arr.push(msg);
+      map.set(tableKey, arr);
+    });
+    return map;
+  }, [kdsMessages]);
+
+  const handleAcknowledgeMessage = useCallback((messageId: string) => {
+    try {
+      const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
+      const updated = queue.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m);
+      localStorage.setItem("kds_message_queue", JSON.stringify(updated));
+      setKdsMessages(updated);
+    } catch {}
   }, []);
 
   const activeTickets = tickets.filter(t => t.status === "active");

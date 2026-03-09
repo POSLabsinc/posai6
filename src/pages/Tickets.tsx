@@ -306,12 +306,12 @@ const allOrders: GuestOrder[] = [
         ]
       }
     ],
-    subtotal: 101.00,
+    subtotal: 64.00,
     discount: 0,
-    serviceCharge: 5.05,
-    tax: 7.42,
+    serviceCharge: 3.20,
+    tax: 4.70,
     tip: 15.00,
-    total: 128.47
+    total: 86.90
   },
   {
     id: "1",

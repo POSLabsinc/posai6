@@ -9238,8 +9238,8 @@ const Orders = () => {
                   <line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
               </div>
-              <h3 className="text-white font-semibold text-lg">Clear Fired Order?</h3>
-              <p className="text-white/60 text-sm">This order has already been fired to the kitchen. Are you sure you want to clear it?</p>
+              <h3 className="text-white font-semibold text-lg">Cancel Fired Order?</h3>
+              <p className="text-white/60 text-sm">This order has already been fired to the kitchen. Are you sure you want to cancel it?</p>
             </div>
             <div className="flex gap-3">
               <button

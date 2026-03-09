@@ -855,10 +855,10 @@ All colors MUST be HSL.
   background: linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%);
 }
 .btn-receipt-gradient {
-  background: hsl(0, 0%, 45%);
+  @apply bg-neutral-700 hover:bg-neutral-600;
 }
 .btn-neutral-gradient {
-  background: hsl(0, 0%, 75%);
+  @apply bg-neutral-600 hover:bg-neutral-500;
 }
 
 /* Bold Text accessibility setting - applied globally when toggled on */

@@ -1159,6 +1159,28 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [noTaxItems, setNoTaxItems] = useState<Set<string>>(new Set()); // Items with no tax applied
   const [removedItems, setRemovedItems] = useState<Set<string>>(new Set()); // Items removed from order
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false); // Clear order confirmation dialog
+  const [taxExemptTickets, setTaxExemptTickets] = useState<Set<string>>(new Set()); // Whole-ticket tax exemption
+  const [showNoTaxDialog, setShowNoTaxDialog] = useState(false); // No Tax confirmation dialog
+  
+  const isCurrentTicketTaxExempt = selectedGuest ? taxExemptTickets.has(selectedGuest.id) : false;
+  
+  const handleNoTaxClick = () => {
+    if (isCurrentTicketTaxExempt) {
+      // Toggle off
+      setTaxExemptTickets(prev => {
+        const next = new Set(prev);
+        next.delete(selectedGuest.id);
+        return next;
+      });
+    } else {
+      setShowNoTaxDialog(true);
+    }
+  };
+  
+  const handleConfirmNoTax = () => {
+    setTaxExemptTickets(prev => new Set(prev).add(selectedGuest.id));
+    setShowNoTaxDialog(false);
+  };
   
   // Calculate adjusted totals based on no-tax and removed items
   const calculateAdjustedTotals = (guest: GuestOrder) => {

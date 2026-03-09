@@ -7747,7 +7747,7 @@ const Orders = () => {
           {orderItems.length > 0 &&
         <div className="px-2 py-2 flex items-center gap-2">
               <button onClick={handleClearOrderAttempt} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
-                <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
+                <img src={clearCIcon} alt="Cancel" className="w-3 h-3" />
               </button>
               <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
             backgroundColor: '#C9C9C9'
@@ -9023,7 +9023,7 @@ const Orders = () => {
                 {/* Action Buttons - Inside background container */}
                 <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">
                   <button onClick={handleClearOrderAttempt} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
-                    <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
+                    <img src={clearCIcon} alt="Cancel" className="w-3 h-3" />
                   </button>
                   <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
                     backgroundColor: '#C9C9C9'
@@ -9226,7 +9226,7 @@ const Orders = () => {
         </div>
       )}
 
-      {/* Clear Order Confirmation for Fired Orders */}
+      {/* Cancel Order Confirmation for Fired Orders */}
       {showClearConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 p-6 space-y-4 animate-scale-in">
@@ -9238,8 +9238,8 @@ const Orders = () => {
                   <line x1="12" y1="17" x2="12.01" y2="17"/>
                 </svg>
               </div>
-              <h3 className="text-white font-semibold text-lg">Clear Fired Order?</h3>
-              <p className="text-white/60 text-sm">This order has already been fired to the kitchen. Are you sure you want to clear it?</p>
+              <h3 className="text-white font-semibold text-lg">Cancel Fired Order?</h3>
+              <p className="text-white/60 text-sm">This order has already been fired to the kitchen. Are you sure you want to cancel it?</p>
             </div>
             <div className="flex gap-3">
               <button
@@ -9253,7 +9253,7 @@ const Orders = () => {
                   handleClearOrder();
                 }}
                 className="flex-1 h-10 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors">
-                Clear Order
+                Cancel Order
               </button>
             </div>
           </div>

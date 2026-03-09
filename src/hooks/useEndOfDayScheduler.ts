@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
+import { useUnifiedOrdersSafe } from "@/contexts/UnifiedOrderContext";
 import { toast } from "sonner";
 import { printEndOfDayReport } from "@/utils/eodReportPrinter";
 
@@ -94,7 +94,9 @@ async function fetchEodPrefs(): Promise<EodPrefs> {
  * 2. Auto-runs the EOD process at the configured auto-run time
  */
 export function useEndOfDayScheduler() {
-  const { orders, updateOrders } = useUnifiedOrders();
+  const ctx = useUnifiedOrdersSafe();
+  const orders = ctx?.orders ?? [];
+  const updateOrders = ctx?.updateOrders ?? (() => {});
   const reminderShownRef = useRef(false);
   const autoRunDoneRef = useRef(false);
 

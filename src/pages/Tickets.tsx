@@ -4118,7 +4118,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               </div>
             ) : filteredOrders.map(guest => (
               <div key={guest.id} className="space-y-0">
-                <div onClick={() => setSelectedGuest(guest)} className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{ backgroundColor: '#1B1C20' }}>
+                <div onClick={() => { setSelectedGuest(guest); setAppliedDiscounts(ticketDiscounts[guest.id] || []); }} className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{ backgroundColor: '#1B1C20' }}>
                   <div className="flex items-stretch w-full">
                     {/* Column 1: Order Number Box */}
                     <div className="flex-shrink-0 px-2 py-2 flex items-center">

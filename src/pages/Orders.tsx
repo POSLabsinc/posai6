@@ -6338,7 +6338,8 @@ const Orders = () => {
 
   // Filter order items based on seat filter (multi-select)
   const handleClearOrder = () => {
-    setOrderItems([]);
+    console.log('[handleClearOrder] clearing all order state');
+    setOrderItems(() => []);
     setSelectedDiscounts([]);
     setAppliedServiceCharge(0);
     setAppliedServiceChargeName('');
@@ -6352,6 +6353,28 @@ const Orders = () => {
     setExpandedCartItems(new Set());
     setVoucherMode(false);
     setEditingVoucherData(null);
+    // Clear all guest-specific form data
+    setDineInGuestData(null);
+    setTakeOutGuestData(null);
+    setDeliveryGuestData(null);
+    setBanquetGuestData(null);
+    setDriveThruGuestData(null);
+    setCurbSideGuestData(null);
+    setScheduledGuestData(null);
+    setPhoneInGuestData(null);
+    setCustomOrderGuestData(null);
+    // Close all guest forms
+    setShowDineInForm(false);
+    setShowTakeOutForm(false);
+    setShowDeliveryForm(false);
+    setShowBanquetForm(false);
+    setShowDriveThruForm(false);
+    setShowCurbSideForm(false);
+    setShowScheduledForm(false);
+    setShowPhoneInForm(false);
+    setShowCustomOrderForm(false);
+    // Reset panel state
+    setIsOrderPanelExpanded(false);
   };
 
   const filteredOrderItems = seatFilter.length === 0 ?
@@ -7507,7 +7530,12 @@ const Orders = () => {
 
           {/* Mobile Cart Items */}
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
-            {orderItems.length === 0 ? null : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
+            {orderItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
+                <img src={emptyOrderIcon} alt="Empty order" className="w-8 h-8 opacity-50 mb-2" />
+                <span className="text-xs">Let's create an order</span>
+              </div>
+            ) : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
                 <div className="px-1.5 py-0.5 space-y-0.5">
                   {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
                       <div

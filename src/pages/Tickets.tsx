@@ -6058,12 +6058,28 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         onNoReceipt={() => console.log('No receipt')}
       />
 
+      {/* Manager PIN Authorization for Discount */}
+      {showDiscountMpin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            <AccessRestrictedModal
+              subtitle="Manager approval required to apply discount."
+              onBack={() => setShowDiscountMpin(false)}
+              onSuccess={() => {
+                setShowDiscountMpin(false);
+                setIsDiscountDialogOpen(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Discount Dialog */}
       <DiscountDialog
         open={isDiscountDialogOpen}
         onOpenChange={setIsDiscountDialogOpen}
-        onApplyDiscounts={setAppliedDiscounts}
-        currentDiscounts={appliedDiscounts}
+        onApplyDiscounts={handleApplyTicketDiscounts}
+        currentDiscounts={currentTicketDiscounts}
         subtotal={selectedGuest.subtotal}
       />
 

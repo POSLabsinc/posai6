@@ -1188,6 +1188,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     let noTaxSubtotal = 0;
     let removedSubtotal = 0;
     
+    const isTicketTaxExempt = taxExemptTickets.has(guest.id);
+    
     guest.items.forEach((item, index) => {
       const itemKey = `${guest.id}-${index}-${item.name}`;
       const itemTotal = item.price * item.qty;
@@ -1201,7 +1203,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     
     const adjustedSubtotal = guest.subtotal - removedSubtotal;
     const taxableAmount = adjustedSubtotal - guest.discount - noTaxSubtotal;
-    const adjustedTax = Math.max(0, taxableAmount * TAX_RATE);
+    const adjustedTax = isTicketTaxExempt ? 0 : Math.max(0, taxableAmount * TAX_RATE);
     const taxSavings = guest.tax - adjustedTax;
     const adjustedTotal = guest.total - taxSavings - removedSubtotal;
     
@@ -1213,8 +1215,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       adjustedTotal,
       adjustedSubtotal,
       removedSubtotal,
-      hasNoTaxItems: noTaxSubtotal > 0,
-      hasRemovedItems: removedSubtotal > 0
+      hasNoTaxItems: noTaxSubtotal > 0 || isTicketTaxExempt,
+      hasRemovedItems: removedSubtotal > 0,
+      isTicketTaxExempt
     };
   };
   

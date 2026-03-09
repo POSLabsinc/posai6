@@ -2570,9 +2570,17 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   <span className="text-muted-foreground">Sub Total</span>
                   <span className="text-foreground font-semibold">{formatPrice(selectedGuest.subtotal)}</span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 group relative">
                   <span className="text-muted-foreground">Discount</span>
-                  <span className="text-foreground font-semibold">{formatPrice(selectedGuest.discount)}</span>
+                  <span className="text-foreground font-semibold">{formatPrice(effectiveDiscount)}</span>
+                  {currentTicketDiscounts.length > 0 && (
+                    <>
+                      <button onClick={() => handleApplyTicketDiscounts([])} className="text-white hover:text-white/80 text-xs font-bold ml-0.5">×</button>
+                      <span className="absolute left-0 -top-7 bg-black/90 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                        {currentTicketDiscounts.map(d => d.name).join(', ')}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-3">

@@ -1092,8 +1092,44 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false); // Mobile filters bottom sheet
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false); // Receipt options dialog
   const [isDiscountDialogOpen, setIsDiscountDialogOpen] = useState(false); // Discount dialog
+  const [showDiscountMpin, setShowDiscountMpin] = useState(false); // MPIN gate for discount
   const [showRefundConfirmation, setShowRefundConfirmation] = useState(false); // Refund confirmation dialog
   const [appliedDiscounts, setAppliedDiscounts] = useState<Discount[]>([]); // Applied discounts
+  const [ticketDiscounts, setTicketDiscounts] = useState<Record<string, Discount[]>>({}); // Per-ticket discounts
+
+  // Get effective discounts for the currently selected ticket
+  const getTicketDiscounts = (ticketId: string): Discount[] => ticketDiscounts[ticketId] || [];
+  const currentTicketDiscounts = getTicketDiscounts(selectedGuest.id);
+
+  // Calculate discount amount from applied discounts for a ticket
+  const getAppliedDiscountAmount = (ticketId: string, subtotal: number): number => {
+    const discounts = getTicketDiscounts(ticketId);
+    return discounts.reduce((sum, d) => {
+      if (d.type === "percentage") return sum + (subtotal * d.value) / 100;
+      return sum + d.value;
+    }, 0);
+  };
+
+  // Effective discount = original ticket discount + newly applied discounts
+  const effectiveDiscount = selectedGuest.discount + getAppliedDiscountAmount(selectedGuest.id, selectedGuest.subtotal);
+
+  // Handle applying discounts to current ticket
+  const handleApplyTicketDiscounts = (discounts: Discount[]) => {
+    setTicketDiscounts(prev => ({
+      ...prev,
+      [selectedGuest.id]: discounts,
+    }));
+    setAppliedDiscounts(discounts);
+  };
+
+  // Check if discount is allowed (only for UNPAID / ORDERING)
+  const isDiscountAllowed = !(selectedGuest.status === "PAID" || selectedGuest.paid || selectedGuest.status === "COMPLETED");
+
+  // Handle discount button click - goes through MPIN gate
+  const handleDiscountClick = () => {
+    if (!isDiscountAllowed) return;
+    setShowDiscountMpin(true);
+  };
   const [noTaxItems, setNoTaxItems] = useState<Set<string>>(new Set()); // Items with no tax applied
   const [removedItems, setRemovedItems] = useState<Set<string>>(new Set()); // Items removed from order
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false); // Clear order confirmation dialog

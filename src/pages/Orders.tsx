@@ -8722,7 +8722,7 @@ const Orders = () => {
               }
 
                   {/* Order Items */}
-                  <ScrollArea className="flex-1 min-h-0 px-2">
+                  <ScrollArea key={`desktop-scroll-${clearCounter}`} className="flex-1 min-h-0 px-2">
                     {orderItems.length === 0 ? <div className="flex flex-col items-center justify-center h-full py-8">
                         <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
                         <span className="text-muted-foreground text-sm">Let's create an order</span>

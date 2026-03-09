@@ -694,6 +694,9 @@ const KDS = () => {
 
           {/* Item Summary Panel */}
           {showSummary && <ItemSummary tickets={activeTickets} />}
+
+          {/* Messages Panel */}
+          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} />}
         </div>
 
         {/* Bottom Bar */}

@@ -332,12 +332,12 @@ const allOrders: GuestOrder[] = [
       { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: ["Gluten-Free Crust"] },
       { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil"] }
     ],
-    subtotal: 72.00,
+    subtotal: 46.00,
     discount: 10.00,
-    serviceCharge: 3.10,
-    tax: 4.34,
+    serviceCharge: 2.30,
+    tax: 2.65,
     tip: 0,
-    total: 69.44
+    total: 40.95
   },
   {
     id: "4",

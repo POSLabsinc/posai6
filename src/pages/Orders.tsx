@@ -9226,7 +9226,41 @@ const Orders = () => {
         </div>
       )}
 
-      {/* Discount Dialog */}
+      {/* Clear Order Confirmation for Fired Orders */}
+      {showClearConfirm && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 p-6 space-y-4 animate-scale-in">
+            <div className="text-center space-y-2">
+              <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto">
+                <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
+              </div>
+              <h3 className="text-white font-semibold text-lg">Clear Fired Order?</h3>
+              <p className="text-white/60 text-sm">This order has already been fired to the kitchen. Are you sure you want to clear it?</p>
+            </div>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowClearConfirm(false)}
+                className="flex-1 h-10 rounded-full border border-neutral-600 text-white text-sm font-medium hover:bg-neutral-800 transition-colors">
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setShowClearConfirm(false);
+                  handleClearOrder();
+                }}
+                className="flex-1 h-10 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors">
+                Clear Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
       <DiscountDialog
         open={showDiscountDialog}
         onOpenChange={setShowDiscountDialog}

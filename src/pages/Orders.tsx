@@ -6350,6 +6350,8 @@ const Orders = () => {
     setGuestPhone('');
     setActiveSwipedItemId(null);
     setExpandedCartItems(new Set());
+    setVoucherMode(false);
+    setEditingVoucherData(null);
   };
 
   const filteredOrderItems = seatFilter.length === 0 ?

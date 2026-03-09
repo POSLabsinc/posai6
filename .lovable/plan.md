@@ -1,34 +1,16 @@
 
 
-## Fix: Clear Button Not Exiting Voucher Mode
+## Problem
 
-### Root Cause
+The voucher mode fix was applied to `AppSidebar.tsx`, but the **actual sidebar rendered in the Layout** is `DraggableSidebar.tsx`. That's why the "New Order" link still shows as active — `DraggableSidebar.tsx` has no voucher mode logic at all.
 
-When the user taps "C" (clear) while in the Sell Voucher flow, `handleClearOrder` resets `orderItems` and other state but does **not** exit voucher mode. This leaves:
-- The order panel cleared (showing "Let's create an order" empty state)
-- But `voucherMode` remains `true`, so the `SellVoucherScreen` and its voucher product cards stay visible in the menu area
-- The user sees a confusing split state: voucher products still displayed alongside an empty order panel
+## Plan
 
-### Fix (single file: `src/pages/Orders.tsx`)
+**File: `src/components/DraggableSidebar.tsx`**
 
-Add `setVoucherMode(false)` and `setEditingVoucherData(null)` to the `handleClearOrder` function (around line 6340). This ensures tapping C fully resets the screen back to the normal menu view when clearing during voucher selling.
+1. Import `useVoucherMode` from the context and `Link` + `useLocation` from react-router-dom
+2. Add the same `isOrdersVoucherMode` logic
+3. For the Orders nav item (when `isOrdersVoucherMode && item.url === '/orders'`), render a plain `<Link>` instead of `<NavLink>` to suppress the active state — same pattern already applied in `AppSidebar.tsx`
 
-```typescript
-const handleClearOrder = () => {
-  setOrderItems([]);
-  setSelectedDiscounts([]);
-  setAppliedServiceCharge(0);
-  setAppliedServiceChargeName('');
-  setAppliedGiftCardAmount(0);
-  setAppliedVoucherAmount(0);
-  setVoucherCode('');
-  setOrderNotes('');
-  setGuestName('');
-  setGuestPhone('');
-  setActiveSwipedItemId(null);
-  setExpandedCartItems(new Set());
-  setVoucherMode(false);          // ← exit voucher selling mode
-  setEditingVoucherData(null);    // ← clear any voucher edit state
-};
-```
+This needs to be applied in the rendering logic around lines 240-265 where the nav items are rendered with `NavLink` and `activeClassName`.
 

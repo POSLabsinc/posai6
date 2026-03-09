@@ -6179,6 +6179,32 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         cancelText="Cancel"
         confirmText="Confirm Refund"
       />
+
+      {/* No Tax Confirmation Dialog */}
+      {showNoTaxDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-[300px] mx-4 overflow-hidden animate-scale-in">
+            <div className="p-6 text-center">
+              <h2 className="text-white text-lg font-semibold mb-2">Disable Tax?</h2>
+              <p className="text-neutral-400 text-sm">Are you sure you want to remove tax from this order?</p>
+            </div>
+            <div className="flex border-t border-neutral-700">
+              <button
+                onClick={() => setShowNoTaxDialog(false)}
+                className="flex-1 py-3 text-white font-medium hover:bg-neutral-800 transition-colors border-r border-neutral-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmNoTax}
+                className="flex-1 py-3 text-orange-500 font-medium hover:bg-neutral-800 transition-colors"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

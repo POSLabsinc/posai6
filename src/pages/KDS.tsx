@@ -678,11 +678,11 @@ const KDS = () => {
         <div className="flex-1 flex overflow-hidden">
           {/* Scrollable ticket area */}
           <div className="flex-1 overflow-x-auto overflow-y-hidden">
-            <div className="flex gap-3 p-3 h-full items-start">
-              {allActiveTickets.map(ticket => (
+             <div className="flex gap-3 p-3 h-full items-start">
+              {activeTickets.map(ticket => (
                 <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} />
               ))}
-              {allActiveTickets.length === 0 && (
+              {activeTickets.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 gap-3">
                   <ChefHat className="w-20 h-20 opacity-20" />
                   <p className="text-xl font-semibold">All caught up!</p>

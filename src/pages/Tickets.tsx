@@ -1113,7 +1113,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           continue;
         }
         // No match — create synthetic custom discount
-        seeded[order.id] = [{ id: `custom-${order.id}`, name: 'Custom Discount', type: 'amount', value: order.discount, icon: (await import('lucide-react')).DollarSign } as Discount];
+        seeded[order.id] = [{ id: `custom-${order.id}`, name: 'Custom Discount', type: 'amount', value: order.discount, icon: DollarSign } as Discount];
       }
     }
     return seeded;

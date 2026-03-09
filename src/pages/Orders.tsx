@@ -6337,6 +6337,21 @@ const Orders = () => {
   };
 
   // Filter order items based on seat filter (multi-select)
+  const handleClearOrder = () => {
+    setOrderItems([]);
+    setSelectedDiscounts([]);
+    setAppliedServiceCharge(0);
+    setAppliedServiceChargeName('');
+    setAppliedGiftCardAmount(0);
+    setAppliedVoucherAmount(0);
+    setVoucherCode('');
+    setOrderNotes('');
+    setGuestName('');
+    setGuestPhone('');
+    setActiveSwipedItemId(null);
+    setExpandedCartItems(new Set());
+  };
+
   const filteredOrderItems = seatFilter.length === 0 ?
   orderItems :
   orderItems.filter((item) => {
@@ -7686,7 +7701,7 @@ const Orders = () => {
           {/* Action Buttons - Only show when cart has items */}
           {orderItems.length > 0 &&
         <div className="px-2 py-2 flex items-center gap-2">
-              <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
+              <button onClick={handleClearOrder} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
                 <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
               </button>
               <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
@@ -8948,7 +8963,7 @@ const Orders = () => {
 
                 {/* Action Buttons - Inside background container */}
                 <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">
-                  <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
+                  <button onClick={handleClearOrder} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
                     <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
                   </button>
                   <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{

@@ -42,7 +42,7 @@ import SwipeableCartItem from "@/components/SwipeableCartItem";
 import MobileFiltersSheet, { MobileFiltersState } from "@/components/MobileFiltersSheet";
 import OrderTypeIcon from "@/components/OrderTypeIcon";
 import { SimpleModifierTree } from "@/components/ModifierWithConnector";
-import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
+import { DiscountDialog, availableDiscounts, type Discount } from "@/components/DiscountDialog";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import NoteSuggestions from "@/components/NoteSuggestions";
 import AppleAlertDialog from "@/components/AppleAlertDialog";

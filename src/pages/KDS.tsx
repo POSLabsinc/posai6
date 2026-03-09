@@ -5,6 +5,18 @@ import messageKdsIcon from "@/assets/icons/message-kds.svg";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
+// ─── Table Number Normalization ───
+// Extracts just the numeric/alphanumeric table identifier from various formats
+// "Table 2" → "2", "T2" → "2", "T. T2" → "2", "2" → "2"
+const normalizeTableNumber = (raw: string | null | undefined): string => {
+  if (!raw) return "";
+  return raw
+    .replace(/^T\.?\s*/i, "")   // strip leading "T." or "T "
+    .replace(/^Table\s*/i, "")  // strip leading "Table "
+    .trim()
+    .toUpperCase();
+};
+
 // ─── KDS Ticket Types ───
 interface KDSModifier {
   name: string;

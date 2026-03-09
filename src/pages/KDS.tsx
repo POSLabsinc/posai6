@@ -5,6 +5,18 @@ import messageKdsIcon from "@/assets/icons/message-kds.svg";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
+// ─── Table Number Normalization ───
+// Extracts just the numeric/alphanumeric table identifier from various formats
+// "Table 2" → "2", "T2" → "2", "T. T2" → "2", "2" → "2"
+const normalizeTableNumber = (raw: string | null | undefined): string => {
+  if (!raw) return "";
+  return raw
+    .replace(/^T\.?\s*/i, "")   // strip leading "T." or "T "
+    .replace(/^Table\s*/i, "")  // strip leading "Table "
+    .trim()
+    .toUpperCase();
+};
+
 // ─── KDS Ticket Types ───
 interface KDSModifier {
   name: string;
@@ -430,7 +442,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
           <div className="flex items-center justify-between mb-1">
             <span className="text-[10px] text-neutral-400 font-mono">{timeStr}</span>
             {ticket.tableNumber && (
-              <span className="text-[10px] text-neutral-400 font-semibold">T. {ticket.tableNumber}</span>
+              <span className="text-[10px] text-neutral-400 font-semibold">T. {normalizeTableNumber(ticket.tableNumber)}</span>
             )}
           </div>
           {/* Centered order number */}
@@ -646,7 +658,7 @@ const KDS = () => {
   const messagesByTable = useMemo(() => {
     const map = new Map<string, KDSMessageData[]>();
     kdsMessages.filter(m => m.status === "pending" && (m.table_number || m.table_id)).forEach(msg => {
-      const tableKey = (msg.table_number || msg.table_id || "").replace(/^T\.?\s*/i, "").trim().toUpperCase();
+      const tableKey = normalizeTableNumber(msg.table_number || msg.table_id || "");
       if (!tableKey) return;
       const arr = map.get(tableKey) || [];
       arr.push(msg);
@@ -738,7 +750,7 @@ const KDS = () => {
           <div className="flex-1 overflow-x-auto overflow-y-hidden">
              <div className="flex gap-3 p-3 h-full items-start">
               {activeTickets.map(ticket => (
-                <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} attachedMessages={ticket.tableNumber ? (messagesByTable.get(ticket.tableNumber.replace(/^T\.?\s*/i, "").trim().toUpperCase()) || []) : []} onAcknowledgeMessage={handleAcknowledgeMessage} />
+                <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} attachedMessages={ticket.tableNumber ? (messagesByTable.get(normalizeTableNumber(ticket.tableNumber)) || []) : []} onAcknowledgeMessage={handleAcknowledgeMessage} />
               ))}
               {activeTickets.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 gap-3">

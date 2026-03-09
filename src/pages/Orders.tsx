@@ -6338,7 +6338,8 @@ const Orders = () => {
 
   // Filter order items based on seat filter (multi-select)
   const handleClearOrder = () => {
-    setOrderItems([]);
+    console.log('[handleClearOrder] clearing all order state');
+    setOrderItems(() => []);
     setSelectedDiscounts([]);
     setAppliedServiceCharge(0);
     setAppliedServiceChargeName('');
@@ -6352,6 +6353,28 @@ const Orders = () => {
     setExpandedCartItems(new Set());
     setVoucherMode(false);
     setEditingVoucherData(null);
+    // Clear all guest-specific form data
+    setDineInGuestData(null);
+    setTakeOutGuestData(null);
+    setDeliveryGuestData(null);
+    setBanquetGuestData(null);
+    setDriveThruGuestData(null);
+    setCurbSideGuestData(null);
+    setScheduledGuestData(null);
+    setPhoneInGuestData(null);
+    setCustomOrderGuestData(null);
+    // Close all guest forms
+    setShowDineInForm(false);
+    setShowTakeOutForm(false);
+    setShowDeliveryForm(false);
+    setShowBanquetForm(false);
+    setShowDriveThruForm(false);
+    setShowCurbSideForm(false);
+    setShowScheduledForm(false);
+    setShowPhoneInForm(false);
+    setShowCustomOrderForm(false);
+    // Reset panel state
+    setIsOrderPanelExpanded(false);
   };
 
   const filteredOrderItems = seatFilter.length === 0 ?

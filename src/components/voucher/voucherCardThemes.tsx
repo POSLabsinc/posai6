@@ -20,7 +20,7 @@ export const CARD_THEMES: CardTheme[] = [
   {
     bg: 'bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900',
     border: 'border-amber-900/40',
-    glow: 'shadow-[0_0_20px_rgba(217,169,78,0.25)] border-amber-500/60 ring-1 ring-amber-400/30',
+    glow: 'border-amber-500/60',
     accent: 'text-amber-400',
     accentText: 'text-amber-300',
     badgeBg: 'bg-amber-500/15 border-amber-500/30',
@@ -39,7 +39,7 @@ export const CARD_THEMES: CardTheme[] = [
   {
     bg: 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900',
     border: 'border-blue-800/40',
-    glow: 'shadow-[0_0_20px_rgba(96,165,250,0.25)] border-blue-400/60 ring-1 ring-blue-400/30',
+    glow: 'border-blue-400/60',
     accent: 'text-blue-400',
     accentText: 'text-blue-300',
     badgeBg: 'bg-blue-500/15 border-blue-500/30',
@@ -57,7 +57,7 @@ export const CARD_THEMES: CardTheme[] = [
   {
     bg: 'bg-gradient-to-br from-neutral-900 via-rose-950/30 to-neutral-900',
     border: 'border-rose-800/40',
-    glow: 'shadow-[0_0_20px_rgba(244,114,182,0.25)] border-rose-400/60 ring-1 ring-rose-400/30',
+    glow: 'border-rose-400/60',
     accent: 'text-rose-400',
     accentText: 'text-rose-300',
     badgeBg: 'bg-rose-500/15 border-rose-500/30',
@@ -75,7 +75,7 @@ export const CARD_THEMES: CardTheme[] = [
   {
     bg: 'bg-gradient-to-br from-neutral-900 via-emerald-950/30 to-neutral-900',
     border: 'border-emerald-800/40',
-    glow: 'shadow-[0_0_20px_rgba(52,211,153,0.25)] border-emerald-400/60 ring-1 ring-emerald-400/30',
+    glow: 'border-emerald-400/60',
     accent: 'text-emerald-400',
     accentText: 'text-emerald-300',
     badgeBg: 'bg-emerald-500/15 border-emerald-500/30',
@@ -93,7 +93,7 @@ export const CARD_THEMES: CardTheme[] = [
   {
     bg: 'bg-gradient-to-br from-neutral-900 via-violet-950/30 to-neutral-900',
     border: 'border-violet-800/40',
-    glow: 'shadow-[0_0_20px_rgba(167,139,250,0.25)] border-violet-400/60 ring-1 ring-violet-400/30',
+    glow: 'border-violet-400/60',
     accent: 'text-violet-400',
     accentText: 'text-violet-300',
     badgeBg: 'bg-violet-500/15 border-violet-500/30',

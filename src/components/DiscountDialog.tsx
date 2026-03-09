@@ -125,15 +125,18 @@ export function DiscountDialog({
   const notesRef = useRef<HTMLTextAreaElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
+  // Only initialize selection state when dialog opens, not on every currentDiscounts reference change
+  const prevOpenRef = useRef(false);
   useEffect(() => {
-    if (open) {
+    if (open && !prevOpenRef.current) {
+      // Dialog just opened: initialize from currently applied discounts
       setSelectedDiscounts(currentDiscounts);
       setExpandedDiscountId(null);
       setReasonDataMap({});
       setValidationErrors({});
-      
       setCommentText({});
     }
+    prevOpenRef.current = open;
   }, [open, currentDiscounts]);
 
   const handleApply = () => {

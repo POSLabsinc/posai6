@@ -658,7 +658,7 @@ const KDS = () => {
   const messagesByTable = useMemo(() => {
     const map = new Map<string, KDSMessageData[]>();
     kdsMessages.filter(m => m.status === "pending" && (m.table_number || m.table_id)).forEach(msg => {
-      const tableKey = (msg.table_number || msg.table_id || "").replace(/^T\.?\s*/i, "").trim().toUpperCase();
+      const tableKey = normalizeTableNumber(msg.table_number || msg.table_id || "");
       if (!tableKey) return;
       const arr = map.get(tableKey) || [];
       arr.push(msg);

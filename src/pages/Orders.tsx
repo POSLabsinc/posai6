@@ -95,6 +95,7 @@ import SellVoucherScreen from "@/components/SellVoucherScreen";
 import CreateVoucherForm from "@/components/CreateVoucherForm";
 import OpenPriceDialog from "@/components/OpenPriceDialog";
 import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import MessageKitchenDialog from "@/components/MessageKitchenDialog";
 import { useVoucherMode } from "@/contexts/VoucherModeContext";
 
@@ -6230,6 +6231,7 @@ const Orders = () => {
   const [showNoTaxDialog, setShowNoTaxDialog] = useState(false);
   const [isTaxExempt, setIsTaxExempt] = useState(false);
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
+  const [showDiscountMpin, setShowDiscountMpin] = useState(false);
   const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>([]);
   const [isManager, setIsManager] = useState(false); // TODO: Connect to actual user role system
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
@@ -7037,7 +7039,7 @@ const Orders = () => {
               variant="secondary"
               size="sm"
               className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap"
-              onClick={() => setShowDiscountDialog(true)}>
+              onClick={() => setShowDiscountMpin(true)}>
 
                 Discount
               </Button>
@@ -7270,7 +7272,7 @@ const Orders = () => {
                       Custom Item
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                  onClick={() => setShowDiscountDialog(true)}
+                  onClick={() => setShowDiscountMpin(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
                       <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
@@ -8272,7 +8274,7 @@ const Orders = () => {
                 variant="secondary"
                 size="sm"
                 className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
-                onClick={() => setShowDiscountDialog(true)}>
+                onClick={() => setShowDiscountMpin(true)}>
 
                   <img src={discountBtnIcon} alt="" className="w-3 h-3" />
                   Discount
@@ -9186,8 +9188,23 @@ const Orders = () => {
         }
       }} />
 
+      {/* Manager PIN Authorization for Discount */}
+      {showDiscountMpin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            <AccessRestrictedModal
+              subtitle="Manager approval required to apply discount."
+              onBack={() => setShowDiscountMpin(false)}
+              onSuccess={() => {
+                setShowDiscountMpin(false);
+                setShowDiscountDialog(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
 
-      {/* Discount Dialog (from posai-jaspreet) */}
+      {/* Discount Dialog */}
       <DiscountDialog
         open={showDiscountDialog}
         onOpenChange={setShowDiscountDialog}

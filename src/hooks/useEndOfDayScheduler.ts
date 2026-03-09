@@ -1,6 +1,6 @@
 import { useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
+import { useUnifiedOrdersSafe } from "@/contexts/UnifiedOrderContext";
 import { toast } from "sonner";
 import { printEndOfDayReport } from "@/utils/eodReportPrinter";
 

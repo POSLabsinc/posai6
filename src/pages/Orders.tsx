@@ -6376,6 +6376,8 @@ const Orders = () => {
     setShowCustomOrderForm(false);
     // Reset panel state
     setIsOrderPanelExpanded(false);
+    setSeatFilter([]);
+    setClearCounter(prev => prev + 1);
   };
 
   const filteredOrderItems = seatFilter.length === 0 ?

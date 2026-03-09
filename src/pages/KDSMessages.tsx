@@ -179,9 +179,9 @@ const KDSMessages = () => {
 
               {/* Card Meta */}
               <div className="bg-neutral-800 px-4 py-2 flex items-center gap-4 text-xs text-neutral-400 border-b border-neutral-700">
-                <span>From: <span className="text-white font-medium">{msg.employee_name}</span></span>
+                <span>From. <span className="text-white font-medium">{msg.employee_name}</span></span>
                 {(msg.table_id || msg.table_number) && (
-                  <span>Table: <span className="text-white font-medium">{msg.table_number || msg.table_id}</span></span>
+                  <span>Table. <span className="text-white font-medium">{msg.table_number || msg.table_id}</span></span>
                 )}
               </div>
 

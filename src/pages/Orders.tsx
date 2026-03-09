@@ -6315,6 +6315,7 @@ const Orders = () => {
 
   // Seat filter for cart display - empty array means show all, 'all' for shared items, numbers for specific seats (multi-select)
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>([]);
+  const [clearCounter, setClearCounter] = useState(0);
 
   // Toggle seat selection for table orders
   const toggleSeatSelection = (seatNumber: number) => {

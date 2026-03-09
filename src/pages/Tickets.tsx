@@ -2895,16 +2895,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       >
                         <img src={receiptIcon} alt="" className="w-5 h-5 brightness-0 invert" />
                       </button>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-neutral-gradient">
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-register-gradient">
                         <img src={registerIcon} alt="Register" className="w-5 h-5 object-contain brightness-0" />
                       </button>
                     </>
                   ) : (
                     <>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ backgroundColor: '#666666' }}>
-                        <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-transfer-gradient">
+                        <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain brightness-0" />
                       </button>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-action-gradient">
                         <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
                       </button>
                     </>
@@ -3256,7 +3256,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                             >
                               <img src={receiptIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
                             </button>
-                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-neutral-gradient" onClick={e => e.stopPropagation()}>
+                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-register-gradient" onClick={e => e.stopPropagation()}>
                               <img src={registerIcon} alt="Register" className="w-3.5 h-3.5 object-contain brightness-0" />
                             </button>
                           </>
@@ -3265,7 +3265,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                             <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient">
                               <img src={arrowRightIcon} alt="Merge" className="w-3.5 h-3.5 object-contain" />
                             </button>
-                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-neutral-gradient" onClick={e => e.stopPropagation()}>
+                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-transfer-gradient" onClick={e => e.stopPropagation()}>
                               <img src={shareOrderIcon} alt="Share" className="w-3.5 h-3.5 object-contain brightness-0" />
                             </button>
                           </>
@@ -4132,7 +4132,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                             >
                               <img src={receiptIcon} alt="" className="w-4 h-4 brightness-0 invert" />
                             </button>
-                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-neutral-gradient" onClick={e => e.stopPropagation()}>
+                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-register-gradient" onClick={e => e.stopPropagation()}>
                               <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain brightness-0" />
                             </button>
                           </>
@@ -4141,7 +4141,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                             <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient">
                               <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
                             </button>
-                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-neutral-gradient" onClick={e => e.stopPropagation()}>
+                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-transfer-gradient" onClick={e => e.stopPropagation()}>
                               <img src={shareOrderIcon} alt="Share" className="w-4 h-4 object-contain brightness-0" />
                             </button>
                           </>

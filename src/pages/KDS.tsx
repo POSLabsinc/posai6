@@ -11,8 +11,8 @@ import { format } from "date-fns";
 const normalizeTableNumber = (raw: string | null | undefined): string => {
   if (!raw) return "";
   return raw
-    .replace(/^T\.?\s*/i, "")   // strip leading "T." or "T "
-    .replace(/^Table\s*/i, "")  // strip leading "Table "
+    .replace(/^Table\s*/i, "")  // strip leading "Table " first
+    .replace(/^T\.?\s*/i, "")   // then strip "T." or "T"
     .trim()
     .toUpperCase();
 };
@@ -747,7 +747,7 @@ const KDS = () => {
         {/* Ticket Grid + Summary */}
         <div className="flex-1 flex overflow-hidden">
           {/* Scrollable ticket area */}
-          <div className="flex-1 overflow-x-auto overflow-y-hidden">
+          <div className="flex-1 overflow-x-auto overflow-y-auto">
              <div className="flex gap-3 p-3 h-full items-start">
               {activeTickets.map(ticket => (
                 <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} attachedMessages={ticket.tableNumber ? (messagesByTable.get(normalizeTableNumber(ticket.tableNumber)) || []) : []} onAcknowledgeMessage={handleAcknowledgeMessage} />

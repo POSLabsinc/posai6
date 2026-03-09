@@ -6341,6 +6341,15 @@ const Orders = () => {
   };
 
   // Filter order items based on seat filter (multi-select)
+  const handleClearOrderAttempt = () => {
+    const hasFiredItems = orderItems.some(i => i.isFired);
+    if (hasFiredItems) {
+      setShowClearConfirm(true);
+      return;
+    }
+    handleClearOrder();
+  };
+
   const handleClearOrder = () => {
     console.log('[handleClearOrder] clearing all order state');
     setOrderItems(() => []);

@@ -2152,6 +2152,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
 
   const handleMobileOrderClick = (guest: GuestOrder) => {
     setSelectedGuest(guest);
+    setAppliedDiscounts(ticketDiscounts[guest.id] || []);
     setShowMobileOrderPanel(true);
   };
 

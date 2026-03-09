@@ -9253,7 +9253,7 @@ const Orders = () => {
                   handleClearOrder();
                 }}
                 className="flex-1 h-10 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm font-medium transition-colors">
-                Clear Order
+                Cancel Order
               </button>
             </div>
           </div>

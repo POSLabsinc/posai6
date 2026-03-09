@@ -2,34 +2,15 @@
 
 ## Problem
 
-The order summary bar in the Tickets module wraps to two lines because the four values (Sub Total, Discount, Service Charge, Tax) are grouped into two rigid inner `div` containers:
+The voucher mode fix was applied to `AppSidebar.tsx`, but the **actual sidebar rendered in the Layout** is `DraggableSidebar.tsx`. That's why the "New Order" link still shows as active — `DraggableSidebar.tsx` has no voucher mode logic at all.
 
-```text
-Current structure:
-<flex-wrap parent>
-  <div> Sub Total | Discount </div>     ← forced pair
-  <div> Service Charge | Tax </div>     ← forced pair (always wraps together)
-</flex-wrap>
-```
+## Plan
 
-This forces "Service Charge" and "Tax" onto a second row even when there's space. The first screenshot (New Order) works correctly because its items flow freely and wrap only when needed.
+**File: `src/components/DraggableSidebar.tsx`**
 
-## Fix
+1. Import `useVoucherMode` from the context and `Link` + `useLocation` from react-router-dom
+2. Add the same `isOrdersVoucherMode` logic
+3. For the Orders nav item (when `isOrdersVoucherMode && item.url === '/orders'`), render a plain `<Link>` instead of `<NavLink>` to suppress the active state — same pattern already applied in `AppSidebar.tsx`
 
-Remove the two inner grouping `div`s so all four summary items are direct children of the `flex-wrap` parent. They'll wrap naturally based on available width, matching the New Order behavior.
-
-```text
-Target structure:
-<flex-wrap parent>
-  Sub Total | Discount | Service Charge | Tax   ← flows naturally, wraps only when needed
-</flex-wrap>
-```
-
-### Locations in `src/pages/Tickets.tsx`
-
-1. **Desktop layout** (~lines 2620-2647) — Remove inner grouping divs around Sub Total/Discount and Service Charge/Tax
-2. **Tablet layout** (~lines 3778-3819) — Same restructure
-3. **Mobile layout** (~lines 4624-4651) — Same restructure
-
-No logic changes needed — only the container structure changes so items wrap individually instead of in forced pairs.
+This needs to be applied in the rendering logic around lines 240-265 where the nav items are rendered with `NavLink` and `activeClassName`.
 

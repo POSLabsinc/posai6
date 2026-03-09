@@ -690,7 +690,7 @@ const MultiVoucherStep = ({
           return (
             <div
               key={ce.id}
-              className={`text-left rounded-2xl transition-all duration-300 relative overflow-hidden ${theme.bg} border ${theme.glow} scale-[1.02] cursor-pointer`}
+              className={`text-left rounded-2xl transition-colors duration-200 relative overflow-hidden ${theme.bg} border-2 ${theme.glow} cursor-pointer`}
               onClick={() => openBuilderForEdit(ce.id)}
             >
               {theme.pattern}

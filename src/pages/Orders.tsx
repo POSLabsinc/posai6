@@ -8496,7 +8496,7 @@ const Orders = () => {
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                   <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
-                    <span>MIA JONE</span>
+                    <span>{guestName || "Guest"}</span>
                   </div>
                 </div>
             }

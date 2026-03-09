@@ -6232,6 +6232,7 @@ const Orders = () => {
   const [isTaxExempt, setIsTaxExempt] = useState(false);
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [showDiscountMpin, setShowDiscountMpin] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>([]);
   const [isManager, setIsManager] = useState(false); // TODO: Connect to actual user role system
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{

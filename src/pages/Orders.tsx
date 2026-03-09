@@ -9226,7 +9226,7 @@ const Orders = () => {
         </div>
       )}
 
-      {/* Clear Order Confirmation for Fired Orders */}
+      {/* Cancel Order Confirmation for Fired Orders */}
       {showClearConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 p-6 space-y-4 animate-scale-in">

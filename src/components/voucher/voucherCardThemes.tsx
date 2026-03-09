@@ -20,9 +20,7 @@ export const CARD_THEMES: CardTheme[] = [
   {
     bg: 'bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900',
     border: 'border-amber-900/40',
-    glow: 'border-amber-500/60',
-    accent: 'text-amber-400',
-    accentText: 'text-amber-300',
+    glow: 'border-amber-500/6',
     badgeBg: 'bg-amber-500/15 border-amber-500/30',
     badgeText: 'text-amber-300',
     valueBg: 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-clip-text text-transparent',
@@ -39,9 +37,7 @@ export const CARD_THEMES: CardTheme[] = [
   {
     bg: 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900',
     border: 'border-blue-800/40',
-    glow: 'shadow-[0_0_20px_rgba(96,165,250,0.25)] border-blue-400/60 ring-1 ring-blue-400/30',
-    accent: 'text-blue-400',
-    accentText: 'text-blue-300',
+    glow: 'shadow-[0_0_20px_rgba(96,165,250,0.25)] border-blue-400/60 ring-1border-blue-400/6
     badgeBg: 'bg-blue-500/15 border-blue-500/30',
     badgeText: 'text-blue-300',
     valueBg: 'bg-gradient-to-r from-blue-300 via-cyan-200 to-blue-300 bg-clip-text text-transparent',

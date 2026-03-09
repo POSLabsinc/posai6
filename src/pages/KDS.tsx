@@ -639,7 +639,7 @@ const KDS = () => {
   return (
     <div className="flex h-screen bg-neutral-950 text-white overflow-hidden">
       {/* KDS Sidebar */}
-      <KDSSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} />
+      <KDSSidebar collapsed={sidebarCollapsed} onToggle={() => setSidebarCollapsed(!sidebarCollapsed)} showMessages={showMessages} onMessagesToggle={() => setShowMessages(p => !p)} messageCount={pendingMessageCount} />
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">

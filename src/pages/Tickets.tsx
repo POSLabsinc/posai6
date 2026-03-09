@@ -4613,33 +4613,29 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             return (
               <div className="p-2 border-t border-white/10 flex-shrink-0">
                 <div className="text-xs flex flex-wrap items-center gap-x-4 gap-y-1">
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground">Sub Total</span>
-                      <span className="text-foreground font-semibold">{formatPrice(selectedGuest.subtotal)}</span>
-                    </div>
-                    <div className="flex items-center gap-1 group relative">
-                      <span className="text-muted-foreground">Discount</span>
-                      <span className="text-foreground font-semibold">{formatPrice(effectiveDiscount)}</span>
-                      {currentTicketDiscounts.length > 0 && (
-                        <>
-                          <button onClick={() => handleApplyTicketDiscounts([])} className="text-white hover:text-white/80 text-xs font-bold ml-0.5">×</button>
-                          <span className="absolute left-0 -top-7 bg-black/90 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
-                            {currentTicketDiscounts.map(d => d.name).join(', ')}
-                          </span>
-                        </>
-                      )}
-                    </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Sub Total</span>
+                    <span className="text-foreground font-semibold">{formatPrice(selectedGuest.subtotal)}</span>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground">Service Charge</span>
-                      <span className="text-foreground font-semibold">{formatPrice(selectedGuest.serviceCharge)}</span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-muted-foreground">Tax</span>
-                      <span className="text-foreground font-semibold">{formatPrice(selectedGuest.tax)}</span>
-                    </div>
+                  <div className="flex items-center gap-1 group relative">
+                    <span className="text-muted-foreground">Discount</span>
+                    <span className="text-foreground font-semibold">{formatPrice(effectiveDiscount)}</span>
+                    {currentTicketDiscounts.length > 0 && (
+                      <>
+                        <button onClick={() => handleApplyTicketDiscounts([])} className="text-white hover:text-white/80 text-xs font-bold ml-0.5">×</button>
+                        <span className="absolute left-0 -top-7 bg-black/90 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                          {currentTicketDiscounts.map(d => d.name).join(', ')}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Service Charge</span>
+                    <span className="text-foreground font-semibold">{formatPrice(selectedGuest.serviceCharge)}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <span className="text-muted-foreground">Tax</span>
+                    <span className="text-foreground font-semibold">{formatPrice(selectedGuest.tax)}</span>
                   </div>
                 </div>
                 {/* Total + Tip row - only for Paid or Completed tickets */}

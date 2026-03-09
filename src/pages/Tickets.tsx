@@ -2896,7 +2896,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                         <img src={receiptIcon} alt="" className="w-5 h-5 brightness-0 invert" />
                       </button>
                       <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-register-gradient">
-                        <img src={registerIcon} alt="Register" className="w-5 h-5 object-contain brightness-0" />
+                        <img src={registerIcon} alt="Register" className="w-5 h-5 object-contain brightness-0 invert" />
                       </button>
                     </>
                   ) : (

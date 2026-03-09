@@ -1095,7 +1095,29 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [showDiscountMpin, setShowDiscountMpin] = useState(false); // MPIN gate for discount
   const [showRefundConfirmation, setShowRefundConfirmation] = useState(false); // Refund confirmation dialog
   const [appliedDiscounts, setAppliedDiscounts] = useState<Discount[]>([]); // Applied discounts
-  const [ticketDiscounts, setTicketDiscounts] = useState<Record<string, Discount[]>>({}); // Per-ticket discounts
+  // Seed ticketDiscounts from mock data on mount — reverse-map raw discount values to Discount objects
+  const [ticketDiscounts, setTicketDiscounts] = useState<Record<string, Discount[]>>(() => {
+    const seeded: Record<string, Discount[]> = {};
+    for (const order of allOrders) {
+      if (order.discount > 0) {
+        // Try to match by exact amount
+        const matchByAmount = availableDiscounts.find(d => d.type === 'amount' && d.value === order.discount);
+        if (matchByAmount) {
+          seeded[order.id] = [matchByAmount];
+          continue;
+        }
+        // Try to match by percentage
+        const matchByPercent = availableDiscounts.find(d => d.type === 'percentage' && Math.abs((order.subtotal * d.value / 100) - order.discount) < 0.01);
+        if (matchByPercent) {
+          seeded[order.id] = [matchByPercent];
+          continue;
+        }
+        // No match — create synthetic custom discount
+        seeded[order.id] = [{ id: `custom-${order.id}`, name: 'Custom Discount', type: 'amount', value: order.discount, icon: (await import('lucide-react')).DollarSign } as Discount];
+      }
+    }
+    return seeded;
+  });
 
   // Get effective discounts for the currently selected ticket
   const EMPTY_DISCOUNTS: Discount[] = useMemo(() => [], []);
@@ -1111,8 +1133,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     }, 0);
   };
 
-  // Effective discount = original ticket discount + newly applied discounts
-  const effectiveDiscount = selectedGuest.discount + getAppliedDiscountAmount(selectedGuest.id, selectedGuest.subtotal);
+  // Effective discount: if ticketDiscounts has entries for this ticket, use only those (single source of truth)
+  // Otherwise fall back to raw selectedGuest.discount
+  const effectiveDiscount = ticketDiscounts[selectedGuest.id]
+    ? getAppliedDiscountAmount(selectedGuest.id, selectedGuest.subtotal)
+    : selectedGuest.discount;
 
   // Handle applying discounts to current ticket
   const handleApplyTicketDiscounts = (discounts: Discount[]) => {

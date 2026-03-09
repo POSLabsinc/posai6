@@ -89,7 +89,7 @@ const COMMENT_SUGGESTIONS: Record<string, string[]> = {
   "stock": ["Item 86'd mid-service", "Ingredient unavailable", "Substitution refused"],
 };
 
-const availableDiscounts: Discount[] = [
+export const availableDiscounts: Discount[] = [
   { id: "employee", name: "Employee Discount", type: "percentage", value: 20, icon: Briefcase },
   { id: "senior", name: "Senior Citizen", type: "percentage", value: 15, icon: Heart },
   { id: "student", name: "Student Discount", type: "percentage", value: 10, icon: GraduationCap },

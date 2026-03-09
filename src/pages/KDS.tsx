@@ -437,7 +437,7 @@ const TicketCard = ({ ticket, onBump, onSeen }: { ticket: KDSTicket; onBump: (id
           {/* Bottom row: Elapsed timer (left) | Server name (right) */}
           <div className="flex items-center justify-between mt-1">
             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${getTimerBadgeColor(elapsed)}`}>
-              {String(Math.floor(elapsed / 60)).padStart(2, '0')}:{String(elapsed % 60).padStart(2, '0')}:{String(Math.floor(Math.random() * 60)).padStart(2, '0')}
+              {String(Math.floor(elapsedSeconds / 3600)).padStart(2, '0')}:{String(Math.floor((elapsedSeconds % 3600) / 60)).padStart(2, '0')}:{String(elapsedSeconds % 60).padStart(2, '0')}
             </span>
             {ticket.serverName && (
               <span className="text-[10px] text-neutral-400 font-semibold uppercase truncate max-w-[120px]">{ticket.serverName}</span>

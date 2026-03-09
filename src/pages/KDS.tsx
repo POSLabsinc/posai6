@@ -409,6 +409,9 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
         <div className="text-white font-black text-sm tracking-widest uppercase flex items-center justify-center gap-2">
           {isMessage && <img src={messageKdsIcon} alt="Message" className="w-4 h-4 invert" />}
           {isMessage ? "MESSAGE" : ticket.orderType}
+          {!isMessage && attachedMessages && attachedMessages.length > 0 && (
+            <img src={messageKdsIcon} alt="Has messages" className="w-4 h-4 invert opacity-80 animate-pulse" />
+          )}
         </div>
       </div>
 

@@ -6406,13 +6406,78 @@ const Orders = () => {
 
   // Initialize order with existing items when in add-item mode
   useEffect(() => {
-    if (addItemMode && existingOrder) {
-      // Pre-populate guest info
+    if (!addItemMode) return;
+
+    // Try to read full ticket context from localStorage (set by Tickets module)
+    const ticketContextRaw = localStorage.getItem('pos-add-product-context');
+    
+    if (ticketContextRaw) {
+      try {
+        const ticketContext = JSON.parse(ticketContextRaw);
+        const guest = ticketContext.guest;
+        
+        // Pre-populate guest info from ticket data
+        setGuestName(guest.name || '');
+        setGuestPhone((guest.phone || '').replace(/\D/g, ''));
+        setOrderNotes(guest.notes || '');
+
+        // Convert order type
+        const orderTypeMap: Record<string, string> = {
+          'Dine-In': 'DINE IN',
+          'Takeout': 'TAKE OUT',
+          'Delivery': 'DELIVERY',
+          'Bar': 'DINE IN',
+          'DINE IN': 'DINE IN',
+          'TAKE OUT': 'TAKE OUT',
+          'DELIVERY': 'DELIVERY',
+        };
+        setOrderType(orderTypeMap[guest.orderType] || 'DINE IN');
+
+        // Convert existing ticket items to local format
+        const convertedItems: OrderItem[] = (guest.items || []).map((item: any, index: number) => ({
+          id: Date.now() + index,
+          qty: item.qty,
+          name: item.name,
+          price: item.price,
+          modifiers: item.modifiers && item.modifiers.length > 0 ? item.modifiers : undefined,
+          itemOrderType: orderTypeMap[guest.orderType] || 'Dine In'
+        }));
+
+        // Store existing items separately to track what's paid vs new
+        setExistingItems(convertedItems);
+
+        // If existing order is unpaid, show all items; if paid, start with empty cart for new items
+        if (!isExistingOrderPaid) {
+          setOrderItems(convertedItems);
+        }
+
+        // Restore discounts
+        if (ticketContext.discounts && ticketContext.discounts.length > 0) {
+          setSelectedDiscounts(ticketContext.discounts);
+        }
+
+        // Restore service charge
+        if (ticketContext.serviceCharge && ticketContext.serviceCharge > 0) {
+          setAppliedServiceCharge(ticketContext.serviceCharge);
+          setAppliedServiceChargeName('Service Charge');
+        }
+
+        // Restore tax exemption
+        if (ticketContext.taxExempt) {
+          setIsTaxExempt(true);
+        }
+      } catch (e) {
+        console.error('Failed to parse ticket context:', e);
+      } finally {
+        // Clean up localStorage after reading
+        localStorage.removeItem('pos-add-product-context');
+      }
+    } else if (existingOrder) {
+      // Fallback: use getOrderById lookup (legacy path)
       setGuestName(existingOrder.name);
       setGuestPhone(existingOrder.phone.replace(/\D/g, ''));
       setOrderNotes(existingOrder.notes);
 
-      // Convert order type
       const orderTypeMap: Record<string, string> = {
         'Dine-In': 'DINE IN',
         'Takeout': 'TAKE OUT',
@@ -6421,7 +6486,6 @@ const Orders = () => {
       };
       setOrderType(orderTypeMap[existingOrder.orderType] || 'DINE IN');
 
-      // Convert existing order items to local format
       const convertedItems: OrderItem[] = existingOrder.items.map((item, index) => ({
         id: Date.now() + index,
         qty: item.qty,
@@ -6431,10 +6495,8 @@ const Orders = () => {
         itemOrderType: orderTypeMap[existingOrder.orderType] || 'Dine In'
       }));
 
-      // Store existing items separately to track what's paid vs new
       setExistingItems(convertedItems);
 
-      // If existing order is unpaid, show all items; if paid, start with empty cart for new items
       if (!isExistingOrderPaid) {
         setOrderItems(convertedItems);
       }

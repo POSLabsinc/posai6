@@ -667,6 +667,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
 
   const handleAddProduct = () => {
     if (!selectedGuest) return;
+    
+    // Store full ticket context for the Orders screen to consume
+    const ticketContext = {
+      guest: selectedGuest,
+      discounts: ticketDiscounts[selectedGuest.id] || [],
+      serviceCharge: selectedGuest.serviceCharge,
+      taxExempt: taxExemptTickets.has(selectedGuest.id),
+    };
+    localStorage.setItem('pos-add-product-context', JSON.stringify(ticketContext));
+    
     navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`);
   };
   const [activeFilter, setActiveFilter] = useState("All");

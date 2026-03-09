@@ -7746,8 +7746,8 @@ const Orders = () => {
               </button>
               <button
             onClick={handleFireOrder}
-            disabled={orderItems.length === 0}
-            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={orderItems.length === 0 || orderItems.every(i => i.isFired)}
+            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
             }}>
@@ -9022,9 +9022,9 @@ const Orders = () => {
                   </button>
                   <button
                     onClick={handleFireOrder}
-                    disabled={isOrderSplit || orderItems.length === 0}
+                    disabled={isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired)}
                     className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${
-                    isOrderSplit || orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`
+                    isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`
                     }
                     style={{
                       background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'

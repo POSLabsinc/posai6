@@ -380,10 +380,11 @@ const ProductStatusIcon = ({ status }: { status: string }) => {
 // ─── Ticket Card ───
 const TicketCard = ({ ticket, onBump, onSeen }: { ticket: KDSTicket; onBump: (id: string) => void; onSeen: (id: string) => void }) => {
   const isMessage = (ticket as any).type === "MESSAGE";
-  const [elapsed, setElapsed] = useState(getElapsedMinutes(ticket.createdAt));
+  const [elapsedSeconds, setElapsedSeconds] = useState(() => Math.floor((Date.now() - ticket.createdAt.getTime()) / 1000));
+  const elapsed = Math.floor(elapsedSeconds / 60);
 
   useEffect(() => {
-    const interval = setInterval(() => setElapsed(getElapsedMinutes(ticket.createdAt)), 30000);
+    const interval = setInterval(() => setElapsedSeconds(Math.floor((Date.now() - ticket.createdAt.getTime()) / 1000)), 1000);
     return () => clearInterval(interval);
   }, [ticket.createdAt]);
 

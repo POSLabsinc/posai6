@@ -145,9 +145,9 @@ export const ticketOrders: TicketOrder[] = [
     check: "123456",
     paymentType: "Credit Card",
     payments: [
-      { method: "Visa", last4: "1234", amount: 300.00 },
-      { method: "Amex", last4: "9876", amount: 150.00 },
-      { method: "Cash", amount: 71.19 },
+      { method: "Visa", last4: "1234", amount: 120.00 },
+      { method: "Amex", last4: "9876", amount: 80.00 },
+      { method: "Cash", amount: 38.22 },
     ],
     revenueCenter: "Main Dining",
     status: "PAID",
@@ -158,12 +158,12 @@ export const ticketOrders: TicketOrder[] = [
       { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["Extra Butter"] },
       { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium"] }
     ],
-    subtotal: 428.00,
+    subtotal: 174.00,
     discount: 20.00,
-    serviceCharge: 20.40,
-    tax: 28.59,
+    serviceCharge: 8.70,
+    tax: 11.32,
     tip: 64.20,
-    total: 521.19
+    total: 238.22
   },
   {
     id: "5",

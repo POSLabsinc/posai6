@@ -545,8 +545,9 @@ const KDS = () => {
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showMessages, setShowMessages] = useState(false);
   const [knownIds, setKnownIds] = useState<Set<string>>(() => new Set(tickets.map(t => t.id)));
-  const [messageTickets, setMessageTickets] = useState<KDSTicket[]>([]);
+  const [pendingMessageCount, setPendingMessageCount] = useState(0);
 
   // Poll localStorage for new fired orders every 2 seconds
   useEffect(() => {

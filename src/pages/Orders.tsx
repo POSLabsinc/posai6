@@ -8149,25 +8149,27 @@ const Orders = () => {
                     </div>
                   </div>)}
               </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5 pb-4 md:pb-0">
-                {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border min-h-[38px] md:min-h-[42px]">
-                    <div className="flex-1 p-1.5 md:p-2 bg-muted">
-                      <span className="float-right text-[9px] md:text-[10px] ml-1 text-foreground">
-                        {(item as MenuItem).isOpenPrice && item.price === 0 ? "Open" : `$${item.price.toFixed(2)}`}
-                      </span>
-                      <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2 flex items-center gap-1">
-                        {item.name}
-                        {(item as MenuItem).isOpenPrice && (
-                          <span className="px-1.5 py-0.5 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 shrink-0">Open Price</span>
-                        )}
-                      </span>
+                {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border h-[48px] md:h-[54px]">
+                    <div className="flex-1 p-1.5 md:p-2 bg-muted flex flex-col justify-center gap-0.5 min-w-0">
+                      <div className="flex items-start justify-between gap-1.5">
+                        <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2 min-w-0">
+                          {item.name}
+                        </span>
+                        <span className="text-[10px] md:text-[11px] text-foreground font-semibold shrink-0 whitespace-nowrap">
+                          {(item as MenuItem).isOpenPrice && item.price === 0 ? "" : `$${item.price.toFixed(2)}`}
+                        </span>
+                      </div>
+                      {(item as MenuItem).isOpenPrice && (
+                        <span className="self-start px-1.5 py-0 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 leading-relaxed">Open Price</span>
+                      )}
                     </div>
                     <button onClick={(e) => {
                     e.stopPropagation();
                     addToCart(item);
-                  }} className="w-6 md:w-8 text-white flex-shrink-0 flex items-center justify-center" style={{
+                  }} className="w-7 md:w-9 text-white flex-shrink-0 flex items-center justify-center" style={{
                     background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
                   }}>
-                      <Plus className="w-2.5 md:w-3 h-2.5 md:h-3" strokeWidth={4} />
+                      <Plus className="w-3 md:w-3.5 h-3 md:h-3.5" strokeWidth={3.5} />
                     </button>
                   </div>)}
               </div>;

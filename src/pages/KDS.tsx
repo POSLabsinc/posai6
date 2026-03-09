@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Clock, ChefHat, Settings, Eye, SlidersHorizontal, Volume2, VolumeX, Maximize, Minimize, Menu, X, ChevronRight } from "lucide-react";
+import { Home, Clock, ChefHat, Settings, Eye, SlidersHorizontal, Volume2, VolumeX, Maximize, Minimize, Menu, X, ChevronRight, Megaphone, Check, Bell } from "lucide-react";
 import messageKdsIcon from "@/assets/icons/message-kds.svg";
+import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 
 // ─── KDS Ticket Types ───

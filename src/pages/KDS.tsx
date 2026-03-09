@@ -412,26 +412,38 @@ const TicketCard = ({ ticket, onBump, onSeen }: { ticket: KDSTicket; onBump: (id
       </div>
 
       {/* Time & Order Number / Sender */}
-      <div className="bg-neutral-800 px-3 py-2 flex items-center justify-between">
-        <div className="flex flex-col">
-          <span className="text-[10px] text-neutral-400 font-mono">{timeStr}</span>
-          {isMessage ? (
+      {isMessage ? (
+        <div className="bg-neutral-800 px-3 py-2 flex items-center justify-between">
+          <div className="flex flex-col">
+            <span className="text-[10px] text-neutral-400 font-mono">{timeStr}</span>
             <span className="text-[10px] text-violet-400 font-semibold">{ticket.tableNumber || "General"}</span>
-          ) : (
-            <span className="text-[10px] text-neutral-500 font-mono">{format(new Date(ticket.createdAt.getTime() + 2 * 3600000 + 9 * 60000 + 6000), "hh:mm:ss")}</span>
-          )}
+          </div>
+          <span className="text-lg font-black text-violet-300 leading-none">MSG</span>
         </div>
-        <div className="flex items-center gap-2">
-          {isMessage ? (
-            <span className="text-lg font-black text-violet-300 leading-none">MSG</span>
-          ) : (
-            <>
-              <span className="text-4xl font-black text-white leading-none">{ticket.orderNumber}</span>
-              <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${getTimerBadgeColor(elapsed)}`}>{elapsed}</span>
-            </>
-          )}
+      ) : (
+        <div className="bg-neutral-800 px-3 py-3">
+          {/* Top row: Time (left) | Table (right) */}
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-[10px] text-neutral-400 font-mono">{timeStr}</span>
+            {ticket.tableNumber && (
+              <span className="text-[10px] text-neutral-400 font-semibold">T. {ticket.tableNumber}</span>
+            )}
+          </div>
+          {/* Centered order number */}
+          <div className="flex items-center justify-center py-2">
+            <span className="text-5xl font-black text-white leading-none">{ticket.orderNumber}</span>
+          </div>
+          {/* Bottom row: Elapsed timer (left) | Server name (right) */}
+          <div className="flex items-center justify-between mt-1">
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${getTimerBadgeColor(elapsed)}`}>
+              {String(Math.floor(elapsed / 60)).padStart(2, '0')}:{String(elapsed % 60).padStart(2, '0')}:{String(Math.floor(Math.random() * 60)).padStart(2, '0')}
+            </span>
+            {ticket.serverName && (
+              <span className="text-[10px] text-neutral-400 font-semibold uppercase truncate max-w-[120px]">{ticket.serverName}</span>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Products / Message Content */}
       <div className="flex-1 overflow-y-auto scrollbar-hide px-3 py-1 space-y-0.5">

@@ -1159,12 +1159,36 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [noTaxItems, setNoTaxItems] = useState<Set<string>>(new Set()); // Items with no tax applied
   const [removedItems, setRemovedItems] = useState<Set<string>>(new Set()); // Items removed from order
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false); // Clear order confirmation dialog
+  const [taxExemptTickets, setTaxExemptTickets] = useState<Set<string>>(new Set()); // Whole-ticket tax exemption
+  const [showNoTaxDialog, setShowNoTaxDialog] = useState(false); // No Tax confirmation dialog
+  
+  const isCurrentTicketTaxExempt = selectedGuest ? taxExemptTickets.has(selectedGuest.id) : false;
+  
+  const handleNoTaxClick = () => {
+    if (isCurrentTicketTaxExempt) {
+      // Toggle off
+      setTaxExemptTickets(prev => {
+        const next = new Set(prev);
+        next.delete(selectedGuest.id);
+        return next;
+      });
+    } else {
+      setShowNoTaxDialog(true);
+    }
+  };
+  
+  const handleConfirmNoTax = () => {
+    setTaxExemptTickets(prev => new Set(prev).add(selectedGuest.id));
+    setShowNoTaxDialog(false);
+  };
   
   // Calculate adjusted totals based on no-tax and removed items
   const calculateAdjustedTotals = (guest: GuestOrder) => {
     const TAX_RATE = guest.tax / (guest.subtotal - guest.discount); // Calculate effective tax rate
     let noTaxSubtotal = 0;
     let removedSubtotal = 0;
+    
+    const isTicketTaxExempt = taxExemptTickets.has(guest.id);
     
     guest.items.forEach((item, index) => {
       const itemKey = `${guest.id}-${index}-${item.name}`;
@@ -1179,7 +1203,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     
     const adjustedSubtotal = guest.subtotal - removedSubtotal;
     const taxableAmount = adjustedSubtotal - guest.discount - noTaxSubtotal;
-    const adjustedTax = Math.max(0, taxableAmount * TAX_RATE);
+    const adjustedTax = isTicketTaxExempt ? 0 : Math.max(0, taxableAmount * TAX_RATE);
     const taxSavings = guest.tax - adjustedTax;
     const adjustedTotal = guest.total - taxSavings - removedSubtotal;
     
@@ -1191,8 +1215,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       adjustedTotal,
       adjustedSubtotal,
       removedSubtotal,
-      hasNoTaxItems: noTaxSubtotal > 0,
-      hasRemovedItems: removedSubtotal > 0
+      hasNoTaxItems: noTaxSubtotal > 0 || isTicketTaxExempt,
+      hasRemovedItems: removedSubtotal > 0,
+      isTicketTaxExempt
     };
   };
   
@@ -2263,10 +2288,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       {currentTicketDiscounts.length > 0 ? `${currentTicketDiscounts.length} Discount${currentTicketDiscounts.length > 1 ? 's' : ''}` : 'Discount'}
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                      className={`${isCurrentTicketTaxExempt ? 'text-orange-500' : 'text-white'} hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2`}
+                      onClick={handleNoTaxClick}
                     >
                       <img src={noTaxIcon} alt="" className="w-3.5 h-3.5" />
-                      No Tax
+                      {isCurrentTicketTaxExempt ? 'Tax Exempt ✓' : 'No Tax'}
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
@@ -3405,10 +3431,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 Receipt
               </button>
               <button 
-                className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
+                className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${isCurrentTicketTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'}`}
+                onClick={handleNoTaxClick}
               >
                 <img src={noTaxIcon} alt="" className="w-3 h-3" />
-                No Tax
+                {isCurrentTicketTaxExempt ? 'Tax Exempt' : 'No Tax'}
               </button>
               <button 
                 className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
@@ -6152,6 +6179,32 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         cancelText="Cancel"
         confirmText="Confirm Refund"
       />
+
+      {/* No Tax Confirmation Dialog */}
+      {showNoTaxDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-[300px] mx-4 overflow-hidden animate-scale-in">
+            <div className="p-6 text-center">
+              <h2 className="text-white text-lg font-semibold mb-2">Disable Tax?</h2>
+              <p className="text-neutral-400 text-sm">Are you sure you want to remove tax from this order?</p>
+            </div>
+            <div className="flex border-t border-neutral-700">
+              <button
+                onClick={() => setShowNoTaxDialog(false)}
+                className="flex-1 py-3 text-white font-medium hover:bg-neutral-800 transition-colors border-r border-neutral-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmNoTax}
+                className="flex-1 py-3 text-orange-500 font-medium hover:bg-neutral-800 transition-colors"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

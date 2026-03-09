@@ -239,12 +239,12 @@ const allOrders: GuestOrder[] = [
       { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: [] },
       { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette"], notes: ["Cook temperature: Medium rare"] }
     ],
-    subtotal: 68.00,
+    subtotal: 88.00,
     discount: 5.00,
-    serviceCharge: 3.40,
-    tax: 4.56,
+    serviceCharge: 4.40,
+    tax: 6.10,
     tip: 0,
-    total: 70.96
+    total: 93.50
   },
   {
     id: "2",
@@ -306,12 +306,12 @@ const allOrders: GuestOrder[] = [
         ]
       }
     ],
-    subtotal: 101.00,
+    subtotal: 64.00,
     discount: 0,
-    serviceCharge: 5.05,
-    tax: 7.42,
+    serviceCharge: 3.20,
+    tax: 4.70,
     tip: 15.00,
-    total: 128.47
+    total: 86.90
   },
   {
     id: "1",
@@ -332,12 +332,12 @@ const allOrders: GuestOrder[] = [
       { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: ["Gluten-Free Crust"] },
       { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil"] }
     ],
-    subtotal: 72.00,
+    subtotal: 46.00,
     discount: 10.00,
-    serviceCharge: 3.10,
-    tax: 4.34,
+    serviceCharge: 2.30,
+    tax: 2.65,
     tip: 0,
-    total: 69.44
+    total: 40.95
   },
   {
     id: "4",
@@ -360,16 +360,16 @@ const allOrders: GuestOrder[] = [
       { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["Extra Butter"] },
       { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium"] }
     ],
-    subtotal: 428.00,
+    subtotal: 174.00,
     discount: 20.00,
-    serviceCharge: 20.40,
-    tax: 28.59,
+    serviceCharge: 8.70,
+    tax: 11.32,
     tip: 64.20,
-    total: 521.19,
+    total: 238.22,
     paymentMethods: [
-      { id: 'pm-1', type: 'credit_card', label: 'Visa •••• 1234', amount: 300.00, tipAmount: 30.00 },
-      { id: 'pm-2', type: 'credit_card', label: 'Amex •••• 9876', amount: 150.00, tipAmount: 20.00 },
-      { id: 'pm-3', type: 'cash', label: 'Cash', amount: 71.19, tipAmount: 14.20 }
+      { id: 'pm-1', type: 'credit_card', label: 'Visa •••• 1234', amount: 120.00, tipAmount: 30.00 },
+      { id: 'pm-2', type: 'credit_card', label: 'Amex •••• 9876', amount: 80.00, tipAmount: 20.00 },
+      { id: 'pm-3', type: 'cash', label: 'Cash', amount: 38.22, tipAmount: 14.20 }
     ]
   },
   {

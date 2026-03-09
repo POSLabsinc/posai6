@@ -95,6 +95,7 @@ import SellVoucherScreen from "@/components/SellVoucherScreen";
 import CreateVoucherForm from "@/components/CreateVoucherForm";
 import OpenPriceDialog from "@/components/OpenPriceDialog";
 import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import MessageKitchenDialog from "@/components/MessageKitchenDialog";
 import { useVoucherMode } from "@/contexts/VoucherModeContext";
 

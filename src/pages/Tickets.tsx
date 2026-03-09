@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface TicketsProps {
   isClosedTicketsMode?: boolean;

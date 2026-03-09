@@ -8948,8 +8948,9 @@ const Orders = () => {
                     <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
                     <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
                   </div>
-                  {discount > 0 && (
+                  {(discount > 0 || serviceCharge > 0) && (
                   <div className="flex justify-between gap-3">
+                    {discount > 0 && (
                     <span className="text-white flex items-center gap-1 group relative">
                       Discount: <span className="font-medium">${discount.toFixed(2)}</span>
                       {selectedDiscounts.length > 0 && (
@@ -8965,10 +8966,8 @@ const Orders = () => {
                         </>
                       )}
                     </span>
-                  </div>
-                  )}
-                  {serviceCharge > 0 && (
-                  <div className="flex justify-between gap-3">
+                    )}
+                    {serviceCharge > 0 && (
                     <span className="text-foreground flex items-center gap-1 group relative">
                       Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
                       <button
@@ -8985,6 +8984,7 @@ const Orders = () => {
                         </span>
                       )}
                     </span>
+                    )}
                   </div>
                   )}
                   {appliedGiftCardAmount > 0 &&

@@ -2,15 +2,22 @@
 
 ## Problem
 
-The voucher mode fix was applied to `AppSidebar.tsx`, but the **actual sidebar rendered in the Layout** is `DraggableSidebar.tsx`. That's why the "New Order" link still shows as active — `DraggableSidebar.tsx` has no voucher mode logic at all.
+The Orders screen uses a **hardcoded tax rate of 2%** (`const taxRate = 0.02` on line 6977), while the Tickets module derives its tax rate from `orderUtils.ts` which defines it as **7.35%** (`TAX_RATE = 0.0735`). When ticket data is transferred via "Add Product", the tax gets recalculated at the wrong rate.
 
-## Plan
+## Fix
 
-**File: `src/components/DraggableSidebar.tsx`**
+In `src/pages/Orders.tsx`, replace the hardcoded `0.02` tax rate with the centralized `TAX_RATE` constant from `orderUtils.ts`.
 
-1. Import `useVoucherMode` from the context and `Link` + `useLocation` from react-router-dom
-2. Add the same `isOrdersVoucherMode` logic
-3. For the Orders nav item (when `isOrdersVoucherMode && item.url === '/orders'`), render a plain `<Link>` instead of `<NavLink>` to suppress the active state — same pattern already applied in `AppSidebar.tsx`
+**Line 6977:**
+```tsx
+// Before
+const taxRate = 0.02;
 
-This needs to be applied in the rendering logic around lines 240-265 where the nav items are rendered with `NavLink` and `activeClassName`.
+// After
+const taxRate = TAX_RATE;
+```
+
+Also ensure `TAX_RATE` is imported from `@/lib/orderUtils` (check if it's already imported).
+
+This is a one-line fix that aligns tax calculations across both modules.
 

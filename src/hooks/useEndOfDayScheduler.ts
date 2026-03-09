@@ -94,7 +94,9 @@ async function fetchEodPrefs(): Promise<EodPrefs> {
  * 2. Auto-runs the EOD process at the configured auto-run time
  */
 export function useEndOfDayScheduler() {
-  const { orders, updateOrders } = useUnifiedOrders();
+  const ctx = useUnifiedOrdersSafe();
+  const orders = ctx?.orders ?? [];
+  const updateOrders = ctx?.updateOrders ?? (() => {});
   const reminderShownRef = useRef(false);
   const autoRunDoneRef = useRef(false);
 

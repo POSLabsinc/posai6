@@ -1,16 +1,28 @@
 
 
-## Problem
+## Fix KDS Vertical Scroll and Message-Table Matching
 
-The voucher mode fix was applied to `AppSidebar.tsx`, but the **actual sidebar rendered in the Layout** is `DraggableSidebar.tsx`. That's why the "New Order" link still shows as active — `DraggableSidebar.tsx` has no voucher mode logic at all.
+### Issues Found
 
-## Plan
+**1. Vertical scroll is blocked**
+Line 750 in `KDS.tsx`: the ticket container has `overflow-y-hidden`, which prevents vertical scrolling entirely. Should be `overflow-y-auto`.
 
-**File: `src/components/DraggableSidebar.tsx`**
+**2. Message-table matching fails due to regex order bug**
+The `normalizeTableNumber` function (lines 11-18) applies regex in the wrong order:
+- First strips `^T\.?\s*` — on "Table 2", this matches just the leading "T", leaving "able 2"
+- Then tries `^Table\s*` — but the string is now "able 2", so it doesn't match
 
-1. Import `useVoucherMode` from the context and `Link` + `useLocation` from react-router-dom
-2. Add the same `isOrdersVoucherMode` logic
-3. For the Orders nav item (when `isOrdersVoucherMode && item.url === '/orders'`), render a plain `<Link>` instead of `<NavLink>` to suppress the active state — same pattern already applied in `AppSidebar.tsx`
+This means POS messages with `table_number: "Table 2"` normalize to "ABLE 2" instead of "2", while KDS tickets with `tableNumber: "T2"` normalize to "2". They never match.
 
-This needs to be applied in the rendering logic around lines 240-265 where the nav items are rendered with `NavLink` and `activeClassName`.
+**Fix**: Reverse the regex order — strip "Table " first, then "T." prefix.
+
+### Changes (single file: `src/pages/KDS.tsx`)
+
+1. **Fix `normalizeTableNumber`** — swap the two `.replace()` calls so `"Table "` is stripped before `"T."`:
+   ```
+   .replace(/^Table\s*/i, "")  // first: strip "Table "
+   .replace(/^T\.?\s*/i, "")   // then: strip "T." or "T"
+   ```
+
+2. **Fix scroll container** — change `overflow-y-hidden` to `overflow-y-auto` on the ticket area div (line 750).
 

@@ -8950,22 +8950,27 @@ const Orders = () => {
                   </div>
                   {discount > 0 && (
                   <div className="flex justify-between gap-3">
-                    <span className="text-white flex items-center gap-1">
-                      {selectedDiscounts.length > 0 ? selectedDiscounts.map(d => d.name).join(', ') : 'Discount'}: <span className="font-medium">${discount.toFixed(2)}</span>
-                      {selectedDiscounts.length > 0 &&
-                      <button
-                        onClick={() => setSelectedDiscounts([])}
-                        className="text-white hover:text-white/80 text-xs font-bold ml-0.5">
-                          ×
-                        </button>
-                      }
+                    <span className="text-white flex items-center gap-1 group relative">
+                      Discount: <span className="font-medium">${discount.toFixed(2)}</span>
+                      {selectedDiscounts.length > 0 && (
+                        <>
+                          <button
+                            onClick={() => setSelectedDiscounts([])}
+                            className="text-white hover:text-white/80 text-xs font-bold ml-0.5">
+                              ×
+                          </button>
+                          <span className="absolute left-0 -top-7 bg-black/90 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                            {selectedDiscounts.map(d => d.name).join(', ')}
+                          </span>
+                        </>
+                      )}
                     </span>
                   </div>
                   )}
                   {serviceCharge > 0 && (
                   <div className="flex justify-between gap-3">
-                    <span className="text-foreground flex items-center gap-1">
-                      {appliedServiceChargeName || 'Service Charge'}: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                    <span className="text-foreground flex items-center gap-1 group relative">
+                      Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
                       <button
                         onClick={() => {
                           setAppliedServiceCharge(0);
@@ -8973,7 +8978,12 @@ const Orders = () => {
                         }}
                         className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
                           ×
-                        </button>
+                      </button>
+                      {appliedServiceChargeName && (
+                        <span className="absolute left-0 -top-7 bg-black/90 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                          {appliedServiceChargeName}
+                        </span>
+                      )}
                     </span>
                   </div>
                   )}

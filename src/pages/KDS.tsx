@@ -600,16 +600,6 @@ const KDS = () => {
   const totalInQueue = activeTickets.reduce((sum, t) => sum + t.products.filter(p => p.status === "pending" || p.status === "cooking").length, 0);
 
   const handleBump = useCallback((id: string) => {
-    // Handle message acknowledge
-    if (id.startsWith("msg-")) {
-      const messageId = id.replace("msg-", "");
-      try {
-        const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
-        const updated = queue.map((m: any) => m.message_id === messageId ? { ...m, status: "acknowledged" } : m);
-        localStorage.setItem("kds_message_queue", JSON.stringify(updated));
-      } catch {}
-      return;
-    }
     setTickets(prev => prev.map(t => t.id === id ? { ...t, status: "bumped" as const } : t));
     try {
       const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");

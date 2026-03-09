@@ -2901,10 +2901,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     </>
                   ) : (
                     <>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ backgroundColor: '#666666' }}>
-                        <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-transfer-gradient">
+                        <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain brightness-0" />
                       </button>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-action-gradient">
                         <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
                       </button>
                     </>

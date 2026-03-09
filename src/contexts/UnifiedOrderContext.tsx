@@ -186,3 +186,8 @@ export function useUnifiedOrders() {
   }
   return context;
 }
+
+/** Safe version that returns null instead of throwing when used outside provider */
+export function useUnifiedOrdersSafe() {
+  return useContext(UnifiedOrderContext);
+}

@@ -11,8 +11,8 @@ import { format } from "date-fns";
 const normalizeTableNumber = (raw: string | null | undefined): string => {
   if (!raw) return "";
   return raw
-    .replace(/^T\.?\s*/i, "")   // strip leading "T." or "T "
-    .replace(/^Table\s*/i, "")  // strip leading "Table "
+    .replace(/^Table\s*/i, "")  // strip leading "Table " first
+    .replace(/^T\.?\s*/i, "")   // then strip "T." or "T"
     .trim()
     .toUpperCase();
 };

@@ -9188,8 +9188,23 @@ const Orders = () => {
         }
       }} />
 
+      {/* Manager PIN Authorization for Discount */}
+      {showDiscountMpin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            <AccessRestrictedModal
+              subtitle="Manager approval required to apply discount."
+              onBack={() => setShowDiscountMpin(false)}
+              onSuccess={() => {
+                setShowDiscountMpin(false);
+                setShowDiscountDialog(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
 
-      {/* Discount Dialog (from posai-jaspreet) */}
+      {/* Discount Dialog */}
       <DiscountDialog
         open={showDiscountDialog}
         onOpenChange={setShowDiscountDialog}

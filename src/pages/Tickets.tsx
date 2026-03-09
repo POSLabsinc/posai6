@@ -3202,7 +3202,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               return (
               <div key={guest.id} className="space-y-0">
                 <div 
-                  onClick={() => setSelectedGuest(guest)} 
+                  onClick={() => { setSelectedGuest(guest); setAppliedDiscounts(ticketDiscounts[guest.id] || []); }} 
                   className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} 
                   style={{ backgroundColor: '#1B1C20' }}
                 >

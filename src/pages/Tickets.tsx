@@ -43,6 +43,7 @@ import MobileFiltersSheet, { MobileFiltersState } from "@/components/MobileFilte
 import OrderTypeIcon from "@/components/OrderTypeIcon";
 import { SimpleModifierTree } from "@/components/ModifierWithConnector";
 import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import NoteSuggestions from "@/components/NoteSuggestions";
 import AppleAlertDialog from "@/components/AppleAlertDialog";
 import RefundModalLayout from "@/components/RefundModalLayout";
@@ -1091,8 +1092,44 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false); // Mobile filters bottom sheet
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false); // Receipt options dialog
   const [isDiscountDialogOpen, setIsDiscountDialogOpen] = useState(false); // Discount dialog
+  const [showDiscountMpin, setShowDiscountMpin] = useState(false); // MPIN gate for discount
   const [showRefundConfirmation, setShowRefundConfirmation] = useState(false); // Refund confirmation dialog
   const [appliedDiscounts, setAppliedDiscounts] = useState<Discount[]>([]); // Applied discounts
+  const [ticketDiscounts, setTicketDiscounts] = useState<Record<string, Discount[]>>({}); // Per-ticket discounts
+
+  // Get effective discounts for the currently selected ticket
+  const getTicketDiscounts = (ticketId: string): Discount[] => ticketDiscounts[ticketId] || [];
+  const currentTicketDiscounts = getTicketDiscounts(selectedGuest.id);
+
+  // Calculate discount amount from applied discounts for a ticket
+  const getAppliedDiscountAmount = (ticketId: string, subtotal: number): number => {
+    const discounts = getTicketDiscounts(ticketId);
+    return discounts.reduce((sum, d) => {
+      if (d.type === "percentage") return sum + (subtotal * d.value) / 100;
+      return sum + d.value;
+    }, 0);
+  };
+
+  // Effective discount = original ticket discount + newly applied discounts
+  const effectiveDiscount = selectedGuest.discount + getAppliedDiscountAmount(selectedGuest.id, selectedGuest.subtotal);
+
+  // Handle applying discounts to current ticket
+  const handleApplyTicketDiscounts = (discounts: Discount[]) => {
+    setTicketDiscounts(prev => ({
+      ...prev,
+      [selectedGuest.id]: discounts,
+    }));
+    setAppliedDiscounts(discounts);
+  };
+
+  // Check if discount is allowed (only for UNPAID / ORDERING)
+  const isDiscountAllowed = !(selectedGuest.status === "PAID" || selectedGuest.paid || selectedGuest.status === "COMPLETED");
+
+  // Handle discount button click - goes through MPIN gate
+  const handleDiscountClick = () => {
+    if (!isDiscountAllowed) return;
+    setShowDiscountMpin(true);
+  };
   const [noTaxItems, setNoTaxItems] = useState<Set<string>>(new Set()); // Items with no tax applied
   const [removedItems, setRemovedItems] = useState<Set<string>>(new Set()); // Items removed from order
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false); // Clear order confirmation dialog
@@ -2115,6 +2152,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
 
   const handleMobileOrderClick = (guest: GuestOrder) => {
     setSelectedGuest(guest);
+    setAppliedDiscounts(ticketDiscounts[guest.id] || []);
     setShowMobileOrderPanel(true);
   };
 
@@ -2192,11 +2230,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       Add Item
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      className={`text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2 ${appliedDiscounts.length > 0 ? 'bg-primary/20' : ''}`}
-                      onClick={() => setIsDiscountDialogOpen(true)}
+                      className={`text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2 ${currentTicketDiscounts.length > 0 ? 'bg-primary/20' : ''}`}
+                      onClick={handleDiscountClick}
                     >
                       <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
-                      {appliedDiscounts.length > 0 ? `${appliedDiscounts.length} Discount${appliedDiscounts.length > 1 ? 's' : ''}` : 'Discount'}
+                      {currentTicketDiscounts.length > 0 ? `${currentTicketDiscounts.length} Discount${currentTicketDiscounts.length > 1 ? 's' : ''}` : 'Discount'}
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
@@ -2532,9 +2570,17 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   <span className="text-muted-foreground">Sub Total</span>
                   <span className="text-foreground font-semibold">{formatPrice(selectedGuest.subtotal)}</span>
                 </div>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1 group relative">
                   <span className="text-muted-foreground">Discount</span>
-                  <span className="text-foreground font-semibold">{formatPrice(selectedGuest.discount)}</span>
+                  <span className="text-foreground font-semibold">{formatPrice(effectiveDiscount)}</span>
+                  {currentTicketDiscounts.length > 0 && (
+                    <>
+                      <button onClick={() => handleApplyTicketDiscounts([])} className="text-white hover:text-white/80 text-xs font-bold ml-0.5">×</button>
+                      <span className="absolute left-0 -top-7 bg-black/90 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                        {currentTicketDiscounts.map(d => d.name).join(', ')}
+                      </span>
+                    </>
+                  )}
                 </div>
               </div>
               <div className="flex items-center gap-3">
@@ -3156,7 +3202,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               return (
               <div key={guest.id} className="space-y-0">
                 <div 
-                  onClick={() => setSelectedGuest(guest)} 
+                  onClick={() => { setSelectedGuest(guest); setAppliedDiscounts(ticketDiscounts[guest.id] || []); }} 
                   className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} 
                   style={{ backgroundColor: '#1B1C20' }}
                 >
@@ -3319,11 +3365,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 Add Item
               </button>
               <button 
-                className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${appliedDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}
-                onClick={() => setIsDiscountDialogOpen(true)}
+                className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${currentTicketDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}
+                onClick={handleDiscountClick}
               >
                 <img src={discountIcon} alt="" className="w-3 h-3" />
-                Discount {appliedDiscounts.length > 0 && `(${appliedDiscounts.length})`}
+                Discount {currentTicketDiscounts.length > 0 && `(${currentTicketDiscounts.length})`}
               </button>
               <button 
                 className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
@@ -3688,9 +3734,17 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                         <span className="text-foreground font-semibold">{formatPrice(selectedGuest.subtotal)}</span>
                       )}
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 group relative">
                       <span className="text-muted-foreground">Discount</span>
-                      <span className="text-foreground font-semibold">{formatPrice(selectedGuest.discount)}</span>
+                      <span className="text-foreground font-semibold">{formatPrice(effectiveDiscount)}</span>
+                      {currentTicketDiscounts.length > 0 && (
+                        <>
+                          <button onClick={() => handleApplyTicketDiscounts([])} className="text-white hover:text-white/80 text-xs font-bold ml-0.5">×</button>
+                          <span className="absolute left-0 -top-7 bg-black/90 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                            {currentTicketDiscounts.map(d => d.name).join(', ')}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -4064,7 +4118,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               </div>
             ) : filteredOrders.map(guest => (
               <div key={guest.id} className="space-y-0">
-                <div onClick={() => setSelectedGuest(guest)} className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{ backgroundColor: '#1B1C20' }}>
+                <div onClick={() => { setSelectedGuest(guest); setAppliedDiscounts(ticketDiscounts[guest.id] || []); }} className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{ backgroundColor: '#1B1C20' }}>
                   <div className="flex items-stretch w-full">
                     {/* Column 1: Order Number Box */}
                     <div className="flex-shrink-0 px-2 py-2 flex items-center">
@@ -4194,11 +4248,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 Add Item
               </button>
               <button 
-                className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${appliedDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}
-                onClick={() => setIsDiscountDialogOpen(true)}
+                className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${currentTicketDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}
+                onClick={handleDiscountClick}
               >
                 <img src={discountIcon} alt="" className="w-3 h-3" />
-                Discount {appliedDiscounts.length > 0 && `(${appliedDiscounts.length})`}
+                Discount {currentTicketDiscounts.length > 0 && `(${currentTicketDiscounts.length})`}
               </button>
               <button 
                 className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
@@ -4519,9 +4573,17 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       <span className="text-muted-foreground">Sub Total</span>
                       <span className="text-foreground font-semibold">{formatPrice(selectedGuest.subtotal)}</span>
                     </div>
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 group relative">
                       <span className="text-muted-foreground">Discount</span>
-                      <span className="text-foreground font-semibold">{formatPrice(selectedGuest.discount)}</span>
+                      <span className="text-foreground font-semibold">{formatPrice(effectiveDiscount)}</span>
+                      {currentTicketDiscounts.length > 0 && (
+                        <>
+                          <button onClick={() => handleApplyTicketDiscounts([])} className="text-white hover:text-white/80 text-xs font-bold ml-0.5">×</button>
+                          <span className="absolute left-0 -top-7 bg-black/90 text-white text-[10px] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity z-50">
+                            {currentTicketDiscounts.map(d => d.name).join(', ')}
+                          </span>
+                        </>
+                      )}
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -5996,12 +6058,28 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         onNoReceipt={() => console.log('No receipt')}
       />
 
+      {/* Manager PIN Authorization for Discount */}
+      {showDiscountMpin && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            <AccessRestrictedModal
+              subtitle="Manager approval required to apply discount."
+              onBack={() => setShowDiscountMpin(false)}
+              onSuccess={() => {
+                setShowDiscountMpin(false);
+                setIsDiscountDialogOpen(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Discount Dialog */}
       <DiscountDialog
         open={isDiscountDialogOpen}
         onOpenChange={setIsDiscountDialogOpen}
-        onApplyDiscounts={setAppliedDiscounts}
-        currentDiscounts={appliedDiscounts}
+        onApplyDiscounts={handleApplyTicketDiscounts}
+        currentDiscounts={currentTicketDiscounts}
         subtotal={selectedGuest.subtotal}
       />
 

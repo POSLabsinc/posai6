@@ -7283,10 +7283,10 @@ const Orders = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowDiscountMpin(true)}
-                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                  className={`${selectedDiscounts.length > 0 ? 'text-primary' : 'text-white'} hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2`}>
 
                       <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
-                      Discount
+                      Discount {selectedDiscounts.length > 0 && `(${selectedDiscounts.length})`}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}

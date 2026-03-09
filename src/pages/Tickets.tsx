@@ -239,12 +239,12 @@ const allOrders: GuestOrder[] = [
       { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: [] },
       { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette"], notes: ["Cook temperature: Medium rare"] }
     ],
-    subtotal: 68.00,
+    subtotal: 88.00,
     discount: 5.00,
-    serviceCharge: 3.40,
-    tax: 4.56,
+    serviceCharge: 4.40,
+    tax: 6.10,
     tip: 0,
-    total: 70.96
+    total: 93.50
   },
   {
     id: "2",

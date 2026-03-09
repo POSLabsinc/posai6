@@ -6315,6 +6315,7 @@ const Orders = () => {
 
   // Seat filter for cart display - empty array means show all, 'all' for shared items, numbers for specific seats (multi-select)
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>([]);
+  const [clearCounter, setClearCounter] = useState(0);
 
   // Toggle seat selection for table orders
   const toggleSeatSelection = (seatNumber: number) => {
@@ -6375,6 +6376,8 @@ const Orders = () => {
     setShowCustomOrderForm(false);
     // Reset panel state
     setIsOrderPanelExpanded(false);
+    setSeatFilter([]);
+    setClearCounter(prev => prev + 1);
   };
 
   const filteredOrderItems = seatFilter.length === 0 ?
@@ -7535,7 +7538,7 @@ const Orders = () => {
                 <img src={emptyOrderIcon} alt="Empty order" className="w-8 h-8 opacity-50 mb-2" />
                 <span className="text-xs">Let's create an order</span>
               </div>
-            ) : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
+            ) : <ScrollArea key={`mobile-scroll-${clearCounter}`} className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
                 <div className="px-1.5 py-0.5 space-y-0.5">
                   {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
                       <div
@@ -8493,7 +8496,7 @@ const Orders = () => {
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                   <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
-                    <span>MIA JONE</span>
+                    <span>{guestName || "Guest"}</span>
                   </div>
                 </div>
             }
@@ -8719,7 +8722,7 @@ const Orders = () => {
               }
 
                   {/* Order Items */}
-                  <ScrollArea className="flex-1 min-h-0 px-2">
+                  <ScrollArea key={`desktop-scroll-${clearCounter}`} className="flex-1 min-h-0 px-2">
                     {orderItems.length === 0 ? <div className="flex flex-col items-center justify-center h-full py-8">
                         <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
                         <span className="text-muted-foreground text-sm">Let's create an order</span>

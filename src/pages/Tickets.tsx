@@ -2896,7 +2896,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                         <img src={receiptIcon} alt="" className="w-5 h-5 brightness-0 invert" />
                       </button>
                       <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-register-gradient">
-                        <img src={registerIcon} alt="Register" className="w-5 h-5 object-contain brightness-0 invert" />
+                        <img src={registerIcon} alt="Register" className="w-5 h-5 object-contain brightness-0 invert invert" />
                       </button>
                     </>
                   ) : (
@@ -3257,7 +3257,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                               <img src={receiptIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
                             </button>
                             <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-register-gradient" onClick={e => e.stopPropagation()}>
-                              <img src={registerIcon} alt="Register" className="w-3.5 h-3.5 object-contain brightness-0" />
+                              <img src={registerIcon} alt="Register" className="w-3.5 h-3.5 object-contain brigh inverttness-0" />
                             </button>
                           </>
                         ) : (

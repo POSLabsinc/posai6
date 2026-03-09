@@ -1250,10 +1250,10 @@ export function PaymentDialog({
                                   return next;
                                 });
                               }}
-                              className={`relative rounded-full font-medium transition-all border whitespace-nowrap ${sizeClass} ${
+                              className={`relative rounded-full font-medium transition-colors duration-200 border-2 whitespace-nowrap ${sizeClass} ${
                                 isSelected
-                                  ? 'bg-blue-600/30 border-blue-500 text-blue-200 ring-1 ring-blue-500 scale-105'
-                                  : 'bg-neutral-800 border-neutral-600 text-neutral-300 hover:border-neutral-400 hover:bg-neutral-700'
+                                  ? 'bg-blue-600/25 border-blue-500 text-blue-200'
+                                  : 'bg-neutral-800 border-transparent text-neutral-300 hover:border-neutral-500 hover:bg-neutral-700'
                               }`}
                             >
                               {label}

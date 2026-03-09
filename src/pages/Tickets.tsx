@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface TicketsProps {
   isClosedTicketsMode?: boolean;
@@ -662,6 +663,12 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  const handleAddProduct = () => {
+    if (!selectedGuest) return;
+    navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`);
+  };
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
@@ -2276,9 +2283,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   <>
                     <DropdownMenuItem 
                       className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                      onClick={handleAddProduct}
                     >
                       <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />
-                      Add Item
+                      Add Product
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className={`text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2 ${currentTicketDiscounts.length > 0 ? 'bg-primary/20' : ''}`}
@@ -3408,9 +3416,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           </div>
           {!(selectedGuest.status === "PAID" || selectedGuest.paid) && (
             <div className="flex gap-2 items-center">
-              <button className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1">
+              <button onClick={handleAddProduct} className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1">
                 <img src={customItemIcon} alt="" className="w-3 h-3" />
-                Add Item
+                Add Product
               </button>
               <button 
                 className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${currentTicketDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}
@@ -4288,9 +4296,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           </div>
           {!(selectedGuest.status === "PAID" || selectedGuest.paid) && (
             <div className="flex gap-1 items-center flex-wrap">
-              <button className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1">
+              <button onClick={handleAddProduct} className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1">
                 <img src={customItemIcon} alt="" className="w-3 h-3" />
-                Add Item
+                Add Product
               </button>
               <button 
                 className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${currentTicketDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}

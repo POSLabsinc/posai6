@@ -2,33 +2,15 @@
 
 ## Problem
 
-The "Add Item" buttons in the Tickets module (Desktop dropdown, Tablet button, Mobile button) have no `onClick` handler — they're non-functional. When tapped on Unpaid/Ordering tickets, they should navigate to the New Order screen with the ticket's existing data pre-filled, allowing the user to add new products and recalculate totals.
+The voucher mode fix was applied to `AppSidebar.tsx`, but the **actual sidebar rendered in the Layout** is `DraggableSidebar.tsx`. That's why the "New Order" link still shows as active — `DraggableSidebar.tsx` has no voucher mode logic at all.
 
 ## Plan
 
-### 1. Import `useNavigate` in `src/pages/Tickets.tsx`
-Add `import { useNavigate } from "react-router-dom";` and call `const navigate = useNavigate();` inside the component.
+**File: `src/components/DraggableSidebar.tsx`**
 
-### 2. Create `handleAddProduct` handler
-```tsx
-const handleAddProduct = () => {
-  if (!selectedGuest) return;
-  navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`);
-};
-```
-This uses the same URL pattern already supported by `Orders.tsx` (`addItem` mode), which pre-populates guest name, phone, notes, order type, and existing products in the cart.
+1. Import `useVoucherMode` from the context and `Link` + `useLocation` from react-router-dom
+2. Add the same `isOrdersVoucherMode` logic
+3. For the Orders nav item (when `isOrdersVoucherMode && item.url === '/orders'`), render a plain `<Link>` instead of `<NavLink>` to suppress the active state — same pattern already applied in `AppSidebar.tsx`
 
-### 3. Wire the three "Add Item" buttons
-
-- **Desktop** (~line 2277): Add `onClick={handleAddProduct}` to the dropdown menu item
-- **Tablet** (~line 3411): Add `onClick={handleAddProduct}` to the button
-- **Mobile** (~line 4291): Add `onClick={handleAddProduct}` to the button
-
-All three buttons already have the correct visibility guard (`!(selectedGuest.status === "PAID" || selectedGuest.paid)`), so they only appear for Unpaid/Ordering tickets.
-
-### 4. Rename labels
-Change "Add Item" to "Add Product" per terminology standards on all three buttons.
-
-### Result
-Tapping "Add Product" on an Unpaid/Ordering ticket navigates to the New Order screen with the ticket's existing products pre-filled in the order section. The user can then add new products, and totals recalculate automatically (existing `addItem` mode logic in Orders.tsx handles this).
+This needs to be applied in the rendering logic around lines 240-265 where the nav items are rendered with `NavLink` and `activeClassName`.
 

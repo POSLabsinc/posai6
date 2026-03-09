@@ -582,28 +582,14 @@ const KDS = () => {
     return () => clearInterval(interval);
   }, [knownIds, soundEnabled]);
 
-  // Poll localStorage for kitchen messages every 2 seconds
+  // Poll pending message count for badge
   useEffect(() => {
     const load = () => {
       try {
         const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
-        const active = queue.filter((m: any) => m.status !== "acknowledged");
-        const converted: KDSTicket[] = active.map((msg: any) => ({
-          id: `msg-${msg.message_id}`,
-          orderNumber: 0,
-          orderType: "DINE IN" as const,
-          tableNumber: msg.table_number || "General",
-          serverName: msg.employee_name || "Staff",
-          createdAt: new Date(msg.timestamp || Date.now()),
-          products: [{ qty: 1, name: msg.message_text || msg.message, category: "MESSAGE", modifiers: [], status: "pending" as const }],
-          status: "active" as const,
-          priority: "normal" as const,
-          type: "MESSAGE",
-        }));
-        setMessageTickets(converted);
-      } catch {
-        setMessageTickets([]);
-      }
+        const count = queue.filter((m: any) => m.status !== "acknowledged").length;
+        setPendingMessageCount(count);
+      } catch { setPendingMessageCount(0); }
     };
     load();
     const interval = setInterval(load, 2000);
@@ -611,7 +597,6 @@ const KDS = () => {
   }, []);
 
   const activeTickets = tickets.filter(t => t.status === "active");
-  const allActiveTickets = [...messageTickets, ...activeTickets];
   const totalInQueue = activeTickets.reduce((sum, t) => sum + t.products.filter(p => p.status === "pending" || p.status === "cooking").length, 0);
 
   const handleBump = useCallback((id: string) => {

@@ -6353,6 +6353,8 @@ const Orders = () => {
   };
 
   const filteredOrderItems = seatFilter.length === 0 ?
+  orderItems :
+  orderItems.filter((item) => {
     // Check if item matches any of the selected filters
     return seatFilter.some((filter) => {
       if (filter === 'all') {

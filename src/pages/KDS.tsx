@@ -442,7 +442,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
           <div className="flex items-center justify-between mb-1">
             <span className="text-[10px] text-neutral-400 font-mono">{timeStr}</span>
             {ticket.tableNumber && (
-              <span className="text-[10px] text-neutral-400 font-semibold">T. {normalizeTableNumber(ticket.tableNumber)}</span>
+              <span className="text-[10px] text-neutral-400 font-semibold">Table {normalizeTableNumber(ticket.tableNumber)}</span>
             )}
           </div>
           {/* Centered order number */}

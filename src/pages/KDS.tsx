@@ -378,7 +378,7 @@ const ProductStatusIcon = ({ status }: { status: string }) => {
 };
 
 // ─── Ticket Card ───
-const TicketCard = ({ ticket, onBump, onSeen }: { ticket: KDSTicket; onBump: (id: string) => void; onSeen: (id: string) => void }) => {
+const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowledgeMessage }: { ticket: KDSTicket; onBump: (id: string) => void; onSeen: (id: string) => void; attachedMessages?: KDSMessageData[]; onAcknowledgeMessage?: (messageId: string) => void }) => {
   const isMessage = (ticket as any).type === "MESSAGE";
   const [elapsedSeconds, setElapsedSeconds] = useState(() => Math.floor((Date.now() - ticket.createdAt.getTime()) / 1000));
   const elapsed = Math.floor(elapsedSeconds / 60);
@@ -494,6 +494,34 @@ const TicketCard = ({ ticket, onBump, onSeen }: { ticket: KDSTicket; onBump: (id
         )}
       </div>
 
+      {/* Attached Kitchen Messages */}
+      {!isMessage && attachedMessages.length > 0 && (
+        <div className="border-t border-violet-600/40">
+          {attachedMessages.map(msg => (
+            <div key={msg.message_id} className="border-b border-neutral-700 last:border-b-0">
+              <div className="bg-gradient-to-r from-violet-700 to-indigo-700 px-3 py-1.5 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Megaphone className="w-3 h-3 text-white/80" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Kitchen Message</span>
+                </div>
+                <span className="text-[10px] text-white/70 font-mono">{format(new Date(msg.timestamp), "hh:mm a")}</span>
+              </div>
+              <div className="bg-neutral-800 px-3 py-2">
+                <p className="text-xs text-white leading-relaxed whitespace-pre-wrap break-words">{msg.message_text}</p>
+                <p className="text-[10px] text-neutral-500 mt-1">From. <span className="text-neutral-300">{msg.employee_name}</span></p>
+              </div>
+              {msg.status === "pending" && onAcknowledgeMessage && (
+                <div className="bg-neutral-900 px-3 py-2">
+                  <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
+                    <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Action Button */}
       <div className="p-2 border-t border-neutral-700">
         {isMessage ? (
@@ -595,18 +623,42 @@ const KDS = () => {
     return () => clearInterval(interval);
   }, [knownIds, soundEnabled]);
 
-  // Poll pending message count for badge
+  // Poll pending messages for badge + attached messages
+  const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
   useEffect(() => {
     const load = () => {
       try {
-        const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
-        const count = queue.filter((m: any) => m.status !== "acknowledged").length;
+        const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]").map((m: any) => ({ ...m, status: m.status || "pending" }));
+        setKdsMessages(queue);
+        const count = queue.filter(m => m.status !== "acknowledged").length;
         setPendingMessageCount(count);
-      } catch { setPendingMessageCount(0); }
+      } catch { setPendingMessageCount(0); setKdsMessages([]); }
     };
     load();
     const interval = setInterval(load, 2000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Build a map of table number -> pending messages for that table
+  const messagesByTable = useMemo(() => {
+    const map = new Map<string, KDSMessageData[]>();
+    kdsMessages.filter(m => m.status === "pending" && (m.table_number || m.table_id)).forEach(msg => {
+      const tableKey = (msg.table_number || msg.table_id || "").replace(/^T\.?\s*/i, "").trim().toUpperCase();
+      if (!tableKey) return;
+      const arr = map.get(tableKey) || [];
+      arr.push(msg);
+      map.set(tableKey, arr);
+    });
+    return map;
+  }, [kdsMessages]);
+
+  const handleAcknowledgeMessage = useCallback((messageId: string) => {
+    try {
+      const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
+      const updated = queue.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m);
+      localStorage.setItem("kds_message_queue", JSON.stringify(updated));
+      setKdsMessages(updated);
+    } catch {}
   }, []);
 
   const activeTickets = tickets.filter(t => t.status === "active");
@@ -683,7 +735,7 @@ const KDS = () => {
           <div className="flex-1 overflow-x-auto overflow-y-hidden">
              <div className="flex gap-3 p-3 h-full items-start">
               {activeTickets.map(ticket => (
-                <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} />
+                <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} attachedMessages={ticket.tableNumber ? (messagesByTable.get(ticket.tableNumber.replace(/^T\.?\s*/i, "").trim().toUpperCase()) || []) : []} onAcknowledgeMessage={handleAcknowledgeMessage} />
               ))}
               {activeTickets.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 gap-3">

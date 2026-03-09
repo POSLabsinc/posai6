@@ -8282,14 +8282,14 @@ const Orders = () => {
                   {showCustomItemPanel ? "Menu" : "Custom Item"}
                 </Button>
                 <Button
-                variant="secondary"
-                size="sm"
-                className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
-                onClick={() => setShowDiscountMpin(true)}>
+                 variant="secondary"
+                 size="sm"
+                 className={`text-[10px] rounded-[10px] ${selectedDiscounts.length > 0 ? 'bg-primary/30 border-primary text-primary' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
+                 onClick={() => setShowDiscountMpin(true)}>
 
-                  <img src={discountBtnIcon} alt="" className="w-3 h-3" />
-                  Discount
-                </Button>
+                   <img src={discountBtnIcon} alt="" className="w-3 h-3" />
+                   Discount {selectedDiscounts.length > 0 && `(${selectedDiscounts.length})`}
+                 </Button>
                 <Button
                 variant="secondary"
                 size="sm"

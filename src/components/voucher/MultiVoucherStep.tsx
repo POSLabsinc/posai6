@@ -787,8 +787,8 @@ const MultiVoucherStep = ({
               key={config.name}
               className={`text-left rounded-2xl transition-colors duration-200 relative overflow-hidden ${theme.bg} border-2 ${
                 selected
-                  ? `${theme.glow}`
-                  : `${theme.border} border-transparent hover:border-neutral-600`
+                  ? theme.glow
+                  : 'border-transparent hover:border-neutral-600'
               }`}
             >
               <button onClick={() => toggleTemplate(config.name)} className="w-full text-left">

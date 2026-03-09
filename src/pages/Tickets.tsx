@@ -2288,10 +2288,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       {currentTicketDiscounts.length > 0 ? `${currentTicketDiscounts.length} Discount${currentTicketDiscounts.length > 1 ? 's' : ''}` : 'Discount'}
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                      className={`${isCurrentTicketTaxExempt ? 'text-orange-500' : 'text-white'} hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2`}
+                      onClick={handleNoTaxClick}
                     >
                       <img src={noTaxIcon} alt="" className="w-3.5 h-3.5" />
-                      No Tax
+                      {isCurrentTicketTaxExempt ? 'Tax Exempt ✓' : 'No Tax'}
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"

@@ -4248,11 +4248,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 Add Item
               </button>
               <button 
-                className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${appliedDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}
-                onClick={() => setIsDiscountDialogOpen(true)}
+                className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${currentTicketDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}
+                onClick={handleDiscountClick}
               >
                 <img src={discountIcon} alt="" className="w-3 h-3" />
-                Discount {appliedDiscounts.length > 0 && `(${appliedDiscounts.length})`}
+                Discount {currentTicketDiscounts.length > 0 && `(${currentTicketDiscounts.length})`}
               </button>
               <button 
                 className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"

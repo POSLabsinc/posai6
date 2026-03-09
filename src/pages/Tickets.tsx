@@ -4141,7 +4141,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                             <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient">
                               <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
                             </button>
-                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-neutral-gradient" onClick={e => e.stopPropagation()}>
+                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-transfer-gradient" onClick={e => e.stopPropagation()}>
                               <img src={shareOrderIcon} alt="Share" className="w-4 h-4 object-contain brightness-0" />
                             </button>
                           </>

@@ -850,6 +850,17 @@ All colors MUST be HSL.
   }
 }
 
+/* Ticket card action button gradients */
+.btn-action-gradient {
+  background: linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%);
+}
+.btn-neutral-gradient {
+  background: hsl(0, 0%, 30%);
+}
+.btn-receipt-gradient {
+  background: hsl(0, 0%, 40%);
+}
+
 /* Bold Text accessibility setting - applied globally when toggled on */
 .app-bold-text * {
   font-weight: bold !important;

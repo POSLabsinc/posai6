@@ -20,8 +20,7 @@ export const CARD_THEMES: CardTheme[] = [
   {
     bg: 'bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900',
     border: 'border-amber-900/40',
-    glow: 'border-amber-500/6ext: 'text-amber-300',
-    valueBg: 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-clip-text text-transparent',
+    glow: 'border-amber-500/6400 via-yellow-300 to-amber-400 bg-clip-text text-transparent',
     subtitle: 'text-amber-500/70',
     pattern: (
       <>
@@ -36,11 +35,7 @@ export const CARD_THEMES: CardTheme[] = [
     bg: 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900',
     border: 'border-blue-800/40',
     glow: 'shadow-[0_0_20px_rgba(96,165,250,0.25)] border-blue-400/60 ring-1border-blue-400/6
-    badgeBg: 'bg-blue-500/15 border-blue-500/30border-blue-400/6ia-cyan-200 to-blue-300 bg-clip-text text-transparent',
-    subtitle: 'text-blue-500/70',
-    pattern: (
-      <>
-        <div className="absolute top-0 left-0 w-full h-full opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(135deg, transparent, transparent 20px, rgba(96,165,250,0.3) 20px, rgba(96,165,250,0.3) 21px)' }} />
+    badgeBg: 'bg-blue-500/15 border-blue-500/30border-blue-400/6ia-cyan-200 to-blue-300 bg-clip-text text-transpborder-blue-400/6assName="absolute top-0 left-0 w-full h-full opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(135deg, transparent, transparent 20px, rgba(96,165,250,0.3) 20px, rgba(96,165,250,0.3) 21px)' }} />
         <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full opacity-[0.06]" style={{ background: 'radial-gradient(circle, #60a5fa 0%, transparent 70%)' }} />
       </>
     ),
@@ -52,11 +47,7 @@ export const CARD_THEMES: CardTheme[] = [
     glow: 'shadow-[0_0_20px_rgba(244,114,182,0.25)] border-rose-400/60 ring-1 ring-rose-400/30',
     accent: 'text-rose-400',
     accentTextborder-rose-400/6: 'text-rose-300',
-    valueBg: 'bg-gradient-to-r from-rose-300 via-pink-200 to-rose-300 bg-clip-text text-transparent',
-    subtitle: 'text-rose-500/70',
-    pattern: (
-      <>
-        <div className="absolute top-0 right-0 w-full h-full opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, rgba(244,114,182,0.4) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(244,114,182,0.3) 0%, transparent 50%)' }} />
+    valueBg: 'bg-gradient-to-r from-rose-300 via-pink-200 to-rose-300 bg-clip-text text-transborder-rose-400/6assName="absolute top-0 right-0 w-full h-full opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, rgba(244,114,182,0.4) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(244,114,182,0.3) 0%, transparent 50%)' }} />
         <div className="absolute top-2 right-3 opacity-[0.08]"><Sparkles className="w-6 h-6 text-rose-400" /></div>
       </>
     ),
@@ -68,9 +59,7 @@ export const CARD_THEMES: CardTheme[] = [
     glow: 'shadow-[0_0_20px_rgba(52,211,153,0.25)] border-emerald-400/60 ring-1 ring-emerald-400/30',
     accent: 'text-emerald-400',
     accentText: 'text-emerald-300',
-    badgeBg: 'bg-emerald-500/15 border-emerald-500/30',
-    badgeText: 'text-emerald-300',
-    valueBg: 'bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-300 bg-clip-text text-transparent',
+    badgeBg: 'bg-emerald-500/15 borborder-emerald-400/6from-emerald-300 via-teal-200 to-emerald-300 bg-clip-text text-transparent',
     subtitle: 'text-emerald-500/70',
     pattern: (
       <>

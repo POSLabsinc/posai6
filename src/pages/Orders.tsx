@@ -7532,7 +7532,7 @@ const Orders = () => {
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
             {orderItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
-                <ShoppingCart className="w-8 h-8 mb-2 opacity-50" />
+                <img src={emptyOrderIcon} alt="Empty order" className="w-8 h-8 opacity-50 mb-2" />
                 <span className="text-xs">Let's create an order</span>
               </div>
             ) : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>

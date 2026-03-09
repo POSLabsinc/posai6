@@ -6337,9 +6337,22 @@ const Orders = () => {
   };
 
   // Filter order items based on seat filter (multi-select)
+  const handleClearOrder = () => {
+    setOrderItems([]);
+    setSelectedDiscounts([]);
+    setAppliedServiceCharge(0);
+    setAppliedServiceChargeName('');
+    setAppliedGiftCardAmount(0);
+    setAppliedVoucherAmount(0);
+    setVoucherCode('');
+    setOrderNotes('');
+    setGuestName('');
+    setGuestPhone('');
+    setActiveSwipedItemId(null);
+    setExpandedCartItems(new Set());
+  };
+
   const filteredOrderItems = seatFilter.length === 0 ?
-  orderItems :
-  orderItems.filter((item) => {
     // Check if item matches any of the selected filters
     return seatFilter.some((filter) => {
       if (filter === 'all') {

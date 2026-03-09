@@ -20,9 +20,7 @@ export const CARD_THEMES: CardTheme[] = [
   {
     bg: 'bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900',
     border: 'border-amber-900/40',
-    glow: 'border-amber-500/6',
-    badgeBg: 'bg-amber-500/15 border-amber-500/30',
-    badgeText: 'text-amber-300',
+    glow: 'border-amber-500/6ext: 'text-amber-300',
     valueBg: 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-clip-text text-transparent',
     subtitle: 'text-amber-500/70',
     pattern: (
@@ -38,9 +36,7 @@ export const CARD_THEMES: CardTheme[] = [
     bg: 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900',
     border: 'border-blue-800/40',
     glow: 'shadow-[0_0_20px_rgba(96,165,250,0.25)] border-blue-400/60 ring-1border-blue-400/6
-    badgeBg: 'bg-blue-500/15 border-blue-500/30',
-    badgeText: 'text-blue-300',
-    valueBg: 'bg-gradient-to-r from-blue-300 via-cyan-200 to-blue-300 bg-clip-text text-transparent',
+    badgeBg: 'bg-blue-500/15 border-blue-500/30border-blue-400/6ia-cyan-200 to-blue-300 bg-clip-text text-transparent',
     subtitle: 'text-blue-500/70',
     pattern: (
       <>
@@ -55,9 +51,7 @@ export const CARD_THEMES: CardTheme[] = [
     border: 'border-rose-800/40',
     glow: 'shadow-[0_0_20px_rgba(244,114,182,0.25)] border-rose-400/60 ring-1 ring-rose-400/30',
     accent: 'text-rose-400',
-    accentText: 'text-rose-300',
-    badgeBg: 'bg-rose-500/15 border-rose-500/30',
-    badgeText: 'text-rose-300',
+    accentTextborder-rose-400/6: 'text-rose-300',
     valueBg: 'bg-gradient-to-r from-rose-300 via-pink-200 to-rose-300 bg-clip-text text-transparent',
     subtitle: 'text-rose-500/70',
     pattern: (

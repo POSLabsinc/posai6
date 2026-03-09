@@ -461,6 +461,34 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
         </div>
       )}
 
+      {/* Attached Kitchen Messages — shown at top */}
+      {!isMessage && attachedMessages.length > 0 && (
+        <div className="border-b border-violet-600/40">
+          {attachedMessages.map(msg => (
+            <div key={msg.message_id} className="border-b border-neutral-700 last:border-b-0">
+              <div className="bg-gradient-to-r from-violet-700 to-indigo-700 px-3 py-1.5 flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <Megaphone className="w-3 h-3 text-white/80" />
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Kitchen Message</span>
+                </div>
+                <span className="text-[10px] text-white/70 font-mono">{format(new Date(msg.timestamp), "hh:mm a")}</span>
+              </div>
+              <div className="bg-neutral-800 px-3 py-2">
+                <p className="text-xs text-white leading-relaxed whitespace-pre-wrap break-words">{msg.message_text}</p>
+                <p className="text-[10px] text-neutral-500 mt-1">From. <span className="text-neutral-300">{msg.employee_name}</span></p>
+              </div>
+              {msg.status === "pending" && onAcknowledgeMessage && (
+                <div className="bg-neutral-900 px-3 py-2">
+                  <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
+                    <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
+                  </Button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Products / Message Content */}
       <div className="flex-1 overflow-y-auto scrollbar-hide px-3 py-1 space-y-0.5">
         {isMessage ? (
@@ -508,34 +536,6 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
           })
         )}
       </div>
-
-      {/* Attached Kitchen Messages */}
-      {!isMessage && attachedMessages.length > 0 && (
-        <div className="border-t border-violet-600/40">
-          {attachedMessages.map(msg => (
-            <div key={msg.message_id} className="border-b border-neutral-700 last:border-b-0">
-              <div className="bg-gradient-to-r from-violet-700 to-indigo-700 px-3 py-1.5 flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Megaphone className="w-3 h-3 text-white/80" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Kitchen Message</span>
-                </div>
-                <span className="text-[10px] text-white/70 font-mono">{format(new Date(msg.timestamp), "hh:mm a")}</span>
-              </div>
-              <div className="bg-neutral-800 px-3 py-2">
-                <p className="text-xs text-white leading-relaxed whitespace-pre-wrap break-words">{msg.message_text}</p>
-                <p className="text-[10px] text-neutral-500 mt-1">From. <span className="text-neutral-300">{msg.employee_name}</span></p>
-              </div>
-              {msg.status === "pending" && onAcknowledgeMessage && (
-                <div className="bg-neutral-900 px-3 py-2">
-                  <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
-                    <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
-                  </Button>
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      )}
 
       {/* Action Button */}
       <div className="p-2 border-t border-neutral-700">

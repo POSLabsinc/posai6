@@ -201,8 +201,131 @@ const ItemSummary = ({ tickets }: { tickets: KDSTicket[] }) => {
   );
 };
 
+// ─── KDS Messages Panel ───
+interface KDSMessageData {
+  message_id: string;
+  message_text: string;
+  store_id: string;
+  terminal_id: string;
+  employee_id: string;
+  employee_name: string;
+  table_id: string | null;
+  table_number?: string | null;
+  timestamp: string;
+  status: "pending" | "acknowledged";
+  acknowledged_at?: string;
+}
+
+const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
+  const [messages, setMessages] = useState<KDSMessageData[]>([]);
+  const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
+  const [flashId, setFlashId] = useState<string | null>(null);
+  const prevCountRef = useRef(0);
+
+  const refreshMessages = useCallback(() => {
+    try {
+      const raw = localStorage.getItem("kds_message_queue");
+      if (!raw) { setMessages([]); return; }
+      const parsed: KDSMessageData[] = JSON.parse(raw).map((m: any) => ({ ...m, status: m.status || "pending" }));
+      setMessages(parsed);
+      const pendingCount = parsed.filter(m => m.status === "pending").length;
+      if (pendingCount > prevCountRef.current && prevCountRef.current > 0) {
+        const newest = parsed.filter(m => m.status === "pending").sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+        if (newest) { setFlashId(newest.message_id); setTimeout(() => setFlashId(null), 2000); }
+      }
+      prevCountRef.current = pendingCount;
+    } catch { setMessages([]); }
+  }, []);
+
+  useEffect(() => {
+    refreshMessages();
+    const interval = setInterval(refreshMessages, 2000);
+    return () => clearInterval(interval);
+  }, [refreshMessages]);
+
+  const handleAcknowledge = (messageId: string) => {
+    const updated = messages.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m);
+    localStorage.setItem("kds_message_queue", JSON.stringify(updated));
+    setMessages(updated);
+  };
+
+  const filtered = messages.filter(m => m.status === filter).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  const seen = new Set<string>();
+  const deduplicated = filtered.filter(m => { if (seen.has(m.message_id)) return false; seen.add(m.message_id); return true; });
+
+  return (
+    <div className="w-80 bg-neutral-900 border-l border-neutral-800 flex flex-col h-full shrink-0 overflow-hidden">
+      {/* Header */}
+      <div className="flex items-center gap-2 px-3 py-3 border-b border-neutral-800 shrink-0">
+        <Megaphone className="w-4 h-4 text-violet-400" />
+        <h2 className="text-sm font-bold flex-1">Kitchen Messages</h2>
+        {messages.filter(m => m.status === "pending").length > 0 && (
+          <span className="flex items-center gap-1 bg-violet-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+            <Bell className="w-3 h-3" />
+            {messages.filter(m => m.status === "pending").length}
+          </span>
+        )}
+        <button onClick={onClose} className="p-1 hover:bg-neutral-800 rounded-lg transition-colors">
+          <X className="w-4 h-4 text-neutral-400" />
+        </button>
+      </div>
+
+      {/* Filter */}
+      <div className="flex gap-1 px-3 py-2 shrink-0">
+        <button onClick={() => setFilter("pending")} className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors ${filter === "pending" ? "bg-violet-600 text-white" : "bg-neutral-800 text-neutral-400 hover:bg-neutral-700"}`}>
+          Active ({messages.filter(m => m.status === "pending").length})
+        </button>
+        <button onClick={() => setFilter("acknowledged")} className={`flex-1 py-1.5 rounded-lg text-xs font-semibold transition-colors ${filter === "acknowledged" ? "bg-violet-600 text-white" : "bg-neutral-800 text-neutral-400 hover:bg-neutral-700"}`}>
+          Done ({messages.filter(m => m.status === "acknowledged").length})
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-2 scrollbar-hide">
+        {deduplicated.length === 0 ? (
+          <div className="flex flex-col items-center justify-center h-full text-neutral-500 gap-2">
+            <Megaphone className="w-10 h-10 opacity-30" />
+            <p className="text-xs font-medium">{filter === "pending" ? "No active messages" : "No acknowledged messages"}</p>
+          </div>
+        ) : deduplicated.map(msg => (
+          <div key={msg.message_id} className={`rounded-xl overflow-hidden border transition-all duration-300 ${flashId === msg.message_id ? "border-violet-400 ring-2 ring-violet-400/50 animate-pulse" : "border-neutral-700"}`}>
+            <div className="bg-gradient-to-r from-violet-700 to-indigo-700 px-3 py-2 flex items-center justify-between">
+              <div className="flex items-center gap-1.5">
+                <Megaphone className="w-3 h-3 text-white/80" />
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Kitchen Message</span>
+              </div>
+              <span className="text-[10px] text-white/70 font-mono">{format(new Date(msg.timestamp), "hh:mm a")}</span>
+            </div>
+            <div className="bg-neutral-800 px-3 py-1.5 flex items-center gap-3 text-[10px] text-neutral-400 border-b border-neutral-700">
+              <span>From: <span className="text-white font-medium">{msg.employee_name}</span></span>
+              {(msg.table_id || msg.table_number) && <span>Table: <span className="text-white font-medium">{msg.table_number || msg.table_id}</span></span>}
+            </div>
+            <div className="bg-neutral-900 px-3 py-3">
+              <p className="text-xs leading-relaxed whitespace-pre-wrap break-words">{msg.message_text}</p>
+            </div>
+            {msg.status === "pending" ? (
+              <div className="bg-neutral-900 px-3 pb-3 pt-1">
+                <Button onClick={() => handleAcknowledge(msg.message_id)} className="w-full bg-white text-black hover:bg-neutral-200 font-bold text-xs py-3 rounded-lg">
+                  <Check className="w-3 h-3 mr-1.5" /> ACKNOWLEDGE
+                </Button>
+              </div>
+            ) : (
+              <div className="bg-neutral-900 px-3 pb-2 pt-1">
+                <div className="flex items-center gap-1.5 text-[10px] text-emerald-400">
+                  <Check className="w-3 h-3" />
+                  <span>Acknowledged {msg.acknowledged_at ? format(new Date(msg.acknowledged_at), "hh:mm a") : ""}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // ─── KDS Sidebar ───
-const KDSSidebar = ({ collapsed, onToggle }: { collapsed: boolean; onToggle: () => void }) => {
+const KDSSidebar = ({ collapsed, onToggle, showMessages, onMessagesToggle, messageCount }: { collapsed: boolean; onToggle: () => void; showMessages: boolean; onMessagesToggle: () => void; messageCount: number }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -211,7 +334,7 @@ const KDSSidebar = ({ collapsed, onToggle }: { collapsed: boolean; onToggle: () 
     { icon: Home, label: "Home", path: "/" },
     { icon: Clock, label: "History", path: "/kds/history" },
     { icon: ChefHat, label: "Queue", path: "/kds" },
-    { icon: ({ className }: { className?: string }) => <img src={messageKdsIcon} alt="Messages" className={`${className} invert`} />, label: "Messages", path: "/kds/messages" },
+    { icon: ({ className }: { className?: string }) => <img src={messageKdsIcon} alt="Messages" className={`${className} invert`} />, label: "Messages", action: onMessagesToggle },
     { icon: Settings, label: "Settings", path: "/settings" },
     { icon: Eye, label: "View", path: "/kds/view" },
   ];
@@ -219,17 +342,22 @@ const KDSSidebar = ({ collapsed, onToggle }: { collapsed: boolean; onToggle: () 
   return (
     <div className="w-14 bg-neutral-900 border-r border-neutral-800 flex flex-col items-center py-2 gap-1 shrink-0 h-full">
       {navItems.map((item, i) => {
-        const isActive = item.path && location.pathname === item.path;
+        const isActive = item.path ? location.pathname === item.path : (item.label === "Messages" && showMessages);
         return (
           <button
             key={i}
             onClick={() => item.action ? item.action() : item.path && navigate(item.path)}
-            className={`w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
+            className={`relative w-10 h-10 flex items-center justify-center rounded-lg transition-colors ${
               isActive ? "bg-white/15 text-white" : "text-neutral-500 hover:text-white hover:bg-white/10"
             }`}
             title={item.label}
           >
             <item.icon className="w-5 h-5" />
+            {item.label === "Messages" && messageCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 bg-violet-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center">
+                {messageCount}
+              </span>
+            )}
           </button>
         );
       })}

@@ -854,10 +854,13 @@ All colors MUST be HSL.
 .btn-action-gradient {
   background: linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%);
 }
+.btn-transfer-gradient {
+  background: linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%);
+}
 .btn-receipt-gradient {
   @apply bg-neutral-700 hover:bg-neutral-600;
 }
-.btn-neutral-gradient {
+.btn-register-gradient {
   @apply bg-neutral-600 hover:bg-neutral-500;
 }
 

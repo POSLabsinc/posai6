@@ -2230,11 +2230,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       Add Item
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      className={`text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2 ${appliedDiscounts.length > 0 ? 'bg-primary/20' : ''}`}
-                      onClick={() => setIsDiscountDialogOpen(true)}
+                      className={`text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2 ${currentTicketDiscounts.length > 0 ? 'bg-primary/20' : ''}`}
+                      onClick={handleDiscountClick}
                     >
                       <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
-                      {appliedDiscounts.length > 0 ? `${appliedDiscounts.length} Discount${appliedDiscounts.length > 1 ? 's' : ''}` : 'Discount'}
+                      {currentTicketDiscounts.length > 0 ? `${currentTicketDiscounts.length} Discount${currentTicketDiscounts.length > 1 ? 's' : ''}` : 'Discount'}
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"

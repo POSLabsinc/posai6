@@ -747,7 +747,7 @@ const KDS = () => {
         {/* Ticket Grid + Summary */}
         <div className="flex-1 flex overflow-hidden">
           {/* Scrollable ticket area */}
-          <div className="flex-1 overflow-x-auto overflow-y-hidden">
+          <div className="flex-1 overflow-x-auto overflow-y-auto">
              <div className="flex gap-3 p-3 h-full items-start">
               {activeTickets.map(ticket => (
                 <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} attachedMessages={ticket.tableNumber ? (messagesByTable.get(normalizeTableNumber(ticket.tableNumber)) || []) : []} onAcknowledgeMessage={handleAcknowledgeMessage} />

@@ -663,6 +663,12 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  const handleAddProduct = () => {
+    if (!selectedGuest) return;
+    navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`);
+  };
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);

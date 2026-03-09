@@ -20,7 +20,7 @@ export const CARD_THEMES: CardTheme[] = [
   {
     bg: 'bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900',
     border: 'border-amber-900/40',
-    glow: 'shadow-[0_0_20px_rgba(217,169,78,0.25)] border-amber-500/60 ring-1 ring-amber-400/30',
+    glow: 'border-amber-500/60',
     accent: 'text-amber-400',
     accentText: 'text-amber-300',
     badgeBg: 'bg-amber-500/15 border-amber-500/30',

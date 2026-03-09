@@ -1098,8 +1098,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [ticketDiscounts, setTicketDiscounts] = useState<Record<string, Discount[]>>({}); // Per-ticket discounts
 
   // Get effective discounts for the currently selected ticket
-  const getTicketDiscounts = (ticketId: string): Discount[] => ticketDiscounts[ticketId] || [];
-  const currentTicketDiscounts = getTicketDiscounts(selectedGuest.id);
+  const EMPTY_DISCOUNTS: Discount[] = useMemo(() => [], []);
+  const getTicketDiscounts = (ticketId: string): Discount[] => ticketDiscounts[ticketId] || EMPTY_DISCOUNTS;
+  const currentTicketDiscounts = useMemo(() => ticketDiscounts[selectedGuest.id] || EMPTY_DISCOUNTS, [ticketDiscounts, selectedGuest.id, EMPTY_DISCOUNTS]);
 
   // Calculate discount amount from applied discounts for a ticket
   const getAppliedDiscountAmount = (ticketId: string, subtotal: number): number => {

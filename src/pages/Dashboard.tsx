@@ -1824,6 +1824,10 @@ const Dashboard = () => {
         onPaymentComplete={(paymentHistory) => {
           console.log("Payment completed:", paymentHistory);
           setShowPaymentDialog(false);
+          if (SettingsManager.getCheckoutOptionsSettings().autoCloseTicket) {
+            setSelectedOrder(null);
+            toast.success("Ticket closed automatically");
+          }
         }}
         onSaveSplit={(config) => {
           if (!selectedOrder) return;

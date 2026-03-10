@@ -339,7 +339,7 @@ quickReplies: ["✅ Add Service Charge", "Edit Name", "Edit Amount", "❌ Cancel
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
-  content: string;
+  content: string | any[];
 }
 
 async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string): Promise<string> {

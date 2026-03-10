@@ -153,7 +153,7 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick, onAdd }: Produc
               filteredItems.map((item, index) => (
                 <div key={item.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50" />}
-                  <button className="grid grid-cols-[1.2fr_1fr_1fr_100px_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors text-left">
+                  <button onClick={() => navigate(`/settings/menu/products/edit/${item.id}`)} className="grid grid-cols-[1.2fr_1fr_1fr_100px_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors text-left">
                     <div className="flex items-center gap-2">
                       <span className="text-[15px] font-semibold text-foreground">{item.name}</span>
                       {item.isCustom && (

@@ -175,8 +175,11 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const [isTyping, setIsTyping] = useState(false);
   const [appliedChanges, setAppliedChanges] = useState<AppliedChange[]>([]);
   const [multiSelectState, setMultiSelectState] = useState<Record<string, string[]>>({});
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Voice recognition hook - show transcript in real-time
   const { isListening, isSupported: isVoiceSupported, transcript, toggleListening, stopListening } = useVoiceRecognition({

@@ -1035,6 +1035,12 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   </div>
                 )}
                 <div className="max-w-[85%]">
+                  {/* Image preview in message */}
+                  {message.imageUrl && (
+                    <div className="mb-2 rounded-xl overflow-hidden max-w-[200px]">
+                      <img src={message.imageUrl} alt="Uploaded menu" className="w-full h-auto rounded-xl" />
+                    </div>
+                  )}
                   <div
                     className={cn(
                       "rounded-2xl px-4 py-3",

@@ -6047,6 +6047,35 @@ const Orders = () => {
   // Fetch menus from database - only enabled & non-archived menus appear
   const { menuList, menuCategories } = useSupabaseMenus();
 
+  // Fetch products from the database so newly added products show on the Orders screen
+  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; price: number; category_name: string; price_type: string; active: boolean; archived: boolean }>>([]);
+  
+  const fetchDbProducts = useCallback(async () => {
+    const { data } = await (supabase as any)
+      .from('products')
+      .select('id, name, price, price_type, active, archived, categories(name)')
+      .eq('active', true)
+      .eq('archived', false);
+    if (data) {
+      setDbProducts(data.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        price: Number(p.price),
+        category_name: p.categories?.name ?? '',
+        price_type: p.price_type,
+        active: p.active,
+        archived: p.archived,
+      })));
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDbProducts();
+    // Listen for products-updated events (fired after add/edit in Settings)
+    window.addEventListener("products-updated", fetchDbProducts);
+    return () => window.removeEventListener("products-updated", fetchDbProducts);
+  }, [fetchDbProducts]);
+
   // Merge dynamic subcategories from category settings with hardcoded fallback
   const dynamicSubcategories = useMemo(() => getDynamicCategorySubcategories(), []);
   const mergedCategorySubcategories = useMemo(() => {

@@ -99,8 +99,8 @@ function LayoutContent({ children }: LayoutProps) {
 
   const isKDSRoute = location.pathname.startsWith('/kds');
 
-  // KDS routes have their own layout - render children directly
-  if (isKDSRoute) {
+  // KDS routes and auth routes have their own layout - render children directly
+  if (isKDSRoute || isAuthRoute) {
     return <div className="h-screen w-full overflow-hidden bg-background">{children}</div>;
   }
 

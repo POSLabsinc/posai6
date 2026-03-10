@@ -6101,7 +6101,7 @@ const Orders = () => {
     return result;
   }, [menuCategories, menuList, dynamicSubcategories]);
 
-  // Build dynamic menu items from category-assigned products
+  // Build dynamic menu items from category-assigned products + DB products
   const dynamicMenuItems = useMemo(() => {
     const result: MenuItemsStructure = {};
     // For each menu, build category → subcategory → products
@@ -6133,16 +6133,66 @@ const Orders = () => {
             isOpenPrice: true,
           }));
         }
+
+        // Merge DB products that belong to this category
+        const dbCatProducts = dbProducts.filter(
+          (p) => p.category_name.toLowerCase() === cat.toLowerCase()
+        );
+        if (dbCatProducts.length > 0) {
+          const existingNames = new Set<string>();
+          // Collect names already in subItems
+          for (const items of Object.values(subItems)) {
+            for (const item of items) existingNames.add(item.name.toLowerCase());
+          }
+          const newDbItems = dbCatProducts
+            .filter((p) => !existingNames.has(p.name.toLowerCase()))
+            .map((p, idx) => ({
+              id: idx + 30000 + Math.round(Math.random() * 10000),
+              name: p.name,
+              price: p.price,
+              isOpenPrice: p.price_type === 'open',
+            }));
+          if (newDbItems.length > 0) {
+            // Add to the category directly if no subcategories
+            const targetKey = Object.keys(subItems).length > 0 ? Object.keys(subItems)[0] : cat;
+            subItems[targetKey] = [...(subItems[targetKey] || []), ...newDbItems];
+          }
+        }
+
         if (Object.keys(subItems).length > 0) {
           catItems[cat] = subItems;
         }
       }
+
+      // Also add DB products whose category is NOT already in the menu's category list
+      // This ensures newly created products with new categories still appear
+      const menuCatsLower = new Set(cats.map((c) => c.toLowerCase()));
+      const unmatchedCategories = new Map<string, typeof dbProducts>();
+      for (const p of dbProducts) {
+        if (p.category_name && !menuCatsLower.has(p.category_name.toLowerCase())) {
+          if (!unmatchedCategories.has(p.category_name)) {
+            unmatchedCategories.set(p.category_name, []);
+          }
+          unmatchedCategories.get(p.category_name)!.push(p);
+        }
+      }
+      for (const [catName, products] of unmatchedCategories) {
+        const subItems: SubcategoryItems = {};
+        subItems[catName] = products.map((p, idx) => ({
+          id: idx + 40000 + Math.round(Math.random() * 10000),
+          name: p.name,
+          price: p.price,
+          isOpenPrice: p.price_type === 'open',
+        }));
+        catItems[catName] = subItems;
+      }
+
       if (Object.keys(catItems).length > 0) {
-        result[menuName] = catItems;
+        result[menuName] = { ...(result[menuName] || {}), ...catItems };
       }
     }
     return result;
-  }, [menuList, augmentedMenuCategories, dynamicSubcategories]);
+  }, [menuList, augmentedMenuCategories, dynamicSubcategories, dbProducts]);
 
   const addItemMode = searchParams.get('mode') === 'addItem';
   const transferNewMode = searchParams.get('mode') === 'transferNew';

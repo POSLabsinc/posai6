@@ -23,16 +23,23 @@ interface AddAddOnContentProps {
     hasMaxSelections: boolean;
     maxSelections: number;
   }) => void;
+  editData?: {
+    id: string;
+    name: string;
+    price: number;
+    active: boolean;
+  };
 }
 
-const AddAddOnContent = ({ onBack, onSave }: AddAddOnContentProps) => {
-  const [name, setName] = useState("");
+const AddAddOnContent = ({ onBack, onSave, editData }: AddAddOnContentProps) => {
+  const isEditMode = !!editData;
+  const [name, setName] = useState(editData?.name || "");
   const [orderTypeTags, setOrderTypeTags] = useState<string[]>([]);
-  const [canBeServed, setCanBeServed] = useState(true);
+  const [canBeServed, setCanBeServed] = useState(editData ? editData.active : true);
   const [is86, setIs86] = useState(true);
   const [hasOptions, setHasOptions] = useState(false);
   const [options, setOptions] = useState<AddOnOption[]>([
-    { id: "1", name: "", price: "" }
+    { id: "1", name: "", price: editData ? editData.price.toString() : "" }
   ]);
   const [hasMaxSelections, setHasMaxSelections] = useState(false);
   const [maxSelections, setMaxSelections] = useState(1);

@@ -306,8 +306,8 @@ export function PaymentDialog({
       if (method.id === 'split-check' && checkoutOptions?.splitCheck === false) {
         return false;
       }
+      if (!enabledSettings) return true;
       if (method.id === 'third-party-delivery') {
-        // Hide if the explicit toggle exists and is off, OR if all delivery partners are off
         if (enabledSettings['third-party-delivery'] === false) return false;
         return deliveryPartnerSettingsIds.some(id => enabledSettings[id] !== false);
       }

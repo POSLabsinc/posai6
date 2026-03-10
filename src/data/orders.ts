@@ -5,7 +5,8 @@ import dineInIcon from "@/assets/icons/dine-in.png";
 
 // Re-export utilities from orderUtils for backward compatibility
 export { 
-  TAX_RATE, 
+  TAX_RATE,
+  getActiveTaxRate,
   SERVICE_CHARGE_RATE, 
   DISCOUNT_THRESHOLD, 
   DISCOUNT_AMOUNT,

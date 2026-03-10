@@ -71,6 +71,7 @@ interface AIAction {
 }
 
 const defaultSuggestionChips: SuggestionChip[] = [
+  { label: "Upload menu", icon: <ImagePlus className="w-3.5 h-3.5" />, prompt: "__UPLOAD_IMAGE__" },
   { label: "Show my discounts", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me all active discounts" },
   { label: "View taxes", icon: <Percent className="w-3.5 h-3.5" />, prompt: "What taxes do I have configured?" },
   { label: "View menus", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show me my menus" },
@@ -79,11 +80,11 @@ const defaultSuggestionChips: SuggestionChip[] = [
 
 const menuSuggestionChips: SuggestionChip[] = [
   { label: "View menus", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all my menus" },
-  { label: "View categories", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me all menu categories" },
-  { label: "View modifiers", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show me all modifiers" },
+  { label: "Upload menu", icon: <ImagePlus className="w-3.5 h-3.5" />, prompt: "__UPLOAD_IMAGE__" },
   { label: "Add new menu", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "I want to add a new menu" },
+  { label: "View categories", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me all menu categories" },
   { label: "View products", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all products" },
-  { label: "Default modifiers", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me default modifiers" },
+  { label: "View modifiers", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show me all modifiers" },
 ];
 
 const systemSuggestionChips: SuggestionChip[] = [
@@ -804,6 +805,10 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   };
 
   const handleChipClick = (chip: SuggestionChip) => {
+    if (chip.prompt === "__UPLOAD_IMAGE__") {
+      fileInputRef.current?.click();
+      return;
+    }
     handleSendMessage(chip.prompt);
   };
 

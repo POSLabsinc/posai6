@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,

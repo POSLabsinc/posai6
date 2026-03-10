@@ -301,7 +301,6 @@ const AccountPanel = ({
           >
             <span className="text-red-400 font-semibold text-sm tracking-wide">LOG OUT</span>
           </button>
-          </button>
         </div>
       </div>
     </div>;

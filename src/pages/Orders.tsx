@@ -9212,11 +9212,13 @@ const Orders = () => {
                   <button onClick={handleClearOrderAttempt} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
                     <img src={clearCIcon} alt="Cancel" className="w-3 h-3" />
                   </button>
+                  {showSaveButton && (
                   <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
                     backgroundColor: '#C9C9C9'
                   }}>
                     <img src={saveIcon} alt="Save" className="w-4 h-4" />
                   </button>
+                  )}
                   <button
                     onClick={handleFireOrder}
                     disabled={isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired)}

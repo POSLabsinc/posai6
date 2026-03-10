@@ -53,6 +53,7 @@ const paymentMethodConfigs: PaymentMethodConfig[] = [
   { id: "manual-cc", name: "Manual CC", icon: manualCcIcon, bgColor: "#FFBD00" },
   { id: "pay-by-link", name: "Pay By Link", icon: payByLinkIcon, bgColor: "#5AB0EE" },
   { id: "qr-code", name: "QR Code", icon: qrCodeIcon, bgColor: "#9463FF" },
+  { id: "split-check", name: "Split Check", icon: splitCheckIcon, bgColor: "#5AB0EE" },
   { id: "third-party-delivery", name: "3rd Party Delivery", icon: thirdPartyIcon, bgColor: "#FF6381" },
   { id: "uber-eats", name: "UberEats", icon: uberEatsIcon, bgColor: "#FFFFFF" },
   { id: "voucher", name: "Voucher", icon: voucherIcon, bgColor: "#FF9500" },

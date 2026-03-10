@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { SettingsManager } from "@/lib/settingsManager";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Printer, MessageSquare, Mail, Star, DollarSign } from "lucide-react";
 import {

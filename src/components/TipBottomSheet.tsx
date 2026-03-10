@@ -1355,7 +1355,7 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
               </h2>
 
               {/* Order Summary - shown when setting is enabled */}
-              {(() => {
+              {SettingsManager.getCheckoutOptionsSettings().showOrderSummary && (() => {
                 const taxRate = getActiveTaxRate();
                 const subtotal = totalAmount / (1 + taxRate);
                 const taxAmount = totalAmount - subtotal;
@@ -1376,7 +1376,6 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
                   </div>
                 );
               })()}
-              )}
 
               {/* Itemized Tax per Product - shown when setting is enabled */}
               {SettingsManager.getCheckoutOptionsSettings().showItemizedTax && orderItems.length > 0 && (

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,8 @@ import { X } from 'lucide-react';
 interface ServiceChargeOption {
   id: string;
   name: string;
-  percentage: number;
+  amount: number;
+  type: string;
 }
 
 interface ServiceChargeDialogProps {
@@ -21,13 +22,25 @@ interface ServiceChargeDialogProps {
   onApply: (amount: number, name: string) => void;
 }
 
-const serviceChargeOptions: ServiceChargeOption[] = [
-  { id: '1', name: 'Auto Gratuity 15%', percentage: 15 },
-  { id: '2', name: 'Auto Gratuity 18%', percentage: 18 },
-  { id: '3', name: 'Auto Gratuity 20%', percentage: 20 },
-  { id: '4', name: 'Auto Gratuity 22%', percentage: 22 },
-  { id: '5', name: 'Large Party Fee', percentage: 18 },
+const STORAGE_KEY = "service-charges-settings";
+
+const defaultOptions: ServiceChargeOption[] = [
+  { id: '1', name: 'Large Party (6+)', amount: 18, type: 'Percentage' },
+  { id: '2', name: 'Delivery Fee', amount: 5, type: 'Fixed' },
+  { id: '3', name: 'Holiday Surcharge', amount: 3, type: 'Percentage' },
 ];
+
+const getServiceChargeOptions = (): ServiceChargeOption[] => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultOptions;
+    const charges: { id: string; name: string; amount: number; type: string; archived: boolean }[] = JSON.parse(raw);
+    const active = charges.filter(c => !c.archived);
+    return active.length > 0 ? active.map(c => ({ id: c.id, name: c.name, amount: c.amount, type: c.type })) : defaultOptions;
+  } catch {
+    return defaultOptions;
+  }
+};
 
 const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
   open,
@@ -36,16 +49,29 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
   onApply,
 }) => {
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
+  const [options, setOptions] = useState<ServiceChargeOption[]>([]);
 
-  const calculateAmount = (percentage: number) => {
-    return (subtotal * percentage) / 100;
+  // Reload options from settings every time dialog opens
+  useEffect(() => {
+    if (open) {
+      setOptions(getServiceChargeOptions());
+      setSelectedOption(null);
+    }
+  }, [open]);
+
+  const calculateAmount = (option: ServiceChargeOption) => {
+    return option.type === 'Percentage' ? (subtotal * option.amount) / 100 : option.amount;
+  };
+
+  const formatLabel = (option: ServiceChargeOption) => {
+    return option.type === 'Percentage' ? `${option.name} (${option.amount}%)` : option.name;
   };
 
   const handleApply = () => {
     if (selectedOption) {
-      const option = serviceChargeOptions.find(o => o.id === selectedOption);
+      const option = options.find(o => o.id === selectedOption);
       if (option) {
-        const amount = calculateAmount(option.percentage);
+        const amount = calculateAmount(option);
         onApply(amount, option.name);
         onOpenChange(false);
         setSelectedOption(null);
@@ -80,8 +106,8 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
         </DialogHeader>
 
         <div className="px-3 pb-2 space-y-1.5">
-          {serviceChargeOptions.map((option) => {
-            const amount = calculateAmount(option.percentage);
+          {options.map((option) => {
+            const amount = calculateAmount(option);
             const isSelected = selectedOption === option.id;
 
             return (
@@ -105,7 +131,7 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
                     )}
                   </div>
                   <div className="text-left">
-                    <p className="text-white text-sm font-medium">{option.name}</p>
+                    <p className="text-white text-sm font-medium">{formatLabel(option)}</p>
                   </div>
                 </div>
                 <span className="text-white text-sm font-medium">+${amount.toFixed(2)}</span>

@@ -72,57 +72,88 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
 
         {/* Order Settings */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Order Settings</h2>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">Split Check</span>
+            <span className="text-foreground text-lg font-medium">Split Check</span>
             <Switch 
               checked={settings.splitCheck} 
               onCheckedChange={(value) => updateSetting('splitCheck', value)} 
             />
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Allow orders to be split into multiple checks for separate payments by guests at the same table.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">Require Order Type</span>
+            <span className="text-foreground text-lg font-medium">Require Order Type</span>
             <Switch 
               checked={settings.requireOrderType} 
               onCheckedChange={(value) => updateSetting('requireOrderType', value)} 
             />
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Require staff to select an order type (Dine In, Take Out, Delivery, etc.) before firing or charging an order.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">Require Guest Name</span>
+            <span className="text-foreground text-lg font-medium">Require Guest Name</span>
             <Switch 
               checked={settings.requireGuestName} 
               onCheckedChange={(value) => updateSetting('requireGuestName', value)} 
             />
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Require a guest name to be entered before an order can be fired or charged.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">Guest Notes Enabled</span>
+            <span className="text-foreground text-lg font-medium">Guest Notes Enabled</span>
             <Switch 
               checked={settings.guestNotesEnabled} 
               onCheckedChange={(value) => updateSetting('guestNotesEnabled', value)} 
             />
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Enable the order notes field for staff to add special instructions, allergies, or preferences to an order.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">Show Save Button</span>
+            <span className="text-foreground text-lg font-medium">Show Save Button</span>
             <Switch 
               checked={settings.showSaveButton} 
               onCheckedChange={(value) => updateSetting('showSaveButton', value)} 
             />
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Display the Save button on the order screen, allowing staff to save an order without firing it to the kitchen.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">Auto-close Ticket</span>
+            <span className="text-foreground text-lg font-medium">Auto-close Ticket</span>
             <Switch 
               checked={settings.autoCloseTicket} 
               onCheckedChange={(value) => updateSetting('autoCloseTicket', value)} 
             />
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Automatically close the ticket and return to the dashboard after a payment is completed.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">QR Bill / Payment</span>
+            <span className="text-foreground text-lg font-medium">QR Bill / Payment</span>
             <Switch 
               checked={settings.qrBillPayment} 
               onCheckedChange={(value) => updateSetting('qrBillPayment', value)} 
@@ -130,54 +161,80 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
           </div>
         </div>
         <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">
-          Manage checkout and order behavior by controlling split payments, required order details, guest information, ticket handling, and QR-based billing or payment options.
+          Enable QR code-based billing or payment options for customers to scan and pay directly from their device.
         </p>
 
         {/* Signature & Receipt */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Signature & Receipt</h2>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
+        
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">Print Receipt</span>
+            <span className="text-foreground text-lg font-medium">Print Receipt</span>
             <Switch 
               checked={settings.printReceipt} 
               onCheckedChange={(value) => updateSetting('printReceipt', value)} 
             />
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Automatically print a receipt after each completed transaction.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">Email Receipt</span>
+            <span className="text-foreground text-lg font-medium">Email Receipt</span>
             <Switch 
               checked={settings.emailReceipt} 
               onCheckedChange={(value) => updateSetting('emailReceipt', value)} 
             />
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Offer the option to send a digital receipt via email after payment.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">SMS Receipt</span>
+            <span className="text-foreground text-lg font-medium">SMS Receipt</span>
             <Switch 
               checked={settings.smsReceipt} 
               onCheckedChange={(value) => updateSetting('smsReceipt', value)} 
             />
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Offer the option to send a digital receipt via SMS after payment.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">Skip Tip Screen</span>
+            <span className="text-foreground text-lg font-medium">Skip Tip Screen</span>
             <Switch 
               checked={settings.skipTipScreen} 
               onCheckedChange={(value) => updateSetting('skipTipScreen', value)} 
             />
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Skip the tip selection screen during checkout and proceed directly to payment confirmation.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-lg font-medium">Skip Signature</span>
+            <span className="text-foreground text-lg font-medium">Skip Signature</span>
             <Switch 
               checked={settings.skipSignature} 
               onCheckedChange={(value) => updateSetting('skipSignature', value)} 
             />
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Skip the signature capture screen for transactions below the signature threshold.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <button className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity">
-             <span className="text-foreground text-lg font-medium">Signature Threshold</span>
+            <span className="text-foreground text-lg font-medium">Signature Threshold</span>
             <div className="flex items-center gap-2">
               <span className="text-neutral-400">${settings.signatureThreshold.toFixed(2)}</span>
               <ChevronRight className="w-5 h-5 text-neutral-500" />
@@ -185,7 +242,7 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
           </button>
         </div>
         <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">
-          These settings allow you to control what appears on the Point of Sale screen during checkout. You can choose which receipt options, tip screens, and signature requirements are shown to staff and customers.
+          Set the minimum transaction amount that requires a customer signature for verification.
         </p>
 
         {/* Payment Sounds */}

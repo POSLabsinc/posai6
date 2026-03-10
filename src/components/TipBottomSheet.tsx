@@ -1355,20 +1355,47 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
               </h2>
 
               {/* Order Summary - shown when setting is enabled */}
-              {SettingsManager.getCheckoutOptionsSettings().showOrderSummary && (
+              {(() => {
+                const taxRate = getActiveTaxRate();
+                const subtotal = totalAmount / (1 + taxRate);
+                const taxAmount = totalAmount - subtotal;
+                return (
+                  <div className="bg-neutral-800/50 rounded-xl p-3 mb-3 border border-neutral-700/50">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-neutral-400 text-sm">Subtotal</span>
+                      <span className="text-white text-sm">{formatPrice(subtotal)}</span>
+                    </div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-neutral-400 text-sm">Tax ({(taxRate * 100).toFixed(2)}%)</span>
+                      <span className="text-white text-sm">{formatPrice(taxAmount)}</span>
+                    </div>
+                    <div className="border-t border-neutral-700/50 pt-2 flex items-center justify-between">
+                      <span className="text-white text-sm font-semibold">Total</span>
+                      <span className="text-white text-sm font-semibold">{formatPrice(totalAmount)}</span>
+                    </div>
+                  </div>
+                );
+              })()}
+              )}
+
+              {/* Itemized Tax per Product - shown when setting is enabled */}
+              {SettingsManager.getCheckoutOptionsSettings().showItemizedTax && orderItems.length > 0 && (
                 <div className="bg-neutral-800/50 rounded-xl p-3 mb-3 border border-neutral-700/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-neutral-400 text-sm">Subtotal</span>
-                    <span className="text-white text-sm">{formatPrice(totalAmount * 0.9)}</span>
-                  </div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-neutral-400 text-sm">Tax</span>
-                    <span className="text-white text-sm">{formatPrice(totalAmount * 0.1)}</span>
-                  </div>
-                  <div className="border-t border-neutral-700/50 pt-2 flex items-center justify-between">
-                    <span className="text-white text-sm font-semibold">Total</span>
-                    <span className="text-white text-sm font-semibold">{formatPrice(totalAmount)}</span>
-                  </div>
+                  <p className="text-neutral-500 text-xs font-medium uppercase tracking-wider mb-2">Tax Breakdown by Product</p>
+                  {orderItems.map((item, idx) => {
+                    const taxRate = getActiveTaxRate();
+                    const itemTotal = item.price * item.qty;
+                    const itemTax = itemTotal * taxRate;
+                    return (
+                      <div key={idx} className="flex items-center justify-between py-1.5 border-b border-neutral-700/30 last:border-b-0">
+                        <div className="flex-1 min-w-0">
+                          <span className="text-white text-sm truncate block">{item.name} {item.qty > 1 ? `×${item.qty}` : ''}</span>
+                          <span className="text-neutral-500 text-xs">{formatPrice(itemTotal)}</span>
+                        </div>
+                        <span className="text-neutral-400 text-sm ml-3">+{formatPrice(itemTax)} tax</span>
+                      </div>
+                    );
+                  })}
                 </div>
               )}
               

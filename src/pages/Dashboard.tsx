@@ -1829,6 +1829,12 @@ const Dashboard = () => {
           if (checkoutSettings.printReceipt) {
             toast.success("Receipt sent to printer");
           }
+          if (checkoutSettings.emailReceipt) {
+            toast.success("Receipt sent via email");
+          }
+          if (checkoutSettings.smsReceipt) {
+            toast.success("Receipt sent via SMS");
+          }
           if (checkoutSettings.autoCloseTicket) {
             setSelectedOrder(null);
             toast.success("Ticket closed automatically");

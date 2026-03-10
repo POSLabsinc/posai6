@@ -3124,6 +3124,19 @@ const TableOrderDetails = () => {
         total={currentSelectedGuest?.total || 0}
         onPaymentComplete={(history) => {
           console.log("Payment completed:", history);
+          const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();
+          if (checkoutSettings.printReceipt) {
+            toast.success("Receipt sent to printer");
+          }
+          if (checkoutSettings.emailReceipt) {
+            toast.success("Receipt sent via email");
+          }
+          if (checkoutSettings.smsReceipt) {
+            toast.success("Receipt sent via SMS");
+          }
+          if (checkoutSettings.autoCloseTicket) {
+            toast.success("Ticket closed automatically");
+          }
         }}
         onSaveSplit={(config) => {
           if (!currentSelectedGuest) return;

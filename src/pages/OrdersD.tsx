@@ -120,6 +120,8 @@ const formatPhoneNumber = (phone: string) => {
  * - Right Column: Full order panel with guest info and cart
  */
 const OrdersD = () => {
+  const checkoutOptionsSettings = useMemo(() => SettingsManager.getCheckoutOptionsSettings(), []);
+  const showSaveButton = checkoutOptionsSettings.showSaveButton;
   const [selectedMenu, setSelectedMenu] = useState("BAR MENU");
   const [activeCategory, setActiveCategory] = useState("Food");
   const [activeSubcategory, setActiveSubcategory] = useState("Appetizers");

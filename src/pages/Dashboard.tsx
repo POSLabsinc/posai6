@@ -700,13 +700,15 @@ const OrderPanelContent = ({
                 </button>
               ) : (
                 <>
-                  <button 
-                    onClick={() => setShowTipDialog(true)}
-                    className="flex-1 h-10 rounded-full flex items-center justify-center border border-white/20"
-                    style={{ background: '#1B1C20' }}
-                  >
-                    <span className="text-white font-semibold text-sm">ADD TIP</span>
-                  </button>
+                  {!SettingsManager.getCheckoutOptionsSettings().skipTipScreen && (
+                    <button 
+                      onClick={() => setShowTipDialog(true)}
+                      className="flex-1 h-10 rounded-full flex items-center justify-center border border-white/20"
+                      style={{ background: '#1B1C20' }}
+                    >
+                      <span className="text-white font-semibold text-sm">ADD TIP</span>
+                    </button>
+                  )}
                   <button 
                     onClick={() => setShowRefundMode(true)}
                     className="flex-1 h-10 rounded-full flex items-center justify-center" 

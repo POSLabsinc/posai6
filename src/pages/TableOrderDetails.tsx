@@ -1223,13 +1223,15 @@ const TableOrderDetails = () => {
               </button>
             ) : (
               <>
-                <button 
-                  onClick={() => setShowTipDialog(true)}
-                  className="flex-1 py-2.5 rounded-full text-white text-sm font-bold border border-white/20"
-                  style={{ background: '#1B1C20' }}
-                >
-                  ADD TIP
-                </button>
+                {!SettingsManager.getCheckoutOptionsSettings().skipTipScreen && (
+                  <button 
+                    onClick={() => setShowTipDialog(true)}
+                    className="flex-1 py-2.5 rounded-full text-white text-sm font-bold border border-white/20"
+                    style={{ background: '#1B1C20' }}
+                  >
+                    ADD TIP
+                  </button>
+                )}
                 <button 
                   onClick={() => setShowRefundMode(true)}
                   className="flex-1 py-2.5 rounded-full text-black text-sm font-bold"
@@ -2396,14 +2398,18 @@ const TableOrderDetails = () => {
                   </button>
                 ) : (
                   <>
-                    {/* Add Tip Button */}
-                    <button 
-                      onClick={() => setShowTipDialog(true)}
-                      className="flex-1 h-10 rounded-full flex items-center justify-center border border-white/20"
-                      style={{ background: '#1B1C20' }}
-                    >
-                      <span className="text-white font-semibold text-sm">ADD TIP</span>
-                    </button>
+                    {!SettingsManager.getCheckoutOptionsSettings().skipTipScreen && (
+                      <>
+                        {/* Add Tip Button */}
+                        <button 
+                          onClick={() => setShowTipDialog(true)}
+                          className="flex-1 h-10 rounded-full flex items-center justify-center border border-white/20"
+                          style={{ background: '#1B1C20' }}
+                        >
+                          <span className="text-white font-semibold text-sm">ADD TIP</span>
+                        </button>
+                      </>
+                    )}
                     {/* Close Button */}
                     <button 
                       onClick={() => setShowRefundMode(true)}
@@ -3041,14 +3047,18 @@ const TableOrderDetails = () => {
                 </button>
               ) : (
                 <>
-                  {/* Add Tip Button */}
-                  <button 
-                    onClick={() => setShowTipDialog(true)}
-                    className="flex-1 h-10 rounded-full flex items-center justify-center border border-white/20"
-                    style={{ background: '#1B1C20' }}
-                  >
-                    <span className="text-white font-semibold text-sm">ADD TIP</span>
-                  </button>
+                  {!SettingsManager.getCheckoutOptionsSettings().skipTipScreen && (
+                    <>
+                      {/* Add Tip Button */}
+                      <button 
+                        onClick={() => setShowTipDialog(true)}
+                        className="flex-1 h-10 rounded-full flex items-center justify-center border border-white/20"
+                        style={{ background: '#1B1C20' }}
+                      >
+                        <span className="text-white font-semibold text-sm">ADD TIP</span>
+                      </button>
+                    </>
+                  )}
                   {/* Close Button */}
                   <button 
                     onClick={() => setShowRefundMode(true)}

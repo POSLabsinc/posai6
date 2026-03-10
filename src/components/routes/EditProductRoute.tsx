@@ -58,8 +58,69 @@ const EditProductRoute = () => {
           discounts: [],
           variants: data.product_variants || [],
         });
+      } else {
+        // Fallback: try local menu data or custom products
+        const { menuCategories } = await import("@/data/menuData");
+        const { getCustomProducts } = await import("@/lib/productStore");
+        
+        let found = false;
+        for (const cat of menuCategories) {
+          const item = cat.items.find((i) => i.id === id);
+          if (item) {
+            setInitialData({
+              name: item.name,
+              description: item.description ?? '',
+              category: cat.name,
+              price: item.price,
+              priceType: 'fixed' as const,
+              sku: item.id.toUpperCase(),
+              imageUrl: item.image,
+              active: true,
+              dineIn: true,
+              takeaway: true,
+              delivery: false,
+              addToMenu: true,
+              outOfStock: false,
+              inventoryTracking: false,
+              negativeInventory: false,
+              modifiers: [],
+              addOns: [],
+              taxes: [],
+              discounts: [],
+              variants: [],
+            });
+            found = true;
+            break;
+          }
+        }
+        if (!found) {
+          const cp = getCustomProducts().find((p) => p.id === id);
+          if (cp) {
+            setInitialData({
+              name: cp.name,
+              description: cp.description ?? '',
+              category: cp.category,
+              price: cp.price,
+              priceType: cp.priceType ?? 'fixed',
+              sku: cp.sku ?? '',
+              imageUrl: cp.imageUrl,
+              active: cp.active,
+              dineIn: cp.dineIn,
+              takeaway: cp.takeaway,
+              delivery: cp.delivery,
+              addToMenu: cp.addToMenu,
+              outOfStock: cp.outOfStock,
+              inventoryTracking: cp.inventoryTracking,
+              negativeInventory: cp.negativeInventory,
+              modifiers: cp.modifiers ?? [],
+              addOns: cp.addOns ?? [],
+              taxes: cp.taxes ?? [],
+              discounts: cp.discounts ?? [],
+              variants: cp.variants ?? [],
+            });
+          }
+        }
       }
-      if (productRes.error) console.error("Failed to fetch product", productRes.error);
       setLoading(false);
     };
     fetchProduct();

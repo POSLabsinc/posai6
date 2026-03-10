@@ -24,6 +24,7 @@ import payByLinkIcon from "@/assets/icons/payment-pay-by-link.png";
 import voucherIcon from "@/assets/icons/voucher.svg";
 import qrCodeIcon from "@/assets/icons/payment-qr-code.png";
 import thirdPartyIcon from "@/assets/icons/payment-3rd-party.png";
+import splitCheckIcon from "@/assets/icons/split-check.svg";
 
 interface PaymentMethodsContentProps {
   showHeader?: boolean;

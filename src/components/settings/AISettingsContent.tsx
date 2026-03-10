@@ -309,12 +309,34 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       switch (settingType) {
         case "menu": {
           if (operation === "add") {
-            // Build channel_schedules from channels object
+            // Build channel_schedules from channels object and channelSchedules
             const channelSchedules: Record<string, any> = {};
-            if (data.channels) {
+            if (data.channelSchedules) {
+              // Use detailed scheduling data from AI
+              Object.entries(data.channelSchedules).forEach(([key, val]: [string, any]) => {
+                channelSchedules[key] = {
+                  active: val.active !== false,
+                  days: val.days || ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+                  startTime: val.startTime || "All Day",
+                  endTime: val.endTime || "",
+                };
+              });
+            } else if (data.channels) {
               if (data.channels.dineIn) channelSchedules["dine-in"] = { active: true };
               if (data.channels.takeaway) channelSchedules["takeaway"] = { active: true };
               if (data.channels.delivery) channelSchedules["delivery"] = { active: true };
+            }
+
+            // Build device_schedules if provided
+            const deviceSchedules: Record<string, any> = {};
+            if (data.deviceSchedules) {
+              Object.entries(data.deviceSchedules).forEach(([device, val]: [string, any]) => {
+                deviceSchedules[device] = {
+                  days: val.days || ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"],
+                  startTime: val.startTime || "All Day",
+                  endTime: val.endTime || "",
+                };
+              });
             }
 
             const { data: menuRow, error } = await (supabase as any).from("menus").insert({

@@ -537,22 +537,34 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     }
   };
 
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return;
+  const handleSendMessage = async (content: string, imageDataUrl?: string | null) => {
+    if (!content.trim() && !imageDataUrl) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: content.trim(),
+      content: content.trim() || "📷 Uploaded a menu image for analysis",
       timestamp: new Date(),
+      imageUrl: imageDataUrl || undefined,
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
+    clearUploadedImage();
     setIsTyping(true);
 
-    // Add to conversation history
-    const newHistory = [...conversationHistory, { role: "user", content: content.trim() }];
+    // Build conversation history entry - for image messages, use multimodal content
+    const userHistoryEntry: any = imageDataUrl
+      ? {
+          role: "user",
+          content: [
+            { type: "text", text: content.trim() || "I've uploaded a menu image. Please analyze it and extract all the menu items, categories, and prices. Then help me create a menu from this image." },
+            { type: "image_url", image_url: { url: imageDataUrl } },
+          ],
+        }
+      : { role: "user", content: content.trim() };
+
+    const newHistory = [...conversationHistory, userHistoryEntry];
     setConversationHistory(newHistory);
 
     try {

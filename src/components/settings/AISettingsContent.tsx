@@ -71,6 +71,7 @@ interface AIAction {
 }
 
 const defaultSuggestionChips: SuggestionChip[] = [
+  { label: "Upload menu", icon: <ImagePlus className="w-3.5 h-3.5" />, prompt: "__UPLOAD_IMAGE__" },
   { label: "Show my discounts", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me all active discounts" },
   { label: "View taxes", icon: <Percent className="w-3.5 h-3.5" />, prompt: "What taxes do I have configured?" },
   { label: "View menus", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show me my menus" },

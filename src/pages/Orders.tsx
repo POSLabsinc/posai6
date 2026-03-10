@@ -7300,8 +7300,15 @@ const Orders = () => {
                     <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
                   background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
                 }}>
-                      <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
-                      {orderType} <ChevronDown className="w-3 h-3" />
+                      {orderType ? (
+                        <>
+                          <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
+                          {orderType}
+                        </>
+                      ) : (
+                        <span className="text-neutral-600">Select Type</span>
+                      )}
+                      <ChevronDown className="w-3 h-3" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px] p-1 z-50">

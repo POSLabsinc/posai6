@@ -6093,6 +6093,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         onSelectTip={handleTipSelect}
         existingTip={selectedGuest.tip || 0}
         skipReceiptMode={isClosedTicketsMode && selectedGuest.paid}
+        orderItems={selectedGuest.items.map(item => ({ name: item.name, price: item.price, qty: item.qty }))}
       />
 
       {/* Refund Modal */}

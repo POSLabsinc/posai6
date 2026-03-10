@@ -332,6 +332,47 @@ export function PaymentDialog({
     }
   };
 
+  // Helper to get enabled payment methods from settings
+  const getEnabledPaymentMethods = () => {
+    try {
+      const stored = localStorage.getItem("payment-methods-state");
+      if (stored) return JSON.parse(stored) as Record<string, boolean>;
+    } catch (e) { /* ignore */ }
+    return null; // null means all enabled (default)
+  };
+
+  // Map settings ID to dialog method ID
+  const settingsToDialogId: Record<string, string> = {
+    'account': 'account',
+    'card': 'card',
+    'cash': 'cash',
+    'external-cc': 'external-cc',
+    'gift-card': 'gift-card',
+    'loyalty': 'loyalty',
+    'manual-card': 'manual-card',
+    'manual-cc': 'manual-cc',
+    'pay-by-link': 'pay-link',
+    'voucher': 'voucher',
+  };
+
+  const deliveryPartnerSettingsIds = ['blizzful', 'doordash', 'grubhub', 'uber-eats'];
+
+  const filterMethodsBySettings = (methods: PaymentMethodType[], enabledSettings: Record<string, boolean> | null): PaymentMethodType[] => {
+    if (!enabledSettings) return methods;
+    return methods.filter(method => {
+      // split-check and qr-code have no settings toggle, always show
+      if (method.id === 'split-check' || method.id === 'qr-code') return true;
+      // third-party-delivery: hide only if ALL delivery partners are off
+      if (method.id === 'third-party-delivery') {
+        return deliveryPartnerSettingsIds.some(id => enabledSettings[id] !== false);
+      }
+      // Find the settings key for this dialog method
+      const settingsKey = Object.entries(settingsToDialogId).find(([, dialogId]) => dialogId === method.id)?.[0];
+      if (!settingsKey) return true; // No mapping = always show
+      return enabledSettings[settingsKey] !== false;
+    });
+  };
+
   // Reset states when dialog opens
   useEffect(() => {
     if (open) {
@@ -395,6 +436,11 @@ export function PaymentDialog({
       setDragOverCheckNum(null);
       // Reset mobile payment selection
       setMobilePaymentSelectionActive(true);
+
+      // Apply payment method visibility from settings
+      const enabledSettings = getEnabledPaymentMethods();
+      setVisiblePaymentMethods(filterMethodsBySettings(initialPaymentMethods, enabledSettings));
+      setDropdownPaymentMethods(filterMethodsBySettings(initialOtherPaymentMethods, enabledSettings));
     }
   }, [open, total]);
 

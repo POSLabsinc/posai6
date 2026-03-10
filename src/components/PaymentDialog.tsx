@@ -283,6 +283,7 @@ export function PaymentDialog({
     'external-cc': 'external-cc', 'gift-card': 'gift-card',
     'loyalty': 'loyalty', 'manual-card': 'manual-card',
     'manual-cc': 'manual-cc', 'pay-by-link': 'pay-link', 'voucher': 'voucher',
+    'qr-code': 'qr-code',
   };
 
   const deliveryPartnerSettingsIds = ['blizzful', 'doordash', 'grubhub', 'uber-eats'];
@@ -290,8 +291,10 @@ export function PaymentDialog({
   const filterMethodsBySettings = (methods: PaymentMethodType[], enabledSettings: Record<string, boolean> | null): PaymentMethodType[] => {
     if (!enabledSettings) return methods;
     return methods.filter(method => {
-      if (method.id === 'split-check' || method.id === 'qr-code') return true;
+      if (method.id === 'split-check') return true;
       if (method.id === 'third-party-delivery') {
+        // Hide if the explicit toggle exists and is off, OR if all delivery partners are off
+        if (enabledSettings['third-party-delivery'] === false) return false;
         return deliveryPartnerSettingsIds.some(id => enabledSettings[id] !== false);
       }
       const settingsKey = Object.entries(settingsToDialogId).find(([, dialogId]) => dialogId === method.id)?.[0];

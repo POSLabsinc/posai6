@@ -164,7 +164,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
         </div>
 
         {/* All Notifications Section */}
-        <div>
+        <div className="mb-6">
           <p className="text-xs font-medium text-neutral-500 tracking-wider px-1 mb-3">All Notifications</p>
           <div className="bg-neutral-800/60 rounded-full overflow-hidden">
             <button
@@ -183,7 +183,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
         </div>
 
         {/* Style Section */}
-        <div>
+        <div className="mb-6">
           <p className="text-xs font-medium text-neutral-500 tracking-wider px-1 mb-3">Notification Style</p>
           <div className="grid grid-cols-3 gap-3">
             {styleOptions.map((option) => (
@@ -209,7 +209,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
         </div>
 
         {/* Style Preview */}
-        <div>
+        <div className="mb-6">
           <p className="text-xs font-medium text-neutral-500 tracking-wider px-1 mb-3">Preview</p>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             <StylePreview style={notificationStyle as NotificationStyleType} />
@@ -269,6 +269,8 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
             </div>
           </div>
         </div>
+      </div>
+    </div>
       </div>
     </div>
   );

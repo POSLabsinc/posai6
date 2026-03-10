@@ -665,6 +665,62 @@ export type Database = {
           },
         ]
       }
+      product_variants: {
+        Row: {
+          adjusted_price: number
+          created_at: string
+          id: string
+          price: number
+          product_id: string
+          sku: string | null
+          sort_order: number
+          timed_price: number
+          timed_price_enabled: boolean
+          timed_price_end: string | null
+          timed_price_start: string | null
+          updated_at: string
+          variant_name: string
+        }
+        Insert: {
+          adjusted_price?: number
+          created_at?: string
+          id?: string
+          price?: number
+          product_id: string
+          sku?: string | null
+          sort_order?: number
+          timed_price?: number
+          timed_price_enabled?: boolean
+          timed_price_end?: string | null
+          timed_price_start?: string | null
+          updated_at?: string
+          variant_name?: string
+        }
+        Update: {
+          adjusted_price?: number
+          created_at?: string
+          id?: string
+          price?: number
+          product_id?: string
+          sku?: string | null
+          sort_order?: number
+          timed_price?: number
+          timed_price_enabled?: boolean
+          timed_price_end?: string | null
+          timed_price_start?: string | null
+          updated_at?: string
+          variant_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_variants_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           active: boolean

@@ -70,7 +70,9 @@ export const createProduct = async (product: Omit<CustomProduct, 'id' | 'created
 
   if (productError) throw productError;
 
-  if (variants.length > 0) {
+  // Only insert variants that have meaningful data
+  const meaningfulVariants = variants.filter(v => v.variant_name?.trim());
+  if (meaningfulVariants.length > 0) {
     const { error: variantsError } = await (supabase as any)
       .from('product_variants')
       .insert(

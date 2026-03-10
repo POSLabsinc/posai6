@@ -8571,8 +8571,15 @@ const Orders = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button className="flex items-center gap-1.5 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
-                          <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4" />
-                          {orderType} <ChevronDown className="w-3 h-3" />
+                          {orderType ? (
+                            <>
+                              <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4" />
+                              {orderType}
+                            </>
+                          ) : (
+                            <span className="text-neutral-400">Select Type</span>
+                          )}
+                          <ChevronDown className="w-3 h-3" />
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">

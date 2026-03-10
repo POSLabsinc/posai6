@@ -7060,7 +7060,7 @@ const Orders = () => {
     return sum + d.value;
   }, 0);
   const serviceCharge = appliedServiceCharge;
-  const taxRate = TAX_RATE;
+  const taxRate = getActiveTaxRate();
   // Calculate tax only on items NOT marked as noTax
   const taxableSubtotal = orderItems.
   filter((item) => !item.noTax).

@@ -6272,7 +6272,9 @@ const Orders = () => {
   const [existingItems, setExistingItems] = useState<OrderItem[]>([]);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
-  const [orderType, setOrderType] = useState("DINE IN");
+  const checkoutOptionsSettings = useMemo(() => SettingsManager.getCheckoutOptionsSettings(), []);
+  const requireOrderType = checkoutOptionsSettings.requireOrderType;
+  const [orderType, setOrderType] = useState(() => requireOrderType ? "" : "DINE IN");
   const [showDineInForm, setShowDineInForm] = useState(false);
   const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
   const [showTakeOutForm, setShowTakeOutForm] = useState(false);
@@ -7087,6 +7089,10 @@ const Orders = () => {
 
   // Handler to fire the entire order (session orders)
   const handleFireOrder = () => {
+    if (requireOrderType && !orderType) {
+      toast.error("Please select an order type before firing");
+      return;
+    }
     if (!isSessionOrderMode || !sessionIdFromParams) {
       // Not a session order, just toggle all items to fired
       setOrderItems((prev) => prev.map((item) => ({ ...item, isFired: true })));
@@ -7095,7 +7101,7 @@ const Orders = () => {
     }
 
     if (orderItems.length === 0) {
-      toast.error("Please add items to the order before firing");
+      toast.error("Please add products to the order before firing");
       return;
     }
 
@@ -7294,8 +7300,15 @@ const Orders = () => {
                     <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
                   background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
                 }}>
-                      <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
-                      {orderType} <ChevronDown className="w-3 h-3" />
+                      {orderType ? (
+                        <>
+                          <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
+                          {orderType}
+                        </>
+                      ) : (
+                        <span className="text-neutral-600">Select Type</span>
+                      )}
+                      <ChevronDown className="w-3 h-3" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px] p-1 z-50">
@@ -7914,7 +7927,13 @@ const Orders = () => {
                 <span className="text-white font-semibold text-sm">FIRE</span>
               </button>
               <button
-            onClick={() => setShowPaymentDialog(true)}
+            onClick={() => {
+              if (requireOrderType && !orderType) {
+                toast.error("Please select an order type before charging");
+                return;
+              }
+              setShowPaymentDialog(true);
+            }}
             className="flex-1 h-8 rounded-full flex items-center justify-center"
             style={{
               background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
@@ -8552,8 +8571,15 @@ const Orders = () => {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button className="flex items-center gap-1.5 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
-                          <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4" />
-                          {orderType} <ChevronDown className="w-3 h-3" />
+                          {orderType ? (
+                            <>
+                              <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4" />
+                              {orderType}
+                            </>
+                          ) : (
+                            <span className="text-neutral-400">Select Type</span>
+                          )}
+                          <ChevronDown className="w-3 h-3" />
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
@@ -9193,7 +9219,13 @@ const Orders = () => {
                     <span className="text-white font-semibold text-sm">FIRE</span>
                   </button>
                   <button
-                    onClick={() => setShowPaymentDialog(true)}
+                    onClick={() => {
+                      if (requireOrderType && !orderType) {
+                        toast.error("Please select an order type before charging");
+                        return;
+                      }
+                      setShowPaymentDialog(true);
+                    }}
                     className="flex-1 h-8 rounded-full flex items-center justify-center"
                     style={{
                       background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'

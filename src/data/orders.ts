@@ -19,6 +19,7 @@ export {
 
 import { 
   TAX_RATE, 
+  getActiveTaxRate,
   SERVICE_CHARGE_RATE, 
   DISCOUNT_THRESHOLD, 
   DISCOUNT_AMOUNT,

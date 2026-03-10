@@ -2,10 +2,27 @@
 // Single source of truth for order calculations, formatting, and styling
 
 // ============= CONSTANTS =============
-export const TAX_RATE = 0.0735; // 7.35%
+export const TAX_RATE = 0.0735; // 7.35% - default fallback
 export const SERVICE_CHARGE_RATE = 0.05; // 5%
 export const DISCOUNT_THRESHOLD = 50; // $50 minimum for discount
 export const DISCOUNT_AMOUNT = 5.00; // $5 discount
+
+// ============= DYNAMIC TAX RATE =============
+// Reads active (non-archived) exclusive taxes from Settings > Taxes
+// and sums their rates. Falls back to TAX_RATE if none configured.
+export const getActiveTaxRate = (): number => {
+  try {
+    const raw = localStorage.getItem('taxes-settings');
+    if (!raw) return TAX_RATE;
+    const taxes: { amount: number; type: string; archived: boolean }[] = JSON.parse(raw);
+    const activeTaxes = taxes.filter(t => !t.archived);
+    if (activeTaxes.length === 0) return TAX_RATE;
+    // Sum all active tax percentages and convert to decimal
+    return activeTaxes.reduce((sum, t) => sum + (t.amount / 100), 0);
+  } catch {
+    return TAX_RATE;
+  }
+};
 
 // ============= FORMATTING =============
 export const formatPrice = (price: number): string => `$${price.toFixed(2)}`;

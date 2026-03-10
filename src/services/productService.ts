@@ -211,29 +211,31 @@ export const calculateEffectivePrice = (
 };
 
 export const updateProduct = async (id: string, product: Partial<CustomProduct>, variants: ProductVariant[]) => {
-  const { error: productError } = await supabase
+  let categoryId: string | undefined;
+  if (product.category) {
+    categoryId = await resolveCategoryId(product.category);
+  }
+
+  const updatePayload: Record<string, any> = {
+    name: product.name,
+    description: product.description,
+    price: product.price,
+    price_type: product.priceType,
+    sku: product.sku,
+    image_url: product.imageUrl,
+    active: product.active,
+    dine_in: product.dineIn,
+    takeaway: product.takeaway,
+    delivery: product.delivery,
+    out_of_stock: product.outOfStock,
+    inventory_tracking: product.inventoryTracking,
+    negative_inventory: product.negativeInventory,
+  };
+  if (categoryId) updatePayload.category_id = categoryId;
+
+  const { error: productError } = await (supabase as any)
     .from('products')
-    .update({
-      name: product.name,
-      description: product.description,
-      category: product.category,
-      price: product.price,
-      price_type: product.priceType,
-      sku: product.sku,
-      image_url: product.imageUrl,
-      active: product.active,
-      dine_in: product.dineIn,
-      takeaway: product.takeaway,
-      delivery: product.delivery,
-      add_to_menu: product.addToMenu,
-      out_of_stock: product.outOfStock,
-      inventory_tracking: product.inventoryTracking,
-      negative_inventory: product.negativeInventory,
-      modifiers: product.modifiers,
-      add_ons: product.addOns,
-      taxes: product.taxes,
-      discounts: product.discounts,
-    })
+    .update(updatePayload)
     .eq('id', id);
 
   if (productError) throw productError;
@@ -264,5 +266,35 @@ export const updateProduct = async (id: string, product: Partial<CustomProduct>,
       );
 
     if (variantsError) throw variantsError;
+  }
+
+  // Sync to localStorage
+  if (product.name) {
+    const now = new Date().toISOString();
+    saveCustomProduct({
+      id,
+      name: product.name ?? '',
+      description: product.description ?? '',
+      category: product.category ?? '',
+      price: product.price ?? 0,
+      priceType: product.priceType ?? 'fixed',
+      sku: product.sku ?? '',
+      imageUrl: product.imageUrl,
+      active: product.active ?? true,
+      dineIn: product.dineIn ?? true,
+      takeaway: product.takeaway ?? true,
+      delivery: product.delivery ?? false,
+      addToMenu: product.addToMenu ?? true,
+      outOfStock: product.outOfStock ?? false,
+      inventoryTracking: product.inventoryTracking ?? false,
+      negativeInventory: product.negativeInventory ?? false,
+      modifiers: product.modifiers ?? [],
+      addOns: product.addOns ?? [],
+      taxes: product.taxes ?? [],
+      discounts: product.discounts ?? [],
+      isCustom: true,
+      createdAt: now,
+      updatedAt: now,
+    });
   }
 };

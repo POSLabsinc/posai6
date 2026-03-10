@@ -1,7 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { saveCustomProduct, CustomProduct } from "@/lib/productStore";
-import { CustomProduct } from "@/lib/productStore";
+
 
 export type ProductVariant = {
   id: string;

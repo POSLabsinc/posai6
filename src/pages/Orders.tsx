@@ -7094,6 +7094,10 @@ const Orders = () => {
       toast.error("Please select an order type before firing");
       return;
     }
+    if (requireGuestName && !guestName.trim()) {
+      toast.error("Please enter a guest name before firing");
+      return;
+    }
     if (!isSessionOrderMode || !sessionIdFromParams) {
       // Not a session order, just toggle all items to fired
       setOrderItems((prev) => prev.map((item) => ({ ...item, isFired: true })));

@@ -112,6 +112,59 @@ const EditAddOnWrapper = ({ addOnId, onBack }: { addOnId: string; onBack: () => 
   );
 };
 
+// Edit Product wrapper that fetches data and renders AddProductContent in edit mode
+const EditProductWrapper = ({ productId, onBack }: { productId: string; onBack: () => void }) => {
+  const [initialData, setInitialData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProduct = async () => {
+      const { data, error } = await (supabase as any)
+        .from('products')
+        .select('*, categories(name), product_variants(*)')
+        .eq('id', productId)
+        .single();
+      if (data) {
+        setInitialData({
+          name: data.name ?? '',
+          description: data.description ?? '',
+          category: data.categories?.name ?? '',
+          price: Number(data.price),
+          priceType: data.price_type as 'fixed' | 'open',
+          sku: data.sku ?? '',
+          imageUrl: data.image_url ?? undefined,
+          active: data.active,
+          dineIn: data.dine_in,
+          takeaway: data.takeaway,
+          delivery: data.delivery,
+          addToMenu: true,
+          outOfStock: data.out_of_stock,
+          inventoryTracking: data.inventory_tracking,
+          negativeInventory: data.negative_inventory,
+          modifiers: [],
+          addOns: [],
+          taxes: [],
+          discounts: [],
+        });
+      }
+      if (error) console.error("Failed to fetch product", error);
+      setLoading(false);
+    };
+    fetchProduct();
+  }, [productId]);
+
+  if (loading) return <div className="h-full flex items-center justify-center text-muted-foreground">Loading...</div>;
+  if (!initialData) return <div className="h-full flex items-center justify-center text-muted-foreground">Product not found</div>;
+
+  return (
+    <AddProductContent
+      onBack={onBack}
+      initialData={initialData}
+      editId={productId}
+    />
+  );
+};
+
 // Map routes to content components for the right panel
 const getContentForRoute = (
   pathname: string, 

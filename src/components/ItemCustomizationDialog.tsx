@@ -1153,7 +1153,7 @@ export const ItemCustomizationDialog = ({
         <OrderNotesAutocomplete
           value={itemNotes}
           onChange={setItemNotes}
-          placeholder="Item notes"
+          placeholder="Product notes"
           storageKey="item-notes-history"
         />
       </div>
@@ -1169,7 +1169,7 @@ export const ItemCustomizationDialog = ({
                 : 'bg-transparent text-neutral-400'
             }`}
           >
-            Item
+            Product
           </button>
           <button
             onClick={() => setActiveTab('addons')}

@@ -7089,6 +7089,10 @@ const Orders = () => {
 
   // Handler to fire the entire order (session orders)
   const handleFireOrder = () => {
+    if (requireOrderType && !orderType) {
+      toast.error("Please select an order type before firing");
+      return;
+    }
     if (!isSessionOrderMode || !sessionIdFromParams) {
       // Not a session order, just toggle all items to fired
       setOrderItems((prev) => prev.map((item) => ({ ...item, isFired: true })));
@@ -7097,7 +7101,7 @@ const Orders = () => {
     }
 
     if (orderItems.length === 0) {
-      toast.error("Please add items to the order before firing");
+      toast.error("Please add products to the order before firing");
       return;
     }
 

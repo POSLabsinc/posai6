@@ -197,7 +197,12 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
         setReceiptMode(true);
       }
     } else {
-      setSignatureMode(true);
+      if (SettingsManager.getCheckoutOptionsSettings().skipSignature) {
+        onSelectTip(0);
+        setReceiptMode(true);
+      } else {
+        setSignatureMode(true);
+      }
     }
   };
 

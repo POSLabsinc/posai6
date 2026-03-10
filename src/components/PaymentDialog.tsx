@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";
 import { formatPhone } from "@/components/voucher/voucherHelpers";
@@ -269,22 +269,25 @@ export function PaymentDialog({
   // Mobile payment selection state - shows 3-column grid on mobile
   const [mobilePaymentSelectionActive, setMobilePaymentSelectionActive] = useState(true);
 
-  // All mobile payment methods for the selection grid
-  const allMobilePaymentMethods: PaymentMethodType[] = [
-    { id: 'card', name: 'Card', icon: CreditCard },
-    { id: 'cash', name: 'Cash', icon: Banknote },
-    { id: 'gift-card', name: 'Gift Card', icon: Gift },
-    { id: 'split-check', name: 'Split Check', icon: () => <img src={splitCheckIcon} alt="Split Check" className="w-6 h-6" /> },
-    { id: 'pay-link', name: 'Pay By Link', icon: Link },
-    { id: 'qr-code', name: 'QR Code', icon: QrCode },
-    { id: 'account', name: 'Account', icon: User },
-    { id: 'loyalty', name: 'Loyalty', icon: Tag },
-    { id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
-    { id: 'manual-card', name: 'Manual Card', icon: Clipboard },
-    { id: 'external-cc', name: 'External CC', icon: ExternalLink },
-    { id: 'third-party-delivery', name: '3rd Party', icon: Truck },
-    { id: 'voucher', name: 'Voucher', icon: Ticket },
-  ];
+  // All mobile payment methods for the selection grid (filtered by settings)
+  const allMobilePaymentMethods: PaymentMethodType[] = useMemo(() => {
+    const allMethods: PaymentMethodType[] = [
+      { id: 'card', name: 'Card', icon: CreditCard },
+      { id: 'cash', name: 'Cash', icon: Banknote },
+      { id: 'gift-card', name: 'Gift Card', icon: Gift },
+      { id: 'split-check', name: 'Split Check', icon: () => <img src={splitCheckIcon} alt="Split Check" className="w-6 h-6" /> },
+      { id: 'pay-link', name: 'Pay By Link', icon: Link },
+      { id: 'qr-code', name: 'QR Code', icon: QrCode },
+      { id: 'account', name: 'Account', icon: User },
+      { id: 'loyalty', name: 'Loyalty', icon: Tag },
+      { id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
+      { id: 'manual-card', name: 'Manual Card', icon: Clipboard },
+      { id: 'external-cc', name: 'External CC', icon: ExternalLink },
+      { id: 'third-party-delivery', name: '3rd Party', icon: Truck },
+      { id: 'voucher', name: 'Voucher', icon: Ticket },
+    ];
+    return filterMethodsBySettings(allMethods, getEnabledPaymentMethods());
+  }, [open]);
 
   // Handler for mobile payment method selection
   const handleMobilePaymentMethodSelect = (methodId: string) => {
@@ -330,6 +333,47 @@ export function PaymentDialog({
       setSelectedDeliveryPartner(null);
       setDeliveryReference('');
     }
+  };
+
+  // Helper to get enabled payment methods from settings
+  const getEnabledPaymentMethods = () => {
+    try {
+      const stored = localStorage.getItem("payment-methods-state");
+      if (stored) return JSON.parse(stored) as Record<string, boolean>;
+    } catch (e) { /* ignore */ }
+    return null; // null means all enabled (default)
+  };
+
+  // Map settings ID to dialog method ID
+  const settingsToDialogId: Record<string, string> = {
+    'account': 'account',
+    'card': 'card',
+    'cash': 'cash',
+    'external-cc': 'external-cc',
+    'gift-card': 'gift-card',
+    'loyalty': 'loyalty',
+    'manual-card': 'manual-card',
+    'manual-cc': 'manual-cc',
+    'pay-by-link': 'pay-link',
+    'voucher': 'voucher',
+  };
+
+  const deliveryPartnerSettingsIds = ['blizzful', 'doordash', 'grubhub', 'uber-eats'];
+
+  const filterMethodsBySettings = (methods: PaymentMethodType[], enabledSettings: Record<string, boolean> | null): PaymentMethodType[] => {
+    if (!enabledSettings) return methods;
+    return methods.filter(method => {
+      // split-check and qr-code have no settings toggle, always show
+      if (method.id === 'split-check' || method.id === 'qr-code') return true;
+      // third-party-delivery: hide only if ALL delivery partners are off
+      if (method.id === 'third-party-delivery') {
+        return deliveryPartnerSettingsIds.some(id => enabledSettings[id] !== false);
+      }
+      // Find the settings key for this dialog method
+      const settingsKey = Object.entries(settingsToDialogId).find(([, dialogId]) => dialogId === method.id)?.[0];
+      if (!settingsKey) return true; // No mapping = always show
+      return enabledSettings[settingsKey] !== false;
+    });
   };
 
   // Reset states when dialog opens
@@ -395,6 +439,11 @@ export function PaymentDialog({
       setDragOverCheckNum(null);
       // Reset mobile payment selection
       setMobilePaymentSelectionActive(true);
+
+      // Apply payment method visibility from settings
+      const enabledSettings = getEnabledPaymentMethods();
+      setVisiblePaymentMethods(filterMethodsBySettings(initialPaymentMethods, enabledSettings));
+      setDropdownPaymentMethods(filterMethodsBySettings(initialOtherPaymentMethods, enabledSettings));
     }
   }, [open, total]);
 

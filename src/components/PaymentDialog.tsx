@@ -550,7 +550,7 @@ export function PaymentDialog({
         }
       });
       
-      const checkTax = checkSubtotal * 0.0735; // TAX_RATE
+      const checkTax = checkSubtotal * getActiveTaxRate();
       return { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax };
     } else {
       // Calculate based on assigned items

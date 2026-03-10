@@ -177,7 +177,10 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
               filteredItems.map((item, index) => (
                 <div key={item.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50" />}
-                  <button className="grid grid-cols-[1.2fr_100px_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors text-left">
+                  <button
+                    onClick={() => navigate(`/settings/menu/add-ons/edit/${item.id}`)}
+                    className="grid grid-cols-[1.2fr_100px_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors text-left"
+                  >
                     <span className="text-[15px] text-foreground">{item.name}</span>
                     <span className="text-[15px] text-foreground text-right">£ {item.price.toFixed(2)}</span>
                     <ChevronRight className="h-5 w-5 text-[hsl(var(--text-subtle))] justify-self-end" />

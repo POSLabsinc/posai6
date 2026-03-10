@@ -588,25 +588,26 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         
-        if (response.status === 429) {
-          toast({
-            title: "Rate limit exceeded",
-            description: "Please wait a moment and try again.",
-            variant: "destructive",
-          });
-        } else if (response.status === 402) {
-          toast({
-            title: "AI temporarily unavailable",
-            description: "Please try again in a moment.",
-          });
-        } else {
-          toast({
-            title: "AI Error",
-            description: errorData.error || "Failed to get AI response",
-            variant: "destructive",
-          });
-        }
-        
+        // Add fallback message to chat so conversation continues smoothly
+        const fallbackContent = response.status === 429
+          ? "I'm receiving too many requests right now. Please wait a moment and try again."
+          : response.status === 402
+          ? "I'm temporarily unavailable. Please try again shortly."
+          : errorData.error || "Something went wrong. Please try again.";
+
+        const fallbackMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: fallbackContent,
+          timestamp: new Date(),
+          quickReplies: ["Try Again"],
+        };
+
+        setMessages((prev) => [
+          ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined, multiSelect: undefined } : msg),
+          fallbackMessage,
+        ]);
+        setConversationHistory((prev) => [...prev, { role: "assistant", content: fallbackContent }]);
         setIsTyping(false);
         return;
       }
@@ -701,11 +702,18 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
     } catch (error) {
       console.error("Error calling AI:", error);
-      toast({
-        title: "Connection Error",
-        description: "Failed to connect to AI service. Please try again.",
-        variant: "destructive",
-      });
+      const errorFallback: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "I couldn't connect right now. Please check your connection and try again.",
+        timestamp: new Date(),
+        quickReplies: ["Try Again"],
+      };
+      setMessages((prev) => [
+        ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined, multiSelect: undefined } : msg),
+        errorFallback,
+      ]);
+      setConversationHistory((prev) => [...prev, { role: "assistant", content: errorFallback.content }]);
       setIsTyping(false);
     }
   };

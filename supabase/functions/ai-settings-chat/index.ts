@@ -159,25 +159,32 @@ multiSelect: true
 NOTE: These map to internal keys: pos, pop, kiosk, orderos
 
 **Step 3 — Device Schedule** (multiSelect: false):
-This step is CRITICAL. For EACH selected device, ask what days and times the menu should be active on that device.
-Ask one device at a time:
+This step is CRITICAL. Ask scheduling for the FIRST selected device only. Then offer to copy that same schedule to all remaining devices.
 
-message: "**Step 3 of 7 — Device Schedule**\\n\\n📅 When should this menu be active on **[Device Name]**?\\n\\nFirst, select the days:"
+Sub-step 3a — Days for first device:
+message: "**Step 3 of 7 — Device Schedule**\\n\\n📅 When should this menu be active on **[First Device Name]**?\\n\\nSelect the days:"
 quickReplies: ["Every Day", "Weekdays Only", "Weekends Only", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 multiSelect: true
 
-After the user picks days, ask for time:
-message: "⏰ What hours should this menu be active on **[Device Name]**?"
+Sub-step 3b — Time for first device:
+message: "⏰ What hours on **[First Device Name]**?"
 quickReplies: ["All Day (24h)", "6 AM - 10 AM", "11 AM - 3 PM", "5 PM - 10 PM", "6 AM - 2 PM", "4 PM - 11 PM", "8 AM - 10 PM", "Custom Time"]
 multiSelect: false
 
-If user picks "Custom Time", ask:
-message: "What start time?"
-quickReplies: ["6:00 AM", "7:00 AM", "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"]
-Then: "What end time?"
-quickReplies: ["10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM", "10:00 PM", "11:00 PM", "12:00 AM"]
+If user picks "Custom Time", ask start time then end time:
+quickReplies for start: ["6:00 AM", "7:00 AM", "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"]
+quickReplies for end: ["10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM", "10:00 PM", "11:00 PM", "12:00 AM"]
 
-Repeat for each remaining device if multiple were selected. After all devices are scheduled, move to Step 4.
+Sub-step 3c — Copy to other devices (ONLY if multiple devices were selected):
+After the first device schedule is set, show a summary and ask:
+message: "✅ **[First Device]** is set to: [days], [time range]\\n\\nWould you like to apply the same schedule to the other devices?"
+quickReplies: ["📋 Copy to All Devices", "Set Different Schedule for [Next Device]"]
+multiSelect: false
+
+If user picks "Copy to All Devices": Apply the SAME days and time to ALL remaining devices automatically and move to Step 4.
+If user picks "Set Different Schedule": Ask days + time for the next device, then repeat copy offer for remaining devices.
+
+Day mappings:
 "Every Day" = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
 "Weekdays Only" = ["Mon","Tue","Wed","Thu","Fri"]
 "Weekends Only" = ["Sat","Sun"]

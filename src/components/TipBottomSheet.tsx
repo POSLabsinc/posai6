@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { SettingsManager } from "@/lib/settingsManager";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Printer, MessageSquare, Mail, Star, DollarSign } from "lucide-react";
 import {
@@ -172,7 +173,12 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
         setReceiptMode(true);
       }
     } else {
-      setSignatureMode(true);
+      if (SettingsManager.getCheckoutOptionsSettings().skipSignature) {
+        onSelectTip(amount);
+        setReceiptMode(true);
+      } else {
+        setSignatureMode(true);
+      }
     }
   };
 
@@ -191,7 +197,12 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
         setReceiptMode(true);
       }
     } else {
-      setSignatureMode(true);
+      if (SettingsManager.getCheckoutOptionsSettings().skipSignature) {
+        onSelectTip(0);
+        setReceiptMode(true);
+      } else {
+        setSignatureMode(true);
+      }
     }
   };
 
@@ -230,7 +241,12 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
         setReceiptMode(true);
       }
     } else {
-      setSignatureMode(true);
+      if (SettingsManager.getCheckoutOptionsSettings().skipSignature) {
+        onSelectTip(additionalTip);
+        setReceiptMode(true);
+      } else {
+        setSignatureMode(true);
+      }
     }
   };
 

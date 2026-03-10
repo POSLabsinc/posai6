@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { useDeviceAuth } from "@/hooks/useDeviceAuth";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,

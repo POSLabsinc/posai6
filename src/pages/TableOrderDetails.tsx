@@ -1223,13 +1223,15 @@ const TableOrderDetails = () => {
               </button>
             ) : (
               <>
-                <button 
-                  onClick={() => setShowTipDialog(true)}
-                  className="flex-1 py-2.5 rounded-full text-white text-sm font-bold border border-white/20"
-                  style={{ background: '#1B1C20' }}
-                >
-                  ADD TIP
-                </button>
+                {!SettingsManager.getCheckoutOptionsSettings().skipTipScreen && (
+                  <button 
+                    onClick={() => setShowTipDialog(true)}
+                    className="flex-1 py-2.5 rounded-full text-white text-sm font-bold border border-white/20"
+                    style={{ background: '#1B1C20' }}
+                  >
+                    ADD TIP
+                  </button>
+                )}
                 <button 
                   onClick={() => setShowRefundMode(true)}
                   className="flex-1 py-2.5 rounded-full text-black text-sm font-bold"

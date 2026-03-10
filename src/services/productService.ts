@@ -126,7 +126,7 @@ export const createProduct = async (product: Omit<CustomProduct, 'id' | 'created
 export const fetchProducts = async (): Promise<ProductWithVariants[]> => {
   const { data: products, error } = await supabase
     .from('products')
-    .select('*, product_variants(*)');
+    .select('*, categories(name), product_variants(*)');
 
   if (error) throw error;
   if (!products) return [];
@@ -135,7 +135,7 @@ export const fetchProducts = async (): Promise<ProductWithVariants[]> => {
     id: p.id,
     name: p.name,
     description: p.description ?? '',
-    category: p.category,
+    category: p.categories?.name ?? '',
     price: Number(p.price),
     priceType: p.price_type as 'fixed' | 'open',
     minPrice: p.min_price ? Number(p.min_price) : undefined,

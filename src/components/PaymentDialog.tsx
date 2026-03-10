@@ -269,22 +269,25 @@ export function PaymentDialog({
   // Mobile payment selection state - shows 3-column grid on mobile
   const [mobilePaymentSelectionActive, setMobilePaymentSelectionActive] = useState(true);
 
-  // All mobile payment methods for the selection grid
-  const allMobilePaymentMethods: PaymentMethodType[] = [
-    { id: 'card', name: 'Card', icon: CreditCard },
-    { id: 'cash', name: 'Cash', icon: Banknote },
-    { id: 'gift-card', name: 'Gift Card', icon: Gift },
-    { id: 'split-check', name: 'Split Check', icon: () => <img src={splitCheckIcon} alt="Split Check" className="w-6 h-6" /> },
-    { id: 'pay-link', name: 'Pay By Link', icon: Link },
-    { id: 'qr-code', name: 'QR Code', icon: QrCode },
-    { id: 'account', name: 'Account', icon: User },
-    { id: 'loyalty', name: 'Loyalty', icon: Tag },
-    { id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
-    { id: 'manual-card', name: 'Manual Card', icon: Clipboard },
-    { id: 'external-cc', name: 'External CC', icon: ExternalLink },
-    { id: 'third-party-delivery', name: '3rd Party', icon: Truck },
-    { id: 'voucher', name: 'Voucher', icon: Ticket },
-  ];
+  // All mobile payment methods for the selection grid (filtered by settings)
+  const allMobilePaymentMethods: PaymentMethodType[] = useMemo(() => {
+    const allMethods: PaymentMethodType[] = [
+      { id: 'card', name: 'Card', icon: CreditCard },
+      { id: 'cash', name: 'Cash', icon: Banknote },
+      { id: 'gift-card', name: 'Gift Card', icon: Gift },
+      { id: 'split-check', name: 'Split Check', icon: () => <img src={splitCheckIcon} alt="Split Check" className="w-6 h-6" /> },
+      { id: 'pay-link', name: 'Pay By Link', icon: Link },
+      { id: 'qr-code', name: 'QR Code', icon: QrCode },
+      { id: 'account', name: 'Account', icon: User },
+      { id: 'loyalty', name: 'Loyalty', icon: Tag },
+      { id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
+      { id: 'manual-card', name: 'Manual Card', icon: Clipboard },
+      { id: 'external-cc', name: 'External CC', icon: ExternalLink },
+      { id: 'third-party-delivery', name: '3rd Party', icon: Truck },
+      { id: 'voucher', name: 'Voucher', icon: Ticket },
+    ];
+    return filterMethodsBySettings(allMethods, getEnabledPaymentMethods());
+  }, [open]);
 
   // Handler for mobile payment method selection
   const handleMobilePaymentMethodSelect = (methodId: string) => {

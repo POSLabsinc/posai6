@@ -554,12 +554,14 @@ const OrdersD = () => {
                 >
                   <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
                 </button>
+                {showSaveButton && (
                 <button 
                   className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
                   style={{ backgroundColor: '#C9C9C9' }}
                 >
                   <img src={saveIcon} alt="Save" className="w-4 h-4" />
                 </button>
+                )}
                 <button 
                   className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" 
                   style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}

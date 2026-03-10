@@ -41,10 +41,14 @@ const AppleAlertDialog = ({
         </AlertDialogHeader>
         
         <AlertDialogFooter className="flex-row border-t border-[#545458]/50 p-0 m-0 gap-0">
-          <AlertDialogCancel className="flex-1 h-11 m-0 rounded-none border-0 bg-transparent hover:bg-[#545458]/30 text-[17px] font-semibold text-white/70 tracking-[-0.4px] transition-colors">
-            {cancelText}
-          </AlertDialogCancel>
-          <div className="w-[0.5px] bg-[#545458]/50" />
+          {cancelText ? (
+            <>
+              <AlertDialogCancel className="flex-1 h-11 m-0 rounded-none border-0 bg-transparent hover:bg-[#545458]/30 text-[17px] font-semibold text-white/70 tracking-[-0.4px] transition-colors">
+                {cancelText}
+              </AlertDialogCancel>
+              <div className="w-[0.5px] bg-[#545458]/50" />
+            </>
+          ) : null}
           <AlertDialogAction 
             onClick={onConfirm}
             className="flex-1 h-11 m-0 rounded-none border-0 bg-transparent hover:bg-[#545458]/30 text-[17px] font-normal text-[#FF9500] tracking-[-0.4px] transition-colors"

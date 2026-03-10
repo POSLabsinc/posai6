@@ -6274,6 +6274,7 @@ const Orders = () => {
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
   const checkoutOptionsSettings = useMemo(() => SettingsManager.getCheckoutOptionsSettings(), []);
   const requireOrderType = checkoutOptionsSettings.requireOrderType;
+  const requireGuestName = checkoutOptionsSettings.requireGuestName;
   const [orderType, setOrderType] = useState(() => requireOrderType ? "" : "DINE IN");
   const [showDineInForm, setShowDineInForm] = useState(false);
   const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);

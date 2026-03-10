@@ -702,11 +702,18 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
     } catch (error) {
       console.error("Error calling AI:", error);
-      toast({
-        title: "Connection Error",
-        description: "Failed to connect to AI service. Please try again.",
-        variant: "destructive",
-      });
+      const errorFallback: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "I couldn't connect right now. Please check your connection and try again.",
+        timestamp: new Date(),
+        quickReplies: ["Try Again"],
+      };
+      setMessages((prev) => [
+        ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined, multiSelect: undefined } : msg),
+        errorFallback,
+      ]);
+      setConversationHistory((prev) => [...prev, { role: "assistant", content: errorFallback.content }]);
       setIsTyping(false);
     }
   };

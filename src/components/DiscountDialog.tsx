@@ -452,7 +452,7 @@ export function DiscountDialog({
   const listContent = (
     <div ref={scrollRef} className="max-h-[50vh] overflow-y-auto scrollbar-hide">
       <div className="p-3 space-y-2">
-        {availableDiscounts.map((discount) => {
+        {dynamicDiscounts.map((discount) => {
           const isSelected = selectedDiscounts.some(d => d.id === discount.id);
           const isExpanded = isSelected && expandedDiscountId === discount.id;
 

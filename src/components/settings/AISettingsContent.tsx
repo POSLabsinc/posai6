@@ -800,7 +800,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleSendMessage(inputValue);
+    handleSendMessage(inputValue, uploadedImage);
   };
 
   const handleChipClick = (chip: SuggestionChip) => {

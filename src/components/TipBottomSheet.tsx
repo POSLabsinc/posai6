@@ -1345,6 +1345,24 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
               <h2 className="text-white text-3xl font-bold text-center mb-2">
                 Total {formatPrice(totalAmount)}
               </h2>
+
+              {/* Order Summary - shown when setting is enabled */}
+              {SettingsManager.getCheckoutOptionsSettings().showOrderSummary && (
+                <div className="bg-neutral-800/50 rounded-xl p-3 mb-3 border border-neutral-700/50">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-neutral-400 text-sm">Subtotal</span>
+                    <span className="text-white text-sm">{formatPrice(totalAmount * 0.9)}</span>
+                  </div>
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-neutral-400 text-sm">Tax</span>
+                    <span className="text-white text-sm">{formatPrice(totalAmount * 0.1)}</span>
+                  </div>
+                  <div className="border-t border-neutral-700/50 pt-2 flex items-center justify-between">
+                    <span className="text-white text-sm font-semibold">Total</span>
+                    <span className="text-white text-sm font-semibold">{formatPrice(totalAmount)}</span>
+                  </div>
+                </div>
+              )}
               
               {/* Existing Tip Info Banner - for paid tickets */}
               {existingTip > 0 && (

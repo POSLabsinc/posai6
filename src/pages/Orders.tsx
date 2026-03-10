@@ -9233,6 +9233,10 @@ const Orders = () => {
                         toast.error("Please select an order type before charging");
                         return;
                       }
+                      if (requireGuestName && !guestName.trim()) {
+                        toast.error("Please enter a guest name before charging");
+                        return;
+                      }
                       setShowPaymentDialog(true);
                     }}
                     className="flex-1 h-8 rounded-full flex items-center justify-center"

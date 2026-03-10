@@ -6274,6 +6274,7 @@ const Orders = () => {
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
   const checkoutOptionsSettings = useMemo(() => SettingsManager.getCheckoutOptionsSettings(), []);
   const requireOrderType = checkoutOptionsSettings.requireOrderType;
+  const requireGuestName = checkoutOptionsSettings.requireGuestName;
   const [orderType, setOrderType] = useState(() => requireOrderType ? "" : "DINE IN");
   const [showDineInForm, setShowDineInForm] = useState(false);
   const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
@@ -7091,6 +7092,10 @@ const Orders = () => {
   const handleFireOrder = () => {
     if (requireOrderType && !orderType) {
       toast.error("Please select an order type before firing");
+      return;
+    }
+    if (requireGuestName && !guestName.trim()) {
+      toast.error("Please enter a guest name before firing");
       return;
     }
     if (!isSessionOrderMode || !sessionIdFromParams) {
@@ -7930,6 +7935,10 @@ const Orders = () => {
             onClick={() => {
               if (requireOrderType && !orderType) {
                 toast.error("Please select an order type before charging");
+                return;
+              }
+              if (requireGuestName && !guestName.trim()) {
+                toast.error("Please enter a guest name before charging");
                 return;
               }
               setShowPaymentDialog(true);
@@ -9222,6 +9231,10 @@ const Orders = () => {
                     onClick={() => {
                       if (requireOrderType && !orderType) {
                         toast.error("Please select an order type before charging");
+                        return;
+                      }
+                      if (requireGuestName && !guestName.trim()) {
+                        toast.error("Please enter a guest name before charging");
                         return;
                       }
                       setShowPaymentDialog(true);

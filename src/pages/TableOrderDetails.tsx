@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from "react";
+import { SettingsManager } from "@/lib/settingsManager";
 import { toast } from "sonner";
 import { useOrderTimers } from "@/hooks/use-order-timer";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";

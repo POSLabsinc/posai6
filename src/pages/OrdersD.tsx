@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
+import { SettingsManager } from "@/lib/settingsManager";
 import { Plus, ChevronDown, ChevronRight, X, FileText } from "lucide-react";
 import searchIcon from "@/assets/icons/search.png";
 import clearCIcon from "@/assets/icons/clear-c.png";

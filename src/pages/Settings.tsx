@@ -258,6 +258,10 @@ const getContentForRoute = (
   if (pathname === '/settings/menu/products/add') {
     return <AddProductContent onBack={() => navigate('/settings/menu/products')} />;
   }
+  if (pathname.startsWith('/settings/menu/products/edit/')) {
+    const productId = pathname.split('/').pop() || '';
+    return <EditProductWrapper productId={productId} onBack={() => navigate('/settings/menu/products')} />;
+  }
   if (pathname === '/settings/menu/default-modifiers') {
     return <DefaultModifiersContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
   }

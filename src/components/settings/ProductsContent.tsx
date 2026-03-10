@@ -270,7 +270,7 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick, onAdd }: Produc
               <div key={item.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                 <SwipeableSettingsItem
-                  onTap={() => {/* TODO: Edit product */}}
+                  onTap={() => navigate(`/settings/menu/products/edit/${item.id}`)}
                   onArchive={() => handleArchiveItem(item)}
                   isArchived={item.archived}
                 >

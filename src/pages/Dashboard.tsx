@@ -1825,7 +1825,11 @@ const Dashboard = () => {
         onPaymentComplete={(paymentHistory) => {
           console.log("Payment completed:", paymentHistory);
           setShowPaymentDialog(false);
-          if (SettingsManager.getCheckoutOptionsSettings().autoCloseTicket) {
+          const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();
+          if (checkoutSettings.printReceipt) {
+            toast.success("Receipt sent to printer");
+          }
+          if (checkoutSettings.autoCloseTicket) {
             setSelectedOrder(null);
             toast.success("Ticket closed automatically");
           }

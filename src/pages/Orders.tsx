@@ -9571,7 +9571,11 @@ const Orders = () => {
       }).map((v, idx) => ({ ...v, index: idx }))}
       onPaymentComplete={(history) => {
         console.log("Payment completed:", history);
-        if (autoCloseTicket) {
+        const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();
+        if (checkoutSettings.printReceipt) {
+          toast.success("Receipt sent to printer");
+        }
+        if (checkoutSettings.autoCloseTicket) {
           setOrderItems([]);
           setShowPaymentDialog(false);
           toast.success("Ticket closed automatically");

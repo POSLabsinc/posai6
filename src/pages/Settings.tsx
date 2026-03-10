@@ -78,6 +78,40 @@ import AddEventContent from "@/components/settings/AddEventContent";
 import AddOpenShiftContent from "@/components/settings/AddOpenShiftContent";
 import { useIsMobile } from "@/hooks/use-mobile";
 
+// Edit Add-On wrapper that fetches data and renders AddAddOnContent in edit mode
+const EditAddOnWrapper = ({ addOnId, onBack }: { addOnId: string; onBack: () => void }) => {
+  const [editData, setEditData] = useState<{ id: string; name: string; price: number; active: boolean } | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchAddOn = async () => {
+      const { data, error } = await supabase.from("add_ons").select("id, name, price, active").eq("id", addOnId).single();
+      if (data) setEditData(data);
+      if (error) console.error("Failed to fetch add-on", error);
+      setLoading(false);
+    };
+    fetchAddOn();
+  }, [addOnId]);
+
+  if (loading) return <div className="h-full flex items-center justify-center text-muted-foreground">Loading...</div>;
+  if (!editData) return <div className="h-full flex items-center justify-center text-muted-foreground">Add-on not found</div>;
+
+  return (
+    <AddAddOnContent
+      onBack={onBack}
+      editData={editData}
+      onSave={async (data) => {
+        const { error } = await supabase.from("add_ons").update({
+          name: data.name,
+          price: data.hasOptions && data.options.length > 0 ? parseFloat(data.options[0].price || "0") : 0,
+          active: data.canBeServed,
+        }).eq("id", addOnId);
+        if (error) console.error("Failed to update add-on", error);
+      }}
+    />
+  );
+};
+
 // Map routes to content components for the right panel
 const getContentForRoute = (
   pathname: string, 
@@ -213,6 +247,10 @@ const getContentForRoute = (
       });
       if (error) console.error("Failed to insert add-on", error);
     }} />;
+  }
+  if (pathname.startsWith('/settings/menu/add-ons/edit/')) {
+    const addOnId = pathname.split('/').pop() || '';
+    return <EditAddOnWrapper addOnId={addOnId} onBack={() => navigate('/settings/menu/add-ons')} />;
   }
   if (pathname === '/settings/menu/products') {
     return <ProductsContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} onAdd={() => navigate('/settings/menu/products/add')} />;

@@ -227,6 +227,36 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     return SettingsManager.getAllSettingsSummary();
   }, []);
 
+  // Image upload handler
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      toast({ title: "Invalid file", description: "Please upload an image file.", variant: "destructive" });
+      return;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Please upload an image smaller than 10MB.", variant: "destructive" });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setUploadedImage(reader.result as string);
+      setUploadedImageFile(file);
+    };
+    reader.readAsDataURL(file);
+    // Reset file input
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const clearUploadedImage = () => {
+    setUploadedImage(null);
+    setUploadedImageFile(null);
+  };
+
   // Execute the pending action based on type and data
   const executeAction = useCallback(async (pendingChange: PendingChange): Promise<boolean> => {
     const { settingType, operation, data } = pendingChange;

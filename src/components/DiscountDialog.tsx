@@ -89,7 +89,33 @@ const COMMENT_SUGGESTIONS: Record<string, string[]> = {
   "stock": ["Item 86'd mid-service", "Ingredient unavailable", "Substitution refused"],
 };
 
-export const availableDiscounts: Discount[] = [
+// Icon mapping for dynamic discounts
+const ICON_MAP: Record<string, LucideIcon> = {
+  "employee": Briefcase,
+  "senior": Heart,
+  "student": GraduationCap,
+  "military": Shield,
+  "loyalty": Star,
+  "happy": Clock,
+  "birthday": Cake,
+  "first": Sparkles,
+  "manager": DollarSign,
+  "promo": Tag,
+  "comp": BadgeDollarSign,
+  "voucher": Wallet,
+};
+
+const getIconForDiscount = (name: string): LucideIcon => {
+  const lower = name.toLowerCase();
+  for (const [key, icon] of Object.entries(ICON_MAP)) {
+    if (lower.includes(key)) return icon;
+  }
+  return Tag;
+};
+
+const DISCOUNTS_STORAGE_KEY = "discounts-settings";
+
+const fallbackDiscounts: Discount[] = [
   { id: "employee", name: "Employee Discount", type: "percentage", value: 20, icon: Briefcase },
   { id: "senior", name: "Senior Citizen", type: "percentage", value: 15, icon: Heart },
   { id: "student", name: "Student Discount", type: "percentage", value: 10, icon: GraduationCap },
@@ -103,6 +129,29 @@ export const availableDiscounts: Discount[] = [
   { id: "manager-15", name: "Manager Comp $15", type: "amount", value: 15, icon: Wallet },
   { id: "promo-code", name: "Promo Code Discount", type: "percentage", value: 20, icon: Tag },
 ];
+
+const getDiscountsFromSettings = (): Discount[] => {
+  try {
+    const raw = localStorage.getItem(DISCOUNTS_STORAGE_KEY);
+    if (!raw) return fallbackDiscounts;
+    const settings: { id: string; name: string; amount: number; type: string; archived: boolean }[] = JSON.parse(raw);
+    const active = settings.filter(d => !d.archived);
+    if (active.length === 0) return fallbackDiscounts;
+    return active.map(d => ({
+      id: d.id,
+      name: d.name,
+      type: d.type === "Fixed" ? "amount" as const : "percentage" as const,
+      value: d.amount,
+      icon: getIconForDiscount(d.name),
+      reasonRequired: d.type === "Percentage" && d.amount === 100,
+    }));
+  } catch {
+    return fallbackDiscounts;
+  }
+};
+
+export { getDiscountsFromSettings as getAvailableDiscounts };
+export const availableDiscounts = fallbackDiscounts;
 
 // Auto-derive: 100% discounts always require a reason
 const isReasonRequired = (discount: Discount) =>

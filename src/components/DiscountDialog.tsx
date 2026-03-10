@@ -164,6 +164,7 @@ export function DiscountDialog({
   currentDiscounts,
   subtotal,
 }: DiscountDialogProps) {
+  const [dynamicDiscounts, setDynamicDiscounts] = useState<Discount[]>(fallbackDiscounts);
   const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>(currentDiscounts);
   const [expandedDiscountId, setExpandedDiscountId] = useState<string | null>(null);
   const [reasonDataMap, setReasonDataMap] = useState<Record<string, DiscountReasonData>>({});
@@ -178,6 +179,8 @@ export function DiscountDialog({
   const prevOpenRef = useRef(false);
   useEffect(() => {
     if (open && !prevOpenRef.current) {
+      // Reload discounts from settings each time dialog opens
+      setDynamicDiscounts(getDiscountsFromSettings());
       // Dialog just opened: initialize from currently applied discounts
       setSelectedDiscounts(currentDiscounts);
       setExpandedDiscountId(null);

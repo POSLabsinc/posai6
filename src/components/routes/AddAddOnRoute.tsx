@@ -2,29 +2,19 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import Settings from "@/pages/Settings";
 import AddAddOnContent from "@/components/settings/AddAddOnContent";
+import { supabase } from "@/integrations/supabase/client";
 
 const AddAddOnRoute = () => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
-  const handleSave = (data: any) => {
-    const stored = localStorage.getItem("addons-settings");
-    let addOns = [];
-    try {
-      addOns = stored ? JSON.parse(stored) : [];
-    } catch (e) {}
-
-    const newAddOn = {
-      id: Date.now().toString(),
+  const handleSave = async (data: any) => {
+    const { error } = await supabase.from("add_ons").insert({
       name: data.name,
-      type: "Regular",
-      selectedOptions: data.hasOptions ? data.options.length : 0,
       price: data.hasOptions && data.options.length > 0 ? parseFloat(data.options[0].price || "0") : 0,
-      archived: false,
-    };
-
-    addOns.push(newAddOn);
-    localStorage.setItem("addons-settings", JSON.stringify(addOns));
+      active: true,
+    });
+    if (error) console.error("Failed to insert add-on", error);
   };
 
   if (isMobile) {

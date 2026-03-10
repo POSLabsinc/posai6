@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, useLocation } from "react-router-dom";
 import SettingsNavigation from "@/components/SettingsNavigation";
 
@@ -204,19 +205,13 @@ const getContentForRoute = (
     return <AddOnsContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/menu/add-ons/add') {
-    return <AddAddOnContent onBack={() => navigate('/settings/menu/add-ons')} onSave={(data) => {
-      const stored = localStorage.getItem("addons-settings");
-      let addOns: any[] = [];
-      try { addOns = stored ? JSON.parse(stored) : []; } catch (e) {}
-      addOns.push({
-        id: Date.now().toString(),
+    return <AddAddOnContent onBack={() => navigate('/settings/menu/add-ons')} onSave={async (data) => {
+      const { error } = await supabase.from("add_ons").insert({
         name: data.name,
-        type: "Regular",
-        selectedOptions: data.hasOptions ? data.options.length : 0,
         price: data.hasOptions && data.options.length > 0 ? parseFloat(data.options[0].price || "0") : 0,
-        archived: false,
+        active: true,
       });
-      localStorage.setItem("addons-settings", JSON.stringify(addOns));
+      if (error) console.error("Failed to insert add-on", error);
     }} />;
   }
   if (pathname === '/settings/menu/products') {

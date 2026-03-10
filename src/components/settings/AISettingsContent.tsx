@@ -23,17 +23,7 @@ interface Message {
   multiSelect?: boolean;
   imageUrl?: string;
 }
-  id: string;
-  role: "user" | "assistant";
-  content: string;
-  timestamp: Date;
-  pendingChange?: PendingChange;
-  appliedChange?: AppliedChange;
-  navigateTo?: string;
-  isStreaming?: boolean;
-  quickReplies?: string[];
-  multiSelect?: boolean;
-}
+
 
 interface PendingChange {
   id: string;

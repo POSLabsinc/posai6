@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";
+import { getActiveTaxRate } from "@/lib/orderUtils";
 import { formatPhone } from "@/components/voucher/voucherHelpers";
 import { 
   Check, ChevronDown, X, Tag, CreditCard, User, Gift, Link, QrCode, 
@@ -549,13 +550,13 @@ export function PaymentDialog({
         }
       });
       
-      const checkTax = checkSubtotal * 0.0735; // TAX_RATE
+      const checkTax = checkSubtotal * getActiveTaxRate();
       return { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax };
     } else {
       // Calculate based on assigned items
       const items = getItemsForCheck(checkNumber);
       const checkSubtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-      const checkTax = checkSubtotal * 0.0735; // Using TAX_RATE
+      const checkTax = checkSubtotal * getActiveTaxRate();
       return { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax };
     }
   };

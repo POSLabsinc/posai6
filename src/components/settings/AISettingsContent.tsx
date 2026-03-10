@@ -339,12 +339,18 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
               });
             }
 
+            // Merge device schedules into channel_schedules for storage
+            const fullSchedules: Record<string, any> = {
+              ...channelSchedules,
+              ...(Object.keys(deviceSchedules).length > 0 ? { _devices: deviceSchedules } : {}),
+            };
+
             const { data: menuRow, error } = await (supabase as any).from("menus").insert({
               name: data.name,
               description: data.description || "",
               enabled: true,
               revenue_centers: data.revenueCenters || [],
-              channel_schedules: Object.keys(channelSchedules).length > 0 ? channelSchedules : {},
+              channel_schedules: Object.keys(fullSchedules).length > 0 ? fullSchedules : {},
             }).select("id").single();
             if (error) throw error;
 

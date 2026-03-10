@@ -204,7 +204,20 @@ const getContentForRoute = (
     return <AddOnsContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/menu/add-ons/add') {
-    return <AddAddOnContent onBack={() => navigate('/settings/menu/add-ons')} onSave={() => {}} />;
+    return <AddAddOnContent onBack={() => navigate('/settings/menu/add-ons')} onSave={(data) => {
+      const stored = localStorage.getItem("addons-settings");
+      let addOns: any[] = [];
+      try { addOns = stored ? JSON.parse(stored) : []; } catch (e) {}
+      addOns.push({
+        id: Date.now().toString(),
+        name: data.name,
+        type: "Regular",
+        selectedOptions: data.hasOptions ? data.options.length : 0,
+        price: data.hasOptions && data.options.length > 0 ? parseFloat(data.options[0].price || "0") : 0,
+        archived: false,
+      });
+      localStorage.setItem("addons-settings", JSON.stringify(addOns));
+    }} />;
   }
   if (pathname === '/settings/menu/products') {
     return <ProductsContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} onAdd={() => navigate('/settings/menu/products/add')} />;

@@ -214,6 +214,10 @@ const getContentForRoute = (
       if (error) console.error("Failed to insert add-on", error);
     }} />;
   }
+  if (pathname.startsWith('/settings/menu/add-ons/edit/')) {
+    const addOnId = pathname.split('/').pop() || '';
+    return <EditAddOnWrapper addOnId={addOnId} onBack={() => navigate('/settings/menu/add-ons')} />;
+  }
   if (pathname === '/settings/menu/products') {
     return <ProductsContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} onAdd={() => navigate('/settings/menu/products/add')} />;
   }

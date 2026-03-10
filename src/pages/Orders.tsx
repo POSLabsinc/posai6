@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
 import { getDynamicCategorySubcategories, getCategoryProducts } from "@/lib/productStore";
+import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
@@ -6046,6 +6047,35 @@ const Orders = () => {
   // Fetch menus from database - only enabled & non-archived menus appear
   const { menuList, menuCategories } = useSupabaseMenus();
 
+  // Fetch products from the database so newly added products show on the Orders screen
+  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; price: number; category_name: string; price_type: string; active: boolean; archived: boolean }>>([]);
+  
+  const fetchDbProducts = useCallback(async () => {
+    const { data } = await (supabase as any)
+      .from('products')
+      .select('id, name, price, price_type, active, archived, categories(name)')
+      .eq('active', true)
+      .eq('archived', false);
+    if (data) {
+      setDbProducts(data.map((p: any) => ({
+        id: p.id,
+        name: p.name,
+        price: Number(p.price),
+        category_name: p.categories?.name ?? '',
+        price_type: p.price_type,
+        active: p.active,
+        archived: p.archived,
+      })));
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchDbProducts();
+    // Listen for products-updated events (fired after add/edit in Settings)
+    window.addEventListener("products-updated", fetchDbProducts);
+    return () => window.removeEventListener("products-updated", fetchDbProducts);
+  }, [fetchDbProducts]);
+
   // Merge dynamic subcategories from category settings with hardcoded fallback
   const dynamicSubcategories = useMemo(() => getDynamicCategorySubcategories(), []);
   const mergedCategorySubcategories = useMemo(() => {
@@ -6053,25 +6083,30 @@ const Orders = () => {
     return { ...categorySubcategories, ...dynamicSubcategories };
   }, [dynamicSubcategories]);
 
-  // Augment menuCategories with localStorage-only parent categories that aren't in the DB yet
+  // Augment menuCategories with localStorage-only parent categories + DB product categories
   const augmentedMenuCategories = useMemo(() => {
     const result: Record<string, string[]> = { ...menuCategories };
     // For each menu, check if any dynamic parent categories should be included
-    // This handles the case where categories exist in localStorage but haven't been synced to DB
     for (const menuName of menuList) {
       const dbCats = result[menuName] || [];
-      // Check if any dynamic parent categories reference this menu
-      // Also ensure parent categories with children show up
       for (const [parentName, children] of Object.entries(dynamicSubcategories)) {
         if (dbCats.includes(parentName) && !result[menuName]?.includes(parentName)) {
           result[menuName] = [...(result[menuName] || []), parentName];
         }
       }
+      // Also add categories from DB products that aren't already in the menu
+      const existingCatsLower = new Set((result[menuName] || []).map((c) => c.toLowerCase()));
+      for (const p of dbProducts) {
+        if (p.category_name && !existingCatsLower.has(p.category_name.toLowerCase())) {
+          result[menuName] = [...(result[menuName] || []), p.category_name];
+          existingCatsLower.add(p.category_name.toLowerCase());
+        }
+      }
     }
     return result;
-  }, [menuCategories, menuList, dynamicSubcategories]);
+  }, [menuCategories, menuList, dynamicSubcategories, dbProducts]);
 
-  // Build dynamic menu items from category-assigned products
+  // Build dynamic menu items from category-assigned products + DB products
   const dynamicMenuItems = useMemo(() => {
     const result: MenuItemsStructure = {};
     // For each menu, build category → subcategory → products
@@ -6103,16 +6138,66 @@ const Orders = () => {
             isOpenPrice: true,
           }));
         }
+
+        // Merge DB products that belong to this category
+        const dbCatProducts = dbProducts.filter(
+          (p) => p.category_name.toLowerCase() === cat.toLowerCase()
+        );
+        if (dbCatProducts.length > 0) {
+          const existingNames = new Set<string>();
+          // Collect names already in subItems
+          for (const items of Object.values(subItems)) {
+            for (const item of items) existingNames.add(item.name.toLowerCase());
+          }
+          const newDbItems = dbCatProducts
+            .filter((p) => !existingNames.has(p.name.toLowerCase()))
+            .map((p, idx) => ({
+              id: idx + 30000 + Math.round(Math.random() * 10000),
+              name: p.name,
+              price: p.price,
+              isOpenPrice: p.price_type === 'open',
+            }));
+          if (newDbItems.length > 0) {
+            // Add to the category directly if no subcategories
+            const targetKey = Object.keys(subItems).length > 0 ? Object.keys(subItems)[0] : cat;
+            subItems[targetKey] = [...(subItems[targetKey] || []), ...newDbItems];
+          }
+        }
+
         if (Object.keys(subItems).length > 0) {
           catItems[cat] = subItems;
         }
       }
+
+      // Also add DB products whose category is NOT already in the menu's category list
+      // This ensures newly created products with new categories still appear
+      const menuCatsLower = new Set(cats.map((c) => c.toLowerCase()));
+      const unmatchedCategories = new Map<string, typeof dbProducts>();
+      for (const p of dbProducts) {
+        if (p.category_name && !menuCatsLower.has(p.category_name.toLowerCase())) {
+          if (!unmatchedCategories.has(p.category_name)) {
+            unmatchedCategories.set(p.category_name, []);
+          }
+          unmatchedCategories.get(p.category_name)!.push(p);
+        }
+      }
+      for (const [catName, products] of unmatchedCategories) {
+        const subItems: SubcategoryItems = {};
+        subItems[catName] = products.map((p, idx) => ({
+          id: idx + 40000 + Math.round(Math.random() * 10000),
+          name: p.name,
+          price: p.price,
+          isOpenPrice: p.price_type === 'open',
+        }));
+        catItems[catName] = subItems;
+      }
+
       if (Object.keys(catItems).length > 0) {
-        result[menuName] = catItems;
+        result[menuName] = { ...(result[menuName] || {}), ...catItems };
       }
     }
     return result;
-  }, [menuList, augmentedMenuCategories, dynamicSubcategories]);
+  }, [menuList, augmentedMenuCategories, dynamicSubcategories, dbProducts]);
 
   const addItemMode = searchParams.get('mode') === 'addItem';
   const transferNewMode = searchParams.get('mode') === 'transferNew';

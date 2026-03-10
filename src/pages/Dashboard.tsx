@@ -1,5 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { SettingsManager } from "@/lib/settingsManager";
+import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
 import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, Banknote, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, Zap } from "lucide-react";
 import ReceiptDialog from "@/components/ReceiptDialog";
@@ -482,6 +483,7 @@ const OrderPanelContent = ({
   onMergeClick
 }: OrderPanelContentProps) => {
   const showSaveButton = SettingsManager.getCheckoutOptionsSettings().showSaveButton;
+  const autoCloseTicket = SettingsManager.getCheckoutOptionsSettings().autoCloseTicket;
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount ? selectedDiscount.fixedAmount || subtotal * ((selectedDiscount.percentage || 0) / 100) : 0;
   const tax = subtotal * 0.02;
@@ -1823,6 +1825,10 @@ const Dashboard = () => {
         onPaymentComplete={(paymentHistory) => {
           console.log("Payment completed:", paymentHistory);
           setShowPaymentDialog(false);
+          if (SettingsManager.getCheckoutOptionsSettings().autoCloseTicket) {
+            setSelectedOrder(null);
+            toast.success("Ticket closed automatically");
+          }
         }}
         onSaveSplit={(config) => {
           if (!selectedOrder) return;

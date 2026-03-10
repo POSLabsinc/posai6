@@ -6276,6 +6276,7 @@ const Orders = () => {
   const requireOrderType = checkoutOptionsSettings.requireOrderType;
   const requireGuestName = checkoutOptionsSettings.requireGuestName;
   const showSaveButton = checkoutOptionsSettings.showSaveButton;
+  const autoCloseTicket = checkoutOptionsSettings.autoCloseTicket;
   const [orderType, setOrderType] = useState(() => requireOrderType ? "" : "DINE IN");
   const [showDineInForm, setShowDineInForm] = useState(false);
   const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
@@ -9570,6 +9571,12 @@ const Orders = () => {
       }).map((v, idx) => ({ ...v, index: idx }))}
       onPaymentComplete={(history) => {
         console.log("Payment completed:", history);
+        if (autoCloseTicket) {
+          setOrderItems([]);
+          setShowPaymentDialog(false);
+          toast.success("Ticket closed automatically");
+          navigate('/');
+        }
       }}
       onSaveSplit={(config) => {
         setIsOrderSplit(true);

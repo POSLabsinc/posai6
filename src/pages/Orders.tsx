@@ -6275,6 +6275,7 @@ const Orders = () => {
   const checkoutOptionsSettings = useMemo(() => SettingsManager.getCheckoutOptionsSettings(), []);
   const requireOrderType = checkoutOptionsSettings.requireOrderType;
   const requireGuestName = checkoutOptionsSettings.requireGuestName;
+  const showSaveButton = checkoutOptionsSettings.showSaveButton;
   const [orderType, setOrderType] = useState(() => requireOrderType ? "" : "DINE IN");
   const [showDineInForm, setShowDineInForm] = useState(false);
   const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
@@ -7915,11 +7916,13 @@ const Orders = () => {
               <button onClick={handleClearOrderAttempt} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
                 <img src={clearCIcon} alt="Cancel" className="w-3 h-3" />
               </button>
+              {showSaveButton && (
               <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
             backgroundColor: '#C9C9C9'
           }}>
                 <img src={saveIcon} alt="Save" className="w-4 h-4" />
               </button>
+              )}
               <button
             onClick={handleFireOrder}
             disabled={orderItems.length === 0 || orderItems.every(i => i.isFired)}
@@ -9209,11 +9212,13 @@ const Orders = () => {
                   <button onClick={handleClearOrderAttempt} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
                     <img src={clearCIcon} alt="Cancel" className="w-3 h-3" />
                   </button>
+                  {showSaveButton && (
                   <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
                     backgroundColor: '#C9C9C9'
                   }}>
                     <img src={saveIcon} alt="Save" className="w-4 h-4" />
                   </button>
+                  )}
                   <button
                     onClick={handleFireOrder}
                     disabled={isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired)}

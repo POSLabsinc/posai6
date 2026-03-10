@@ -1213,7 +1213,7 @@ export const ItemCustomizationDialog = ({
 
           {/* Modifier Options */}
           {/* NOTE: our ScrollArea viewport is h-full, so the root must have an explicit height */}
-          <ScrollArea className="h-[140px]">
+          <ScrollArea className="max-h-[140px]">
             <div className="px-4 pb-3">
               <div className="flex flex-wrap gap-2">
                 {activeCategory?.options.map(option => (

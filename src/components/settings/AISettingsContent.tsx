@@ -588,25 +588,24 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       if (!response.ok) {
         const errorData = await response.json().catch(() => ({}));
         
-        if (response.status === 429) {
-          toast({
-            title: "Rate limit exceeded",
-            description: "Please wait a moment and try again.",
-            variant: "destructive",
-          });
-        } else if (response.status === 402) {
-          toast({
-            title: "AI temporarily unavailable",
-            description: "Please try again in a moment.",
-          });
-        } else {
-          toast({
-            title: "AI Error",
-            description: errorData.error || "Failed to get AI response",
-            variant: "destructive",
-          });
-        }
+        let fallbackMessage = "I'm temporarily unable to process your request. Please try again in a moment.";
+        let fallbackReplies = ["Try Again"];
         
+        if (response.status === 429) {
+          fallbackMessage = "I'm receiving too many requests right now. Please wait a moment and try again.";
+          fallbackReplies = ["Try Again"];
+        } else if (response.status === 402) {
+          fallbackMessage = "I'm temporarily unavailable. Please try again shortly.";
+          fallbackReplies = ["Try Again"];
+        }
+
+        // Add fallback message to chat so conversation continues
+        const fallbackEntry: ChatMessage = {
+          role: "assistant",
+          content: fallbackMessage,
+          quickReplies: fallbackReplies,
+        };
+        setChatHistory((prev) => [...prev, fallbackEntry]);
         setIsTyping(false);
         return;
       }

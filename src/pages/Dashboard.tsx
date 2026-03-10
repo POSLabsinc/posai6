@@ -481,6 +481,7 @@ const OrderPanelContent = ({
   hasSplitConfiguration,
   onMergeClick
 }: OrderPanelContentProps) => {
+  const showSaveButton = SettingsManager.getCheckoutOptionsSettings().showSaveButton;
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount ? selectedDiscount.fixedAmount || subtotal * ((selectedDiscount.percentage || 0) / 100) : 0;
   const tax = subtotal * 0.02;

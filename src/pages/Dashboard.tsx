@@ -814,6 +814,7 @@ const tableFilterLabels = ["All", "Available", "Ordering", "Ordered", "Reserved"
 const Dashboard = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const showSaveButton = useMemo(() => SettingsManager.getCheckoutOptionsSettings().showSaveButton, []);
   
   // Get session orders context
   const { sessionOrders } = useSessionOrders();

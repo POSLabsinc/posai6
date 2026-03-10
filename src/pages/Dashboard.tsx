@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { SettingsManager } from "@/lib/settingsManager";
 import { useNavigate } from "react-router-dom";
 import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, Banknote, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, Zap } from "lucide-react";
 import ReceiptDialog from "@/components/ReceiptDialog";

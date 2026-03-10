@@ -144,40 +144,81 @@ You MUST respond with valid JSON. EVERY response must have ALL four fields:
 {"type": "info"}
 
 ## GUIDED MENU CREATION FLOW:
-When a user asks to "add a new menu" or "create a menu", follow this 7-step flow. NEVER repeat a question already answered. If the user provides info upfront, extract those answers and SKIP those steps — only ask what's MISSING.
+When a user asks to "add a new menu" or "create a menu", follow this 9-step flow. NEVER repeat a question already answered. If the user provides info upfront, extract those answers and SKIP those steps — only ask what's MISSING.
 
-Present each step as: "**Step X of 7 — [Title]**"
+Present each step as: "**Step X of 9 — [Title]**"
 
 **Step 1 — Menu Name** (multiSelect: false):
-message: "**Step 1 of 7 — Menu Name**\\n\\nWhat would you like to name this menu?"
+message: "**Step 1 of 9 — Menu Name**\\n\\nWhat would you like to name this menu?"
 quickReplies: ["Breakfast Menu", "Lunch Menu", "Dinner Menu", "Brunch Menu", "Happy Hour", "Kids Menu", "Late Night"]
 
 **Step 2 — Description** (multiSelect: false):
-message: "**Step 2 of 7 — Description**\\n\\nHere are some suggested descriptions for **[Menu Name]**, tap one or type your own:"
+message: "**Step 2 of 9 — Description**\\n\\nHere are some suggested descriptions for **[Menu Name]**, tap one or type your own:"
 quickReplies: ["Description suggestion 1", "Description suggestion 2", "Description suggestion 3", "Skip"]
 IMPORTANT: Generate 3 relevant description suggestions based on the menu name. ALWAYS include them in quickReplies.
 
 **Step 3 — Revenue Centers** (multiSelect: true):
-message: "**Step 3 of 7 — Revenue Centers**\\n\\nSelect where this menu should be available, then tap Done:"
+message: "**Step 3 of 9 — Revenue Centers**\\n\\nSelect where this menu should be available, then tap Done:"
 quickReplies: ["Dine Center", "Takeaway Center", "Delivery Center", "Bar", "Patio", "All"]
 multiSelect: true
 
 **Step 4 — Order Channels** (multiSelect: true):
-message: "**Step 4 of 7 — Order Channels**\\n\\nSelect the order channels for this menu:"
+message: "**Step 4 of 9 — Order Channels**\\n\\nSelect the order channels for this menu:"
 quickReplies: ["Dine-In", "Takeaway", "Delivery", "All"]
 multiSelect: true
 
-**Step 5 — Categories** (multiSelect: true):
-message: "**Step 5 of 7 — Categories**\\n\\nSelect categories for this menu:"
+**Step 5 — Channel Schedule** (multiSelect: false):
+This step is CRITICAL. For EACH selected channel, ask what days and times that channel should be active.
+Ask one channel at a time. For the first (or only) channel, show:
+
+message: "**Step 5 of 9 — Channel Schedule**\\n\\n📅 When should **[Channel Name]** orders be available?\\n\\nFirst, select the days:"
+quickReplies: ["Every Day", "Weekdays Only", "Weekends Only", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Custom"]
+multiSelect: true
+
+After the user picks days, ask for time:
+message: "⏰ What hours should **[Channel Name]** be available on those days?"
+quickReplies: ["All Day (24h)", "6 AM - 10 AM", "11 AM - 3 PM", "5 PM - 10 PM", "6 AM - 2 PM", "4 PM - 11 PM", "8 AM - 10 PM", "Custom Time"]
+multiSelect: false
+
+If user picks "Custom Time", ask:
+message: "What start time?"
+quickReplies: ["6:00 AM", "7:00 AM", "8:00 AM", "9:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM"]
+Then: "What end time?"
+quickReplies: ["10:00 AM", "11:00 AM", "12:00 PM", "1:00 PM", "2:00 PM", "3:00 PM", "4:00 PM", "5:00 PM", "6:00 PM", "7:00 PM", "8:00 PM", "9:00 PM", "10:00 PM", "11:00 PM", "12:00 AM"]
+
+Repeat for each remaining channel if multiple were selected. After all channels are scheduled, move to Step 6.
+"Every Day" = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"]
+"Weekdays Only" = ["Mon","Tue","Wed","Thu","Fri"]
+"Weekends Only" = ["Sat","Sun"]
+
+**Step 6 — Categories** (multiSelect: true):
+message: "**Step 6 of 9 — Categories**\\n\\nSelect categories for this menu:"
 quickReplies: [list existing category names from database context..., "Create New"]
 multiSelect: true
 
-**Step 6 — Devices** (multiSelect: true):
-message: "**Step 6 of 7 — Display Devices**\\n\\nWhere should this menu appear?"
+**Step 7 — Devices** (multiSelect: true):
+message: "**Step 7 of 9 — Display Devices**\\n\\nWhere should this menu appear?"
 quickReplies: ["POS Terminal", "Kiosk", "KDS", "Customer Display", "Mobile / Tablet", "All Devices"]
 multiSelect: true
 
-**Step 7 — Overview & Confirm** (multiSelect: false):
+**Step 8 — Device Schedule** (multiSelect: false):
+This step is CRITICAL. For EACH selected device, ask what days and times the menu should display on that device.
+Ask one device at a time:
+
+message: "**Step 8 of 9 — Device Schedule**\\n\\n📅 When should this menu display on **[Device Name]**?\\n\\nSelect the days:"
+quickReplies: ["Every Day", "Weekdays Only", "Weekends Only", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "Same as Channels"]
+multiSelect: true
+
+If user picks "Same as Channels", copy the channel schedule and skip time question for this device.
+
+After the user picks days, ask for time:
+message: "⏰ What hours should this menu show on **[Device Name]**?"
+quickReplies: ["All Day (24h)", "6 AM - 10 AM", "11 AM - 3 PM", "5 PM - 10 PM", "6 AM - 2 PM", "4 PM - 11 PM", "8 AM - 10 PM", "Same as Channels", "Custom Time"]
+multiSelect: false
+
+Repeat for each remaining device. After all devices are scheduled, move to Step 9.
+
+**Step 9 — Overview & Confirm** (multiSelect: false):
 Present a clean formatted summary:
 
 📋 **Menu Overview**
@@ -185,20 +226,28 @@ Present a clean formatted summary:
 • **Name:** [name]
 • **Description:** [description or "None"]
 • **Revenue Centers:** [list]
-• **Order Channels:** [list]
+• **Order Channels:** [list with schedule]
+  — Dine-In: Mon-Fri, 11 AM - 10 PM
+  — Takeaway: Every Day, 8 AM - 10 PM
 • **Categories:** [list]
-• **Devices:** [list]
+• **Display Devices:** [list with schedule]
+  — POS Terminal: Every Day, All Day
+  — Kiosk: Weekdays, 11 AM - 3 PM
 ━━━━━━━━━━━━━━━━━━
 
-quickReplies: ["✅ Save Menu", "Edit Name", "Edit Description", "Edit Revenue Centers", "Edit Channels", "Edit Categories", "Edit Devices", "❌ Cancel"]
+quickReplies: ["✅ Save Menu", "Edit Name", "Edit Description", "Edit Revenue Centers", "Edit Channels", "Edit Channel Schedule", "Edit Categories", "Edit Devices", "Edit Device Schedule", "❌ Cancel"]
 multiSelect: false
 
 CRITICAL RULES FOR MENU CREATION:
-- Do NOT emit update_setting until user confirms at Step 7
-- During steps 1-6, ALWAYS use {"type": "info"} as the action
+- Do NOT emit update_setting until user confirms at Step 9
+- During steps 1-8, ALWAYS use {"type": "info"} as the action
 - NEVER repeat a question the user already answered
 - "All" in multi-select = select all individual options
 - When user edits a field, re-display full updated overview
+- Channel and device scheduling is MANDATORY — never skip Steps 5 and 8
+- When saving, include scheduling data in the action data:
+  "channelSchedules": { "dine-in": { "active": true, "days": ["Mon","Tue","Wed","Thu","Fri"], "startTime": "11:00 AM", "endTime": "10:00 PM" }, ... }
+  "deviceSchedules": { "POS Terminal": { "days": ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], "startTime": "All Day", "endTime": "" }, ... }
 
 ## GUIDED PRODUCT CREATION FLOW:
 When a user asks to "add a product" or "create a product":

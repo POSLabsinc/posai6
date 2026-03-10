@@ -6083,23 +6083,28 @@ const Orders = () => {
     return { ...categorySubcategories, ...dynamicSubcategories };
   }, [dynamicSubcategories]);
 
-  // Augment menuCategories with localStorage-only parent categories that aren't in the DB yet
+  // Augment menuCategories with localStorage-only parent categories + DB product categories
   const augmentedMenuCategories = useMemo(() => {
     const result: Record<string, string[]> = { ...menuCategories };
     // For each menu, check if any dynamic parent categories should be included
-    // This handles the case where categories exist in localStorage but haven't been synced to DB
     for (const menuName of menuList) {
       const dbCats = result[menuName] || [];
-      // Check if any dynamic parent categories reference this menu
-      // Also ensure parent categories with children show up
       for (const [parentName, children] of Object.entries(dynamicSubcategories)) {
         if (dbCats.includes(parentName) && !result[menuName]?.includes(parentName)) {
           result[menuName] = [...(result[menuName] || []), parentName];
         }
       }
+      // Also add categories from DB products that aren't already in the menu
+      const existingCatsLower = new Set((result[menuName] || []).map((c) => c.toLowerCase()));
+      for (const p of dbProducts) {
+        if (p.category_name && !existingCatsLower.has(p.category_name.toLowerCase())) {
+          result[menuName] = [...(result[menuName] || []), p.category_name];
+          existingCatsLower.add(p.category_name.toLowerCase());
+        }
+      }
     }
     return result;
-  }, [menuCategories, menuList, dynamicSubcategories]);
+  }, [menuCategories, menuList, dynamicSubcategories, dbProducts]);
 
   // Build dynamic menu items from category-assigned products + DB products
   const dynamicMenuItems = useMemo(() => {

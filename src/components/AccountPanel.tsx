@@ -295,8 +295,12 @@ const AccountPanel = ({
           </div>
 
           {/* Logout Button */}
-          <button className="w-full py-4 bg-neutral-800/40 rounded-2xl active:opacity-70 transition-opacity">
+          <button 
+            onClick={handleLogout}
+            className="w-full py-4 bg-neutral-800/40 rounded-2xl active:opacity-70 transition-opacity"
+          >
             <span className="text-red-400 font-semibold text-sm tracking-wide">LOG OUT</span>
+          </button>
           </button>
         </div>
       </div>

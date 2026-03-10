@@ -4894,7 +4894,7 @@ export function PaymentDialog({
                     })}
 
                     {/* Split Check button - hidden when paying a split check ticket */}
-                    {activePayingCheck === null && !isMobile && (
+                    {activePayingCheck === null && !isMobile && getCheckoutOptionsSettings()?.splitCheck !== false && (
                       <button 
                         onClick={() => setSelectedPaymentMethod('split-check')}
                         className="flex flex-col items-center gap-1"

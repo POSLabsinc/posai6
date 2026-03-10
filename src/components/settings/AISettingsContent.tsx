@@ -811,21 +811,63 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   );
 
   const renderMessageContent = (content: string) => {
-    // Simple markdown-like rendering for bold text and newlines
     const lines = content.split('\n');
     return lines.map((line, lineIndex) => {
-      const parts = line.split(/(\*\*[^*]+\*\*)/g);
+      const trimmed = line.trim();
+      
+      // Horizontal rule
+      if (/^[━─—-]{3,}$/.test(trimmed)) {
+        return <hr key={lineIndex} className="border-neutral-700/50 my-2" />;
+      }
+      
+      // Bullet point lines (•, -, *)
+      const bulletMatch = trimmed.match(/^([•\-\*])\s+(.*)$/);
+      if (bulletMatch) {
+        return (
+          <div key={lineIndex} className="flex gap-2 pl-1 py-0.5">
+            <span className="text-muted-foreground flex-shrink-0">•</span>
+            <span>{renderInlineFormatting(bulletMatch[2])}</span>
+          </div>
+        );
+      }
+
+      // Numbered list lines
+      const numberedMatch = trimmed.match(/^(\d+[\.\)])\s+(.*)$/);
+      if (numberedMatch) {
+        return (
+          <div key={lineIndex} className="flex gap-2 pl-1 py-0.5">
+            <span className="text-muted-foreground flex-shrink-0 min-w-[1.2em]">{numberedMatch[1]}</span>
+            <span>{renderInlineFormatting(numberedMatch[2])}</span>
+          </div>
+        );
+      }
+      
+      // Empty line = spacing
+      if (trimmed === '') {
+        return <div key={lineIndex} className="h-2" />;
+      }
+
+      // Normal line with inline formatting
       return (
         <span key={lineIndex}>
-          {parts.map((part, partIndex) => {
-            if (part.startsWith('**') && part.endsWith('**')) {
-              return <strong key={partIndex} className="font-semibold">{part.slice(2, -2)}</strong>;
-            }
-            return <span key={partIndex}>{part}</span>;
-          })}
+          {renderInlineFormatting(line)}
           {lineIndex < lines.length - 1 && <br />}
         </span>
       );
+    });
+  };
+
+  const renderInlineFormatting = (text: string) => {
+    // Split on bold (**), italic (*), and keep text
+    const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} className="font-semibold">{part.slice(2, -2)}</strong>;
+      }
+      if (part.startsWith('*') && part.endsWith('*') && !part.startsWith('**')) {
+        return <em key={i} className="italic">{part.slice(1, -1)}</em>;
+      }
+      return <span key={i}>{part}</span>;
     });
   };
 

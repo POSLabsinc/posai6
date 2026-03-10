@@ -508,9 +508,20 @@ When the user uploads an image of a menu (physical menu, printed menu, handwritt
             );
           }
           if (response.status === 402) {
+            // Retry with a smaller/different approach or continue
+            if (attempt < maxRetries) {
+              console.warn(`AI gateway returned 402 on attempt ${attempt}, retrying...`);
+              await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+              continue;
+            }
+            // After retries exhausted, return a graceful message
             return new Response(
-              JSON.stringify({ error: "AI credits exhausted. Please add credits to continue." }),
-              { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+              JSON.stringify({ 
+                message: "I'm temporarily unable to process your request. Please try again in a moment.",
+                action: { type: "info" },
+                quickReplies: ["Try Again"]
+              }),
+              { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
             );
           }
           if (response.status >= 500 && attempt < maxRetries) {

@@ -596,9 +596,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           });
         } else if (response.status === 402) {
           toast({
-            title: "AI credits exhausted",
-            description: "Please add credits to your workspace to continue using AI features.",
-            variant: "destructive",
+            title: "AI temporarily unavailable",
+            description: "Please try again in a moment.",
           });
         } else {
           toast({

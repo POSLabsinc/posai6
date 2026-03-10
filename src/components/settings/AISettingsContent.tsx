@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff } from "lucide-react";
+import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useTheme } from "next-themes";
@@ -21,7 +21,9 @@ interface Message {
   isStreaming?: boolean;
   quickReplies?: string[];
   multiSelect?: boolean;
+  imageUrl?: string;
 }
+
 
 interface PendingChange {
   id: string;
@@ -173,8 +175,11 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const [isTyping, setIsTyping] = useState(false);
   const [appliedChanges, setAppliedChanges] = useState<AppliedChange[]>([]);
   const [multiSelectState, setMultiSelectState] = useState<Record<string, string[]>>({});
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Voice recognition hook - show transcript in real-time
   const { isListening, isSupported: isVoiceSupported, transcript, toggleListening, stopListening } = useVoiceRecognition({
@@ -221,6 +226,36 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const getSettingsContext = useCallback(() => {
     return SettingsManager.getAllSettingsSummary();
   }, []);
+
+  // Image upload handler
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    if (!file.type.startsWith('image/')) {
+      toast({ title: "Invalid file", description: "Please upload an image file.", variant: "destructive" });
+      return;
+    }
+    
+    if (file.size > 10 * 1024 * 1024) {
+      toast({ title: "File too large", description: "Please upload an image smaller than 10MB.", variant: "destructive" });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setUploadedImage(reader.result as string);
+      setUploadedImageFile(file);
+    };
+    reader.readAsDataURL(file);
+    // Reset file input
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const clearUploadedImage = () => {
+    setUploadedImage(null);
+    setUploadedImageFile(null);
+  };
 
   // Execute the pending action based on type and data
   const executeAction = useCallback(async (pendingChange: PendingChange): Promise<boolean> => {
@@ -502,22 +537,34 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     }
   };
 
-  const handleSendMessage = async (content: string) => {
-    if (!content.trim()) return;
+  const handleSendMessage = async (content: string, imageDataUrl?: string | null) => {
+    if (!content.trim() && !imageDataUrl) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",
-      content: content.trim(),
+      content: content.trim() || "📷 Uploaded a menu image for analysis",
       timestamp: new Date(),
+      imageUrl: imageDataUrl || undefined,
     };
 
     setMessages((prev) => [...prev, userMessage]);
     setInputValue("");
+    clearUploadedImage();
     setIsTyping(true);
 
-    // Add to conversation history
-    const newHistory = [...conversationHistory, { role: "user", content: content.trim() }];
+    // Build conversation history entry - for image messages, use multimodal content
+    const userHistoryEntry: any = imageDataUrl
+      ? {
+          role: "user",
+          content: [
+            { type: "text", text: content.trim() || "I've uploaded a menu image. Please analyze it and extract all the menu items, categories, and prices. Then help me create a menu from this image." },
+            { type: "image_url", image_url: { url: imageDataUrl } },
+          ],
+        }
+      : { role: "user", content: content.trim() };
+
+    const newHistory = [...conversationHistory, userHistoryEntry];
     setConversationHistory(newHistory);
 
     try {
@@ -753,7 +800,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    handleSendMessage(inputValue);
+    handleSendMessage(inputValue, uploadedImage);
   };
 
   const handleChipClick = (chip: SuggestionChip) => {
@@ -988,6 +1035,12 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   </div>
                 )}
                 <div className="max-w-[85%]">
+                  {/* Image preview in message */}
+                  {message.imageUrl && (
+                    <div className="mb-2 rounded-xl overflow-hidden max-w-[200px]">
+                      <img src={message.imageUrl} alt="Uploaded menu" className="w-full h-auto rounded-xl" />
+                    </div>
+                  )}
                   <div
                     className={cn(
                       "rounded-2xl px-4 py-3",
@@ -1134,7 +1187,42 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
       {/* Input Area */}
       <div className="flex-shrink-0 p-4 border-t border-neutral-800">
+        {/* Image preview */}
+        {uploadedImage && (
+          <div className="mb-3 flex items-start gap-2">
+            <div className="relative">
+              <img src={uploadedImage} alt="Upload preview" className="w-20 h-20 rounded-xl object-cover border border-neutral-700" />
+              <button
+                onClick={clearUploadedImage}
+                className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </div>
+            <span className="text-xs text-muted-foreground mt-1">Menu image attached</span>
+          </div>
+        )}
+        
         <form onSubmit={handleSubmit} className="flex gap-3 items-center">
+          {/* Image Upload Button */}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            capture="environment"
+            onChange={handleImageSelect}
+            className="hidden"
+          />
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isTyping}
+            className="w-12 h-12 rounded-full bg-neutral-800/60 text-muted-foreground hover:bg-neutral-700/60 hover:text-foreground flex items-center justify-center transition-all flex-shrink-0 disabled:opacity-40"
+            title="Upload menu image"
+          >
+            <ImagePlus className="w-5 h-5" />
+          </button>
+
           {/* Microphone Button */}
           {isVoiceSupported && (
             <button
@@ -1159,7 +1247,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder={isListening ? "Listening..." : "Ask me to change any setting..."}
+              placeholder={isListening ? "Listening..." : uploadedImage ? "Describe or send to analyze..." : "Ask me to change any setting..."}
               className={cn(
                 "w-full bg-neutral-800/60 rounded-full px-5 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/50 transition-all",
                 isListening && "ring-2 ring-red-500/50"
@@ -1170,10 +1258,10 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           
           <button
             type="submit"
-            disabled={!inputValue.trim() || isTyping || isListening}
+            disabled={(!inputValue.trim() && !uploadedImage) || isTyping || isListening}
             className={cn(
               "w-12 h-12 rounded-full flex items-center justify-center transition-all flex-shrink-0",
-              inputValue.trim() && !isTyping && !isListening
+              (inputValue.trim() || uploadedImage) && !isTyping && !isListening
                 ? "bg-primary text-primary-foreground active:opacity-70"
                 : "bg-neutral-800/60 text-muted-foreground"
             )}

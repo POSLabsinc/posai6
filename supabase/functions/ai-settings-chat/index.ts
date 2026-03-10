@@ -339,7 +339,7 @@ quickReplies: ["✅ Add Service Charge", "Edit Name", "Edit Amount", "❌ Cancel
 
 interface ChatMessage {
   role: "user" | "assistant" | "system";
-  content: string;
+  content: string | any[];
 }
 
 async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string): Promise<string> {
@@ -447,12 +447,32 @@ serve(async (req) => {
       .replace("{DATABASE_CONTEXT}", databaseContext)
       .replace("{SETTINGS_CONTEXT}", settingsContext || "No local settings context provided");
 
+    // Check if any message contains an image (multimodal content)
+    const hasImage = messages.some((m: any) => Array.isArray(m.content) && m.content.some((c: any) => c.type === "image_url"));
+
+    // Build system prompt with image analysis instructions if image is present
+    let finalSystemPrompt = systemPromptWithContext;
+    if (hasImage) {
+      finalSystemPrompt += `\n\n## IMAGE ANALYSIS FOR MENU CREATION:
+When the user uploads an image of a menu (physical menu, printed menu, handwritten menu, menu board, etc.):
+1. Carefully analyze the image and extract ALL visible menu items, including their names, prices, and categories/sections.
+2. Present the extracted data in a clean, organized summary grouped by category.
+3. After showing the extracted data, ask the user: "Would you like me to create a menu from these items?" with quickReplies: ["✅ Create Menu from Image", "Edit Items First", "❌ Cancel"]
+4. If the user confirms, begin the guided menu creation flow starting at Step 1 (Menu Name), but PRE-FILL the categories and products you extracted from the image. Skip asking for categories since you already have them.
+5. For products extracted from the image, after the menu is created, automatically suggest creating all extracted products with their prices and categories.
+6. If the image is not a menu or is unclear, politely explain what you see and ask the user to upload a clearer menu image.
+7. Format extracted items nicely with bullet points, bold category names, and prices aligned.`;
+    }
+
     const apiMessages: ChatMessage[] = [
-      { role: "system", content: systemPromptWithContext },
+      { role: "system", content: finalSystemPrompt },
       ...messages.map((m: any) => ({ role: m.role, content: m.content }))
     ];
 
-    console.log("Sending request to Lovable AI Gateway with", apiMessages.length, "messages");
+    // Use vision-capable model when images are present
+    const model = hasImage ? "google/gemini-2.5-flash" : "google/gemini-3-flash-preview";
+
+    console.log("Sending request to Lovable AI Gateway with", apiMessages.length, "messages", hasImage ? "(with image)" : "");
 
     const maxRetries = 3;
     let lastError: Error | null = null;
@@ -469,11 +489,11 @@ serve(async (req) => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            model: "google/gemini-3-flash-preview",
+            model,
             messages: apiMessages,
             stream: false,
             temperature: 0.7,
-            max_tokens: 2048,
+            max_tokens: 4096,
           }),
         });
 

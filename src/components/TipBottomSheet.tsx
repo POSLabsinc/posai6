@@ -17,16 +17,23 @@ import { useIsLandscape } from "@/hooks/use-landscape";
 import { CountryCodeSelector, countryCodes, type CountryCode } from "./CountryCodeSelector";
 import eatosLogo from "@/assets/icons/eatos-logo.svg";
 import successTick from "@/assets/icons/success-tick.svg";
+export interface OrderItemForDisplay {
+  name: string;
+  price: number;
+  qty: number;
+}
+
 interface TipBottomSheetProps {
   isOpen: boolean;
   onClose: () => void;
   totalAmount: number;
   onSelectTip: (tipAmount: number) => void;
-  existingTip?: number; // Current tip already added to the ticket
-  skipReceiptMode?: boolean; // Skip receipt screen and close directly after tip selection
+  existingTip?: number;
+  skipReceiptMode?: boolean;
+  orderItems?: OrderItemForDisplay[];
 }
 
-const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip = 0, skipReceiptMode = false }: TipBottomSheetProps) => {
+const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip = 0, skipReceiptMode = false, orderItems = [] }: TipBottomSheetProps) => {
   const isLandscape = useIsLandscape();
   const [selectedTip, setSelectedTip] = useState<number | null>(null);
   const [customTipMode, setCustomTipMode] = useState(false);

@@ -291,7 +291,7 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
               <div key={item.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                 <SwipeableSettingsItem
-                  onTap={() => {/* TODO: Edit add-on */}}
+                  onTap={() => navigate(`/settings/menu/add-ons/edit/${item.id}`)}
                   onArchive={() => handleArchiveItem(item)}
                   isArchived={!item.active}
                 >

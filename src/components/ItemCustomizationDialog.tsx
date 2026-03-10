@@ -1153,7 +1153,7 @@ export const ItemCustomizationDialog = ({
         <OrderNotesAutocomplete
           value={itemNotes}
           onChange={setItemNotes}
-          placeholder="Item notes"
+          placeholder="Product notes"
           storageKey="item-notes-history"
         />
       </div>

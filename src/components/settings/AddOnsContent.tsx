@@ -1,10 +1,11 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Plus, Search, Mic, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,10 +23,9 @@ import SwipeableSettingsItem from "./SwipeableSettingsItem";
 interface AddOn {
   id: string;
   name: string;
-  type: string;
-  selectedOptions: number;
   price: number;
-  archived: boolean;
+  active: boolean;
+  sort_order: number;
 }
 
 interface AddOnsContentProps {
@@ -34,69 +34,64 @@ interface AddOnsContentProps {
   onAIClick?: () => void;
 }
 
-const STORAGE_KEY = "addons-settings";
-
-const defaultAddOns: AddOn[] = [
-  { id: "1", name: "1 Scoop Vanilla", type: "Regular", selectedOptions: 2, price: 4.00, archived: false },
-  { id: "2", name: "Abuelita", type: "Regular", selectedOptions: 1, price: 1.85, archived: false },
-  { id: "3", name: "Add Avocado", type: "Regular", selectedOptions: 1, price: 0.00, archived: false },
-  { id: "4", name: "Add Brioche", type: "Regular", selectedOptions: 1, price: 0.00, archived: false },
-  { id: "5", name: "Add Cajeta", type: "Regular", selectedOptions: 1, price: 0.00, archived: false },
-  { id: "6", name: "Add Candied Nuts", type: "Regular", selectedOptions: 1, price: 0.00, archived: false },
-  { id: "7", name: "Add Chili infused honey sauce", type: "Regular", selectedOptions: 1, price: 0.00, archived: false },
-  { id: "8", name: "Add Chocolate Sauce", type: "Regular", selectedOptions: 1, price: 0.00, archived: false },
-  { id: "9", name: "Add Ciabatta", type: "Regular", selectedOptions: 1, price: 0.00, archived: false },
-  { id: "10", name: "Add Cinnamon", type: "Regular", selectedOptions: 1, price: 0.00, archived: false },
-  { id: "11", name: "Add Crispy bacon bits", type: "Regular", selectedOptions: 1, price: 0.00, archived: false },
-];
-
 const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
-  const [addOns, setAddOns] = useState<AddOn[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-      } catch (e) {
-        console.error("Failed to parse add-ons from localStorage", e);
-      }
-    }
-    return defaultAddOns;
-  });
-
+  const [addOns, setAddOns] = useState<AddOn[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [itemToArchive, setItemToArchive] = useState<AddOn | null>(null);
 
-  const saveAddOns = (newItems: AddOn[]) => {
-    setAddOns(newItems);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newItems));
-  };
+  const fetchAddOns = useCallback(async () => {
+    const { data, error } = await supabase
+      .from("add_ons")
+      .select("id, name, price, active, sort_order")
+      .order("sort_order");
+    if (data) setAddOns(data);
+    if (error) console.error("Failed to fetch add-ons", error);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    fetchAddOns();
+
+    const channel = supabase
+      .channel("add_ons-realtime")
+      .on("postgres_changes", { event: "*", schema: "public", table: "add_ons" }, () => {
+        fetchAddOns();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [fetchAddOns]);
 
   const handleArchiveItem = (item: AddOn) => {
     setItemToArchive(item);
   };
 
-  const confirmArchiveItem = () => {
-    if (itemToArchive) {
-      const updatedItems = addOns.map(addon => 
-        addon.id === itemToArchive.id ? { ...addon, archived: !addon.archived } : addon
-      );
-      saveAddOns(updatedItems);
-      setItemToArchive(null);
+  const confirmArchiveItem = async () => {
+    if (!itemToArchive) return;
+    const newActive = !itemToArchive.active;
+    const { error } = await supabase
+      .from("add_ons")
+      .update({ active: newActive })
+      .eq("id", itemToArchive.id);
+    if (error) {
+      toast({ title: "Error", description: "Failed to update add-on", variant: "destructive" });
+    } else {
+      setAddOns(prev => prev.map(a => a.id === itemToArchive.id ? { ...a, active: newActive } : a));
     }
+    setItemToArchive(null);
   };
 
   const filteredItems = useMemo(() => {
     return addOns.filter((item) => {
       const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesArchiveFilter = showArchived ? item.archived : !item.archived;
-      return matchesSearch && matchesArchiveFilter;
+      // showArchived = true → show inactive; false → show active
+      const matchesFilter = showArchived ? !item.active : item.active;
+      return matchesSearch && matchesFilter;
     });
   }, [addOns, searchQuery, showArchived]);
 
@@ -170,22 +165,20 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
 
           {/* Table */}
           <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
-            <div className="grid grid-cols-[1.2fr_120px_160px_100px_24px] items-center px-8 py-5 border-b border-neutral-700/50">
+            <div className="grid grid-cols-[1.2fr_100px_24px] items-center px-8 py-5 border-b border-neutral-700/50">
               <span className="text-[15px] font-semibold text-foreground">Name</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Type</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Selected Options</span>
               <span className="text-[15px] font-semibold text-foreground text-right">Price</span>
               <span />
             </div>
 
-            {filteredItems.length > 0 ? (
+            {loading ? (
+              <div className="px-8 py-10 text-center text-[hsl(var(--text-subtle))]">Loading...</div>
+            ) : filteredItems.length > 0 ? (
               filteredItems.map((item, index) => (
                 <div key={item.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50" />}
-                  <button className="grid grid-cols-[1.2fr_120px_160px_100px_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors text-left">
+                  <button className="grid grid-cols-[1.2fr_100px_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors text-left">
                     <span className="text-[15px] text-foreground">{item.name}</span>
-                    <span className="text-[15px] text-foreground text-center">{item.type}</span>
-                    <span className="text-[15px] text-foreground text-center">{item.selectedOptions}</span>
                     <span className="text-[15px] text-foreground text-right">£ {item.price.toFixed(2)}</span>
                     <ChevronRight className="h-5 w-5 text-[hsl(var(--text-subtle))] justify-self-end" />
                   </button>
@@ -204,10 +197,10 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
           <AlertDialogContent className="bg-neutral-800/60 border-neutral-700/50">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-foreground">
-                {itemToArchive?.archived ? "Restore Add-On" : "Archive Add-On"}
+                {itemToArchive && !itemToArchive.active ? "Restore Add-On" : "Archive Add-On"}
               </AlertDialogTitle>
               <AlertDialogDescription className="text-[hsl(var(--text-subtle))]">
-                {itemToArchive?.archived
+                {itemToArchive && !itemToArchive.active
                   ? `Are you sure you want to restore "${itemToArchive?.name}"?`
                   : `Are you sure you want to archive "${itemToArchive?.name}"?`}
               </AlertDialogDescription>
@@ -217,7 +210,7 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction onClick={confirmArchiveItem} className="bg-primary text-primary-foreground hover:bg-primary/90">
-                {itemToArchive?.archived ? "Restore" : "Archive"}
+                {itemToArchive && !itemToArchive.active ? "Restore" : "Archive"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -282,27 +275,25 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
         {/* Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-[1fr_70px_50px_70px] items-center py-4 px-4 border-b border-neutral-700/50">
+          <div className="grid grid-cols-[1fr_70px] items-center py-4 px-4 border-b border-neutral-700/50">
             <span className="text-neutral-400 text-base font-medium text-left">Name</span>
-            <span className="text-neutral-400 text-base font-medium text-center">Type</span>
-            <span className="text-neutral-400 text-base font-medium text-center">Opts</span>
             <span className="text-neutral-400 text-base font-medium text-right pr-6">Price</span>
           </div>
 
           {/* Rows */}
-          {filteredItems.length > 0 ? (
+          {loading ? (
+            <div className="py-8 text-center text-neutral-500">Loading...</div>
+          ) : filteredItems.length > 0 ? (
             filteredItems.map((item, index) => (
               <div key={item.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                 <SwipeableSettingsItem
                   onTap={() => {/* TODO: Edit add-on */}}
                   onArchive={() => handleArchiveItem(item)}
-                  isArchived={item.archived}
+                  isArchived={!item.active}
                 >
-                  <div className="grid grid-cols-[1fr_70px_50px_70px] items-center w-full py-4 px-4">
+                  <div className="grid grid-cols-[1fr_70px] items-center w-full py-4 px-4">
                     <span className="text-foreground text-base font-medium text-left">{item.name}</span>
-                    <span className="text-foreground text-base text-center">{item.type}</span>
-                    <span className="text-foreground text-base text-center">{item.selectedOptions}</span>
                     <div className="flex items-center justify-end gap-1">
                       <span className="text-foreground text-base">£ {item.price.toFixed(2)}</span>
                       <ChevronRight className="w-4 h-4 text-neutral-500" />
@@ -340,10 +331,10 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
         <AlertDialogContent className="bg-neutral-800 border-neutral-700">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-foreground">
-              {itemToArchive?.archived ? "Restore Add-On" : "Archive Add-On"}
+              {itemToArchive && !itemToArchive.active ? "Restore Add-On" : "Archive Add-On"}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-neutral-400">
-              {itemToArchive?.archived 
+              {itemToArchive && !itemToArchive.active
                 ? `Are you sure you want to restore "${itemToArchive?.name}"?`
                 : `Are you sure you want to archive "${itemToArchive?.name}"?`
               }
@@ -357,7 +348,7 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
               onClick={confirmArchiveItem}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
-              {itemToArchive?.archived ? "Restore" : "Archive"}
+              {itemToArchive && !itemToArchive.active ? "Restore" : "Archive"}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

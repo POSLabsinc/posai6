@@ -6272,7 +6272,9 @@ const Orders = () => {
   const [existingItems, setExistingItems] = useState<OrderItem[]>([]);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
-  const [orderType, setOrderType] = useState("DINE IN");
+  const checkoutOptionsSettings = useMemo(() => SettingsManager.getCheckoutOptionsSettings(), []);
+  const requireOrderType = checkoutOptionsSettings.requireOrderType;
+  const [orderType, setOrderType] = useState(() => requireOrderType ? "" : "DINE IN");
   const [showDineInForm, setShowDineInForm] = useState(false);
   const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
   const [showTakeOutForm, setShowTakeOutForm] = useState(false);

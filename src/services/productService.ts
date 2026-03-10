@@ -21,13 +21,38 @@ export type ProductWithVariants = CustomProduct & {
   variants: ProductVariant[];
 };
 
+// Helper: resolve category name to category_id, creating the category if needed
+const resolveCategoryId = async (categoryName: string): Promise<string> => {
+  // Try to find existing category
+  const { data: existing } = await supabase
+    .from('categories')
+    .select('id')
+    .eq('name', categoryName)
+    .limit(1)
+    .single();
+
+  if (existing) return existing.id;
+
+  // Create new category
+  const { data: created, error } = await supabase
+    .from('categories')
+    .insert({ name: categoryName })
+    .select('id')
+    .single();
+
+  if (error || !created) throw error || new Error('Failed to create category');
+  return created.id;
+};
+
 export const createProduct = async (product: Omit<CustomProduct, 'id' | 'createdAt' | 'updatedAt'>, variants: Omit<ProductVariant, 'id' | 'product_id' | 'created_at' | 'updated_at'>[]) => {
+  const categoryId = await resolveCategoryId(product.category);
+
   const { data: productData, error: productError } = await (supabase as any)
     .from('products')
     .insert({
       name: product.name,
       description: product.description,
-      category: product.category,
+      category_id: categoryId,
       price: product.price,
       price_type: product.priceType,
       sku: product.sku,
@@ -36,15 +61,9 @@ export const createProduct = async (product: Omit<CustomProduct, 'id' | 'created
       dine_in: product.dineIn,
       takeaway: product.takeaway,
       delivery: product.delivery,
-      add_to_menu: product.addToMenu,
       out_of_stock: product.outOfStock,
       inventory_tracking: product.inventoryTracking,
       negative_inventory: product.negativeInventory,
-      modifiers: product.modifiers,
-      add_ons: product.addOns,
-      taxes: product.taxes,
-      discounts: product.discounts,
-      // menu_display_name, printer_name, default_modifiers, assigned_printers - map these if added to CustomProduct or handle locally
     })
     .select()
     .single();
@@ -71,6 +90,34 @@ export const createProduct = async (product: Omit<CustomProduct, 'id' | 'created
 
     if (variantsError) throw variantsError;
   }
+
+  // Sync to localStorage so product list & orders screen update immediately
+  const now = new Date().toISOString();
+  saveCustomProduct({
+    id: productData.id,
+    name: product.name,
+    description: product.description ?? '',
+    category: product.category,
+    price: product.price,
+    priceType: product.priceType,
+    sku: product.sku ?? '',
+    imageUrl: product.imageUrl,
+    active: product.active,
+    dineIn: product.dineIn,
+    takeaway: product.takeaway,
+    delivery: product.delivery,
+    addToMenu: product.addToMenu ?? true,
+    outOfStock: product.outOfStock,
+    inventoryTracking: product.inventoryTracking,
+    negativeInventory: product.negativeInventory,
+    modifiers: product.modifiers ?? [],
+    addOns: product.addOns ?? [],
+    taxes: product.taxes ?? [],
+    discounts: product.discounts ?? [],
+    isCustom: true,
+    createdAt: now,
+    updatedAt: now,
+  });
 
   return productData;
 };

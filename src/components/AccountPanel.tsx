@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
+import { useDeviceAuth } from "@/hooks/useDeviceAuth";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -69,6 +70,12 @@ const AccountPanel = ({
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { logout } = useDeviceAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
 
   // Performance Summary visibility
   const [hidePerformanceSummary, setHidePerformanceSummary] = useState(() => {
@@ -288,7 +295,10 @@ const AccountPanel = ({
           </div>
 
           {/* Logout Button */}
-          <button className="w-full py-4 bg-neutral-800/40 rounded-2xl active:opacity-70 transition-opacity">
+          <button 
+            onClick={handleLogout}
+            className="w-full py-4 bg-neutral-800/40 rounded-2xl active:opacity-70 transition-opacity"
+          >
             <span className="text-red-400 font-semibold text-sm tracking-wide">LOG OUT</span>
           </button>
         </div>

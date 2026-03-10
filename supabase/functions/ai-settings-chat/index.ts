@@ -82,7 +82,7 @@ You MUST respond with valid JSON. EVERY response must have ALL four fields:
 {"type": "update_setting", "setting": "Name", "path": "Path", "currentValue": "Old", "newValue": "New", "settingType": "menu|product|category|modifierGroup|modifier|addOn|gratuity|discount|tax|serviceCharge|appearance|controlCenter|checkoutOptions|orders", "operation": "add|update|archive|enable|disable", "data": {...}, "autoApply": true|false}
 
 #### Menu operations (settingType: "menu"):
-- add: {"name": "Menu Name", "description": "optional desc", "revenueCenters": ["Dine Center","Takeaway Center"], "channels": {"dineIn": true, "takeaway": true, "delivery": false}, "categoryNames": ["Starters","Mains"], "devices": ["POS Terminal", "Kiosk"]}
+- add: {"name": "Menu Name", "description": "optional desc", "revenueCenters": ["Dine Center","Takeaway Center"], "channels": {"dineIn": true, "takeaway": true, "delivery": false}, "categoryNames": ["Starters","Mains"], "devices": ["POS Terminal", "Kiosk"], "channelSchedules": {"dine-in": {"active": true, "days": ["Mon","Tue","Wed","Thu","Fri"], "startTime": "11:00 AM", "endTime": "10:00 PM"}}, "deviceSchedules": {"POS Terminal": {"days": ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"], "startTime": "All Day", "endTime": ""}}}
 - enable/disable: {"id": "uuid", "enabled": true/false}
 - update: {"id": "uuid", "name": "New Name"}
 - archive: {"id": "uuid"}

@@ -249,7 +249,8 @@ export const updateProduct = async (id: string, product: Partial<CustomProduct>,
 
   if (deleteError) throw deleteError;
 
-  if (variants.length > 0) {
+  const meaningfulUpdateVariants = variants.filter(v => v.variant_name?.trim());
+  if (meaningfulUpdateVariants.length > 0) {
     const { error: variantsError } = await (supabase as any)
       .from('product_variants')
       .insert(

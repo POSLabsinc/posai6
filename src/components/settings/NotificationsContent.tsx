@@ -131,26 +131,29 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      <div className="pt-0 px-6 pb-28 space-y-6">
-        {/* Back button for desktop */}
-        {showHeader && !isMobile && (
-          <div className="flex items-center gap-3 mb-2 md:hidden">
+      {showHeader && (
+        <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4 md:hidden">
+          {onBack && (
             <button
               onClick={onBack}
               className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
             >
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
-          </div>
-        )}
+          )}
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Notifications</h1>
+          <div className="w-8 h-8" />
+        </div>
+      )}
 
+      <div className="pt-0 px-6 pb-28">
         {/* Header Card */}
-        <div className="bg-neutral-800/60 rounded-2xl flex flex-col items-start py-6 px-4">
+        <div className="bg-neutral-800/60 rounded-2xl flex flex-col items-start p-5 mb-4">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor("#ED1C24") }}>
             <img src={notificationsIcon} alt="Notifications" className="w-8 h-8 object-contain" />
           </div>
-          <h2 className="text-xl font-semibold text-foreground">Notifications</h2>
-          <p className="text-sm text-muted-foreground mt-2 w-full">
+          <h2 className="text-xl font-semibold text-foreground mb-2">Notifications</h2>
+          <p className="text-base text-neutral-400 leading-relaxed w-full">
             Manage how notifications are displayed and organized across the Point of Sale.
           </p>
         </div>
@@ -161,7 +164,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
         </div>
 
         {/* All Notifications Section */}
-        <div>
+        <div className="mb-6">
           <p className="text-xs font-medium text-neutral-500 tracking-wider px-1 mb-3">All Notifications</p>
           <div className="bg-neutral-800/60 rounded-full overflow-hidden">
             <button
@@ -180,7 +183,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
         </div>
 
         {/* Style Section */}
-        <div>
+        <div className="mb-6">
           <p className="text-xs font-medium text-neutral-500 tracking-wider px-1 mb-3">Notification Style</p>
           <div className="grid grid-cols-3 gap-3">
             {styleOptions.map((option) => (
@@ -206,7 +209,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
         </div>
 
         {/* Style Preview */}
-        <div>
+        <div className="mb-6">
           <p className="text-xs font-medium text-neutral-500 tracking-wider px-1 mb-3">Preview</p>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             <StylePreview style={notificationStyle as NotificationStyleType} />

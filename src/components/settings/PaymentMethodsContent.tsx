@@ -22,6 +22,8 @@ import blizzfulIcon from "@/assets/icons/payment-blizzful.png";
 import loyaltyIcon from "@/assets/icons/payment-loyalty.png";
 import payByLinkIcon from "@/assets/icons/payment-pay-by-link.png";
 import voucherIcon from "@/assets/icons/voucher.svg";
+import qrCodeIcon from "@/assets/icons/payment-qr-code.png";
+import thirdPartyIcon from "@/assets/icons/payment-3rd-party.png";
 
 interface PaymentMethodsContentProps {
   showHeader?: boolean;

@@ -82,7 +82,7 @@ export const calculateOrderTotals = (
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
   const discount = subtotal > DISCOUNT_THRESHOLD ? DISCOUNT_AMOUNT : 0;
   const serviceCharge = subtotal * SERVICE_CHARGE_RATE;
-  const tax = (subtotal - discount) * TAX_RATE;
+  const tax = (subtotal - discount) * getActiveTaxRate();
   const total = subtotal - discount + serviceCharge + tax + tipAmount;
   
   return { 

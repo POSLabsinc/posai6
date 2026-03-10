@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { toast } from "sonner";
 import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";
 import { formatPhone } from "@/components/voucher/voucherHelpers";

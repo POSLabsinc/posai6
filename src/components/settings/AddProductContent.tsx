@@ -56,20 +56,33 @@ const AddProductContent = ({ onBack, initialData, editId }: AddProductContentPro
   );
 
   // ── Variants ────────────────────────────────────────────────────────
-  const [variants, setVariants] = useState<Omit<ProductVariant, 'product_id' | 'created_at' | 'updated_at'>[]>([
-    {
-      id: crypto.randomUUID(),
-      variant_name: '',
-      sku: '',
-      price: 0,
-      adjusted_price: 0,
-      timed_price_enabled: false,
-      timed_price: 0,
-      timed_price_start: null,
-      timed_price_end: null,
-      sort_order: 0
-    }
-  ]);
+  const [variants, setVariants] = useState<Omit<ProductVariant, 'product_id' | 'created_at' | 'updated_at'>[]>(
+    (initialData as any)?.variants?.length > 0
+      ? (initialData as any).variants.map((v: any) => ({
+          id: v.id ?? crypto.randomUUID(),
+          variant_name: v.variant_name ?? '',
+          sku: v.sku ?? '',
+          price: Number(v.price) || 0,
+          adjusted_price: Number(v.adjusted_price) || 0,
+          timed_price_enabled: v.timed_price_enabled ?? false,
+          timed_price: Number(v.timed_price) || 0,
+          timed_price_start: v.timed_price_start ?? null,
+          timed_price_end: v.timed_price_end ?? null,
+          sort_order: v.sort_order ?? 0,
+        }))
+      : [{
+          id: crypto.randomUUID(),
+          variant_name: '',
+          sku: '',
+          price: 0,
+          adjusted_price: 0,
+          timed_price_enabled: false,
+          timed_price: 0,
+          timed_price_start: null,
+          timed_price_end: null,
+          sort_order: 0,
+        }]
+  );
 
   // ── Modifiers ────────────────────────────────────────────────────────
   const [modifiers, setModifiers] = useState<string[]>(initialData?.modifiers ?? []);

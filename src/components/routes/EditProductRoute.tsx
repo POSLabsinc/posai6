@@ -15,12 +15,27 @@ const EditProductRoute = () => {
   useEffect(() => {
     const fetchProduct = async () => {
       if (!id) return;
-      const { data, error } = await (supabase as any)
-        .from('products')
-        .select('*, categories(name), product_variants(*)')
-        .eq('id', id)
-        .single();
+      const [productRes, modGroupsRes, addOnsRes] = await Promise.all([
+        (supabase as any)
+          .from('products')
+          .select('*, categories(name), product_variants(*)')
+          .eq('id', id)
+          .single(),
+        (supabase as any)
+          .from('product_modifier_groups')
+          .select('modifier_group_id, modifier_groups(name)')
+          .eq('product_id', id),
+        (supabase as any)
+          .from('product_add_ons')
+          .select('add_on_id, add_ons(name)')
+          .eq('product_id', id),
+      ]);
+
+      const data = productRes.data;
       if (data) {
+        const linkedModifiers = (modGroupsRes.data || []).map((r: any) => r.modifier_groups?.name).filter(Boolean);
+        const linkedAddOns = (addOnsRes.data || []).map((r: any) => r.add_ons?.name).filter(Boolean);
+
         setInitialData({
           name: data.name ?? '',
           description: data.description ?? '',
@@ -37,13 +52,14 @@ const EditProductRoute = () => {
           outOfStock: data.out_of_stock,
           inventoryTracking: data.inventory_tracking,
           negativeInventory: data.negative_inventory,
-          modifiers: [],
-          addOns: [],
+          modifiers: linkedModifiers,
+          addOns: linkedAddOns,
           taxes: [],
           discounts: [],
+          variants: data.product_variants || [],
         });
       }
-      if (error) console.error("Failed to fetch product", error);
+      if (productRes.error) console.error("Failed to fetch product", productRes.error);
       setLoading(false);
     };
     fetchProduct();

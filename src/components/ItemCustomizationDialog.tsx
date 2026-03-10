@@ -1350,7 +1350,7 @@ export const ItemCustomizationDialog = ({
 
           {/* Add-On Items - Scrollable */}
           {/* NOTE: our ScrollArea viewport is h-full, so the root must have an explicit height */}
-          <ScrollArea className="h-[180px]">
+          <ScrollArea className="max-h-[180px]">
             <div className="px-4 py-2">
               <div className="flex flex-wrap gap-2">
                 {filteredAddOnItems.length > 0 ? (

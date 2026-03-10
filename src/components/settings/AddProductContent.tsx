@@ -194,16 +194,15 @@ const AddProductContent = ({ onBack, initialData, editId }: AddProductContentPro
       isCustom: true as const,
     };
 
+    // Check if the editId is a valid UUID (DB product) or a local menu item ID
+    const isValidUUID = editId && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(editId);
+
     try {
-      if (editId) {
-        // We're passing variants but updateProduct logic for variants handles re-creation
-        // We need to cast our local variant type to the one expected by updateProduct (which expects ProductVariant including product_id)
-        // Since we are re-creating them, product_id will be set in the service.
-        // But for type safety let's map it.
+      if (editId && isValidUUID) {
         await updateProduct(editId, productData, variants.map(v => ({
           ...v,
           product_id: editId,
-          created_at: new Date().toISOString(), // Mocking for type, not used in insert
+          created_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })) as ProductVariant[]);
         
@@ -213,11 +212,12 @@ const AddProductContent = ({ onBack, initialData, editId }: AddProductContentPro
           duration: 3000,
         });
       } else {
+        // For local menu items or new products, create in DB
         await createProduct(productData, variants);
         
         toast({
-          title: "Product added",
-          description: `"${name}" has been added successfully.`,
+          title: editId ? "Product saved to database" : "Product added",
+          description: `"${name}" has been saved successfully.`,
           duration: 3000,
         });
       }

@@ -271,8 +271,6 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
         </div>
       </div>
     </div>
-      </div>
-    </div>
   );
 };
 

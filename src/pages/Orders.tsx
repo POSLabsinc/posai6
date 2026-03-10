@@ -9571,6 +9571,12 @@ const Orders = () => {
       }).map((v, idx) => ({ ...v, index: idx }))}
       onPaymentComplete={(history) => {
         console.log("Payment completed:", history);
+        if (autoCloseTicket) {
+          setOrderItems([]);
+          setShowPaymentDialog(false);
+          toast.success("Ticket closed automatically");
+          navigate('/');
+        }
       }}
       onSaveSplit={(config) => {
         setIsOrderSplit(true);

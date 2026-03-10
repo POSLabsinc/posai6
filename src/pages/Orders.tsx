@@ -7920,7 +7920,13 @@ const Orders = () => {
                 <span className="text-white font-semibold text-sm">FIRE</span>
               </button>
               <button
-            onClick={() => setShowPaymentDialog(true)}
+            onClick={() => {
+              if (requireOrderType && !orderType) {
+                toast.error("Please select an order type before charging");
+                return;
+              }
+              setShowPaymentDialog(true);
+            }}
             className="flex-1 h-8 rounded-full flex items-center justify-center"
             style={{
               background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'

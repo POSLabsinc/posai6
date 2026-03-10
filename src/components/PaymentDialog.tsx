@@ -298,8 +298,6 @@ export function PaymentDialog({
   };
 
   const filterMethodsBySettings = (methods: PaymentMethodType[], enabledSettings: Record<string, boolean> | null): PaymentMethodType[] => {
-    if (!enabledSettings) return methods;
-    
     // Check checkout options for split check visibility
     const checkoutOptions = getCheckoutOptionsSettings();
     

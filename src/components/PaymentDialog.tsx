@@ -289,11 +289,25 @@ export function PaymentDialog({
 
   const deliveryPartnerSettingsIds = ['blizzful', 'doordash', 'grubhub', 'uber-eats'];
 
+  const getCheckoutOptionsSettings = () => {
+    try {
+      const stored = localStorage.getItem("checkout-options-settings");
+      if (stored) return JSON.parse(stored) as Record<string, boolean>;
+    } catch (e) { /* ignore */ }
+    return null;
+  };
+
   const filterMethodsBySettings = (methods: PaymentMethodType[], enabledSettings: Record<string, boolean> | null): PaymentMethodType[] => {
-    if (!enabledSettings) return methods;
+    // Check checkout options for split check visibility
+    const checkoutOptions = getCheckoutOptionsSettings();
+    
     return methods.filter(method => {
+      // Hide Split Check if disabled in Checkout Options
+      if (method.id === 'split-check' && checkoutOptions?.splitCheck === false) {
+        return false;
+      }
+      if (!enabledSettings) return true;
       if (method.id === 'third-party-delivery') {
-        // Hide if the explicit toggle exists and is off, OR if all delivery partners are off
         if (enabledSettings['third-party-delivery'] === false) return false;
         return deliveryPartnerSettingsIds.some(id => enabledSettings[id] !== false);
       }

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff } from "lucide-react";
+import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useTheme } from "next-themes";
@@ -11,6 +11,18 @@ import { toast } from "@/hooks/use-toast";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { supabase } from "@/integrations/supabase/client";
 interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+  pendingChange?: PendingChange;
+  appliedChange?: AppliedChange;
+  navigateTo?: string;
+  isStreaming?: boolean;
+  quickReplies?: string[];
+  multiSelect?: boolean;
+  imageUrl?: string;
+}
   id: string;
   role: "user" | "assistant";
   content: string;

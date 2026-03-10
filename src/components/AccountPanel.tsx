@@ -7,6 +7,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -72,9 +73,13 @@ const AccountPanel = ({
   const isMobile = useIsMobile();
   const { logout } = useDeviceAuth();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     logout();
+    await supabase.auth.signOut();
     navigate("/login", { replace: true });
+
+    // Fallback hard redirect in case router state is stale
+    window.location.replace("/login");
   };
 
   // Performance Summary visibility

@@ -556,7 +556,7 @@ export function PaymentDialog({
       // Calculate based on assigned items
       const items = getItemsForCheck(checkNumber);
       const checkSubtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-      const checkTax = checkSubtotal * 0.0735; // Using TAX_RATE
+      const checkTax = checkSubtotal * getActiveTaxRate();
       return { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax };
     }
   };

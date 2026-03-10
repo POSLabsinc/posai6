@@ -70,6 +70,12 @@ const AccountPanel = ({
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { logout } = useDeviceAuth();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  };
 
   // Performance Summary visibility
   const [hidePerformanceSummary, setHidePerformanceSummary] = useState(() => {

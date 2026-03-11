@@ -349,6 +349,28 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     }
   }, [activationCode]);
 
+  // Handle activation code verification animation + redirect
+  useEffect(() => {
+    if (currentStep === "activate-code-verifying") {
+      const timer = setTimeout(() => {
+        const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ Activation code verified successfully! Setting up your device..." };
+        setMessages((prev) => [...prev, successMsg]);
+
+        // After showing success, save session and redirect
+        setTimeout(() => {
+          localStorage.setItem("pos_device_session", JSON.stringify({
+            deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            deviceType: "company",
+            trustedAt: new Date().toISOString(),
+          }));
+          window.location.href = "/";
+        }, 2000);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep]);
+
 
   return (
     <motion.div

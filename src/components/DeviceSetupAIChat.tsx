@@ -21,6 +21,87 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
+type StepType = "initial" | "activation-methods" | "activate-code" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "chat";
+
+interface VerificationWaitingProps {
+  currentStep: StepType;
+  sentAddress: string;
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  setCurrentStep: React.Dispatch<React.SetStateAction<StepType>>;
+  setSignInInput: React.Dispatch<React.SetStateAction<string>>;
+  setSentAddress: React.Dispatch<React.SetStateAction<string>>;
+}
+
+const VerificationWaiting = ({ currentStep, sentAddress, messages, setMessages, setCurrentStep, setSignInInput, setSentAddress }: VerificationWaitingProps) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ Identity verified successfully!" };
+      setMessages((prev) => [...prev, successMsg]);
+      setCurrentStep("sign-in-verified");
+
+      // After 2s on verified screen, save session and redirect
+      setTimeout(() => {
+        localStorage.setItem("pos_device_session", JSON.stringify({
+          deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          deviceType: "company",
+          trustedAt: new Date().toISOString(),
+        }));
+        window.location.href = "/";
+      }, 2000);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, [setMessages, setCurrentStep]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, ease: "easeOut" }}
+      className="pl-7 pt-3 pb-2 space-y-4"
+    >
+      <div className="flex items-center gap-2 text-foreground/50">
+        <Loader2 className="w-4 h-4 animate-spin text-primary" />
+        <span className="text-sm font-medium">Waiting for verification...</span>
+      </div>
+      <div className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-3.5 space-y-1.5">
+        <div className="flex items-start gap-2">
+          <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+          <p className="text-xs text-foreground/50 leading-relaxed">
+            Tap the link in your {currentStep === "sign-in-email-sent" ? "email" : "SMS"} to verify your identity and activate this device. This page will update automatically.
+          </p>
+        </div>
+      </div>
+      <div className="flex gap-2">
+        <button
+          onClick={() => {
+            const resendMsg: Message = { id: Date.now().toString(), role: "assistant", content: `✅ We've resent the sign-in link to **${sentAddress}**` };
+            setMessages((prev) => [...prev, resendMsg]);
+          }}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-sm text-foreground/60 hover:text-foreground transition-all"
+        >
+          <RefreshCw className="w-3.5 h-3.5" />
+          Resend Link
+        </button>
+        <button
+          onClick={() => {
+            const msgs = messages.slice(0, -2);
+            setMessages(msgs);
+            setCurrentStep(currentStep === "sign-in-email-sent" ? "sign-in-email" : "sign-in-phone");
+            setSignInInput("");
+            setSentAddress("");
+          }}
+          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-sm text-foreground/60 hover:text-foreground transition-all"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" />
+          Use a Different {currentStep === "sign-in-email-sent" ? "Email" : "Number"}
+        </button>
+      </div>
+    </motion.div>
+  );
+};
+
 interface DeviceSetupAIChatProps {
   open: boolean;
   onClose: () => void;

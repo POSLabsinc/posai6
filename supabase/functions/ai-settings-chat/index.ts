@@ -370,6 +370,7 @@ serve(async (req) => {
               max_tokens: 2048,
             }),
           });
+        }
 
         if (!response.ok) {
           const errorText = await response.text();

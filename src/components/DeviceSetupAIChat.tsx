@@ -715,55 +715,41 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
 
                 {/* Verification waiting UI for email/phone sent */}
                 {(currentStep === "sign-in-email-sent" || currentStep === "sign-in-phone-sent") && !isLoading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="pl-7 pt-3 pb-2 space-y-4"
-                  >
-                    {/* Waiting indicator */}
-                    <div className="flex items-center gap-2 text-foreground/50">
-                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                      <span className="text-sm font-medium">Waiting for verification...</span>
-                    </div>
+                  <VerificationWaiting
+                    currentStep={currentStep}
+                    sentAddress={sentAddress}
+                    messages={messages}
+                    setMessages={setMessages}
+                    setCurrentStep={setCurrentStep}
+                    setSignInInput={setSignInInput}
+                    setSentAddress={setSentAddress}
+                  />
+                )}
 
-                    {/* Info box */}
-                    <div className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-3.5 space-y-1.5">
-                      <div className="flex items-start gap-2">
-                        <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-                        <p className="text-xs text-foreground/50 leading-relaxed">
-                          Tap the link in your {currentStep === "sign-in-email-sent" ? "email" : "SMS"} to verify your identity and activate this device. This page will update automatically.
-                        </p>
+                {/* Device activated success */}
+                {currentStep === "sign-in-verified" && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-3"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                        <CheckCircle2 className="w-5 h-5 text-green-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">This device is activated!</p>
+                        <p className="text-xs text-foreground/50">Redirecting to clock-in...</p>
                       </div>
                     </div>
-
-                    {/* Action buttons */}
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          // Resend logic - just show a toast-like message
-                          const resendMsg: Message = { id: Date.now().toString(), role: "assistant", content: `✅ We've resent the sign-in link to **${sentAddress}**` };
-                          setMessages((prev) => [...prev, resendMsg]);
-                        }}
-                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-sm text-foreground/60 hover:text-foreground transition-all"
-                      >
-                        <RefreshCw className="w-3.5 h-3.5" />
-                        Resend Link
-                      </button>
-                      <button
-                        onClick={() => {
-                          // Go back to email/phone input
-                          const msgs = messages.slice(0, -2);
-                          setMessages(msgs);
-                          setCurrentStep(currentStep === "sign-in-email-sent" ? "sign-in-email" : "sign-in-phone");
-                          setSignInInput("");
-                          setSentAddress("");
-                        }}
-                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-sm text-foreground/60 hover:text-foreground transition-all"
-                      >
-                        <ArrowLeft className="w-3.5 h-3.5" />
-                        Use a Different {currentStep === "sign-in-email-sent" ? "Email" : "Number"}
-                      </button>
+                    <div className="w-full h-1 rounded-full bg-foreground/[0.08] overflow-hidden">
+                      <motion.div
+                        className="h-full bg-green-500 rounded-full"
+                        initial={{ width: "0%" }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 2, ease: "linear" }}
+                      />
                     </div>
                   </motion.div>
                 )}

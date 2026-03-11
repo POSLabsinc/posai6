@@ -347,6 +347,8 @@ export class SettingsManager {
     discounts.push(newDiscount);
     localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
     syncToDatabase(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'discounts', data: discounts } }));
+    return newDiscount;
   }
 
   static updateDiscount(id: string, updates: Partial<Discount>): Discount | null {

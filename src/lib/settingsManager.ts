@@ -510,6 +510,7 @@ export class SettingsManager {
     const current = this.getControlCenterSettings();
     const updated = { ...current, ...updates };
     localStorage.setItem(STORAGE_KEYS.CONTROL_CENTER, JSON.stringify(updated));
+    syncToDatabase(STORAGE_KEYS.CONTROL_CENTER, JSON.stringify(updated));
     
     // Handle specific settings that have their own storage/events
     if (updates.hidePerformanceSummary !== undefined) {

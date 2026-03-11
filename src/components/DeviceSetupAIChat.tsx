@@ -480,32 +480,34 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="pl-7 pt-3 pb-2 flex flex-col gap-2.5"
+                    className="pl-7 pt-3 pb-2"
                   >
-                    <button
-                      onClick={() => handleSend("Email")}
-                      className="flex items-center gap-3.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <Mail className="w-[18px] h-[18px] text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Email</p>
-                        <p className="text-xs text-foreground/40">Receive a sign-in link via email</p>
-                      </div>
-                    </button>
-                    <button
-                      onClick={() => handleSend("Phone")}
-                      className="flex items-center gap-3.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <Smartphone className="w-[18px] h-[18px] text-primary" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-foreground">Phone</p>
-                        <p className="text-xs text-foreground/40">Receive a sign-in link via SMS</p>
-                      </div>
-                    </button>
+                    <div className="flex gap-2.5">
+                      <button
+                        onClick={() => handleSend("Email")}
+                        className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                          <Mail className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-medium text-foreground leading-tight">Email</p>
+                          <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Receive a sign-in link via email</p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => handleSend("Phone")}
+                        className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                          <Smartphone className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-medium text-foreground leading-tight">Phone</p>
+                          <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Receive a sign-in link via SMS</p>
+                        </div>
+                      </button>
+                    </div>
                   </motion.div>
                 )}
               </div>

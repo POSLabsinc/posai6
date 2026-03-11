@@ -225,7 +225,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
       setEnabled(false);
       setProvider("");
-      setModel("");
       setApiKey("");
       setStatus("not_configured");
       setHasSavedKey(false);

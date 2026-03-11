@@ -449,6 +449,8 @@ export class SettingsManager {
     charges.push(newCharge);
     localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
     syncToDatabase(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'serviceCharges', data: charges } }));
+    return newCharge;
   }
 
   static updateServiceCharge(id: string, updates: Partial<ServiceCharge>): ServiceCharge | null {

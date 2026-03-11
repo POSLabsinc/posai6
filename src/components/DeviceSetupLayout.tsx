@@ -203,8 +203,8 @@ export function DeviceSetupLayout({ children, title, subtitle, variant = "setup"
       </motion.div>
 
       {/* Right Panel - Action Content */}
-      <div className="relative z-10 flex-1 flex items-center justify-center px-6 md:px-10 lg:px-16">
-        <div className="w-full max-w-md">
+      <div className="relative z-10 flex-1 flex items-center justify-center px-6 md:px-10 lg:px-16 h-full">
+        <div className="w-full max-w-md h-full flex items-center justify-center">
           {children}
         </div>
       </div>

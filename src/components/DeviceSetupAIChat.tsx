@@ -133,7 +133,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: 30 }}
       transition={{ type: "spring", stiffness: 300, damping: 28 }}
-      className="w-full h-full flex flex-col"
+      className="w-full max-h-[90vh] h-full flex flex-col rounded-2xl overflow-hidden border border-foreground/[0.06] bg-foreground/[0.02]"
     >
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/[0.06] flex-shrink-0">

@@ -399,8 +399,7 @@ export class SettingsManager {
     if (index === -1) return null;
     taxes[index] = { ...taxes[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
-    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'taxes', data: taxes } }));
-    return taxes[index];
+    syncToDatabase(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
   }
 
   static archiveTax(id: string): boolean {

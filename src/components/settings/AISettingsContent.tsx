@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus } from "lucide-react";
+import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useTheme } from "next-themes";
@@ -10,6 +10,77 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { supabase } from "@/integrations/supabase/client";
+
+// AI Provider definitions for in-chat model switching
+interface AIProviderModel {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface AIProvider {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  color: string;
+  models: AIProviderModel[];
+}
+
+const AI_PROVIDERS: AIProvider[] = [
+  {
+    id: "platform",
+    name: "POS AI",
+    icon: <Sparkles className="w-4 h-4" />,
+    color: "text-violet-400",
+    models: [
+      { id: "gemini-3-flash", name: "Fast", description: "Quick responses" },
+      { id: "gemini-2.5-pro", name: "Pro", description: "Complex reasoning" },
+    ],
+  },
+  {
+    id: "openai",
+    name: "ChatGPT",
+    icon: <Bot className="w-4 h-4" />,
+    color: "text-emerald-400",
+    models: [
+      { id: "gpt-4o", name: "GPT-4o", description: "Most capable" },
+      { id: "gpt-4o-mini", name: "GPT-4o Mini", description: "Fast & efficient" },
+      { id: "gpt-3.5-turbo", name: "GPT-3.5", description: "Legacy model" },
+    ],
+  },
+  {
+    id: "anthropic",
+    name: "Claude",
+    icon: <Zap className="w-4 h-4" />,
+    color: "text-amber-400",
+    models: [
+      { id: "claude-3.5-sonnet", name: "Claude 3.5 Sonnet", description: "Balanced" },
+      { id: "claude-3-opus", name: "Claude 3 Opus", description: "Most powerful" },
+      { id: "claude-3-haiku", name: "Claude 3 Haiku", description: "Fastest" },
+    ],
+  },
+  {
+    id: "google",
+    name: "Gemini",
+    icon: <Sparkles className="w-4 h-4" />,
+    color: "text-blue-400",
+    models: [
+      { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", description: "Top tier" },
+      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", description: "Fast" },
+    ],
+  },
+  {
+    id: "maya",
+    name: "Maya AI",
+    icon: <Bot className="w-4 h-4" />,
+    color: "text-pink-400",
+    models: [
+      { id: "maya-1", name: "Maya 1", description: "Standard" },
+      { id: "maya-1-mini", name: "Maya 1 Mini", description: "Lightweight" },
+      { id: "maya-1-turbo", name: "Maya 1 Turbo", description: "High speed" },
+    ],
+  },
+];
 interface Message {
   id: string;
   role: "user" | "assistant";

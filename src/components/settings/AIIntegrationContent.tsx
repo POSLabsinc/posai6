@@ -22,7 +22,6 @@ type ConnectionStatus = "not_configured" | "connected" | "invalid_key" | "error"
 interface ProviderOption {
   id: string;
   name: string;
-  models: { id: string; name: string }[];
 }
 
 const PROVIDERS: ProviderOption[] = [

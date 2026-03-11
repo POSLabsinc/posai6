@@ -296,7 +296,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           <p className="whitespace-pre-wrap">{msg.content}</p>
                         )}
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
 
                   {isLoading && messages[messages.length - 1]?.role === "user" && (

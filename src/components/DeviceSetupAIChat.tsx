@@ -189,6 +189,20 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setMessages(msgs);
       setCurrentStep("sign-in-link");
       setSignInInput("");
+      setSentAddress("");
+    } else if (currentStep === "sign-in-email-sent") {
+      // Go back to email input
+      const msgs = messages.slice(0, -2); // Remove the sent confirmation
+      setMessages(msgs);
+      setCurrentStep("sign-in-email");
+      setSignInInput(sentAddress);
+      setSentAddress("");
+    } else if (currentStep === "sign-in-phone-sent") {
+      const msgs = messages.slice(0, -2);
+      setMessages(msgs);
+      setCurrentStep("sign-in-phone");
+      setSignInInput(sentAddress);
+      setSentAddress("");
     } else if (currentStep === "chat") {
       // For AI chat, go back to initial
       setMessages([]);

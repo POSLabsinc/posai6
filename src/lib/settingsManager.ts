@@ -511,9 +511,9 @@ export class SettingsManager {
     items[index] = { ...items[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.MENUS, JSON.stringify(items));
     syncToDatabase(STORAGE_KEYS.MENUS, JSON.stringify(items));
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'menus', data: items } }));
+    return items[index];
   }
-
-  // Control Center Settings
   static getControlCenterSettings(): ControlCenterSettings {
     const stored = localStorage.getItem(STORAGE_KEYS.CONTROL_CENTER);
     if (stored) {

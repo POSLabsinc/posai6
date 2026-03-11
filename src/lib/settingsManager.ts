@@ -616,24 +616,30 @@ export class SettingsManager {
     // Store individual settings for backwards compatibility with AppearanceContext
     if (updates.theme !== undefined) {
       localStorage.setItem('theme', updates.theme);
+      syncToDatabase('theme', updates.theme);
       window.dispatchEvent(new CustomEvent('theme-change', { detail: { theme: updates.theme } }));
     }
     if (updates.iconStyle !== undefined) {
       localStorage.setItem('iconStyle', updates.iconStyle);
+      syncToDatabase('iconStyle', updates.iconStyle);
     }
     if (updates.iconSize !== undefined) {
       localStorage.setItem('iconSize', updates.iconSize);
+      syncToDatabase('iconSize', updates.iconSize);
     }
     if (updates.textSize !== undefined) {
       localStorage.setItem('textSize', updates.textSize.toString());
+      syncToDatabase('textSize', updates.textSize.toString());
       window.dispatchEvent(new CustomEvent('text-size-change', { detail: { size: updates.textSize } }));
     }
     if (updates.boldText !== undefined) {
       localStorage.setItem('boldText', updates.boldText.toString());
+      syncToDatabase('boldText', updates.boldText.toString());
       window.dispatchEvent(new CustomEvent('bold-text-change', { detail: { bold: updates.boldText } }));
     }
     if (updates.brightness !== undefined) {
       localStorage.setItem('brightness', updates.brightness.toString());
+      syncToDatabase('brightness', updates.brightness.toString());
       window.dispatchEvent(new CustomEvent('brightness-change', { detail: { brightness: updates.brightness } }));
     }
     

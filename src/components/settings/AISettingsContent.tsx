@@ -794,7 +794,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined, multiSelect: undefined } : msg),
         assistantMessage,
       ]);
-      setConversationHistory((prev) => [...prev, { role: "assistant", content: data.message }]);
+      setConversationHistory((prev) => [...prev, { role: "assistant", content: typeof messageText === 'string' ? messageText : JSON.stringify(messageText) }]);
       setIsTyping(false);
 
     } catch (error) {

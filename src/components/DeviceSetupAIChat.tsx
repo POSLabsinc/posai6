@@ -312,7 +312,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
 
                 {/* Step-based action buttons */}
                 {currentStep === "activation-methods" && !isLoading && (
-                  <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="flex flex-wrap gap-2 pl-7 pt-3 pb-2"
+                  >
                     <button
                       onClick={() => handleActivationOption("Activate with Code")}
                       className="px-4 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -331,7 +336,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     >
                       Try Demo Mode
                     </button>
-                  </div>
+                  </motion.div>
                 )}
               </div>
             )}

@@ -487,8 +487,7 @@ export class SettingsManager {
     if (index === -1) return null;
     items[index] = { ...items[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.MENUS, JSON.stringify(items));
-    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'menus', data: items } }));
-    return items[index];
+    syncToDatabase(STORAGE_KEYS.MENUS, JSON.stringify(items));
   }
 
   // Control Center Settings

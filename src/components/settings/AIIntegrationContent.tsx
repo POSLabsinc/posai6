@@ -67,7 +67,6 @@ const STATUS_LABELS: Record<ConnectionStatus, { label: string; color: string }> 
 const PREF_KEYS = {
   enabled: "ai_integration_enabled",
   provider: "ai_integration_provider",
-  model: "ai_integration_model",
   apiKey: "ai_integration_api_key",
   status: "ai_integration_status",
 };

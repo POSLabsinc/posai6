@@ -160,14 +160,14 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const handleActivationOption = useCallback((option: string) => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: option };
     let followUp = "";
-    let nextStep: "activate-code" | "sign-in-link" | "demo-mode" = "activate-code";
+    let nextStep: "activate-code" | "sign-in-input" | "demo-mode" = "activate-code";
 
     if (option === "Activate with Code") {
       followUp = "Great! Please enter your 6-digit activation code. You can find it from your manager or the Admin Portal.";
       nextStep = "activate-code";
     } else if (option === "Sign in with Link") {
-      followUp = "How would you like to receive your secure sign-in link?";
-      nextStep = "sign-in-link";
+      followUp = "Please enter your email address or phone number to receive a secure sign-in link.";
+      nextStep = "sign-in-input";
     } else if (option === "Try Demo Mode") {
       followUp = "Demo Mode lets you explore all features with sample data — no real data is affected. Tap \"Try Demo Mode\" on the left panel to get started! Need help with anything else?";
       nextStep = "demo-mode";

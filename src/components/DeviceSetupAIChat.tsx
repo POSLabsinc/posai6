@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Send, Loader2 } from "lucide-react";
+import { X, Send, Loader2, Pencil } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ReactMarkdown from "react-markdown";
 
@@ -169,6 +169,24 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     setCurrentStep(nextStep);
   }, []);
 
+  const handleGoBack = useCallback(() => {
+    if (currentStep === "activation-methods") {
+      // Go back to initial
+      setMessages([]);
+      setCurrentStep("initial");
+    } else if (currentStep === "activate-code" || currentStep === "sign-in-link" || currentStep === "demo-mode") {
+      // Go back to activation methods - remove the last user+assistant pair
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("activation-methods");
+    } else if (currentStep === "chat") {
+      // For AI chat, go back to initial
+      setMessages([]);
+      setCurrentStep("initial");
+    }
+  }, [currentStep]);
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 40 }}
@@ -296,6 +314,15 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           <p className="whitespace-pre-wrap">{msg.content}</p>
                         )}
                       </div>
+                      {msg.role === "user" && !isLoading && (
+                        <button
+                          onClick={handleGoBack}
+                          className="flex-shrink-0 ml-1.5 mt-1 w-6 h-6 rounded-full flex items-center justify-center hover:bg-foreground/[0.08] transition-colors opacity-40 hover:opacity-70"
+                          title="Edit"
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </button>
+                      )}
                     </motion.div>
                   ))}
 

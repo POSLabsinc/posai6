@@ -679,7 +679,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           // Go back to email/phone input
                           const msgs = messages.slice(0, -2);
                           setMessages(msgs);
-                          setCurrentStep(currentStep === "sign-in-email-sent" ? "sign-in-email" : "sign-in-phone");
+                          setCurrentStep("sign-in-input");
                           setSignInInput("");
                           setSentAddress("");
                         }}

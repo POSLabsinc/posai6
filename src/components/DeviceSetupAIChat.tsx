@@ -177,7 +177,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       // Go back to initial
       setMessages([]);
       setCurrentStep("initial");
-    } else if (currentStep === "activate-code" || currentStep === "sign-in-link" || currentStep === "demo-mode") {
+    } else if (["activate-code", "sign-in-link", "demo-mode"].includes(currentStep)) {
       // Go back to activation methods - remove the last user+assistant pair
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
       const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };

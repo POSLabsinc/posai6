@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus } from "lucide-react";
+import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useTheme } from "next-themes";
@@ -10,6 +10,77 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { supabase } from "@/integrations/supabase/client";
+
+// AI Provider definitions for in-chat model switching
+interface AIProviderModel {
+  id: string;
+  name: string;
+  description: string;
+}
+
+interface AIProvider {
+  id: string;
+  name: string;
+  icon: React.ReactNode;
+  color: string;
+  models: AIProviderModel[];
+}
+
+const AI_PROVIDERS: AIProvider[] = [
+  {
+    id: "platform",
+    name: "POS AI",
+    icon: <Sparkles className="w-4 h-4" />,
+    color: "text-violet-400",
+    models: [
+      { id: "gemini-3-flash", name: "Fast", description: "Quick responses" },
+      { id: "gemini-2.5-pro", name: "Pro", description: "Complex reasoning" },
+    ],
+  },
+  {
+    id: "openai",
+    name: "ChatGPT",
+    icon: <Bot className="w-4 h-4" />,
+    color: "text-emerald-400",
+    models: [
+      { id: "gpt-4o", name: "GPT-4o", description: "Most capable" },
+      { id: "gpt-4o-mini", name: "GPT-4o Mini", description: "Fast & efficient" },
+      { id: "gpt-3.5-turbo", name: "GPT-3.5", description: "Legacy model" },
+    ],
+  },
+  {
+    id: "anthropic",
+    name: "Claude",
+    icon: <Zap className="w-4 h-4" />,
+    color: "text-amber-400",
+    models: [
+      { id: "claude-3.5-sonnet", name: "Claude 3.5 Sonnet", description: "Balanced" },
+      { id: "claude-3-opus", name: "Claude 3 Opus", description: "Most powerful" },
+      { id: "claude-3-haiku", name: "Claude 3 Haiku", description: "Fastest" },
+    ],
+  },
+  {
+    id: "google",
+    name: "Gemini",
+    icon: <Sparkles className="w-4 h-4" />,
+    color: "text-blue-400",
+    models: [
+      { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro", description: "Top tier" },
+      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash", description: "Fast" },
+    ],
+  },
+  {
+    id: "maya",
+    name: "Maya AI",
+    icon: <Bot className="w-4 h-4" />,
+    color: "text-pink-400",
+    models: [
+      { id: "maya-1", name: "Maya 1", description: "Standard" },
+      { id: "maya-1-mini", name: "Maya 1 Mini", description: "Lightweight" },
+      { id: "maya-1-turbo", name: "Maya 1 Turbo", description: "High speed" },
+    ],
+  },
+];
 interface Message {
   id: string;
   role: "user" | "assistant";
@@ -178,9 +249,17 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const [multiSelectState, setMultiSelectState] = useState<Record<string, string[]>>({});
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<string>("platform");
+  const [selectedModel, setSelectedModel] = useState<string>("gemini-3-flash");
+  const [showProviderDropdown, setShowProviderDropdown] = useState(false);
+  const [showModelDropdown, setShowModelDropdown] = useState(false);
+  const providerDropdownRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const activeProvider = AI_PROVIDERS.find(p => p.id === selectedProvider) || AI_PROVIDERS[0];
+  const activeModel = activeProvider.models.find(m => m.id === selectedModel) || activeProvider.models[0];
 
   // Voice recognition hook - show transcript in real-time
   const { isListening, isSupported: isVoiceSupported, transcript, toggleListening, stopListening } = useVoiceRecognition({
@@ -222,6 +301,18 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     window.addEventListener('theme-change', handleThemeChange as EventListener);
     return () => window.removeEventListener('theme-change', handleThemeChange as EventListener);
   }, [setTheme]);
+
+  // Close provider dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (providerDropdownRef.current && !providerDropdownRef.current.contains(e.target as Node)) {
+        setShowProviderDropdown(false);
+        setShowModelDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   // Get current settings context for AI
   const getSettingsContext = useCallback(() => {
@@ -960,15 +1051,98 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Header */}
+      {/* Header with Provider Selector */}
       {showHeader && onBack && (
-        <div className="flex-shrink-0 p-4 flex justify-end">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <X className="w-5 h-5 text-foreground" />
-          </button>
+        <div className="flex-shrink-0 px-4 py-3 border-b border-neutral-800/50 flex items-center justify-between">
+          {/* Provider/Model Selector */}
+          <div className="relative" ref={providerDropdownRef}>
+            <button
+              onClick={() => { setShowProviderDropdown(!showProviderDropdown); setShowModelDropdown(false); }}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-neutral-800/60 hover:bg-neutral-700/60 active:opacity-70 transition-all border border-neutral-700/40"
+            >
+              <span className={activeProvider.color}>{activeProvider.icon}</span>
+              <span className="text-sm font-medium text-foreground">{activeProvider.name}</span>
+              <span className="text-xs text-muted-foreground">· {activeModel.name}</span>
+              <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", showProviderDropdown && "rotate-180")} />
+            </button>
+
+            {/* Provider Dropdown */}
+            {showProviderDropdown && (
+              <div className="absolute top-full left-0 mt-2 w-72 bg-neutral-900 border border-neutral-700/60 rounded-2xl shadow-2xl overflow-hidden z-50">
+                <div className="p-2">
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-3 py-1.5">AI Provider</p>
+                  {AI_PROVIDERS.map((prov) => (
+                    <button
+                      key={prov.id}
+                      onClick={() => {
+                        if (prov.id !== selectedProvider) {
+                          setSelectedProvider(prov.id);
+                          setSelectedModel(prov.models[0].id);
+                        }
+                        setShowProviderDropdown(false);
+                        setShowModelDropdown(true);
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all",
+                        selectedProvider === prov.id ? "bg-neutral-800" : "hover:bg-neutral-800/60"
+                      )}
+                    >
+                      <span className={prov.color}>{prov.icon}</span>
+                      <div className="flex-1 text-left">
+                        <span className="text-sm font-medium text-foreground">{prov.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{prov.models.length} models</span>
+                      </div>
+                      {selectedProvider === prov.id && (
+                        <div className="w-2 h-2 rounded-full bg-green-400" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <div className="border-t border-neutral-800 p-2">
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-3 py-1.5">Model</p>
+                  {activeProvider.models.map((mod) => (
+                    <button
+                      key={mod.id}
+                      onClick={() => {
+                        setSelectedModel(mod.id);
+                        setShowProviderDropdown(false);
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all",
+                        selectedModel === mod.id ? "bg-neutral-800" : "hover:bg-neutral-800/60"
+                      )}
+                    >
+                      <div className="flex-1 text-left">
+                        <span className="text-sm text-foreground">{mod.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{mod.description}</span>
+                      </div>
+                      {selectedModel === mod.id && (
+                        <Check className="w-3.5 h-3.5 text-green-400" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Settings Button */}
+            <button
+              onClick={() => navigate("/settings/network/ai-integration")}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity hover:bg-neutral-700/60"
+              title="AI Settings"
+            >
+              <Settings className="w-4.5 h-4.5 text-muted-foreground" />
+            </button>
+            {/* Close Button */}
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <X className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -1000,12 +1174,19 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
             <div className="mb-4 overflow-visible">
               <AnimatedAIIcon size={56} />
             </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">
+            <h2 className="text-xl font-semibold text-foreground mb-1">
               How can I help you today?
             </h2>
-            <p className="text-muted-foreground mb-8 max-w-sm">
+            <p className="text-muted-foreground text-sm mb-2 max-w-sm">
               I can view, update, and manage all your settings. Just tell me what you need!
             </p>
+            
+            {/* Active Provider Badge */}
+            <div className="flex items-center gap-1.5 mb-6 px-3 py-1.5 rounded-full bg-neutral-800/60 border border-neutral-700/40">
+              <span className={activeProvider.color}>{activeProvider.icon}</span>
+              <span className="text-xs text-muted-foreground">Powered by</span>
+              <span className="text-xs font-medium text-foreground">{activeProvider.name} · {activeModel.name}</span>
+            </div>
             
             {/* Quick Suggestion Chips */}
             <div className="flex flex-wrap gap-2 justify-center max-w-lg">
@@ -1184,10 +1365,13 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   <AnimatedAIIcon size={24} />
                 </div>
                 <div className="bg-neutral-800/60 rounded-2xl px-4 py-3">
-                  <div className="flex gap-1">
-                    <div className="w-2 h-2 rounded-full bg-neutral-500 animate-bounce" style={{ animationDelay: "0ms" }} />
-                    <div className="w-2 h-2 rounded-full bg-neutral-500 animate-bounce" style={{ animationDelay: "150ms" }} />
-                    <div className="w-2 h-2 rounded-full bg-neutral-500 animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-1">
+                      <div className="w-2 h-2 rounded-full bg-neutral-500 animate-bounce" style={{ animationDelay: "0ms" }} />
+                      <div className="w-2 h-2 rounded-full bg-neutral-500 animate-bounce" style={{ animationDelay: "150ms" }} />
+                      <div className="w-2 h-2 rounded-full bg-neutral-500 animate-bounce" style={{ animationDelay: "300ms" }} />
+                    </div>
+                    <span className="text-[10px] text-muted-foreground">{activeProvider.name}</span>
                   </div>
                 </div>
               </div>

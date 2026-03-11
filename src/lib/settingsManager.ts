@@ -257,6 +257,46 @@ const defaultOrdersSettings: OrdersSettings = {
 
 // Settings Manager class
 export class SettingsManager {
+  private static _initialized = false;
+
+  /**
+   * Load all settings from the database into localStorage.
+   * Should be called once on app startup.
+   */
+  static async initFromDatabase(): Promise<void> {
+    if (this._initialized) return;
+    this._initialized = true;
+
+    const deviceId = getDeviceId();
+    try {
+      const allKeys = [...ALL_SETTINGS_KEYS, ...APPEARANCE_INDIVIDUAL_KEYS];
+      const { data, error } = await (supabase as any)
+        .from("user_preferences")
+        .select("preference_key, preference_value")
+        .eq("device_id", deviceId)
+        .in("preference_key", allKeys);
+
+      if (error || !data || data.length === 0) {
+        console.log("[SettingsManager] No DB settings found, using localStorage/defaults");
+        return;
+      }
+
+      for (const row of data) {
+        const current = localStorage.getItem(row.preference_key);
+        // Only overwrite if localStorage doesn't already have a value,
+        // or always use DB as source of truth
+        localStorage.setItem(row.preference_key, row.preference_value);
+      }
+
+      console.log(`[SettingsManager] Loaded ${data.length} settings from database`);
+
+      // Dispatch events so any mounted components re-read
+      window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'all', data: null } }));
+    } catch (err) {
+      console.error("[SettingsManager] Failed to load settings from DB:", err);
+    }
+  }
+
   // Gratuity
   static getGratuitySettings(): GratuitySettings {
     const stored = localStorage.getItem(STORAGE_KEYS.GRATUITY);

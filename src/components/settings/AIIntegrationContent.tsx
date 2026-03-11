@@ -372,7 +372,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
         )}
 
         {/* Test Connection Button */}
-        {provider && model && (
+        {provider && (
           <button
             onClick={handleTestConnection}
             disabled={isTesting}

@@ -1,5 +1,17 @@
 // Settings Manager - Centralized access to all settings data
 // Used by AI assistant to read and modify settings
+import { supabase } from "@/integrations/supabase/client";
+
+// Device ID helper (mirrors usePreference.ts)
+const DEVICE_ID_KEY = "pos_device_id";
+function getDeviceId(): string {
+  let id = localStorage.getItem(DEVICE_ID_KEY);
+  if (!id) {
+    id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem(DEVICE_ID_KEY, id);
+  }
+  return id;
+}
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -13,6 +25,29 @@ const STORAGE_KEYS = {
   CHECKOUT_OPTIONS: "checkout-options-settings",
   ORDERS: "orders-settings",
 };
+
+// All settings keys that should be synced to the database
+const ALL_SETTINGS_KEYS = Object.values(STORAGE_KEYS);
+
+// Appearance has individual keys stored separately
+const APPEARANCE_INDIVIDUAL_KEYS = ["theme", "iconStyle", "iconSize", "textSize", "boldText", "brightness"];
+
+/**
+ * Sync a localStorage settings key to the user_preferences database table.
+ * Fire-and-forget — does not block the UI.
+ */
+function syncToDatabase(preferenceKey: string, value: string) {
+  const deviceId = getDeviceId();
+  (supabase as any)
+    .from("user_preferences")
+    .upsert(
+      { device_id: deviceId, preference_key: preferenceKey, preference_value: value },
+      { onConflict: "device_id,preference_key" }
+    )
+    .then(() => {
+      console.log(`[SettingsManager] Synced "${preferenceKey}" to database`);
+    });
+}
 
 // Types
 export interface GratuitySettings {

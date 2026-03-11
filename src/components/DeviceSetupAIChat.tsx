@@ -469,7 +469,6 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">One-time code: This code expires in 10 minutes and can only be used once.</span>
                     </div>
-                    </button>
                   </motion.div>
                 )}
               </div>

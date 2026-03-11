@@ -66,11 +66,16 @@ export function useSettingsSync<T>(
       
       const { type, data } = event.detail || {};
       
-      // Check if this event is for our settings type
-      if (type === settingsType && data !== undefined) {
-        // Directly use the new data from the event
-        console.log(`[useSettingsSync] Received update for ${settingsType}:`, data);
-        setValue(data as T);
+      // Check if this event is for our settings type or a global refresh
+      if ((type === settingsType || type === 'all') && (type === 'all' || data !== undefined)) {
+        if (type === 'all') {
+          // Re-read from localStorage for global refresh
+          forceRefresh();
+        } else {
+          // Directly use the new data from the event
+          console.log(`[useSettingsSync] Received update for ${settingsType}:`, data);
+          setValue(data as T);
+        }
       }
     };
 

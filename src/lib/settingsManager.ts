@@ -1,5 +1,17 @@
 // Settings Manager - Centralized access to all settings data
 // Used by AI assistant to read and modify settings
+import { supabase } from "@/integrations/supabase/client";
+
+// Device ID helper (mirrors usePreference.ts)
+const DEVICE_ID_KEY = "pos_device_id";
+function getDeviceId(): string {
+  let id = localStorage.getItem(DEVICE_ID_KEY);
+  if (!id) {
+    id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem(DEVICE_ID_KEY, id);
+  }
+  return id;
+}
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -13,6 +25,29 @@ const STORAGE_KEYS = {
   CHECKOUT_OPTIONS: "checkout-options-settings",
   ORDERS: "orders-settings",
 };
+
+// All settings keys that should be synced to the database
+const ALL_SETTINGS_KEYS = Object.values(STORAGE_KEYS);
+
+// Appearance has individual keys stored separately
+const APPEARANCE_INDIVIDUAL_KEYS = ["theme", "iconStyle", "iconSize", "textSize", "boldText", "brightness"];
+
+/**
+ * Sync a localStorage settings key to the user_preferences database table.
+ * Fire-and-forget — does not block the UI.
+ */
+function syncToDatabase(preferenceKey: string, value: string) {
+  const deviceId = getDeviceId();
+  (supabase as any)
+    .from("user_preferences")
+    .upsert(
+      { device_id: deviceId, preference_key: preferenceKey, preference_value: value },
+      { onConflict: "device_id,preference_key" }
+    )
+    .then(() => {
+      console.log(`[SettingsManager] Synced "${preferenceKey}" to database`);
+    });
+}
 
 // Types
 export interface GratuitySettings {
@@ -222,6 +257,46 @@ const defaultOrdersSettings: OrdersSettings = {
 
 // Settings Manager class
 export class SettingsManager {
+  private static _initialized = false;
+
+  /**
+   * Load all settings from the database into localStorage.
+   * Should be called once on app startup.
+   */
+  static async initFromDatabase(): Promise<void> {
+    if (this._initialized) return;
+    this._initialized = true;
+
+    const deviceId = getDeviceId();
+    try {
+      const allKeys = [...ALL_SETTINGS_KEYS, ...APPEARANCE_INDIVIDUAL_KEYS];
+      const { data, error } = await (supabase as any)
+        .from("user_preferences")
+        .select("preference_key, preference_value")
+        .eq("device_id", deviceId)
+        .in("preference_key", allKeys);
+
+      if (error || !data || data.length === 0) {
+        console.log("[SettingsManager] No DB settings found, using localStorage/defaults");
+        return;
+      }
+
+      for (const row of data) {
+        const current = localStorage.getItem(row.preference_key);
+        // Only overwrite if localStorage doesn't already have a value,
+        // or always use DB as source of truth
+        localStorage.setItem(row.preference_key, row.preference_value);
+      }
+
+      console.log(`[SettingsManager] Loaded ${data.length} settings from database`);
+
+      // Dispatch events so any mounted components re-read
+      window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'all', data: null } }));
+    } catch (err) {
+      console.error("[SettingsManager] Failed to load settings from DB:", err);
+    }
+  }
+
   // Gratuity
   static getGratuitySettings(): GratuitySettings {
     const stored = localStorage.getItem(STORAGE_KEYS.GRATUITY);
@@ -240,6 +315,7 @@ export class SettingsManager {
     const current = this.getGratuitySettings();
     const updated = { ...current, ...updates };
     localStorage.setItem(STORAGE_KEYS.GRATUITY, JSON.stringify(updated));
+    syncToDatabase(STORAGE_KEYS.GRATUITY, JSON.stringify(updated));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'gratuity', data: updated } }));
     return updated;
   }
@@ -270,6 +346,7 @@ export class SettingsManager {
     const newDiscount: Discount = { ...discount, id: Date.now().toString() };
     discounts.push(newDiscount);
     localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
+    syncToDatabase(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'discounts', data: discounts } }));
     return newDiscount;
   }
@@ -280,6 +357,7 @@ export class SettingsManager {
     if (index === -1) return null;
     discounts[index] = { ...discounts[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
+    syncToDatabase(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'discounts', data: discounts } }));
     return discounts[index];
   }
@@ -290,6 +368,7 @@ export class SettingsManager {
     if (index === -1) return false;
     discounts[index].archived = true;
     localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
+    syncToDatabase(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'discounts', data: discounts } }));
     return true;
   }
@@ -320,6 +399,7 @@ export class SettingsManager {
     const newTax: Tax = { ...tax, id: Date.now().toString() };
     taxes.push(newTax);
     localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
+    syncToDatabase(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'taxes', data: taxes } }));
     return newTax;
   }
@@ -330,6 +410,7 @@ export class SettingsManager {
     if (index === -1) return null;
     taxes[index] = { ...taxes[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
+    syncToDatabase(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'taxes', data: taxes } }));
     return taxes[index];
   }
@@ -340,6 +421,7 @@ export class SettingsManager {
     if (index === -1) return false;
     taxes[index].archived = true;
     localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
+    syncToDatabase(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'taxes', data: taxes } }));
     return true;
   }
@@ -370,6 +452,7 @@ export class SettingsManager {
     const newCharge: ServiceCharge = { ...charge, id: Date.now().toString() };
     charges.push(newCharge);
     localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
+    syncToDatabase(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'serviceCharges', data: charges } }));
     return newCharge;
   }
@@ -380,6 +463,7 @@ export class SettingsManager {
     if (index === -1) return null;
     charges[index] = { ...charges[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
+    syncToDatabase(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'serviceCharges', data: charges } }));
     return charges[index];
   }
@@ -390,6 +474,7 @@ export class SettingsManager {
     if (index === -1) return false;
     charges[index].archived = true;
     localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
+    syncToDatabase(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'serviceCharges', data: charges } }));
     return true;
   }
@@ -420,6 +505,7 @@ export class SettingsManager {
     const newItem: MenuItem = { ...item, id: Date.now().toString() };
     items.push(newItem);
     localStorage.setItem(STORAGE_KEYS.MENUS, JSON.stringify(items));
+    syncToDatabase(STORAGE_KEYS.MENUS, JSON.stringify(items));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'menus', data: items } }));
     return newItem;
   }
@@ -430,11 +516,10 @@ export class SettingsManager {
     if (index === -1) return null;
     items[index] = { ...items[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.MENUS, JSON.stringify(items));
+    syncToDatabase(STORAGE_KEYS.MENUS, JSON.stringify(items));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'menus', data: items } }));
     return items[index];
   }
-
-  // Control Center Settings
   static getControlCenterSettings(): ControlCenterSettings {
     const stored = localStorage.getItem(STORAGE_KEYS.CONTROL_CENTER);
     if (stored) {
@@ -454,6 +539,7 @@ export class SettingsManager {
     const current = this.getControlCenterSettings();
     const updated = { ...current, ...updates };
     localStorage.setItem(STORAGE_KEYS.CONTROL_CENTER, JSON.stringify(updated));
+    syncToDatabase(STORAGE_KEYS.CONTROL_CENTER, JSON.stringify(updated));
     
     // Handle specific settings that have their own storage/events
     if (updates.hidePerformanceSummary !== undefined) {
@@ -483,6 +569,7 @@ export class SettingsManager {
     const current = this.getCheckoutOptionsSettings();
     const updated = { ...current, ...updates };
     localStorage.setItem(STORAGE_KEYS.CHECKOUT_OPTIONS, JSON.stringify(updated));
+    syncToDatabase(STORAGE_KEYS.CHECKOUT_OPTIONS, JSON.stringify(updated));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'checkoutOptions', data: updated } }));
     return updated;
   }
@@ -505,6 +592,7 @@ export class SettingsManager {
     const current = this.getOrdersSettings();
     const updated = { ...current, ...updates };
     localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(updated));
+    syncToDatabase(STORAGE_KEYS.ORDERS, JSON.stringify(updated));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'orders', data: updated } }));
     return updated;
   }
@@ -528,24 +616,30 @@ export class SettingsManager {
     // Store individual settings for backwards compatibility with AppearanceContext
     if (updates.theme !== undefined) {
       localStorage.setItem('theme', updates.theme);
+      syncToDatabase('theme', updates.theme);
       window.dispatchEvent(new CustomEvent('theme-change', { detail: { theme: updates.theme } }));
     }
     if (updates.iconStyle !== undefined) {
       localStorage.setItem('iconStyle', updates.iconStyle);
+      syncToDatabase('iconStyle', updates.iconStyle);
     }
     if (updates.iconSize !== undefined) {
       localStorage.setItem('iconSize', updates.iconSize);
+      syncToDatabase('iconSize', updates.iconSize);
     }
     if (updates.textSize !== undefined) {
       localStorage.setItem('textSize', updates.textSize.toString());
+      syncToDatabase('textSize', updates.textSize.toString());
       window.dispatchEvent(new CustomEvent('text-size-change', { detail: { size: updates.textSize } }));
     }
     if (updates.boldText !== undefined) {
       localStorage.setItem('boldText', updates.boldText.toString());
+      syncToDatabase('boldText', updates.boldText.toString());
       window.dispatchEvent(new CustomEvent('bold-text-change', { detail: { bold: updates.boldText } }));
     }
     if (updates.brightness !== undefined) {
       localStorage.setItem('brightness', updates.brightness.toString());
+      syncToDatabase('brightness', updates.brightness.toString());
       window.dispatchEvent(new CustomEvent('brightness-change', { detail: { brightness: updates.brightness } }));
     }
     

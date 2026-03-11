@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import aiIntegrationIcon from "@/assets/icons/ai-integration.png";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import networkIcon from "@/assets/icons/settings-network.png";

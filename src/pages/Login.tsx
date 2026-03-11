@@ -27,7 +27,7 @@ import { DeviceSetupLayout } from "@/components/DeviceSetupLayout";
 import { PersonalDeviceAuthPanel } from "@/components/PersonalDeviceAuthPanel";
 import { SplashScreen } from "@/components/SplashScreen";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import AISettingsContent from "@/components/settings/AISettingsContent";
+import DeviceSetupAIChat from "@/components/DeviceSetupAIChat";
 
 // Revenue centers assigned to employees - in production this would come from API
 const revenueCenters: Record<string, string> = {

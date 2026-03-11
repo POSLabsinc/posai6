@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone } from "lucide-react";
+import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ReactMarkdown from "react-markdown";
 
@@ -29,8 +29,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showActivationOptions, setShowActivationOptions] = useState(false);
-  const [currentStep, setCurrentStep] = useState<"initial" | "activation-methods" | "activate-code" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "demo-mode" | "chat">("initial");
+  const [currentStep, setCurrentStep] = useState<"initial" | "activation-methods" | "activate-code" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "demo-mode" | "chat">("initial");
   const [signInInput, setSignInInput] = useState("");
+  const [sentAddress, setSentAddress] = useState("");
   const [activationCode, setActivationCode] = useState<string[]>(["", "", "", "", "", ""]);
   const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [showBranding, setShowBranding] = useState(false);
@@ -188,6 +189,20 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setMessages(msgs);
       setCurrentStep("sign-in-link");
       setSignInInput("");
+      setSentAddress("");
+    } else if (currentStep === "sign-in-email-sent") {
+      // Go back to email input
+      const msgs = messages.slice(0, -2); // Remove the sent confirmation
+      setMessages(msgs);
+      setCurrentStep("sign-in-email");
+      setSignInInput(sentAddress);
+      setSentAddress("");
+    } else if (currentStep === "sign-in-phone-sent") {
+      const msgs = messages.slice(0, -2);
+      setMessages(msgs);
+      setCurrentStep("sign-in-phone");
+      setSignInInput(sentAddress);
+      setSentAddress("");
     } else if (currentStep === "chat") {
       // For AI chat, go back to initial
       setMessages([]);
@@ -546,7 +561,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                         className="flex-1 px-4 py-2.5 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && signInInput.trim() && signInInput.includes("@")) {
-                            handleSend(`Send sign-in link to ${signInInput}`);
+                            const email = signInInput.trim();
+                            setSentAddress(email);
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: email };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${email}**` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("sign-in-email-sent");
                             setSignInInput("");
                           }
                         }}
@@ -554,7 +574,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       <button
                         onClick={() => {
                           if (signInInput.trim() && signInInput.includes("@")) {
-                            handleSend(`Send sign-in link to ${signInInput}`);
+                            const email = signInInput.trim();
+                            setSentAddress(email);
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: email };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${email}**` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("sign-in-email-sent");
                             setSignInInput("");
                           }
                         }}
@@ -585,7 +610,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                         className="flex-1 px-4 py-2.5 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && signInInput.replace(/\D/g, "").length >= 7) {
-                            handleSend(`Send sign-in link to ${signInInput}`);
+                            const phone = signInInput.trim();
+                            setSentAddress(phone);
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: phone };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${phone}**` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("sign-in-phone-sent");
                             setSignInInput("");
                           }
                         }}
@@ -593,7 +623,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       <button
                         onClick={() => {
                           if (signInInput.replace(/\D/g, "").length >= 7) {
-                            handleSend(`Send sign-in link to ${signInInput}`);
+                            const phone = signInInput.trim();
+                            setSentAddress(phone);
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: phone };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${phone}**` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("sign-in-phone-sent");
                             setSignInInput("");
                           }
                         }}
@@ -601,6 +636,61 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                         className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                       >
                         Send
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Verification waiting UI for email/phone sent */}
+                {(currentStep === "sign-in-email-sent" || currentStep === "sign-in-phone-sent") && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    {/* Waiting indicator */}
+                    <div className="flex items-center gap-2 text-foreground/50">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <span className="text-sm font-medium">Waiting for verification...</span>
+                    </div>
+
+                    {/* Info box */}
+                    <div className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-3.5 space-y-1.5">
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                        <p className="text-xs text-foreground/50 leading-relaxed">
+                          Tap the link in your {currentStep === "sign-in-email-sent" ? "email" : "SMS"} to verify your identity and activate this device. This page will update automatically.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Action buttons */}
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => {
+                          // Resend logic - just show a toast-like message
+                          const resendMsg: Message = { id: Date.now().toString(), role: "assistant", content: `✅ We've resent the sign-in link to **${sentAddress}**` };
+                          setMessages((prev) => [...prev, resendMsg]);
+                        }}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-sm text-foreground/60 hover:text-foreground transition-all"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5" />
+                        Resend Link
+                      </button>
+                      <button
+                        onClick={() => {
+                          // Go back to email/phone input
+                          const msgs = messages.slice(0, -2);
+                          setMessages(msgs);
+                          setCurrentStep(currentStep === "sign-in-email-sent" ? "sign-in-email" : "sign-in-phone");
+                          setSignInInput("");
+                          setSentAddress("");
+                        }}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-sm text-foreground/60 hover:text-foreground transition-all"
+                      >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        Use a Different {currentStep === "sign-in-email-sent" ? "Email" : "Number"}
                       </button>
                     </div>
                   </motion.div>

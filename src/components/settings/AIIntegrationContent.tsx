@@ -391,7 +391,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
                     type={showKey ? "text" : "password"}
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
-                    placeholder={provider === "openai" ? "sk-..." : "AIza..."}
+                    placeholder={provider === "openai" ? "sk-..." : provider === "maya" ? "maya-..." : "AIza..."}
                     className="bg-neutral-700/50 border-neutral-600 text-foreground pr-10 font-mono text-sm"
                   />
                   <button

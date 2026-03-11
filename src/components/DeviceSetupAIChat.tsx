@@ -171,14 +171,19 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.3 }}
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 40 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
       className="w-full h-full flex flex-col"
     >
           {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 flex-shrink-0">
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15, duration: 0.3 }}
+            className="flex items-center justify-between px-6 py-4 flex-shrink-0"
+          >
             <div className="flex items-center gap-3">
               <AnimatedAIIcon size={28} />
               <div>
@@ -192,7 +197,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
             >
               <X className="w-4 h-4 text-foreground/50" />
             </button>
-          </div>
+          </motion.div>
 
           {/* Messages */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 scrollbar-hide flex flex-col">
@@ -200,30 +205,50 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
               <div className="flex flex-col h-full">
                 {/* Centered branding area */}
                 <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                  <div className="w-20 h-20 rounded-2xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center backdrop-blur-sm">
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={showBranding ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="w-20 h-20 rounded-2xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center backdrop-blur-sm"
+                  >
                     <AnimatedAIIcon size={40} />
-                  </div>
-                  <div className="text-center space-y-2">
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={showBranding ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                    transition={{ duration: 0.4, delay: 0.1 }}
+                    className="text-center space-y-2"
+                  >
                     <h2 className="text-xl font-semibold text-foreground tracking-tight">
                       Set Up Your Device
                     </h2>
                     <p className="text-sm text-foreground/40 max-w-[260px] mx-auto leading-relaxed">
                       Let AI guide you through a quick and easy device setup — step by step.
                     </p>
-                  </div>
+                  </motion.div>
                 </div>
 
                 {/* First question as a chat bubble at the bottom */}
                 <div className="space-y-3 pb-2">
-                  <div className="flex justify-start">
+                  <motion.div
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={showFirstQuestion ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex justify-start"
+                  >
                     <div className="flex-shrink-0 mr-2 mt-1">
                       <AnimatedAIIcon size={18} />
                     </div>
                     <div className="max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm bg-foreground/[0.04] text-foreground">
                       <p>Hi, How can I assist you today? Are you new here?</p>
                     </div>
-                  </div>
-                  <div className="flex gap-2 pl-7">
+                  </motion.div>
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={showFirstButtons ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="flex gap-2 pl-7"
+                  >
                     <button
                       onClick={() => handleSend("Yes, I'm new")}
                       className="px-5 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -236,16 +261,19 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     >
                       No, I'm Not
                     </button>
-                  </div>
+                  </motion.div>
                 </div>
               </div>
             ) : (
               <div className="flex flex-col h-full">
                 {/* Chat messages */}
                 <div className="flex-1 space-y-4">
-                  {messages.map((msg) => (
-                    <div
+                  {messages.map((msg, index) => (
+                    <motion.div
                       key={msg.id}
+                      initial={{ opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: index * 0.08, ease: "easeOut" }}
                       className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                     >
                       {msg.role === "assistant" && (

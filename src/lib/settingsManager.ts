@@ -411,6 +411,8 @@ export class SettingsManager {
     taxes[index] = { ...taxes[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
     syncToDatabase(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'taxes', data: taxes } }));
+    return taxes[index];
   }
 
   static archiveTax(id: string): boolean {

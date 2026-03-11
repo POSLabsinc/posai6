@@ -157,8 +157,8 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
   };
 
   const handleTestConnection = async () => {
-    if (!provider || !model || (!apiKey && !hasSavedKey)) {
-      toast.error("Please fill in all fields before testing");
+    if (!provider || (!apiKey && !hasSavedKey)) {
+      toast.error("Please select a provider and enter your API key before testing");
       return;
     }
 

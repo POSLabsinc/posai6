@@ -58,8 +58,12 @@ import ClosedTickets from "./pages/ClosedTickets";
 import Login from "./pages/Login";
 import KDSMessages from "./pages/KDSMessages";
 import KDS from "./pages/KDS";
+import { SettingsManager } from "@/lib/settingsManager";
 
 const queryClient = new QueryClient();
+
+// Initialize settings from database on app load
+SettingsManager.initFromDatabase();
 
 // Inner component that can use hooks
 const AppInner = () => {

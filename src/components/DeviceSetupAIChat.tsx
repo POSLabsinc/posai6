@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info } from "lucide-react";
+import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ReactMarkdown from "react-markdown";
 
@@ -159,7 +159,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       followUp = "Great! Please enter your 6-digit activation code. You can find it from your manager or the Admin Portal.";
       nextStep = "activate-code";
     } else if (option === "Sign in with Link") {
-      followUp = "Sure! Please enter the email address associated with your account, and we'll send you a magic link to sign in.";
+      followUp = "How would you like to receive your secure sign-in link?";
       nextStep = "sign-in-link";
     } else if (option === "Try Demo Mode") {
       followUp = "Demo Mode lets you explore all features with sample data — no real data is affected. Tap \"Try Demo Mode\" on the left panel to get started! Need help with anything else?";
@@ -469,6 +469,41 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">One-time code: This code expires in 10 minutes and can only be used once.</span>
                     </div>
+                  </motion.div>
+                )}
+
+                {/* Sign-in link options */}
+                {currentStep === "sign-in-link" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 flex flex-col gap-2.5"
+                  >
+                    <button
+                      onClick={() => handleSend("Email")}
+                      className="flex items-center gap-3.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <Mail className="w-[18px] h-[18px] text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Email</p>
+                        <p className="text-xs text-foreground/40">Receive a sign-in link via email</p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => handleSend("Phone")}
+                      className="flex items-center gap-3.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                        <Smartphone className="w-[18px] h-[18px] text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Phone</p>
+                        <p className="text-xs text-foreground/40">Receive a sign-in link via SMS</p>
+                      </div>
+                    </button>
                   </motion.div>
                 )}
               </div>

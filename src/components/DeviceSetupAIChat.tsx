@@ -155,26 +155,31 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
           {/* Messages */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-4 scrollbar-hide">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                  <AnimatedAIIcon size={28} />
+              <div className="flex flex-col items-center justify-center h-full gap-5">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
+                  <AnimatedAIIcon size={32} />
                 </div>
                 <div className="text-center">
-                  <p className="text-sm font-medium text-foreground mb-1">Need help setting up?</p>
-                  <p className="text-xs text-foreground/40 max-w-[240px]">
-                    I can help you activate your device, troubleshoot codes, or explain setup options.
+                  <p className="text-base font-medium text-foreground mb-2">
+                    Hi, How can I assist you today?
+                  </p>
+                  <p className="text-sm text-foreground/50">
+                    Are you new here?
                   </p>
                 </div>
-                <div className="flex flex-wrap gap-2 justify-center mt-2">
-                  {QUICK_QUESTIONS.map((q) => (
-                    <button
-                      key={q}
-                      onClick={() => handleSend(q)}
-                      className="px-3 py-1.5 rounded-full text-xs border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/60 hover:text-foreground/80 transition-colors"
-                    >
-                      {q}
-                    </button>
-                  ))}
+                <div className="flex gap-3 mt-2">
+                  <button
+                    onClick={() => handleSend("Yes, I'm new")}
+                    className="px-6 py-2.5 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+                  >
+                    Yes, I'm New
+                  </button>
+                  <button
+                    onClick={() => handleSend("No, I'm not new")}
+                    className="px-6 py-2.5 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-colors"
+                  >
+                    No, I'm Not
+                  </button>
                 </div>
               </div>
             ) : (

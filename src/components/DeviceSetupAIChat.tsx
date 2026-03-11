@@ -239,8 +239,6 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
             </div>
           </div>
         </motion.div>
-      )}
-    </AnimatePresence>
   );
 };
 

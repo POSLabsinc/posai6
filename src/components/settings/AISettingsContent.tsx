@@ -723,8 +723,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           id: Date.now().toString(),
           setting: action.setting || "Setting",
           path: action.path || "Settings",
-          currentValue: action.currentValue || "Current",
-          newValue: action.newValue || "New",
+          currentValue: typeof action.currentValue === 'object' ? JSON.stringify(action.currentValue) : (action.currentValue || "Current"),
+          newValue: typeof action.newValue === 'object' ? JSON.stringify(action.newValue) : (action.newValue || "New"),
           status: "pending",
           settingType: action.settingType,
           operation: action.operation,
@@ -955,11 +955,11 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         <div className="space-y-2 mb-4">
           <div className="flex items-center gap-2 text-xs">
             <span className="text-muted-foreground w-14">Current:</span>
-            <span className="text-neutral-400 line-through">{change.currentValue}</span>
+            <span className="text-neutral-400 line-through">{typeof change.currentValue === 'object' ? JSON.stringify(change.currentValue) : change.currentValue}</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <span className="text-muted-foreground w-14">New:</span>
-            <span className="text-green-400 font-medium">{change.newValue}</span>
+            <span className="text-green-400 font-medium">{typeof change.newValue === 'object' ? JSON.stringify(change.newValue) : change.newValue}</span>
           </div>
         </div>
 
@@ -1258,7 +1258,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                         <Check className="w-4 h-4" />
                         <span className="text-sm font-medium">Change Applied</span>
                       </div>
-                      <p className="text-xs text-muted-foreground">{message.appliedChange.setting} → {message.appliedChange.value}</p>
+                      <p className="text-xs text-muted-foreground">{message.appliedChange.setting} → {typeof message.appliedChange.value === 'object' ? JSON.stringify(message.appliedChange.value) : message.appliedChange.value}</p>
                     </div>
                   )}
                   

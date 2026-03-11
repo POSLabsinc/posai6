@@ -249,8 +249,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const [multiSelectState, setMultiSelectState] = useState<Record<string, string[]>>({});
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
-  const [selectedProvider, setSelectedProvider] = useState<string>("platform");
-  const [selectedModel, setSelectedModel] = useState<string>("gemini-3-flash");
+  const [selectedProvider, setSelectedProvider] = useState<string>("openai");
+  const [selectedModel, setSelectedModel] = useState<string>("gpt-4o");
   const [showProviderDropdown, setShowProviderDropdown] = useState(false);
   const [showModelDropdown, setShowModelDropdown] = useState(false);
   const providerDropdownRef = useRef<HTMLDivElement>(null);

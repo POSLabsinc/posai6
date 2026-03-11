@@ -2802,8 +2802,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </div>
         </motion.div>
 
-        {/* AI Setup Chat */}
-        <DeviceSetupAIChat open={showAIChat} onClose={() => setShowAIChat(false)} />
       </DeviceSetupLayout>
     );
   }

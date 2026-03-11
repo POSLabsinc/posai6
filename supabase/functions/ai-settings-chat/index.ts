@@ -419,7 +419,16 @@ serve(async (req) => {
       );
     }
 
-    const content = data.choices?.[0]?.message?.content;
+    // Normalize response across providers
+    let content: string | undefined;
+    if (provider === "anthropic" && isExternalProvider) {
+      // Anthropic response format: { content: [{ type: "text", text: "..." }] }
+      content = data.content?.[0]?.text;
+    } else {
+      // OpenAI-compatible format
+      content = data.choices?.[0]?.message?.content;
+    }
+    
     if (!content) {
       return new Response(
         JSON.stringify({ error: "No response from AI" }),

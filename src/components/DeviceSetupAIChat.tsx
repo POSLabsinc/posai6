@@ -45,6 +45,14 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   useEffect(() => {
     if (open) {
       setTimeout(() => inputRef.current?.focus(), 300);
+      // Stagger the entrance animations
+      setShowBranding(false);
+      setShowFirstQuestion(false);
+      setShowFirstButtons(false);
+      const t1 = setTimeout(() => setShowBranding(true), 200);
+      const t2 = setTimeout(() => setShowFirstQuestion(true), 700);
+      const t3 = setTimeout(() => setShowFirstButtons(true), 1000);
+      return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     }
   }, [open]);
 

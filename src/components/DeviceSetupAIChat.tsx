@@ -184,8 +184,8 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
           </div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-4 scrollbar-hide">
-            {messages.length === 0 ? (
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 scrollbar-hide flex flex-col">
+            {currentStep === "initial" ? (
               <div className="flex flex-col h-full">
                 {/* Centered branding area */}
                 <div className="flex-1 flex flex-col items-center justify-center gap-4">
@@ -228,34 +228,52 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                   </div>
                 </div>
               </div>
-            ) : showActivationOptions ? (
+            ) : (
               <div className="flex flex-col h-full">
-                {/* Centered branding area */}
-                <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                  <div className="w-20 h-20 rounded-2xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center backdrop-blur-sm">
-                    <AnimatedAIIcon size={40} />
-                  </div>
-                  <div className="text-center space-y-2">
-                    <h2 className="text-xl font-semibold text-foreground tracking-tight">
-                      Set Up Your Device
-                    </h2>
-                    <p className="text-sm text-foreground/40 max-w-[260px] mx-auto leading-relaxed">
-                      Let AI guide you through a quick and easy device setup — step by step.
-                    </p>
-                  </div>
+                {/* Chat messages */}
+                <div className="flex-1 space-y-4">
+                  {messages.map((msg) => (
+                    <div
+                      key={msg.id}
+                      className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                    >
+                      {msg.role === "assistant" && (
+                        <div className="flex-shrink-0 mr-2 mt-1">
+                          <AnimatedAIIcon size={18} />
+                        </div>
+                      )}
+                      <div
+                        className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm ${
+                          msg.role === "user"
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-foreground/[0.04] text-foreground"
+                        }`}
+                      >
+                        {msg.role === "assistant" ? (
+                          <div className="prose prose-sm prose-invert max-w-none [&>p]:m-0 [&>p+p]:mt-2 [&>ul]:mt-1 [&>ul]:mb-0 [&>ol]:mt-1 [&>ol]:mb-0">
+                            <ReactMarkdown>{msg.content || "..."}</ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p className="whitespace-pre-wrap">{msg.content}</p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+
+                  {isLoading && messages[messages.length - 1]?.role === "user" && (
+                    <div className="flex items-center gap-2 text-foreground/40">
+                      <AnimatedAIIcon size={18} />
+                      <div className="flex items-center gap-1.5 bg-foreground/[0.04] rounded-2xl px-3.5 py-2.5">
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <span className="text-xs">Thinking...</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Activation options as a chat bubble at the bottom */}
-                <div className="space-y-3 pb-2">
-                  <div className="flex justify-start">
-                    <div className="flex-shrink-0 mr-2 mt-1">
-                      <AnimatedAIIcon size={18} />
-                    </div>
-                    <div className="max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm bg-foreground/[0.04] text-foreground">
-                      <p>Please choose one of these activation methods:</p>
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2 pl-7">
+                {/* Step-based action buttons */}
+                {currentStep === "activation-methods" && !isLoading && (
+                  <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">
                     <button
                       onClick={() => handleActivationOption("Activate with Code")}
                       className="px-4 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
@@ -275,44 +293,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       Try Demo Mode
                     </button>
                   </div>
-                </div>
-              </div>
-            ) : (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                >
-                  {msg.role === "assistant" && (
-                    <div className="flex-shrink-0 mr-2 mt-1">
-                      <AnimatedAIIcon size={18} />
-                    </div>
-                  )}
-                  <div
-                    className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm ${
-                      msg.role === "user"
-                        ? "bg-primary text-primary-foreground"
-                        : "bg-foreground/[0.04] text-foreground"
-                    }`}
-                  >
-                    {msg.role === "assistant" ? (
-                      <div className="prose prose-sm prose-invert max-w-none [&>p]:m-0 [&>p+p]:mt-2 [&>ul]:mt-1 [&>ul]:mb-0 [&>ol]:mt-1 [&>ol]:mb-0">
-                        <ReactMarkdown>{msg.content || "..."}</ReactMarkdown>
-                      </div>
-                    ) : (
-                      <p className="whitespace-pre-wrap">{msg.content}</p>
-                    )}
-                  </div>
-                </div>
-              ))
-            )}
-            {isLoading && messages[messages.length - 1]?.role === "user" && (
-              <div className="flex items-center gap-2 text-foreground/40">
-                <AnimatedAIIcon size={18} />
-                <div className="flex items-center gap-1.5 bg-foreground/[0.04] rounded-2xl px-3.5 py-2.5">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  <span className="text-xs">Thinking...</span>
-                </div>
+                )}
               </div>
             )}
           </div>

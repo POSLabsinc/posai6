@@ -46,6 +46,15 @@ const PROVIDERS: ProviderOption[] = [
       { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
     ],
   },
+  {
+    id: "maya",
+    name: "Maya AI",
+    models: [
+      { id: "maya-1", name: "Maya 1" },
+      { id: "maya-1-mini", name: "Maya 1 Mini" },
+      { id: "maya-1-turbo", name: "Maya 1 Turbo" },
+    ],
+  },
 ];
 
 const STATUS_LABELS: Record<ConnectionStatus, { label: string; color: string }> = {
@@ -382,7 +391,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
                     type={showKey ? "text" : "password"}
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
-                    placeholder={provider === "openai" ? "sk-..." : "AIza..."}
+                    placeholder={provider === "openai" ? "sk-..." : provider === "maya" ? "maya-..." : "AIza..."}
                     className="bg-neutral-700/50 border-neutral-600 text-foreground pr-10 font-mono text-sm"
                   />
                   <button

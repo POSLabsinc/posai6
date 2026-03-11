@@ -469,12 +469,6 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">One-time code: This code expires in 10 minutes and can only be used once.</span>
                     </div>
-                    <button
-                      onClick={handleSubmitCode}
-                      disabled={activationCode.join("").length !== 6}
-                      className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                    >
-                      Activate Device
                     </button>
                   </motion.div>
                 )}

@@ -28,6 +28,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [showActivationOptions, setShowActivationOptions] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -35,7 +36,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     if (open && scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [messages, open]);
+  }, [messages, open, showActivationOptions]);
 
   useEffect(() => {
     if (open) {
@@ -122,10 +123,25 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       const newMessages = [...messages, userMsg];
       setMessages(newMessages);
       setInput("");
+      setShowActivationOptions(false);
       streamChat(newMessages);
     },
     [input, isLoading, messages, streamChat]
   );
+
+  const handleNotNew = useCallback(() => {
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
+    setMessages([userMsg]);
+    setShowActivationOptions(true);
+  }, []);
+
+  const handleActivationOption = useCallback((option: string) => {
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: option };
+    const newMessages = [...messages, userMsg];
+    setMessages(newMessages);
+    setShowActivationOptions(false);
+    streamChat(newMessages);
+  }, [messages, streamChat]);
 
   return (
     <motion.div

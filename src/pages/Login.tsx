@@ -26,6 +26,7 @@ import { NumericKeypad } from "@/components/NumericKeypad";
 import { DeviceSetupLayout } from "@/components/DeviceSetupLayout";
 import { PersonalDeviceAuthPanel } from "@/components/PersonalDeviceAuthPanel";
 import { SplashScreen } from "@/components/SplashScreen";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 // Revenue centers assigned to employees - in production this would come from API
 const revenueCenters: Record<string, string> = {

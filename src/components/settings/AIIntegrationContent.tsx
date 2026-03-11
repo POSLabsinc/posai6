@@ -198,7 +198,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
       await Promise.all([
         savePref(PREF_KEYS.enabled, String(enabled)),
         savePref(PREF_KEYS.provider, provider),
-        savePref(PREF_KEYS.model, model),
         savePref(PREF_KEYS.status, status),
         ...(apiKey ? [savePref(PREF_KEYS.apiKey, apiKey)] : []),
       ]);

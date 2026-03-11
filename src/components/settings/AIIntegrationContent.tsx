@@ -242,7 +242,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
   const handleProviderChange = (newProvider: string) => {
     setProvider(newProvider);
-    setModel("");
     setStatus("not_configured");
     setHasSavedKey(false);
     setApiKey("");

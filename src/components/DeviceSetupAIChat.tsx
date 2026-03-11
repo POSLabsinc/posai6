@@ -129,16 +129,16 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
 
   return (
     <motion.div
-      initial={{ opacity: 0, x: 30 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 30 }}
-      transition={{ type: "spring", stiffness: 300, damping: 28 }}
-      className="w-full max-h-[90vh] h-full flex flex-col rounded-2xl overflow-hidden border border-foreground/[0.06] bg-foreground/[0.02]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="w-full h-full flex flex-col"
     >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/[0.06] flex-shrink-0">
-            <div className="flex items-center gap-2.5">
-              <AnimatedAIIcon size={22} />
+          <div className="flex items-center justify-between px-6 py-4 flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <AnimatedAIIcon size={28} />
               <div>
                 <p className="text-sm font-semibold text-foreground">Setup Assistant</p>
                 <p className="text-[11px] text-foreground/40">Ask me anything about device setup</p>
@@ -153,7 +153,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
           </div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-hide">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-4 scrollbar-hide">
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full gap-4">
                 <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
@@ -218,7 +218,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
           </div>
 
           {/* Input */}
-          <div className="px-4 py-3 border-t border-foreground/[0.06] flex-shrink-0">
+          <div className="px-6 py-4 flex-shrink-0">
             <div className="flex items-center gap-2">
               <input
                 ref={inputRef}

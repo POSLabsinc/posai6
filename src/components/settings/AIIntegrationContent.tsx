@@ -115,7 +115,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
         setEnabled(prefs[PREF_KEYS.enabled] === "true");
         setProvider(prefs[PREF_KEYS.provider] || "");
-        setModel(prefs[PREF_KEYS.model] || "");
         setStatus((prefs[PREF_KEYS.status] as ConnectionStatus) || "not_configured");
 
         if (prefs[PREF_KEYS.apiKey]) {

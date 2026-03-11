@@ -408,11 +408,7 @@ export class SettingsManager {
     if (index === -1) return false;
     taxes[index].archived = true;
     localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
-    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'taxes', data: taxes } }));
-    return true;
-  }
-
-  // Service Charges
+    syncToDatabase(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
   static getServiceCharges(): ServiceCharge[] {
     const stored = localStorage.getItem(STORAGE_KEYS.SERVICE_CHARGES);
     if (stored) {

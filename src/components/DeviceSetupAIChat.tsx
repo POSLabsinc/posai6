@@ -124,7 +124,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       const newMessages = [...messages, userMsg];
       setMessages(newMessages);
       setInput("");
-      setShowActivationOptions(false);
+      setCurrentStep("chat");
       streamChat(newMessages);
     },
     [input, isLoading, messages, streamChat]
@@ -132,17 +132,31 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
 
   const handleNotNew = useCallback(() => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
-    setMessages([userMsg]);
-    setShowActivationOptions(true);
+    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+    setMessages([userMsg, assistantMsg]);
+    setCurrentStep("activation-methods");
   }, []);
 
   const handleActivationOption = useCallback((option: string) => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: option };
-    const newMessages = [...messages, userMsg];
-    setMessages(newMessages);
-    setShowActivationOptions(false);
-    streamChat(newMessages);
-  }, [messages, streamChat]);
+    let followUp = "";
+    let nextStep: "activate-code" | "sign-in-link" | "demo-mode" = "activate-code";
+
+    if (option === "Activate with Code") {
+      followUp = "Great! Please enter your 6-digit activation code. You can find it from your manager or the Admin Portal.";
+      nextStep = "activate-code";
+    } else if (option === "Sign in with Link") {
+      followUp = "Sure! Please enter the email address associated with your account, and we'll send you a magic link to sign in.";
+      nextStep = "sign-in-link";
+    } else if (option === "Try Demo Mode") {
+      followUp = "Demo Mode lets you explore all features with sample data — no real data is affected. Tap \"Try Demo Mode\" on the left panel to get started! Need help with anything else?";
+      nextStep = "demo-mode";
+    }
+
+    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: followUp };
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    setCurrentStep(nextStep);
+  }, []);
 
   return (
     <motion.div

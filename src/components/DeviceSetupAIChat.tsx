@@ -437,7 +437,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     className="flex gap-2 pl-7"
                   >
                     <button
-                      onClick={() => handleSend("Yes, I'm new")}
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, I'm new" };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please contact your admin to get the Activation Code. Once you receive the code, enter it here to activate this device." };
+                        setMessages([userMsg, assistantMsg]);
+                        setCurrentStep("activate-code");
+                      }}
                       className="px-5 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                       Yes, I'm New

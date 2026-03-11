@@ -249,9 +249,17 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const [multiSelectState, setMultiSelectState] = useState<Record<string, string[]>>({});
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [uploadedImageFile, setUploadedImageFile] = useState<File | null>(null);
+  const [selectedProvider, setSelectedProvider] = useState<string>("platform");
+  const [selectedModel, setSelectedModel] = useState<string>("gemini-3-flash");
+  const [showProviderDropdown, setShowProviderDropdown] = useState(false);
+  const [showModelDropdown, setShowModelDropdown] = useState(false);
+  const providerDropdownRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const activeProvider = AI_PROVIDERS.find(p => p.id === selectedProvider) || AI_PROVIDERS[0];
+  const activeModel = activeProvider.models.find(m => m.id === selectedModel) || activeProvider.models[0];
 
   // Voice recognition hook - show transcript in real-time
   const { isListening, isSupported: isVoiceSupported, transcript, toggleListening, stopListening } = useVoiceRecognition({

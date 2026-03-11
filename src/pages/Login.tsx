@@ -2611,6 +2611,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     }
 
     // Main activation options screen
+    if (showAIChat) {
+      return (
+        <DeviceSetupLayout variant="setup">
+          <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} />
+        </DeviceSetupLayout>
+      );
+    }
+
     return (
       <DeviceSetupLayout variant="setup">
         <motion.div 

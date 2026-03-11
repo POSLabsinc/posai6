@@ -434,8 +434,7 @@ export class SettingsManager {
     const newCharge: ServiceCharge = { ...charge, id: Date.now().toString() };
     charges.push(newCharge);
     localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
-    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'serviceCharges', data: charges } }));
-    return newCharge;
+    syncToDatabase(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
   }
 
   static updateServiceCharge(id: string, updates: Partial<ServiceCharge>): ServiceCharge | null {

@@ -2772,14 +2772,19 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           onOpenChange={setShowContactAdmin} 
         />
 
-        {/* Floating AI Icon */}
+        {/* Floating Draggable AI Icon */}
         <motion.div
+          drag="y"
+          dragConstraints={{ top: -300, bottom: 300 }}
+          dragElastic={0.1}
+          dragMomentum={false}
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-          className="fixed bottom-6 right-6 z-50"
+          whileDrag={{ scale: 1.1 }}
+          className="fixed bottom-6 right-6 z-50 cursor-grab active:cursor-grabbing touch-none"
         >
-          <div className="w-14 h-14 rounded-full bg-foreground/[0.06] backdrop-blur-xl border border-foreground/[0.1] flex items-center justify-center shadow-lg hover:bg-foreground/[0.1] transition-colors cursor-pointer">
+          <div className="w-14 h-14 rounded-full bg-foreground/[0.06] backdrop-blur-xl border border-foreground/[0.1] flex items-center justify-center shadow-lg hover:bg-foreground/[0.1] transition-colors">
             <AnimatedAIIcon size={28} />
           </div>
         </motion.div>

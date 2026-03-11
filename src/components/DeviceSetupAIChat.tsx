@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Send, Loader2, Pencil } from "lucide-react";
+import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ReactMarkdown from "react-markdown";
 
@@ -343,25 +343,38 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="flex flex-wrap gap-2 pl-7 pt-3 pb-2"
+                    className="flex flex-col gap-2.5 pl-7 pt-3 pb-2"
                   >
                     <button
                       onClick={() => handleActivationOption("Activate with Code")}
-                      className="px-4 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      className="flex items-center gap-3.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                     >
-                      Activate with Code
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                        <KeyRound className="w-4.5 h-4.5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Activate with Code</p>
+                        <p className="text-xs text-foreground/40">Enter a code from your admin portal</p>
+                      </div>
                     </button>
                     <button
                       onClick={() => handleActivationOption("Sign in with Link")}
-                      className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      className="flex items-center gap-3.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                     >
-                      Sign in with Link
+                      <div className="w-10 h-10 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Mail className="w-4.5 h-4.5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium text-foreground">Sign in with Link</p>
+                        <p className="text-xs text-foreground/40">Get a secure link sent to your email</p>
+                      </div>
                     </button>
                     <button
                       onClick={() => handleActivationOption("Try Demo Mode")}
-                      className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl border border-primary/30 bg-primary/[0.06] hover:bg-primary/[0.12] transition-all hover:scale-[1.01] active:scale-[0.99]"
                     >
-                      Try Demo Mode
+                      <FlaskConical className="w-4 h-4 text-primary" />
+                      <span className="text-sm font-medium text-primary">Try Demo Mode</span>
                     </button>
                   </motion.div>
                 )}

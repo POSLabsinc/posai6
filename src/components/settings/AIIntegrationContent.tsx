@@ -184,8 +184,8 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
   };
 
   const handleSave = async () => {
-    if (!provider || !model) {
-      toast.error("Please select a provider and model");
+    if (!provider) {
+      toast.error("Please select a provider");
       return;
     }
     if (!apiKey && !hasSavedKey) {

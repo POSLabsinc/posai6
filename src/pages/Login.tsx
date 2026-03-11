@@ -2782,7 +2782,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           onOpenChange={setShowContactAdmin} 
         />
 
-        {/* Floating Draggable AI Icon */}
+        {/* Floating Draggable AI Icon - positioned at top */}
         <motion.div
           drag="y"
           dragConstraints={{ top: -300, bottom: 300 }}
@@ -2792,7 +2792,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
           whileDrag={{ scale: 1.1 }}
-          className="fixed bottom-6 right-6 z-50 cursor-grab active:cursor-grabbing touch-none"
+          className="fixed top-6 right-6 z-50 cursor-grab active:cursor-grabbing touch-none"
         >
           <div
             onClick={() => setShowAIChat(true)}

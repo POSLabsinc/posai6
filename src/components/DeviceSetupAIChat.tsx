@@ -169,6 +169,24 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     setCurrentStep(nextStep);
   }, []);
 
+  const handleGoBack = useCallback(() => {
+    if (currentStep === "activation-methods") {
+      // Go back to initial
+      setMessages([]);
+      setCurrentStep("initial");
+    } else if (currentStep === "activate-code" || currentStep === "sign-in-link" || currentStep === "demo-mode") {
+      // Go back to activation methods - remove the last user+assistant pair
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("activation-methods");
+    } else if (currentStep === "chat") {
+      // For AI chat, go back to initial
+      setMessages([]);
+      setCurrentStep("initial");
+    }
+  }, [currentStep]);
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 40 }}

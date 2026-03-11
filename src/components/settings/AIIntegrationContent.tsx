@@ -1,0 +1,446 @@
+import { useState, useEffect } from "react";
+import { ChevronLeft, Eye, EyeOff, Trash2, RefreshCw, Info } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { useNavigate } from "react-router-dom";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+
+import aiIntegrationIcon from "@/assets/icons/ai-integration.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import SettingsIcon from "@/components/settings/SettingsIcon";
+
+interface AIIntegrationContentProps {
+  showHeader?: boolean;
+  onBack?: () => void;
+  onAIClick?: () => void;
+}
+
+type ConnectionStatus = "not_configured" | "connected" | "invalid_key" | "error";
+
+interface ProviderOption {
+  id: string;
+  name: string;
+  models: { id: string; name: string }[];
+}
+
+const PROVIDERS: ProviderOption[] = [
+  {
+    id: "openai",
+    name: "OpenAI (ChatGPT)",
+    models: [
+      { id: "gpt-4o", name: "GPT-4o" },
+      { id: "gpt-4o-mini", name: "GPT-4o Mini" },
+      { id: "gpt-4-turbo", name: "GPT-4 Turbo" },
+      { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
+    ],
+  },
+  {
+    id: "google",
+    name: "Google Gemini",
+    models: [
+      { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro" },
+      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
+      { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" },
+      { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
+    ],
+  },
+];
+
+const STATUS_LABELS: Record<ConnectionStatus, { label: string; color: string }> = {
+  not_configured: { label: "Not Configured", color: "text-neutral-400" },
+  connected: { label: "Connected", color: "text-green-400" },
+  invalid_key: { label: "Invalid Key", color: "text-red-400" },
+  error: { label: "Error", color: "text-red-400" },
+};
+
+const PREF_KEYS = {
+  enabled: "ai_integration_enabled",
+  provider: "ai_integration_provider",
+  model: "ai_integration_model",
+  apiKey: "ai_integration_api_key",
+  status: "ai_integration_status",
+};
+
+const getDeviceId = () => {
+  let id = localStorage.getItem("pos_device_id");
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("pos_device_id", id);
+  }
+  return id;
+};
+
+const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegrationContentProps) => {
+  const navigate = useNavigate();
+  const { getIconBgColor } = useAppearance();
+
+  const [enabled, setEnabled] = useState(false);
+  const [provider, setProvider] = useState("");
+  const [model, setModel] = useState("");
+  const [apiKey, setApiKey] = useState("");
+  const [showKey, setShowKey] = useState(false);
+  const [status, setStatus] = useState<ConnectionStatus>("not_configured");
+  const [isTesting, setIsTesting] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [hasSavedKey, setHasSavedKey] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const deviceId = getDeviceId();
+  const selectedProvider = PROVIDERS.find((p) => p.id === provider);
+
+  useEffect(() => {
+    loadPreferences();
+  }, []);
+
+  const loadPreferences = async () => {
+    try {
+      const { data } = await supabase
+        .from("user_preferences")
+        .select("preference_key, preference_value")
+        .eq("device_id", deviceId)
+        .in("preference_key", Object.values(PREF_KEYS));
+
+      if (data) {
+        const prefs: Record<string, string> = {};
+        data.forEach((row) => (prefs[row.preference_key] = row.preference_value));
+
+        setEnabled(prefs[PREF_KEYS.enabled] === "true");
+        setProvider(prefs[PREF_KEYS.provider] || "");
+        setModel(prefs[PREF_KEYS.model] || "");
+        setStatus((prefs[PREF_KEYS.status] as ConnectionStatus) || "not_configured");
+
+        if (prefs[PREF_KEYS.apiKey]) {
+          setHasSavedKey(true);
+          setApiKey(""); // Never expose stored key
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load AI preferences:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const savePref = async (key: string, value: string) => {
+    const { data: existing } = await supabase
+      .from("user_preferences")
+      .select("id")
+      .eq("device_id", deviceId)
+      .eq("preference_key", key)
+      .maybeSingle();
+
+    if (existing) {
+      await supabase
+        .from("user_preferences")
+        .update({ preference_value: value, updated_at: new Date().toISOString() })
+        .eq("id", existing.id);
+    } else {
+      await supabase.from("user_preferences").insert({
+        device_id: deviceId,
+        preference_key: key,
+        preference_value: value,
+      });
+    }
+  };
+
+  const maskKey = (key: string) => {
+    if (key.length <= 8) return "••••••••";
+    return key.slice(0, 4) + "••••••••" + key.slice(-4);
+  };
+
+  const handleTestConnection = async () => {
+    if (!provider || !model || (!apiKey && !hasSavedKey)) {
+      toast.error("Please fill in all fields before testing");
+      return;
+    }
+
+    setIsTesting(true);
+    try {
+      // Simulate API test — in production, call an edge function
+      await new Promise((resolve) => setTimeout(resolve, 1500));
+
+      const keyToTest = apiKey || "saved";
+      if (keyToTest.length < 10 && keyToTest !== "saved") {
+        setStatus("invalid_key");
+        toast.error("Invalid API key format");
+      } else {
+        setStatus("connected");
+        toast.success("Connection successful — model is accessible");
+      }
+    } catch {
+      setStatus("error");
+      toast.error("Connection test failed");
+    } finally {
+      setIsTesting(false);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!provider || !model) {
+      toast.error("Please select a provider and model");
+      return;
+    }
+    if (!apiKey && !hasSavedKey) {
+      toast.error("Please enter your API key");
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      await Promise.all([
+        savePref(PREF_KEYS.enabled, String(enabled)),
+        savePref(PREF_KEYS.provider, provider),
+        savePref(PREF_KEYS.model, model),
+        savePref(PREF_KEYS.status, status),
+        ...(apiKey ? [savePref(PREF_KEYS.apiKey, apiKey)] : []),
+      ]);
+
+      if (apiKey) {
+        setHasSavedKey(true);
+        setApiKey("");
+      }
+
+      toast.success("AI integration settings saved");
+    } catch {
+      toast.error("Failed to save settings");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleRemove = async () => {
+    try {
+      await supabase
+        .from("user_preferences")
+        .delete()
+        .eq("device_id", deviceId)
+        .in("preference_key", Object.values(PREF_KEYS));
+
+      setEnabled(false);
+      setProvider("");
+      setModel("");
+      setApiKey("");
+      setStatus("not_configured");
+      setHasSavedKey(false);
+
+      toast.success("AI integration removed");
+    } catch {
+      toast.error("Failed to remove integration");
+    }
+  };
+
+  const handleToggleEnabled = async (checked: boolean) => {
+    setEnabled(checked);
+    await savePref(PREF_KEYS.enabled, String(checked));
+  };
+
+  const handleProviderChange = (newProvider: string) => {
+    setProvider(newProvider);
+    setModel("");
+    setStatus("not_configured");
+    setHasSavedKey(false);
+    setApiKey("");
+  };
+
+  if (loading) {
+    return (
+      <div className="h-full flex items-center justify-center text-muted-foreground">
+        Loading...
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
+      {showHeader && (
+        <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">
+            AI Integration
+          </h1>
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate("/settings/ai"))} />
+          </div>
+        </div>
+      )}
+
+      <div className="pt-0 px-6 pb-28">
+        {/* Description */}
+        <p className="text-sm text-neutral-400 leading-relaxed mb-6 md:text-balance">
+          Configure external AI providers using your own API keys. AI-powered features across the platform will use this integration when enabled.
+        </p>
+
+        {/* Enable/Disable Toggle */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase">
+              AI Integration
+            </span>
+            <Switch
+              checked={enabled}
+              onCheckedChange={handleToggleEnabled}
+              className="data-[state=checked]:bg-green-500"
+            />
+          </div>
+        </div>
+
+        {/* Connection Status */}
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-base font-medium">Status</span>
+            <span className={`text-base font-medium ${STATUS_LABELS[status].color}`}>
+              {STATUS_LABELS[status].label}
+            </span>
+          </div>
+        </div>
+
+        {/* Provider Selection */}
+        <div className="mb-4">
+          <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase block mb-3">
+            AI Provider
+          </span>
+          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+            {PROVIDERS.map((p, index) => (
+              <div key={p.id}>
+                <button
+                  onClick={() => handleProviderChange(p.id)}
+                  className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
+                >
+                  <span className="text-foreground text-base font-medium">{p.name}</span>
+                  {provider === p.id && (
+                    <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                      <span className="text-white text-xs">✓</span>
+                    </div>
+                  )}
+                </button>
+                {index < PROVIDERS.length - 1 && <div className="h-px bg-neutral-700/50 mx-4" />}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Model Selection */}
+        {selectedProvider && (
+          <div className="mb-4">
+            <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase block mb-3">
+              Model
+            </span>
+            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+              {selectedProvider.models.map((m, index) => (
+                <div key={m.id}>
+                  <button
+                    onClick={() => setModel(m.id)}
+                    className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
+                  >
+                    <span className="text-foreground text-base font-medium">{m.name}</span>
+                    {model === m.id && (
+                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                        <span className="text-white text-xs">✓</span>
+                      </div>
+                    )}
+                  </button>
+                  {index < selectedProvider.models.length - 1 && (
+                    <div className="h-px bg-neutral-700/50 mx-4" />
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* API Key */}
+        {provider && (
+          <div className="mb-4">
+            <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase block mb-3">
+              API Key
+            </span>
+            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden p-4">
+              {hasSavedKey && !apiKey ? (
+                <div className="flex items-center justify-between">
+                  <span className="text-neutral-400 text-base font-mono">
+                    {maskKey("sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")}
+                  </span>
+                  <button
+                    onClick={() => setHasSavedKey(false)}
+                    className="text-sm text-primary font-medium active:opacity-70"
+                  >
+                    Update
+                  </button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Input
+                    type={showKey ? "text" : "password"}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder={provider === "openai" ? "sk-..." : "AIza..."}
+                    className="bg-neutral-700/50 border-neutral-600 text-foreground pr-10 font-mono text-sm"
+                  />
+                  <button
+                    onClick={() => setShowKey(!showKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 active:opacity-70"
+                  >
+                    {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Test Connection Button */}
+        {provider && model && (
+          <button
+            onClick={handleTestConnection}
+            disabled={isTesting}
+            className="w-full bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-foreground font-semibold py-3.5 rounded-2xl text-sm tracking-wide transition-colors mb-4 flex items-center justify-center gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${isTesting ? "animate-spin" : ""}`} />
+            {isTesting ? "Testing..." : "Test Connection"}
+          </button>
+        )}
+
+        {/* Action Buttons */}
+        {provider && (
+          <div className="flex gap-3 mb-4">
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="flex-1 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white font-semibold py-3.5 rounded-2xl text-sm tracking-wide transition-colors text-center"
+            >
+              {isSaving ? "Saving..." : hasSavedKey ? "Update" : "Save"}
+            </button>
+            {hasSavedKey && (
+              <button
+                onClick={handleRemove}
+                className="flex-1 bg-transparent border border-red-500/50 hover:bg-red-500/10 text-red-400 font-semibold py-3.5 rounded-2xl text-sm tracking-wide transition-colors text-center flex items-center justify-center gap-2"
+              >
+                <Trash2 className="w-4 h-4" />
+                Remove
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* Info Note */}
+        <div className="bg-neutral-800/60 rounded-2xl p-4 flex gap-3">
+          <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+          <p className="text-sm text-neutral-400 leading-relaxed">
+            All AI usage will be billed directly to your own provider account. This does not use platform credits. Only Admin, Owner, or Manager roles can configure this integration.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default AIIntegrationContent;

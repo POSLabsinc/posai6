@@ -55,6 +55,7 @@ import LegalTermsContent from "@/components/settings/LegalTermsContent";
 import ReportFraudContent from "@/components/settings/ReportFraudContent";
 import NetworkContent from "@/components/settings/NetworkContent";
 import ServerConnectionContent from "@/components/settings/ServerConnectionContent";
+import AIIntegrationContent from "@/components/settings/AIIntegrationContent";
 import HardwareContent from "@/components/settings/HardwareContent";
 import HardwareDetailsContent from "@/components/settings/HardwareDetailsContent";
 import PrinterContent from "@/components/settings/PrinterContent";
@@ -467,6 +468,9 @@ const getContentForRoute = (
   }
   if (pathname === '/settings/network/servers') {
     return <ServerConnectionContent showHeader={true} onBack={() => navigate('/settings/network')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/network/ai-integration') {
+    return <AIIntegrationContent showHeader={true} onBack={() => navigate('/settings/network')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/hardware') {
     return <HardwareContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;

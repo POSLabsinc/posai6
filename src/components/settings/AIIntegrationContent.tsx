@@ -25,35 +25,9 @@ interface ProviderOption {
 }
 
 const PROVIDERS: ProviderOption[] = [
-  {
-    id: "openai",
-    name: "OpenAI (ChatGPT)",
-    models: [
-      { id: "gpt-4o", name: "GPT-4o" },
-      { id: "gpt-4o-mini", name: "GPT-4o Mini" },
-      { id: "gpt-4-turbo", name: "GPT-4 Turbo" },
-      { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
-    ],
-  },
-  {
-    id: "google",
-    name: "Google Gemini",
-    models: [
-      { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro" },
-      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
-      { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" },
-      { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
-    ],
-  },
-  {
-    id: "maya",
-    name: "Maya AI",
-    models: [
-      { id: "maya-1", name: "Maya 1" },
-      { id: "maya-1-mini", name: "Maya 1 Mini" },
-      { id: "maya-1-turbo", name: "Maya 1 Turbo" },
-    ],
-  },
+  { id: "openai", name: "OpenAI (ChatGPT)" },
+  { id: "google", name: "Google Gemini" },
+  { id: "maya", name: "Maya AI" },
 ];
 
 const STATUS_LABELS: Record<ConnectionStatus, { label: string; color: string }> = {

@@ -390,8 +390,7 @@ export class SettingsManager {
     const newTax: Tax = { ...tax, id: Date.now().toString() };
     taxes.push(newTax);
     localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
-    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'taxes', data: taxes } }));
-    return newTax;
+    syncToDatabase(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
   }
 
   static updateTax(id: string, updates: Partial<Tax>): Tax | null {

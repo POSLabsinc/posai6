@@ -26,6 +26,7 @@ import { NumericKeypad } from "@/components/NumericKeypad";
 import { DeviceSetupLayout } from "@/components/DeviceSetupLayout";
 import { PersonalDeviceAuthPanel } from "@/components/PersonalDeviceAuthPanel";
 import { SplashScreen } from "@/components/SplashScreen";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 // Revenue centers assigned to employees - in production this would come from API
 const revenueCenters: Record<string, string> = {
@@ -2770,6 +2771,18 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
         />
+
+        {/* Floating AI Icon */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+          className="fixed bottom-6 right-6 z-50"
+        >
+          <div className="w-14 h-14 rounded-full bg-foreground/[0.06] backdrop-blur-xl border border-foreground/[0.1] flex items-center justify-center shadow-lg hover:bg-foreground/[0.1] transition-colors cursor-pointer">
+            <AnimatedAIIcon size={28} />
+          </div>
+        </motion.div>
       </DeviceSetupLayout>
     );
   }

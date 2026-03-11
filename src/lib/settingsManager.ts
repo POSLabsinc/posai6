@@ -478,8 +478,7 @@ export class SettingsManager {
     const newItem: MenuItem = { ...item, id: Date.now().toString() };
     items.push(newItem);
     localStorage.setItem(STORAGE_KEYS.MENUS, JSON.stringify(items));
-    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'menus', data: items } }));
-    return newItem;
+    syncToDatabase(STORAGE_KEYS.MENUS, JSON.stringify(items));
   }
 
   static updateMenuItem(id: string, updates: Partial<MenuItem>): MenuItem | null {

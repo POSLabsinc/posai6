@@ -443,8 +443,7 @@ export class SettingsManager {
     if (index === -1) return null;
     charges[index] = { ...charges[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
-    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'serviceCharges', data: charges } }));
-    return charges[index];
+    syncToDatabase(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
   }
 
   static archiveServiceCharge(id: string): boolean {

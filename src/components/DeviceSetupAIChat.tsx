@@ -561,7 +561,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                         className="flex-1 px-4 py-2.5 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && signInInput.trim() && signInInput.includes("@")) {
-                            handleSend(`Send sign-in link to ${signInInput}`);
+                            const email = signInInput.trim();
+                            setSentAddress(email);
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: email };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${email}**` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("sign-in-email-sent");
                             setSignInInput("");
                           }
                         }}
@@ -569,7 +574,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       <button
                         onClick={() => {
                           if (signInInput.trim() && signInInput.includes("@")) {
-                            handleSend(`Send sign-in link to ${signInInput}`);
+                            const email = signInInput.trim();
+                            setSentAddress(email);
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: email };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${email}**` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("sign-in-email-sent");
                             setSignInInput("");
                           }
                         }}

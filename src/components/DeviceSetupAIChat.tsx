@@ -189,6 +189,45 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     }
   }, [currentStep]);
 
+  const handleCodeInput = useCallback((index: number, value: string) => {
+    if (value.length > 1) value = value.slice(-1);
+    if (value && !/^[0-9]$/.test(value)) return;
+    
+    const newCode = [...activationCode];
+    newCode[index] = value;
+    setActivationCode(newCode);
+    
+    // Auto-focus next input
+    if (value && index < 5) {
+      codeInputRefs.current[index + 1]?.focus();
+    }
+  }, [activationCode]);
+
+  const handleCodeKeyDown = useCallback((index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !activationCode[index] && index > 0) {
+      codeInputRefs.current[index - 1]?.focus();
+    }
+  }, [activationCode]);
+
+  const handleCodePaste = useCallback((e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const newCode = [...activationCode];
+    for (let i = 0; i < pasted.length; i++) {
+      newCode[i] = pasted[i];
+    }
+    setActivationCode(newCode);
+    const focusIdx = Math.min(pasted.length, 5);
+    codeInputRefs.current[focusIdx]?.focus();
+  }, [activationCode]);
+
+  const handleSubmitCode = useCallback(() => {
+    const code = activationCode.join("");
+    if (code.length !== 6) return;
+    handleSend(`My activation code is ${code}`);
+    setActivationCode(["", "", "", "", "", ""]);
+  }, [activationCode, handleSend]);
+
   return (
     <motion.div
       initial={{ opacity: 0, x: 40 }}

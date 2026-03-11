@@ -30,6 +30,8 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showActivationOptions, setShowActivationOptions] = useState(false);
   const [currentStep, setCurrentStep] = useState<"initial" | "activation-methods" | "activate-code" | "sign-in-link" | "demo-mode" | "chat">("initial");
+  const [activationCode, setActivationCode] = useState<string[]>(["", "", "", "", "", ""]);
+  const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [showBranding, setShowBranding] = useState(false);
   const [showFirstQuestion, setShowFirstQuestion] = useState(false);
   const [showFirstButtons, setShowFirstButtons] = useState(false);

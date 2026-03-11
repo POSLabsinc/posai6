@@ -351,7 +351,16 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   // Execute the pending action based on type and data
   const executeAction = useCallback(async (pendingChange: PendingChange): Promise<boolean> => {
-    const { settingType, operation, data } = pendingChange;
+    const { settingType, operation } = pendingChange;
+    // Fallback: if data is missing, try parsing newValue (AI sometimes puts menu object there)
+    let data = pendingChange.data;
+    if (!data && pendingChange.newValue) {
+      if (typeof pendingChange.newValue === 'object') {
+        data = pendingChange.newValue;
+      } else if (typeof pendingChange.newValue === 'string') {
+        try { data = JSON.parse(pendingChange.newValue); } catch { /* not JSON */ }
+      }
+    }
     
     if (!settingType || !data) return false;
 
@@ -728,7 +737,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           status: "pending",
           settingType: action.settingType,
           operation: action.operation,
-          data: action.data,
+          data: action.data || (typeof action.newValue === 'object' ? action.newValue : undefined),
         };
 
         // Auto-apply if marked as autoApply (for simple toggle/enable/disable changes)

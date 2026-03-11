@@ -302,6 +302,18 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     return () => window.removeEventListener('theme-change', handleThemeChange as EventListener);
   }, [setTheme]);
 
+  // Close provider dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (providerDropdownRef.current && !providerDropdownRef.current.contains(e.target as Node)) {
+        setShowProviderDropdown(false);
+        setShowModelDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   // Get current settings context for AI
   const getSettingsContext = useCallback(() => {
     return SettingsManager.getAllSettingsSummary();

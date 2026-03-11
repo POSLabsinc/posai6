@@ -312,16 +312,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     // Auto-submit when all 6 digits are filled
     if (value && index === 5 && newCode.every(d => d !== "")) {
       const code = newCode.join("");
-      // Small delay for visual feedback
+      // Show verification animation
       setTimeout(() => {
-        // Trust the device and navigate to clock-in
-        localStorage.setItem("pos_device_session", JSON.stringify({
-          deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-          deviceType: "company",
-          trustedAt: new Date().toISOString(),
-        }));
-        window.location.href = "/";
-      }, 500);
+        const verifyMsg: Message = { id: Date.now().toString(), role: "assistant", content: `🔐 Verifying activation code **${code}**...` };
+        setMessages((prev) => [...prev, verifyMsg]);
+        setCurrentStep("activate-code-verifying");
+      }, 300);
     }
   }, [activationCode]);
 

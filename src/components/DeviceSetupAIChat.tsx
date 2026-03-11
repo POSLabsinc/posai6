@@ -497,7 +497,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       className="flex items-center gap-3.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                     >
                       <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-                        <Send className="w-[18px] h-[18px] text-primary" />
+                        <Smartphone className="w-[18px] h-[18px] text-primary" />
                       </div>
                       <div>
                         <p className="text-sm font-medium text-foreground">Phone</p>

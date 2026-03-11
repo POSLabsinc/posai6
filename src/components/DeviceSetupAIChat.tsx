@@ -444,9 +444,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                         />
                       ))}
                     </div>
-                    <div className="flex items-center gap-1.5 text-foreground/40">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span className="text-xs">Code expires after 10 minutes</span>
+                    <div className="flex items-start gap-1.5 text-foreground/40">
+                      <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                      <span className="text-xs">One-time code: This code expires in 10 minutes and can only be used once.</span>
                     </div>
                     <button
                       onClick={handleSubmitCode}

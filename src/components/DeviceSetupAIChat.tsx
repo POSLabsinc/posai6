@@ -883,7 +883,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
           </div>
 
           {/* Input - hide when in email/phone/code input steps */}
-          {currentStep !== "sign-in-email" && currentStep !== "sign-in-phone" && currentStep !== "activate-code" && (
+          {currentStep !== "sign-in-email" && currentStep !== "sign-in-phone" && currentStep !== "activate-code" && currentStep !== "activate-code-verifying" && (
             <div className="px-6 py-4 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <input

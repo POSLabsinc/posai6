@@ -22,39 +22,12 @@ type ConnectionStatus = "not_configured" | "connected" | "invalid_key" | "error"
 interface ProviderOption {
   id: string;
   name: string;
-  models: { id: string; name: string }[];
 }
 
 const PROVIDERS: ProviderOption[] = [
-  {
-    id: "openai",
-    name: "OpenAI (ChatGPT)",
-    models: [
-      { id: "gpt-4o", name: "GPT-4o" },
-      { id: "gpt-4o-mini", name: "GPT-4o Mini" },
-      { id: "gpt-4-turbo", name: "GPT-4 Turbo" },
-      { id: "gpt-3.5-turbo", name: "GPT-3.5 Turbo" },
-    ],
-  },
-  {
-    id: "google",
-    name: "Google Gemini",
-    models: [
-      { id: "gemini-2.5-pro", name: "Gemini 2.5 Pro" },
-      { id: "gemini-2.5-flash", name: "Gemini 2.5 Flash" },
-      { id: "gemini-2.0-flash", name: "Gemini 2.0 Flash" },
-      { id: "gemini-1.5-pro", name: "Gemini 1.5 Pro" },
-    ],
-  },
-  {
-    id: "maya",
-    name: "Maya AI",
-    models: [
-      { id: "maya-1", name: "Maya 1" },
-      { id: "maya-1-mini", name: "Maya 1 Mini" },
-      { id: "maya-1-turbo", name: "Maya 1 Turbo" },
-    ],
-  },
+  { id: "openai", name: "OpenAI (ChatGPT)" },
+  { id: "google", name: "Google Gemini" },
+  { id: "maya", name: "Maya AI" },
 ];
 
 const STATUS_LABELS: Record<ConnectionStatus, { label: string; color: string }> = {
@@ -67,7 +40,6 @@ const STATUS_LABELS: Record<ConnectionStatus, { label: string; color: string }> 
 const PREF_KEYS = {
   enabled: "ai_integration_enabled",
   provider: "ai_integration_provider",
-  model: "ai_integration_model",
   apiKey: "ai_integration_api_key",
   status: "ai_integration_status",
 };
@@ -87,7 +59,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
   const [enabled, setEnabled] = useState(false);
   const [provider, setProvider] = useState("");
-  const [model, setModel] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [status, setStatus] = useState<ConnectionStatus>("not_configured");
@@ -97,7 +68,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
   const [loading, setLoading] = useState(true);
 
   const deviceId = getDeviceId();
-  const selectedProvider = PROVIDERS.find((p) => p.id === provider);
+  
 
   useEffect(() => {
     loadPreferences();
@@ -117,7 +88,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
         setEnabled(prefs[PREF_KEYS.enabled] === "true");
         setProvider(prefs[PREF_KEYS.provider] || "");
-        setModel(prefs[PREF_KEYS.model] || "");
         setStatus((prefs[PREF_KEYS.status] as ConnectionStatus) || "not_configured");
 
         if (prefs[PREF_KEYS.apiKey]) {
@@ -160,8 +130,8 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
   };
 
   const handleTestConnection = async () => {
-    if (!provider || !model || (!apiKey && !hasSavedKey)) {
-      toast.error("Please fill in all fields before testing");
+    if (!provider || (!apiKey && !hasSavedKey)) {
+      toast.error("Please select a provider and enter your API key before testing");
       return;
     }
 
@@ -187,8 +157,8 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
   };
 
   const handleSave = async () => {
-    if (!provider || !model) {
-      toast.error("Please select a provider and model");
+    if (!provider) {
+      toast.error("Please select a provider");
       return;
     }
     if (!apiKey && !hasSavedKey) {
@@ -201,7 +171,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
       await Promise.all([
         savePref(PREF_KEYS.enabled, String(enabled)),
         savePref(PREF_KEYS.provider, provider),
-        savePref(PREF_KEYS.model, model),
         savePref(PREF_KEYS.status, status),
         ...(apiKey ? [savePref(PREF_KEYS.apiKey, apiKey)] : []),
       ]);
@@ -229,7 +198,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
       setEnabled(false);
       setProvider("");
-      setModel("");
       setApiKey("");
       setStatus("not_configured");
       setHasSavedKey(false);
@@ -247,7 +215,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
   const handleProviderChange = (newProvider: string) => {
     setProvider(newProvider);
-    setModel("");
     setStatus("not_configured");
     setHasSavedKey(false);
     setApiKey("");
@@ -337,35 +304,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
           </div>
         </div>
 
-        {/* Model Selection */}
-        {selectedProvider && (
-          <div className="mb-4">
-            <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase block mb-3">
-              Model
-            </span>
-            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-              {selectedProvider.models.map((m, index) => (
-                <div key={m.id}>
-                  <button
-                    onClick={() => setModel(m.id)}
-                    className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
-                  >
-                    <span className="text-foreground text-base font-medium">{m.name}</span>
-                    {model === m.id && (
-                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                        <span className="text-white text-xs">✓</span>
-                      </div>
-                    )}
-                  </button>
-                  {index < selectedProvider.models.length - 1 && (
-                    <div className="h-px bg-neutral-700/50 mx-4" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* API Key */}
         {provider && (
           <div className="mb-4">
@@ -407,7 +345,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
         )}
 
         {/* Test Connection Button */}
-        {provider && model && (
+        {provider && (
           <button
             onClick={handleTestConnection}
             disabled={isTesting}

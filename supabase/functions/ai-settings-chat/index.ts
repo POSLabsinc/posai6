@@ -376,6 +376,12 @@ serve(async (req) => {
           const errorText = await response.text();
           console.error(`AI error (attempt ${attempt}):`, response.status, errorText);
 
+          if (response.status === 401 || response.status === 403) {
+            return new Response(
+              JSON.stringify({ error: "Invalid API key. Please check your key in AI Integration settings." }),
+              { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
           if (response.status === 429) {
             return new Response(
               JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),

@@ -213,14 +213,50 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, settingsContext } = await req.json();
+    const { messages, settingsContext, provider, model: requestedModel, deviceId } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
-    if (!LOVABLE_API_KEY) {
+    // ── Determine AI provider and resolve API key ──────────────────────
+    let aiEndpoint = "https://ai.gateway.lovable.dev/v1/chat/completions";
+    let aiApiKey = LOVABLE_API_KEY;
+    let aiModel = "";
+    let isExternalProvider = false;
+
+    // Map provider IDs to their API endpoints and model prefixes
+    const PROVIDER_ENDPOINTS: Record<string, { url: string; keyPrefix: string }> = {
+      openai: { url: "https://api.openai.com/v1/chat/completions", keyPrefix: "sk-" },
+      anthropic: { url: "https://api.anthropic.com/v1/messages", keyPrefix: "sk-ant-" },
+      google: { url: "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions", keyPrefix: "AIza" },
+      maya: { url: "https://api.maya-ai.com/v1/chat/completions", keyPrefix: "maya-" },
+    };
+
+    // If a non-platform provider is selected, look up the user's API key
+    if (provider && provider !== "platform" && PROVIDER_ENDPOINTS[provider] && deviceId && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+      const { data: keyPref } = await supabaseAdmin
+        .from("user_preferences")
+        .select("preference_value")
+        .eq("device_id", deviceId)
+        .eq("preference_key", "ai_integration_api_key")
+        .maybeSingle();
+
+      if (keyPref?.preference_value) {
+        const provConfig = PROVIDER_ENDPOINTS[provider];
+        aiEndpoint = provConfig.url;
+        aiApiKey = keyPref.preference_value;
+        aiModel = requestedModel || "";
+        isExternalProvider = true;
+        console.log(`Using external provider: ${provider}, model: ${aiModel}`);
+      } else {
+        console.log(`No API key found for provider ${provider}, falling back to platform AI`);
+      }
+    }
+
+    if (!aiApiKey) {
       return new Response(
-        JSON.stringify({ error: "AI service not configured" }),
+        JSON.stringify({ error: "AI service not configured. Please add your API key in AI Integration settings." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
@@ -265,34 +301,87 @@ serve(async (req) => {
       ...recentMessages.map((m: any) => ({ role: m.role, content: m.content })),
     ];
 
-    const model = hasImage ? "google/gemini-2.5-flash" : "google/gemini-3-flash-preview";
+    // Determine model to use
+    if (!isExternalProvider) {
+      aiModel = hasImage ? "google/gemini-2.5-flash" : "google/gemini-3-flash-preview";
+    }
 
-    console.log("AI request:", apiMessages.length, "msgs,", hasImage ? "with image," : "", "model:", model);
+    console.log("AI request:", apiMessages.length, "msgs,", hasImage ? "with image," : "", "model:", aiModel, "provider:", provider || "platform");
 
     const maxRetries = 3;
     let data: any = null;
 
+    // ── Build request based on provider ──────────────────────────────────
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${LOVABLE_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model,
-            messages: apiMessages,
-            stream: false,
-            temperature: 0.7,
-            max_tokens: 2048,
-          }),
-        });
+        let response: Response;
+
+        if (provider === "anthropic" && isExternalProvider) {
+          // Anthropic uses a different API format
+          const anthropicMessages = apiMessages
+            .filter(m => m.role !== "system")
+            .map(m => ({ role: m.role, content: m.content }));
+          const systemContent = apiMessages.find(m => m.role === "system")?.content || "";
+
+          response = await fetch(aiEndpoint, {
+            method: "POST",
+            headers: {
+              "x-api-key": aiApiKey!,
+              "Content-Type": "application/json",
+              "anthropic-version": "2023-06-01",
+            },
+            body: JSON.stringify({
+              model: aiModel || "claude-3-5-sonnet-20241022",
+              system: systemContent,
+              messages: anthropicMessages,
+              max_tokens: 2048,
+              temperature: 0.7,
+            }),
+          });
+        } else if (provider === "google" && isExternalProvider) {
+          // Google Gemini via OpenAI-compatible endpoint
+          response = await fetch(`${aiEndpoint}`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${aiApiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: aiModel || "gemini-2.5-flash",
+              messages: apiMessages,
+              stream: false,
+              temperature: 0.7,
+              max_tokens: 2048,
+            }),
+          });
+        } else {
+          // OpenAI-compatible format (OpenAI, Maya, Platform)
+          response = await fetch(aiEndpoint, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${aiApiKey}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: aiModel,
+              messages: apiMessages,
+              stream: false,
+              temperature: 0.7,
+              max_tokens: 2048,
+            }),
+          });
+        }
 
         if (!response.ok) {
           const errorText = await response.text();
           console.error(`AI error (attempt ${attempt}):`, response.status, errorText);
 
+          if (response.status === 401 || response.status === 403) {
+            return new Response(
+              JSON.stringify({ error: "Invalid API key. Please check your key in AI Integration settings." }),
+              { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+            );
+          }
           if (response.status === 429) {
             return new Response(
               JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
@@ -337,7 +426,16 @@ serve(async (req) => {
       );
     }
 
-    const content = data.choices?.[0]?.message?.content;
+    // Normalize response across providers
+    let content: string | undefined;
+    if (provider === "anthropic" && isExternalProvider) {
+      // Anthropic response format: { content: [{ type: "text", text: "..." }] }
+      content = data.content?.[0]?.text;
+    } else {
+      // OpenAI-compatible format
+      content = data.choices?.[0]?.message?.content;
+    }
+    
     if (!content) {
       return new Response(
         JSON.stringify({ error: "No response from AI" }),

@@ -660,7 +660,10 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     setConversationHistory(newHistory);
 
     try {
-      // Call the AI edge function
+      // Get device ID for API key lookup
+      const deviceId = localStorage.getItem("pos_device_id") || "";
+      
+      // Call the AI edge function with provider/model info
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-settings-chat`,
         {
@@ -672,6 +675,9 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           body: JSON.stringify({
             messages: newHistory,
             settingsContext: getSettingsContext(),
+            provider: selectedProvider,
+            model: selectedModel,
+            deviceId,
           }),
         }
       );

@@ -419,6 +419,44 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     </button>
                   </motion.div>
                 )}
+
+                {/* 6-digit code input for activate-code step */}
+                {currentStep === "activate-code" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    <div className="flex gap-2 justify-start">
+                      {activationCode.map((digit, i) => (
+                        <input
+                          key={i}
+                          ref={(el) => { codeInputRefs.current[i] = el; }}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleCodeInput(i, e.target.value)}
+                          onKeyDown={(e) => handleCodeKeyDown(i, e)}
+                          onPaste={i === 0 ? handleCodePaste : undefined}
+                          className="w-10 h-12 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-lg font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                        />
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-foreground/40">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span className="text-xs">Code expires after 10 minutes</span>
+                    </div>
+                    <button
+                      onClick={handleSubmitCode}
+                      disabled={activationCode.join("").length !== 6}
+                      className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      Activate Device
+                    </button>
+                  </motion.div>
+                )}
               </div>
             )}
           </div>

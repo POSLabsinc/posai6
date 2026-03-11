@@ -505,7 +505,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       </div>
                     </button>
                   </motion.div>
-                )
+                )}
               </div>
             )}
           </div>

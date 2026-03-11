@@ -469,6 +469,9 @@ const getContentForRoute = (
   if (pathname === '/settings/network/servers') {
     return <ServerConnectionContent showHeader={true} onBack={() => navigate('/settings/network')} onAIClick={() => setShowAIChat(true)} />;
   }
+  if (pathname === '/settings/network/ai-integration') {
+    return <AIIntegrationContent showHeader={true} onBack={() => navigate('/settings/network')} onAIClick={() => setShowAIChat(true)} />;
+  }
   if (pathname === '/settings/hardware') {
     return <HardwareContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }

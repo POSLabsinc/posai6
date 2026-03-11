@@ -54,7 +54,7 @@ const NetworkContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: Ne
           <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
         </div>
 
-        <div className="bg-neutral-800/60 rounded-full overflow-hidden">
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           <button
             onClick={() => onNavigate?.('/settings/network/servers')}
             className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
@@ -62,6 +62,17 @@ const NetworkContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: Ne
             <div className="flex items-center gap-4">
               <SettingsIcon bgColor="#34A885" iconSrc={serverIcon} iconAlt="Server" />
               <span className="text-foreground text-lg font-medium">Servers</span>
+            </div>
+            <ChevronRight className="w-5 h-5 text-neutral-500" />
+          </button>
+          <div className="h-px bg-neutral-700/50 mx-4" />
+          <button
+            onClick={() => onNavigate?.('/settings/network/ai-integration')}
+            className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
+          >
+            <div className="flex items-center gap-4">
+              <SettingsIcon bgColor="#8B5CF6" iconSrc={aiIntegrationIcon} iconAlt="AI Integration" />
+              <span className="text-foreground text-lg font-medium">AI Integration & Settings</span>
             </div>
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>

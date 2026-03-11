@@ -463,6 +463,11 @@ export class SettingsManager {
     charges[index].archived = true;
     localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
     syncToDatabase(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'serviceCharges', data: charges } }));
+    return true;
+  }
+
+  // Menu Items
   static getMenuItems(): MenuItem[] {
     const stored = localStorage.getItem(STORAGE_KEYS.MENUS);
     if (stored) {

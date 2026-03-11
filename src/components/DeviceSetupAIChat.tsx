@@ -201,6 +201,21 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     if (value && index < 5) {
       codeInputRefs.current[index + 1]?.focus();
     }
+    
+    // Auto-submit when all 6 digits are filled
+    if (value && index === 5 && newCode.every(d => d !== "")) {
+      const code = newCode.join("");
+      // Small delay for visual feedback
+      setTimeout(() => {
+        // Trust the device and navigate to clock-in
+        localStorage.setItem("pos_device_session", JSON.stringify({
+          deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          deviceType: "company",
+          trustedAt: new Date().toISOString(),
+        }));
+        window.location.href = "/";
+      }, 500);
+    }
   }, [activationCode]);
 
   const handleCodeKeyDown = useCallback((index: number, e: React.KeyboardEvent) => {
@@ -219,14 +234,20 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     setActivationCode(newCode);
     const focusIdx = Math.min(pasted.length, 5);
     codeInputRefs.current[focusIdx]?.focus();
+    
+    // Auto-submit if all 6 digits pasted
+    if (newCode.every(d => d !== "")) {
+      setTimeout(() => {
+        localStorage.setItem("pos_device_session", JSON.stringify({
+          deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          deviceType: "company",
+          trustedAt: new Date().toISOString(),
+        }));
+        window.location.href = "/";
+      }, 500);
+    }
   }, [activationCode]);
 
-  const handleSubmitCode = useCallback(() => {
-    const code = activationCode.join("");
-    if (code.length !== 6) return;
-    handleSend(`My activation code is ${code}`);
-    setActivationCode(["", "", "", "", "", ""]);
-  }, [activationCode, handleSend]);
 
   return (
     <motion.div

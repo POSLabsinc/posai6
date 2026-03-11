@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical } from "lucide-react";
+import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ReactMarkdown from "react-markdown";
 
@@ -30,6 +30,8 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const [isLoading, setIsLoading] = useState(false);
   const [showActivationOptions, setShowActivationOptions] = useState(false);
   const [currentStep, setCurrentStep] = useState<"initial" | "activation-methods" | "activate-code" | "sign-in-link" | "demo-mode" | "chat">("initial");
+  const [activationCode, setActivationCode] = useState<string[]>(["", "", "", "", "", ""]);
+  const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [showBranding, setShowBranding] = useState(false);
   const [showFirstQuestion, setShowFirstQuestion] = useState(false);
   const [showFirstButtons, setShowFirstButtons] = useState(false);
@@ -186,6 +188,45 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setCurrentStep("initial");
     }
   }, [currentStep]);
+
+  const handleCodeInput = useCallback((index: number, value: string) => {
+    if (value.length > 1) value = value.slice(-1);
+    if (value && !/^[0-9]$/.test(value)) return;
+    
+    const newCode = [...activationCode];
+    newCode[index] = value;
+    setActivationCode(newCode);
+    
+    // Auto-focus next input
+    if (value && index < 5) {
+      codeInputRefs.current[index + 1]?.focus();
+    }
+  }, [activationCode]);
+
+  const handleCodeKeyDown = useCallback((index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !activationCode[index] && index > 0) {
+      codeInputRefs.current[index - 1]?.focus();
+    }
+  }, [activationCode]);
+
+  const handleCodePaste = useCallback((e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const newCode = [...activationCode];
+    for (let i = 0; i < pasted.length; i++) {
+      newCode[i] = pasted[i];
+    }
+    setActivationCode(newCode);
+    const focusIdx = Math.min(pasted.length, 5);
+    codeInputRefs.current[focusIdx]?.focus();
+  }, [activationCode]);
+
+  const handleSubmitCode = useCallback(() => {
+    const code = activationCode.join("");
+    if (code.length !== 6) return;
+    handleSend(`My activation code is ${code}`);
+    setActivationCode(["", "", "", "", "", ""]);
+  }, [activationCode, handleSend]);
 
   return (
     <motion.div
@@ -375,6 +416,44 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     >
                       <FlaskConical className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium text-primary">Try Demo Mode</span>
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* 6-digit code input for activate-code step */}
+                {currentStep === "activate-code" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    <div className="flex gap-2 justify-start">
+                      {activationCode.map((digit, i) => (
+                        <input
+                          key={i}
+                          ref={(el) => { codeInputRefs.current[i] = el; }}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleCodeInput(i, e.target.value)}
+                          onKeyDown={(e) => handleCodeKeyDown(i, e)}
+                          onPaste={i === 0 ? handleCodePaste : undefined}
+                          className="w-10 h-12 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-lg font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                        />
+                      ))}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-foreground/40">
+                      <Clock className="w-3.5 h-3.5" />
+                      <span className="text-xs">Code expires after 10 minutes</span>
+                    </div>
+                    <button
+                      onClick={handleSubmitCode}
+                      disabled={activationCode.join("").length !== 6}
+                      className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      Activate Device
                     </button>
                   </motion.div>
                 )}

@@ -563,6 +563,7 @@ export class SettingsManager {
     const current = this.getOrdersSettings();
     const updated = { ...current, ...updates };
     localStorage.setItem(STORAGE_KEYS.ORDERS, JSON.stringify(updated));
+    syncToDatabase(STORAGE_KEYS.ORDERS, JSON.stringify(updated));
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'orders', data: updated } }));
     return updated;
   }

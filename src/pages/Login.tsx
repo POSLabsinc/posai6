@@ -2794,24 +2794,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </div>
         </motion.div>
 
-        {/* AI Chat Dialog */}
-        <AnimatePresence>
-          {showAIChat && (
-            <motion.div
-              initial={{ opacity: 0, y: 40, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 40, scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 300, damping: 25 }}
-              className="fixed bottom-24 right-6 z-[60] w-[400px] h-[560px] rounded-2xl overflow-hidden border border-foreground/[0.1] shadow-2xl bg-background"
-            >
-              <AISettingsContent
-                showHeader={true}
-                onBack={() => setShowAIChat(false)}
-                context="menu"
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* AI Setup Chat */}
+        <DeviceSetupAIChat open={showAIChat} onClose={() => setShowAIChat(false)} />
       </DeviceSetupLayout>
     );
   }

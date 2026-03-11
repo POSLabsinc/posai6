@@ -21,7 +21,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "chat";
+type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "chat";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -312,16 +312,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     // Auto-submit when all 6 digits are filled
     if (value && index === 5 && newCode.every(d => d !== "")) {
       const code = newCode.join("");
-      // Small delay for visual feedback
+      // Show verification animation
       setTimeout(() => {
-        // Trust the device and navigate to clock-in
-        localStorage.setItem("pos_device_session", JSON.stringify({
-          deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-          deviceType: "company",
-          trustedAt: new Date().toISOString(),
-        }));
-        window.location.href = "/";
-      }, 500);
+        const verifyMsg: Message = { id: Date.now().toString(), role: "assistant", content: `🔐 Verifying activation code **${code}**...` };
+        setMessages((prev) => [...prev, verifyMsg]);
+        setCurrentStep("activate-code-verifying");
+      }, 300);
     }
   }, [activationCode]);
 
@@ -345,15 +341,35 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     // Auto-submit if all 6 digits pasted
     if (newCode.every(d => d !== "")) {
       setTimeout(() => {
-        localStorage.setItem("pos_device_session", JSON.stringify({
-          deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-          deviceType: "company",
-          trustedAt: new Date().toISOString(),
-        }));
-        window.location.href = "/";
-      }, 500);
+        const code = newCode.join("");
+        const verifyMsg: Message = { id: Date.now().toString(), role: "assistant", content: `🔐 Verifying activation code **${code}**...` };
+        setMessages((prev) => [...prev, verifyMsg]);
+        setCurrentStep("activate-code-verifying");
+      }, 300);
     }
   }, [activationCode]);
+
+  // Handle activation code verification animation + redirect
+  useEffect(() => {
+    if (currentStep === "activate-code-verifying") {
+      const timer = setTimeout(() => {
+        const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ Activation code verified successfully! Setting up your device..." };
+        setMessages((prev) => [...prev, successMsg]);
+
+        // After showing success, save session and redirect
+        setTimeout(() => {
+          localStorage.setItem("pos_device_session", JSON.stringify({
+            deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            deviceType: "company",
+            trustedAt: new Date().toISOString(),
+          }));
+          window.location.href = "/";
+        }, 2000);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep]);
 
 
   return (
@@ -582,6 +598,29 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     <div className="flex items-start gap-1.5 text-foreground/40">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">One-time code: This code expires in 10 minutes and can only be used once.</span>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Activation code verification animation */}
+                {currentStep === "activate-code-verifying" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    <div className="flex items-center gap-2 text-foreground/50">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <span className="text-sm font-medium">Verifying activation code...</span>
+                    </div>
+                    <div className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-3.5 space-y-1.5">
+                      <div className="flex items-start gap-2">
+                        <Info className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                        <p className="text-xs text-foreground/50 leading-relaxed">
+                          We're validating your activation code. This will only take a moment.
+                        </p>
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -844,7 +883,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
           </div>
 
           {/* Input - hide when in email/phone/code input steps */}
-          {currentStep !== "sign-in-email" && currentStep !== "sign-in-phone" && currentStep !== "activate-code" && (
+          {currentStep !== "sign-in-email" && currentStep !== "sign-in-phone" && currentStep !== "activate-code" && currentStep !== "activate-code-verifying" && (
             <div className="px-6 py-4 flex-shrink-0">
               <div className="flex items-center gap-2">
                 <input

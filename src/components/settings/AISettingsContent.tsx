@@ -1051,15 +1051,98 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   return (
     <div className="h-full flex flex-col overflow-hidden">
-      {/* Header */}
+      {/* Header with Provider Selector */}
       {showHeader && onBack && (
-        <div className="flex-shrink-0 p-4 flex justify-end">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <X className="w-5 h-5 text-foreground" />
-          </button>
+        <div className="flex-shrink-0 px-4 py-3 border-b border-neutral-800/50 flex items-center justify-between">
+          {/* Provider/Model Selector */}
+          <div className="relative" ref={providerDropdownRef}>
+            <button
+              onClick={() => { setShowProviderDropdown(!showProviderDropdown); setShowModelDropdown(false); }}
+              className="flex items-center gap-2 px-3 py-2 rounded-xl bg-neutral-800/60 hover:bg-neutral-700/60 active:opacity-70 transition-all border border-neutral-700/40"
+            >
+              <span className={activeProvider.color}>{activeProvider.icon}</span>
+              <span className="text-sm font-medium text-foreground">{activeProvider.name}</span>
+              <span className="text-xs text-muted-foreground">· {activeModel.name}</span>
+              <ChevronDown className={cn("w-3.5 h-3.5 text-muted-foreground transition-transform", showProviderDropdown && "rotate-180")} />
+            </button>
+
+            {/* Provider Dropdown */}
+            {showProviderDropdown && (
+              <div className="absolute top-full left-0 mt-2 w-72 bg-neutral-900 border border-neutral-700/60 rounded-2xl shadow-2xl overflow-hidden z-50">
+                <div className="p-2">
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-3 py-1.5">AI Provider</p>
+                  {AI_PROVIDERS.map((prov) => (
+                    <button
+                      key={prov.id}
+                      onClick={() => {
+                        if (prov.id !== selectedProvider) {
+                          setSelectedProvider(prov.id);
+                          setSelectedModel(prov.models[0].id);
+                        }
+                        setShowProviderDropdown(false);
+                        setShowModelDropdown(true);
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all",
+                        selectedProvider === prov.id ? "bg-neutral-800" : "hover:bg-neutral-800/60"
+                      )}
+                    >
+                      <span className={prov.color}>{prov.icon}</span>
+                      <div className="flex-1 text-left">
+                        <span className="text-sm font-medium text-foreground">{prov.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{prov.models.length} models</span>
+                      </div>
+                      {selectedProvider === prov.id && (
+                        <div className="w-2 h-2 rounded-full bg-green-400" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <div className="border-t border-neutral-800 p-2">
+                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider px-3 py-1.5">Model</p>
+                  {activeProvider.models.map((mod) => (
+                    <button
+                      key={mod.id}
+                      onClick={() => {
+                        setSelectedModel(mod.id);
+                        setShowProviderDropdown(false);
+                      }}
+                      className={cn(
+                        "w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all",
+                        selectedModel === mod.id ? "bg-neutral-800" : "hover:bg-neutral-800/60"
+                      )}
+                    >
+                      <div className="flex-1 text-left">
+                        <span className="text-sm text-foreground">{mod.name}</span>
+                        <span className="text-xs text-muted-foreground ml-2">{mod.description}</span>
+                      </div>
+                      {selectedModel === mod.id && (
+                        <Check className="w-3.5 h-3.5 text-green-400" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Settings Button */}
+            <button
+              onClick={() => navigate("/settings/network/ai-integration")}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity hover:bg-neutral-700/60"
+              title="AI Settings"
+            >
+              <Settings className="w-4.5 h-4.5 text-muted-foreground" />
+            </button>
+            {/* Close Button */}
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <X className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
         </div>
       )}
 
@@ -1091,12 +1174,19 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
             <div className="mb-4 overflow-visible">
               <AnimatedAIIcon size={56} />
             </div>
-            <h2 className="text-xl font-semibold text-foreground mb-2">
+            <h2 className="text-xl font-semibold text-foreground mb-1">
               How can I help you today?
             </h2>
-            <p className="text-muted-foreground mb-8 max-w-sm">
+            <p className="text-muted-foreground text-sm mb-2 max-w-sm">
               I can view, update, and manage all your settings. Just tell me what you need!
             </p>
+            
+            {/* Active Provider Badge */}
+            <div className="flex items-center gap-1.5 mb-6 px-3 py-1.5 rounded-full bg-neutral-800/60 border border-neutral-700/40">
+              <span className={activeProvider.color}>{activeProvider.icon}</span>
+              <span className="text-xs text-muted-foreground">Powered by</span>
+              <span className="text-xs font-medium text-foreground">{activeProvider.name} · {activeModel.name}</span>
+            </div>
             
             {/* Quick Suggestion Chips */}
             <div className="flex flex-wrap gap-2 justify-center max-w-lg">

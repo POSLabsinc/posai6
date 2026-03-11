@@ -68,7 +68,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
   const [loading, setLoading] = useState(true);
 
   const deviceId = getDeviceId();
-  const selectedProvider = PROVIDERS.find((p) => p.id === provider);
+  
 
   useEffect(() => {
     loadPreferences();

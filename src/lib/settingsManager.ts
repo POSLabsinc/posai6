@@ -365,6 +365,11 @@ export class SettingsManager {
     discounts[index].archived = true;
     localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
     syncToDatabase(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'discounts', data: discounts } }));
+    return true;
+  }
+
+  // Taxes
   static getTaxes(): Tax[] {
     const stored = localStorage.getItem(STORAGE_KEYS.TAXES);
     if (stored) {

@@ -155,49 +155,46 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
           {/* Messages */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 space-y-4 scrollbar-hide">
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full gap-6">
-                {/* AI Icon */}
-                <div className="w-20 h-20 rounded-2xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center backdrop-blur-sm">
-                  <AnimatedAIIcon size={40} />
+              <div className="flex flex-col h-full">
+                {/* Centered branding area */}
+                <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                  <div className="w-20 h-20 rounded-2xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center backdrop-blur-sm">
+                    <AnimatedAIIcon size={40} />
+                  </div>
+                  <div className="text-center space-y-2">
+                    <h2 className="text-xl font-semibold text-foreground tracking-tight">
+                      Set Up Your Device
+                    </h2>
+                    <p className="text-sm text-foreground/40 max-w-[260px] mx-auto leading-relaxed">
+                      Let AI guide you through a quick and easy device setup — step by step.
+                    </p>
+                  </div>
                 </div>
 
-                {/* Tagline */}
-                <div className="text-center space-y-2">
-                  <h2 className="text-xl font-semibold text-foreground tracking-tight">
-                    Set Up Your Device
-                  </h2>
-                  <p className="text-sm text-foreground/40 max-w-[260px] mx-auto leading-relaxed">
-                    Let AI guide you through a quick and easy device setup — step by step.
-                  </p>
-                </div>
-
-                {/* Divider */}
-                <div className="w-12 h-px bg-foreground/[0.08]" />
-
-                {/* First Question */}
-                <div className="text-center">
-                  <p className="text-base font-medium text-foreground">
-                    Hi, How can I assist you today?
-                  </p>
-                  <p className="text-sm text-foreground/50 mt-1">
-                    Are you new here?
-                  </p>
-                </div>
-
-                {/* Action Buttons */}
-                <div className="flex gap-3 mt-1">
-                  <button
-                    onClick={() => handleSend("Yes, I'm new")}
-                    className="px-7 py-2.5 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  >
-                    Yes, I'm New
-                  </button>
-                  <button
-                    onClick={() => handleSend("No, I'm not new")}
-                    className="px-7 py-2.5 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  >
-                    No, I'm Not
-                  </button>
+                {/* First question as a chat bubble at the bottom */}
+                <div className="space-y-3 pb-2">
+                  <div className="flex justify-start">
+                    <div className="flex-shrink-0 mr-2 mt-1">
+                      <AnimatedAIIcon size={18} />
+                    </div>
+                    <div className="max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm bg-foreground/[0.04] text-foreground">
+                      <p>Hi, How can I assist you today? Are you new here?</p>
+                    </div>
+                  </div>
+                  <div className="flex gap-2 pl-7">
+                    <button
+                      onClick={() => handleSend("Yes, I'm new")}
+                      className="px-5 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      Yes, I'm New
+                    </button>
+                    <button
+                      onClick={() => handleSend("No, I'm not new")}
+                      className="px-5 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      No, I'm Not
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : (

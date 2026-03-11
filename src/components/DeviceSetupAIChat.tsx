@@ -314,6 +314,15 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           <p className="whitespace-pre-wrap">{msg.content}</p>
                         )}
                       </div>
+                      {msg.role === "user" && !isLoading && (
+                        <button
+                          onClick={handleGoBack}
+                          className="flex-shrink-0 ml-1.5 mt-1 w-6 h-6 rounded-full flex items-center justify-center hover:bg-foreground/[0.08] transition-colors opacity-40 hover:opacity-70"
+                          title="Edit"
+                        >
+                          <Pencil className="w-3 h-3" />
+                        </button>
+                      )}
                     </motion.div>
                   ))}
 

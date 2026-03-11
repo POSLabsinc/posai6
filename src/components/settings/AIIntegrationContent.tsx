@@ -86,7 +86,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
   const [enabled, setEnabled] = useState(false);
   const [provider, setProvider] = useState("");
-  const [model, setModel] = useState("");
   const [apiKey, setApiKey] = useState("");
   const [showKey, setShowKey] = useState(false);
   const [status, setStatus] = useState<ConnectionStatus>("not_configured");

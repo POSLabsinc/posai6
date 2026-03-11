@@ -331,35 +331,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
           </div>
         </div>
 
-        {/* Model Selection */}
-        {selectedProvider && (
-          <div className="mb-4">
-            <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase block mb-3">
-              Model
-            </span>
-            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-              {selectedProvider.models.map((m, index) => (
-                <div key={m.id}>
-                  <button
-                    onClick={() => setModel(m.id)}
-                    className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
-                  >
-                    <span className="text-foreground text-base font-medium">{m.name}</span>
-                    {model === m.id && (
-                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                        <span className="text-white text-xs">✓</span>
-                      </div>
-                    )}
-                  </button>
-                  {index < selectedProvider.models.length - 1 && (
-                    <div className="h-px bg-neutral-700/50 mx-4" />
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* API Key */}
         {provider && (
           <div className="mb-4">

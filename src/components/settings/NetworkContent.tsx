@@ -54,7 +54,7 @@ const NetworkContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: Ne
           <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
         </div>
 
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
           <button
             onClick={() => onNavigate?.('/settings/network/servers')}
             className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
@@ -65,7 +65,12 @@ const NetworkContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: Ne
             </div>
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>
-          <div className="h-px bg-neutral-700/50 mx-4" />
+        </div>
+        <p className="text-sm text-neutral-400 leading-relaxed px-1 mb-6">
+          Manage server connections, configure endpoints, and monitor server health and performance.
+        </p>
+
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
           <button
             onClick={() => onNavigate?.('/settings/network/ai-integration')}
             className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
@@ -77,6 +82,9 @@ const NetworkContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: Ne
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>
         </div>
+        <p className="text-sm text-neutral-400 leading-relaxed px-1 mb-6">
+          Configure external AI providers, manage API keys, and control AI-powered features across the platform.
+        </p>
       </div>
     </div>
   );

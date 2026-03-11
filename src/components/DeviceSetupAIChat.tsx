@@ -528,6 +528,83 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     </div>
                   </motion.div>
                 )}
+
+                {/* Email input for sign-in-email step */}
+                {currentStep === "sign-in-email" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-3"
+                  >
+                    <div className="flex gap-2">
+                      <input
+                        type="email"
+                        value={signInInput}
+                        onChange={(e) => setSignInInput(e.target.value)}
+                        placeholder="name@company.com"
+                        className="flex-1 px-4 py-2.5 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && signInInput.trim() && signInInput.includes("@")) {
+                            handleSend(`Send sign-in link to ${signInInput}`);
+                            setSignInInput("");
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (signInInput.trim() && signInInput.includes("@")) {
+                            handleSend(`Send sign-in link to ${signInInput}`);
+                            setSignInInput("");
+                          }
+                        }}
+                        disabled={!signInInput.trim() || !signInInput.includes("@")}
+                        className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Phone input for sign-in-phone step */}
+                {currentStep === "sign-in-phone" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-3"
+                  >
+                    <div className="flex gap-2">
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        value={signInInput}
+                        onChange={(e) => setSignInInput(e.target.value.replace(/[^0-9+\-() ]/g, ""))}
+                        placeholder="+1 (555) 000-0000"
+                        className="flex-1 px-4 py-2.5 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && signInInput.replace(/\D/g, "").length >= 7) {
+                            handleSend(`Send sign-in link to ${signInInput}`);
+                            setSignInInput("");
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (signInInput.replace(/\D/g, "").length >= 7) {
+                            handleSend(`Send sign-in link to ${signInInput}`);
+                            setSignInInput("");
+                          }
+                        }}
+                        disabled={signInInput.replace(/\D/g, "").length < 7}
+                        className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        Send
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
               </div>
             )}
           </div>

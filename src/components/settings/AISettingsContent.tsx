@@ -758,7 +758,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       }
 
       // Sanitize message: strip any JSON/code that leaked into the message
-      let messageText = data.message || "I'm not sure how to help with that. Could you rephrase?";
+      let messageText: string = typeof data.message === 'string' ? data.message : (data.message ? JSON.stringify(data.message) : "I'm not sure how to help with that. Could you rephrase?");
       // If the entire message looks like JSON, extract just the "message" field
       if (messageText.trim().startsWith("{") || messageText.trim().startsWith("```")) {
         try {
@@ -794,7 +794,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined, multiSelect: undefined } : msg),
         assistantMessage,
       ]);
-      setConversationHistory((prev) => [...prev, { role: "assistant", content: data.message }]);
+      setConversationHistory((prev) => [...prev, { role: "assistant", content: typeof messageText === 'string' ? messageText : JSON.stringify(messageText) }]);
       setIsTyping(false);
 
     } catch (error) {

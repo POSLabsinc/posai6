@@ -355,8 +355,7 @@ export class SettingsManager {
     if (index === -1) return null;
     discounts[index] = { ...discounts[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
-    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'discounts', data: discounts } }));
-    return discounts[index];
+    syncToDatabase(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
   }
 
   static archiveDiscount(id: string): boolean {

@@ -10,6 +10,7 @@ interface DeviceSetupLayoutProps {
   title?: string;
   subtitle?: string;
   variant?: "setup" | "demo" | "activation" | "admin";
+  fullWidthRight?: boolean;
 }
 
 // Get time-based greeting and info
@@ -26,7 +27,7 @@ const getTimeOfDayInfo = (date: Date) => {
   }
 };
 
-export function DeviceSetupLayout({ children, title, subtitle, variant = "setup" }: DeviceSetupLayoutProps) {
+export function DeviceSetupLayout({ children, title, subtitle, variant = "setup", fullWidthRight = false }: DeviceSetupLayoutProps) {
   const isMobile = useIsMobile();
   const currentTime = new Date();
   const timeInfo = getTimeOfDayInfo(currentTime);
@@ -203,8 +204,8 @@ export function DeviceSetupLayout({ children, title, subtitle, variant = "setup"
       </motion.div>
 
       {/* Right Panel - Action Content */}
-      <div className="relative z-10 flex-1 flex items-center justify-center px-6 md:px-10 lg:px-16 h-full">
-        <div className="w-full max-w-md h-full flex items-center justify-center">
+      <div className={`relative z-10 flex-1 flex items-center justify-center h-full ${fullWidthRight ? '' : 'px-6 md:px-10 lg:px-16'}`}>
+        <div className={`w-full h-full flex items-center ${fullWidthRight ? '' : 'max-w-md justify-center'}`}>
           {children}
         </div>
       </div>

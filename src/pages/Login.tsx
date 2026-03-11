@@ -2613,7 +2613,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     // Main activation options screen
     if (showAIChat) {
       return (
-        <DeviceSetupLayout variant="setup">
+        <DeviceSetupLayout variant="setup" fullWidthRight>
           <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} />
         </DeviceSetupLayout>
       );

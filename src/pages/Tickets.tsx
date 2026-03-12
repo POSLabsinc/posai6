@@ -691,8 +691,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     
     navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`);
   };
-  const navigate = useNavigate();
   const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
+  const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);

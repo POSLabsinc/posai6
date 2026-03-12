@@ -307,7 +307,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
         {/* API Key */}
         {provider && (
           <div className="mb-4">
-            <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase block mb-3">
+            <span className="text-xs font-medium text-neutral-500 tracking-wider block mb-3">
               API Key
             </span>
             <div className="bg-neutral-800/60 rounded-2xl overflow-hidden p-4">

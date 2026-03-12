@@ -393,28 +393,173 @@ export class SettingsManager {
 
     const deviceId = getDeviceId();
     try {
-      const allKeys = [...ALL_SETTINGS_KEYS, ...APPEARANCE_INDIVIDUAL_KEYS];
-      const { data, error } = await (supabase as any)
-        .from("user_preferences")
-        .select("preference_key, preference_value")
-        .eq("device_id", deviceId)
-        .in("preference_key", allKeys);
+      // Load from dedicated payment tables in parallel
+      const [
+        gratuityRes,
+        discountsRes,
+        taxesRes,
+        serviceChargesRes,
+        checkoutRes,
+        paymentMethodsRes,
+        prefsRes,
+      ] = await Promise.all([
+        (supabase as any).from("gratuity_settings").select("*").eq("device_id", deviceId).maybeSingle(),
+        (supabase as any).from("discounts").select("*").eq("device_id", deviceId).order("sort_order"),
+        (supabase as any).from("taxes").select("*").eq("device_id", deviceId).order("sort_order"),
+        (supabase as any).from("service_charges").select("*").eq("device_id", deviceId).order("sort_order"),
+        (supabase as any).from("checkout_options").select("*").eq("device_id", deviceId).maybeSingle(),
+        (supabase as any).from("payment_methods").select("*").eq("device_id", deviceId).order("sort_order"),
+        (supabase as any).from("user_preferences").select("preference_key, preference_value").eq("device_id", deviceId).in("preference_key", [...ALL_SETTINGS_KEYS, ...APPEARANCE_INDIVIDUAL_KEYS]),
+      ]);
 
-      if (error || !data || data.length === 0) {
-        console.log("[SettingsManager] No DB settings found, using localStorage/defaults");
-        return;
+      let loadedCount = 0;
+
+      // Gratuity
+      if (gratuityRes.data) {
+        const g = gratuityRes.data;
+        const settings: GratuitySettings = {
+          enableTip: g.enable_tip,
+          showOnReceipt: g.show_on_receipt,
+          allowCustom: g.allow_custom,
+          disableTipOnCFD: g.disable_tip_on_cfd,
+          presetType: g.preset_type,
+          tipPresets: g.tip_presets || ["5","10","15","20"],
+          selectedTipPresets: g.selected_tip_presets || ["15","20"],
+          autoClosePaymentMethods: g.auto_close_payment_methods || [],
+        };
+        localStorage.setItem(STORAGE_KEYS.GRATUITY, JSON.stringify(settings));
+        loadedCount++;
+      } else {
+        // One-time seed: if localStorage has data, push to DB
+        const local = localStorage.getItem(STORAGE_KEYS.GRATUITY);
+        if (local) {
+          try { syncGratuityToTable(JSON.parse(local)); } catch {}
+        }
       }
 
-      for (const row of data) {
-        const current = localStorage.getItem(row.preference_key);
-        // Only overwrite if localStorage doesn't already have a value,
-        // or always use DB as source of truth
-        localStorage.setItem(row.preference_key, row.preference_value);
+      // Discounts
+      if (discountsRes.data && discountsRes.data.length > 0) {
+        const discounts: Discount[] = discountsRes.data.map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          amount: Number(d.amount),
+          type: d.type,
+          archived: d.archived,
+          applicableTo: d.applicable_to,
+          applicableProducts: d.applicable_products || [],
+          requiresManagerPin: d.requires_manager_pin,
+        }));
+        localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
+        loadedCount++;
+      } else {
+        const local = localStorage.getItem(STORAGE_KEYS.DISCOUNTS);
+        if (local) {
+          try { syncDiscountsToTable(JSON.parse(local)); } catch {}
+        }
       }
 
-      console.log(`[SettingsManager] Loaded ${data.length} settings from database`);
+      // Taxes
+      if (taxesRes.data && taxesRes.data.length > 0) {
+        const taxes: Tax[] = taxesRes.data.map((t: any) => ({
+          id: t.id,
+          name: t.name,
+          amount: Number(t.amount),
+          type: t.type,
+          archived: t.archived,
+          applicableTo: t.applicable_to,
+          applicableProducts: t.applicable_products || [],
+        }));
+        localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
+        loadedCount++;
+      } else {
+        const local = localStorage.getItem(STORAGE_KEYS.TAXES);
+        if (local) {
+          try { syncTaxesToTable(JSON.parse(local)); } catch {}
+        }
+      }
 
-      // Dispatch events so any mounted components re-read
+      // Service Charges
+      if (serviceChargesRes.data && serviceChargesRes.data.length > 0) {
+        const charges: ServiceCharge[] = serviceChargesRes.data.map((sc: any) => ({
+          id: sc.id,
+          name: sc.name,
+          amount: Number(sc.amount),
+          type: sc.type,
+          archived: sc.archived,
+          taxApplicable: sc.tax_applicable,
+          orderType: sc.order_type,
+          appliedAs: sc.applied_as,
+          automaticApply: sc.automatic_apply,
+          minSeats: sc.min_seats,
+          requiresManagerPin: sc.requires_manager_pin,
+          isActive: sc.is_active,
+        }));
+        localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
+        loadedCount++;
+      } else {
+        const local = localStorage.getItem(STORAGE_KEYS.SERVICE_CHARGES);
+        if (local) {
+          try { syncServiceChargesToTable(JSON.parse(local)); } catch {}
+        }
+      }
+
+      // Checkout Options
+      if (checkoutRes.data) {
+        const c = checkoutRes.data;
+        const settings: CheckoutOptionsSettings = {
+          enableQuickAmounts: c.enable_quick_amounts,
+          splitCheck: c.split_check,
+          enableTips: c.enable_tips,
+          requireOrderType: c.require_order_type,
+          requireGuestName: c.require_guest_name,
+          guestNotesEnabled: c.guest_notes_enabled,
+          showSaveButton: c.show_save_button,
+          autoCloseTicket: c.auto_close_ticket,
+          qrBillPayment: c.qr_bill_payment,
+          printReceipt: c.print_receipt,
+          emailReceipt: c.email_receipt,
+          smsReceipt: c.sms_receipt,
+          skipTipScreen: c.skip_tip_screen,
+          skipSignature: c.skip_signature,
+          signatureThreshold: Number(c.signature_threshold),
+          enablePaymentSounds: c.enable_payment_sounds,
+          enableHoldFire: c.enable_hold_fire,
+          showOrderSummary: c.show_order_summary,
+          showItemizedTax: c.show_itemized_tax,
+        };
+        localStorage.setItem(STORAGE_KEYS.CHECKOUT_OPTIONS, JSON.stringify(settings));
+        loadedCount++;
+      } else {
+        const local = localStorage.getItem(STORAGE_KEYS.CHECKOUT_OPTIONS);
+        if (local) {
+          try { syncCheckoutOptionsToTable(JSON.parse(local)); } catch {}
+        }
+      }
+
+      // Payment Methods
+      if (paymentMethodsRes.data && paymentMethodsRes.data.length > 0) {
+        const states: Record<string, boolean> = {};
+        for (const pm of paymentMethodsRes.data) {
+          states[pm.method_id] = pm.enabled;
+        }
+        localStorage.setItem(STORAGE_KEYS.PAYMENT_METHODS, JSON.stringify(states));
+        loadedCount++;
+      } else {
+        const local = localStorage.getItem(STORAGE_KEYS.PAYMENT_METHODS);
+        if (local) {
+          try { syncPaymentMethodsToTable(JSON.parse(local)); } catch {}
+        }
+      }
+
+      // Load remaining settings from user_preferences (menus, appearance, control center, orders)
+      if (prefsRes.data && prefsRes.data.length > 0) {
+        for (const row of prefsRes.data) {
+          localStorage.setItem(row.preference_key, row.preference_value);
+        }
+        loadedCount += prefsRes.data.length;
+      }
+
+      console.log(`[SettingsManager] Loaded ${loadedCount} settings from database (dedicated tables)`);
       window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'all', data: null } }));
     } catch (err) {
       console.error("[SettingsManager] Failed to load settings from DB:", err);

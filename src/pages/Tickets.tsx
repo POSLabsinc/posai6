@@ -3039,10 +3039,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     </>
                   ) : (
                     <>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-transfer-gradient">
+                      <button 
+                        className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-transfer-gradient"
+                        onClick={(e) => { e.stopPropagation(); setMergeSourceOrderId(guest.id); setSelectedMergeTargetId(null); setShowMergeDialog(true); }}
+                      >
                         <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain brightness-0" />
                       </button>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-action-gradient">
+                      <button 
+                        className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-action-gradient"
+                        onClick={(e) => { e.stopPropagation(); setTransferIntentOrderId(guest.id); setShowTransferIntentDialog(true); }}
+                      >
                         <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
                       </button>
                     </>

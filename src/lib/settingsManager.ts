@@ -82,6 +82,7 @@ async function syncDiscountsToTable(discounts: Discount[]) {
         applicable_to: d.applicableTo || 'All Products',
         applicable_products: d.applicableProducts || [],
         requires_manager_pin: d.requiresManagerPin || false,
+        schedule_enabled: d.scheduleEnabled || false,
         sort_order: i,
       }))
     );
@@ -194,6 +195,7 @@ export interface Discount {
   applicableTo?: string;
   applicableProducts?: string[];
   requiresManagerPin?: boolean;
+  scheduleEnabled?: boolean;
 }
 
 export interface Tax {
@@ -448,6 +450,7 @@ export class SettingsManager {
           applicableTo: d.applicable_to,
           applicableProducts: d.applicable_products || [],
           requiresManagerPin: d.requires_manager_pin,
+          scheduleEnabled: d.schedule_enabled,
         }));
         localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
         loadedCount++;

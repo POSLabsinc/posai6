@@ -290,6 +290,7 @@ export type Database = {
           id: string
           name: string
           requires_manager_pin: boolean
+          schedule_enabled: boolean
           sort_order: number
           type: string
           updated_at: string
@@ -304,6 +305,7 @@ export type Database = {
           id?: string
           name: string
           requires_manager_pin?: boolean
+          schedule_enabled?: boolean
           sort_order?: number
           type?: string
           updated_at?: string
@@ -318,6 +320,7 @@ export type Database = {
           id?: string
           name?: string
           requires_manager_pin?: boolean
+          schedule_enabled?: boolean
           sort_order?: number
           type?: string
           updated_at?: string

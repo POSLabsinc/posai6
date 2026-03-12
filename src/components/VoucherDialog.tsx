@@ -241,6 +241,25 @@ const VoucherDialog = ({
     if (purchaseMode === 'single') {
       const parsedRedemptionLimit = parseInt(redemptionLimit) || undefined;
       const parsedMinimumOrder = posCurrencyToNumber(minimumOrderDigits) || undefined;
+      const code = generateVoucherCode();
+
+      // Save to DB
+      SettingsManager.createVoucher({
+        code,
+        name: voucherName.trim(),
+        type: 'fixed',
+        value: numericValue,
+        sellingPrice: singleTotalPayable,
+        expiryDate: expiryDate || undefined,
+        redemptionLimit: parsedRedemptionLimit,
+        minOrderAmount: parsedMinimumOrder,
+        customerName: customer?.name,
+        recipientPhone: customer?.phone,
+        recipientEmail: customer?.email,
+        notes: notes.trim() || undefined,
+        serviceFeeType: serviceFeeType,
+        serviceFeeValue: computedSingleServiceFee,
+      });
 
       onAddVoucher(singleTotalPayable, {
         type: 'fixed',
@@ -253,7 +272,7 @@ const VoucherDialog = ({
         redemptionLimit: parsedRedemptionLimit,
         minimumOrder: parsedMinimumOrder,
         notes: notes.trim() || undefined,
-        voucherCode: generateVoucherCode(),
+        voucherCode: code,
         customerName: customer?.name,
         customerPhone: customer?.phone,
         customerEmail: customer?.email,
@@ -268,6 +287,23 @@ const VoucherDialog = ({
 
         const parsedRedemptionLimit = parseInt(redemptionLimit) || undefined;
         const parsedMinimumOrder = posCurrencyToNumber(minimumOrderDigits) || undefined;
+        const code = generateVoucherCode();
+
+        // Save to DB
+        SettingsManager.createVoucher({
+          code,
+          name: entry.voucherName.trim(),
+          type: 'fixed',
+          value: entryValue,
+          sellingPrice: entryValue + entryFee,
+          expiryDate: expiryDate || undefined,
+          redemptionLimit: parsedRedemptionLimit,
+          minOrderAmount: parsedMinimumOrder,
+          customerName: customer?.name,
+          recipientPhone: customer?.phone,
+          recipientEmail: customer?.email,
+          notes: notes.trim() || undefined,
+        });
 
         onAddVoucher(entryValue + entryFee, {
           type: 'fixed',
@@ -280,7 +316,7 @@ const VoucherDialog = ({
           redemptionLimit: parsedRedemptionLimit,
           minimumOrder: parsedMinimumOrder,
           notes: notes.trim() || undefined,
-          voucherCode: generateVoucherCode(),
+          voucherCode: code,
           customerName: customer?.name,
           customerPhone: customer?.phone,
           customerEmail: customer?.email,

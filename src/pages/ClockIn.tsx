@@ -10,6 +10,7 @@ import eatosLogo from "@/assets/icons/eatos-logo.svg";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
 import { Button } from "@/components/ui/button";
+import { lookupEmployeeByPin } from "@/lib/employeePinLookup";
 
 // Revenue centers assigned to employees - in production this would come from API
 const revenueCenters: Record<string, string> = {

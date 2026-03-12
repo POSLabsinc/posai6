@@ -195,6 +195,7 @@ export interface Discount {
   applicableTo?: string;
   applicableProducts?: string[];
   requiresManagerPin?: boolean;
+  scheduleEnabled?: boolean;
 }
 
 export interface Tax {

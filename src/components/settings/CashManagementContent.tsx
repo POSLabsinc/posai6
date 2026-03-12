@@ -98,11 +98,16 @@ const CashManagementContent = ({
     });
   };
 
-  const handleStartDrawer = () => {
+  const handleStartDrawer = async () => {
     if (hasAmount) {
-      // Persist drawer session data to localStorage
+      const parsedCash = parseFloat(openingCash);
+      // Create session in DB
+      const sessionId = await SettingsManager.createCashDrawerSession(selectedDrawer, parsedCash);
+      
+      // Also persist to localStorage for fast reads
       const sessionData = {
-        startingCash: parseFloat(openingCash),
+        id: sessionId,
+        startingCash: parsedCash,
         selectedDrawer: selectedDrawer,
         sessionStartTime: Date.now()
       };

@@ -74,7 +74,7 @@ const PaymentMethodsContent = ({ showHeader = true, onBack, onAIClick }: Payment
   const isMobile = useIsMobile();
   const { getIconBgColor } = useAppearance();
   const [methodStates, setMethodStates] = useState<Record<string, boolean>>(() => {
-    // Initialize from localStorage or defaults
+    // Initialize from localStorage (hydrated from DB via SettingsManager)
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
@@ -86,10 +86,14 @@ const PaymentMethodsContent = ({ showHeader = true, onBack, onAIClick }: Payment
     return getDefaultState();
   });
 
-  // Persist to localStorage whenever state changes
+  // Persist to localStorage and DB whenever state changes
   useEffect(() => {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(methodStates));
+      // Sync to dedicated payment_methods table
+      import('@/lib/settingsManager').then(({ SettingsManager }) => {
+        SettingsManager.setAllPaymentMethodStates(methodStates);
+      });
     } catch (e) {
       console.error("Failed to save payment methods state:", e);
     }

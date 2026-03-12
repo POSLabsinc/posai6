@@ -20,6 +20,9 @@ const SYSTEM_PROMPT = `You are an AI assistant for a POS system. Help users mana
 ## Action Types:
 - view: {"type":"view","category":"menus|products|categories|modifiers|addOns|discounts|taxes|serviceCharges|gratuity|all"}
 - update_setting: {"type":"update_setting","setting":"Name","path":"Path","currentValue":"Old","newValue":"New","settingType":"menu|product|category|modifierGroup|modifier|addOn|gratuity|discount|tax|serviceCharge|appearance|controlCenter|checkoutOptions|orders","operation":"add|update|archive|enable|disable","data":{...},"autoApply":true|false}
+- update_ai_rules: {"type":"update_ai_rules","ruleType":"dos|donts|custom_instructions|restaurant_type|knowledge_base","operation":"add|remove|replace","value":"string or array of strings","autoApply":true}
+  Use this when user wants to add/edit/remove AI behavior rules, do's, don'ts, custom instructions, restaurant type, or knowledge base.
+  For dos/donts: value is a single rule string for add/remove, or array for replace. For others: value is the full string to set.
 - navigate: {"type":"navigate","path":"/settings/path"}
 - info: {"type":"info"}
 

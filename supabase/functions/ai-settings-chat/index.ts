@@ -210,6 +210,52 @@ async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string,
   return parts.join("\n") || "No relevant data found.";
 }
 
+async function fetchAIRules(supabaseUrl: string, serviceRoleKey: string, deviceId: string): Promise<string> {
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  const ruleKeys = ["ai_rules_dos", "ai_rules_donts", "ai_rules_custom_instructions", "ai_rules_restaurant_type", "ai_rules_knowledge_base"];
+  
+  const { data } = await supabase
+    .from("user_preferences")
+    .select("preference_key, preference_value")
+    .eq("device_id", deviceId)
+    .in("preference_key", ruleKeys);
+
+  if (!data?.length) return "No custom AI rules configured.";
+
+  const prefs: Record<string, string> = {};
+  data.forEach((r: any) => { prefs[r.preference_key] = r.preference_value; });
+
+  const parts: string[] = [];
+
+  if (prefs.ai_rules_dos) {
+    try {
+      const dos = JSON.parse(prefs.ai_rules_dos);
+      if (dos.length) parts.push(`**DO:** ${dos.map((d: string) => `• ${d}`).join(" ")}`);
+    } catch { /* ignore */ }
+  }
+
+  if (prefs.ai_rules_donts) {
+    try {
+      const donts = JSON.parse(prefs.ai_rules_donts);
+      if (donts.length) parts.push(`**DON'T:** ${donts.map((d: string) => `• ${d}`).join(" ")}`);
+    } catch { /* ignore */ }
+  }
+
+  if (prefs.ai_rules_custom_instructions?.trim()) {
+    parts.push(`**Custom Instructions:** ${prefs.ai_rules_custom_instructions.trim()}`);
+  }
+
+  if (prefs.ai_rules_restaurant_type?.trim()) {
+    parts.push(`**Restaurant Type:** ${prefs.ai_rules_restaurant_type}`);
+  }
+
+  if (prefs.ai_rules_knowledge_base?.trim()) {
+    parts.push(`**Knowledge Base:** ${prefs.ai_rules_knowledge_base.trim()}`);
+  }
+
+  return parts.length ? parts.join("\n") : "No custom AI rules configured.";
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });

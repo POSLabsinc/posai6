@@ -6322,7 +6322,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       {/* Transfer Intent Dialog - context-aware based on ticket type */}
       {showTransferIntentDialog && (() => {
         const intentOrder = allOrders.find(o => o.id === transferIntentOrderId);
-        const isTableOrder = intentOrder?.table && intentOrder.table !== '--' && intentOrder.table !== '';
+        const isTableOrder = (intentOrder?.orderType || '').toLowerCase().trim() === 'table order';
         
         return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">

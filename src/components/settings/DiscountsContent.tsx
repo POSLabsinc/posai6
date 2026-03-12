@@ -87,7 +87,7 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     fetchDiscounts();
   }, [fetchDiscounts]);
 
-  const handleAddDiscount = (discountData: {
+  const handleAddDiscount = async (discountData: {
     name: string;
     amount: number;
     type: "Percentage" | "Fixed";
@@ -96,26 +96,43 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     requiresManagerPin: boolean;
     scheduleEnabled: boolean;
   }) => {
-    const newDiscount: Discount = {
-      id: Date.now().toString(),
+    const { data, error } = await (supabase as any).from("discounts").insert({
+      device_id: deviceId,
       name: discountData.name,
       amount: discountData.amount,
       type: discountData.type,
-      applicableTo: discountData.applicableTo,
-      applicableProducts: discountData.applicableProducts ?? [],
+      applicable_to: discountData.applicableTo || "All Products",
+      applicable_products: discountData.applicableProducts || [],
+      requires_manager_pin: discountData.requiresManagerPin,
+      schedule_enabled: discountData.scheduleEnabled,
       archived: false,
-      requiresManagerPin: discountData.requiresManagerPin,
-      scheduleEnabled: discountData.scheduleEnabled,
-    };
-    saveDiscounts([...discounts, newDiscount]);
+      sort_order: discounts.length,
+    }).select().single();
+
+    if (!error && data) {
+      await fetchDiscounts();
+      toast({ description: "Discount added successfully" });
+    } else {
+      toast({ description: "Failed to add discount", variant: "destructive" });
+    }
     setShowAddScreen(false);
   };
 
-  const handleEditDiscount = (updatedDiscount: Discount) => {
-    const updatedDiscounts = discounts.map(discount => 
-      discount.id === updatedDiscount.id ? updatedDiscount : discount
-    );
-    saveDiscounts(updatedDiscounts);
+  const handleEditDiscount = async (updatedDiscount: Discount) => {
+    const { error } = await (supabase as any).from("discounts").update({
+      name: updatedDiscount.name,
+      amount: updatedDiscount.amount,
+      type: updatedDiscount.type,
+      applicable_to: updatedDiscount.applicableTo || "All Products",
+      applicable_products: updatedDiscount.applicableProducts || [],
+      requires_manager_pin: updatedDiscount.requiresManagerPin,
+      schedule_enabled: updatedDiscount.scheduleEnabled || false,
+      archived: updatedDiscount.archived,
+    }).eq("id", updatedDiscount.id);
+
+    if (!error) {
+      await fetchDiscounts();
+    }
     setDiscountToEdit(null);
   };
 
@@ -123,12 +140,11 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     setDiscountToArchive(discount);
   };
 
-  const confirmArchiveDiscount = () => {
+  const confirmArchiveDiscount = async () => {
     if (discountToArchive) {
-      const updatedDiscounts = discounts.map(discount => 
-        discount.id === discountToArchive.id ? { ...discount, archived: !discount.archived } : discount
-      );
-      saveDiscounts(updatedDiscounts);
+      const newArchived = !discountToArchive.archived;
+      await (supabase as any).from("discounts").update({ archived: newArchived }).eq("id", discountToArchive.id);
+      await fetchDiscounts();
       setDiscountToArchive(null);
     }
   };

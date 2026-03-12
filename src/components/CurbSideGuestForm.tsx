@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Search, X, Car, Pencil, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,7 +10,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
-import { customers, checkPhoneConflict, Customer } from "@/data/customers";
+import { Customer } from "@/services/customerService";
+import { useCustomerSearch, usePhoneConflict } from "@/hooks/useCustomerSearch";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
 interface CurbSideGuestFormProps {

@@ -472,6 +472,10 @@ const getContentForRoute = (
   if (pathname === '/settings/network/ai-integration') {
     return <AIIntegrationContent showHeader={true} onBack={() => navigate('/settings/network')} onAIClick={() => setShowAIChat(true)} />;
   }
+  if (pathname === '/settings/network/ai-integration/ai-instructions') {
+    const AIInstructionsRoute = require("@/components/routes/AIInstructionsRoute").default;
+    return <AIInstructionsRoute />;
+  }
   if (pathname === '/settings/hardware') {
     return <HardwareContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }

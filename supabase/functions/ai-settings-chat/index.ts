@@ -370,7 +370,7 @@ serve(async (req) => {
       const { data: keyPref } = await supabaseAdmin
         .from("user_preferences")
         .select("preference_value")
-        .eq("device_id", deviceId)
+        .eq("device_id", "shared")
         .eq("preference_key", "ai_integration_api_key")
         .maybeSingle();
 

@@ -78,7 +78,7 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
       setServiceCharges(mapped);
     }
     setLoading(false);
-  }, [deviceId]);
+  }, []);
 
   useEffect(() => {
     fetchServiceCharges();

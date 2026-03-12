@@ -6570,33 +6570,6 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       })()}
 
 
-
-        const executeMerge = () => {
-          if (!selectedMergeTargetId || !sourceOrder) return;
-          setShowMergeDialog(false);
-          
-          const targetOrder = allOrders.find(o => o.id === selectedMergeTargetId);
-          if (!targetOrder) return;
-
-          // Update selectedGuest to show merged state
-          setSelectedGuest(prev => prev ? {
-            ...prev,
-            items: [...prev.items, ...targetOrder.items],
-            subtotal: prev.subtotal + targetOrder.subtotal,
-            tax: prev.tax + targetOrder.tax,
-            serviceCharge: prev.serviceCharge + targetOrder.serviceCharge,
-            total: prev.total + targetOrder.total,
-            notes: prev.notes ? `${prev.notes} | Merged with ${targetOrder.name}` : `Merged with ${targetOrder.name}`,
-          } : prev);
-          
-          toast.success(`Merged ${targetOrder.name}'s ticket into ${sourceOrder.name}'s ticket`);
-        };
-
-        return (
-          <Dialog open={showMergeDialog} onOpenChange={setShowMergeDialog}>
-            <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-lg overflow-hidden" aria-describedby={undefined}>
-              <div className="p-4 border-b border-white/10">
-                <h2 className="text-white text-lg font-semibold">Merge Tickets</h2>
                 <p className="text-white/50 text-sm mt-1">Select a ticket to merge into {sourceOrder?.name}'s order</p>
               </div>
 

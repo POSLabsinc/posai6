@@ -6094,14 +6094,7 @@ const Orders = () => {
           result[menuName] = [...(result[menuName] || []), parentName];
         }
       }
-      // Also add categories from DB products that aren't already in the menu
-      const existingCatsLower = new Set((result[menuName] || []).map((c) => c.toLowerCase()));
-      for (const p of dbProducts) {
-        if (p.category_name && !existingCatsLower.has(p.category_name.toLowerCase())) {
-          result[menuName] = [...(result[menuName] || []), p.category_name];
-          existingCatsLower.add(p.category_name.toLowerCase());
-        }
-      }
+      // Note: Only show categories explicitly assigned to this menu via menu_categories
     }
     return result;
   }, [menuCategories, menuList, dynamicSubcategories, dbProducts]);

@@ -290,7 +290,7 @@ async function handleUpdateAIRules(
       const { data: existing } = await supabase
         .from("user_preferences")
         .select("preference_value")
-        .eq("device_id", deviceId)
+        .eq("device_id", sharedDeviceId)
         .eq("preference_key", prefKey)
         .maybeSingle();
 

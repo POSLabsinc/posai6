@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { SettingsManager } from "@/lib/settingsManager";
 
 interface CashManagementContentProps {
   showHeader?: boolean;

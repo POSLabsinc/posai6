@@ -3411,7 +3411,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                           <>
                             <button 
                               className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient"
-                              onClick={e => { e.stopPropagation(); setMergeSourceOrderId(guest.id); setSelectedMergeTargetId(null); setShowMergeDialog(true); }}
+                              onClick={e => { e.stopPropagation(); navigate(`/tableorder/${guest.table || 'T1'}/merge?orderId=${guest.id}`); }}
                             >
                               <img src={arrowRightIcon} alt="Merge" className="w-3.5 h-3.5 object-contain" />
                             </button>

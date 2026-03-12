@@ -82,6 +82,7 @@ async function syncDiscountsToTable(discounts: Discount[]) {
         applicable_to: d.applicableTo || 'All Products',
         applicable_products: d.applicableProducts || [],
         requires_manager_pin: d.requiresManagerPin || false,
+        schedule_enabled: d.scheduleEnabled || false,
         sort_order: i,
       }))
     );

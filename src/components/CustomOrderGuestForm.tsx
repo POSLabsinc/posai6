@@ -336,10 +336,7 @@ const CustomOrderGuestForm = ({ onSave, onClose, initialData }: CustomOrderGuest
       {/* Phone Conflict Dialog */}
       <PhoneConflictDialog
         isOpen={showConflictDialog}
-        onClose={() => {
-          setShowConflictDialog(false);
-          setConflictCustomer(null);
-        }}
+        onClose={clearConflict}
         existingCustomer={conflictCustomer}
         newName={guestName}
         onUseExisting={handleUseExisting}

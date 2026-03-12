@@ -386,10 +386,7 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
       {/* Phone Conflict Dialog */}
       <PhoneConflictDialog
         isOpen={showConflictDialog}
-        onClose={() => {
-          setShowConflictDialog(false);
-          setConflictCustomer(null);
-        }}
+        onClose={clearConflict}
         existingCustomer={conflictCustomer}
         newName={guestName}
         onUseExisting={handleUseExisting}

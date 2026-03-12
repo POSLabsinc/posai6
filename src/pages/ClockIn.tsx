@@ -140,32 +140,32 @@ const ClockIn = () => {
     
     return () => clearInterval(timer);
   }, []);
-  const handlePinComplete = useCallback((enteredPin: string) => {
+  const handlePinComplete = useCallback(async (enteredPin: string) => {
     setIsVerifying(true);
     
-    // Simulate verification delay
-    setTimeout(() => {
-      // Look up employee by PIN
-      const employeeId = employeePinMapping[enteredPin];
+    try {
+      const dbEmployee = await lookupEmployeeByPin(enteredPin);
       
-      if (employeeId) {
-        const employee = locationEmployees.find(e => e.id === employeeId);
-        if (employee) {
-          setSelectedEmployee(employee);
-          setIsVerifying(false);
-          setClockInTime(new Date());
-          setShowClockIn(true);
-        } else {
-          setIsVerifying(false);
-          setPinError("Invalid PIN");
-          setPin("");
-        }
+      if (dbEmployee) {
+        setSelectedEmployee({
+          id: dbEmployee.id,
+          name: dbEmployee.full_name,
+          role: dbEmployee.role,
+          avatar: dbEmployee.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(dbEmployee.full_name)}&background=random&size=100`
+        });
+        setIsVerifying(false);
+        setClockInTime(new Date());
+        setShowClockIn(true);
       } else {
         setIsVerifying(false);
-        setPinError("Invalid PIN");
+        setPinError("Invalid PIN. Please try again.");
         setPin("");
       }
-    }, 800);
+    } catch {
+      setIsVerifying(false);
+      setPinError("Invalid PIN. Please try again.");
+      setPin("");
+    }
   }, []);
 
   const handleConfirmClockIn = useCallback(() => {

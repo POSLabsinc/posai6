@@ -6322,7 +6322,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       {/* Transfer Intent Dialog - context-aware based on ticket type */}
       {showTransferIntentDialog && (() => {
         const intentOrder = allOrders.find(o => o.id === transferIntentOrderId);
-        const isTableOrder = (intentOrder?.orderType || '').toLowerCase().trim() === 'table order';
+        const isTableOrder = intentOrder?.table && intentOrder.table !== '--' && intentOrder.table !== '';
         
         return (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -6344,11 +6344,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 <button 
                   onClick={() => {
                     setShowTransferIntentDialog(false);
-                    if (isTableOrder && intentOrder?.table) {
-                      // Actual table-order ticket: reuse Table module transfer flow
+                    if (isTableOrder) {
+                      // Table order ticket: navigate to Table module transfer flow
                       navigate(`/tableorder/${intentOrder.table}/transfer?orderId=${transferIntentOrderId}`);
                     } else {
-                      // Non-table ticket: keep transfer fully in Tickets module context
+                      // Non-table ticket: show inline TicketsTransferView
                       setInlineTransferOrderId(transferIntentOrderId);
                       setInlineTransferIsEntire(false);
                       setInlineTransferTarget('table');

@@ -7,7 +7,8 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
 import { format } from "date-fns";
 import { cn, formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
-import { customers, checkPhoneConflict, Customer } from "@/data/customers";
+import { Customer } from "@/services/customerService";
+import { useCustomerSearch, usePhoneConflict } from "@/hooks/useCustomerSearch";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
 interface BanquetGuestFormProps {

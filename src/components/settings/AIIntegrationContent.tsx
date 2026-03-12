@@ -258,7 +258,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
         {/* Enable/Disable Toggle */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase">
+            <span className="text-xs font-medium text-neutral-500 tracking-wider">
               AI Integration
             </span>
             <Switch

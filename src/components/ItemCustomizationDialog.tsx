@@ -80,97 +80,24 @@ const overrideReasons = [
   "Other"
 ];
 
-// Mock modifier data
-const itemModifiers: ModifierCategory[] = [
-  {
-    name: "Size",
-    required: true,
-    options: [
-      { name: "Regular" },
-      { name: "Large", price: 2.00 },
-      { name: "Extra Large", price: 3.50 },
-    ]
-  },
-  {
-    name: "Preparation",
-    required: true,
-    options: [
-      { name: "Standard" },
-      { name: "Extra Crispy" },
-      { name: "Lightly Done" },
-      { name: "Well Done" },
-    ]
-  },
-  {
-    name: "Spice Level",
-    required: true,
-    options: [
-      { name: "Mild" },
-      { name: "Medium" },
-      { name: "Spicy" },
-      { name: "Extra Spicy", price: 0.50 },
-    ]
-  },
-  {
-    name: "Extras",
-    required: false,
-    options: [
-      { name: "Extra Sauce", price: 0.50 },
-      { name: "Side Dressing", price: 0.75 },
-      { name: "Lemon Wedge" },
-      { name: "Extra Napkins" },
-      { name: "To-Go Container", price: 0.25 },
-    ]
-  },
+// Hardcoded fallback modifier data (used while DB loads)
+const fallbackModifiers: ModifierCategory[] = [
+  { name: "Size", required: true, options: [{ name: "Regular" }, { name: "Large", price: 2.00 }, { name: "Extra Large", price: 3.50 }] },
+  { name: "Preparation", required: true, options: [{ name: "Standard" }, { name: "Extra Crispy" }, { name: "Lightly Done" }, { name: "Well Done" }] },
+  { name: "Spice Level", required: true, options: [{ name: "Mild" }, { name: "Medium" }, { name: "Spicy" }, { name: "Extra Spicy", price: 0.50 }] },
+  { name: "Extras", required: false, options: [{ name: "Extra Sauce", price: 0.50 }, { name: "Side Dressing", price: 0.75 }, { name: "Lemon Wedge" }, { name: "Extra Napkins" }, { name: "To-Go Container", price: 0.25 }] },
 ];
 
 interface AddOnItem extends ModifierOption {
   isFavorite?: boolean;
 }
 
-// Add-ons per item ID
-const addOnsByItemId: Record<number, AddOnItem[]> = {
-  1: [
-    { name: "Dew Mojito", price: 2.00, isFavorite: true },
-    { name: "Masala Pepsi", price: 3.00, isFavorite: true },
-    { name: "Virgin Mojito", price: 4.00, isFavorite: true },
-    { name: "Green Tea", price: 2.00 },
-    { name: "Lemonade", price: 3.00 },
-    { name: "Hot Chocolate", price: 4.00 },
-    { name: "Fresh Orange Juice", price: 4.50 },
-    { name: "Iced Coffee", price: 3.50 },
-  ],
-  2: [
-    { name: "Extra Cheese", price: 1.50, isFavorite: true },
-    { name: "Bacon", price: 2.00, isFavorite: true },
-    { name: "Avocado", price: 2.50 },
-    { name: "Fried Egg", price: 1.50 },
-    { name: "Mushrooms", price: 1.00 },
-  ],
-  3: [
-    { name: "Brownie", price: 4.00, isFavorite: true },
-    { name: "Ice Cream", price: 3.50, isFavorite: true },
-    { name: "Cheesecake", price: 5.00 },
-    { name: "Whipped Cream", price: 1.00 },
-  ],
-  4: [
-    { name: "Grilled Chicken", price: 3.50, isFavorite: true },
-    { name: "Extra Patty", price: 4.00, isFavorite: true },
-    { name: "Guacamole", price: 2.00 },
-    { name: "Sour Cream", price: 1.00 },
-  ],
-};
-
-// Default add-ons for items without specific ones
-const defaultAddOns: AddOnItem[] = [
+const fallbackAddOns: AddOnItem[] = [
   { name: "Extra Cheese", price: 1.50, isFavorite: true },
   { name: "Bacon", price: 2.00, isFavorite: true },
   { name: "Avocado", price: 2.50, isFavorite: true },
   { name: "Fried Egg", price: 1.50 },
   { name: "Mushrooms", price: 1.00 },
-  { name: "Onion Rings", price: 2.00 },
-  { name: "Jalapeños", price: 0.75 },
-  { name: "Extra Patty", price: 4.00 },
 ];
 
 // Default modifiers based on item name keywords

@@ -140,24 +140,7 @@ const CurbSideGuestForm = ({ onSave, onCancel, onClose, initialData }: CurbSideG
 
   const maxNotes = 70;
 
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase();
-    return customers.filter(
-      (guest) =>
-        guest.name.toLowerCase().includes(query) ||
-        guest.phone.replace(/\D/g, "").includes(query.replace(/\D/g, ""))
-    );
-  }, [searchQuery]);
-
-  // Check for phone conflict when phone number changes
-  useEffect(() => {
-    const conflict = checkPhoneConflict(formData.phoneNumber, formData.guestName);
-    if (conflict) {
-      setConflictCustomer(conflict);
-      setShowConflictDialog(true);
-    }
-  }, [formData.phoneNumber, formData.guestName]);
+  const maxNotes = 70;
 
   const handleSelectGuest = (guest: Customer) => {
     setFormData((prev) => ({

@@ -2811,7 +2811,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               <span>FIRE</span>
             </button>
             <button 
-              onClick={() => setIsTipSheetOpen(true)}
+              onClick={() => setShowPaymentDialog(true)}
               className="flex-1 py-2.5 rounded-full text-black text-sm font-bold" 
               style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
             >

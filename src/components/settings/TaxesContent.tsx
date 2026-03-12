@@ -35,20 +35,11 @@ interface TaxesContentProps {
   onAIClick?: () => void;
 }
 
-const DEVICE_ID_KEY = "pos_device_id";
-function getDeviceId(): string {
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if (!id) {
-    id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    localStorage.setItem(DEVICE_ID_KEY, id);
-  }
-  return id;
-}
+const SHARED_DEVICE_ID = "shared";
 
 const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const deviceId = getDeviceId();
 
   const [taxes, setTaxes] = useState<Tax[]>([]);
   const [loading, setLoading] = useState(true);

@@ -258,7 +258,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
         {/* Enable/Disable Toggle */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-3">
-            <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase">
+            <span className="text-xs font-medium text-neutral-500 tracking-wider">
               AI Integration
             </span>
             <Switch
@@ -281,7 +281,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
         {/* Provider Selection */}
         <div className="mb-4">
-          <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase block mb-3">
+          <span className="text-xs font-medium text-neutral-500 tracking-wider block mb-3">
             AI Provider
           </span>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
@@ -307,7 +307,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
         {/* API Key */}
         {provider && (
           <div className="mb-4">
-            <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase block mb-3">
+            <span className="text-xs font-medium text-neutral-500 tracking-wider block mb-3">
               API Key
             </span>
             <div className="bg-neutral-800/60 rounded-2xl overflow-hidden p-4">
@@ -388,7 +388,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
         {/* AI Instructions Navigation */}
         <div className="mb-4">
-          <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase block mb-3">
+          <span className="text-xs font-medium text-neutral-500 tracking-wider block mb-3">
             AI Behavior
           </span>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

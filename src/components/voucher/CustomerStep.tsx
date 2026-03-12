@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, ChevronDown, UserCheck, UserPlus } from "lucide-react";
-import { customers, type Customer } from "@/data/customers";
+import { searchCustomers, type Customer } from "@/services/customerService";
 import { COUNTRY_CODES, inputClass, labelClass, type CountryCodeEntry, type VoucherCustomer } from "./voucherConstants";
 import { formatPhone } from "./voucherHelpers";
 

@@ -1,9 +1,10 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState } from "react";
 import { Search, X, Home, MapPin, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
-import { customers, checkPhoneConflict, Customer } from "@/data/customers";
+import { Customer } from "@/services/customerService";
+import { useCustomerSearch, usePhoneConflict } from "@/hooks/useCustomerSearch";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
 interface DeliveryGuestFormProps {

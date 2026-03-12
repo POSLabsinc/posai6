@@ -7,7 +7,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { AlertTriangle, User, Pencil, Users, Plus } from "lucide-react";
-import { Customer } from "@/data/customers";
+import { Customer } from "@/services/customerService";
 
 interface PhoneConflictDialogProps {
   isOpen: boolean;

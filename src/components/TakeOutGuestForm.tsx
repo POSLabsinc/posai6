@@ -68,40 +68,20 @@ const TakeOutGuestForm = ({ onSave, onCancel, onClose, initialData }: TakeOutGue
     return text.trim() ? text.trim().split(/\s+/).length : 0;
   };
 
-  // Conflict resolution handlers
   const handleUseExisting = () => {
     if (conflictCustomer) {
-      setFormData((prev) => ({
-        ...prev,
-        guestName: conflictCustomer.name,
-        email: conflictCustomer.email || prev.email,
-      }));
+      setFormData((prev) => ({ ...prev, guestName: conflictCustomer.name, email: conflictCustomer.email || prev.email }));
     }
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
+    clearConflict();
   };
 
-  const handleUpdateName = () => {
-    // In a real app, this would update the customer record in the database
-    // For now, just keep the new name and close the dialog
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
-  };
+  const handleUpdateName = () => clearConflict();
 
-  const handleAddFamilyMember = () => {
-    // In a real app, this would link the new profile to the existing phone number
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
-  };
+  const handleAddFamilyMember = () => clearConflict();
 
   const handleCreateNew = () => {
-    // Clear the phone number so user can enter a different one
-    setFormData((prev) => ({
-      ...prev,
-      phoneNumber: "",
-    }));
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
+    setFormData((prev) => ({ ...prev, phoneNumber: "" }));
+    clearConflict();
   };
 
   const isFormValid = formData.guestName && isValidPhoneNumber(formData.phoneNumber);

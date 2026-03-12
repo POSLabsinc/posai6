@@ -53,11 +53,11 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [options, setOptions] = useState<ServiceChargeOption[]>([]);
 
-  // Reload options from settings every time dialog opens
+  // Reload options from database every time dialog opens
   useEffect(() => {
     if (open) {
-      setOptions(getServiceChargeOptions());
       setSelectedOption(null);
+      fetchServiceChargeOptions().then(setOptions);
     }
   }, [open]);
 

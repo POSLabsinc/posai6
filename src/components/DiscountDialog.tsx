@@ -199,8 +199,8 @@ export function DiscountDialog({
   const prevOpenRef = useRef(false);
   useEffect(() => {
     if (open && !prevOpenRef.current) {
-      // Reload discounts from settings each time dialog opens
-      setDynamicDiscounts(getDiscountsFromSettings());
+      // Reload discounts from database each time dialog opens
+      fetchDiscountsFromDB().then(setDynamicDiscounts);
       // Dialog just opened: initialize from currently applied discounts
       setSelectedDiscounts(currentDiscounts);
       setExpandedDiscountId(null);

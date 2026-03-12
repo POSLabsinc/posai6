@@ -48,7 +48,7 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
     const { data, error } = await (supabase as any)
       .from("taxes")
       .select("*")
-      .eq("device_id", deviceId)
+      .eq("device_id", SHARED_DEVICE_ID)
       .order("sort_order");
     
     if (data && !error) {

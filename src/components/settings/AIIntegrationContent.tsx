@@ -379,7 +379,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
         )}
 
         {/* Info Note */}
-        <div className="bg-neutral-800/60 rounded-2xl p-4 flex gap-3 mb-6">
+        <div className="rounded-2xl p-4 flex gap-3 mb-6">
           <Info className="w-5 h-5 text-primary shrink-0 mt-0.5" />
           <p className="text-sm text-neutral-400 leading-relaxed">
             All AI usage will be billed directly to your own provider account. This does not use platform credits. Only Admin, Owner, or Manager roles can configure this integration.

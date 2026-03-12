@@ -6314,10 +6314,163 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         />
       )}
 
-      {/* Transfer Intent Dialog */}
-      {showTransferIntentDialog && (() => {
-        const sourceOrder = allOrders.find(o => o.id === transferIntentOrderId);
+      {/* Transfer Intent Dialog - matching TableOrderDetails */}
+      {showTransferIntentDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/80" onClick={() => setShowTransferIntentDialog(false)} />
+          <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[380px] max-w-[90vw] overflow-hidden">
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h2 className="text-white text-lg font-semibold">Transfer Order</h2>
+              <button 
+                onClick={() => setShowTransferIntentDialog(false)}
+                className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+            <div className="p-4">
+              <p className="text-white/60 text-sm mb-3">What would you like to transfer?</p>
+              <div className="space-y-2">
+                <button 
+                  onClick={() => {
+                    setShowTransferIntentDialog(false);
+                    const table = allOrders.find(o => o.id === transferIntentOrderId)?.table || 'T1';
+                    navigate(`/tableorder/${table}/transfer?orderId=${transferIntentOrderId}`);
+                  }}
+                  className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3 mb-0.5">
+                    <img src={transferItemIcon} alt="Transfer Products" className="w-5 h-5 object-contain opacity-80" />
+                    <span className="text-white font-medium">Transfer Products</span>
+                  </div>
+                  <p className="text-white/50 text-xs ml-8">Move selected products to another table or order.</p>
+                </button>
+                <div className="pt-0.5 -mb-1">
+                  <div className="flex items-center gap-2">
+                    <img src={transferEntireOrderIcon} alt="Transfer Entire Order" className="w-4 h-4 object-contain opacity-50" />
+                    <p className="text-white/50 text-xs font-semibold uppercase tracking-wider">Transfer Entire Order</p>
+                  </div>
+                </div>
+                <button 
+                  onClick={() => {
+                    setShowTransferIntentDialog(false);
+                    const table = allOrders.find(o => o.id === transferIntentOrderId)?.table || 'T1';
+                    navigate(`/tableorder/${table}/transfer?orderId=${transferIntentOrderId}&transferType=entire`);
+                  }}
+                  className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3 mb-0.5">
+                    <img src={transferToTableIcon} alt="Transfer to Table" className="w-5 h-5 object-contain opacity-80" />
+                    <span className="text-white font-medium">Transfer to Table</span>
+                  </div>
+                  <p className="text-white/50 text-xs ml-8">Move this full order to another or new table.</p>
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowTransferIntentDialog(false);
+                    setSelectedTransferOrderId(null);
+                    setTransferToOrderSourceId(transferIntentOrderId);
+                    setShowTransferToOrderDialog(true);
+                  }}
+                  className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3 mb-0.5">
+                    <img src={transferToOrderIcon} alt="Transfer to Order" className="w-5 h-5 object-contain opacity-80" />
+                    <span className="text-white font-medium">Transfer to Order</span>
+                  </div>
+                  <p className="text-white/50 text-xs ml-8">Move this full order to another order.</p>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transfer to Order Dialog - matching TableOrderDetails */}
+      {showTransferToOrderDialog && (() => {
+        const sourceOrder = allOrders.find(o => o.id === transferToOrderSourceId);
+        const availableTransferOrders = getAvailableTicketOrdersForTransfer(transferToOrderSourceId || '');
+        const executeTransfer = () => {
+          if (!selectedTransferOrderId || !sourceOrder) return;
+          setShowTransferToOrderDialog(false);
+          const targetOrder = ticketOrders.find(o => o.id === selectedTransferOrderId);
+          const targetTable = targetOrder?.table || sourceOrder.table;
+          const destinationLabel = targetTable && targetTable !== '--' && targetTable !== sourceOrder.table
+            ? `${formatTableName(targetTable)} (Order #${selectedTransferOrderId})`
+            : `Order #${selectedTransferOrderId}`;
+          updateUnifiedOrders(prev => {
+            const matchSource = (o: any) => o.name === sourceOrder.name && o.table === sourceOrder.table;
+            const matchTarget = (o: any) => o.id === selectedTransferOrderId;
+            const targetName = targetOrder ? targetOrder.name : `Order #${selectedTransferOrderId}`;
+            return prev.map(o => {
+              if (matchSource(o)) {
+                return { ...o, items: [], subtotal: 0, discount: 0, serviceCharge: 0, tax: 0, tip: 0, total: 0,
+                  transferInfo: { type: 'sent' as const, transferType: 'full' as const, targetOrderId: selectedTransferOrderId!, targetOrderName: targetName, itemCount: sourceOrder.items.length, transferredItems: [...sourceOrder.items] } };
+              }
+              if (matchTarget(o)) {
+                const srcInPrev = prev.find(matchSource);
+                const srcItems = srcInPrev ? srcInPrev.items : [];
+                const newItems = [...o.items, ...srcItems];
+                const newSub = newItems.reduce((s: number, item: any) => s + item.price * item.qty, 0);
+                return { ...o, items: newItems, subtotal: +newSub.toFixed(2), tax: +(newSub * 0.0735).toFixed(2), serviceCharge: +(newSub * 0.05).toFixed(2), total: +(newSub + newSub * 0.05 + newSub * 0.0735 - o.discount).toFixed(2),
+                  transferInfo: { type: 'received' as const, transferType: 'full' as const, sourceOrderId: sourceOrder.id, sourceOrderName: sourceOrder.name, sourceTable: sourceOrder.table, itemCount: sourceOrder.items.length, transferredItems: [...sourceOrder.items] } };
+              }
+              return o;
+            });
+          });
+          setSelectedGuest(prev => prev ? { ...prev, items: [], subtotal: 0, discount: 0, serviceCharge: 0, tax: 0, tip: 0, total: 0, status: "ORDERING", notes: `Transferred to ${destinationLabel}` } : prev);
+          toast.success(`Order transferred successfully to ${destinationLabel}`);
+        };
         return (
+          <Dialog open={showTransferToOrderDialog} onOpenChange={setShowTransferToOrderDialog}>
+            <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-lg overflow-hidden" aria-describedby={undefined}>
+              <div className="p-4 border-b border-white/10">
+                <h2 className="text-white text-lg font-semibold">Transfer to Order</h2>
+                <p className="text-white/50 text-sm mt-1">Select an active order to transfer</p>
+              </div>
+              <ScrollArea className="max-h-[60vh]">
+                <div className="p-4 space-y-3">
+                  {availableTransferOrders.map((order) => {
+                    const isSelected = selectedTransferOrderId === order.id;
+                    return (
+                      <button key={order.id} onClick={() => setSelectedTransferOrderId(order.id)}
+                        className={`w-full rounded-xl border overflow-hidden text-left transition-all ${isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'}`}
+                        style={{ backgroundColor: '#1B1C20' }}>
+                        <div className="p-3">
+                          <OrderLayoutTemplate order={ticketToTemplateData(order)} showBorder={false} />
+                          <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
+                            {order.items.map((item, idx) => (
+                              <div key={idx} className="flex items-center justify-between py-1">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                  <span className="w-7 h-7 rounded-md border border-white/20 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">{item.qty}</span>
+                                  <span className="text-white text-sm truncate">{item.name}</span>
+                                </div>
+                                <span className="text-white/70 text-sm font-medium flex-shrink-0 ml-2">{formatTicketPrice(item.price * item.qty)}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+                            <span className="text-white/50 text-sm">{order.items.length} products</span>
+                            <span className="text-white font-semibold text-sm">{formatTicketPrice(order.items.reduce((s, i) => s + i.price * i.qty, 0))}</span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+              <div className="p-4 border-t border-white/10 flex gap-3">
+                <button onClick={() => setShowTransferToOrderDialog(false)} className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700">Cancel</button>
+                <button onClick={executeTransfer} disabled={!selectedTransferOrderId}
+                  className={`flex-1 py-2.5 rounded-full font-medium text-sm ${selectedTransferOrderId ? 'text-black' : 'text-black/50 opacity-50'}`}
+                  style={selectedTransferOrderId ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: '#555' }}>
+                  Confirm Transfer
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
           <div className="fixed inset-0 z-50 flex items-center justify-center">
             <div className="absolute inset-0 bg-black/80" onClick={() => setShowTransferIntentDialog(false)} />
             <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[380px] max-w-[90vw] overflow-hidden">

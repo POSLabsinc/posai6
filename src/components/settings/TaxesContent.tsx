@@ -1,10 +1,9 @@
-import { useMemo } from "react";
-import { useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Plus, Search, Mic, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useSettingsSync } from "@/hooks/useSettingsSync";
+import { toast } from "@/hooks/use-toast";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +17,7 @@ import {
 import AddTaxContent from "./AddTaxContent";
 import EditTaxContent from "./EditTaxContent";
 import SwipeableTaxItem from "./SwipeableTaxItem";
+import { supabase } from "@/integrations/supabase/client";
 
 interface Tax {
   id: string;
@@ -35,20 +35,49 @@ interface TaxesContentProps {
   onAIClick?: () => void;
 }
 
-const STORAGE_KEY = "taxes-settings";
-
-const defaultTaxes: Tax[] = [];
+const DEVICE_ID_KEY = "pos_device_id";
+function getDeviceId(): string {
+  let id = localStorage.getItem(DEVICE_ID_KEY);
+  if (!id) {
+    id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem(DEVICE_ID_KEY, id);
+  }
+  return id;
+}
 
 const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  
-  // Use settings sync hook to listen for AI-driven updates
-  const [taxes, setTaxes] = useSettingsSync<Tax[]>(
-    'taxes',
-    STORAGE_KEY,
-    defaultTaxes
-  );
+  const deviceId = getDeviceId();
+
+  const [taxes, setTaxes] = useState<Tax[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchTaxes = useCallback(async () => {
+    const { data, error } = await (supabase as any)
+      .from("taxes")
+      .select("*")
+      .eq("device_id", deviceId)
+      .order("sort_order");
+    
+    if (data && !error) {
+      const mapped: Tax[] = data.map((d: any) => ({
+        id: d.id,
+        name: d.name,
+        amount: Number(d.amount),
+        type: d.type as "Exclusive" | "Inclusive",
+        archived: d.archived,
+        applicableTo: d.applicable_to,
+        applicableProducts: d.applicable_products || [],
+      }));
+      setTaxes(mapped);
+    }
+    setLoading(false);
+  }, [deviceId]);
+
+  useEffect(() => {
+    fetchTaxes();
+  }, [fetchTaxes]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
@@ -56,35 +85,44 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
   const [showAddScreen, setShowAddScreen] = useState(false);
   const [taxToEdit, setTaxToEdit] = useState<Tax | null>(null);
 
-  const saveTaxes = (newTaxes: Tax[]) => {
-    setTaxes(newTaxes);
-  };
-
-  const handleAddTax = (taxData: {
+  const handleAddTax = async (taxData: {
     name: string;
     amount: number;
     type: "Exclusive" | "Inclusive";
     applicableTo: string;
     applicableProducts: string[];
   }) => {
-    const newTax: Tax = {
-      id: Date.now().toString(),
+    const { error } = await (supabase as any).from("taxes").insert({
+      device_id: deviceId,
       name: taxData.name,
       amount: taxData.amount,
       type: taxData.type,
-      applicableTo: taxData.applicableTo,
-      applicableProducts: taxData.applicableProducts,
+      applicable_to: taxData.applicableTo || "All Products",
+      applicable_products: taxData.applicableProducts || [],
       archived: false,
-    };
-    saveTaxes([...taxes, newTax]);
+      sort_order: taxes.length,
+    });
+
+    if (!error) {
+      await fetchTaxes();
+      toast({ description: "Tax added successfully" });
+    } else {
+      toast({ description: "Failed to add tax", variant: "destructive" });
+    }
     setShowAddScreen(false);
   };
 
-  const handleEditTax = (updatedTax: Tax) => {
-    const updatedTaxes = taxes.map(tax => 
-      tax.id === updatedTax.id ? updatedTax : tax
-    );
-    saveTaxes(updatedTaxes);
+  const handleEditTax = async (updatedTax: Tax) => {
+    await (supabase as any).from("taxes").update({
+      name: updatedTax.name,
+      amount: updatedTax.amount,
+      type: updatedTax.type,
+      applicable_to: updatedTax.applicableTo || "All Products",
+      applicable_products: updatedTax.applicableProducts || [],
+      archived: updatedTax.archived,
+    }).eq("id", updatedTax.id);
+
+    await fetchTaxes();
     setTaxToEdit(null);
   };
 
@@ -92,12 +130,11 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
     setTaxToArchive(tax);
   };
 
-  const confirmArchiveTax = () => {
+  const confirmArchiveTax = async () => {
     if (taxToArchive) {
-      const updatedTaxes = taxes.map(tax => 
-        tax.id === taxToArchive.id ? { ...tax, archived: !tax.archived } : tax
-      );
-      saveTaxes(updatedTaxes);
+      const newArchived = !taxToArchive.archived;
+      await (supabase as any).from("taxes").update({ archived: newArchived }).eq("id", taxToArchive.id);
+      await fetchTaxes();
       setTaxToArchive(null);
     }
   };

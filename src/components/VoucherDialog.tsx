@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Ticket, X, Gift } from "lucide-react";
+import { SettingsManager } from "@/lib/settingsManager";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";

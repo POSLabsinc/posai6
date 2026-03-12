@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, Eye, EyeOff, Trash2, RefreshCw, Info } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, EyeOff, Trash2, RefreshCw, Info, BookOpen } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import aiIntegrationIcon from "@/assets/icons/ai-integration.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
-import AIRulesContent from "@/components/settings/AIRulesContent";
 
 interface AIIntegrationContentProps {
   showHeader?: boolean;
@@ -387,11 +386,29 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
           </p>
         </div>
 
-        {/* Divider */}
-        <div className="h-px bg-neutral-700/50 my-6" />
-
-        {/* AI Rules & Instructions */}
-        <AIRulesContent />
+        {/* AI Instructions Navigation */}
+        <div className="mb-4">
+          <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase block mb-3">
+            AI Behavior
+          </span>
+          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+            <button
+              onClick={() => navigate('/settings/network/ai-integration/ai-instructions')}
+              className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+                  <BookOpen className="w-4 h-4 text-primary" />
+                </div>
+                <div className="text-left">
+                  <span className="text-foreground text-base font-medium block">AI Instructions</span>
+                  <span className="text-neutral-400 text-xs">Rules, custom instructions & knowledge base</span>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-neutral-500" />
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

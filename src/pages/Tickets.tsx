@@ -6504,7 +6504,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           phone: sourceOrderData.phone || '',
           partySize: sourceOrderData.partySize || 1,
           time: sourceOrderData.time || '',
-          timer: sourceOrderData.timer || '',
+          timer: (sourceOrderData as any).timer || sourceOrderData.time || '',
           server: sourceOrderData.server || '',
           check: sourceOrderData.check || '--',
           paymentType: sourceOrderData.paymentType || '',

@@ -1,11 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Plus, Search, Mic, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 import { useAppearance } from "@/contexts/AppearanceContext";
-import { useSettingsSync } from "@/hooks/useSettingsSync";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,6 +20,7 @@ import EditServiceChargeContent from "./EditServiceChargeContent";
 import SwipeableServiceChargeItem from "./SwipeableServiceChargeItem";
 import infoIcon from "@/assets/icons/info.png";
 import serviceChargeIcon from "@/assets/icons/service-charge.png";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ServiceCharge {
   id: string;
@@ -43,25 +43,55 @@ interface ServiceChargeContentProps {
   onAIClick?: () => void;
 }
 
-const STORAGE_KEY = "service-charges-settings";
-
-const defaultServiceCharges: ServiceCharge[] = [
-  { id: "1", name: "Large Party (6+)", amount: 18, type: "Percentage", archived: false, requiresManagerPin: false, orderType: "Dine-In Only", appliedAs: "Large Table", automaticApply: true, minSeats: 6, taxApplicable: "Taxable" },
-  { id: "2", name: "Delivery Fee", amount: 5, type: "Fixed", archived: false, orderType: "Delivery Only", requiresManagerPin: false, appliedAs: "Basic", taxApplicable: "Non-Taxable" },
-  { id: "3", name: "Private Event", amount: 20, type: "Percentage", archived: false, requiresManagerPin: true, orderType: "All Orders", appliedAs: "Private Event", taxApplicable: "Taxable" },
-];
+const DEVICE_ID_KEY = "pos_device_id";
+function getDeviceId(): string {
+  let id = localStorage.getItem(DEVICE_ID_KEY);
+  if (!id) {
+    id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
+    localStorage.setItem(DEVICE_ID_KEY, id);
+  }
+  return id;
+}
 
 const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceChargeContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
-  
-  // Use settings sync hook to listen for AI-driven updates
-  const [serviceCharges, setServiceCharges] = useSettingsSync<ServiceCharge[]>(
-    'serviceCharges',
-    STORAGE_KEY,
-    defaultServiceCharges
-  );
+  const deviceId = getDeviceId();
+
+  const [serviceCharges, setServiceCharges] = useState<ServiceCharge[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const fetchServiceCharges = useCallback(async () => {
+    const { data, error } = await (supabase as any)
+      .from("service_charges")
+      .select("*")
+      .eq("device_id", deviceId)
+      .order("sort_order");
+    
+    if (data && !error) {
+      const mapped: ServiceCharge[] = data.map((d: any) => ({
+        id: d.id,
+        name: d.name,
+        amount: Number(d.amount),
+        type: d.type as "Percentage" | "Fixed",
+        archived: d.archived,
+        taxApplicable: d.tax_applicable,
+        orderType: d.order_type,
+        appliedAs: d.applied_as,
+        automaticApply: d.automatic_apply,
+        minSeats: d.min_seats,
+        requiresManagerPin: d.requires_manager_pin,
+        isActive: d.is_active,
+      }));
+      setServiceCharges(mapped);
+    }
+    setLoading(false);
+  }, [deviceId]);
+
+  useEffect(() => {
+    fetchServiceCharges();
+  }, [fetchServiceCharges]);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
@@ -69,11 +99,7 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
   const [showAddScreen, setShowAddScreen] = useState(false);
   const [chargeToEdit, setChargeToEdit] = useState<ServiceCharge | null>(null);
 
-  const saveServiceCharges = (newCharges: ServiceCharge[]) => {
-    setServiceCharges(newCharges);
-  };
-
-  const handleAddServiceCharge = (chargeData: {
+  const handleAddServiceCharge = async (chargeData: {
     name: string;
     amount: number;
     type: "Percentage" | "Fixed";
@@ -84,28 +110,45 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
     minSeats: number;
     requiresManagerPin: boolean;
   }) => {
-    const newCharge: ServiceCharge = {
-      id: Date.now().toString(),
+    const { error } = await (supabase as any).from("service_charges").insert({
+      device_id: deviceId,
       name: chargeData.name,
       amount: chargeData.amount,
       type: chargeData.type,
-      taxApplicable: chargeData.taxApplicable,
-      orderType: chargeData.orderType,
-      appliedAs: chargeData.appliedAs,
-      automaticApply: chargeData.automaticApply,
-      minSeats: chargeData.minSeats,
-      requiresManagerPin: chargeData.requiresManagerPin,
+      tax_applicable: chargeData.taxApplicable,
+      order_type: Array.isArray(chargeData.orderType) ? chargeData.orderType.join(", ") : chargeData.orderType,
+      applied_as: chargeData.appliedAs,
+      automatic_apply: chargeData.automaticApply,
+      min_seats: chargeData.minSeats || 0,
+      requires_manager_pin: chargeData.requiresManagerPin,
       archived: false,
-    };
-    saveServiceCharges([...serviceCharges, newCharge]);
+      sort_order: serviceCharges.length,
+    });
+
+    if (!error) {
+      await fetchServiceCharges();
+      toast({ description: "Service charge added successfully" });
+    } else {
+      toast({ description: "Failed to add service charge", variant: "destructive" });
+    }
     setShowAddScreen(false);
   };
 
-  const handleEditServiceCharge = (updatedCharge: ServiceCharge) => {
-    const updatedCharges = serviceCharges.map(charge => 
-      charge.id === updatedCharge.id ? updatedCharge : charge
-    );
-    saveServiceCharges(updatedCharges);
+  const handleEditServiceCharge = async (updatedCharge: ServiceCharge) => {
+    await (supabase as any).from("service_charges").update({
+      name: updatedCharge.name,
+      amount: updatedCharge.amount,
+      type: updatedCharge.type,
+      tax_applicable: updatedCharge.taxApplicable,
+      order_type: Array.isArray(updatedCharge.orderType) ? updatedCharge.orderType.join(", ") : updatedCharge.orderType,
+      applied_as: updatedCharge.appliedAs,
+      automatic_apply: updatedCharge.automaticApply,
+      min_seats: updatedCharge.minSeats || 0,
+      requires_manager_pin: updatedCharge.requiresManagerPin,
+      archived: updatedCharge.archived,
+    }).eq("id", updatedCharge.id);
+
+    await fetchServiceCharges();
     setChargeToEdit(null);
   };
 
@@ -113,12 +156,11 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
     setChargeToArchive(charge);
   };
 
-  const confirmArchiveServiceCharge = () => {
+  const confirmArchiveServiceCharge = async () => {
     if (chargeToArchive) {
-      const updatedCharges = serviceCharges.map(charge => 
-        charge.id === chargeToArchive.id ? { ...charge, archived: !charge.archived } : charge
-      );
-      saveServiceCharges(updatedCharges);
+      const newArchived = !chargeToArchive.archived;
+      await (supabase as any).from("service_charges").update({ archived: newArchived }).eq("id", chargeToArchive.id);
+      await fetchServiceCharges();
       setChargeToArchive(null);
     }
   };

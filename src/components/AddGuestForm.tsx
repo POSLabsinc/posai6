@@ -448,14 +448,14 @@ const AddGuestForm = ({ onClose, onSave }: AddGuestFormProps) => {
         </Button>
         <button
           onClick={handleSave}
-          disabled={!isFormValid}
+          disabled={!isFormValid || isSaving}
           className={`flex-1 h-11 rounded-lg font-medium transition-colors ${
-            isFormValid
+            isFormValid && !isSaving
               ? "bg-primary text-primary-foreground hover:bg-primary/90"
               : "bg-white/10 text-white/40 cursor-not-allowed"
           }`}
         >
-          Save Guest
+          {isSaving ? "Saving..." : "Save Guest"}
         </button>
       </div>
     </div>

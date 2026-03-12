@@ -6244,6 +6244,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           onPaymentComplete={(paymentHistory) => {
             console.log("Ticket payment completed:", paymentHistory);
             setShowPaymentDialog(false);
+            
+            // Mark the ticket as paid so CTA switches to "Add Tip" + "Close"
+            setSelectedGuest(prev => prev ? {
+              ...prev,
+              paid: true,
+              status: "PAID",
+              paymentType: paymentHistory.length > 0 ? paymentHistory[0].methodLabel : "Card",
+              paidAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            } : prev);
+            
             const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();
             if (checkoutSettings.printReceipt) {
               toast.success("Receipt sent to printer");

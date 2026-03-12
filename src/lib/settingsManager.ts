@@ -952,7 +952,7 @@ export class SettingsManager {
 
   // ============= CASH MANAGEMENT =============
   static async createCashDrawerSession(drawerName: string, startingCash: number): Promise<string | null> {
-    const deviceId = getDeviceId();
+    const deviceId = getPerDeviceId();
     const { data, error } = await (supabase as any).from("cash_drawer_sessions").insert({
       device_id: deviceId,
       drawer_name: drawerName,

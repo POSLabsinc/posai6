@@ -101,10 +101,51 @@ const AddGuestForm = ({ onClose, onSave }: AddGuestFormProps) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    if (formData.firstName && formData.lastName && formData.email && formData.phoneNumber) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phoneNumber) return;
+
+    setIsSaving(true);
+    try {
+      const fullName = [formData.firstName, formData.middleName, formData.lastName].filter(Boolean).join(" ");
+      const initials = `${formData.firstName.charAt(0)}${formData.lastName.charAt(0)}`.toUpperCase();
+      const vehicleParts = [formData.vehicleColor, formData.vehicleBrand, formData.vehicleType].filter(Boolean);
+      const vehicleStr = vehicleParts.length > 0 ? vehicleParts.join(" ") : "";
+
+      const guestRow: Record<string, any> = {
+        name: fullName,
+        middle_name: formData.middleName || "",
+        email: formData.email,
+        phone: formData.phoneNumber,
+        since: formData.customerSince || "",
+        birthday: formData.dateOfBirth || "",
+        anniversary: formData.anniversary || "",
+        address: formData.address || "",
+        vehicle: vehicleStr,
+        license_plate: formData.licensePlate || "",
+        avatar_url: formData.profilePhoto || null,
+        initials,
+        is_archived: false,
+      };
+
+      const { error } = await (supabase as any).from("guests").insert(guestRow);
+
+      if (error) {
+        console.error("Failed to save guest:", error);
+        toast.error("Failed to save guest. Please try again.");
+        setIsSaving(false);
+        return;
+      }
+
+      toast.success("Guest saved successfully!");
       onSave(formData);
       onClose();
+    } catch (err) {
+      console.error("Error saving guest:", err);
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setIsSaving(false);
     }
   };
 

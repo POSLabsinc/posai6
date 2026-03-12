@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Printer, Mail, ChevronDown, Delete, Check, ArrowLeft, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { VoucherFormData } from './CreateVoucherForm';
-import { customers, Customer } from '@/data/customers';
+import { searchCustomers, Customer } from '@/services/customerService';
 import { Input } from '@/components/ui/input';
 
 interface VoucherReceiptDialogProps {

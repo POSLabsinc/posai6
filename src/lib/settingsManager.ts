@@ -69,13 +69,11 @@ async function syncGratuityToTable(settings: GratuitySettings) {
 }
 
 async function syncDiscountsToTable(discounts: Discount[]) {
-  const deviceId = getDeviceId();
-  // Delete existing and re-insert all
-  await (supabase as any).from("discounts").delete().eq("device_id", deviceId);
+  await (supabase as any).from("discounts").delete().eq("device_id", SHARED_DEVICE_ID);
   if (discounts.length > 0) {
     await (supabase as any).from("discounts").insert(
       discounts.map((d, i) => ({
-        device_id: deviceId,
+        device_id: SHARED_DEVICE_ID,
         name: d.name,
         amount: d.amount,
         type: d.type,

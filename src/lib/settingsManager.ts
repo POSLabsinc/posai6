@@ -155,13 +155,12 @@ async function syncCheckoutOptionsToTable(settings: CheckoutOptionsSettings) {
 }
 
 async function syncPaymentMethodsToTable(states: Record<string, boolean>) {
-  const deviceId = getDeviceId();
-  await (supabase as any).from("payment_methods").delete().eq("device_id", deviceId);
+  await (supabase as any).from("payment_methods").delete().eq("device_id", SHARED_DEVICE_ID);
   const entries = Object.entries(states);
   if (entries.length > 0) {
     await (supabase as any).from("payment_methods").insert(
       entries.map(([methodId, enabled], i) => ({
-        device_id: deviceId,
+        device_id: SHARED_DEVICE_ID,
         method_id: methodId,
         enabled,
         sort_order: i,

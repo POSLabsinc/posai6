@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import VoucherReceiptDialog from "./VoucherReceiptDialog";
+import { SettingsManager } from "@/lib/settingsManager";
 
 interface CreateVoucherFormProps {
   onClose: () => void;

@@ -6569,14 +6569,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         );
       })()}
 
-      {/* Merge Dialog */}
-      {showMergeDialog && (() => {
-        const sourceOrder = allOrders.find(o => o.id === mergeSourceOrderId);
-        const availableMergeOrders = allOrders.filter(o => 
-          o.id !== mergeSourceOrderId && 
-          (o.status === "ORDERING" || o.status === "UNPAID") &&
-          !o.paid
-        );
+
 
         const executeMerge = () => {
           if (!selectedMergeTargetId || !sourceOrder) return;

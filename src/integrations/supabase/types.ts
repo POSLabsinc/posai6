@@ -247,6 +247,36 @@ export type Database = {
         }
         Relationships: []
       }
+      default_modifiers: {
+        Row: {
+          archived: boolean
+          created_at: string
+          id: string
+          name: string
+          sort_order: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          id?: string
+          name: string
+          sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       device_stores: {
         Row: {
           created_at: string
@@ -455,6 +485,57 @@ export type Database = {
           selected_tip_presets?: Json
           show_on_receipt?: boolean
           tip_presets?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      groups: {
+        Row: {
+          archived: boolean
+          created_at: string
+          display_name: string | null
+          has_max_selections: boolean
+          id: string
+          max_selections: number
+          modifier_group_position: number | null
+          name: string
+          selected_add_ons: Json | null
+          selected_default_modifiers: Json | null
+          selected_modifiers: Json | null
+          sort_order: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          archived?: boolean
+          created_at?: string
+          display_name?: string | null
+          has_max_selections?: boolean
+          id?: string
+          max_selections?: number
+          modifier_group_position?: number | null
+          name: string
+          selected_add_ons?: Json | null
+          selected_default_modifiers?: Json | null
+          selected_modifiers?: Json | null
+          sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          archived?: boolean
+          created_at?: string
+          display_name?: string | null
+          has_max_selections?: boolean
+          id?: string
+          max_selections?: number
+          modifier_group_position?: number | null
+          name?: string
+          selected_add_ons?: Json | null
+          selected_default_modifiers?: Json | null
+          selected_modifiers?: Json | null
+          sort_order?: number
+          type?: string
           updated_at?: string
         }
         Relationships: []
@@ -1368,6 +1449,45 @@ export type Database = {
           id?: string
           name?: string
           sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      timed_pricing_rules: {
+        Row: {
+          adjustment: number
+          created_at: string
+          days: string[]
+          enabled: boolean
+          end_time: string
+          id: string
+          name: string
+          start_time: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          adjustment?: number
+          created_at?: string
+          days?: string[]
+          enabled?: boolean
+          end_time?: string
+          id?: string
+          name: string
+          start_time?: string
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          adjustment?: number
+          created_at?: string
+          days?: string[]
+          enabled?: boolean
+          end_time?: string
+          id?: string
+          name?: string
+          start_time?: string
           type?: string
           updated_at?: string
         }

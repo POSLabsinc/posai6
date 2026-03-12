@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
+import { SettingsManager } from "@/lib/settingsManager";
 
 interface PayInOutContentProps {
   showHeader?: boolean;

@@ -28,8 +28,7 @@ interface CustomOrderGuestFormProps {
 }
 
 const CustomOrderGuestForm = ({ onSave, onClose, initialData }: CustomOrderGuestFormProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const { searchQuery, setSearchQuery, searchResults, showSearchResults, setShowSearchResults } = useCustomerSearch();
   const [guestName, setGuestName] = useState(initialData?.guestName || "");
   const [phoneNumber, setPhoneNumber] = useState(initialData?.phoneNumber || "");
   const [email, setEmail] = useState(initialData?.email || "");
@@ -42,9 +41,7 @@ const CustomOrderGuestForm = ({ onSave, onClose, initialData }: CustomOrderGuest
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
 
-  // Phone conflict state
-  const [showConflictDialog, setShowConflictDialog] = useState(false);
-  const [conflictCustomer, setConflictCustomer] = useState<Customer | null>(null);
+  const { showConflictDialog, setShowConflictDialog, conflictCustomer, clearConflict } = usePhoneConflict(phoneNumber, guestName);
 
   const handlePhoneChange = (value: string) => {
     const formatted = formatPhoneNumber(value);

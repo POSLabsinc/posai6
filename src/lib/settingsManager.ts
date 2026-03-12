@@ -585,6 +585,7 @@ export class SettingsManager {
     const updated = { ...current, ...updates };
     localStorage.setItem(STORAGE_KEYS.GRATUITY, JSON.stringify(updated));
     syncToDatabase(STORAGE_KEYS.GRATUITY, JSON.stringify(updated));
+    syncGratuityToTable(updated);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'gratuity', data: updated } }));
     return updated;
   }

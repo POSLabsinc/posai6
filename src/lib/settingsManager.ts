@@ -55,9 +55,8 @@ function syncToDatabase(preferenceKey: string, value: string) {
 // ============= DEDICATED TABLE SYNC HELPERS =============
 
 async function syncGratuityToTable(settings: GratuitySettings) {
-  const deviceId = getDeviceId();
   await (supabase as any).from("gratuity_settings").upsert({
-    device_id: deviceId,
+    device_id: SHARED_DEVICE_ID,
     enable_tip: settings.enableTip,
     show_on_receipt: settings.showOnReceipt,
     allow_custom: settings.allowCustom,

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import offerIcon from "@/assets/icons/offer.png";
+import { fetchProductCustomization, type DbModifierGroup, type DbAddOn, type DbProductInfo } from "@/services/productCustomizationService";
 
 // Sort options for add-ons
 type SortOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc';
@@ -79,97 +80,24 @@ const overrideReasons = [
   "Other"
 ];
 
-// Mock modifier data
-const itemModifiers: ModifierCategory[] = [
-  {
-    name: "Size",
-    required: true,
-    options: [
-      { name: "Regular" },
-      { name: "Large", price: 2.00 },
-      { name: "Extra Large", price: 3.50 },
-    ]
-  },
-  {
-    name: "Preparation",
-    required: true,
-    options: [
-      { name: "Standard" },
-      { name: "Extra Crispy" },
-      { name: "Lightly Done" },
-      { name: "Well Done" },
-    ]
-  },
-  {
-    name: "Spice Level",
-    required: true,
-    options: [
-      { name: "Mild" },
-      { name: "Medium" },
-      { name: "Spicy" },
-      { name: "Extra Spicy", price: 0.50 },
-    ]
-  },
-  {
-    name: "Extras",
-    required: false,
-    options: [
-      { name: "Extra Sauce", price: 0.50 },
-      { name: "Side Dressing", price: 0.75 },
-      { name: "Lemon Wedge" },
-      { name: "Extra Napkins" },
-      { name: "To-Go Container", price: 0.25 },
-    ]
-  },
+// Hardcoded fallback modifier data (used while DB loads)
+const fallbackModifiers: ModifierCategory[] = [
+  { name: "Size", required: true, options: [{ name: "Regular" }, { name: "Large", price: 2.00 }, { name: "Extra Large", price: 3.50 }] },
+  { name: "Preparation", required: true, options: [{ name: "Standard" }, { name: "Extra Crispy" }, { name: "Lightly Done" }, { name: "Well Done" }] },
+  { name: "Spice Level", required: true, options: [{ name: "Mild" }, { name: "Medium" }, { name: "Spicy" }, { name: "Extra Spicy", price: 0.50 }] },
+  { name: "Extras", required: false, options: [{ name: "Extra Sauce", price: 0.50 }, { name: "Side Dressing", price: 0.75 }, { name: "Lemon Wedge" }, { name: "Extra Napkins" }, { name: "To-Go Container", price: 0.25 }] },
 ];
 
 interface AddOnItem extends ModifierOption {
   isFavorite?: boolean;
 }
 
-// Add-ons per item ID
-const addOnsByItemId: Record<number, AddOnItem[]> = {
-  1: [
-    { name: "Dew Mojito", price: 2.00, isFavorite: true },
-    { name: "Masala Pepsi", price: 3.00, isFavorite: true },
-    { name: "Virgin Mojito", price: 4.00, isFavorite: true },
-    { name: "Green Tea", price: 2.00 },
-    { name: "Lemonade", price: 3.00 },
-    { name: "Hot Chocolate", price: 4.00 },
-    { name: "Fresh Orange Juice", price: 4.50 },
-    { name: "Iced Coffee", price: 3.50 },
-  ],
-  2: [
-    { name: "Extra Cheese", price: 1.50, isFavorite: true },
-    { name: "Bacon", price: 2.00, isFavorite: true },
-    { name: "Avocado", price: 2.50 },
-    { name: "Fried Egg", price: 1.50 },
-    { name: "Mushrooms", price: 1.00 },
-  ],
-  3: [
-    { name: "Brownie", price: 4.00, isFavorite: true },
-    { name: "Ice Cream", price: 3.50, isFavorite: true },
-    { name: "Cheesecake", price: 5.00 },
-    { name: "Whipped Cream", price: 1.00 },
-  ],
-  4: [
-    { name: "Grilled Chicken", price: 3.50, isFavorite: true },
-    { name: "Extra Patty", price: 4.00, isFavorite: true },
-    { name: "Guacamole", price: 2.00 },
-    { name: "Sour Cream", price: 1.00 },
-  ],
-};
-
-// Default add-ons for items without specific ones
-const defaultAddOns: AddOnItem[] = [
+const fallbackAddOns: AddOnItem[] = [
   { name: "Extra Cheese", price: 1.50, isFavorite: true },
   { name: "Bacon", price: 2.00, isFavorite: true },
   { name: "Avocado", price: 2.50, isFavorite: true },
   { name: "Fried Egg", price: 1.50 },
   { name: "Mushrooms", price: 1.00 },
-  { name: "Onion Rings", price: 2.00 },
-  { name: "Jalapeños", price: 0.75 },
-  { name: "Extra Patty", price: 4.00 },
 ];
 
 // Default modifiers based on item name keywords
@@ -292,9 +220,15 @@ export const ItemCustomizationDialog = ({
   const [selectedModifiers, setSelectedModifiers] = useState<string[]>([]);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'item' | 'addons'>('item');
-  const [activeModifierCategory, setActiveModifierCategory] = useState(itemModifiers[0]?.name || "");
   const [itemNotes, setItemNotes] = useState("");
   const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
+  
+  // Database-driven customization data
+  const [itemModifiers, setItemModifiers] = useState<ModifierCategory[]>(fallbackModifiers);
+  const [currentItemAddOns, setCurrentItemAddOns] = useState<AddOnItem[]>(fallbackAddOns);
+  const [dbProductInfo, setDbProductInfo] = useState<DbProductInfo | null>(null);
+  
+  const [activeModifierCategory, setActiveModifierCategory] = useState(fallbackModifiers[0]?.name || "");
   
   // View state: 'customization' | 'mpin' | 'priceOverride' | 'productInfo'
   const [currentView, setCurrentView] = useState<'customization' | 'mpin' | 'priceOverride' | 'productInfo'>('customization');
@@ -327,8 +261,47 @@ export const ItemCustomizationDialog = ({
   const [addOnSortBy, setAddOnSortBy] = useState<SortOption>('name-asc');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
 
-  // Get add-ons for current item and filter based on group
-  const currentItemAddOns = item ? (addOnsByItemId[item.id] || defaultAddOns) : defaultAddOns;
+  // Fetch customization data from database when item changes
+  useEffect(() => {
+    if (!open || !item) return;
+    const itemId = String(item.id);
+    // Only fetch for UUID-formatted IDs (database products)
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(itemId);
+    if (!isUuid) {
+      setItemModifiers(fallbackModifiers);
+      setCurrentItemAddOns(fallbackAddOns);
+      setDbProductInfo(null);
+      setActiveModifierCategory(fallbackModifiers[0]?.name || "");
+      return;
+    }
+
+    fetchProductCustomization(itemId).then((data) => {
+      if (!data) return;
+      // Map DB modifier groups → ModifierCategory format
+      if (data.modifierGroups.length > 0) {
+        const mapped: ModifierCategory[] = data.modifierGroups.map((g) => ({
+          name: g.name,
+          required: g.required,
+          options: g.options.map((o) => ({
+            name: o.name,
+            price: o.price > 0 ? o.price : undefined,
+          })),
+        }));
+        setItemModifiers(mapped);
+        setActiveModifierCategory(mapped[0]?.name || "");
+      }
+      // Map DB add-ons
+      if (data.addOns.length > 0) {
+        const mapped: AddOnItem[] = data.addOns.map((a, i) => ({
+          name: a.name,
+          price: a.price > 0 ? a.price : undefined,
+          isFavorite: i < 3, // First 3 as favorites
+        }));
+        setCurrentItemAddOns(mapped);
+      }
+      setDbProductInfo(data.productInfo);
+    });
+  }, [open, item?.id]);
   
   // Filter and sort add-ons
   const filteredAddOnItems = useMemo(() => {
@@ -872,57 +845,24 @@ export const ItemCustomizationDialog = ({
 
   // Product Information Screen
   const renderProductInfoView = () => {
-    // Mock product data - in real app this would come from props or API
-    const productDescription = "A juicy chicken patty topped with fresh lettuce, tomato, and our special sauce on a toasted brioche bun. Our chicken burgers are made from premium quality chicken that's seasoned to perfection.";
-    const ingredients = ["Chicken Patty (Seasoned)", "Brioche Bun", "Lettuce", "Tomato", "Special Sauce", "Pickles", "Red Onions"];
+    const productDescription = dbProductInfo?.description || "No description available.";
+    const ingredients = dbProductInfo?.ingredients ?? [];
     
-    // Allergen colors - vibrant and visible
+    // Allergen colors
     const allergenColors: Record<string, string> = {
-      'Almonds': '#D64D7A',
-      'Corn': '#E8A0B0',
-      'Eggs': '#F5C89A',
-      'Fish': '#E8C89A',
-      'Gelatin': '#C9A988',
-      'Gluten': '#C98A5A',
-      'Meat': '#D4D470',
-      'Milk': '#8BC98B',
-      'Soy': '#D64D7A',
-      'Peanuts': '#C9A078',
-      'Shellfish': '#C96A38',
-      'Sesame': '#9B6DD6',
-      'Tree Nuts': '#7D5040',
-      'Wheat': '#E85050'
+      'Almonds': '#D64D7A', 'Corn': '#E8A0B0', 'Eggs': '#F5C89A', 'Fish': '#E8C89A',
+      'Gelatin': '#C9A988', 'Gluten': '#C98A5A', 'Meat': '#D4D470', 'Milk': '#8BC98B',
+      'Soy': '#D64D7A', 'Peanuts': '#C9A078', 'Shellfish': '#C96A38', 'Sesame': '#9B6DD6',
+      'Tree Nuts': '#7D5040', 'Wheat': '#E85050'
     };
     
-    // Different allergens based on item category - would come from database in production
-    const getItemAllergens = (itemName: string): string[] => {
-      const name = itemName?.toLowerCase() || '';
-      if (name.includes('burger') || name.includes('sandwich')) {
-        return ['Gluten', 'Eggs', 'Milk', 'Sesame'];
-      } else if (name.includes('pasta') || name.includes('spaghetti') || name.includes('fettuccine') || name.includes('ravioli') || name.includes('gnocchi') || name.includes('rigatoni')) {
-        return ['Gluten', 'Eggs', 'Milk'];
-      } else if (name.includes('salmon') || name.includes('shrimp') || name.includes('calamari') || name.includes('tuna') || name.includes('seafood')) {
-        return ['Fish', 'Shellfish', 'Soy'];
-      } else if (name.includes('chicken')) {
-        return ['Eggs', 'Gluten'];
-      } else if (name.includes('steak') || name.includes('ribs') || name.includes('meatball')) {
-        return ['Meat', 'Soy', 'Gluten'];
-      } else if (name.includes('salad')) {
-        return ['Tree Nuts', 'Sesame'];
-      } else if (name.includes('pancake') || name.includes('mac') || name.includes('cheese')) {
-        return ['Gluten', 'Milk', 'Eggs'];
-      } else {
-        return ['Gluten', 'Milk'];
-      }
-    };
-    
-    const allergens = getItemAllergens(item?.name || '');
+    const allergens = dbProductInfo?.allergens ?? [];
     
     const nutritionalInfo = {
-      calories: 520,
-      protein: "28g",
-      carbs: "42g",
-      fat: "24g"
+      calories: dbProductInfo?.calories ?? 0,
+      protein: dbProductInfo?.protein ?? "N/A",
+      carbs: dbProductInfo?.carbs ?? "N/A",
+      fat: dbProductInfo?.fat ?? "N/A"
     };
 
     return (

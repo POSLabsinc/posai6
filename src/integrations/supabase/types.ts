@@ -724,14 +724,19 @@ export type Database = {
       products: {
         Row: {
           active: boolean
+          allergens: string[] | null
           archived: boolean
+          calories: number | null
+          carbs: string | null
           category_id: string
           created_at: string
           delivery: boolean
           description: string | null
           dine_in: boolean
+          fat: string | null
           id: string
           image_url: string | null
+          ingredients: string[] | null
           inventory_tracking: boolean
           max_price: number | null
           min_price: number | null
@@ -741,6 +746,7 @@ export type Database = {
           popular: boolean
           price: number
           price_type: string
+          protein: string | null
           sku: string | null
           sort_order: number
           takeaway: boolean
@@ -748,14 +754,19 @@ export type Database = {
         }
         Insert: {
           active?: boolean
+          allergens?: string[] | null
           archived?: boolean
+          calories?: number | null
+          carbs?: string | null
           category_id: string
           created_at?: string
           delivery?: boolean
           description?: string | null
           dine_in?: boolean
+          fat?: string | null
           id?: string
           image_url?: string | null
+          ingredients?: string[] | null
           inventory_tracking?: boolean
           max_price?: number | null
           min_price?: number | null
@@ -765,6 +776,7 @@ export type Database = {
           popular?: boolean
           price?: number
           price_type?: string
+          protein?: string | null
           sku?: string | null
           sort_order?: number
           takeaway?: boolean
@@ -772,14 +784,19 @@ export type Database = {
         }
         Update: {
           active?: boolean
+          allergens?: string[] | null
           archived?: boolean
+          calories?: number | null
+          carbs?: string | null
           category_id?: string
           created_at?: string
           delivery?: boolean
           description?: string | null
           dine_in?: boolean
+          fat?: string | null
           id?: string
           image_url?: string | null
+          ingredients?: string[] | null
           inventory_tracking?: boolean
           max_price?: number | null
           min_price?: number | null
@@ -789,6 +806,7 @@ export type Database = {
           popular?: boolean
           price?: number
           price_type?: string
+          protein?: string | null
           sku?: string | null
           sort_order?: number
           takeaway?: boolean

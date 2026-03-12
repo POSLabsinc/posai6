@@ -270,6 +270,7 @@ async function handleUpdateAIRules(
   value: any
 ): Promise<{ success: boolean; message: string }> {
   const supabase = createClient(supabaseUrl, serviceRoleKey);
+  const sharedDeviceId = "shared";
   
   const keyMap: Record<string, string> = {
     dos: "ai_rules_dos",

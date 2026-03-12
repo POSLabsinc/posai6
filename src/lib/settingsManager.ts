@@ -2,9 +2,12 @@
 // Used by AI assistant to read and modify settings
 import { supabase } from "@/integrations/supabase/client";
 
-// Device ID helper (mirrors usePreference.ts)
+// Shared device ID for global settings (same across all browsers/devices)
+const SHARED_DEVICE_ID = "shared";
+
+// Per-device ID only for cash drawer sessions (legitimately per-terminal)
 const DEVICE_ID_KEY = "pos_device_id";
-function getDeviceId(): string {
+function getPerDeviceId(): string {
   let id = localStorage.getItem(DEVICE_ID_KEY);
   if (!id) {
     id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;

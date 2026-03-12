@@ -1012,7 +1012,7 @@ export class SettingsManager {
   }
 
   static async getLastClosedSession(): Promise<any | null> {
-    const deviceId = getDeviceId();
+    const deviceId = getPerDeviceId();
     const { data } = await (supabase as any).from("cash_drawer_sessions")
       .select("*")
       .eq("device_id", deviceId)

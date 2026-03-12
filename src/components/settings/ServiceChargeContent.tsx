@@ -43,21 +43,12 @@ interface ServiceChargeContentProps {
   onAIClick?: () => void;
 }
 
-const DEVICE_ID_KEY = "pos_device_id";
-function getDeviceId(): string {
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if (!id) {
-    id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    localStorage.setItem(DEVICE_ID_KEY, id);
-  }
-  return id;
-}
+const SHARED_DEVICE_ID = "shared";
 
 const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceChargeContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
-  const deviceId = getDeviceId();
 
   const [serviceCharges, setServiceCharges] = useState<ServiceCharge[]>([]);
   const [loading, setLoading] = useState(true);

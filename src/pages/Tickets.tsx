@@ -3406,10 +3406,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                           </>
                         ) : (
                           <>
-                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient">
+                            <button 
+                              className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient"
+                              onClick={e => { e.stopPropagation(); setMergeSourceOrderId(guest.id); setSelectedMergeTargetId(null); setShowMergeDialog(true); }}
+                            >
                               <img src={arrowRightIcon} alt="Merge" className="w-3.5 h-3.5 object-contain" />
                             </button>
-                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-transfer-gradient" onClick={e => e.stopPropagation()}>
+                            <button 
+                              className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-transfer-gradient" 
+                              onClick={e => { e.stopPropagation(); setTransferIntentOrderId(guest.id); setShowTransferIntentDialog(true); }}
+                            >
                               <img src={shareOrderIcon} alt="Share" className="w-3.5 h-3.5 object-contain brightness-0" />
                             </button>
                           </>

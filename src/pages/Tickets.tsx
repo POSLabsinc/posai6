@@ -6471,8 +6471,6 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           </Dialog>
         );
       })()}
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/80" onClick={() => setShowTransferIntentDialog(false)} />
             <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[380px] max-w-[90vw] overflow-hidden">
               <div className="flex items-center justify-between p-4 border-b border-white/10">
                 <h2 className="text-white text-lg font-semibold">Transfer Order</h2>

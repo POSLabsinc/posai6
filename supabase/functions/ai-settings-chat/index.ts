@@ -259,7 +259,84 @@ async function fetchAIRules(supabaseUrl: string, serviceRoleKey: string, deviceI
   return parts.length ? parts.join("\n") : "No custom AI rules configured.";
 }
 
-serve(async (req) => {
+async function handleUpdateAIRules(
+  supabaseUrl: string,
+  serviceRoleKey: string,
+  deviceId: string,
+  ruleType: string,
+  operation: string,
+  value: any
+): Promise<{ success: boolean; message: string }> {
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  
+  const keyMap: Record<string, string> = {
+    dos: "ai_rules_dos",
+    donts: "ai_rules_donts",
+    custom_instructions: "ai_rules_custom_instructions",
+    restaurant_type: "ai_rules_restaurant_type",
+    knowledge_base: "ai_rules_knowledge_base",
+  };
+
+  const prefKey = keyMap[ruleType];
+  if (!prefKey) return { success: false, message: `Unknown rule type: ${ruleType}` };
+
+  try {
+    // For dos/donts, we work with JSON arrays
+    if (ruleType === "dos" || ruleType === "donts") {
+      // Fetch current value
+      const { data: existing } = await supabase
+        .from("user_preferences")
+        .select("preference_value")
+        .eq("device_id", deviceId)
+        .eq("preference_key", prefKey)
+        .maybeSingle();
+
+      let currentList: string[] = [];
+      if (existing?.preference_value) {
+        try { currentList = JSON.parse(existing.preference_value); } catch { currentList = []; }
+      }
+
+      if (operation === "add") {
+        const newRule = typeof value === "string" ? value : String(value);
+        if (!currentList.includes(newRule)) {
+          currentList.push(newRule);
+        }
+      } else if (operation === "remove") {
+        const toRemove = typeof value === "string" ? value.toLowerCase() : String(value).toLowerCase();
+        currentList = currentList.filter(r => r.toLowerCase() !== toRemove);
+      } else if (operation === "replace") {
+        currentList = Array.isArray(value) ? value : [value];
+      }
+
+      const newValue = JSON.stringify(currentList);
+      const { error } = await supabase
+        .from("user_preferences")
+        .upsert(
+          { device_id: deviceId, preference_key: prefKey, preference_value: newValue, updated_at: new Date().toISOString() },
+          { onConflict: "device_id,preference_key" }
+        );
+      if (error) throw error;
+      return { success: true, message: `Updated ${ruleType === "dos" ? "Do's" : "Don'ts"} rules successfully.` };
+    } else {
+      // For text fields (custom_instructions, restaurant_type, knowledge_base)
+      const newValue = typeof value === "string" ? value : JSON.stringify(value);
+      const { error } = await supabase
+        .from("user_preferences")
+        .upsert(
+          { device_id: deviceId, preference_key: prefKey, preference_value: newValue, updated_at: new Date().toISOString() },
+          { onConflict: "device_id,preference_key" }
+        );
+      if (error) throw error;
+      const labelMap: Record<string, string> = { custom_instructions: "Custom Instructions", restaurant_type: "Restaurant Type", knowledge_base: "Knowledge Base" };
+      return { success: true, message: `Updated ${labelMap[ruleType] || ruleType} successfully.` };
+    }
+  } catch (e) {
+    console.error("Error updating AI rules:", e);
+    return { success: false, message: `Failed to update ${ruleType}: ${e instanceof Error ? e.message : "Unknown error"}` };
+  }
+}
+
+
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

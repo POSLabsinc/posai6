@@ -112,30 +112,18 @@ const CustomOrderGuestForm = ({ onSave, onClose, initialData }: CustomOrderGuest
     });
   };
 
-  // Conflict resolution handlers
   const handleUseExisting = () => {
     if (conflictCustomer) {
       setGuestName(conflictCustomer.name);
       setEmail(conflictCustomer.email || email);
     }
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
+    clearConflict();
   };
-
-  const handleUpdateName = () => {
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
-  };
-
-  const handleAddFamilyMember = () => {
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
-  };
-
+  const handleUpdateName = () => clearConflict();
+  const handleAddFamilyMember = () => clearConflict();
   const handleCreateNew = () => {
     setPhoneNumber("");
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
+    clearConflict();
   };
 
   return (

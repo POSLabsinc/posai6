@@ -1,38 +1,24 @@
 
-# Plan: Connect Full Payment Module to Database — COMPLETED
+# Plan: Unify Data Across Editor and Live Environments — COMPLETED
 
-## What was done
+## Root Cause
+Settings tables filtered by `device_id` (a random per-browser ID), causing different browsers to see different data.
 
-### Step 1: Database Migration ✅
-Created 9 new tables via migration:
-- `payment_methods` (device_id, method_id, enabled, sort_order)
-- `gratuity_settings` (device_id + all gratuity fields)
-- `discounts` (device_id, name, amount, type, archived, etc.)
-- `taxes` (device_id, name, amount, type, archived, etc.)
-- `service_charges` (device_id + all service charge fields)
-- `checkout_options` (device_id + all checkout fields)
-- `cash_drawer_sessions` (device_id, drawer_name, starting_cash, status, etc.)
-- `cash_transactions` (session_id FK, device_id, type, amount, reason, note)
-- `vouchers` (code UNIQUE, name, type, value, remaining_balance, status, etc.)
+## Solution Applied
+Replaced per-browser `device_id` with a fixed `"shared"` constant for all global settings tables.
 
-All with RLS policies, updated_at triggers, and proper constraints.
+### Files Updated:
+1. **src/lib/settingsManager.ts** — All settings sync/read use `SHARED_DEVICE_ID = "shared"`. Cash drawer keeps `getPerDeviceId()`.
+2. **src/hooks/usePreference.ts** — Uses `SHARED_DEVICE_ID`
+3. **src/components/settings/DiscountsContent.tsx** — Uses `SHARED_DEVICE_ID`
+4. **src/components/settings/ServiceChargeContent.tsx** — Uses `SHARED_DEVICE_ID`
+5. **src/components/settings/TaxesContent.tsx** — Uses `SHARED_DEVICE_ID`
+6. **src/components/settings/AIRulesContent.tsx** — Uses `SHARED_DEVICE_ID`
+7. **src/components/settings/AIIntegrationContent.tsx** — Uses `SHARED_DEVICE_ID`
+8. **src/hooks/useEndOfDayScheduler.ts** — Uses `SHARED_DEVICE_ID`
+9. **src/lib/alertService.ts** — Uses shared key for notification sound preference
+10. **supabase/functions/ai-settings-chat/index.ts** — Uses `"shared"` device_id
 
-### Step 2: SettingsManager Refactored ✅
-- Added dedicated table sync helpers for each module
-- `initFromDatabase()` loads from all 9 dedicated tables in parallel
-- One-time migration: seeds DB from localStorage if tables are empty
-- All write methods now sync to both localStorage (cache) and dedicated DB tables
-- Added new methods: PaymentMethods CRUD, CashManagement (create/close sessions, add transactions), Voucher (create, find, redeem)
-
-### Step 3: Components Updated ✅
-- `PaymentMethodsContent` → syncs toggle states to `payment_methods` table
-- `CashManagementContent` → creates sessions in `cash_drawer_sessions` table, loads history from DB
-- `CashDrawerDetailsContent` → loads transactions from DB, closes sessions via DB
-- `PayInOutContent` → saves transactions to `cash_transactions` table
-- `VoucherDialog` → saves created vouchers to `vouchers` table
-- `CreateVoucherForm` → saves created vouchers to `vouchers` table
-
-### Cross-module consistency
-- `orderUtils.ts getActiveTaxRate()` reads from localStorage which is hydrated from DB on boot
-- `PaymentDialog` reads payment method states from localStorage (hydrated from DB)
-- All modules share the same DB-backed source of truth via SettingsManager
+### What stays per-device:
+- `device_stores` (useDeviceStore.ts) — device-to-store binding
+- `cash_drawer_sessions` / `cash_transactions` — per-terminal cash management

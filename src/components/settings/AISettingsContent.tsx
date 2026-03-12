@@ -129,7 +129,7 @@ interface SuggestionChip {
 }
 
 interface AIAction {
-  type: "view" | "update_setting" | "navigate" | "info";
+  type: "view" | "update_setting" | "navigate" | "info" | "ai_rules_updated";
   category?: string;
   path?: string;
   setting?: string;
@@ -139,6 +139,10 @@ interface AIAction {
   operation?: string;
   data?: any;
   autoApply?: boolean;
+  ruleType?: string;
+  value?: any;
+  success?: boolean;
+  error?: string;
 }
 
 const defaultSuggestionChips: SuggestionChip[] = [

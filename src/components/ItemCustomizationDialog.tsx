@@ -220,9 +220,15 @@ export const ItemCustomizationDialog = ({
   const [selectedModifiers, setSelectedModifiers] = useState<string[]>([]);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'item' | 'addons'>('item');
-  const [activeModifierCategory, setActiveModifierCategory] = useState(itemModifiers[0]?.name || "");
   const [itemNotes, setItemNotes] = useState("");
   const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
+  
+  // Database-driven customization data
+  const [itemModifiers, setItemModifiers] = useState<ModifierCategory[]>(fallbackModifiers);
+  const [currentItemAddOns, setCurrentItemAddOns] = useState<AddOnItem[]>(fallbackAddOns);
+  const [dbProductInfo, setDbProductInfo] = useState<DbProductInfo | null>(null);
+  
+  const [activeModifierCategory, setActiveModifierCategory] = useState(fallbackModifiers[0]?.name || "");
   
   // View state: 'customization' | 'mpin' | 'priceOverride' | 'productInfo'
   const [currentView, setCurrentView] = useState<'customization' | 'mpin' | 'priceOverride' | 'productInfo'>('customization');
@@ -255,8 +261,47 @@ export const ItemCustomizationDialog = ({
   const [addOnSortBy, setAddOnSortBy] = useState<SortOption>('name-asc');
   const [showSortDropdown, setShowSortDropdown] = useState(false);
 
-  // Get add-ons for current item and filter based on group
-  const currentItemAddOns = item ? (addOnsByItemId[item.id] || defaultAddOns) : defaultAddOns;
+  // Fetch customization data from database when item changes
+  useEffect(() => {
+    if (!open || !item) return;
+    const itemId = String(item.id);
+    // Only fetch for UUID-formatted IDs (database products)
+    const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(itemId);
+    if (!isUuid) {
+      setItemModifiers(fallbackModifiers);
+      setCurrentItemAddOns(fallbackAddOns);
+      setDbProductInfo(null);
+      setActiveModifierCategory(fallbackModifiers[0]?.name || "");
+      return;
+    }
+
+    fetchProductCustomization(itemId).then((data) => {
+      if (!data) return;
+      // Map DB modifier groups → ModifierCategory format
+      if (data.modifierGroups.length > 0) {
+        const mapped: ModifierCategory[] = data.modifierGroups.map((g) => ({
+          name: g.name,
+          required: g.required,
+          options: g.options.map((o) => ({
+            name: o.name,
+            price: o.price > 0 ? o.price : undefined,
+          })),
+        }));
+        setItemModifiers(mapped);
+        setActiveModifierCategory(mapped[0]?.name || "");
+      }
+      // Map DB add-ons
+      if (data.addOns.length > 0) {
+        const mapped: AddOnItem[] = data.addOns.map((a, i) => ({
+          name: a.name,
+          price: a.price > 0 ? a.price : undefined,
+          isFavorite: i < 3, // First 3 as favorites
+        }));
+        setCurrentItemAddOns(mapped);
+      }
+      setDbProductInfo(data.productInfo);
+    });
+  }, [open, item?.id]);
   
   // Filter and sort add-ons
   const filteredAddOnItems = useMemo(() => {

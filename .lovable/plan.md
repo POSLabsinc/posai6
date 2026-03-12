@@ -1,38 +1,50 @@
 
-# Plan: Connect Full Payment Module to Database — COMPLETED
 
-## What was done
+# Plan: Connect Add Guest Form to Customer (Guests) Database Table
 
-### Step 1: Database Migration ✅
-Created 9 new tables via migration:
-- `payment_methods` (device_id, method_id, enabled, sort_order)
-- `gratuity_settings` (device_id + all gratuity fields)
-- `discounts` (device_id, name, amount, type, archived, etc.)
-- `taxes` (device_id, name, amount, type, archived, etc.)
-- `service_charges` (device_id + all service charge fields)
-- `checkout_options` (device_id + all checkout fields)
-- `cash_drawer_sessions` (device_id, drawer_name, starting_cash, status, etc.)
-- `cash_transactions` (session_id FK, device_id, type, amount, reason, note)
-- `vouchers` (code UNIQUE, name, type, value, remaining_balance, status, etc.)
+## What needs to happen
 
-All with RLS policies, updated_at triggers, and proper constraints.
+When a user fills out the Add Guest form and clicks "Save Guest", the data should be inserted into the `guests` database table. Some form fields don't have matching columns in the table, so we need to add them.
 
-### Step 2: SettingsManager Refactored ✅
-- Added dedicated table sync helpers for each module
-- `initFromDatabase()` loads from all 9 dedicated tables in parallel
-- One-time migration: seeds DB from localStorage if tables are empty
-- All write methods now sync to both localStorage (cache) and dedicated DB tables
-- Added new methods: PaymentMethods CRUD, CashManagement (create/close sessions, add transactions), Voucher (create, find, redeem)
+## Step 1: Add missing columns to `guests` table
 
-### Step 3: Components Updated ✅
-- `PaymentMethodsContent` → syncs toggle states to `payment_methods` table
-- `CashManagementContent` → creates sessions in `cash_drawer_sessions` table, loads history from DB
-- `CashDrawerDetailsContent` → loads transactions from DB, closes sessions via DB
-- `PayInOutContent` → saves transactions to `cash_transactions` table
-- `VoucherDialog` → saves created vouchers to `vouchers` table
-- `CreateVoucherForm` → saves created vouchers to `vouchers` table
+A migration to add 3 new columns:
+- `middle_name` (text, nullable, default '')
+- `address` (text, nullable, default '')
+- `license_plate` (text, nullable, default '')
 
-### Cross-module consistency
-- `orderUtils.ts getActiveTaxRate()` reads from localStorage which is hydrated from DB on boot
-- `PaymentDialog` reads payment method states from localStorage (hydrated from DB)
-- All modules share the same DB-backed source of truth via SettingsManager
+The vehicle details (type, color, brand) will be stored as a combined string in the existing `vehicle` column (e.g., "Red Toyota Sedan"). The `license_plate` gets its own column since it's a unique identifier.
+
+## Step 2: Update `AddGuestForm.tsx` to save to database on submit
+
+In `handleSave`:
+1. Import supabase client
+2. Combine `firstName` + `middleName` + `lastName` into the `name` field
+3. Build a vehicle string from type/color/brand
+4. Upsert into `guests` table (check if phone already exists to avoid duplicates)
+5. Map fields: `dateOfBirth` -> `birthday`, `customerSince` -> `since`, `profilePhoto` -> `avatar_url`, `address` -> `address`, `licensePlate` -> `license_plate`
+6. Show toast on success/error
+7. Still call `onSave(formData)` for the parent component's local state
+
+## Field mapping
+
+```text
+Form Field        →  DB Column
+─────────────────────────────────
+firstName+lastName →  name
+middleName         →  middle_name (NEW)
+email              →  email
+phoneNumber        →  phone
+customerSince      →  since
+dateOfBirth        →  birthday
+anniversary        →  anniversary
+address            →  address (NEW)
+vehicleType+Color+Brand → vehicle
+licensePlate       →  license_plate (NEW)
+profilePhoto       →  avatar_url
+```
+
+## Files to modify
+- **Migration SQL** — add 3 columns to `guests`
+- `src/components/AddGuestForm.tsx` — add DB insert on save
+

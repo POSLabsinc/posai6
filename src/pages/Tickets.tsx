@@ -6217,6 +6217,50 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           </div>
         </div>
       )}
+      {/* Payment Dialog - Reusing shared component from New Order module */}
+      {selectedGuest && (
+        <PaymentDialog
+          open={showPaymentDialog}
+          onOpenChange={setShowPaymentDialog}
+          orderDetails={{
+            guest: selectedGuest.name || "Guest",
+            phone: selectedGuest.phone || undefined,
+            table: selectedGuest.table || undefined,
+            check: selectedGuest.check || selectedGuest.id,
+            orderType: selectedGuest.orderType,
+            orderNumber: selectedGuest.check || selectedGuest.id,
+            serverName: selectedGuest.server,
+            orderTime: selectedGuest.time,
+            items: selectedGuest.items.map((item, idx) => ({
+              id: idx + 1,
+              qty: item.qty,
+              name: item.name,
+              price: item.price
+            }))
+          }}
+          subtotal={selectedGuest.subtotal - selectedGuest.discount}
+          tax={selectedGuest.tax}
+          total={selectedGuest.total}
+          onPaymentComplete={(paymentHistory) => {
+            console.log("Ticket payment completed:", paymentHistory);
+            setShowPaymentDialog(false);
+            const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();
+            if (checkoutSettings.printReceipt) {
+              toast.success("Receipt sent to printer");
+            }
+            if (checkoutSettings.emailReceipt) {
+              toast.success("Receipt sent via email");
+            }
+            if (checkoutSettings.smsReceipt) {
+              toast.success("Receipt sent via SMS");
+            }
+            if (checkoutSettings.autoCloseTicket) {
+              toast.success("Ticket closed automatically");
+              navigate('/');
+            }
+          }}
+        />
+      )}
     </>
   );
 };

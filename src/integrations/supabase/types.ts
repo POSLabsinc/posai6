@@ -488,6 +488,7 @@ export type Database = {
       }
       guests: {
         Row: {
+          address: string | null
           allergies: string[] | null
           anniversary: string | null
           avatar_bg: string | null
@@ -499,8 +500,10 @@ export type Database = {
           initials: string | null
           is_archived: boolean
           last_order_date: string | null
+          license_plate: string | null
           loyalty: string | null
           loyalty_points_balance: number
+          middle_name: string | null
           name: string
           notes_allergies: string | null
           notes_general: string | null
@@ -516,6 +519,7 @@ export type Database = {
           vehicle: string | null
         }
         Insert: {
+          address?: string | null
           allergies?: string[] | null
           anniversary?: string | null
           avatar_bg?: string | null
@@ -527,8 +531,10 @@ export type Database = {
           initials?: string | null
           is_archived?: boolean
           last_order_date?: string | null
+          license_plate?: string | null
           loyalty?: string | null
           loyalty_points_balance?: number
+          middle_name?: string | null
           name: string
           notes_allergies?: string | null
           notes_general?: string | null
@@ -544,6 +550,7 @@ export type Database = {
           vehicle?: string | null
         }
         Update: {
+          address?: string | null
           allergies?: string[] | null
           anniversary?: string | null
           avatar_bg?: string | null
@@ -555,8 +562,10 @@ export type Database = {
           initials?: string | null
           is_archived?: boolean
           last_order_date?: string | null
+          license_plate?: string | null
           loyalty?: string | null
           loyalty_points_balance?: number
+          middle_name?: string | null
           name?: string
           notes_allergies?: string | null
           notes_general?: string | null

@@ -216,11 +216,13 @@ async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string,
 async function fetchAIRules(supabaseUrl: string, serviceRoleKey: string, deviceId: string): Promise<string> {
   const supabase = createClient(supabaseUrl, serviceRoleKey);
   const ruleKeys = ["ai_rules_dos", "ai_rules_donts", "ai_rules_custom_instructions", "ai_rules_restaurant_type", "ai_rules_knowledge_base"];
+  // Use "shared" device_id for global settings, fallback to provided deviceId for backward compatibility
+  const sharedDeviceId = "shared";
   
   const { data } = await supabase
     .from("user_preferences")
     .select("preference_key, preference_value")
-    .eq("device_id", deviceId)
+    .eq("device_id", sharedDeviceId)
     .in("preference_key", ruleKeys);
 
   if (!data?.length) return "No custom AI rules configured.";

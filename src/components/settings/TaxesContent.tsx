@@ -84,7 +84,7 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
     applicableProducts: string[];
   }) => {
     const { error } = await (supabase as any).from("taxes").insert({
-      device_id: deviceId,
+      device_id: SHARED_DEVICE_ID,
       name: taxData.name,
       amount: taxData.amount,
       type: taxData.type,

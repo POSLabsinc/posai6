@@ -102,7 +102,7 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
     requiresManagerPin: boolean;
   }) => {
     const { error } = await (supabase as any).from("service_charges").insert({
-      device_id: deviceId,
+      device_id: SHARED_DEVICE_ID,
       name: chargeData.name,
       amount: chargeData.amount,
       type: chargeData.type,

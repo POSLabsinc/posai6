@@ -93,7 +93,7 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     scheduleEnabled: boolean;
   }) => {
     const { data, error } = await (supabase as any).from("discounts").insert({
-      device_id: deviceId,
+      device_id: SHARED_DEVICE_ID,
       name: discountData.name,
       amount: discountData.amount,
       type: discountData.type,

@@ -845,57 +845,24 @@ export const ItemCustomizationDialog = ({
 
   // Product Information Screen
   const renderProductInfoView = () => {
-    // Mock product data - in real app this would come from props or API
-    const productDescription = "A juicy chicken patty topped with fresh lettuce, tomato, and our special sauce on a toasted brioche bun. Our chicken burgers are made from premium quality chicken that's seasoned to perfection.";
-    const ingredients = ["Chicken Patty (Seasoned)", "Brioche Bun", "Lettuce", "Tomato", "Special Sauce", "Pickles", "Red Onions"];
+    const productDescription = dbProductInfo?.description || "No description available.";
+    const ingredients = dbProductInfo?.ingredients ?? [];
     
-    // Allergen colors - vibrant and visible
+    // Allergen colors
     const allergenColors: Record<string, string> = {
-      'Almonds': '#D64D7A',
-      'Corn': '#E8A0B0',
-      'Eggs': '#F5C89A',
-      'Fish': '#E8C89A',
-      'Gelatin': '#C9A988',
-      'Gluten': '#C98A5A',
-      'Meat': '#D4D470',
-      'Milk': '#8BC98B',
-      'Soy': '#D64D7A',
-      'Peanuts': '#C9A078',
-      'Shellfish': '#C96A38',
-      'Sesame': '#9B6DD6',
-      'Tree Nuts': '#7D5040',
-      'Wheat': '#E85050'
+      'Almonds': '#D64D7A', 'Corn': '#E8A0B0', 'Eggs': '#F5C89A', 'Fish': '#E8C89A',
+      'Gelatin': '#C9A988', 'Gluten': '#C98A5A', 'Meat': '#D4D470', 'Milk': '#8BC98B',
+      'Soy': '#D64D7A', 'Peanuts': '#C9A078', 'Shellfish': '#C96A38', 'Sesame': '#9B6DD6',
+      'Tree Nuts': '#7D5040', 'Wheat': '#E85050'
     };
     
-    // Different allergens based on item category - would come from database in production
-    const getItemAllergens = (itemName: string): string[] => {
-      const name = itemName?.toLowerCase() || '';
-      if (name.includes('burger') || name.includes('sandwich')) {
-        return ['Gluten', 'Eggs', 'Milk', 'Sesame'];
-      } else if (name.includes('pasta') || name.includes('spaghetti') || name.includes('fettuccine') || name.includes('ravioli') || name.includes('gnocchi') || name.includes('rigatoni')) {
-        return ['Gluten', 'Eggs', 'Milk'];
-      } else if (name.includes('salmon') || name.includes('shrimp') || name.includes('calamari') || name.includes('tuna') || name.includes('seafood')) {
-        return ['Fish', 'Shellfish', 'Soy'];
-      } else if (name.includes('chicken')) {
-        return ['Eggs', 'Gluten'];
-      } else if (name.includes('steak') || name.includes('ribs') || name.includes('meatball')) {
-        return ['Meat', 'Soy', 'Gluten'];
-      } else if (name.includes('salad')) {
-        return ['Tree Nuts', 'Sesame'];
-      } else if (name.includes('pancake') || name.includes('mac') || name.includes('cheese')) {
-        return ['Gluten', 'Milk', 'Eggs'];
-      } else {
-        return ['Gluten', 'Milk'];
-      }
-    };
-    
-    const allergens = getItemAllergens(item?.name || '');
+    const allergens = dbProductInfo?.allergens ?? [];
     
     const nutritionalInfo = {
-      calories: 520,
-      protein: "28g",
-      carbs: "42g",
-      fat: "24g"
+      calories: dbProductInfo?.calories ?? 0,
+      protein: dbProductInfo?.protein ?? "N/A",
+      carbs: dbProductInfo?.carbs ?? "N/A",
+      fat: dbProductInfo?.fat ?? "N/A"
     };
 
     return (

@@ -54,7 +54,7 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     const { data, error } = await (supabase as any)
       .from("discounts")
       .select("*")
-      .eq("device_id", deviceId)
+      .eq("device_id", SHARED_DEVICE_ID)
       .order("sort_order");
     
     if (data && !error) {

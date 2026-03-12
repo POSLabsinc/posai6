@@ -108,22 +108,27 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
     if (!emailQuery.trim() || matchedCustomer) return;
 
     if (emailQuery.includes('@')) {
-      const results = customers.filter(c => c.email?.toLowerCase().includes(emailQuery.toLowerCase()));
-      setSearchResults(results);
-      setShowResults(results.length > 0);
-      if (emailQuery.includes('.') && results.length === 0) {
-        setIsNewCustomer(true);
-      } else {
-        const exact = results.find(c => c.email?.toLowerCase() === emailQuery.toLowerCase());
-        if (exact) {
-          setMatchedCustomer(exact);
-          const [f, ...r] = exact.name.split(' '); setFirstName(f); setLastName(r.join(' '));
-          setSearchQuery(exact.phone.replace(/\D/g, ''));
-          setIsNewCustomer(false);
+      let cancelled = false;
+      searchCustomers(emailQuery).then(results => {
+        if (cancelled) return;
+        const emailResults = results.filter(c => c.email?.toLowerCase().includes(emailQuery.toLowerCase()));
+        setSearchResults(emailResults);
+        setShowResults(emailResults.length > 0);
+        if (emailQuery.includes('.') && emailResults.length === 0) {
+          setIsNewCustomer(true);
         } else {
-          setMatchedCustomer(null);
+          const exact = emailResults.find(c => c.email?.toLowerCase() === emailQuery.toLowerCase());
+          if (exact) {
+            setMatchedCustomer(exact);
+            const [f, ...r] = exact.name.split(' '); setFirstName(f); setLastName(r.join(' '));
+            setSearchQuery(exact.phone.replace(/\D/g, ''));
+            setIsNewCustomer(false);
+          } else {
+            setMatchedCustomer(null);
+          }
         }
-      }
+      });
+      return () => { cancelled = true; };
     } else {
       setSearchResults([]);
       setMatchedCustomer(null);

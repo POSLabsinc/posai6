@@ -114,8 +114,6 @@ const getIconForDiscount = (name: string): LucideIcon => {
   return Tag;
 };
 
-const DISCOUNTS_STORAGE_KEY = "discounts-settings";
-
 const fallbackDiscounts: Discount[] = [
   { id: "employee", name: "Employee Discount", type: "percentage", value: 20, icon: Briefcase },
   { id: "senior", name: "Senior Citizen", type: "percentage", value: 15, icon: Heart },
@@ -133,7 +131,7 @@ const fallbackDiscounts: Discount[] = [
 
 const getDiscountsFromSettings = (): Discount[] => {
   try {
-    const raw = localStorage.getItem(DISCOUNTS_STORAGE_KEY);
+    const raw = localStorage.getItem("discounts-settings");
     if (!raw) return fallbackDiscounts;
     const settings: { id: string; name: string; amount: number; type: string; archived: boolean }[] = JSON.parse(raw);
     const active = settings.filter(d => !d.archived);
@@ -148,6 +146,27 @@ const getDiscountsFromSettings = (): Discount[] => {
     }));
   } catch {
     return fallbackDiscounts;
+  }
+};
+
+const fetchDiscountsFromDB = async (): Promise<Discount[]> => {
+  try {
+    const { data, error } = await supabase
+      .from('discounts')
+      .select('id, name, amount, type')
+      .eq('archived', false)
+      .order('sort_order');
+    if (error || !data || data.length === 0) return getDiscountsFromSettings();
+    return data.map(d => ({
+      id: d.id,
+      name: d.name,
+      type: d.type === "Fixed" ? "amount" as const : "percentage" as const,
+      value: Number(d.amount),
+      icon: getIconForDiscount(d.name),
+      reasonRequired: d.type === "Percentage" && Number(d.amount) === 100,
+    }));
+  } catch {
+    return getDiscountsFromSettings();
   }
 };
 

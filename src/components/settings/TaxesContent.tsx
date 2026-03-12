@@ -35,20 +35,11 @@ interface TaxesContentProps {
   onAIClick?: () => void;
 }
 
-const DEVICE_ID_KEY = "pos_device_id";
-function getDeviceId(): string {
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if (!id) {
-    id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    localStorage.setItem(DEVICE_ID_KEY, id);
-  }
-  return id;
-}
+const SHARED_DEVICE_ID = "shared";
 
 const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const deviceId = getDeviceId();
 
   const [taxes, setTaxes] = useState<Tax[]>([]);
   const [loading, setLoading] = useState(true);
@@ -57,7 +48,7 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
     const { data, error } = await (supabase as any)
       .from("taxes")
       .select("*")
-      .eq("device_id", deviceId)
+      .eq("device_id", SHARED_DEVICE_ID)
       .order("sort_order");
     
     if (data && !error) {
@@ -73,7 +64,7 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
       setTaxes(mapped);
     }
     setLoading(false);
-  }, [deviceId]);
+  }, []);
 
   useEffect(() => {
     fetchTaxes();
@@ -93,7 +84,7 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
     applicableProducts: string[];
   }) => {
     const { error } = await (supabase as any).from("taxes").insert({
-      device_id: deviceId,
+      device_id: SHARED_DEVICE_ID,
       name: taxData.name,
       amount: taxData.amount,
       type: taxData.type,

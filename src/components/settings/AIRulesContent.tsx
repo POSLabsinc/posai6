@@ -4,16 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 
-const DEVICE_ID_KEY = "pos_device_id";
-
-function getDeviceId(): string {
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if (!id) {
-    id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    localStorage.setItem(DEVICE_ID_KEY, id);
-  }
-  return id;
-}
+const SHARED_DEVICE_ID = "shared";
 
 const PREF_KEYS = {
   dos: "ai_rules_dos",
@@ -52,7 +43,7 @@ const RESTAURANT_TYPES = [
 ];
 
 const AIRulesContent = () => {
-  const deviceId = getDeviceId();
+  const deviceId = SHARED_DEVICE_ID;
   const [dos, setDos] = useState<string[]>(DEFAULT_DOS);
   const [donts, setDonts] = useState<string[]>(DEFAULT_DONTS);
   const [customInstructions, setCustomInstructions] = useState("");

@@ -40,21 +40,12 @@ interface DiscountsContentProps {
   onAIClick?: () => void;
 }
 
-const DEVICE_ID_KEY = "pos_device_id";
-function getDeviceId(): string {
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if (!id) {
-    id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    localStorage.setItem(DEVICE_ID_KEY, id);
-  }
-  return id;
-}
+const SHARED_DEVICE_ID = "shared";
 
 const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
-  const deviceId = getDeviceId();
   
   const [discounts, setDiscounts] = useState<Discount[]>([]);
   const [loading, setLoading] = useState(true);
@@ -63,7 +54,7 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     const { data, error } = await (supabase as any)
       .from("discounts")
       .select("*")
-      .eq("device_id", deviceId)
+      .eq("device_id", SHARED_DEVICE_ID)
       .order("sort_order");
     
     if (data && !error) {
@@ -81,7 +72,7 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
       setDiscounts(mapped);
     }
     setLoading(false);
-  }, [deviceId]);
+  }, []);
 
   useEffect(() => {
     fetchDiscounts();
@@ -102,7 +93,7 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     scheduleEnabled: boolean;
   }) => {
     const { data, error } = await (supabase as any).from("discounts").insert({
-      device_id: deviceId,
+      device_id: SHARED_DEVICE_ID,
       name: discountData.name,
       amount: discountData.amount,
       type: discountData.type,

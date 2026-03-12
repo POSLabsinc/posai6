@@ -43,21 +43,12 @@ interface ServiceChargeContentProps {
   onAIClick?: () => void;
 }
 
-const DEVICE_ID_KEY = "pos_device_id";
-function getDeviceId(): string {
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if (!id) {
-    id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    localStorage.setItem(DEVICE_ID_KEY, id);
-  }
-  return id;
-}
+const SHARED_DEVICE_ID = "shared";
 
 const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceChargeContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
-  const deviceId = getDeviceId();
 
   const [serviceCharges, setServiceCharges] = useState<ServiceCharge[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,7 +57,7 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
     const { data, error } = await (supabase as any)
       .from("service_charges")
       .select("*")
-      .eq("device_id", deviceId)
+      .eq("device_id", SHARED_DEVICE_ID)
       .order("sort_order");
     
     if (data && !error) {
@@ -87,7 +78,7 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
       setServiceCharges(mapped);
     }
     setLoading(false);
-  }, [deviceId]);
+  }, []);
 
   useEffect(() => {
     fetchServiceCharges();
@@ -111,7 +102,7 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
     requiresManagerPin: boolean;
   }) => {
     const { error } = await (supabase as any).from("service_charges").insert({
-      device_id: deviceId,
+      device_id: SHARED_DEVICE_ID,
       name: chargeData.name,
       amount: chargeData.amount,
       type: chargeData.type,

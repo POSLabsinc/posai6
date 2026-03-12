@@ -2,9 +2,12 @@
 // Used by AI assistant to read and modify settings
 import { supabase } from "@/integrations/supabase/client";
 
-// Device ID helper (mirrors usePreference.ts)
+// Shared device ID for global settings (same across all browsers/devices)
+const SHARED_DEVICE_ID = "shared";
+
+// Per-device ID only for cash drawer sessions (legitimately per-terminal)
 const DEVICE_ID_KEY = "pos_device_id";
-function getDeviceId(): string {
+function getPerDeviceId(): string {
   let id = localStorage.getItem(DEVICE_ID_KEY);
   if (!id) {
     id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -38,11 +41,10 @@ const APPEARANCE_INDIVIDUAL_KEYS = ["theme", "iconStyle", "iconSize", "textSize"
  * Fire-and-forget — does not block the UI.
  */
 function syncToDatabase(preferenceKey: string, value: string) {
-  const deviceId = getDeviceId();
   (supabase as any)
     .from("user_preferences")
     .upsert(
-      { device_id: deviceId, preference_key: preferenceKey, preference_value: value },
+      { device_id: SHARED_DEVICE_ID, preference_key: preferenceKey, preference_value: value },
       { onConflict: "device_id,preference_key" }
     )
     .then(() => {
@@ -53,9 +55,8 @@ function syncToDatabase(preferenceKey: string, value: string) {
 // ============= DEDICATED TABLE SYNC HELPERS =============
 
 async function syncGratuityToTable(settings: GratuitySettings) {
-  const deviceId = getDeviceId();
   await (supabase as any).from("gratuity_settings").upsert({
-    device_id: deviceId,
+    device_id: SHARED_DEVICE_ID,
     enable_tip: settings.enableTip,
     show_on_receipt: settings.showOnReceipt,
     allow_custom: settings.allowCustom,
@@ -68,13 +69,11 @@ async function syncGratuityToTable(settings: GratuitySettings) {
 }
 
 async function syncDiscountsToTable(discounts: Discount[]) {
-  const deviceId = getDeviceId();
-  // Delete existing and re-insert all
-  await (supabase as any).from("discounts").delete().eq("device_id", deviceId);
+  await (supabase as any).from("discounts").delete().eq("device_id", SHARED_DEVICE_ID);
   if (discounts.length > 0) {
     await (supabase as any).from("discounts").insert(
       discounts.map((d, i) => ({
-        device_id: deviceId,
+        device_id: SHARED_DEVICE_ID,
         name: d.name,
         amount: d.amount,
         type: d.type,
@@ -90,12 +89,11 @@ async function syncDiscountsToTable(discounts: Discount[]) {
 }
 
 async function syncTaxesToTable(taxes: Tax[]) {
-  const deviceId = getDeviceId();
-  await (supabase as any).from("taxes").delete().eq("device_id", deviceId);
+  await (supabase as any).from("taxes").delete().eq("device_id", SHARED_DEVICE_ID);
   if (taxes.length > 0) {
     await (supabase as any).from("taxes").insert(
       taxes.map((t, i) => ({
-        device_id: deviceId,
+        device_id: SHARED_DEVICE_ID,
         name: t.name,
         amount: t.amount,
         type: t.type,
@@ -109,12 +107,11 @@ async function syncTaxesToTable(taxes: Tax[]) {
 }
 
 async function syncServiceChargesToTable(charges: ServiceCharge[]) {
-  const deviceId = getDeviceId();
-  await (supabase as any).from("service_charges").delete().eq("device_id", deviceId);
+  await (supabase as any).from("service_charges").delete().eq("device_id", SHARED_DEVICE_ID);
   if (charges.length > 0) {
     await (supabase as any).from("service_charges").insert(
       charges.map((sc, i) => ({
-        device_id: deviceId,
+        device_id: SHARED_DEVICE_ID,
         name: sc.name,
         amount: sc.amount,
         type: sc.type,
@@ -133,9 +130,8 @@ async function syncServiceChargesToTable(charges: ServiceCharge[]) {
 }
 
 async function syncCheckoutOptionsToTable(settings: CheckoutOptionsSettings) {
-  const deviceId = getDeviceId();
   await (supabase as any).from("checkout_options").upsert({
-    device_id: deviceId,
+    device_id: SHARED_DEVICE_ID,
     enable_quick_amounts: settings.enableQuickAmounts,
     split_check: settings.splitCheck,
     enable_tips: settings.enableTips,
@@ -159,13 +155,12 @@ async function syncCheckoutOptionsToTable(settings: CheckoutOptionsSettings) {
 }
 
 async function syncPaymentMethodsToTable(states: Record<string, boolean>) {
-  const deviceId = getDeviceId();
-  await (supabase as any).from("payment_methods").delete().eq("device_id", deviceId);
+  await (supabase as any).from("payment_methods").delete().eq("device_id", SHARED_DEVICE_ID);
   const entries = Object.entries(states);
   if (entries.length > 0) {
     await (supabase as any).from("payment_methods").insert(
       entries.map(([methodId, enabled], i) => ({
-        device_id: deviceId,
+        device_id: SHARED_DEVICE_ID,
         method_id: methodId,
         enabled,
         sort_order: i,
@@ -393,9 +388,8 @@ export class SettingsManager {
     if (this._initialized) return;
     this._initialized = true;
 
-    const deviceId = getDeviceId();
     try {
-      // Load from dedicated payment tables in parallel
+      // Load from dedicated payment tables in parallel (using shared device ID for global settings)
       const [
         gratuityRes,
         discountsRes,
@@ -405,13 +399,13 @@ export class SettingsManager {
         paymentMethodsRes,
         prefsRes,
       ] = await Promise.all([
-        (supabase as any).from("gratuity_settings").select("*").eq("device_id", deviceId).maybeSingle(),
-        (supabase as any).from("discounts").select("*").eq("device_id", deviceId).order("sort_order"),
-        (supabase as any).from("taxes").select("*").eq("device_id", deviceId).order("sort_order"),
-        (supabase as any).from("service_charges").select("*").eq("device_id", deviceId).order("sort_order"),
-        (supabase as any).from("checkout_options").select("*").eq("device_id", deviceId).maybeSingle(),
-        (supabase as any).from("payment_methods").select("*").eq("device_id", deviceId).order("sort_order"),
-        (supabase as any).from("user_preferences").select("preference_key, preference_value").eq("device_id", deviceId).in("preference_key", [...ALL_SETTINGS_KEYS, ...APPEARANCE_INDIVIDUAL_KEYS]),
+        (supabase as any).from("gratuity_settings").select("*").eq("device_id", SHARED_DEVICE_ID).maybeSingle(),
+        (supabase as any).from("discounts").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("taxes").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("service_charges").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("checkout_options").select("*").eq("device_id", SHARED_DEVICE_ID).maybeSingle(),
+        (supabase as any).from("payment_methods").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("user_preferences").select("preference_key, preference_value").eq("device_id", SHARED_DEVICE_ID).in("preference_key", [...ALL_SETTINGS_KEYS, ...APPEARANCE_INDIVIDUAL_KEYS]),
       ]);
 
       let loadedCount = 0;
@@ -958,7 +952,7 @@ export class SettingsManager {
 
   // ============= CASH MANAGEMENT =============
   static async createCashDrawerSession(drawerName: string, startingCash: number): Promise<string | null> {
-    const deviceId = getDeviceId();
+    const deviceId = getPerDeviceId();
     const { data, error } = await (supabase as any).from("cash_drawer_sessions").insert({
       device_id: deviceId,
       drawer_name: drawerName,
@@ -981,7 +975,7 @@ export class SettingsManager {
   }
 
   static async getActiveDrawerSession(): Promise<any | null> {
-    const deviceId = getDeviceId();
+    const deviceId = getPerDeviceId();
     const { data } = await (supabase as any).from("cash_drawer_sessions")
       .select("*")
       .eq("device_id", deviceId)
@@ -1018,7 +1012,7 @@ export class SettingsManager {
   }
 
   static async getLastClosedSession(): Promise<any | null> {
-    const deviceId = getDeviceId();
+    const deviceId = getPerDeviceId();
     const { data } = await (supabase as any).from("cash_drawer_sessions")
       .select("*")
       .eq("device_id", deviceId)
@@ -1036,7 +1030,7 @@ export class SettingsManager {
     note?: string;
     employeeName?: string;
   }): Promise<boolean> {
-    const deviceId = getDeviceId();
+    const deviceId = getPerDeviceId();
     const { error } = await (supabase as any).from("cash_transactions").insert({
       session_id: sessionId,
       device_id: deviceId,
@@ -1082,9 +1076,8 @@ export class SettingsManager {
     tags?: string;
     enableQrBarcode?: boolean;
   }): Promise<boolean> {
-    const deviceId = getDeviceId();
     const { error } = await (supabase as any).from("vouchers").insert({
-      device_id: deviceId,
+      device_id: SHARED_DEVICE_ID,
       code: voucher.code,
       name: voucher.name || '',
       type: voucher.type,

@@ -622,6 +622,21 @@ async function handleUpdateAIRules(
     if (parsedResponse.multiSelect === undefined) parsedResponse.multiSelect = false;
     if (!parsedResponse.action) parsedResponse.action = { type: "info" };
 
+    // ── Handle update_ai_rules action server-side ────────────────────────
+    if (parsedResponse.action?.type === "update_ai_rules" && deviceId && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      const { ruleType, operation, value } = parsedResponse.action;
+      if (ruleType && operation && value !== undefined) {
+        const result = await handleUpdateAIRules(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, deviceId, ruleType, operation, value);
+        console.log("AI rules update result:", result);
+        if (result.success) {
+          parsedResponse.action = { type: "ai_rules_updated", ruleType, operation, value, success: true };
+        } else {
+          parsedResponse.action = { type: "ai_rules_updated", ruleType, operation, success: false, error: result.message };
+          parsedResponse.message = (parsedResponse.message || "") + "\n\n⚠️ " + result.message;
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify(parsedResponse),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }

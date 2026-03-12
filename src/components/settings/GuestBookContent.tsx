@@ -1332,7 +1332,8 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
   return (
     <div className="h-full flex overflow-hidden">
       {/* Left Panel - Guest List */}
-      <div className="w-[300px] flex-shrink-0 bg-neutral-900/90 rounded-2xl flex flex-col h-full">
+      {!isExpanded && (
+        <div className="w-[300px] flex-shrink-0 bg-neutral-900/90 rounded-2xl flex flex-col h-full">
           <div className="px-4 pt-5 pb-2 flex items-center justify-between overflow-visible" style={{ minHeight: 48 }}>
             {onBack ? (
               <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
@@ -1376,11 +1377,19 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
             ))}
           </div>
         </div>
+      )}
 
       {/* Right Panel - Guest Detail */}
-      <div className="flex-1 h-full overflow-hidden">
+      <div
+        className="flex-1 h-full overflow-hidden cursor-pointer"
+        onClick={() => {
+          if (selectedGuest && !isExpanded) {
+            setIsExpanded(true);
+          }
+        }}
+      >
         {selectedGuest ? (
-          <GuestDetailPanel guest={selectedGuest} onUpdateGuest={handleUpdateGuest} />
+          <GuestDetailPanel guest={selectedGuest} onUpdateGuest={handleUpdateGuest} onCollapse={isExpanded ? () => setIsExpanded(false) : undefined} />
         ) : (
           <EmptyDetailState />
         )}

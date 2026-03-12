@@ -157,9 +157,6 @@ const AIRulesContent = () => {
         <span className="text-xs font-medium text-neutral-500 tracking-wider uppercase">
           AI Rules & Instructions
         </span>
-        <p className="text-sm text-neutral-400 mt-1 leading-relaxed">
-          Define global rules, custom instructions, and restaurant knowledge that apply to all AI providers.
-        </p>
       </div>
 
       {/* DO's */}

@@ -33,6 +33,8 @@ import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
 import mergeIcon from "@/assets/icons/merge-icon.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
+import transferItemIcon from "@/assets/icons/transfer-item.svg";
+import transferToOrderIcon from "@/assets/icons/transfer-to-order.svg";
 import registerIcon from "@/assets/icons/register.svg";
 import customItemIcon from "@/assets/icons/custom-item.svg";
 import discountIcon from "@/assets/icons/discount-new.svg";

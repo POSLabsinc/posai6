@@ -329,6 +329,16 @@ serve(async (req) => {
       }
     }
 
+    // ── Fetch AI Rules & Instructions ─────────────────────────────────────
+    let aiRulesContext = "No custom AI rules configured.";
+    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && deviceId) {
+      try {
+        aiRulesContext = await fetchAIRules(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, deviceId);
+      } catch (e) {
+        console.error("Failed to fetch AI rules:", e);
+      }
+    }
+
     // Only include local settings context if it's about non-DB settings
     const trimmedSettings = settingsContext && settingsContext.length > 2000
       ? settingsContext.substring(0, 2000) + "\n...(truncated)"
@@ -336,7 +346,8 @@ serve(async (req) => {
 
     const systemPromptWithContext = SYSTEM_PROMPT
       .replace("{DATABASE_CONTEXT}", databaseContext)
-      .replace("{SETTINGS_CONTEXT}", trimmedSettings);
+      .replace("{SETTINGS_CONTEXT}", trimmedSettings)
+      .replace("{AI_RULES_CONTEXT}", aiRulesContext);
 
     // Check for images
     const hasImage = recentMessages.some((m: any) => Array.isArray(m.content) && m.content.some((c: any) => c.type === "image_url"));

@@ -1076,9 +1076,8 @@ export class SettingsManager {
     tags?: string;
     enableQrBarcode?: boolean;
   }): Promise<boolean> {
-    const deviceId = getDeviceId();
     const { error } = await (supabase as any).from("vouchers").insert({
-      device_id: deviceId,
+      device_id: SHARED_DEVICE_ID,
       code: voucher.code,
       name: voucher.name || '',
       type: voucher.type,

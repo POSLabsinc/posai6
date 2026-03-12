@@ -66,10 +66,38 @@ const CashDrawerDetailsContent = ({
   
   const drawerRef = useRef<HTMLButtonElement>(null);
   useEffect(() => {
+    // Load from localStorage first
     const savedTransactions = localStorage.getItem('cashTransactions');
     if (savedTransactions) {
       setTransactions(JSON.parse(savedTransactions));
     }
+    
+    // Also load from DB if session has an ID
+    const loadFromDB = async () => {
+      const sessionData = localStorage.getItem('activeDrawerSession');
+      if (sessionData) {
+        const session = JSON.parse(sessionData);
+        if (session.id) {
+          const dbTransactions = await SettingsManager.getCashTransactions(session.id);
+          if (dbTransactions.length > 0) {
+            const mapped: CashTransaction[] = dbTransactions.map((t: any) => ({
+              id: t.id,
+              time: new Date(t.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+              name: t.employee_name || 'User',
+              reason: t.reason,
+              payIn: t.type === 'pay_in' ? Number(t.amount) : 0,
+              payOut: t.type === 'pay_out' ? Number(t.amount) : 0,
+              note: t.note,
+              timestamp: new Date(t.created_at).getTime(),
+              date: format(new Date(t.created_at), 'yyyy-MM-dd'),
+            }));
+            setTransactions(mapped);
+            localStorage.setItem('cashTransactions', JSON.stringify(mapped));
+          }
+        }
+      }
+    };
+    loadFromDB();
   }, []);
   
   // Calculate paidInOut from actual transactions (totalPayIn - totalPayOut)

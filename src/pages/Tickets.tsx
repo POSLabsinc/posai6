@@ -688,6 +688,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   
   // Dynamic timer state - updates every second
   const [currentTime, setCurrentTime] = useState(new Date());

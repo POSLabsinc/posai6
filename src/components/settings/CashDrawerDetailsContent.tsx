@@ -178,9 +178,23 @@ const CashDrawerDetailsContent = ({
     navigate('/settings/payments/cash-management/pay-in-out');
   };
 
-  const handleConfirmEndDrawer = () => {
+  const handleConfirmEndDrawer = async () => {
     if (hasActualAmount) {
-      // Store complete closing session data for display on Cash Management screen
+      const sessionData = localStorage.getItem('activeDrawerSession');
+      const session = sessionData ? JSON.parse(sessionData) : null;
+      
+      // Close in DB if we have a session ID
+      if (session?.id) {
+        await SettingsManager.closeCashDrawerSession(session.id, {
+          closingCash: actualAmount,
+          cashSales,
+          cashRefunds,
+          expectedInDrawer,
+          difference,
+        });
+      }
+
+      // Also store in localStorage for backwards compatibility
       const closedSessionData = {
         drawer: selectedDrawer,
         closingBalance: actualAmount,
@@ -195,7 +209,6 @@ const CashDrawerDetailsContent = ({
       localStorage.setItem('lastClosedSession', JSON.stringify(closedSessionData));
       localStorage.setItem('lastClosingBalance', actualAmount.toFixed(2));
       localStorage.setItem('lastClosingDrawer', selectedDrawer);
-      // Clear transactions and active session for new session
       localStorage.removeItem('cashTransactions');
       localStorage.removeItem('activeDrawerSession');
       setShowEndDrawerPopup(false);

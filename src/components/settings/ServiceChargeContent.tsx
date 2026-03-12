@@ -57,7 +57,7 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
     const { data, error } = await (supabase as any)
       .from("service_charges")
       .select("*")
-      .eq("device_id", deviceId)
+      .eq("device_id", SHARED_DEVICE_ID)
       .order("sort_order");
     
     if (data && !error) {

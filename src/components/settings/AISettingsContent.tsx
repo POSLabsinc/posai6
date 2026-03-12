@@ -129,7 +129,7 @@ interface SuggestionChip {
 }
 
 interface AIAction {
-  type: "view" | "update_setting" | "navigate" | "info";
+  type: "view" | "update_setting" | "navigate" | "info" | "ai_rules_updated";
   category?: string;
   path?: string;
   setting?: string;
@@ -139,6 +139,10 @@ interface AIAction {
   operation?: string;
   data?: any;
   autoApply?: boolean;
+  ruleType?: string;
+  value?: any;
+  success?: boolean;
+  error?: string;
 }
 
 const defaultSuggestionChips: SuggestionChip[] = [
@@ -761,6 +765,16 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         } else {
           // Show confirmation UI for non-auto-apply changes
           pendingChange = change;
+        }
+      } else if (action?.type === "ai_rules_updated") {
+        // AI rules were updated server-side, show toast
+        const ruleLabels: Record<string, string> = { dos: "Do's", donts: "Don'ts", custom_instructions: "Custom Instructions", restaurant_type: "Restaurant Type", knowledge_base: "Knowledge Base" };
+        const label = ruleLabels[action.ruleType || ""] || action.ruleType;
+        if (action.success) {
+          toast({ title: "AI Rules Updated", description: `${label} ${action.operation === "add" ? "rule added" : action.operation === "remove" ? "rule removed" : "updated"} successfully.` });
+          appliedChange = { setting: `AI Rules - ${label}`, path: "AI Instructions", value: typeof action.value === "string" ? action.value : JSON.stringify(action.value), settingType: "ai_rules" };
+        } else {
+          toast({ title: "Update Failed", description: action.error || `Failed to update ${label}.`, variant: "destructive" });
         }
       } else if (action?.type === "navigate" && action.path) {
         navigateTo = action.path;

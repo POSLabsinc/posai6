@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import aiIntegrationIcon from "@/assets/icons/ai-integration.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
+import AIRulesContent from "@/components/settings/AIRulesContent";
 
 interface AIIntegrationContentProps {
   showHeader?: boolean;

@@ -697,6 +697,7 @@ export class SettingsManager {
     taxes[index].archived = true;
     localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
     syncToDatabase(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
+    syncTaxesToTable(taxes);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'taxes', data: taxes } }));
     return true;
   }

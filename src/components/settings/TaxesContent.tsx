@@ -64,7 +64,7 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
       setTaxes(mapped);
     }
     setLoading(false);
-  }, [deviceId]);
+  }, []);
 
   useEffect(() => {
     fetchTaxes();

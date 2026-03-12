@@ -70,29 +70,33 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
 
     const digits = searchQuery.replace(/\D/g, '');
     if (digits.length >= 3) {
-      const results = customers.filter(c => c.phone.replace(/\D/g, '').includes(digits));
-      setSearchResults(results);
-      setShowResults(results.length > 0);
-      if (digits.length === selectedCountry.phoneLength) {
-        if (results.length === 0) {
-          setIsNewCustomer(true);
-          setMatchedCustomer(null);
-        } else {
-          const exact = results.find(c => c.phone.replace(/\D/g, '') === digits);
-          if (exact) {
-            setMatchedCustomer(exact);
-            const [f, ...r] = exact.name.split(' '); setFirstName(f); setLastName(r.join(' '));
-            setEmailQuery(exact.email || '');
-            setIsNewCustomer(false);
-          } else {
-            setMatchedCustomer(null);
+      let cancelled = false;
+      searchCustomers(digits).then(results => {
+        if (cancelled) return;
+        setSearchResults(results);
+        setShowResults(results.length > 0);
+        if (digits.length === selectedCountry.phoneLength) {
+          if (results.length === 0) {
             setIsNewCustomer(true);
+            setMatchedCustomer(null);
+          } else {
+            const exact = results.find(c => c.phone.replace(/\D/g, '').slice(-10) === digits.slice(-10));
+            if (exact) {
+              setMatchedCustomer(exact);
+              const [f, ...r] = exact.name.split(' '); setFirstName(f); setLastName(r.join(' '));
+              setEmailQuery(exact.email || '');
+              setIsNewCustomer(false);
+            } else {
+              setMatchedCustomer(null);
+              setIsNewCustomer(true);
+            }
           }
+        } else {
+          setMatchedCustomer(null);
+          setIsNewCustomer(false);
         }
-      } else {
-        setMatchedCustomer(null);
-        setIsNewCustomer(false);
-      }
+      });
+      return () => { cancelled = true; };
     } else {
       setSearchResults([]);
       setMatchedCustomer(null);

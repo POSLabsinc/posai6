@@ -1030,7 +1030,7 @@ export class SettingsManager {
     note?: string;
     employeeName?: string;
   }): Promise<boolean> {
-    const deviceId = getDeviceId();
+    const deviceId = getPerDeviceId();
     const { error } = await (supabase as any).from("cash_transactions").insert({
       session_id: sessionId,
       device_id: deviceId,

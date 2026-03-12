@@ -927,6 +927,222 @@ export class SettingsManager {
     return updated;
   }
 
+  // ============= PAYMENT METHODS =============
+  static getPaymentMethodStates(): Record<string, boolean> {
+    const stored = localStorage.getItem(STORAGE_KEYS.PAYMENT_METHODS);
+    if (stored) {
+      try { return JSON.parse(stored); } catch {}
+    }
+    return {};
+  }
+
+  static updatePaymentMethodState(methodId: string, enabled: boolean): Record<string, boolean> {
+    const states = this.getPaymentMethodStates();
+    states[methodId] = enabled;
+    localStorage.setItem(STORAGE_KEYS.PAYMENT_METHODS, JSON.stringify(states));
+    syncToDatabase(STORAGE_KEYS.PAYMENT_METHODS, JSON.stringify(states));
+    syncPaymentMethodsToTable(states);
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'paymentMethods', data: states } }));
+    return states;
+  }
+
+  static setAllPaymentMethodStates(states: Record<string, boolean>): void {
+    localStorage.setItem(STORAGE_KEYS.PAYMENT_METHODS, JSON.stringify(states));
+    syncToDatabase(STORAGE_KEYS.PAYMENT_METHODS, JSON.stringify(states));
+    syncPaymentMethodsToTable(states);
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'paymentMethods', data: states } }));
+  }
+
+  // ============= CASH MANAGEMENT =============
+  static async createCashDrawerSession(drawerName: string, startingCash: number): Promise<string | null> {
+    const deviceId = getDeviceId();
+    const { data, error } = await (supabase as any).from("cash_drawer_sessions").insert({
+      device_id: deviceId,
+      drawer_name: drawerName,
+      starting_cash: startingCash,
+      status: 'open',
+    }).select('id').single();
+    if (error || !data) {
+      console.error("[SettingsManager] Failed to create cash drawer session:", error);
+      return null;
+    }
+    // Also store in localStorage for fast sync reads
+    const sessionData = {
+      id: data.id,
+      startingCash,
+      selectedDrawer: drawerName,
+      sessionStartTime: Date.now(),
+    };
+    localStorage.setItem('activeDrawerSession', JSON.stringify(sessionData));
+    return data.id;
+  }
+
+  static async getActiveDrawerSession(): Promise<any | null> {
+    const deviceId = getDeviceId();
+    const { data } = await (supabase as any).from("cash_drawer_sessions")
+      .select("*")
+      .eq("device_id", deviceId)
+      .eq("status", "open")
+      .order("opened_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return data || null;
+  }
+
+  static async closeCashDrawerSession(sessionId: string, closingData: {
+    closingCash: number;
+    cashSales: number;
+    cashRefunds: number;
+    expectedInDrawer: number;
+    difference: number;
+  }): Promise<boolean> {
+    const { error } = await (supabase as any).from("cash_drawer_sessions").update({
+      status: 'closed',
+      closed_at: new Date().toISOString(),
+      closing_cash: closingData.closingCash,
+      cash_sales: closingData.cashSales,
+      cash_refunds: closingData.cashRefunds,
+      expected_in_drawer: closingData.expectedInDrawer,
+      difference: closingData.difference,
+    }).eq("id", sessionId);
+    if (error) {
+      console.error("[SettingsManager] Failed to close cash drawer session:", error);
+      return false;
+    }
+    localStorage.removeItem('activeDrawerSession');
+    localStorage.removeItem('cashTransactions');
+    return true;
+  }
+
+  static async getLastClosedSession(): Promise<any | null> {
+    const deviceId = getDeviceId();
+    const { data } = await (supabase as any).from("cash_drawer_sessions")
+      .select("*")
+      .eq("device_id", deviceId)
+      .eq("status", "closed")
+      .order("closed_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return data || null;
+  }
+
+  static async addCashTransaction(sessionId: string, transaction: {
+    type: 'pay_in' | 'pay_out';
+    amount: number;
+    reason: string;
+    note?: string;
+    employeeName?: string;
+  }): Promise<boolean> {
+    const deviceId = getDeviceId();
+    const { error } = await (supabase as any).from("cash_transactions").insert({
+      session_id: sessionId,
+      device_id: deviceId,
+      type: transaction.type,
+      amount: transaction.amount,
+      reason: transaction.reason,
+      note: transaction.note || null,
+      employee_name: transaction.employeeName || null,
+    });
+    if (error) {
+      console.error("[SettingsManager] Failed to add cash transaction:", error);
+      return false;
+    }
+    return true;
+  }
+
+  static async getCashTransactions(sessionId: string): Promise<any[]> {
+    const { data } = await (supabase as any).from("cash_transactions")
+      .select("*")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: true });
+    return data || [];
+  }
+
+  // ============= VOUCHERS =============
+  static async createVoucher(voucher: {
+    code: string;
+    name?: string;
+    type: string;
+    value: number;
+    sellingPrice?: number;
+    expiryDate?: string;
+    redemptionLimit?: number;
+    minOrderAmount?: number;
+    buyerType?: string;
+    redemptionMode?: string;
+    serviceFeeType?: string;
+    serviceFeeValue?: number;
+    recipientPhone?: string;
+    recipientEmail?: string;
+    customerName?: string;
+    notes?: string;
+    tags?: string;
+    enableQrBarcode?: boolean;
+  }): Promise<boolean> {
+    const deviceId = getDeviceId();
+    const { error } = await (supabase as any).from("vouchers").insert({
+      device_id: deviceId,
+      code: voucher.code,
+      name: voucher.name || '',
+      type: voucher.type,
+      value: voucher.value,
+      remaining_balance: voucher.type === 'percentage' ? voucher.value : voucher.value,
+      selling_price: voucher.sellingPrice || voucher.value,
+      expiry_date: voucher.expiryDate || null,
+      redemption_limit: voucher.redemptionLimit || 1,
+      min_order_amount: voucher.minOrderAmount || 0,
+      buyer_type: voucher.buyerType || 'both',
+      redemption_mode: voucher.redemptionMode || 'both',
+      service_fee_type: voucher.serviceFeeType || 'none',
+      service_fee_value: voucher.serviceFeeValue || 0,
+      recipient_phone: voucher.recipientPhone || null,
+      recipient_email: voucher.recipientEmail || null,
+      customer_name: voucher.customerName || null,
+      notes: voucher.notes || null,
+      tags: voucher.tags || null,
+      enable_qr_barcode: voucher.enableQrBarcode !== false,
+    });
+    if (error) {
+      console.error("[SettingsManager] Failed to create voucher:", error);
+      return false;
+    }
+    return true;
+  }
+
+  static async findVoucherByCode(code: string): Promise<any | null> {
+    const { data } = await (supabase as any).from("vouchers")
+      .select("*")
+      .eq("code", code.toUpperCase())
+      .maybeSingle();
+    return data || null;
+  }
+
+  static async redeemVoucher(code: string, amountUsed: number): Promise<{ success: boolean; remainingBalance: number }> {
+    const voucher = await this.findVoucherByCode(code);
+    if (!voucher) return { success: false, remainingBalance: 0 };
+    if (voucher.status !== 'active') return { success: false, remainingBalance: 0 };
+    if (voucher.times_redeemed >= voucher.redemption_limit) return { success: false, remainingBalance: 0 };
+
+    const newBalance = Math.max(0, Number(voucher.remaining_balance) - amountUsed);
+    const newTimesRedeemed = voucher.times_redeemed + 1;
+    const newStatus = newBalance <= 0 || newTimesRedeemed >= voucher.redemption_limit ? 'redeemed' : 'active';
+
+    await (supabase as any).from("vouchers").update({
+      remaining_balance: newBalance,
+      times_redeemed: newTimesRedeemed,
+      status: newStatus,
+    }).eq("id", voucher.id);
+
+    return { success: true, remainingBalance: newBalance };
+  }
+
+  static async getAllVouchers(): Promise<any[]> {
+    const { data } = await (supabase as any).from("vouchers")
+      .select("*")
+      .order("created_at", { ascending: false });
+    return data || [];
+  }
+
   // Get all settings summary for AI
   static getAllSettingsSummary(): string {
     const gratuity = this.getGratuitySettings();

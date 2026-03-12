@@ -449,6 +449,7 @@ export class SettingsManager {
           applicableTo: d.applicable_to,
           applicableProducts: d.applicable_products || [],
           requiresManagerPin: d.requires_manager_pin,
+          scheduleEnabled: d.schedule_enabled,
         }));
         localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
         loadedCount++;

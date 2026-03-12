@@ -315,7 +315,7 @@ async function handleUpdateAIRules(
       const { error } = await supabase
         .from("user_preferences")
         .upsert(
-          { device_id: deviceId, preference_key: prefKey, preference_value: newValue, updated_at: new Date().toISOString() },
+          { device_id: sharedDeviceId, preference_key: prefKey, preference_value: newValue, updated_at: new Date().toISOString() },
           { onConflict: "device_id,preference_key" }
         );
       if (error) throw error;

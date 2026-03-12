@@ -49,27 +49,14 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
     address: initialData?.address || null,
     notes: initialData?.notes || "",
   });
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const { searchQuery, setSearchQuery, searchResults, showSearchResults, setShowSearchResults } = useCustomerSearch();
   const [addressSearchQuery, setAddressSearchQuery] = useState("");
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
 
-  // Phone conflict state
-  const [showConflictDialog, setShowConflictDialog] = useState(false);
-  const [conflictCustomer, setConflictCustomer] = useState<Customer | null>(null);
+  const { showConflictDialog, setShowConflictDialog, conflictCustomer, setConflictCustomer, clearConflict } = usePhoneConflict(formData.phoneNumber, formData.guestName);
 
   const maxNotes = 70;
-
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase();
-    return customers.filter(
-      (guest) =>
-        guest.name.toLowerCase().includes(query) ||
-        guest.phone.replace(/\D/g, "").includes(query.replace(/\D/g, ""))
-    );
-  }, [searchQuery]);
 
   const addressSuggestions = useMemo(() => {
     if (!addressSearchQuery.trim()) return [];
@@ -80,15 +67,6 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
         addr.city.toLowerCase().includes(query)
     );
   }, [addressSearchQuery]);
-
-  // Check for phone conflict when phone number changes
-  useEffect(() => {
-    const conflict = checkPhoneConflict(formData.phoneNumber, formData.guestName);
-    if (conflict) {
-      setConflictCustomer(conflict);
-      setShowConflictDialog(true);
-    }
-  }, [formData.phoneNumber, formData.guestName]);
 
   const handleSelectGuest = (guest: Customer) => {
     setFormData((prev) => ({

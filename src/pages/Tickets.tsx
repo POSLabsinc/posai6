@@ -33,6 +33,8 @@ import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
 import mergeIcon from "@/assets/icons/merge-icon.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
+import transferItemIcon from "@/assets/icons/transfer-item.svg";
+import transferToOrderIcon from "@/assets/icons/transfer-to-order.svg";
 import registerIcon from "@/assets/icons/register.svg";
 import customItemIcon from "@/assets/icons/custom-item.svg";
 import discountIcon from "@/assets/icons/discount-new.svg";
@@ -689,6 +691,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  
+  // Transfer & Merge state
+  const [showTransferIntentDialog, setShowTransferIntentDialog] = useState(false);
+  const [transferIntentOrderId, setTransferIntentOrderId] = useState<string | null>(null);
+  const [showTransferToOrderDialog, setShowTransferToOrderDialog] = useState(false);
+  const [selectedTransferOrderId, setSelectedTransferOrderId] = useState<string | null>(null);
+  const [transferToOrderSourceId, setTransferToOrderSourceId] = useState<string | null>(null);
+  const [showMergeDialog, setShowMergeDialog] = useState(false);
+  const [mergeSourceOrderId, setMergeSourceOrderId] = useState<string | null>(null);
+  const [selectedMergeTargetId, setSelectedMergeTargetId] = useState<string | null>(null);
   
   // Dynamic timer state - updates every second
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -2319,12 +2331,21 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                      onClick={() => {
+                        setTransferIntentOrderId(selectedGuest.id);
+                        setShowTransferIntentDialog(true);
+                      }}
                     >
                       <img src={shareOrderIcon} alt="" className="w-3.5 h-3.5" />
                       Transfer
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                      onClick={() => {
+                        setMergeSourceOrderId(selectedGuest.id);
+                        setSelectedMergeTargetId(null);
+                        setShowMergeDialog(true);
+                      }}
                     >
                       <img src={mergeIcon} alt="" className="w-3.5 h-3.5" />
                       Merge
@@ -3018,10 +3039,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     </>
                   ) : (
                     <>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-transfer-gradient">
+                      <button 
+                        className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-transfer-gradient"
+                        onClick={(e) => { e.stopPropagation(); setMergeSourceOrderId(guest.id); setSelectedMergeTargetId(null); setShowMergeDialog(true); }}
+                      >
                         <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain brightness-0" />
                       </button>
-                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-action-gradient">
+                      <button 
+                        className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-action-gradient"
+                        onClick={(e) => { e.stopPropagation(); setTransferIntentOrderId(guest.id); setShowTransferIntentDialog(true); }}
+                      >
                         <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
                       </button>
                     </>
@@ -3379,10 +3406,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                           </>
                         ) : (
                           <>
-                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient">
+                            <button 
+                              className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient"
+                              onClick={e => { e.stopPropagation(); setMergeSourceOrderId(guest.id); setSelectedMergeTargetId(null); setShowMergeDialog(true); }}
+                            >
                               <img src={arrowRightIcon} alt="Merge" className="w-3.5 h-3.5 object-contain" />
                             </button>
-                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-transfer-gradient" onClick={e => e.stopPropagation()}>
+                            <button 
+                              className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-transfer-gradient" 
+                              onClick={e => { e.stopPropagation(); setTransferIntentOrderId(guest.id); setShowTransferIntentDialog(true); }}
+                            >
                               <img src={shareOrderIcon} alt="Share" className="w-3.5 h-3.5 object-contain brightness-0" />
                             </button>
                           </>
@@ -4260,10 +4293,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                           </>
                         ) : (
                           <>
-                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient">
+                            <button 
+                              className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient"
+                              onClick={e => { e.stopPropagation(); setMergeSourceOrderId(guest.id); setSelectedMergeTargetId(null); setShowMergeDialog(true); }}
+                            >
                               <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
                             </button>
-                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-transfer-gradient" onClick={e => e.stopPropagation()}>
+                            <button 
+                              className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-transfer-gradient" 
+                              onClick={e => { e.stopPropagation(); setTransferIntentOrderId(guest.id); setShowTransferIntentDialog(true); }}
+                            >
                               <img src={shareOrderIcon} alt="Share" className="w-4 h-4 object-contain brightness-0" />
                             </button>
                           </>
@@ -6271,6 +6310,261 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           }}
         />
       )}
+
+      {/* Transfer Intent Dialog */}
+      {showTransferIntentDialog && (() => {
+        const sourceOrder = allOrders.find(o => o.id === transferIntentOrderId);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/80" onClick={() => setShowTransferIntentDialog(false)} />
+            <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[380px] max-w-[90vw] overflow-hidden">
+              <div className="flex items-center justify-between p-4 border-b border-white/10">
+                <h2 className="text-white text-lg font-semibold">Transfer Order</h2>
+                <button 
+                  onClick={() => setShowTransferIntentDialog(false)}
+                  className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                >
+                  <X className="w-4 h-4 text-white" />
+                </button>
+              </div>
+              <div className="p-4">
+                <p className="text-white/60 text-sm mb-3">What would you like to transfer?</p>
+                <div className="space-y-2">
+                  {/* Transfer Products */}
+                  <button 
+                    onClick={() => {
+                      setShowTransferIntentDialog(false);
+                      setSelectedTransferOrderId(null);
+                      setTransferToOrderSourceId(transferIntentOrderId);
+                      setShowTransferToOrderDialog(true);
+                    }}
+                    className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3 mb-0.5">
+                      <img src={transferItemIcon} alt="Transfer Products" className="w-5 h-5 object-contain opacity-80" />
+                      <span className="text-white font-medium">Transfer Products</span>
+                    </div>
+                    <p className="text-white/50 text-xs ml-8">Move selected products to another order.</p>
+                  </button>
+
+                  {/* Transfer to Order */}
+                  <button 
+                    onClick={() => {
+                      setShowTransferIntentDialog(false);
+                      setSelectedTransferOrderId(null);
+                      setTransferToOrderSourceId(transferIntentOrderId);
+                      setShowTransferToOrderDialog(true);
+                    }}
+                    className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                  >
+                    <div className="flex items-center gap-3 mb-0.5">
+                      <img src={transferToOrderIcon} alt="Transfer to Order" className="w-5 h-5 object-contain opacity-80" />
+                      <span className="text-white font-medium">Transfer to Order</span>
+                    </div>
+                    <p className="text-white/50 text-xs ml-8">Move this full order to another order.</p>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Transfer to Order Dialog */}
+      {showTransferToOrderDialog && (() => {
+        const sourceOrder = allOrders.find(o => o.id === transferToOrderSourceId);
+        const availableOrders = allOrders.filter(o => 
+          o.id !== transferToOrderSourceId && 
+          (o.status === "ORDERING" || o.status === "UNPAID") &&
+          !o.paid
+        );
+
+        const executeTransfer = () => {
+          if (!selectedTransferOrderId || !sourceOrder) return;
+          setShowTransferToOrderDialog(false);
+          
+          const targetOrder = allOrders.find(o => o.id === selectedTransferOrderId);
+          if (!targetOrder) return;
+
+          // Update selectedGuest to show transferred state
+          setSelectedGuest(prev => prev ? {
+            ...prev,
+            items: [],
+            subtotal: 0, discount: 0, serviceCharge: 0, tax: 0, tip: 0, total: 0,
+            status: "ORDERING",
+            notes: `Transferred to Order #${selectedTransferOrderId}`,
+          } : prev);
+          
+          toast.success(`Order transferred to ${targetOrder.name}'s ticket`);
+        };
+
+        return (
+          <Dialog open={showTransferToOrderDialog} onOpenChange={setShowTransferToOrderDialog}>
+            <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-lg overflow-hidden" aria-describedby={undefined}>
+              <div className="p-4 border-b border-white/10">
+                <h2 className="text-white text-lg font-semibold">Transfer to Order</h2>
+                <p className="text-white/50 text-sm mt-1">Select an active order to transfer</p>
+              </div>
+
+              <ScrollArea className="max-h-[60vh]">
+                <div className="p-4 space-y-3">
+                  {availableOrders.length === 0 ? (
+                    <p className="text-white/40 text-sm text-center py-6">No available orders to transfer to</p>
+                  ) : availableOrders.map((order) => {
+                    const isSelected = selectedTransferOrderId === order.id;
+                    return (
+                      <button
+                        key={order.id}
+                        onClick={() => setSelectedTransferOrderId(order.id)}
+                        className={`w-full rounded-xl border overflow-hidden text-left transition-all ${isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'}`}
+                        style={{ backgroundColor: '#1B1C20' }}
+                      >
+                        <div className="p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-white font-medium text-sm">{order.name}</span>
+                              <span className="text-white/40 text-xs">#{order.check !== "--" ? order.check : order.id}</span>
+                            </div>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${order.status === 'ORDERING' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                              {order.status}
+                            </span>
+                          </div>
+                          <div className="space-y-1.5">
+                            {order.items.map((item, idx) => (
+                              <div key={idx} className="flex items-center justify-between py-0.5">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                  <span className="w-7 h-7 rounded-md border border-white/20 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">{item.qty}</span>
+                                  <span className="text-white text-sm truncate">{item.name}</span>
+                                </div>
+                                <span className="text-white/70 text-sm font-medium flex-shrink-0 ml-2">{formatPrice(item.price * item.qty)}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between">
+                            <span className="text-white/50 text-sm">{order.items.length} products</span>
+                            <span className="text-white font-semibold text-sm">{formatPrice(order.subtotal)}</span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+
+              <div className="p-4 border-t border-white/10 flex gap-3">
+                <button onClick={() => setShowTransferToOrderDialog(false)} className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700">Cancel</button>
+                <button
+                  onClick={executeTransfer}
+                  disabled={!selectedTransferOrderId}
+                  className={`flex-1 py-2.5 rounded-full font-medium text-sm ${selectedTransferOrderId ? 'text-black' : 'text-black/50 opacity-50'}`}
+                  style={selectedTransferOrderId ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: '#555' }}
+                >
+                  Confirm Transfer
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
+
+      {/* Merge Dialog */}
+      {showMergeDialog && (() => {
+        const sourceOrder = allOrders.find(o => o.id === mergeSourceOrderId);
+        const availableMergeOrders = allOrders.filter(o => 
+          o.id !== mergeSourceOrderId && 
+          (o.status === "ORDERING" || o.status === "UNPAID") &&
+          !o.paid
+        );
+
+        const executeMerge = () => {
+          if (!selectedMergeTargetId || !sourceOrder) return;
+          setShowMergeDialog(false);
+          
+          const targetOrder = allOrders.find(o => o.id === selectedMergeTargetId);
+          if (!targetOrder) return;
+
+          // Update selectedGuest to show merged state
+          setSelectedGuest(prev => prev ? {
+            ...prev,
+            items: [...prev.items, ...targetOrder.items],
+            subtotal: prev.subtotal + targetOrder.subtotal,
+            tax: prev.tax + targetOrder.tax,
+            serviceCharge: prev.serviceCharge + targetOrder.serviceCharge,
+            total: prev.total + targetOrder.total,
+            notes: prev.notes ? `${prev.notes} | Merged with ${targetOrder.name}` : `Merged with ${targetOrder.name}`,
+          } : prev);
+          
+          toast.success(`Merged ${targetOrder.name}'s ticket into ${sourceOrder.name}'s ticket`);
+        };
+
+        return (
+          <Dialog open={showMergeDialog} onOpenChange={setShowMergeDialog}>
+            <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-lg overflow-hidden" aria-describedby={undefined}>
+              <div className="p-4 border-b border-white/10">
+                <h2 className="text-white text-lg font-semibold">Merge Tickets</h2>
+                <p className="text-white/50 text-sm mt-1">Select a ticket to merge into {sourceOrder?.name}'s order</p>
+              </div>
+
+              <ScrollArea className="max-h-[60vh]">
+                <div className="p-4 space-y-3">
+                  {availableMergeOrders.length === 0 ? (
+                    <p className="text-white/40 text-sm text-center py-6">No available tickets to merge</p>
+                  ) : availableMergeOrders.map((order) => {
+                    const isSelected = selectedMergeTargetId === order.id;
+                    return (
+                      <button
+                        key={order.id}
+                        onClick={() => setSelectedMergeTargetId(order.id)}
+                        className={`w-full rounded-xl border overflow-hidden text-left transition-all ${isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'}`}
+                        style={{ backgroundColor: '#1B1C20' }}
+                      >
+                        <div className="p-3">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-white font-medium text-sm">{order.name}</span>
+                              <span className="text-white/40 text-xs">#{order.check !== "--" ? order.check : order.id}</span>
+                            </div>
+                            <span className={`text-xs px-2 py-0.5 rounded-full ${order.status === 'ORDERING' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-orange-500/20 text-orange-400'}`}>
+                              {order.status}
+                            </span>
+                          </div>
+                          <div className="space-y-1.5">
+                            {order.items.map((item, idx) => (
+                              <div key={idx} className="flex items-center justify-between py-0.5">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                  <span className="w-7 h-7 rounded-md border border-white/20 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">{item.qty}</span>
+                                  <span className="text-white text-sm truncate">{item.name}</span>
+                                </div>
+                                <span className="text-white/70 text-sm font-medium flex-shrink-0 ml-2">{formatPrice(item.price * item.qty)}</span>
+                              </div>
+                            ))}
+                          </div>
+                          <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between">
+                            <span className="text-white/50 text-sm">{order.items.length} products</span>
+                            <span className="text-white font-semibold text-sm">{formatPrice(order.subtotal)}</span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+
+              <div className="p-4 border-t border-white/10 flex gap-3">
+                <button onClick={() => setShowMergeDialog(false)} className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700">Cancel</button>
+                <button
+                  onClick={executeMerge}
+                  disabled={!selectedMergeTargetId}
+                  className={`flex-1 py-2.5 rounded-full font-medium text-sm ${selectedMergeTargetId ? 'text-black' : 'text-black/50 opacity-50'}`}
+                  style={selectedMergeTargetId ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: '#555' }}
+                >
+                  Confirm Merge
+                </button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        );
+      })()}
     </>
   );
 };

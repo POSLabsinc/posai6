@@ -86,6 +86,11 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
   useEffect(() => {
     fetchDiscounts();
   }, [fetchDiscounts]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showArchived, setShowArchived] = useState(false);
+  const [discountToArchive, setDiscountToArchive] = useState<Discount | null>(null);
+  const [showAddScreen, setShowAddScreen] = useState(false);
+  const [discountToEdit, setDiscountToEdit] = useState<Discount | null>(null);
 
   const handleAddDiscount = async (discountData: {
     name: string;

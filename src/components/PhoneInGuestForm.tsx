@@ -34,8 +34,7 @@ interface PhoneInGuestFormProps {
 }
 
 const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const { searchQuery, setSearchQuery, searchResults, showSearchResults, setShowSearchResults } = useCustomerSearch();
   const [guestName, setGuestName] = useState(initialData?.guestName || "");
   const [phoneNumber, setPhoneNumber] = useState(initialData?.phoneNumber || "");
   const [callbackNumber, setCallbackNumber] = useState(initialData?.callbackNumber || "");
@@ -48,16 +47,13 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
   const [showFulfillmentDropdown, setShowFulfillmentDropdown] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   
-  // Address fields for delivery
   const [street, setStreet] = useState(initialData?.address?.street || "");
   const [apt, setApt] = useState(initialData?.address?.apt || "");
   const [city, setCity] = useState(initialData?.address?.city || "");
   const [state, setState] = useState(initialData?.address?.state || "");
   const [zipCode, setZipCode] = useState(initialData?.address?.zipCode || "");
 
-  // Phone conflict state
-  const [showConflictDialog, setShowConflictDialog] = useState(false);
-  const [conflictCustomer, setConflictCustomer] = useState<Customer | null>(null);
+  const { showConflictDialog, setShowConflictDialog, conflictCustomer, clearConflict } = usePhoneConflict(phoneNumber, guestName);
 
   const handlePhoneChange = (value: string, setter: (val: string) => void) => {
     const formatted = formatPhoneNumber(value);

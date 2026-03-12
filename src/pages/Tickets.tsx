@@ -1,5 +1,9 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { PaymentDialog } from "@/components/PaymentDialog";
+import { SettingsManager } from "@/lib/settingsManager";
+import { getActiveTaxRate } from "@/lib/orderUtils";
 
 interface TicketsProps {
   isClosedTicketsMode?: boolean;
@@ -684,6 +688,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   
   // Dynamic timer state - updates every second
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -2806,7 +2811,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               <span>FIRE</span>
             </button>
             <button 
-              onClick={() => setIsTipSheetOpen(true)}
+              onClick={() => setShowPaymentDialog(true)}
               className="flex-1 py-2.5 rounded-full text-black text-sm font-bold" 
               style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
             >
@@ -3970,7 +3975,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       <span>FIRE</span>
                     </button>
                     <button 
-                      onClick={() => setIsTipSheetOpen(true)}
+                      onClick={() => setShowPaymentDialog(true)}
                       className="flex-1 py-2 rounded-full text-black text-sm font-bold" 
                       style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                     >
@@ -4795,7 +4800,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   <span>FIRE</span>
                 </button>
                 <button 
-                  onClick={() => setIsTipSheetOpen(true)}
+                  onClick={() => setShowPaymentDialog(true)}
                   className="flex-1 py-1.5 rounded-full text-black text-xs font-bold" 
                   style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                 >
@@ -6211,6 +6216,50 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             </div>
           </div>
         </div>
+      )}
+      {/* Payment Dialog - Reusing shared component from New Order module */}
+      {selectedGuest && (
+        <PaymentDialog
+          open={showPaymentDialog}
+          onOpenChange={setShowPaymentDialog}
+          orderDetails={{
+            guest: selectedGuest.name || "Guest",
+            phone: selectedGuest.phone || undefined,
+            table: selectedGuest.table || undefined,
+            check: selectedGuest.check || selectedGuest.id,
+            orderType: selectedGuest.orderType,
+            orderNumber: selectedGuest.check || selectedGuest.id,
+            serverName: selectedGuest.server,
+            orderTime: selectedGuest.time,
+            items: selectedGuest.items.map((item, idx) => ({
+              id: idx + 1,
+              qty: item.qty,
+              name: item.name,
+              price: item.price
+            }))
+          }}
+          subtotal={selectedGuest.subtotal - selectedGuest.discount}
+          tax={selectedGuest.tax}
+          total={selectedGuest.total}
+          onPaymentComplete={(paymentHistory) => {
+            console.log("Ticket payment completed:", paymentHistory);
+            setShowPaymentDialog(false);
+            const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();
+            if (checkoutSettings.printReceipt) {
+              toast.success("Receipt sent to printer");
+            }
+            if (checkoutSettings.emailReceipt) {
+              toast.success("Receipt sent via email");
+            }
+            if (checkoutSettings.smsReceipt) {
+              toast.success("Receipt sent via SMS");
+            }
+            if (checkoutSettings.autoCloseTicket) {
+              toast.success("Ticket closed automatically");
+              navigate('/');
+            }
+          }}
+        />
       )}
     </>
   );

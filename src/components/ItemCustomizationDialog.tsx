@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import offerIcon from "@/assets/icons/offer.png";
+import { fetchProductCustomization, type DbModifierGroup, type DbAddOn, type DbProductInfo } from "@/services/productCustomizationService";
 
 // Sort options for add-ons
 type SortOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc';

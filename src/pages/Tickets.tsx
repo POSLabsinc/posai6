@@ -6494,8 +6494,69 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         );
       })()}
 
-
-
+      {/* Inline Transfer View for non-table tickets */}
+      {showInlineTransferView && inlineTransferOrderId && (() => {
+        const sourceOrderData = allOrders.find(o => o.id === inlineTransferOrderId);
+        if (!sourceOrderData) return null;
+        const transferSource: TransferGuestOrder = {
+          id: sourceOrderData.id,
+          name: sourceOrderData.name,
+          phone: sourceOrderData.phone || '',
+          partySize: sourceOrderData.partySize || 1,
+          time: sourceOrderData.time || '',
+          timer: sourceOrderData.timer || '',
+          server: sourceOrderData.server || '',
+          check: sourceOrderData.check || '--',
+          paymentType: sourceOrderData.paymentType || '',
+          revenueCenter: sourceOrderData.revenueCenter || '',
+          status: sourceOrderData.status || 'ORDERING',
+          notes: sourceOrderData.notes || '',
+          items: (sourceOrderData.items || []).map((item: any) => ({
+            qty: item.qty,
+            name: item.name,
+            price: item.price,
+            seats: item.seats || [],
+            modifiers: item.modifiers || [],
+          })),
+          subtotal: sourceOrderData.subtotal || 0,
+          discount: sourceOrderData.discount || 0,
+          serviceCharge: sourceOrderData.serviceCharge || 0,
+          tax: sourceOrderData.tax || 0,
+          tip: sourceOrderData.tip || 0,
+          total: sourceOrderData.total || 0,
+          table: sourceOrderData.table || '--',
+          orderType: sourceOrderData.orderType || '',
+        };
+        const transferOrders: TransferGuestOrder[] = allOrders
+          .filter(o => o.id !== inlineTransferOrderId && (o.status === 'ORDERING' || o.status === 'UNPAID') && !o.paid)
+          .map((o: any) => ({
+            id: o.id, name: o.name, phone: o.phone || '', partySize: o.partySize || 1,
+            time: o.time || '', timer: o.timer || '', server: o.server || '', check: o.check || '--',
+            paymentType: o.paymentType || '', revenueCenter: o.revenueCenter || '',
+            status: o.status || 'ORDERING', notes: o.notes || '',
+            items: (o.items || []).map((item: any) => ({ qty: item.qty, name: item.name, price: item.price, seats: item.seats || [], modifiers: item.modifiers || [] })),
+            subtotal: o.subtotal || 0, discount: o.discount || 0, serviceCharge: o.serviceCharge || 0,
+            tax: o.tax || 0, tip: o.tip || 0, total: o.total || 0,
+            table: o.table || '--', orderType: o.orderType || '',
+          }));
+        return (
+          <div className="fixed inset-0 z-50 bg-black">
+            <TicketsTransferView
+              sourceOrder={transferSource}
+              isEntireOrderTransfer={inlineTransferIsEntire}
+              onBack={() => setShowInlineTransferView(false)}
+              orders={transferOrders}
+              setOrders={() => {}}
+              onTransferComplete={() => {
+                setShowInlineTransferView(false);
+                setInlineTransferOrderId(null);
+              }}
+              embedded={false}
+              transferTarget={inlineTransferTarget}
+            />
+          </div>
+        );
+      })()}
 
     </>
   );

@@ -58,7 +58,10 @@ Use {"type":"info"} for steps 1-6. Only emit update_setting at Step 7 confirmati
 {DATABASE_CONTEXT}
 
 ## Local Settings Context:
-{SETTINGS_CONTEXT}`;
+{SETTINGS_CONTEXT}
+
+## AI Rules & Instructions (Admin-configured behavior guidelines):
+{AI_RULES_CONTEXT}`;
 
 const IMAGE_ADDENDUM = `\n\n## IMAGE ANALYSIS:
 When user uploads a menu image: extract all items/prices/categories, present organized summary, then offer to create a menu from them. Pre-fill categories and products in the guided flow.`;
@@ -207,6 +210,52 @@ async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string,
   return parts.join("\n") || "No relevant data found.";
 }
 
+async function fetchAIRules(supabaseUrl: string, serviceRoleKey: string, deviceId: string): Promise<string> {
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  const ruleKeys = ["ai_rules_dos", "ai_rules_donts", "ai_rules_custom_instructions", "ai_rules_restaurant_type", "ai_rules_knowledge_base"];
+  
+  const { data } = await supabase
+    .from("user_preferences")
+    .select("preference_key, preference_value")
+    .eq("device_id", deviceId)
+    .in("preference_key", ruleKeys);
+
+  if (!data?.length) return "No custom AI rules configured.";
+
+  const prefs: Record<string, string> = {};
+  data.forEach((r: any) => { prefs[r.preference_key] = r.preference_value; });
+
+  const parts: string[] = [];
+
+  if (prefs.ai_rules_dos) {
+    try {
+      const dos = JSON.parse(prefs.ai_rules_dos);
+      if (dos.length) parts.push(`**DO:** ${dos.map((d: string) => `• ${d}`).join(" ")}`);
+    } catch { /* ignore */ }
+  }
+
+  if (prefs.ai_rules_donts) {
+    try {
+      const donts = JSON.parse(prefs.ai_rules_donts);
+      if (donts.length) parts.push(`**DON'T:** ${donts.map((d: string) => `• ${d}`).join(" ")}`);
+    } catch { /* ignore */ }
+  }
+
+  if (prefs.ai_rules_custom_instructions?.trim()) {
+    parts.push(`**Custom Instructions:** ${prefs.ai_rules_custom_instructions.trim()}`);
+  }
+
+  if (prefs.ai_rules_restaurant_type?.trim()) {
+    parts.push(`**Restaurant Type:** ${prefs.ai_rules_restaurant_type}`);
+  }
+
+  if (prefs.ai_rules_knowledge_base?.trim()) {
+    parts.push(`**Knowledge Base:** ${prefs.ai_rules_knowledge_base.trim()}`);
+  }
+
+  return parts.length ? parts.join("\n") : "No custom AI rules configured.";
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -280,6 +329,16 @@ serve(async (req) => {
       }
     }
 
+    // ── Fetch AI Rules & Instructions ─────────────────────────────────────
+    let aiRulesContext = "No custom AI rules configured.";
+    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY && deviceId) {
+      try {
+        aiRulesContext = await fetchAIRules(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, deviceId);
+      } catch (e) {
+        console.error("Failed to fetch AI rules:", e);
+      }
+    }
+
     // Only include local settings context if it's about non-DB settings
     const trimmedSettings = settingsContext && settingsContext.length > 2000
       ? settingsContext.substring(0, 2000) + "\n...(truncated)"
@@ -287,7 +346,8 @@ serve(async (req) => {
 
     const systemPromptWithContext = SYSTEM_PROMPT
       .replace("{DATABASE_CONTEXT}", databaseContext)
-      .replace("{SETTINGS_CONTEXT}", trimmedSettings);
+      .replace("{SETTINGS_CONTEXT}", trimmedSettings)
+      .replace("{AI_RULES_CONTEXT}", aiRulesContext);
 
     // Check for images
     const hasImage = recentMessages.some((m: any) => Array.isArray(m.content) && m.content.some((c: any) => c.type === "image_url"));

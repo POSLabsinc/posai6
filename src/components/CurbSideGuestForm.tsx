@@ -49,8 +49,7 @@ const CurbSideGuestForm = ({ onSave, onCancel, onClose, initialData }: CurbSideG
     vehicleBrand: initialData?.vehicleBrand || "",
     licensePlate: initialData?.licensePlate || "",
   });
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const { searchQuery, setSearchQuery, searchResults, showSearchResults, setShowSearchResults } = useCustomerSearch();
   const [showVehicleInfo, setShowVehicleInfo] = useState(false);
   const [vehicleSaved, setVehicleSaved] = useState(!!(initialData?.vehicleBrand || initialData?.licensePlate || initialData?.vehicleColor));
   
@@ -59,9 +58,7 @@ const CurbSideGuestForm = ({ onSave, onCancel, onClose, initialData }: CurbSideG
   const vehicleStartX = useRef(0);
   const swipeThreshold = -80;
 
-  // Phone conflict state
-  const [showConflictDialog, setShowConflictDialog] = useState(false);
-  const [conflictCustomer, setConflictCustomer] = useState<Customer | null>(null);
+  const { showConflictDialog, setShowConflictDialog, conflictCustomer, setConflictCustomer, clearConflict } = usePhoneConflict(formData.phoneNumber, formData.guestName);
 
   const hasVehicleInfo = formData.vehicleBrand || formData.licensePlate || formData.vehicleColor;
 

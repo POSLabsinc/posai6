@@ -6570,69 +6570,6 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       })()}
 
 
-                <p className="text-white/50 text-sm mt-1">Select a ticket to merge into {sourceOrder?.name}'s order</p>
-              </div>
-
-              <ScrollArea className="max-h-[60vh]">
-                <div className="p-4 space-y-3">
-                  {availableMergeOrders.length === 0 ? (
-                    <p className="text-white/40 text-sm text-center py-6">No available tickets to merge</p>
-                  ) : availableMergeOrders.map((order) => {
-                    const isSelected = selectedMergeTargetId === order.id;
-                    return (
-                      <button
-                        key={order.id}
-                        onClick={() => setSelectedMergeTargetId(order.id)}
-                        className={`w-full rounded-xl border overflow-hidden text-left transition-all ${isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'}`}
-                        style={{ backgroundColor: '#1B1C20' }}
-                      >
-                        <div className="p-3">
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-white font-medium text-sm">{order.name}</span>
-                              <span className="text-white/40 text-xs">#{order.check !== "--" ? order.check : order.id}</span>
-                            </div>
-                            <span className={`text-xs px-2 py-0.5 rounded-full ${order.status === 'ORDERING' ? 'bg-yellow-500/20 text-yellow-400' : 'bg-orange-500/20 text-orange-400'}`}>
-                              {order.status}
-                            </span>
-                          </div>
-                          <div className="space-y-1.5">
-                            {order.items.map((item, idx) => (
-                              <div key={idx} className="flex items-center justify-between py-0.5">
-                                <div className="flex items-center gap-3 min-w-0 flex-1">
-                                  <span className="w-7 h-7 rounded-md border border-white/20 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">{item.qty}</span>
-                                  <span className="text-white text-sm truncate">{item.name}</span>
-                                </div>
-                                <span className="text-white/70 text-sm font-medium flex-shrink-0 ml-2">{formatPrice(item.price * item.qty)}</span>
-                              </div>
-                            ))}
-                          </div>
-                          <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between">
-                            <span className="text-white/50 text-sm">{order.items.length} products</span>
-                            <span className="text-white font-semibold text-sm">{formatPrice(order.subtotal)}</span>
-                          </div>
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </ScrollArea>
-
-              <div className="p-4 border-t border-white/10 flex gap-3">
-                <button onClick={() => setShowMergeDialog(false)} className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700">Cancel</button>
-                <button
-                  onClick={executeMerge}
-                  disabled={!selectedMergeTargetId}
-                  className={`flex-1 py-2.5 rounded-full font-medium text-sm ${selectedMergeTargetId ? 'text-black' : 'text-black/50 opacity-50'}`}
-                  style={selectedMergeTargetId ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: '#555' }}
-                >
-                  Confirm Merge
-                </button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        );
-      })()}
     </>
   );
 };

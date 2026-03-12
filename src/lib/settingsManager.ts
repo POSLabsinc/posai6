@@ -50,6 +50,129 @@ function syncToDatabase(preferenceKey: string, value: string) {
     });
 }
 
+// ============= DEDICATED TABLE SYNC HELPERS =============
+
+async function syncGratuityToTable(settings: GratuitySettings) {
+  const deviceId = getDeviceId();
+  await (supabase as any).from("gratuity_settings").upsert({
+    device_id: deviceId,
+    enable_tip: settings.enableTip,
+    show_on_receipt: settings.showOnReceipt,
+    allow_custom: settings.allowCustom,
+    disable_tip_on_cfd: settings.disableTipOnCFD,
+    preset_type: settings.presetType,
+    tip_presets: settings.tipPresets,
+    selected_tip_presets: settings.selectedTipPresets,
+    auto_close_payment_methods: settings.autoClosePaymentMethods,
+  }, { onConflict: "device_id" });
+}
+
+async function syncDiscountsToTable(discounts: Discount[]) {
+  const deviceId = getDeviceId();
+  // Delete existing and re-insert all
+  await (supabase as any).from("discounts").delete().eq("device_id", deviceId);
+  if (discounts.length > 0) {
+    await (supabase as any).from("discounts").insert(
+      discounts.map((d, i) => ({
+        device_id: deviceId,
+        name: d.name,
+        amount: d.amount,
+        type: d.type,
+        archived: d.archived,
+        applicable_to: d.applicableTo || 'All Products',
+        applicable_products: d.applicableProducts || [],
+        requires_manager_pin: d.requiresManagerPin || false,
+        sort_order: i,
+      }))
+    );
+  }
+}
+
+async function syncTaxesToTable(taxes: Tax[]) {
+  const deviceId = getDeviceId();
+  await (supabase as any).from("taxes").delete().eq("device_id", deviceId);
+  if (taxes.length > 0) {
+    await (supabase as any).from("taxes").insert(
+      taxes.map((t, i) => ({
+        device_id: deviceId,
+        name: t.name,
+        amount: t.amount,
+        type: t.type,
+        archived: t.archived,
+        applicable_to: t.applicableTo || null,
+        applicable_products: t.applicableProducts || [],
+        sort_order: i,
+      }))
+    );
+  }
+}
+
+async function syncServiceChargesToTable(charges: ServiceCharge[]) {
+  const deviceId = getDeviceId();
+  await (supabase as any).from("service_charges").delete().eq("device_id", deviceId);
+  if (charges.length > 0) {
+    await (supabase as any).from("service_charges").insert(
+      charges.map((sc, i) => ({
+        device_id: deviceId,
+        name: sc.name,
+        amount: sc.amount,
+        type: sc.type,
+        archived: sc.archived,
+        tax_applicable: sc.taxApplicable || null,
+        order_type: Array.isArray(sc.orderType) ? sc.orderType.join(', ') : (sc.orderType || null),
+        applied_as: sc.appliedAs || null,
+        automatic_apply: sc.automaticApply || false,
+        min_seats: sc.minSeats || 0,
+        requires_manager_pin: sc.requiresManagerPin || false,
+        is_active: sc.isActive !== false,
+        sort_order: i,
+      }))
+    );
+  }
+}
+
+async function syncCheckoutOptionsToTable(settings: CheckoutOptionsSettings) {
+  const deviceId = getDeviceId();
+  await (supabase as any).from("checkout_options").upsert({
+    device_id: deviceId,
+    enable_quick_amounts: settings.enableQuickAmounts,
+    split_check: settings.splitCheck,
+    enable_tips: settings.enableTips,
+    require_order_type: settings.requireOrderType,
+    require_guest_name: settings.requireGuestName,
+    guest_notes_enabled: settings.guestNotesEnabled,
+    show_save_button: settings.showSaveButton,
+    auto_close_ticket: settings.autoCloseTicket,
+    qr_bill_payment: settings.qrBillPayment,
+    print_receipt: settings.printReceipt,
+    email_receipt: settings.emailReceipt,
+    sms_receipt: settings.smsReceipt,
+    skip_tip_screen: settings.skipTipScreen,
+    skip_signature: settings.skipSignature,
+    signature_threshold: settings.signatureThreshold,
+    enable_payment_sounds: settings.enablePaymentSounds,
+    enable_hold_fire: settings.enableHoldFire,
+    show_order_summary: settings.showOrderSummary,
+    show_itemized_tax: settings.showItemizedTax,
+  }, { onConflict: "device_id" });
+}
+
+async function syncPaymentMethodsToTable(states: Record<string, boolean>) {
+  const deviceId = getDeviceId();
+  await (supabase as any).from("payment_methods").delete().eq("device_id", deviceId);
+  const entries = Object.entries(states);
+  if (entries.length > 0) {
+    await (supabase as any).from("payment_methods").insert(
+      entries.map(([methodId, enabled], i) => ({
+        device_id: deviceId,
+        method_id: methodId,
+        enabled,
+        sort_order: i,
+      }))
+    );
+  }
+}
+
 // Types
 export interface GratuitySettings {
   enableTip: boolean;

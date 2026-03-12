@@ -140,8 +140,6 @@ const CurbSideGuestForm = ({ onSave, onCancel, onClose, initialData }: CurbSideG
 
   const maxNotes = 70;
 
-  const maxNotes = 70;
-
   const handleSelectGuest = (guest: Customer) => {
     setFormData((prev) => ({
       ...prev,

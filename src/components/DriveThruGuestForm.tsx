@@ -177,36 +177,17 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
     return text.trim() ? text.trim().split(/\s+/).length : 0;
   };
 
-  // Conflict resolution handlers
   const handleUseExisting = () => {
     if (conflictCustomer) {
-      setFormData((prev) => ({
-        ...prev,
-        guestName: conflictCustomer.name,
-        email: conflictCustomer.email || prev.email,
-      }));
+      setFormData((prev) => ({ ...prev, guestName: conflictCustomer.name, email: conflictCustomer.email || prev.email }));
     }
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
+    clearConflict();
   };
-
-  const handleUpdateName = () => {
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
-  };
-
-  const handleAddFamilyMember = () => {
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
-  };
-
+  const handleUpdateName = () => clearConflict();
+  const handleAddFamilyMember = () => clearConflict();
   const handleCreateNew = () => {
-    setFormData((prev) => ({
-      ...prev,
-      phoneNumber: "",
-    }));
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
+    setFormData((prev) => ({ ...prev, phoneNumber: "" }));
+    clearConflict();
   };
 
   const isFormValid = formData.guestName;

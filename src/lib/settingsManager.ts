@@ -629,6 +629,7 @@ export class SettingsManager {
     discounts[index] = { ...discounts[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
     syncToDatabase(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
+    syncDiscountsToTable(discounts);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'discounts', data: discounts } }));
     return discounts[index];
   }

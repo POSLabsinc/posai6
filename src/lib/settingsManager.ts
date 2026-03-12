@@ -41,11 +41,10 @@ const APPEARANCE_INDIVIDUAL_KEYS = ["theme", "iconStyle", "iconSize", "textSize"
  * Fire-and-forget — does not block the UI.
  */
 function syncToDatabase(preferenceKey: string, value: string) {
-  const deviceId = getDeviceId();
   (supabase as any)
     .from("user_preferences")
     .upsert(
-      { device_id: deviceId, preference_key: preferenceKey, preference_value: value },
+      { device_id: SHARED_DEVICE_ID, preference_key: preferenceKey, preference_value: value },
       { onConflict: "device_id,preference_key" }
     )
     .then(() => {

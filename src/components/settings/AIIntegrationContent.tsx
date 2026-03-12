@@ -60,7 +60,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
   const [hasSavedKey, setHasSavedKey] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const deviceId = getDeviceId();
+  const deviceId = SHARED_DEVICE_ID;
   
 
   useEffect(() => {

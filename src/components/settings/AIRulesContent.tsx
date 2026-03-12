@@ -43,7 +43,7 @@ const RESTAURANT_TYPES = [
 ];
 
 const AIRulesContent = () => {
-  const deviceId = getDeviceId();
+  const deviceId = SHARED_DEVICE_ID;
   const [dos, setDos] = useState<string[]>(DEFAULT_DOS);
   const [donts, setDonts] = useState<string[]>(DEFAULT_DONTS);
   const [customInstructions, setCustomInstructions] = useState("");

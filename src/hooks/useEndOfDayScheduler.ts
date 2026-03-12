@@ -50,7 +50,7 @@ interface EodPrefs {
 }
 
 async function fetchEodPrefs(): Promise<EodPrefs> {
-  const deviceId = getDeviceId();
+  const deviceId = getSharedDeviceId();
   const { data } = await (supabase as any)
     .from("user_preferences")
     .select("preference_key, preference_value")

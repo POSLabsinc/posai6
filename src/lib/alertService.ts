@@ -140,8 +140,7 @@ function isSoundEnabled(): boolean {
 /** Cache sound preference locally for fast access from alertService */
 export function cacheSoundPreference(enabled: boolean) {
   try {
-    const deviceId = localStorage.getItem("pos_device_id") || "";
-    localStorage.setItem(`pref_notification_sound_${deviceId}`, String(enabled));
+    localStorage.setItem(`pref_notification_sound_shared`, String(enabled));
   } catch {}
 }
 

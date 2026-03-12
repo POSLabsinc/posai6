@@ -7,10 +7,10 @@ import { printEndOfDayReport } from "@/utils/eodReportPrinter";
 const CHECK_INTERVAL_MS = 15_000; // 15 seconds
 const EOD_LAST_RUN_KEY = "pos_eod_last_run";
 const EOD_REMINDER_SHOWN_KEY = "pos_eod_reminder_shown";
-const DEVICE_ID_KEY = "pos_device_id";
+const SHARED_DEVICE_ID = "shared";
 
-function getDeviceId(): string {
-  return localStorage.getItem(DEVICE_ID_KEY) ?? "unknown";
+function getSharedDeviceId(): string {
+  return SHARED_DEVICE_ID;
 }
 
 /** Convert "11:00 PM" → "23:00" */

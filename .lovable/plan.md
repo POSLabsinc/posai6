@@ -1,38 +1,50 @@
 
-# Plan: Connect Full Payment Module to Database — COMPLETED
 
-## What was done
+# Plan: Unify Data Across Editor and Live Environments
 
-### Step 1: Database Migration ✅
-Created 9 new tables via migration:
-- `payment_methods` (device_id, method_id, enabled, sort_order)
-- `gratuity_settings` (device_id + all gratuity fields)
-- `discounts` (device_id, name, amount, type, archived, etc.)
-- `taxes` (device_id, name, amount, type, archived, etc.)
-- `service_charges` (device_id + all service charge fields)
-- `checkout_options` (device_id + all checkout fields)
-- `cash_drawer_sessions` (device_id, drawer_name, starting_cash, status, etc.)
-- `cash_transactions` (session_id FK, device_id, type, amount, reason, note)
-- `vouchers` (code UNIQUE, name, type, value, remaining_balance, status, etc.)
+## Root Cause
+The editor and live site already share the **same database**. The problem is that many tables (discounts, taxes, service_charges, gratuity_settings, payment_methods, checkout_options, user_preferences) filter by `device_id` -- a random ID generated per browser. Each browser (editor preview vs live site) gets a different device_id, so queries return empty results on the other.
 
-All with RLS policies, updated_at triggers, and proper constraints.
+## Solution: Remove device_id Scoping from Settings Tables
 
-### Step 2: SettingsManager Refactored ✅
-- Added dedicated table sync helpers for each module
-- `initFromDatabase()` loads from all 9 dedicated tables in parallel
-- One-time migration: seeds DB from localStorage if tables are empty
-- All write methods now sync to both localStorage (cache) and dedicated DB tables
-- Added new methods: PaymentMethods CRUD, CashManagement (create/close sessions, add transactions), Voucher (create, find, redeem)
+Make all settings data **global** (not per-device) so any browser sees the same configuration.
 
-### Step 3: Components Updated ✅
-- `PaymentMethodsContent` → syncs toggle states to `payment_methods` table
-- `CashManagementContent` → creates sessions in `cash_drawer_sessions` table, loads history from DB
-- `CashDrawerDetailsContent` → loads transactions from DB, closes sessions via DB
-- `PayInOutContent` → saves transactions to `cash_transactions` table
-- `VoucherDialog` → saves created vouchers to `vouchers` table
-- `CreateVoucherForm` → saves created vouchers to `vouchers` table
+### Tables to de-scope from device_id filtering:
+- `discounts` -- remove device_id from queries
+- `taxes` -- remove device_id from queries  
+- `service_charges` -- remove device_id from queries
+- `gratuity_settings` -- remove device_id from queries
+- `payment_methods` -- remove device_id from queries
+- `checkout_options` -- remove device_id from queries
+- `user_preferences` -- remove device_id from queries
+- `cash_drawer_sessions` -- keep device_id (session is legitimately per-device)
 
-### Cross-module consistency
-- `orderUtils.ts getActiveTaxRate()` reads from localStorage which is hydrated from DB on boot
-- `PaymentDialog` reads payment method states from localStorage (hydrated from DB)
-- All modules share the same DB-backed source of truth via SettingsManager
+### Files to Update (~10 files):
+1. **src/lib/settingsManager.ts** -- Remove device_id from all sync/read functions
+2. **src/hooks/usePreference.ts** -- Remove device_id from upsert/select
+3. **src/components/settings/DiscountsContent.tsx** -- Remove device_id from queries
+4. **src/components/settings/ServiceChargeContent.tsx** -- Remove device_id from queries
+5. **src/components/settings/TaxesContent.tsx** -- Remove device_id from queries (if applicable)
+6. **src/components/settings/AIRulesContent.tsx** -- Remove device_id from preference queries
+7. **src/hooks/useDeviceStore.ts** -- Keep device_id for store binding (legitimate per-device)
+8. Any other settings components using device_id filtering
+
+### Pattern Change:
+```typescript
+// BEFORE
+.from("discounts").select("*").eq("device_id", deviceId)
+
+// AFTER  
+.from("discounts").select("*")
+```
+
+For `user_preferences`, switch from device_id to a fixed shared key or remove device_id scoping entirely.
+
+### Database Migration:
+- No schema changes needed -- device_id columns remain (backward compatible)
+- Existing data already in the database will be visible to all devices once filtering is removed
+
+### What stays per-device:
+- `device_stores` (which store a device is bound to)
+- `cash_drawer_sessions` (physical drawer per device)
+

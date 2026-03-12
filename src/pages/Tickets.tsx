@@ -1,5 +1,9 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { PaymentDialog } from "@/components/PaymentDialog";
+import { SettingsManager } from "@/lib/settingsManager";
+import { getActiveTaxRate } from "@/lib/orderUtils";
 
 interface TicketsProps {
   isClosedTicketsMode?: boolean;

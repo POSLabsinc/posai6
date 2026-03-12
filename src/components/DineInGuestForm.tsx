@@ -1,8 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
-import { customers, checkPhoneConflict, Customer } from "@/data/customers";
+import { Customer } from "@/services/customerService";
+import { useCustomerSearch, usePhoneConflict } from "@/hooks/useCustomerSearch";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
 interface DineInGuestFormProps {
@@ -28,33 +29,10 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
     email: initialData?.email || "",
     notes: initialData?.notes || "",
   });
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearchResults, setShowSearchResults] = useState(false);
-  
-  // Phone conflict state
-  const [showConflictDialog, setShowConflictDialog] = useState(false);
-  const [conflictCustomer, setConflictCustomer] = useState<Customer | null>(null);
+  const { searchQuery, setSearchQuery, searchResults, showSearchResults, setShowSearchResults } = useCustomerSearch();
+  const { showConflictDialog, setShowConflictDialog, conflictCustomer, setConflictCustomer, clearConflict } = usePhoneConflict(formData.phoneNumber, formData.guestName);
 
   const maxNotes = 70;
-
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase();
-    return customers.filter(
-      (guest) =>
-        guest.name.toLowerCase().includes(query) ||
-        guest.phone.replace(/\D/g, "").includes(query.replace(/\D/g, ""))
-    );
-  }, [searchQuery]);
-
-  // Check for phone conflict when phone number changes
-  useEffect(() => {
-    const conflict = checkPhoneConflict(formData.phoneNumber, formData.guestName);
-    if (conflict) {
-      setConflictCustomer(conflict);
-      setShowConflictDialog(true);
-    }
-  }, [formData.phoneNumber, formData.guestName]);
 
   const handleSelectGuest = (guest: Customer) => {
     setFormData((prev) => ({
@@ -94,36 +72,19 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
     return text.trim() ? text.trim().split(/\s+/).length : 0;
   };
 
-  // Conflict resolution handlers
   const handleUseExisting = () => {
     if (conflictCustomer) {
-      setFormData((prev) => ({
-        ...prev,
-        guestName: conflictCustomer.name,
-        email: conflictCustomer.email || prev.email,
-      }));
+      setFormData((prev) => ({ ...prev, guestName: conflictCustomer.name, email: conflictCustomer.email || prev.email }));
     }
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
+    clearConflict();
   };
 
-  const handleUpdateName = () => {
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
-  };
-
-  const handleAddFamilyMember = () => {
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
-  };
+  const handleUpdateName = () => clearConflict();
+  const handleAddFamilyMember = () => clearConflict();
 
   const handleCreateNew = () => {
-    setFormData((prev) => ({
-      ...prev,
-      phoneNumber: "",
-    }));
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
+    setFormData((prev) => ({ ...prev, phoneNumber: "" }));
+    clearConflict();
   };
 
   const isFormValid = formData.guestName && formData.tableNumber && (!formData.phoneNumber || isValidPhoneNumber(formData.phoneNumber));

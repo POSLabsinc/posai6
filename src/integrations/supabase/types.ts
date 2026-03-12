@@ -235,16 +235,20 @@ export type Database = {
           id: string
           initials: string | null
           is_archived: boolean
+          last_order_date: string | null
           loyalty: string | null
+          loyalty_points_balance: number
           name: string
           notes_allergies: string | null
           notes_general: string | null
           notes_seating_preferences: string | null
           notes_special_note: string | null
           notes_special_relation: string | null
+          order_count: number
           phone: string | null
           since: string | null
           tags: string[] | null
+          total_points_earned: number
           updated_at: string
           vehicle: string | null
         }
@@ -259,16 +263,20 @@ export type Database = {
           id?: string
           initials?: string | null
           is_archived?: boolean
+          last_order_date?: string | null
           loyalty?: string | null
+          loyalty_points_balance?: number
           name: string
           notes_allergies?: string | null
           notes_general?: string | null
           notes_seating_preferences?: string | null
           notes_special_note?: string | null
           notes_special_relation?: string | null
+          order_count?: number
           phone?: string | null
           since?: string | null
           tags?: string[] | null
+          total_points_earned?: number
           updated_at?: string
           vehicle?: string | null
         }
@@ -283,20 +291,72 @@ export type Database = {
           id?: string
           initials?: string | null
           is_archived?: boolean
+          last_order_date?: string | null
           loyalty?: string | null
+          loyalty_points_balance?: number
           name?: string
           notes_allergies?: string | null
           notes_general?: string | null
           notes_seating_preferences?: string | null
           notes_special_note?: string | null
           notes_special_relation?: string | null
+          order_count?: number
           phone?: string | null
           since?: string | null
           tags?: string[] | null
+          total_points_earned?: number
           updated_at?: string
           vehicle?: string | null
         }
         Relationships: []
+      }
+      loyalty_points: {
+        Row: {
+          balance_after: number
+          created_at: string
+          description: string
+          guest_id: string
+          id: string
+          order_id: string | null
+          points: number
+          type: string
+        }
+        Insert: {
+          balance_after?: number
+          created_at?: string
+          description?: string
+          guest_id: string
+          id?: string
+          order_id?: string | null
+          points: number
+          type?: string
+        }
+        Update: {
+          balance_after?: number
+          created_at?: string
+          description?: string
+          guest_id?: string
+          id?: string
+          order_id?: string | null
+          points?: number
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "loyalty_points_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "loyalty_points_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       menu_categories: {
         Row: {

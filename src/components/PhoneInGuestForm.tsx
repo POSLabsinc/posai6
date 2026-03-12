@@ -1,11 +1,12 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState } from "react";
 import { X, Search, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
 import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
-import { customers, checkPhoneConflict, Customer } from "@/data/customers";
+import { Customer } from "@/services/customerService";
+import { useCustomerSearch, usePhoneConflict } from "@/hooks/useCustomerSearch";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
 export interface PhoneInGuestData {
@@ -33,8 +34,7 @@ interface PhoneInGuestFormProps {
 }
 
 const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProps) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const { searchQuery, setSearchQuery, searchResults, showSearchResults, setShowSearchResults } = useCustomerSearch();
   const [guestName, setGuestName] = useState(initialData?.guestName || "");
   const [phoneNumber, setPhoneNumber] = useState(initialData?.phoneNumber || "");
   const [callbackNumber, setCallbackNumber] = useState(initialData?.callbackNumber || "");
@@ -47,16 +47,13 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
   const [showFulfillmentDropdown, setShowFulfillmentDropdown] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   
-  // Address fields for delivery
   const [street, setStreet] = useState(initialData?.address?.street || "");
   const [apt, setApt] = useState(initialData?.address?.apt || "");
   const [city, setCity] = useState(initialData?.address?.city || "");
   const [state, setState] = useState(initialData?.address?.state || "");
   const [zipCode, setZipCode] = useState(initialData?.address?.zipCode || "");
 
-  // Phone conflict state
-  const [showConflictDialog, setShowConflictDialog] = useState(false);
-  const [conflictCustomer, setConflictCustomer] = useState<Customer | null>(null);
+  const { showConflictDialog, setShowConflictDialog, conflictCustomer, clearConflict } = usePhoneConflict(phoneNumber, guestName);
 
   const handlePhoneChange = (value: string, setter: (val: string) => void) => {
     const formatted = formatPhoneNumber(value);
@@ -74,24 +71,6 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
     }
   };
 
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase();
-    return customers.filter(
-      (guest) =>
-        guest.name.toLowerCase().includes(query) ||
-        guest.phone.replace(/\D/g, "").includes(query.replace(/\D/g, ""))
-    );
-  }, [searchQuery]);
-
-  // Check for phone conflict when phone number changes
-  useEffect(() => {
-    const conflict = checkPhoneConflict(phoneNumber, guestName);
-    if (conflict) {
-      setConflictCustomer(conflict);
-      setShowConflictDialog(true);
-    }
-  }, [phoneNumber, guestName]);
 
   const handleSelectGuest = (guest: Customer) => {
     setGuestName(guest.name);
@@ -140,30 +119,18 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
     });
   };
 
-  // Conflict resolution handlers
   const handleUseExisting = () => {
     if (conflictCustomer) {
       setGuestName(conflictCustomer.name);
       setEmail(conflictCustomer.email || email);
     }
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
+    clearConflict();
   };
-
-  const handleUpdateName = () => {
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
-  };
-
-  const handleAddFamilyMember = () => {
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
-  };
-
+  const handleUpdateName = () => clearConflict();
+  const handleAddFamilyMember = () => clearConflict();
   const handleCreateNew = () => {
     setPhoneNumber("");
-    setShowConflictDialog(false);
-    setConflictCustomer(null);
+    clearConflict();
   };
 
   return (
@@ -419,10 +386,7 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
       {/* Phone Conflict Dialog */}
       <PhoneConflictDialog
         isOpen={showConflictDialog}
-        onClose={() => {
-          setShowConflictDialog(false);
-          setConflictCustomer(null);
-        }}
+        onClose={clearConflict}
         existingCustomer={conflictCustomer}
         newName={guestName}
         onUseExisting={handleUseExisting}

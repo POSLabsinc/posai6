@@ -1,9 +1,9 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Printer, Mail, ChevronDown, Delete, Check, ArrowLeft, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { VoucherFormData } from './CreateVoucherForm';
-import { customers, Customer } from '@/data/customers';
+import { searchCustomers, Customer } from '@/services/customerService';
 import { Input } from '@/components/ui/input';
 
 interface VoucherReceiptDialogProps {
@@ -36,12 +36,15 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
     onOpenChange(false);
   };
 
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const q = searchQuery.toLowerCase();
-    return customers.filter(
-      c => c.name.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q) || c.phone.includes(searchQuery)
-    ).slice(0, 5);
+  const [searchResults, setSearchResults] = useState<Customer[]>([]);
+
+  useEffect(() => {
+    if (!searchQuery.trim()) { setSearchResults([]); return; }
+    const timer = setTimeout(async () => {
+      const results = await searchCustomers(searchQuery);
+      setSearchResults(results.slice(0, 5));
+    }, 300);
+    return () => clearTimeout(timer);
   }, [searchQuery]);
 
   const handleSelectCustomer = (customer: Customer) => {

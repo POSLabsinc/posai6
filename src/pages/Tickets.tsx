@@ -2331,12 +2331,21 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                      onClick={() => {
+                        setTransferIntentOrderId(selectedGuest.id);
+                        setShowTransferIntentDialog(true);
+                      }}
                     >
                       <img src={shareOrderIcon} alt="" className="w-3.5 h-3.5" />
                       Transfer
                     </DropdownMenuItem>
                     <DropdownMenuItem 
                       className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                      onClick={() => {
+                        setMergeSourceOrderId(selectedGuest.id);
+                        setSelectedMergeTargetId(null);
+                        setShowMergeDialog(true);
+                      }}
                     >
                       <img src={mergeIcon} alt="" className="w-3.5 h-3.5" />
                       Merge

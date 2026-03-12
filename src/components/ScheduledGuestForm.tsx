@@ -60,8 +60,7 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
   onClose,
   initialData,
 }) => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showSearchResults, setShowSearchResults] = useState(false);
+  const { searchQuery, setSearchQuery, searchResults, showSearchResults, setShowSearchResults } = useCustomerSearch();
   const [formData, setFormData] = useState<ScheduledGuestData>(
     initialData || {
       guestName: "",
@@ -84,28 +83,7 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
   const [dateOpen, setDateOpen] = useState(false);
   const [timeOpen, setTimeOpen] = useState(false);
 
-  // Phone conflict state
-  const [showConflictDialog, setShowConflictDialog] = useState(false);
-  const [conflictCustomer, setConflictCustomer] = useState<Customer | null>(null);
-
-  const searchResults = useMemo(() => {
-    if (!searchQuery.trim()) return [];
-    const query = searchQuery.toLowerCase();
-    return customers.filter(
-      (guest) =>
-        guest.name.toLowerCase().includes(query) ||
-        guest.phone.includes(query)
-    );
-  }, [searchQuery]);
-
-  // Check for phone conflict when phone number changes
-  useEffect(() => {
-    const conflict = checkPhoneConflict(formData.phoneNumber, formData.guestName);
-    if (conflict) {
-      setConflictCustomer(conflict);
-      setShowConflictDialog(true);
-    }
-  }, [formData.phoneNumber, formData.guestName]);
+  const { showConflictDialog, setShowConflictDialog, conflictCustomer, setConflictCustomer, clearConflict } = usePhoneConflict(formData.phoneNumber, formData.guestName);
 
   const handleSelectGuest = (guest: Customer) => {
     setFormData((prev) => ({

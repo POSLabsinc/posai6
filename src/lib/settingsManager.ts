@@ -89,12 +89,11 @@ async function syncDiscountsToTable(discounts: Discount[]) {
 }
 
 async function syncTaxesToTable(taxes: Tax[]) {
-  const deviceId = getDeviceId();
-  await (supabase as any).from("taxes").delete().eq("device_id", deviceId);
+  await (supabase as any).from("taxes").delete().eq("device_id", SHARED_DEVICE_ID);
   if (taxes.length > 0) {
     await (supabase as any).from("taxes").insert(
       taxes.map((t, i) => ({
-        device_id: deviceId,
+        device_id: SHARED_DEVICE_ID,
         name: t.name,
         amount: t.amount,
         type: t.type,

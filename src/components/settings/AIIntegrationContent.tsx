@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, Eye, EyeOff, Trash2, RefreshCw, Info } from "lucide-react";
+import { ChevronLeft, ChevronRight, Eye, EyeOff, Trash2, RefreshCw, Info, BookOpen } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +10,6 @@ import { toast } from "sonner";
 import aiIntegrationIcon from "@/assets/icons/ai-integration.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
-import AIRulesContent from "@/components/settings/AIRulesContent";
 
 interface AIIntegrationContentProps {
   showHeader?: boolean;

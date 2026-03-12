@@ -56,6 +56,7 @@ import ReportFraudContent from "@/components/settings/ReportFraudContent";
 import NetworkContent from "@/components/settings/NetworkContent";
 import ServerConnectionContent from "@/components/settings/ServerConnectionContent";
 import AIIntegrationContent from "@/components/settings/AIIntegrationContent";
+import AIInstructionsRoute from "@/components/routes/AIInstructionsRoute";
 import HardwareContent from "@/components/settings/HardwareContent";
 import HardwareDetailsContent from "@/components/settings/HardwareDetailsContent";
 import PrinterContent from "@/components/settings/PrinterContent";

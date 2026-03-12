@@ -699,15 +699,12 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   
-  // Transfer & Merge state
+  // Transfer & Merge state (matching TableOrderDetails flow)
   const [showTransferIntentDialog, setShowTransferIntentDialog] = useState(false);
   const [transferIntentOrderId, setTransferIntentOrderId] = useState<string | null>(null);
   const [showTransferToOrderDialog, setShowTransferToOrderDialog] = useState(false);
   const [selectedTransferOrderId, setSelectedTransferOrderId] = useState<string | null>(null);
   const [transferToOrderSourceId, setTransferToOrderSourceId] = useState<string | null>(null);
-  const [showMergeDialog, setShowMergeDialog] = useState(false);
-  const [mergeSourceOrderId, setMergeSourceOrderId] = useState<string | null>(null);
-  const [selectedMergeTargetId, setSelectedMergeTargetId] = useState<string | null>(null);
   
   // Dynamic timer state - updates every second
   const [currentTime, setCurrentTime] = useState(new Date());

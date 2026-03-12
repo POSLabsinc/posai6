@@ -474,7 +474,6 @@ const getContentForRoute = (
     return <AIIntegrationContent showHeader={true} onBack={() => navigate('/settings/network')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/network/ai-integration/ai-instructions') {
-    const AIInstructionsRoute = require("@/components/routes/AIInstructionsRoute").default;
     return <AIInstructionsRoute />;
   }
   if (pathname === '/settings/hardware') {

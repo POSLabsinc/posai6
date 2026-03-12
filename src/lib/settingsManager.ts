@@ -130,9 +130,8 @@ async function syncServiceChargesToTable(charges: ServiceCharge[]) {
 }
 
 async function syncCheckoutOptionsToTable(settings: CheckoutOptionsSettings) {
-  const deviceId = getDeviceId();
   await (supabase as any).from("checkout_options").upsert({
-    device_id: deviceId,
+    device_id: SHARED_DEVICE_ID,
     enable_quick_amounts: settings.enableQuickAmounts,
     split_check: settings.splitCheck,
     enable_tips: settings.enableTips,

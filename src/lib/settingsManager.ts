@@ -729,6 +729,7 @@ export class SettingsManager {
     charges.push(newCharge);
     localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
     syncToDatabase(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
+    syncServiceChargesToTable(charges);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'serviceCharges', data: charges } }));
     return newCharge;
   }

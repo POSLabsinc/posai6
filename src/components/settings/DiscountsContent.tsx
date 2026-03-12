@@ -72,7 +72,7 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
       setDiscounts(mapped);
     }
     setLoading(false);
-  }, [deviceId]);
+  }, []);
 
   useEffect(() => {
     fetchDiscounts();

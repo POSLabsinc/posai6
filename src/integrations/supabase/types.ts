@@ -44,6 +44,101 @@ export type Database = {
         }
         Relationships: []
       }
+      cash_drawer_sessions: {
+        Row: {
+          cash_refunds: number
+          cash_sales: number
+          closed_at: string | null
+          closing_cash: number | null
+          created_at: string
+          device_id: string
+          difference: number
+          drawer_name: string
+          expected_in_drawer: number
+          id: string
+          opened_at: string
+          starting_cash: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          cash_refunds?: number
+          cash_sales?: number
+          closed_at?: string | null
+          closing_cash?: number | null
+          created_at?: string
+          device_id: string
+          difference?: number
+          drawer_name: string
+          expected_in_drawer?: number
+          id?: string
+          opened_at?: string
+          starting_cash?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          cash_refunds?: number
+          cash_sales?: number
+          closed_at?: string | null
+          closing_cash?: number | null
+          created_at?: string
+          device_id?: string
+          difference?: number
+          drawer_name?: string
+          expected_in_drawer?: number
+          id?: string
+          opened_at?: string
+          starting_cash?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      cash_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          device_id: string
+          employee_name: string | null
+          id: string
+          note: string | null
+          reason: string
+          session_id: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          device_id: string
+          employee_name?: string | null
+          id?: string
+          note?: string | null
+          reason: string
+          session_id: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          device_id?: string
+          employee_name?: string | null
+          id?: string
+          note?: string | null
+          reason?: string
+          session_id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_transactions_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "cash_drawer_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       categories: {
         Row: {
           active: boolean
@@ -70,6 +165,84 @@ export type Database = {
           id?: string
           name?: string
           sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      checkout_options: {
+        Row: {
+          auto_close_ticket: boolean
+          created_at: string
+          device_id: string
+          email_receipt: boolean
+          enable_hold_fire: boolean
+          enable_payment_sounds: boolean
+          enable_quick_amounts: boolean
+          enable_tips: boolean
+          guest_notes_enabled: boolean
+          id: string
+          print_receipt: boolean
+          qr_bill_payment: boolean
+          require_guest_name: boolean
+          require_order_type: boolean
+          show_itemized_tax: boolean
+          show_order_summary: boolean
+          show_save_button: boolean
+          signature_threshold: number
+          skip_signature: boolean
+          skip_tip_screen: boolean
+          sms_receipt: boolean
+          split_check: boolean
+          updated_at: string
+        }
+        Insert: {
+          auto_close_ticket?: boolean
+          created_at?: string
+          device_id: string
+          email_receipt?: boolean
+          enable_hold_fire?: boolean
+          enable_payment_sounds?: boolean
+          enable_quick_amounts?: boolean
+          enable_tips?: boolean
+          guest_notes_enabled?: boolean
+          id?: string
+          print_receipt?: boolean
+          qr_bill_payment?: boolean
+          require_guest_name?: boolean
+          require_order_type?: boolean
+          show_itemized_tax?: boolean
+          show_order_summary?: boolean
+          show_save_button?: boolean
+          signature_threshold?: number
+          skip_signature?: boolean
+          skip_tip_screen?: boolean
+          sms_receipt?: boolean
+          split_check?: boolean
+          updated_at?: string
+        }
+        Update: {
+          auto_close_ticket?: boolean
+          created_at?: string
+          device_id?: string
+          email_receipt?: boolean
+          enable_hold_fire?: boolean
+          enable_payment_sounds?: boolean
+          enable_quick_amounts?: boolean
+          enable_tips?: boolean
+          guest_notes_enabled?: boolean
+          id?: string
+          print_receipt?: boolean
+          qr_bill_payment?: boolean
+          require_guest_name?: boolean
+          require_order_type?: boolean
+          show_itemized_tax?: boolean
+          show_order_summary?: boolean
+          show_save_button?: boolean
+          signature_threshold?: number
+          skip_signature?: boolean
+          skip_tip_screen?: boolean
+          sms_receipt?: boolean
+          split_check?: boolean
           updated_at?: string
         }
         Relationships: []
@@ -105,6 +278,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      discounts: {
+        Row: {
+          amount: number
+          applicable_products: Json | null
+          applicable_to: string | null
+          archived: boolean
+          created_at: string
+          device_id: string
+          id: string
+          name: string
+          requires_manager_pin: boolean
+          sort_order: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          applicable_products?: Json | null
+          applicable_to?: string | null
+          archived?: boolean
+          created_at?: string
+          device_id: string
+          id?: string
+          name: string
+          requires_manager_pin?: boolean
+          sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          applicable_products?: Json | null
+          applicable_to?: string | null
+          archived?: boolean
+          created_at?: string
+          device_id?: string
+          id?: string
+          name?: string
+          requires_manager_pin?: boolean
+          sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       employee_stores: {
         Row: {
@@ -189,6 +407,51 @@ export type Database = {
           pin?: string
           revenue_center?: string
           role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      gratuity_settings: {
+        Row: {
+          allow_custom: boolean
+          auto_close_payment_methods: Json
+          created_at: string
+          device_id: string
+          disable_tip_on_cfd: boolean
+          enable_tip: boolean
+          id: string
+          preset_type: string
+          selected_tip_presets: Json
+          show_on_receipt: boolean
+          tip_presets: Json
+          updated_at: string
+        }
+        Insert: {
+          allow_custom?: boolean
+          auto_close_payment_methods?: Json
+          created_at?: string
+          device_id: string
+          disable_tip_on_cfd?: boolean
+          enable_tip?: boolean
+          id?: string
+          preset_type?: string
+          selected_tip_presets?: Json
+          show_on_receipt?: boolean
+          tip_presets?: Json
+          updated_at?: string
+        }
+        Update: {
+          allow_custom?: boolean
+          auto_close_payment_methods?: Json
+          created_at?: string
+          device_id?: string
+          disable_tip_on_cfd?: boolean
+          enable_tip?: boolean
+          id?: string
+          preset_type?: string
+          selected_tip_presets?: Json
+          show_on_receipt?: boolean
+          tip_presets?: Json
           updated_at?: string
         }
         Relationships: []
@@ -656,6 +919,36 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_methods: {
+        Row: {
+          created_at: string
+          device_id: string
+          enabled: boolean
+          id: string
+          method_id: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_id: string
+          enabled?: boolean
+          id?: string
+          method_id: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          enabled?: boolean
+          id?: string
+          method_id?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_add_ons: {
         Row: {
           add_on_id: string
@@ -933,6 +1226,63 @@ export type Database = {
         }
         Relationships: []
       }
+      service_charges: {
+        Row: {
+          amount: number
+          applied_as: string | null
+          archived: boolean
+          automatic_apply: boolean
+          created_at: string
+          device_id: string
+          id: string
+          is_active: boolean
+          min_seats: number
+          name: string
+          order_type: string | null
+          requires_manager_pin: boolean
+          sort_order: number
+          tax_applicable: string | null
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          applied_as?: string | null
+          archived?: boolean
+          automatic_apply?: boolean
+          created_at?: string
+          device_id: string
+          id?: string
+          is_active?: boolean
+          min_seats?: number
+          name: string
+          order_type?: string | null
+          requires_manager_pin?: boolean
+          sort_order?: number
+          tax_applicable?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          applied_as?: string | null
+          archived?: boolean
+          automatic_apply?: boolean
+          created_at?: string
+          device_id?: string
+          id?: string
+          is_active?: boolean
+          min_seats?: number
+          name?: string
+          order_type?: string | null
+          requires_manager_pin?: boolean
+          sort_order?: number
+          tax_applicable?: string | null
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       stores: {
         Row: {
           active: boolean
@@ -969,6 +1319,48 @@ export type Database = {
         }
         Relationships: []
       }
+      taxes: {
+        Row: {
+          amount: number
+          applicable_products: Json | null
+          applicable_to: string | null
+          archived: boolean
+          created_at: string
+          device_id: string
+          id: string
+          name: string
+          sort_order: number
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          applicable_products?: Json | null
+          applicable_to?: string | null
+          archived?: boolean
+          created_at?: string
+          device_id: string
+          id?: string
+          name: string
+          sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          applicable_products?: Json | null
+          applicable_to?: string | null
+          archived?: boolean
+          created_at?: string
+          device_id?: string
+          id?: string
+          name?: string
+          sort_order?: number
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string
@@ -993,6 +1385,90 @@ export type Database = {
           preference_key?: string
           preference_value?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      vouchers: {
+        Row: {
+          buyer_type: string
+          code: string
+          created_at: string
+          customer_name: string | null
+          device_id: string | null
+          enable_qr_barcode: boolean
+          expiry_date: string | null
+          id: string
+          min_order_amount: number
+          name: string
+          notes: string | null
+          recipient_email: string | null
+          recipient_phone: string | null
+          redemption_limit: number
+          redemption_mode: string
+          remaining_balance: number
+          selling_price: number
+          service_fee_type: string
+          service_fee_value: number
+          status: string
+          tags: string | null
+          times_redeemed: number
+          type: string
+          updated_at: string
+          value: number
+        }
+        Insert: {
+          buyer_type?: string
+          code: string
+          created_at?: string
+          customer_name?: string | null
+          device_id?: string | null
+          enable_qr_barcode?: boolean
+          expiry_date?: string | null
+          id?: string
+          min_order_amount?: number
+          name?: string
+          notes?: string | null
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          redemption_limit?: number
+          redemption_mode?: string
+          remaining_balance?: number
+          selling_price?: number
+          service_fee_type?: string
+          service_fee_value?: number
+          status?: string
+          tags?: string | null
+          times_redeemed?: number
+          type?: string
+          updated_at?: string
+          value?: number
+        }
+        Update: {
+          buyer_type?: string
+          code?: string
+          created_at?: string
+          customer_name?: string | null
+          device_id?: string | null
+          enable_qr_barcode?: boolean
+          expiry_date?: string | null
+          id?: string
+          min_order_amount?: number
+          name?: string
+          notes?: string | null
+          recipient_email?: string | null
+          recipient_phone?: string | null
+          redemption_limit?: number
+          redemption_mode?: string
+          remaining_balance?: number
+          selling_price?: number
+          service_fee_type?: string
+          service_fee_value?: number
+          status?: string
+          tags?: string | null
+          times_redeemed?: number
+          type?: string
+          updated_at?: string
+          value?: number
         }
         Relationships: []
       }

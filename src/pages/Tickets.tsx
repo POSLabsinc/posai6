@@ -706,6 +706,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [showTransferToOrderDialog, setShowTransferToOrderDialog] = useState(false);
   const [selectedTransferOrderId, setSelectedTransferOrderId] = useState<string | null>(null);
   const [transferToOrderSourceId, setTransferToOrderSourceId] = useState<string | null>(null);
+  const [showInlineTransferView, setShowInlineTransferView] = useState(false);
+  const [inlineTransferOrderId, setInlineTransferOrderId] = useState<string | null>(null);
+  const [inlineTransferIsEntire, setInlineTransferIsEntire] = useState(false);
+  const [inlineTransferTarget, setInlineTransferTarget] = useState<'table' | 'order'>('table');
   
   // Dynamic timer state - updates every second
   const [currentTime, setCurrentTime] = useState(new Date());

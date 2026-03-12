@@ -6471,60 +6471,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           </Dialog>
         );
       })()}
-            <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[380px] max-w-[90vw] overflow-hidden">
-              <div className="flex items-center justify-between p-4 border-b border-white/10">
-                <h2 className="text-white text-lg font-semibold">Transfer Order</h2>
-                <button 
-                  onClick={() => setShowTransferIntentDialog(false)}
-                  className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
-              </div>
-              <div className="p-4">
-                <p className="text-white/60 text-sm mb-3">What would you like to transfer?</p>
-                <div className="space-y-2">
-                  {/* Transfer Products */}
-                  <button 
-                    onClick={() => {
-                      setShowTransferIntentDialog(false);
-                      setSelectedTransferOrderId(null);
-                      setTransferToOrderSourceId(transferIntentOrderId);
-                      setShowTransferToOrderDialog(true);
-                    }}
-                    className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3 mb-0.5">
-                      <img src={transferItemIcon} alt="Transfer Products" className="w-5 h-5 object-contain opacity-80" />
-                      <span className="text-white font-medium">Transfer Products</span>
-                    </div>
-                    <p className="text-white/50 text-xs ml-8">Move selected products to another order.</p>
-                  </button>
 
-                  {/* Transfer to Order */}
-                  <button 
-                    onClick={() => {
-                      setShowTransferIntentDialog(false);
-                      setSelectedTransferOrderId(null);
-                      setTransferToOrderSourceId(transferIntentOrderId);
-                      setShowTransferToOrderDialog(true);
-                    }}
-                    className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
-                  >
-                    <div className="flex items-center gap-3 mb-0.5">
-                      <img src={transferToOrderIcon} alt="Transfer to Order" className="w-5 h-5 object-contain opacity-80" />
-                      <span className="text-white font-medium">Transfer to Order</span>
-                    </div>
-                    <p className="text-white/50 text-xs ml-8">Move this full order to another order.</p>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        );
-      })()}
 
-      {/* Transfer to Order Dialog */}
       {showTransferToOrderDialog && (() => {
         const sourceOrder = allOrders.find(o => o.id === transferToOrderSourceId);
         const availableOrders = allOrders.filter(o => 

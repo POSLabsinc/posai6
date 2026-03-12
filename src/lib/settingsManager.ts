@@ -849,6 +849,7 @@ export class SettingsManager {
     const updated = { ...current, ...updates };
     localStorage.setItem(STORAGE_KEYS.CHECKOUT_OPTIONS, JSON.stringify(updated));
     syncToDatabase(STORAGE_KEYS.CHECKOUT_OPTIONS, JSON.stringify(updated));
+    syncCheckoutOptionsToTable(updated);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'checkoutOptions', data: updated } }));
     return updated;
   }

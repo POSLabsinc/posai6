@@ -1,9 +1,8 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Plus, X, ShieldCheck, ShieldAlert, MessageSquareText, BookOpen, ChevronDown, ChevronUp } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
 
 const DEVICE_ID_KEY = "pos_device_id";
 
@@ -61,7 +60,6 @@ const AIRulesContent = () => {
   const [knowledgeBase, setKnowledgeBase] = useState("");
   const [newDo, setNewDo] = useState("");
   const [newDont, setNewDont] = useState("");
-  const [saving, setSaving] = useState(false);
   const [loaded, setLoaded] = useState(false);
 
   // Collapsible sections
@@ -70,9 +68,32 @@ const AIRulesContent = () => {
   const [instructionsOpen, setInstructionsOpen] = useState(true);
   const [knowledgeOpen, setKnowledgeOpen] = useState(true);
 
+  // Auto-save debounce ref
+  const saveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const initialLoadRef = useRef(true);
+
   useEffect(() => {
     loadAll();
   }, []);
+
+  // Auto-save whenever data changes (debounced)
+  useEffect(() => {
+    if (!loaded) return;
+    // Skip the first render after load
+    if (initialLoadRef.current) {
+      initialLoadRef.current = false;
+      return;
+    }
+
+    if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    saveTimerRef.current = setTimeout(() => {
+      autoSave();
+    }, 800);
+
+    return () => {
+      if (saveTimerRef.current) clearTimeout(saveTimerRef.current);
+    };
+  }, [dos, donts, customInstructions, restaurantType, knowledgeBase, loaded]);
 
   const loadAll = async () => {
     try {
@@ -112,8 +133,7 @@ const AIRulesContent = () => {
       );
   };
 
-  const handleSaveAll = useCallback(async () => {
-    setSaving(true);
+  const autoSave = async () => {
     try {
       await Promise.all([
         savePref(PREF_KEYS.dos, JSON.stringify(dos)),
@@ -122,13 +142,10 @@ const AIRulesContent = () => {
         savePref(PREF_KEYS.restaurantType, restaurantType),
         savePref(PREF_KEYS.knowledgeBase, knowledgeBase),
       ]);
-      toast.success("AI rules & instructions saved");
-    } catch {
-      toast.error("Failed to save AI rules");
-    } finally {
-      setSaving(false);
+    } catch (err) {
+      console.error("Auto-save failed:", err);
     }
-  }, [dos, donts, customInstructions, restaurantType, knowledgeBase, deviceId]);
+  };
 
   const addDo = () => {
     const trimmed = newDo.trim();
@@ -339,15 +356,6 @@ const AIRulesContent = () => {
           </div>
         )}
       </div>
-
-      {/* Save Button */}
-      <button
-        onClick={handleSaveAll}
-        disabled={saving}
-        className="w-full bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white font-semibold py-3.5 rounded-2xl text-sm tracking-wide transition-colors"
-      >
-        {saving ? "Saving..." : "Save AI Rules & Instructions"}
-      </button>
     </div>
   );
 };

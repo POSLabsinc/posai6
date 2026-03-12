@@ -58,7 +58,10 @@ Use {"type":"info"} for steps 1-6. Only emit update_setting at Step 7 confirmati
 {DATABASE_CONTEXT}
 
 ## Local Settings Context:
-{SETTINGS_CONTEXT}`;
+{SETTINGS_CONTEXT}
+
+## AI Rules & Instructions (Admin-configured behavior guidelines):
+{AI_RULES_CONTEXT}`;
 
 const IMAGE_ADDENDUM = `\n\n## IMAGE ANALYSIS:
 When user uploads a menu image: extract all items/prices/categories, present organized summary, then offer to create a menu from them. Pre-fill categories and products in the guided flow.`;

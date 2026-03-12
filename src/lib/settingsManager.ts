@@ -388,9 +388,8 @@ export class SettingsManager {
     if (this._initialized) return;
     this._initialized = true;
 
-    const deviceId = getDeviceId();
     try {
-      // Load from dedicated payment tables in parallel
+      // Load from dedicated payment tables in parallel (using shared device ID for global settings)
       const [
         gratuityRes,
         discountsRes,
@@ -400,13 +399,13 @@ export class SettingsManager {
         paymentMethodsRes,
         prefsRes,
       ] = await Promise.all([
-        (supabase as any).from("gratuity_settings").select("*").eq("device_id", deviceId).maybeSingle(),
-        (supabase as any).from("discounts").select("*").eq("device_id", deviceId).order("sort_order"),
-        (supabase as any).from("taxes").select("*").eq("device_id", deviceId).order("sort_order"),
-        (supabase as any).from("service_charges").select("*").eq("device_id", deviceId).order("sort_order"),
-        (supabase as any).from("checkout_options").select("*").eq("device_id", deviceId).maybeSingle(),
-        (supabase as any).from("payment_methods").select("*").eq("device_id", deviceId).order("sort_order"),
-        (supabase as any).from("user_preferences").select("preference_key, preference_value").eq("device_id", deviceId).in("preference_key", [...ALL_SETTINGS_KEYS, ...APPEARANCE_INDIVIDUAL_KEYS]),
+        (supabase as any).from("gratuity_settings").select("*").eq("device_id", SHARED_DEVICE_ID).maybeSingle(),
+        (supabase as any).from("discounts").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("taxes").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("service_charges").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("checkout_options").select("*").eq("device_id", SHARED_DEVICE_ID).maybeSingle(),
+        (supabase as any).from("payment_methods").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("user_preferences").select("preference_key, preference_value").eq("device_id", SHARED_DEVICE_ID).in("preference_key", [...ALL_SETTINGS_KEYS, ...APPEARANCE_INDIVIDUAL_KEYS]),
       ]);
 
       let loadedCount = 0;

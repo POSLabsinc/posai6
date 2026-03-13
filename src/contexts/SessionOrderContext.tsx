@@ -1,10 +1,11 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Order, OrderItem } from '@/data/orders';
+import { useTicketOrders } from '@/hooks/use-ticket-orders';
 
 // Split check interface for individual checks within a split order
 export interface SplitCheck {
-  checkId: string;           // "a", "b", "c", etc.
-  items: OrderItem[];        // Items assigned to this check
+  checkId: string;
+  items: OrderItem[];
   status: 'unpaid' | 'paid';
   total: number;
 }
@@ -41,40 +42,57 @@ interface SessionOrderContextType {
 
 const SessionOrderContext = createContext<SessionOrderContextType | undefined>(undefined);
 
-const SESSION_STORAGE_KEY = 'pos-session-orders';
-
 export function SessionOrderProvider({ children }: { children: ReactNode }) {
-  const [sessionOrders, setSessionOrders] = useState<SessionOrder[]>(() => {
-    // Load from localStorage on initial mount
-    try {
-      const stored = localStorage.getItem(SESSION_STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
-    } catch {
-      return [];
-    }
-  });
+  const { addOrder, updateOrder, updateOrderItems: dbUpdateItems, removeOrder, orders: dbOrders } = useTicketOrders();
 
-  // Persist to localStorage whenever sessionOrders change
-  useEffect(() => {
-    localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(sessionOrders));
-  }, [sessionOrders]);
+  // Derive session orders from DB orders that have a session_id
+  const sessionOrders: SessionOrder[] = dbOrders
+    .filter(o => o.sessionId)
+    .map(o => ({
+      sessionId: o.sessionId!,
+      id: o.id,
+      name: o.name,
+      phone: o.phone,
+      partySize: o.partySize,
+      time: o.time,
+      timer: o.timer,
+      server: o.server,
+      check: o.check,
+      paymentType: o.paymentType,
+      revenueCenter: o.revenueCenter,
+      status: o.status,
+      notes: o.notes,
+      table: o.table,
+      orderType: (o.orderType || 'Dine-In') as any,
+      items: o.items.map(item => ({
+        qty: item.qty,
+        name: item.name,
+        price: item.price,
+        seats: item.seats || [],
+        modifiers: item.modifiers || [],
+        isShared: item.isShared,
+      })),
+      createdAt: o.createdAtDate ? o.createdAtDate.getTime() : Date.now(),
+      splitConfiguration: o.splitConfiguration,
+    }));
 
   const createOrder = (
-    tableId: string, 
-    guestCount: number, 
+    tableId: string,
+    guestCount: number,
     serverName: string = 'Staff',
     guestName: string = 'Guest'
   ): SessionOrder => {
     const now = Date.now();
-    const currentTime = new Date().toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
+    const currentTime = new Date().toLocaleTimeString('en-US', {
+      hour: 'numeric',
       minute: '2-digit',
-      hour12: true 
+      hour12: true
     });
-    
+
+    const sessionId = `session-${now}`;
     const newOrder: SessionOrder = {
-      sessionId: `session-${now}`,
-      id: `S${now % 10000}`, // Short ID for display
+      sessionId,
+      id: `S${now % 10000}`,
       name: guestName,
       phone: '',
       partySize: guestCount,
@@ -92,70 +110,79 @@ export function SessionOrderProvider({ children }: { children: ReactNode }) {
       createdAt: now
     };
 
-    setSessionOrders(prev => [...prev, newOrder]);
+    // Insert into DB
+    addOrder({
+      name: guestName,
+      phone: '',
+      partySize: guestCount,
+      time: currentTime,
+      timer: '00:00',
+      server: serverName,
+      check: '--',
+      paymentType: '--',
+      revenueCenter: 'Main',
+      status: 'ORDERING',
+      notes: '',
+      table: tableId,
+      orderType: 'Dine-In',
+      sessionId,
+      items: [],
+    }).catch(console.error);
+
     return newOrder;
   };
 
-  const updateOrderItems = (sessionId: string, items: OrderItem[]) => {
-    setSessionOrders(prev => 
-      prev.map(order => 
-        order.sessionId === sessionId 
-          ? { ...order, items } 
-          : order
-      )
-    );
+  const updateOrderItemsFn = (sessionId: string, items: OrderItem[]) => {
+    const order = sessionOrders.find(o => o.sessionId === sessionId);
+    if (!order) return;
+    dbUpdateItems(order.id, items.map(item => ({
+      qty: item.qty,
+      name: item.name,
+      price: item.price,
+      seats: item.seats || [],
+      modifiers: item.modifiers || [],
+      isShared: item.isShared,
+    }))).catch(console.error);
   };
 
   const updateOrderStatus = (sessionId: string, status: string) => {
-    setSessionOrders(prev => 
-      prev.map(order => 
-        order.sessionId === sessionId 
-          ? { ...order, status } 
-          : order
-      )
-    );
+    const order = sessionOrders.find(o => o.sessionId === sessionId);
+    if (!order) return;
+    updateOrder(order.id, { status }).catch(console.error);
   };
 
   const fireOrder = (sessionId: string, checkNumber?: string) => {
+    const order = sessionOrders.find(o => o.sessionId === sessionId);
+    if (!order) return;
     const check = checkNumber || `${Date.now() % 100000}`;
-    setSessionOrders(prev => {
-      const updated = prev.map(order => 
-        order.sessionId === sessionId 
-          ? { ...order, status: 'ORDERED', check } 
-          : order
-      );
+    updateOrder(order.id, { status: 'ORDERED', check }).catch(console.error);
 
-      // Push fired order into KDS ticket queue for real-time display
-      const firedOrder = updated.find(o => o.sessionId === sessionId);
-      if (firedOrder && firedOrder.items.length > 0) {
-        try {
-          const existing: any[] = JSON.parse(localStorage.getItem('kds_ticket_queue') || '[]');
-          // Avoid duplicates
-          if (!existing.some((t: any) => t.sessionId === sessionId)) {
-            existing.push({
-              sessionId: firedOrder.sessionId,
-              orderNumber: parseInt(firedOrder.id.replace(/\D/g, '')) || Date.now() % 10000,
-              orderType: (firedOrder.orderType || 'Dine-In').toUpperCase().replace('-', ' '),
-              tableNumber: firedOrder.table || null,
-              serverName: firedOrder.server || 'Staff',
-              guestName: firedOrder.name || 'Guest',
-              createdAt: new Date().toISOString(),
-              items: firedOrder.items.map(item => ({
-                qty: item.qty,
-                name: item.name,
-                modifiers: item.modifiers || [],
-              })),
-              status: 'active',
-            });
-            localStorage.setItem('kds_ticket_queue', JSON.stringify(existing));
-          }
-        } catch (e) {
-          console.error('Failed to push KDS ticket:', e);
+    // Push fired order into KDS ticket queue
+    if (order.items.length > 0) {
+      try {
+        const existing: any[] = JSON.parse(localStorage.getItem('kds_ticket_queue') || '[]');
+        if (!existing.some((t: any) => t.sessionId === sessionId)) {
+          existing.push({
+            sessionId: order.sessionId,
+            orderNumber: parseInt(order.id.replace(/\D/g, '')) || Date.now() % 10000,
+            orderType: (order.orderType || 'Dine-In').toUpperCase().replace('-', ' '),
+            tableNumber: order.table || null,
+            serverName: order.server || 'Staff',
+            guestName: order.name || 'Guest',
+            createdAt: new Date().toISOString(),
+            items: order.items.map(item => ({
+              qty: item.qty,
+              name: item.name,
+              modifiers: item.modifiers || [],
+            })),
+            status: 'active',
+          });
+          localStorage.setItem('kds_ticket_queue', JSON.stringify(existing));
         }
+      } catch (e) {
+        console.error('Failed to push KDS ticket:', e);
       }
-
-      return updated;
-    });
+    }
   };
 
   const getOrdersByTable = (tableId: string): SessionOrder[] => {
@@ -167,59 +194,44 @@ export function SessionOrderProvider({ children }: { children: ReactNode }) {
   };
 
   const deleteOrder = (sessionId: string) => {
-    setSessionOrders(prev => prev.filter(order => order.sessionId !== sessionId));
+    const order = sessionOrders.find(o => o.sessionId === sessionId);
+    if (!order) return;
+    removeOrder(order.id).catch(console.error);
   };
 
   const clearSessionOrders = () => {
-    setSessionOrders([]);
-    localStorage.removeItem(SESSION_STORAGE_KEY);
+    sessionOrders.forEach(order => {
+      removeOrder(order.id).catch(console.error);
+    });
   };
 
   const saveSplitConfiguration = (sessionId: string, config: SplitConfiguration) => {
-    setSessionOrders(prev => 
-      prev.map(order => 
-        order.sessionId === sessionId 
-          ? { ...order, splitConfiguration: config } 
-          : order
-      )
-    );
+    const order = sessionOrders.find(o => o.sessionId === sessionId);
+    if (!order) return;
+    updateOrder(order.id, { splitConfiguration: config } as any).catch(console.error);
   };
 
   const updateSplitCheckStatus = (sessionId: string, checkId: string, status: 'unpaid' | 'paid') => {
-    setSessionOrders(prev => 
-      prev.map(order => {
-        if (order.sessionId === sessionId && order.splitConfiguration) {
-          const updatedChecks = order.splitConfiguration.checks.map(check =>
-            check.checkId === checkId ? { ...check, status } : check
-          );
-          return {
-            ...order,
-            splitConfiguration: {
-              ...order.splitConfiguration,
-              checks: updatedChecks
-            }
-          };
-        }
-        return order;
-      })
+    const order = sessionOrders.find(o => o.sessionId === sessionId);
+    if (!order || !order.splitConfiguration) return;
+    const updatedChecks = order.splitConfiguration.checks.map(check =>
+      check.checkId === checkId ? { ...check, status } : check
     );
+    const updatedConfig = { ...order.splitConfiguration, checks: updatedChecks };
+    updateOrder(order.id, { splitConfiguration: updatedConfig } as any).catch(console.error);
   };
 
   const clearSplitConfiguration = (sessionId: string) => {
-    setSessionOrders(prev => 
-      prev.map(order => 
-        order.sessionId === sessionId 
-          ? { ...order, splitConfiguration: undefined } 
-          : order
-      )
-    );
+    const order = sessionOrders.find(o => o.sessionId === sessionId);
+    if (!order) return;
+    updateOrder(order.id, { splitConfiguration: null } as any).catch(console.error);
   };
 
   return (
     <SessionOrderContext.Provider value={{
       sessionOrders,
       createOrder,
-      updateOrderItems,
+      updateOrderItems: updateOrderItemsFn,
       updateOrderStatus,
       fireOrder,
       getOrdersByTable,

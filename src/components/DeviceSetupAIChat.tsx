@@ -516,6 +516,115 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
     }
   }, [currentStep]);
 
+  // Invite code input handlers (personal device)
+  const handleInviteCodeInput = useCallback((index: number, value: string) => {
+    if (value.length > 1) value = value.slice(-1);
+    if (value && !/^[0-9]$/.test(value)) return;
+    
+    const newCode = [...inviteCode];
+    newCode[index] = value;
+    setInviteCode(newCode);
+    
+    if (value && index < 5) {
+      inviteCodeRefs.current[index + 1]?.focus();
+    }
+    
+    if (value && index === 5 && newCode.every(d => d !== "")) {
+      const code = newCode.join("");
+      setTimeout(() => {
+        const verifyMsg: Message = { id: Date.now().toString(), role: "assistant", content: `🔐 Verifying invite code **${code}**...` };
+        setMessages((prev) => [...prev, verifyMsg]);
+        setCurrentStep("personal-invite-verifying");
+      }, 300);
+    }
+  }, [inviteCode]);
+
+  const handleInviteCodeKeyDown = useCallback((index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !inviteCode[index] && index > 0) {
+      inviteCodeRefs.current[index - 1]?.focus();
+    }
+  }, [inviteCode]);
+
+  const handleInviteCodePaste = useCallback((e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const newCode = [...inviteCode];
+    for (let i = 0; i < pasted.length; i++) {
+      newCode[i] = pasted[i];
+    }
+    setInviteCode(newCode);
+    const focusIdx = Math.min(pasted.length, 5);
+    inviteCodeRefs.current[focusIdx]?.focus();
+    
+    if (newCode.every(d => d !== "")) {
+      setTimeout(() => {
+        const code = newCode.join("");
+        const verifyMsg: Message = { id: Date.now().toString(), role: "assistant", content: `🔐 Verifying invite code **${code}**...` };
+        setMessages((prev) => [...prev, verifyMsg]);
+        setCurrentStep("personal-invite-verifying");
+      }, 300);
+    }
+  }, [inviteCode]);
+
+  // Handle invite code verification → show sign-in
+  useEffect(() => {
+    if (currentStep === "personal-invite-verifying") {
+      const timer = setTimeout(() => {
+        const user = { name: "Alex Johnson", email: "alex.johnson@restaurant.com", role: "Manager" };
+        setInvitedUser(user);
+        const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: `✅ Code verified! This invite was issued to **${user.name}** (${user.role}). Please sign in with your approved credentials.` };
+        setMessages((prev) => [...prev, successMsg]);
+        setCurrentStep("personal-sign-in");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep]);
+
+  // Handle personal device sign-in
+  const handlePersonalSignIn = useCallback(() => {
+    if (!personalEmail.trim() || !personalPassword.trim()) {
+      setPersonalSignInError("Please enter both email and password");
+      return;
+    }
+    
+    setIsPersonalSigningIn(true);
+    setPersonalSignInError("");
+    
+    setTimeout(() => {
+      setIsPersonalSigningIn(false);
+      
+      // Check if email matches invited user
+      if (invitedUser && personalEmail.trim().toLowerCase() !== invitedUser.email.toLowerCase()) {
+        const deniedMsg: Message = { id: Date.now().toString(), role: "assistant", content: "⛔ The email you entered doesn't match the invited user for this device code." };
+        setMessages((prev) => [...prev, deniedMsg]);
+        setCurrentStep("personal-access-denied");
+        return;
+      }
+      
+      // Success - save session and redirect
+      const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ Identity verified! Setting up your personal device..." };
+      setMessages((prev) => [...prev, successMsg]);
+      
+      setTimeout(() => {
+        localStorage.setItem("pos_device_session", JSON.stringify({
+          deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          deviceType: "personal",
+          trustedAt: new Date().toISOString(),
+        }));
+        localStorage.setItem("pos_session", JSON.stringify({
+          employeeId: "personal-user",
+          employeeName: invitedUser?.name || "User",
+          employeeRole: invitedUser?.role || "Staff",
+          employeeAvatar: "",
+          revenueCenter: "Personal Device",
+          deviceType: "personal",
+          loginTime: new Date().toISOString(),
+        }));
+        window.location.href = "/";
+      }, 1500);
+    }, 1500);
+  }, [personalEmail, personalPassword, invitedUser]);
+
 
   return (
     <motion.div

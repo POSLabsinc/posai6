@@ -196,6 +196,7 @@ interface GuestOrder {
 const FALLBACK_SELECTED_GUEST_ID = "__fallback-ticket__";
 const FALLBACK_SELECTED_GUEST: GuestOrder = {
   id: FALLBACK_SELECTED_GUEST_ID,
+  orderNumber: 0,
   name: "",
   phone: "",
   partySize: 1,

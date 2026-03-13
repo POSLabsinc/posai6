@@ -2766,8 +2766,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={() => {
-              setDeviceType(null);
-              setShowDeviceSetup(false);
+              setActivationApproach(null);
               setActivationMethod(null);
               setActivationCode("");
               setActivationError("");

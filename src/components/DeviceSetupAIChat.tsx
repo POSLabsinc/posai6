@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, LayoutGroup } from "framer-motion";
 import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, Monitor, TabletSmartphone } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ReactMarkdown from "react-markdown";
@@ -126,16 +126,16 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const [showFirstButtons, setShowFirstButtons] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const seenMessageIds = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (open && scrollRef.current) {
-      const delay = Math.max(500, messages.length * 150 + 300);
       const timer = setTimeout(() => {
         scrollRef.current?.scrollTo({
           top: scrollRef.current.scrollHeight,
           behavior: 'smooth'
         });
-      }, delay);
+      }, 450);
       return () => clearTimeout(timer);
     }
   }, [messages, open, showActivationOptions, currentStep, showFirstQuestion, showFirstButtons]);
@@ -242,6 +242,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const handleNotNew = useCallback(() => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
     const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
+    seenMessageIds.current.clear();
     setMessages([userMsg, assistantMsg]);
     setIsNewUser(false);
     setCurrentStep("device-type");
@@ -274,11 +275,13 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setMessages([]);
       setCurrentStep("initial");
       setIsNewUser(null);
+      seenMessageIds.current.clear();
     } else if (currentStep === "activation-methods") {
       // Go back to device-type with the right user message
       const label = isNewUser ? "Yes, I'm new" : "No, I'm not new";
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: label };
       const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
+      seenMessageIds.current.clear();
       setMessages([userMsg, assistantMsg]);
       setCurrentStep("device-type");
     } else if (currentStep === "activate-code") {
@@ -286,6 +289,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       const label = isNewUser ? "Yes, I'm new" : "No, I'm not new";
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: label };
       const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
+      seenMessageIds.current.clear();
       setMessages([userMsg, assistantMsg]);
       setCurrentStep("device-type");
     } else if (["sign-in-link", "demo-mode"].includes(currentStep)) {
@@ -299,6 +303,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       const a1: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
       const u2: Message = { id: (Date.now() + 2).toString(), role: "user", content: "Company Device" };
       const a2: Message = { id: (Date.now() + 3).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      seenMessageIds.current.clear();
       setMessages([u1, a1, u2, a2]);
       setCurrentStep("activation-methods");
     } else if (currentStep === "sign-in-email" || currentStep === "sign-in-phone") {
@@ -309,6 +314,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       const a2: Message = { id: (Date.now() + 3).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
       const u3: Message = { id: (Date.now() + 4).toString(), role: "user", content: "Sign in with Link" };
       const a3: Message = { id: (Date.now() + 5).toString(), role: "assistant", content: "How would you like to receive your secure sign-in link?" };
+      seenMessageIds.current.clear();
       setMessages([u1, a1, u2, a2, u3, a3]);
       setCurrentStep("sign-in-link");
       setSignInInput("");
@@ -329,6 +335,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setMessages([]);
       setCurrentStep("initial");
       setIsNewUser(null);
+      seenMessageIds.current.clear();
     }
   }, [currentStep, isNewUser, messages, sentAddress]);
 
@@ -492,6 +499,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       onClick={() => {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, I'm new" };
                         const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
+                        seenMessageIds.current.clear();
                         setMessages([userMsg, assistantMsg]);
                         setIsNewUser(true);
                         setCurrentStep("device-type");
@@ -513,54 +521,74 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
               <div className="flex flex-col h-full">
                 {/* Chat messages */}
                 <div className="flex-1 space-y-4">
-                  {messages.map((msg, index) => (
-                    <motion.div
-                      key={msg.id}
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] }}
-                      className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                      {msg.role === "assistant" && (
-                        <div className="flex-shrink-0 mr-2 mt-1">
-                          <AnimatedAIIcon size={18} />
-                        </div>
-                      )}
-                      <div
-                        className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm ${
-                          msg.role === "user"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-foreground/[0.04] text-foreground"
-                        }`}
-                      >
-                        {msg.role === "assistant" ? (
-                          <div className="prose prose-sm prose-invert max-w-none [&>p]:m-0 [&>p+p]:mt-2 [&>ul]:mt-1 [&>ul]:mb-0 [&>ol]:mt-1 [&>ol]:mb-0">
-                            <ReactMarkdown>{msg.content || "..."}</ReactMarkdown>
-                          </div>
-                        ) : (
-                          <p className="whitespace-pre-wrap">{msg.content}</p>
-                        )}
-                      </div>
-                      {msg.role === "user" && !isLoading && (
-                        <button
-                          onClick={handleGoBack}
-                          className="flex-shrink-0 ml-1.5 mt-1 w-6 h-6 rounded-full flex items-center justify-center hover:bg-foreground/[0.08] transition-colors opacity-40 hover:opacity-70"
-                          title="Edit"
-                        >
-                          <Pencil className="w-3 h-3" />
-                        </button>
-                      )}
-                    </motion.div>
-                  ))}
+                  <LayoutGroup>
+                    <AnimatePresence initial={false}>
+                      {messages.map((msg) => {
+                        const isNew = !seenMessageIds.current.has(msg.id);
+                        if (isNew) seenMessageIds.current.add(msg.id);
+                        
+                        return (
+                          <motion.div
+                            key={msg.id}
+                            layout="position"
+                            initial={isNew ? { opacity: 0, y: 20, scale: 0.97 } : false}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            transition={{
+                              layout: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
+                              opacity: { duration: 0.35 },
+                              y: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+                              scale: { duration: 0.3 },
+                            }}
+                            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                          >
+                            {msg.role === "assistant" && (
+                              <div className="flex-shrink-0 mr-2 mt-1">
+                                <AnimatedAIIcon size={18} />
+                              </div>
+                            )}
+                            <div
+                              className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm ${
+                                msg.role === "user"
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-foreground/[0.04] text-foreground"
+                              }`}
+                            >
+                              {msg.role === "assistant" ? (
+                                <div className="prose prose-sm prose-invert max-w-none [&>p]:m-0 [&>p+p]:mt-2 [&>ul]:mt-1 [&>ul]:mb-0 [&>ol]:mt-1 [&>ol]:mb-0">
+                                  <ReactMarkdown>{msg.content || "..."}</ReactMarkdown>
+                                </div>
+                              ) : (
+                                <p className="whitespace-pre-wrap">{msg.content}</p>
+                              )}
+                            </div>
+                            {msg.role === "user" && !isLoading && (
+                              <button
+                                onClick={handleGoBack}
+                                className="flex-shrink-0 ml-1.5 mt-1 w-6 h-6 rounded-full flex items-center justify-center hover:bg-foreground/[0.08] transition-colors opacity-40 hover:opacity-70"
+                                title="Edit"
+                              >
+                                <Pencil className="w-3 h-3" />
+                              </button>
+                            )}
+                          </motion.div>
+                        );
+                      })}
+                    </AnimatePresence>
+                  </LayoutGroup>
 
                   {isLoading && messages[messages.length - 1]?.role === "user" && (
-                    <div className="flex items-center gap-2 text-foreground/40">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex items-center gap-2 text-foreground/40"
+                    >
                       <AnimatedAIIcon size={18} />
                       <div className="flex items-center gap-1.5 bg-foreground/[0.04] rounded-2xl px-3.5 py-2.5">
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         <span className="text-xs">Thinking...</span>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
 
@@ -571,7 +599,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     animate="visible"
                     variants={{
                       hidden: {},
-                      visible: { transition: { staggerChildren: 0.12, delayChildren: messages.length * 0.15 + 0.1 } }
+                      visible: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } }
                     }}
                     className="flex flex-col gap-2.5 pl-7 pt-3 pb-2"
                   >
@@ -639,7 +667,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     animate="visible"
                     variants={{
                       hidden: {},
-                      visible: { transition: { staggerChildren: 0.12, delayChildren: messages.length * 0.15 + 0.1 } }
+                      visible: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } }
                     }}
                     className="flex flex-col gap-2.5 pl-7 pt-3 pb-2"
                   >
@@ -694,7 +722,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                   <motion.div
                     initial={{ opacity: 0, y: 14, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 0.4, delay: messages.length * 0.15 + 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.4, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
                     className="pl-7 pt-3 pb-2 space-y-4"
                   >
                     <div className="flex gap-2 justify-start">
@@ -725,7 +753,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                   <motion.div
                     initial={{ opacity: 0, y: 14, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 0.4, delay: messages.length * 0.15 + 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.4, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
                     className="pl-7 pt-3 pb-2 space-y-4"
                   >
                     <div className="flex items-center gap-2 text-foreground/50">
@@ -750,7 +778,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     animate="visible"
                     variants={{
                       hidden: {},
-                      visible: { transition: { staggerChildren: 0.12, delayChildren: messages.length * 0.15 + 0.1 } }
+                      visible: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } }
                     }}
                     className="pl-7 pt-3 pb-2"
                   >
@@ -806,7 +834,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                   <motion.div
                     initial={{ opacity: 0, y: 14, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 0.4, delay: messages.length * 0.15 + 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.4, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
                     className="pl-7 pt-3 pb-2 space-y-3"
                   >
                     <div className="flex gap-2">
@@ -854,7 +882,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                   <motion.div
                     initial={{ opacity: 0, y: 14, scale: 0.97 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
-                    transition={{ duration: 0.4, delay: messages.length * 0.15 + 0.1, ease: [0.22, 1, 0.36, 1] }}
+                    transition={{ duration: 0.4, delay: 0.25, ease: [0.22, 1, 0.36, 1] }}
                     className="pl-7 pt-3 pb-2 space-y-2"
                   >
                     <div className="flex gap-2">

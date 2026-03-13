@@ -6186,7 +6186,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         const executeTransfer = () => {
           if (!selectedTransferOrderId || !sourceOrder) return;
           setShowTransferToOrderDialog(false);
-          const targetOrder = ticketOrders.find(o => o.id === selectedTransferOrderId);
+          const targetOrder = allOrders.find(o => o.id === selectedTransferOrderId);
           const targetTable = targetOrder?.table || sourceOrder.table;
           const destinationLabel = targetTable && targetTable !== '--' && targetTable !== sourceOrder.table
             ? `${formatTableName(targetTable)} (Order #${selectedTransferOrderId})`

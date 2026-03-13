@@ -1,9 +1,6 @@
-import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { ticketOrders as seedTicketOrders, TicketOrder, TicketOrderItem } from '@/data/ticketOrders';
-
-// localStorage keys
-const UNIFIED_STORAGE_KEY = 'pos-unified-orders';
-const TRANSFER_STORAGE_KEY = 'pos-table-transfers';
+import { createContext, useContext, useCallback, ReactNode } from 'react';
+import { useTicketOrders, UnifiedTicketOrder } from '@/hooks/use-ticket-orders';
+import { TicketOrder, TicketOrderItem } from '@/data/ticketOrders';
 
 interface UnifiedOrderContextType {
   orders: TicketOrder[];
@@ -19,148 +16,182 @@ interface UnifiedOrderContextType {
 
 const UnifiedOrderContext = createContext<UnifiedOrderContextType | undefined>(undefined);
 
+// Convert DB unified order to legacy TicketOrder shape
+function toTicketOrder(u: UnifiedTicketOrder): TicketOrder {
+  return {
+    id: u.id,
+    name: u.name,
+    phone: u.phone,
+    partySize: u.partySize,
+    time: u.time,
+    timer: u.timer,
+    server: u.server,
+    check: u.check,
+    paymentType: u.paymentType,
+    payments: u.payments,
+    revenueCenter: u.revenueCenter,
+    status: u.status,
+    notes: u.notes,
+    table: u.table,
+    orderType: u.orderType,
+    items: u.items.map(item => ({
+      qty: item.qty,
+      name: item.name,
+      price: item.price,
+      seats: item.seats || [],
+      modifiers: item.modifiers || [],
+    })),
+    subtotal: u.subtotal,
+    discount: u.discount,
+    serviceCharge: u.serviceCharge,
+    tax: u.tax,
+    tip: u.tip,
+    total: u.total,
+    transferInfo: u.transferInfo,
+  };
+}
+
 export function UnifiedOrderProvider({ children }: { children: ReactNode }) {
-  const [orders, setOrders] = useState<TicketOrder[]>(() => {
-    try {
-      const stored = localStorage.getItem(UNIFIED_STORAGE_KEY);
-      if (stored) {
-        const parsed = JSON.parse(stored) as TicketOrder[];
-        // Merge any new seed orders that might have been added
-        const storedIds = new Set(parsed.map(o => o.id));
-        const newSeeds = seedTicketOrders.filter(o => !storedIds.has(o.id));
-        return [...parsed, ...newSeeds];
-      }
-    } catch { /* fall through */ }
-    return [...seedTicketOrders];
-  });
+  const {
+    orders: dbOrders,
+    getOrdersByTable: dbGetByTable,
+    getOrderById: dbGetById,
+    updateOrder: dbUpdate,
+    removeOrder: dbRemove,
+    addOrder: dbAdd,
+  } = useTicketOrders();
 
-  // Persist to localStorage
-  useEffect(() => {
-    localStorage.setItem(UNIFIED_STORAGE_KEY, JSON.stringify(orders));
-  }, [orders]);
-
-  // Sync transfers from TableOrderDetails localStorage into ticket orders
-  const syncFromTransfers = useCallback(() => {
-    try {
-      const transferData = JSON.parse(localStorage.getItem(TRANSFER_STORAGE_KEY) || '{}');
-      if (!transferData || Object.keys(transferData).length === 0) return;
-
-      setOrders(prev => {
-        let updated = [...prev];
-
-        for (const [targetTable, transfers] of Object.entries(transferData)) {
-          if (!Array.isArray(transfers)) continue;
-          for (const transfer of transfers as any[]) {
-            const { sourceOrderId, sourceTable, transferType, items, sourceOrderName, sourceServer, sourcePhone, sourcePartySize, sourceRevenueCenter, sourceOrderType, sourceNotes, targetOrderId } = transfer;
-
-            // Match source order by name + table (IDs differ between orders.ts and ticketOrders.ts)
-            const matchSource = (o: TicketOrder) => o.name === sourceOrderName && o.table === sourceTable;
-
-            if (transferType === 'full') {
-              const existsInOrders = updated.some(matchSource);
-              if (existsInOrders) {
-                updated = updated.map(o => matchSource(o) ? { ...o, table: targetTable } : o);
-              }
-            } else if (transferType === 'partial') {
-              const transferredItemNames = (items || []).map((i: any) => i.name);
-              
-              // Update source order - remove transferred items
-              updated = updated.map(o => {
-                if (matchSource(o)) {
-                  const remainingItems = o.items.filter(item => !transferredItemNames.includes(item.name));
-                  const newSubtotal = remainingItems.reduce((s, item) => s + item.price * item.qty, 0);
-                  const ratio = o.subtotal > 0 ? newSubtotal / o.subtotal : 0;
-                  return {
-                    ...o,
-                    items: remainingItems,
-                    subtotal: +newSubtotal.toFixed(2),
-                    discount: +(o.discount * ratio).toFixed(2),
-                    serviceCharge: +(o.serviceCharge * ratio).toFixed(2),
-                    tax: +(o.tax * ratio).toFixed(2),
-                    total: +(newSubtotal + (o.serviceCharge * ratio) + (o.tax * ratio) - (o.discount * ratio)).toFixed(2),
-                  };
-                }
-                return o;
-              });
-
-              // If targeting a specific existing order, add items to it
-              if (targetOrderId) {
-                updated = updated.map(o => {
-                  if (o.id === targetOrderId) {
-                    const transferredItems: TicketOrderItem[] = (items || []).map((i: any) => ({
-                      name: i.name,
-                      qty: i.qty,
-                      price: i.price,
-                      modifiers: i.modifiers || [],
-                      seats: i.seats || [],
-                    }));
-                    const newItems = [...o.items, ...transferredItems];
-                    const newSubtotal = newItems.reduce((s, item) => s + item.price * item.qty, 0);
-                    return {
-                      ...o,
-                      items: newItems,
-                      subtotal: +newSubtotal.toFixed(2),
-                      serviceCharge: +(newSubtotal * 0.05).toFixed(2),
-                      tax: +(newSubtotal * 0.0735).toFixed(2),
-                      total: +(newSubtotal + newSubtotal * 0.05 + newSubtotal * 0.0735 - o.discount).toFixed(2),
-                    };
-                  }
-                  return o;
-                });
-              }
-            }
-          }
-        }
-
-        return updated;
-      });
-    } catch { /* ignore */ }
-  }, []);
-
-  // Listen for transfer events from TableOrderDetails
-  useEffect(() => {
-    const handleTransferUpdate = () => {
-      syncFromTransfers();
-    };
-
-    window.addEventListener('pos-transfer-updated', handleTransferUpdate);
-    // Also sync on mount
-    syncFromTransfers();
-
-    return () => {
-      window.removeEventListener('pos-transfer-updated', handleTransferUpdate);
-    };
-  }, [syncFromTransfers]);
+  const orders = dbOrders.map(toTicketOrder);
 
   const getAllOrders = useCallback(() => orders, [orders]);
 
-  const getOrdersByTable = useCallback((tableId: string) => {
-    return orders.filter(o => o.table === tableId);
-  }, [orders]);
+  const getOrdersByTable = useCallback(
+    (tableId: string) => orders.filter(o => o.table === tableId),
+    [orders]
+  );
 
-  const getOrderById = useCallback((id: string) => {
-    return orders.find(o => o.id === id);
-  }, [orders]);
+  const getOrderById = useCallback(
+    (id: string) => orders.find(o => o.id === id),
+    [orders]
+  );
 
   const updateOrder = useCallback((id: string, changes: Partial<TicketOrder>) => {
-    setOrders(prev => prev.map(o => o.id === id ? { ...o, ...changes } : o));
-  }, []);
+    const mapped: Record<string, any> = {};
+    if (changes.name !== undefined) mapped.name = changes.name;
+    if (changes.phone !== undefined) mapped.phone = changes.phone;
+    if (changes.partySize !== undefined) mapped.partySize = changes.partySize;
+    if (changes.time !== undefined) mapped.time = changes.time;
+    if (changes.timer !== undefined) mapped.timer = changes.timer;
+    if (changes.server !== undefined) mapped.server = changes.server;
+    if (changes.check !== undefined) mapped.check = changes.check;
+    if (changes.paymentType !== undefined) mapped.paymentType = changes.paymentType;
+    if (changes.payments !== undefined) mapped.payments = changes.payments;
+    if (changes.revenueCenter !== undefined) mapped.revenueCenter = changes.revenueCenter;
+    if (changes.status !== undefined) mapped.status = changes.status;
+    if (changes.notes !== undefined) mapped.notes = changes.notes;
+    if (changes.table !== undefined) mapped.table = changes.table;
+    if (changes.orderType !== undefined) mapped.orderType = changes.orderType;
+    if (changes.subtotal !== undefined) mapped.subtotal = changes.subtotal;
+    if (changes.discount !== undefined) mapped.discount = changes.discount;
+    if (changes.serviceCharge !== undefined) mapped.serviceCharge = changes.serviceCharge;
+    if (changes.tax !== undefined) mapped.tax = changes.tax;
+    if (changes.tip !== undefined) mapped.tip = changes.tip;
+    if (changes.total !== undefined) mapped.total = changes.total;
+    if (changes.transferInfo !== undefined) mapped.transferInfo = changes.transferInfo;
+    dbUpdate(id, mapped).catch(console.error);
+  }, [dbUpdate]);
 
+  // Legacy batch updater - applies the updater to current orders and persists diffs
   const updateOrders = useCallback((updater: (prev: TicketOrder[]) => TicketOrder[]) => {
-    setOrders(updater);
-  }, []);
+    const currentOrders = dbOrders.map(toTicketOrder);
+    const updated = updater(currentOrders);
+
+    // Find changed orders and persist them
+    for (const order of updated) {
+      const original = currentOrders.find(o => o.id === order.id);
+      if (!original) {
+        // New order added by updater
+        dbAdd({
+          name: order.name,
+          phone: order.phone,
+          partySize: order.partySize,
+          time: order.time,
+          timer: order.timer,
+          server: order.server,
+          check: order.check,
+          paymentType: order.paymentType,
+          revenueCenter: order.revenueCenter,
+          status: order.status,
+          notes: order.notes,
+          table: order.table,
+          orderType: order.orderType,
+          subtotal: order.subtotal,
+          discount: order.discount,
+          serviceCharge: order.serviceCharge,
+          tax: order.tax,
+          tip: order.tip,
+          total: order.total,
+          items: order.items,
+        }).catch(console.error);
+        continue;
+      }
+      // Check if anything changed
+      const changed = JSON.stringify(order) !== JSON.stringify(original);
+      if (changed) {
+        dbUpdate(order.id, {
+          name: order.name,
+          table: order.table,
+          status: order.status,
+          subtotal: order.subtotal,
+          discount: order.discount,
+          serviceCharge: order.serviceCharge,
+          tax: order.tax,
+          tip: order.tip,
+          total: order.total,
+          transferInfo: order.transferInfo,
+        }).catch(console.error);
+      }
+    }
+
+    // Find removed orders
+    for (const original of currentOrders) {
+      if (!updated.some(o => o.id === original.id)) {
+        dbRemove(original.id).catch(console.error);
+      }
+    }
+  }, [dbOrders, dbUpdate, dbAdd, dbRemove]);
 
   const removeOrder = useCallback((id: string) => {
-    setOrders(prev => prev.filter(o => o.id !== id));
-  }, []);
+    dbRemove(id).catch(console.error);
+  }, [dbRemove]);
 
   const addOrder = useCallback((order: TicketOrder) => {
-    setOrders(prev => {
-      // Don't add if already exists
-      if (prev.some(o => o.id === order.id)) return prev;
-      return [...prev, order];
-    });
-  }, []);
+    dbAdd({
+      name: order.name,
+      phone: order.phone,
+      partySize: order.partySize,
+      time: order.time,
+      timer: order.timer,
+      server: order.server,
+      check: order.check,
+      paymentType: order.paymentType,
+      revenueCenter: order.revenueCenter,
+      status: order.status,
+      notes: order.notes,
+      table: order.table,
+      orderType: order.orderType,
+      subtotal: order.subtotal,
+      discount: order.discount,
+      serviceCharge: order.serviceCharge,
+      tax: order.tax,
+      tip: order.tip,
+      total: order.total,
+      items: order.items,
+    }).catch(console.error);
+  }, [dbAdd]);
+
+  // No-op - transfers are now handled via direct DB mutations
+  const syncFromTransfers = useCallback(() => {}, []);
 
   return (
     <UnifiedOrderContext.Provider value={{

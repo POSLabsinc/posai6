@@ -38,7 +38,8 @@ import transferEntireOrderIcon from "@/assets/icons/transfer-entire-order.svg";
 import transferToTableIcon from "@/assets/icons/transfer-to-table.svg";
 import transferToOrderIcon from "@/assets/icons/transfer-to-order.svg";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
-import { ticketOrders, ticketToTemplateData, formatTicketPrice, getAvailableTicketOrdersForTransfer } from "@/data/ticketOrders";
+import { ticketToTemplateData, formatTicketPrice } from "@/data/ticketOrders";
+import { useTicketOrders, UnifiedTicketOrder } from "@/hooks/use-ticket-orders";
 import { formatTableName } from "@/lib/orderUtils";
 import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
 import registerIcon from "@/assets/icons/register.svg";
@@ -188,6 +189,7 @@ interface GuestOrder {
   paid?: boolean;
   paidAt?: string;
   paymentMethods?: PaymentMethod[]; // Split payment support
+  timer?: string;
 }
 
 // Helper function to format elapsed time dynamically
@@ -213,283 +215,7 @@ const parseTimeToDate = (timeStr: string, minutesAgo: number = 0): Date => {
   return new Date(now.getTime() - minutesAgo * 60000);
 };
 
-// Mock all orders data
-const allOrders: GuestOrder[] = [
-  {
-    id: "3",
-    name: "Martin Alex",
-    phone: "(415) 555-0123",
-    partySize: 4,
-    time: "8:00 PM",
-    createdAt: parseTimeToDate("8:00 PM", 1), // 1 minute ago
-    server: "Mia Jone",
-    check: "--",
-    paymentType: "--",
-    revenueCenter: "FF Balcony",
-    status: "ORDERING",
-    notes: "Allergic to almonds, Don't add onion",
-    table: "T2",
-    orderType: "Table",
-    items: [
-      { 
-        qty: 4, 
-        name: "Classic Cheese Burger - Medium", 
-        price: 9.00, 
-        seats: [1, 2], 
-        modifiers: [],
-        richModifiers: [
-          { text: "American Cheese", type: "default" },
-          { text: "Bacon", type: "default" },
-          { text: "No Onions", type: "remove" },
-          { text: "No Pickles", type: "remove" },
-          { text: "Add Avocado", type: "add", price: 1.00 },
-          { text: "Side: Fries", type: "side" },
-          { text: "Side: Chipotle Mayo", type: "side" }
-        ],
-        notes: ["Well done", "Extra napkins"]
-      },
-      { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: ["Extra Sauce"], notes: ["Gluten-free sauce"] },
-      { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: [] },
-      { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette"], notes: ["Cook temperature: Medium rare"] }
-    ],
-    subtotal: 88.00,
-    discount: 5.00,
-    serviceCharge: 4.40,
-    tax: 6.10,
-    tip: 0,
-    total: 93.50
-  },
-  {
-    id: "2",
-    name: "Mike Wheelers",
-    phone: "(415) 555-0456",
-    partySize: 3,
-    time: "7:30 PM",
-    createdAt: parseTimeToDate("7:30 PM", 76), // 76 minutes ago (1:16 Hrs)
-    server: "Dustin H",
-    check: "123423",
-    paymentType: "Cash",
-    revenueCenter: "FF Balcony",
-    status: "PAID",
-    notes: "Birthday celebration - bring candle",
-    table: "T2",
-    orderType: "Takeaway",
-    paid: true,
-    paidAt: "8:46 PM",
-    items: [
-      { 
-        qty: 1, 
-        name: "New York Strip Steak", 
-        price: 28.00, 
-        seats: [1], 
-        modifiers: [],
-        richModifiers: [
-          { text: "Medium Rare", type: "default" },
-          { text: "Garlic Butter", type: "add", price: 2.00 },
-          { text: "No Onions", type: "remove" },
-          { text: "Side: Mashed Potatoes", type: "side" },
-          { text: "Side: Asparagus", type: "side" }
-        ]
-      },
-      { 
-        qty: 1, 
-        name: "Grilled Salmon", 
-        price: 24.00, 
-        seats: [2], 
-        modifiers: [],
-        richModifiers: [
-          { text: "Blackened", type: "default" },
-          { text: "No Lemon", type: "remove" },
-          { text: "Add Capers", type: "add", price: 1.50 },
-          { text: "Side: Wild Rice", type: "side" },
-          { text: "Side: Seasonal Vegetables", type: "side" }
-        ]
-      },
-      { 
-        qty: 1, 
-        name: "Caesar Salad", 
-        price: 12.00, 
-        seats: [3], 
-        modifiers: [],
-        richModifiers: [
-          { text: "Extra Croutons", type: "default" },
-          { text: "Add Grilled Chicken", type: "add", price: 4.00 },
-          { text: "No Anchovies", type: "remove" },
-          { text: "Dressing on Side", type: "default" }
-        ]
-      }
-    ],
-    subtotal: 64.00,
-    discount: 0,
-    serviceCharge: 3.20,
-    tax: 4.70,
-    tip: 15.00,
-    total: 86.90
-  },
-  {
-    id: "1",
-    name: "Sarah Johnson",
-    phone: "(415) 555-0789",
-    partySize: 2,
-    time: "7:15 PM",
-    createdAt: parseTimeToDate("7:15 PM", 105), // 105 minutes ago (1:45 Hrs)
-    server: "Dustin H",
-    check: "123443",
-    paymentType: "--",
-    revenueCenter: "FF Balcony",
-    status: "UNPAID",
-    notes: "Gluten-free options requested",
-    table: "T1",
-    orderType: "Drive-thru",
-    items: [
-      { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: ["Gluten-Free Crust"] },
-      { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil"] }
-    ],
-    subtotal: 46.00,
-    discount: 10.00,
-    serviceCharge: 2.30,
-    tax: 2.65,
-    tip: 0,
-    total: 40.95
-  },
-  {
-    id: "4",
-    name: "David Chen",
-    phone: "(415) 555-1234",
-    partySize: 6,
-    time: "6:45 PM",
-    createdAt: parseTimeToDate("6:45 PM", 150), // 150 minutes ago (2:30 Hrs)
-    server: "Mia Jone",
-    check: "123456",
-    paymentType: "Split Payment",
-    revenueCenter: "Main Dining",
-    status: "PAID",
-    notes: "Corporate dinner - split bill 3 ways",
-    table: "T5",
-    orderType: "Table",
-    paid: true,
-    paidAt: "9:15 PM",
-    items: [
-      { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["Extra Butter"] },
-      { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium"] }
-    ],
-    subtotal: 174.00,
-    discount: 20.00,
-    serviceCharge: 8.70,
-    tax: 11.32,
-    tip: 64.20,
-    total: 238.22,
-    paymentMethods: [
-      { id: 'pm-1', type: 'credit_card', label: 'Visa •••• 1234', amount: 120.00, tipAmount: 30.00 },
-      { id: 'pm-2', type: 'credit_card', label: 'Amex •••• 9876', amount: 80.00, tipAmount: 20.00 },
-      { id: 'pm-3', type: 'cash', label: 'Cash', amount: 38.22, tipAmount: 14.20 }
-    ]
-  },
-  {
-    id: "5",
-    name: "Guest",
-    phone: "",
-    partySize: 1,
-    time: "8:30 PM",
-    createdAt: parseTimeToDate("8:30 PM", 15), // 15 minutes ago
-    server: "Mia Jone",
-    check: "--",
-    paymentType: "--",
-    revenueCenter: "Bar",
-    status: "ORDERING",
-    notes: "",
-    table: "Bar",
-    orderType: "Drive-thru",
-    items: [
-      { qty: 1, name: "Classic Burger", price: 15.00, seats: [1], modifiers: ["No Pickles", "+ Bacon"] },
-      { qty: 1, name: "Craft IPA", price: 8.00, seats: [], modifiers: [] }
-    ],
-    subtotal: 23.00,
-    discount: 0,
-    serviceCharge: 1.15,
-    tax: 1.69,
-    tip: 0,
-    total: 25.84
-  },
-  {
-    id: "6",
-    name: "Emily Davis",
-    phone: "(415) 555-7890",
-    partySize: 2,
-    time: "9:00 PM",
-    createdAt: parseTimeToDate("9:00 PM", 5), // 5 minutes ago
-    server: "Mia Jone",
-    check: "--",
-    paymentType: "--",
-    revenueCenter: "Patio",
-    status: "ORDERING",
-    notes: "Anniversary dinner",
-    table: "T7",
-    orderType: "Table",
-    items: [
-      { qty: 2, name: "Champagne", price: 25.00, seats: [], modifiers: [] }
-    ],
-    subtotal: 50.00,
-    discount: 0,
-    serviceCharge: 2.50,
-    tax: 3.68,
-    tip: 0,
-    total: 56.18
-  },
-  {
-    id: "7",
-    name: "James Wilson",
-    phone: "(415) 555-3456",
-    partySize: 1,
-    time: "8:45 PM",
-    createdAt: parseTimeToDate("8:45 PM", 10), // 10 minutes ago
-    server: "Dustin H",
-    check: "--",
-    paymentType: "--",
-    revenueCenter: "Online",
-    status: "ORDERING",
-    notes: "Leave at door",
-    table: "--",
-    orderType: "Takeaway",
-    items: [
-      { qty: 2, name: "Pepperoni Pizza", price: 18.00, seats: [], modifiers: [] },
-      { qty: 1, name: "Garlic Bread", price: 6.00, seats: [], modifiers: [] }
-    ],
-    subtotal: 42.00,
-    discount: 0,
-    serviceCharge: 2.10,
-    tax: 3.09,
-    tip: 0,
-    total: 47.19
-  },
-  {
-    id: "8",
-    name: "Lisa Park",
-    phone: "(415) 555-9012",
-    partySize: 2,
-    time: "7:50 PM",
-    createdAt: parseTimeToDate("7:50 PM", 30), // 30 minutes ago
-    server: "Mia Jone",
-    check: "123478",
-    paymentType: "--",
-    revenueCenter: "Counter",
-    status: "ORDERING",
-    notes: "Picking up in 15 mins",
-    table: "--",
-    orderType: "Takeaway",
-    items: [
-      { qty: 2, name: "Fish Tacos", price: 14.00, seats: [], modifiers: ["Extra Lime"] },
-      { qty: 2, name: "Churros", price: 7.00, seats: [], modifiers: [] }
-    ],
-    subtotal: 42.00,
-    discount: 0,
-    serviceCharge: 2.10,
-    tax: 3.09,
-    tip: 0,
-    total: 47.19
-  }
-];
-
+// allOrders is now provided by the useTicketOrders hook inside the component below
 // Helper function to format price
 const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
@@ -678,6 +404,53 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
+  // Fetch all orders from database
+  const { orders: dbTicketOrders, isLoading: isLoadingOrders } = useTicketOrders();
+
+  // Convert DB orders to GuestOrder shape for this component
+  const allOrders: GuestOrder[] = dbTicketOrders.map(o => ({
+    id: o.id,
+    name: o.name,
+    phone: o.phone,
+    partySize: o.partySize,
+    time: o.time,
+    createdAt: o.createdAtDate || new Date(),
+    server: o.server,
+    check: o.check,
+    paymentType: o.paymentType,
+    revenueCenter: o.revenueCenter,
+    status: o.status,
+    notes: o.notes,
+    table: o.table,
+    orderType: o.orderType,
+    items: o.items.map(item => ({
+      qty: item.qty,
+      name: item.name,
+      price: item.price,
+      seats: item.seats || [],
+      modifiers: item.modifiers || [],
+    })),
+    subtotal: o.subtotal,
+    discount: o.discount,
+    serviceCharge: o.serviceCharge,
+    tax: o.tax,
+    tip: o.tip,
+    total: o.total,
+    paid: o.paid,
+    paidAt: o.paidAt,
+    paymentMethods: o.paymentMethods as any,
+    timer: o.timer || '00:00',
+  }));
+
+  // Helper: get available ticket orders for transfer (exclude source, paid, completed)
+  const getAvailableTicketOrdersForTransfer = (sourceOrderId: string) => {
+    return allOrders.filter(o => {
+      if (o.id === sourceOrderId) return false;
+      if (o.status === "PAID" || o.status === "Completed") return false;
+      return true;
+    });
+  };
+
   const handleAddProduct = () => {
     if (!selectedGuest) return;
     
@@ -694,7 +467,15 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   };
   const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
   const [activeFilter, setActiveFilter] = useState("All");
-  const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
+  const [selectedGuest, setSelectedGuest] = useState<GuestOrder | null>(null);
+  
+  // Auto-select first order when data loads
+  useEffect(() => {
+    if (!selectedGuest && allOrders.length > 0) {
+      setSelectedGuest(allOrders[0]);
+    }
+  }, [allOrders.length]);
+  
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);
@@ -6415,7 +6196,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         const executeTransfer = () => {
           if (!selectedTransferOrderId || !sourceOrder) return;
           setShowTransferToOrderDialog(false);
-          const targetOrder = ticketOrders.find(o => o.id === selectedTransferOrderId);
+          const targetOrder = allOrders.find(o => o.id === selectedTransferOrderId);
           const targetTable = targetOrder?.table || sourceOrder.table;
           const destinationLabel = targetTable && targetTable !== '--' && targetTable !== sourceOrder.table
             ? `${formatTableName(targetTable)} (Order #${selectedTransferOrderId})`
@@ -6459,7 +6240,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                         className={`w-full rounded-xl border overflow-hidden text-left transition-all ${isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'}`}
                         style={{ backgroundColor: '#1B1C20' }}>
                         <div className="p-3">
-                          <OrderLayoutTemplate order={ticketToTemplateData(order)} showBorder={false} />
+                          <OrderLayoutTemplate order={{ ...ticketToTemplateData({ ...order, timer: order.timer || '00:00' } as any) }} showBorder={false} />
                           <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
                             {order.items.map((item, idx) => (
                               <div key={idx} className="flex items-center justify-between py-1">

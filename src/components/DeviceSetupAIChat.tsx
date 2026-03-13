@@ -950,101 +950,52 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                   </motion.div>
                 )}
 
-                {/* Personal sign-in with credentials */}
-                {currentStep === "personal-sign-in" && !isLoading && invitedUser && (
+                {/* Personal sign-in: profile card shown when email or password step */}
+                {(currentStep === "personal-sign-in-email" || currentStep === "personal-sign-in-password" || currentStep === "personal-sign-in-verifying") && !isLoading && invitedUser && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="pl-7 pt-3 pb-2 space-y-4"
+                    className="pl-7 pt-3 pb-2"
                   >
-                    {/* User info card */}
-                    <div className="flex flex-col items-center gap-3 py-4">
-                      <div className="w-16 h-16 rounded-full bg-foreground/[0.06] border border-foreground/[0.1] flex items-center justify-center">
-                        <User className="w-8 h-8 text-foreground/40" />
+                    {/* Profile card as AI content */}
+                    <div className="flex flex-col items-center gap-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.02]">
+                      <div className="w-14 h-14 rounded-full bg-foreground/[0.06] border border-foreground/[0.1] flex items-center justify-center">
+                        <User className="w-7 h-7 text-foreground/40" />
                       </div>
                       <div className="text-center">
-                        <p className="text-base font-semibold text-foreground">{invitedUser.name}</p>
-                        <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-medium bg-primary/15 text-primary">
+                        <p className="text-sm font-semibold text-foreground">{invitedUser.name}</p>
+                        <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-[11px] font-medium bg-primary/15 text-primary">
                           {invitedUser.role}
                         </span>
                       </div>
-                      <p className="text-xs text-foreground/40">Sign in with your approved credentials</p>
                     </div>
 
-                    {/* Email input */}
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
-                      <input
-                        type="email"
-                        value={personalEmail}
-                        onChange={(e) => { setPersonalEmail(e.target.value); setPersonalSignInError(""); }}
-                        placeholder="Email address"
-                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
-                      />
-                    </div>
-
-                    {/* Password input */}
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
-                      <input
-                        type={showPersonalPassword ? "text" : "password"}
-                        value={personalPassword}
-                        onChange={(e) => { setPersonalPassword(e.target.value); setPersonalSignInError(""); }}
-                        placeholder="Password"
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter") handlePersonalSignIn();
-                        }}
-                        className="w-full pl-10 pr-10 py-3 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
-                      />
-                      <button
-                        onClick={() => setShowPersonalPassword(!showPersonalPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/50 transition-colors"
-                      >
-                        {showPersonalPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-
-                    {/* Forgot password */}
-                    <div className="flex justify-end">
-                      <button className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors">
-                        Forgot password?
-                      </button>
-                    </div>
-
-                    {/* Error */}
-                    {personalSignInError && (
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">
-                        <AlertCircle className="w-3.5 h-3.5 text-destructive flex-shrink-0" />
-                        <span className="text-xs text-destructive">{personalSignInError}</span>
+                    {/* 2FA + hint below card */}
+                    <div className="flex flex-col items-center gap-1.5 mt-3">
+                      <div className="flex items-center gap-1.5 text-foreground/25">
+                        <ShieldCheck className="w-3 h-3" />
+                        <span className="text-[10px]">2FA required by organization policy</span>
                       </div>
-                    )}
-
-                    {/* Sign in button */}
-                    <button
-                      onClick={handlePersonalSignIn}
-                      disabled={!personalEmail.trim() || !personalPassword.trim() || isPersonalSigningIn}
-                      className="w-full py-3 rounded-xl bg-foreground/80 text-background text-sm font-semibold hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
-                    >
-                      {isPersonalSigningIn ? (
-                        <span className="flex items-center justify-center gap-2">
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Signing In...
-                        </span>
-                      ) : (
-                        "Sign In"
-                      )}
-                    </button>
-
-                    {/* 2FA notice */}
-                    <div className="flex items-center justify-center gap-2 text-foreground/30">
-                      <ShieldCheck className="w-3.5 h-3.5" />
-                      <span className="text-xs">2FA required by organization policy</span>
+                      <p className="text-[10px] text-foreground/25">
+                        Use the same email your administrator invited you with
+                      </p>
                     </div>
+                  </motion.div>
+                )}
 
-                    <p className="text-[11px] text-foreground/30 text-center">
-                      Use the same email your administrator invited you with
-                    </p>
+                {/* Personal sign-in verifying */}
+                {currentStep === "personal-sign-in-verifying" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2"
+                  >
+                    <div className="flex items-center gap-2 text-foreground/50">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <span className="text-sm font-medium">Verifying credentials...</span>
+                    </div>
                   </motion.div>
                 )}
 
@@ -1056,7 +1007,6 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     className="pl-7 pt-3 pb-2 space-y-4"
                   >
-                    {/* Access denied icon */}
                     <div className="flex flex-col items-center gap-3 py-4">
                       <div className="w-16 h-16 rounded-full bg-destructive/10 border border-destructive/20 flex items-center justify-center">
                         <ShieldX className="w-8 h-8 text-destructive" />
@@ -1069,17 +1019,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       </div>
                     </div>
 
-                    {/* Invited user info */}
                     <div className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-4 space-y-1">
                       <p className="text-[11px] text-foreground/40 uppercase tracking-wider font-medium">Invite Issued To</p>
                       <p className="text-sm font-semibold text-foreground">{invitedUser.name}</p>
                       <p className="text-xs text-foreground/50">{invitedUser.email}</p>
                     </div>
 
-                    {/* Try again button */}
                     <button
                       onClick={() => {
-                        setCurrentStep("personal-sign-in");
+                        setCurrentStep("personal-sign-in-email");
                         setPersonalEmail("");
                         setPersonalPassword("");
                         setPersonalSignInError("");
@@ -1093,9 +1041,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
 
                     <p className="text-xs text-foreground/40 text-center">Not you? Contact your administrator</p>
 
-                    <button
-                      className="flex items-center justify-center gap-2 w-full text-xs text-primary hover:text-primary/80 transition-colors"
-                    >
+                    <button className="flex items-center justify-center gap-2 w-full text-xs text-primary hover:text-primary/80 transition-colors">
                       <Send className="w-3 h-3" />
                       Request New Invite
                     </button>

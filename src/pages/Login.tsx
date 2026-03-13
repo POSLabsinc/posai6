@@ -242,6 +242,7 @@ const Login = () => {
   // Company Device - First-time device setup state
   const [showDeviceSetup, setShowDeviceSetup] = useState(false);
   const [activationMethod, setActivationMethod] = useState<"code" | "link" | "password" | null>(null);
+  const [activationApproach, setActivationApproach] = useState<"ai" | "manual" | null>(null);
   const [activationCode, setActivationCode] = useState("");
   const [activationError, setActivationError] = useState("");
   const [isActivating, setIsActivating] = useState(false);

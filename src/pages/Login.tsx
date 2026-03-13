@@ -5381,7 +5381,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 </div>
                 <div className="flex-1 text-left">
                   <p className="text-[15px] font-semibold text-foreground mb-0.5">
-                    Activate with AI
+                    Link with AI
                   </p>
                   <p className="text-sm text-foreground/50">
                     Let our AI assistant guide you through setup

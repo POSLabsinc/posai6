@@ -440,6 +440,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   // Convert DB orders to GuestOrder shape for this component
   const allOrders: GuestOrder[] = dbTicketOrders.map(o => ({
     id: o.id,
+    orderNumber: o.orderNumber || 0,
     name: o.name,
     phone: o.phone,
     partySize: o.partySize,

@@ -54,6 +54,7 @@ export interface PaymentMethod {
 // Order interface with all fields
 export interface Order {
   id: string;
+  orderNumber?: number;
   name: string;
   phone: string;
   partySize: number;

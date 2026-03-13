@@ -148,7 +148,10 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
           pin: pin.length === 4 ? pin : undefined,
           revenue_center: revenueCenter || undefined,
           assigned_job_types: jobType ? [jobType] : undefined,
-        });
+          dashboard_access: dashboardAccess,
+          payroll_enabled: payrollEnabled,
+          employee_code: employeeId.trim() || null,
+        } as any);
         // Save store assignments
         if (assignedStoreIds.length > 0) {
           await saveEmployeeStores.mutateAsync({

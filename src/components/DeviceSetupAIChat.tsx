@@ -557,6 +557,63 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                   )}
                 </div>
 
+                {/* Device type selection */}
+                {currentStep === "device-type" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="flex gap-2.5 pl-7 pt-3 pb-2"
+                  >
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Company Device" };
+                        if (isNewUser) {
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please contact your admin to get the Activation Code. Once you receive the code, enter it here to activate this device." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("activate-code");
+                        } else {
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("activation-methods");
+                        }
+                      }}
+                      className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-medium text-foreground leading-tight">Company Device</p>
+                        <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Managed by your organization</p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Personal Device" };
+                        if (isNewUser) {
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please contact your admin to get the Activation Code. Once you receive the code, enter it here to activate this device." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("activate-code");
+                        } else {
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("activation-methods");
+                        }
+                      }}
+                      className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                        <User className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-medium text-foreground leading-tight">Personal Device</p>
+                        <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Your own phone or tablet</p>
+                      </div>
+                    </button>
+                  </motion.div>
+                )}
+
                 {/* Step-based action buttons */}
                 {currentStep === "activation-methods" && !isLoading && (
                   <motion.div

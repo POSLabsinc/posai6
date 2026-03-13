@@ -1,4 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, UtensilsCrossed, Zap, Users, Truck, ShieldCheck, ArrowLeft, Delete, Loader2, Clock, MapPin, Briefcase, CheckCircle2, Monitor, Smartphone, KeyRound, AlertCircle, Send, ShieldX, Mail, MessageSquare, RefreshCw, Lock, Eye, EyeOff, Sun, Moon, Sunrise, Sunset, Fingerprint, ScanFace, Phone, X, ScanLine, Camera, HelpCircle, Info, FlaskConical, Timer, Wine, ChefHat, Sparkles } from "lucide-react";
@@ -238,6 +239,9 @@ const Login = () => {
   // Contact admin dialog state
   const [showContactAdmin, setShowContactAdmin] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
+  
+  // Activation approach: AI or Manual (shown before device type selection)
+  const [activationApproach, setActivationApproach] = useState<"ai" | "manual" | null>(null);
   
   // Company Device - First-time device setup state
   const [showDeviceSetup, setShowDeviceSetup] = useState(false);
@@ -799,41 +803,120 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     );
   }
 
-  // Device Selection Screen (FIRST CHECK)
-  if (!deviceType) {
+  // Activation Approach Selection Screen (FIRST CHECK)
+  if (!deviceType && !activationApproach) {
     return (
       <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 gradient-mesh opacity-30" />
         
         <div className="relative z-10 w-full max-w-md px-6 flex flex-col items-center">
-          {/* Development Mode Banner */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3 }}
-            className="mb-8 w-full"
+          {/* Logo */}
+          <motion.img
+            src={eatosLogo}
+            alt="eatOS"
+            className="w-24 h-auto mb-4"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          />
+
+          {/* Title */}
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="text-xl font-semibold text-foreground mb-2"
           >
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex items-center justify-center gap-2 px-4 py-2 rounded-full bg-amber-500/10 border border-amber-500/20 border-dashed">
-                <div className="relative">
-                  <FlaskConical className="w-4 h-4 text-amber-500" />
-                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-                </div>
-                <span className="text-xs font-medium text-amber-500 uppercase tracking-wide">
-                  Development Mode
-                </span>
+            Activate Your Device
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.15 }}
+            className="text-sm text-foreground/50 mb-10 text-center"
+          >
+            Choose how you'd like to set up this device
+          </motion.p>
+
+          {/* Activation Options */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="w-full space-y-4"
+          >
+            {/* Activate with AI */}
+            <button
+              onClick={async () => {
+                setActivationApproach("ai");
+                setShowAIChat(true);
+                await (supabase as any).from("user_preferences").upsert(
+                  { device_id: "shared", preference_key: "activation_method", preference_value: "ai" },
+                  { onConflict: "device_id,preference_key" }
+                );
+              }}
+              className="w-full flex items-center gap-5 p-5 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
+                <Sparkles className="w-7 h-7 text-primary" />
               </div>
-              
-              {/* Development Note */}
-              <div className="flex items-start gap-2 px-4 py-2 rounded-lg bg-foreground/[0.02] border border-dashed border-foreground/10">
-                <Info className="w-3.5 h-3.5 text-foreground/40 flex-shrink-0 mt-0.5" />
-                <p className="text-[11px] text-white font-medium leading-relaxed">
-                  <span className="font-semibold text-white">QA/Dev Testing Only:</span>{" "}
-                  This screen won't appear in production. Device type is auto-detected automatically.
+              <div className="flex-1 text-left">
+                <p className="text-base font-semibold text-foreground mb-0.5">
+                  Activate with AI
+                </p>
+                <p className="text-sm text-foreground/50">
+                  Let AI guide you through the setup process
                 </p>
               </div>
-            </div>
+            </button>
+
+            {/* Activate Manually */}
+            <button
+              onClick={async () => {
+                setActivationApproach("manual");
+                await (supabase as any).from("user_preferences").upsert(
+                  { device_id: "shared", preference_key: "activation_method", preference_value: "manual" },
+                  { onConflict: "device_id,preference_key" }
+                );
+              }}
+              className="w-full flex items-center gap-5 p-5 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
+            >
+              <div className="w-14 h-14 rounded-2xl bg-secondary/50 flex items-center justify-center flex-shrink-0 group-hover:bg-secondary/70 transition-colors">
+                <KeyRound className="w-7 h-7 text-foreground/70" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-base font-semibold text-foreground mb-0.5">
+                  Activate Manually
+                </p>
+                <p className="text-sm text-foreground/50">
+                  Set up your device step by step
+                </p>
+              </div>
+            </button>
           </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // Device Type Selection Screen (shown after "Activate Manually")
+  if (!deviceType && activationApproach === "manual") {
+    return (
+      <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh opacity-30" />
+        
+        <div className="relative z-10 w-full max-w-md px-6 flex flex-col items-center">
+          {/* Back Button */}
+          <motion.button
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            onClick={() => setActivationApproach(null)}
+            className="absolute top-0 left-6 flex items-center gap-2 text-foreground/50 hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span className="text-sm">Back</span>
+          </motion.button>
 
           {/* Logo */}
           <motion.img
@@ -852,7 +935,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             transition={{ delay: 0.1 }}
             className="text-xl font-semibold text-foreground mb-2"
           >
-            Welcome to eatOS
+            Select Device Type
           </motion.h1>
           
           <motion.p
@@ -861,7 +944,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             transition={{ delay: 0.15 }}
             className="text-sm text-foreground/50 mb-10 text-center"
           >
-            Select your device type to continue
+            Choose your device type to continue
           </motion.p>
 
           {/* Device Options */}
@@ -2614,7 +2697,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     if (showAIChat) {
       return (
         <DeviceSetupLayout variant="setup" fullWidthRight>
-          <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} />
+          <DeviceSetupAIChat open={true} onClose={() => { setShowAIChat(false); setActivationApproach(null); }} />
         </DeviceSetupLayout>
       );
     }

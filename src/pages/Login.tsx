@@ -364,6 +364,14 @@ const Login = () => {
     }
   }, [magicLinkResendCooldown]);
 
+  // Demo OTP resend cooldown timer
+  useEffect(() => {
+    if (demoOtpResendCooldown > 0) {
+      const timer = setTimeout(() => setDemoOtpResendCooldown(demoOtpResendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [demoOtpResendCooldown]);
+
   // Reset password resend cooldown timer
   useEffect(() => {
     if (resetResendCooldown > 0) {

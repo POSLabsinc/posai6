@@ -311,6 +311,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       const a2: Message = { id: (Date.now() + 3).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
       const u3: Message = { id: (Date.now() + 4).toString(), role: "user", content: "Sign in with Link" };
       const a3: Message = { id: (Date.now() + 5).toString(), role: "assistant", content: "How would you like to receive your secure sign-in link?" };
+      seenMessageIds.current.clear();
       setMessages([u1, a1, u2, a2, u3, a3]);
       setCurrentStep("sign-in-link");
       setSignInInput("");

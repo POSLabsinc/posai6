@@ -1789,7 +1789,7 @@ const TableOrderDetails = () => {
                   <div className="flex-1 flex items-stretch gap-3 p-3">
                     {/* Order Number Box */}
                     <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
-                      <span className="text-lg font-bold text-white">{guest.id}</span>
+                      <span className="text-lg font-bold text-white">{guest.orderNumber || 0}</span>
                       <span className="text-xs text-white/40">000</span>
                     </div>
 

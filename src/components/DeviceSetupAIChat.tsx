@@ -106,9 +106,10 @@ const VerificationWaiting = ({ currentStep, sentAddress, messages, setMessages, 
 interface DeviceSetupAIChatProps {
   open: boolean;
   onClose: () => void;
+  deviceType?: "company" | "personal";
 }
 
-const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
+const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetupAIChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);

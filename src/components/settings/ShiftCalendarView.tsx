@@ -395,13 +395,19 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick, toolbarJobTypes =
     navigate(`/settings/workforce/shift/add-open-shift?${params.toString()}`);
   };
 
-  const handleDeleteOpenShift = () => {
+  const handleDeleteOpenShift = async () => {
     if (!selectedOpenShift) return;
-    const shifts = JSON.parse(localStorage.getItem("pos_open_shifts") || "[]");
-    const updated = shifts.filter((s: any) => s.id !== selectedOpenShift.id);
-    localStorage.setItem("pos_open_shifts", JSON.stringify(updated));
-    window.dispatchEvent(new Event("open-shifts-updated"));
-    toast({ title: "Open shift deleted" });
+    try {
+      const { error } = await (supabase as any)
+        .from("open_shifts")
+        .delete()
+        .eq("id", selectedOpenShift.id);
+      if (error) throw error;
+      await loadOpenShifts();
+      toast({ title: "Open shift deleted" });
+    } catch {
+      toast({ title: "Failed to delete open shift" });
+    }
     setShowOpenShiftDeleteConfirm(false);
     setSelectedOpenShift(null);
   };

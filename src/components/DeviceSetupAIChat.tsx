@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search } from "lucide-react";
+import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, Building2, User } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ReactMarkdown from "react-markdown";
 import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";

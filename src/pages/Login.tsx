@@ -1225,8 +1225,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       }
     };
 
+    const maxDemoResends = 3;
     const handleDemoResendOtp = async () => {
-      if (demoOtpResendCooldown > 0) return;
+      if (demoOtpResendCooldown > 0 || demoOtpResendCount >= maxDemoResends) return;
+      setDemoOtpResendCount((c) => c + 1);
+      const cooldown = 30 * (demoOtpResendCount + 1); // 30s, 60s, 90s
+      setDemoOtpResendCooldown(cooldown);
       await handleDemoSendOtp();
     };
 

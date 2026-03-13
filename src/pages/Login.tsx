@@ -186,6 +186,7 @@ const Login = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   
   // Personal device states
+  const [personalActivationApproach, setPersonalActivationApproach] = useState<"ai" | "manual" | null>(null);
   const [deviceCode, setDeviceCode] = useState("");
   const [codeError, setCodeError] = useState("");
   const [isVerifyingCode, setIsVerifyingCode] = useState(false);

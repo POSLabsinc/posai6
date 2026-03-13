@@ -634,12 +634,21 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                 {/* Step-based action buttons */}
                 {currentStep === "activation-methods" && !isLoading && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      hidden: {},
+                      visible: { transition: { staggerChildren: 0.12, delayChildren: messages.length * 0.15 + 0.1 } }
+                    }}
                     className="flex flex-col gap-2.5 pl-7 pt-3 pb-2"
                   >
-                    <div className="flex gap-2.5">
+                    <motion.div
+                      variants={{
+                        hidden: { opacity: 0, y: 14, scale: 0.97 },
+                        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
+                      }}
+                      className="flex gap-2.5"
+                    >
                       <button
                         onClick={() => handleActivationOption("Activate with Code")}
                         className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
@@ -664,14 +673,18 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Get a secure link sent to your email</p>
                         </div>
                       </button>
-                    </div>
-                    <button
+                    </motion.div>
+                    <motion.button
+                      variants={{
+                        hidden: { opacity: 0, y: 14, scale: 0.97 },
+                        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
+                      }}
                       onClick={() => handleActivationOption("Try Demo Mode")}
                       className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl border border-primary/30 bg-primary/[0.06] hover:bg-primary/[0.12] transition-all hover:scale-[1.01] active:scale-[0.99]"
                     >
                       <FlaskConical className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium text-primary">Try Demo Mode</span>
-                    </button>
+                    </motion.button>
                   </motion.div>
                 )}
 

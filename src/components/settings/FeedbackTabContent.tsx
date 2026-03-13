@@ -40,7 +40,7 @@ const FeedbackTabContent = ({ guest }: FeedbackTabContentProps) => {
       const { data } = await (supabase as any)
         .from("guest_feedback")
         .select("id, feedback_date, sentiment, comment, platform")
-        .eq("guest_name", guest.name)
+        .eq("guest_id", guest.id)
         .order("feedback_date", { ascending: false });
       setFeedback(data || []);
       setLoading(false);

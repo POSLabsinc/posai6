@@ -825,7 +825,265 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                   </motion.div>
                 )}
 
-                {/* 6-digit code input for activate-code step */}
+                {/* Personal device link methods: Enter Code or Scan QR */}
+                {currentStep === "personal-link-methods" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="flex flex-col gap-2.5 pl-7 pt-3 pb-2"
+                  >
+                    <div className="flex gap-2.5">
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Enter Code" };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Enter the code from your manager's invite. Check your email or scan the QR from the admin portal." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("personal-invite-code");
+                          setInviteCode(["", "", "", "", "", ""]);
+                          setTimeout(() => inviteCodeRefs.current[0]?.focus(), 100);
+                        }}
+                        className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                          <KeyRound className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-medium text-foreground leading-tight">Enter Code</p>
+                          <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Code from your manager's invite</p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          // QR scanning would be handled here
+                        }}
+                        className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                          <ScanLine className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-medium text-foreground leading-tight">Scan QR Code</p>
+                          <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Scan from the admin portal</p>
+                        </div>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Personal invite code input */}
+                {currentStep === "personal-invite-code" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    <div className="flex gap-2 justify-start">
+                      {inviteCode.map((digit, i) => (
+                        <input
+                          key={i}
+                          ref={(el) => { inviteCodeRefs.current[i] = el; }}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleInviteCodeInput(i, e.target.value)}
+                          onKeyDown={(e) => handleInviteCodeKeyDown(i, e)}
+                          onPaste={i === 0 ? handleInviteCodePaste : undefined}
+                          className="w-10 h-12 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-lg font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                        />
+                      ))}
+                    </div>
+                    <div className="flex items-start gap-1.5 text-foreground/40">
+                      <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                      <span className="text-xs">Check your email or scan the QR from the admin portal.</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
+                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                      }}
+                      className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
+                    >
+                      <ScanLine className="w-4 h-4 text-foreground/60" />
+                      <span className="text-sm font-medium text-foreground/70">Scan QR Code</span>
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Personal invite code verifying */}
+                {currentStep === "personal-invite-verifying" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    <div className="flex items-center gap-2 text-foreground/50">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <span className="text-sm font-medium">Verifying invite code...</span>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Personal sign-in with credentials */}
+                {currentStep === "personal-sign-in" && !isLoading && invitedUser && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    {/* User info card */}
+                    <div className="flex flex-col items-center gap-3 py-4">
+                      <div className="w-16 h-16 rounded-full bg-foreground/[0.06] border border-foreground/[0.1] flex items-center justify-center">
+                        <User className="w-8 h-8 text-foreground/40" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-base font-semibold text-foreground">{invitedUser.name}</p>
+                        <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-medium bg-primary/15 text-primary">
+                          {invitedUser.role}
+                        </span>
+                      </div>
+                      <p className="text-xs text-foreground/40">Sign in with your approved credentials</p>
+                    </div>
+
+                    {/* Email input */}
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                      <input
+                        type="email"
+                        value={personalEmail}
+                        onChange={(e) => { setPersonalEmail(e.target.value); setPersonalSignInError(""); }}
+                        placeholder="Email address"
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                      />
+                    </div>
+
+                    {/* Password input */}
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                      <input
+                        type={showPersonalPassword ? "text" : "password"}
+                        value={personalPassword}
+                        onChange={(e) => { setPersonalPassword(e.target.value); setPersonalSignInError(""); }}
+                        placeholder="Password"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handlePersonalSignIn();
+                        }}
+                        className="w-full pl-10 pr-10 py-3 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                      />
+                      <button
+                        onClick={() => setShowPersonalPassword(!showPersonalPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/50 transition-colors"
+                      >
+                        {showPersonalPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+
+                    {/* Forgot password */}
+                    <div className="flex justify-end">
+                      <button className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors">
+                        Forgot password?
+                      </button>
+                    </div>
+
+                    {/* Error */}
+                    {personalSignInError && (
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">
+                        <AlertCircle className="w-3.5 h-3.5 text-destructive flex-shrink-0" />
+                        <span className="text-xs text-destructive">{personalSignInError}</span>
+                      </div>
+                    )}
+
+                    {/* Sign in button */}
+                    <button
+                      onClick={handlePersonalSignIn}
+                      disabled={!personalEmail.trim() || !personalPassword.trim() || isPersonalSigningIn}
+                      className="w-full py-3 rounded-xl bg-foreground/80 text-background text-sm font-semibold hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                      {isPersonalSigningIn ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Signing In...
+                        </span>
+                      ) : (
+                        "Sign In"
+                      )}
+                    </button>
+
+                    {/* 2FA notice */}
+                    <div className="flex items-center justify-center gap-2 text-foreground/30">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span className="text-xs">2FA required by organization policy</span>
+                    </div>
+
+                    <p className="text-[11px] text-foreground/30 text-center">
+                      Use the same email your administrator invited you with
+                    </p>
+                  </motion.div>
+                )}
+
+                {/* Personal access denied */}
+                {currentStep === "personal-access-denied" && invitedUser && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    {/* Access denied icon */}
+                    <div className="flex flex-col items-center gap-3 py-4">
+                      <div className="w-16 h-16 rounded-full bg-destructive/10 border border-destructive/20 flex items-center justify-center">
+                        <ShieldX className="w-8 h-8 text-destructive" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-semibold text-foreground">Access Denied</p>
+                        <p className="text-xs text-foreground/40 mt-1 max-w-[280px]">
+                          The email you entered doesn't match the invited user for this device code.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Invited user info */}
+                    <div className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-4 space-y-1">
+                      <p className="text-[11px] text-foreground/40 uppercase tracking-wider font-medium">Invite Issued To</p>
+                      <p className="text-sm font-semibold text-foreground">{invitedUser.name}</p>
+                      <p className="text-xs text-foreground/50">{invitedUser.email}</p>
+                    </div>
+
+                    {/* Try again button */}
+                    <button
+                      onClick={() => {
+                        setCurrentStep("personal-sign-in");
+                        setPersonalEmail("");
+                        setPersonalPassword("");
+                        setPersonalSignInError("");
+                        const msgs = messages.slice(0, -1);
+                        setMessages(msgs);
+                      }}
+                      className="w-full py-3 rounded-xl bg-foreground/80 text-background text-sm font-semibold hover:bg-foreground/90 transition-all"
+                    >
+                      Try Again
+                    </button>
+
+                    <p className="text-xs text-foreground/40 text-center">Not you? Contact your administrator</p>
+
+                    <button
+                      className="flex items-center justify-center gap-2 w-full text-xs text-primary hover:text-primary/80 transition-colors"
+                    >
+                      <Send className="w-3 h-3" />
+                      Request New Invite
+                    </button>
+                  </motion.div>
+                )}
+
+
                 {currentStep === "activate-code" && !isLoading && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}

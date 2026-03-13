@@ -794,7 +794,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       <AnimatedAIIcon size={18} />
                       <div className="flex items-center gap-1.5 bg-foreground/[0.04] rounded-2xl px-3.5 py-2.5">
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span className="text-sm">Thinking...</span>
+                        <span className="text-base">Thinking...</span>
                       </div>
                     </div>
                   )}

@@ -129,9 +129,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
 
   useEffect(() => {
     if (open && scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({
+        top: scrollRef.current.scrollHeight,
+        behavior: 'smooth'
+      });
     }
-  }, [messages, open, showActivationOptions]);
+  }, [messages, open, showActivationOptions, currentStep, showFirstQuestion, showFirstButtons]);
 
   useEffect(() => {
     if (open) {

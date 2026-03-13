@@ -589,15 +589,25 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
     }
   }, [currentStep]);
 
-  // Handle personal device sign-in
-  const handlePersonalSignIn = useCallback(() => {
-    if (!personalEmail.trim() || !personalPassword.trim()) {
-      setPersonalSignInError("Please enter both email and password");
-      return;
-    }
+  // Handle personal email submission (from bottom input)
+  const handlePersonalEmailSubmit = useCallback(() => {
+    if (!personalEmail.trim() || !personalEmail.includes("@")) return;
     
+    const emailVal = personalEmail.trim();
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: emailVal };
+    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `Got it. Now please enter your password.` };
+    setMessages((prev) => [...prev, userMsg, assistantMsg]);
+    setCurrentStep("personal-sign-in-password");
+  }, [personalEmail]);
+
+  // Handle personal password submission (from bottom input)
+  const handlePersonalPasswordSubmit = useCallback(() => {
+    if (!personalPassword.trim()) return;
+    
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: "••••••••" };
+    setMessages((prev) => [...prev, userMsg]);
+    setCurrentStep("personal-sign-in-verifying");
     setIsPersonalSigningIn(true);
-    setPersonalSignInError("");
     
     setTimeout(() => {
       setIsPersonalSigningIn(false);
@@ -610,7 +620,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
         return;
       }
       
-      // Success - save session and redirect
+      // Success
       const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ Identity verified! Setting up your personal device..." };
       setMessages((prev) => [...prev, successMsg]);
       

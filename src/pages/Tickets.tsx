@@ -975,7 +975,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   };
 
   // Check if discount is allowed (only for UNPAID / ORDERING)
-  const isDiscountAllowed = !(selectedGuest.status === "PAID" || selectedGuest.paid || selectedGuest.status === "COMPLETED");
+  const isDiscountAllowed = selectedGuest ? !(selectedGuest.status === "PAID" || selectedGuest.paid || selectedGuest.status === "COMPLETED") : false;
 
   // Handle discount button click - goes through MPIN gate
   const handleDiscountClick = () => {

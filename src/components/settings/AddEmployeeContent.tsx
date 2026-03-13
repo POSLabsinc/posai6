@@ -75,6 +75,9 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
       setRevenueCenter(editEmployee.revenue_center || "");
       setHourlyRate(editEmployee.hourly_rate ? String(editEmployee.hourly_rate) : "");
       setPin(editEmployee.pin && editEmployee.pin !== "0000" ? editEmployee.pin : "");
+      setDashboardAccess(editEmployee.dashboard_access || false);
+      setPayrollEnabled(editEmployee.payroll_enabled || false);
+      setEmployeeId(editEmployee.employee_code || "");
       // Parse phone - try to extract country code and number
       if (editEmployee.phone) {
         const phoneParts = editEmployee.phone.split(" ");

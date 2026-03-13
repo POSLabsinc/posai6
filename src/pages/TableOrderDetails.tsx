@@ -19,14 +19,11 @@ import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import { ticketToTemplateData, formatTicketPrice } from "@/data/ticketOrders";
 import type { TicketOrder } from "@/data/ticketOrders";
 
-// Import shared order data
+// Import shared order utilities (no static data)
 import { 
   Order, 
   OrderItem,
   PaymentMethod,
-  allOrders, 
-  getOrdersByTable, 
-  getOrderWithTotals,
   formatPrice,
   getStatusColor as getSharedStatusColor,
   getMergedOrderDisplay,

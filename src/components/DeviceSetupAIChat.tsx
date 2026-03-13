@@ -333,10 +333,6 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setCurrentStep("device-type");
     } else if (["sign-in-link", "demo-mode"].includes(currentStep)) {
       // Go back to activation-methods
-      const msgs = messages.filter(m => m.role === "user").slice(0, 2); // keep first two user messages
-      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
-      setMessages([...msgs.slice(0, 1), messages[1], msgs[1] || messages[2], assistantMsg].filter(Boolean));
-      // Simpler: just rebuild
       const label = isNewUser ? "Yes, I'm new" : "No, I'm not new";
       const u1: Message = { id: Date.now().toString(), role: "user", content: label };
       const a1: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };

@@ -192,6 +192,34 @@ interface GuestOrder {
   timer?: string;
 }
 
+const FALLBACK_SELECTED_GUEST_ID = "__fallback-ticket__";
+const FALLBACK_SELECTED_GUEST: GuestOrder = {
+  id: FALLBACK_SELECTED_GUEST_ID,
+  name: "",
+  phone: "",
+  partySize: 1,
+  time: "",
+  createdAt: new Date(),
+  server: "",
+  check: "--",
+  paymentType: "--",
+  revenueCenter: "",
+  status: "ORDERING",
+  notes: "",
+  items: [],
+  subtotal: 0,
+  discount: 0,
+  serviceCharge: 0,
+  tax: 0,
+  tip: 0,
+  total: 0,
+  table: "",
+  orderType: "",
+  paid: false,
+  paymentMethods: [],
+  timer: "00:00",
+};
+
 // Helper function to format elapsed time dynamically
 // Under 1 hour: MM:SS Min (e.g., 02:35 Min)
 // Over 1 hour: HH:MM:SS Hrs (e.g., 01:16:23 Hrs)

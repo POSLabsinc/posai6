@@ -225,7 +225,49 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const TableOrderDetails = () => {
   const navigate = useNavigate();
-  const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
+  const { orders: unifiedOrders, updateOrders: updateUnifiedOrders, getOrdersByTable: getUnifiedOrdersByTable, getOrderById: getUnifiedOrderById } = useUnifiedOrders();
+  const { orders: dbTicketOrders } = useTicketOrders();
+  
+  // All DB orders as Order-compatible shape for lookups
+  const allDbOrders: Order[] = useMemo(() => unifiedOrders.map(o => ({
+    ...o,
+    orderType: o.orderType as Order['orderType'],
+  })), [unifiedOrders]);
+  
+  // Fetch discounts from DB
+  const [discountTypes, setDiscountTypes] = useState<DiscountType[]>([]);
+  useEffect(() => {
+    const fetchDiscounts = async () => {
+      const { data } = await (supabase as any).from('discounts').select('*').eq('archived', false).eq('device_id', 'shared').order('sort_order');
+      if (data && data.length > 0) {
+        setDiscountTypes(data.map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          description: d.type === 'Percentage' ? `${d.amount}% off` : `$${Number(d.amount).toFixed(2)} off`,
+          percentage: d.type === 'Percentage' ? Number(d.amount) : undefined,
+          fixedAmount: d.type === 'Fixed' || d.type === 'Dollar' ? Number(d.amount) : undefined,
+          icon: d.requires_manager_pin ? 'dollar' : 'tag',
+        })));
+      } else {
+        // Fallback defaults if no DB discounts
+        setDiscountTypes([
+          { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
+          { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
+          { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
+          { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
+          { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
+          { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
+          { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
+          { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
+          { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
+          { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
+          { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
+          { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
+        ]);
+      }
+    };
+    fetchDiscounts();
+  }, []);
   const {
     tableId
   } = useParams();

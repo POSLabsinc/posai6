@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { searchCustomers, Customer } from "@/services/customerService";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
 import { getDynamicCategorySubcategories, getCategoryProducts } from "@/lib/productStore";
@@ -6619,9 +6620,13 @@ const Orders = () => {
       return;
     }
     if (guestName.trim().length > 0) {
-      const filtered = mockGuestUsers.filter((user) => user.name.toLowerCase().includes(guestName.toLowerCase()));
-      setFilteredGuests(filtered);
-      setShowGuestDropdown(filtered.length > 0);
+      const timer = setTimeout(async () => {
+        const results = await searchCustomers(guestName);
+        const mapped = results.map((c, i) => ({ id: i + 1, name: c.name, phone: c.phone || "", initials: c.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() } as GuestUser));
+        setFilteredGuests(mapped);
+        setShowGuestDropdown(mapped.length > 0);
+      }, 300);
+      return () => clearTimeout(timer);
     } else {
       setFilteredGuests([]);
       setShowGuestDropdown(false);
@@ -6634,9 +6639,13 @@ const Orders = () => {
       return;
     }
     if (guestPhone.trim().length > 0) {
-      const filtered = mockGuestUsers.filter((user) => user.phone.replace(/\D/g, '').includes(guestPhone));
-      setFilteredByPhone(filtered);
-      setShowPhoneDropdown(filtered.length > 0);
+      const timer = setTimeout(async () => {
+        const results = await searchCustomers(guestPhone);
+        const mapped = results.map((c, i) => ({ id: i + 1, name: c.name, phone: c.phone || "", initials: c.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() } as GuestUser));
+        setFilteredByPhone(mapped);
+        setShowPhoneDropdown(mapped.length > 0);
+      }, 300);
+      return () => clearTimeout(timer);
     } else {
       setFilteredByPhone([]);
       setShowPhoneDropdown(false);

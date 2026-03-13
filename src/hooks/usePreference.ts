@@ -1,28 +1,18 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const DEVICE_ID_KEY = "pos_device_id";
-
-function getDeviceId(): string {
-  let id = localStorage.getItem(DEVICE_ID_KEY);
-  if (!id) {
-    id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    localStorage.setItem(DEVICE_ID_KEY, id);
-  }
-  return id;
-}
+const SHARED_DEVICE_ID = "shared";
 
 export function usePreference(key: string, defaultValue: string) {
   const [value, setValue] = useState(defaultValue);
   const [loading, setLoading] = useState(true);
-  const deviceId = getDeviceId();
 
   useEffect(() => {
     const fetch = async () => {
       const { data } = await (supabase as any)
         .from("user_preferences")
         .select("preference_value")
-        .eq("device_id", deviceId)
+        .eq("device_id", SHARED_DEVICE_ID)
         .eq("preference_key", key)
         .maybeSingle();
 
@@ -30,7 +20,7 @@ export function usePreference(key: string, defaultValue: string) {
       setLoading(false);
     };
     fetch();
-  }, [deviceId, key]);
+  }, [key]);
 
   const update = useCallback(
     async (newValue: string) => {
@@ -38,11 +28,11 @@ export function usePreference(key: string, defaultValue: string) {
       await (supabase as any)
         .from("user_preferences")
         .upsert(
-          { device_id: deviceId, preference_key: key, preference_value: newValue },
+          { device_id: SHARED_DEVICE_ID, preference_key: key, preference_value: newValue },
           { onConflict: "device_id,preference_key" }
         );
     },
-    [deviceId, key]
+    [key]
   );
 
   return { value, update, loading };

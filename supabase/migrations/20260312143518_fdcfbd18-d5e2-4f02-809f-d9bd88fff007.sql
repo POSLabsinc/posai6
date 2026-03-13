@@ -1,0 +1,1 @@
+ALTER TABLE public.discounts ADD COLUMN IF NOT EXISTS schedule_enabled boolean NOT NULL DEFAULT false;

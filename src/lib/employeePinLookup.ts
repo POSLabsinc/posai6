@@ -23,10 +23,10 @@ export async function lookupEmployeeByPin(pin: string): Promise<EmployeePinResul
     .select("id, full_name, role, pin, phone, email, avatar_url, hourly_rate, assigned_job_types, revenue_center")
     .eq("pin", pin)
     .eq("is_archived", false)
-    .maybeSingle();
+    .limit(1);
 
-  if (error || !data) return null;
-  return data as EmployeePinResult;
+  if (error || !data || data.length === 0) return null;
+  return data[0] as EmployeePinResult;
 }
 
 /**

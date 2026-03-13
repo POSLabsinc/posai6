@@ -1,5 +1,7 @@
 import { useState, useRef } from "react";
 import { X, Camera, Car, ChevronUp, ChevronDown, MapPin, Calendar, Upload } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -99,10 +101,51 @@ const AddGuestForm = ({ onClose, onSave }: AddGuestFormProps) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleSave = () => {
-    if (formData.firstName && formData.lastName && formData.email && formData.phoneNumber) {
+  const [isSaving, setIsSaving] = useState(false);
+
+  const handleSave = async () => {
+    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phoneNumber) return;
+
+    setIsSaving(true);
+    try {
+      const fullName = [formData.firstName, formData.middleName, formData.lastName].filter(Boolean).join(" ");
+      const initials = `${formData.firstName.charAt(0)}${formData.lastName.charAt(0)}`.toUpperCase();
+      const vehicleParts = [formData.vehicleColor, formData.vehicleBrand, formData.vehicleType].filter(Boolean);
+      const vehicleStr = vehicleParts.length > 0 ? vehicleParts.join(" ") : "";
+
+      const guestRow: Record<string, any> = {
+        name: fullName,
+        middle_name: formData.middleName || "",
+        email: formData.email,
+        phone: formData.phoneNumber,
+        since: formData.customerSince || "",
+        birthday: formData.dateOfBirth || "",
+        anniversary: formData.anniversary || "",
+        address: formData.address || "",
+        vehicle: vehicleStr,
+        license_plate: formData.licensePlate || "",
+        avatar_url: formData.profilePhoto || null,
+        initials,
+        is_archived: false,
+      };
+
+      const { error } = await (supabase as any).from("guests").insert(guestRow);
+
+      if (error) {
+        console.error("Failed to save guest:", error);
+        toast.error("Failed to save guest. Please try again.");
+        setIsSaving(false);
+        return;
+      }
+
+      toast.success("Guest saved successfully!");
       onSave(formData);
       onClose();
+    } catch (err) {
+      console.error("Error saving guest:", err);
+      toast.error("An unexpected error occurred.");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -405,14 +448,14 @@ const AddGuestForm = ({ onClose, onSave }: AddGuestFormProps) => {
         </Button>
         <button
           onClick={handleSave}
-          disabled={!isFormValid}
+          disabled={!isFormValid || isSaving}
           className={`flex-1 h-11 rounded-lg font-medium transition-colors ${
-            isFormValid
+            isFormValid && !isSaving
               ? "bg-primary text-primary-foreground hover:bg-primary/90"
               : "bg-white/10 text-white/40 cursor-not-allowed"
           }`}
         >
-          Save Guest
+          {isSaving ? "Saving..." : "Save Guest"}
         </button>
       </div>
     </div>

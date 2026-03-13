@@ -2,9 +2,12 @@
 // Used by AI assistant to read and modify settings
 import { supabase } from "@/integrations/supabase/client";
 
-// Device ID helper (mirrors usePreference.ts)
+// Shared device ID for global settings (same across all browsers/devices)
+const SHARED_DEVICE_ID = "shared";
+
+// Per-device ID only for cash drawer sessions (legitimately per-terminal)
 const DEVICE_ID_KEY = "pos_device_id";
-function getDeviceId(): string {
+function getPerDeviceId(): string {
   let id = localStorage.getItem(DEVICE_ID_KEY);
   if (!id) {
     id = `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
@@ -24,6 +27,7 @@ const STORAGE_KEYS = {
   CONTROL_CENTER: "control-center-settings",
   CHECKOUT_OPTIONS: "checkout-options-settings",
   ORDERS: "orders-settings",
+  PAYMENT_METHODS: "payment-methods-state",
 };
 
 // All settings keys that should be synced to the database
@@ -37,16 +41,132 @@ const APPEARANCE_INDIVIDUAL_KEYS = ["theme", "iconStyle", "iconSize", "textSize"
  * Fire-and-forget — does not block the UI.
  */
 function syncToDatabase(preferenceKey: string, value: string) {
-  const deviceId = getDeviceId();
   (supabase as any)
     .from("user_preferences")
     .upsert(
-      { device_id: deviceId, preference_key: preferenceKey, preference_value: value },
+      { device_id: SHARED_DEVICE_ID, preference_key: preferenceKey, preference_value: value },
       { onConflict: "device_id,preference_key" }
     )
     .then(() => {
       console.log(`[SettingsManager] Synced "${preferenceKey}" to database`);
     });
+}
+
+// ============= DEDICATED TABLE SYNC HELPERS =============
+
+async function syncGratuityToTable(settings: GratuitySettings) {
+  await (supabase as any).from("gratuity_settings").upsert({
+    device_id: SHARED_DEVICE_ID,
+    enable_tip: settings.enableTip,
+    show_on_receipt: settings.showOnReceipt,
+    allow_custom: settings.allowCustom,
+    disable_tip_on_cfd: settings.disableTipOnCFD,
+    preset_type: settings.presetType,
+    tip_presets: settings.tipPresets,
+    selected_tip_presets: settings.selectedTipPresets,
+    auto_close_payment_methods: settings.autoClosePaymentMethods,
+  }, { onConflict: "device_id" });
+}
+
+async function syncDiscountsToTable(discounts: Discount[]) {
+  await (supabase as any).from("discounts").delete().eq("device_id", SHARED_DEVICE_ID);
+  if (discounts.length > 0) {
+    await (supabase as any).from("discounts").insert(
+      discounts.map((d, i) => ({
+        device_id: SHARED_DEVICE_ID,
+        name: d.name,
+        amount: d.amount,
+        type: d.type,
+        archived: d.archived,
+        applicable_to: d.applicableTo || 'All Products',
+        applicable_products: d.applicableProducts || [],
+        requires_manager_pin: d.requiresManagerPin || false,
+        schedule_enabled: d.scheduleEnabled || false,
+        sort_order: i,
+      }))
+    );
+  }
+}
+
+async function syncTaxesToTable(taxes: Tax[]) {
+  await (supabase as any).from("taxes").delete().eq("device_id", SHARED_DEVICE_ID);
+  if (taxes.length > 0) {
+    await (supabase as any).from("taxes").insert(
+      taxes.map((t, i) => ({
+        device_id: SHARED_DEVICE_ID,
+        name: t.name,
+        amount: t.amount,
+        type: t.type,
+        archived: t.archived,
+        applicable_to: t.applicableTo || null,
+        applicable_products: t.applicableProducts || [],
+        sort_order: i,
+      }))
+    );
+  }
+}
+
+async function syncServiceChargesToTable(charges: ServiceCharge[]) {
+  await (supabase as any).from("service_charges").delete().eq("device_id", SHARED_DEVICE_ID);
+  if (charges.length > 0) {
+    await (supabase as any).from("service_charges").insert(
+      charges.map((sc, i) => ({
+        device_id: SHARED_DEVICE_ID,
+        name: sc.name,
+        amount: sc.amount,
+        type: sc.type,
+        archived: sc.archived,
+        tax_applicable: sc.taxApplicable || null,
+        order_type: Array.isArray(sc.orderType) ? sc.orderType.join(', ') : (sc.orderType || null),
+        applied_as: sc.appliedAs || null,
+        automatic_apply: sc.automaticApply || false,
+        min_seats: sc.minSeats || 0,
+        requires_manager_pin: sc.requiresManagerPin || false,
+        is_active: sc.isActive !== false,
+        sort_order: i,
+      }))
+    );
+  }
+}
+
+async function syncCheckoutOptionsToTable(settings: CheckoutOptionsSettings) {
+  await (supabase as any).from("checkout_options").upsert({
+    device_id: SHARED_DEVICE_ID,
+    enable_quick_amounts: settings.enableQuickAmounts,
+    split_check: settings.splitCheck,
+    enable_tips: settings.enableTips,
+    require_order_type: settings.requireOrderType,
+    require_guest_name: settings.requireGuestName,
+    guest_notes_enabled: settings.guestNotesEnabled,
+    show_save_button: settings.showSaveButton,
+    auto_close_ticket: settings.autoCloseTicket,
+    qr_bill_payment: settings.qrBillPayment,
+    print_receipt: settings.printReceipt,
+    email_receipt: settings.emailReceipt,
+    sms_receipt: settings.smsReceipt,
+    skip_tip_screen: settings.skipTipScreen,
+    skip_signature: settings.skipSignature,
+    signature_threshold: settings.signatureThreshold,
+    enable_payment_sounds: settings.enablePaymentSounds,
+    enable_hold_fire: settings.enableHoldFire,
+    show_order_summary: settings.showOrderSummary,
+    show_itemized_tax: settings.showItemizedTax,
+  }, { onConflict: "device_id" });
+}
+
+async function syncPaymentMethodsToTable(states: Record<string, boolean>) {
+  await (supabase as any).from("payment_methods").delete().eq("device_id", SHARED_DEVICE_ID);
+  const entries = Object.entries(states);
+  if (entries.length > 0) {
+    await (supabase as any).from("payment_methods").insert(
+      entries.map(([methodId, enabled], i) => ({
+        device_id: SHARED_DEVICE_ID,
+        method_id: methodId,
+        enabled,
+        sort_order: i,
+      }))
+    );
+  }
 }
 
 // Types
@@ -70,6 +190,7 @@ export interface Discount {
   applicableTo?: string;
   applicableProducts?: string[];
   requiresManagerPin?: boolean;
+  scheduleEnabled?: boolean;
 }
 
 export interface Tax {
@@ -267,30 +388,175 @@ export class SettingsManager {
     if (this._initialized) return;
     this._initialized = true;
 
-    const deviceId = getDeviceId();
     try {
-      const allKeys = [...ALL_SETTINGS_KEYS, ...APPEARANCE_INDIVIDUAL_KEYS];
-      const { data, error } = await (supabase as any)
-        .from("user_preferences")
-        .select("preference_key, preference_value")
-        .eq("device_id", deviceId)
-        .in("preference_key", allKeys);
+      // Load from dedicated payment tables in parallel (using shared device ID for global settings)
+      const [
+        gratuityRes,
+        discountsRes,
+        taxesRes,
+        serviceChargesRes,
+        checkoutRes,
+        paymentMethodsRes,
+        prefsRes,
+      ] = await Promise.all([
+        (supabase as any).from("gratuity_settings").select("*").eq("device_id", SHARED_DEVICE_ID).maybeSingle(),
+        (supabase as any).from("discounts").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("taxes").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("service_charges").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("checkout_options").select("*").eq("device_id", SHARED_DEVICE_ID).maybeSingle(),
+        (supabase as any).from("payment_methods").select("*").eq("device_id", SHARED_DEVICE_ID).order("sort_order"),
+        (supabase as any).from("user_preferences").select("preference_key, preference_value").eq("device_id", SHARED_DEVICE_ID).in("preference_key", [...ALL_SETTINGS_KEYS, ...APPEARANCE_INDIVIDUAL_KEYS]),
+      ]);
 
-      if (error || !data || data.length === 0) {
-        console.log("[SettingsManager] No DB settings found, using localStorage/defaults");
-        return;
+      let loadedCount = 0;
+
+      // Gratuity
+      if (gratuityRes.data) {
+        const g = gratuityRes.data;
+        const settings: GratuitySettings = {
+          enableTip: g.enable_tip,
+          showOnReceipt: g.show_on_receipt,
+          allowCustom: g.allow_custom,
+          disableTipOnCFD: g.disable_tip_on_cfd,
+          presetType: g.preset_type,
+          tipPresets: g.tip_presets || ["5","10","15","20"],
+          selectedTipPresets: g.selected_tip_presets || ["15","20"],
+          autoClosePaymentMethods: g.auto_close_payment_methods || [],
+        };
+        localStorage.setItem(STORAGE_KEYS.GRATUITY, JSON.stringify(settings));
+        loadedCount++;
+      } else {
+        // One-time seed: if localStorage has data, push to DB
+        const local = localStorage.getItem(STORAGE_KEYS.GRATUITY);
+        if (local) {
+          try { syncGratuityToTable(JSON.parse(local)); } catch {}
+        }
       }
 
-      for (const row of data) {
-        const current = localStorage.getItem(row.preference_key);
-        // Only overwrite if localStorage doesn't already have a value,
-        // or always use DB as source of truth
-        localStorage.setItem(row.preference_key, row.preference_value);
+      // Discounts
+      if (discountsRes.data && discountsRes.data.length > 0) {
+        const discounts: Discount[] = discountsRes.data.map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          amount: Number(d.amount),
+          type: d.type,
+          archived: d.archived,
+          applicableTo: d.applicable_to,
+          applicableProducts: d.applicable_products || [],
+          requiresManagerPin: d.requires_manager_pin,
+          scheduleEnabled: d.schedule_enabled,
+        }));
+        localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
+        loadedCount++;
+      } else {
+        const local = localStorage.getItem(STORAGE_KEYS.DISCOUNTS);
+        if (local) {
+          try { syncDiscountsToTable(JSON.parse(local)); } catch {}
+        }
       }
 
-      console.log(`[SettingsManager] Loaded ${data.length} settings from database`);
+      // Taxes
+      if (taxesRes.data && taxesRes.data.length > 0) {
+        const taxes: Tax[] = taxesRes.data.map((t: any) => ({
+          id: t.id,
+          name: t.name,
+          amount: Number(t.amount),
+          type: t.type,
+          archived: t.archived,
+          applicableTo: t.applicable_to,
+          applicableProducts: t.applicable_products || [],
+        }));
+        localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
+        loadedCount++;
+      } else {
+        const local = localStorage.getItem(STORAGE_KEYS.TAXES);
+        if (local) {
+          try { syncTaxesToTable(JSON.parse(local)); } catch {}
+        }
+      }
 
-      // Dispatch events so any mounted components re-read
+      // Service Charges
+      if (serviceChargesRes.data && serviceChargesRes.data.length > 0) {
+        const charges: ServiceCharge[] = serviceChargesRes.data.map((sc: any) => ({
+          id: sc.id,
+          name: sc.name,
+          amount: Number(sc.amount),
+          type: sc.type,
+          archived: sc.archived,
+          taxApplicable: sc.tax_applicable,
+          orderType: sc.order_type,
+          appliedAs: sc.applied_as,
+          automaticApply: sc.automatic_apply,
+          minSeats: sc.min_seats,
+          requiresManagerPin: sc.requires_manager_pin,
+          isActive: sc.is_active,
+        }));
+        localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
+        loadedCount++;
+      } else {
+        const local = localStorage.getItem(STORAGE_KEYS.SERVICE_CHARGES);
+        if (local) {
+          try { syncServiceChargesToTable(JSON.parse(local)); } catch {}
+        }
+      }
+
+      // Checkout Options
+      if (checkoutRes.data) {
+        const c = checkoutRes.data;
+        const settings: CheckoutOptionsSettings = {
+          enableQuickAmounts: c.enable_quick_amounts,
+          splitCheck: c.split_check,
+          enableTips: c.enable_tips,
+          requireOrderType: c.require_order_type,
+          requireGuestName: c.require_guest_name,
+          guestNotesEnabled: c.guest_notes_enabled,
+          showSaveButton: c.show_save_button,
+          autoCloseTicket: c.auto_close_ticket,
+          qrBillPayment: c.qr_bill_payment,
+          printReceipt: c.print_receipt,
+          emailReceipt: c.email_receipt,
+          smsReceipt: c.sms_receipt,
+          skipTipScreen: c.skip_tip_screen,
+          skipSignature: c.skip_signature,
+          signatureThreshold: Number(c.signature_threshold),
+          enablePaymentSounds: c.enable_payment_sounds,
+          enableHoldFire: c.enable_hold_fire,
+          showOrderSummary: c.show_order_summary,
+          showItemizedTax: c.show_itemized_tax,
+        };
+        localStorage.setItem(STORAGE_KEYS.CHECKOUT_OPTIONS, JSON.stringify(settings));
+        loadedCount++;
+      } else {
+        const local = localStorage.getItem(STORAGE_KEYS.CHECKOUT_OPTIONS);
+        if (local) {
+          try { syncCheckoutOptionsToTable(JSON.parse(local)); } catch {}
+        }
+      }
+
+      // Payment Methods
+      if (paymentMethodsRes.data && paymentMethodsRes.data.length > 0) {
+        const states: Record<string, boolean> = {};
+        for (const pm of paymentMethodsRes.data) {
+          states[pm.method_id] = pm.enabled;
+        }
+        localStorage.setItem(STORAGE_KEYS.PAYMENT_METHODS, JSON.stringify(states));
+        loadedCount++;
+      } else {
+        const local = localStorage.getItem(STORAGE_KEYS.PAYMENT_METHODS);
+        if (local) {
+          try { syncPaymentMethodsToTable(JSON.parse(local)); } catch {}
+        }
+      }
+
+      // Load remaining settings from user_preferences (menus, appearance, control center, orders)
+      if (prefsRes.data && prefsRes.data.length > 0) {
+        for (const row of prefsRes.data) {
+          localStorage.setItem(row.preference_key, row.preference_value);
+        }
+        loadedCount += prefsRes.data.length;
+      }
+
+      console.log(`[SettingsManager] Loaded ${loadedCount} settings from database (dedicated tables)`);
       window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'all', data: null } }));
     } catch (err) {
       console.error("[SettingsManager] Failed to load settings from DB:", err);
@@ -316,6 +582,7 @@ export class SettingsManager {
     const updated = { ...current, ...updates };
     localStorage.setItem(STORAGE_KEYS.GRATUITY, JSON.stringify(updated));
     syncToDatabase(STORAGE_KEYS.GRATUITY, JSON.stringify(updated));
+    syncGratuityToTable(updated);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'gratuity', data: updated } }));
     return updated;
   }
@@ -347,6 +614,7 @@ export class SettingsManager {
     discounts.push(newDiscount);
     localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
     syncToDatabase(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
+    syncDiscountsToTable(discounts);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'discounts', data: discounts } }));
     return newDiscount;
   }
@@ -358,6 +626,7 @@ export class SettingsManager {
     discounts[index] = { ...discounts[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
     syncToDatabase(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
+    syncDiscountsToTable(discounts);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'discounts', data: discounts } }));
     return discounts[index];
   }
@@ -369,6 +638,7 @@ export class SettingsManager {
     discounts[index].archived = true;
     localStorage.setItem(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
     syncToDatabase(STORAGE_KEYS.DISCOUNTS, JSON.stringify(discounts));
+    syncDiscountsToTable(discounts);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'discounts', data: discounts } }));
     return true;
   }
@@ -400,6 +670,7 @@ export class SettingsManager {
     taxes.push(newTax);
     localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
     syncToDatabase(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
+    syncTaxesToTable(taxes);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'taxes', data: taxes } }));
     return newTax;
   }
@@ -411,6 +682,7 @@ export class SettingsManager {
     taxes[index] = { ...taxes[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
     syncToDatabase(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
+    syncTaxesToTable(taxes);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'taxes', data: taxes } }));
     return taxes[index];
   }
@@ -422,6 +694,7 @@ export class SettingsManager {
     taxes[index].archived = true;
     localStorage.setItem(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
     syncToDatabase(STORAGE_KEYS.TAXES, JSON.stringify(taxes));
+    syncTaxesToTable(taxes);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'taxes', data: taxes } }));
     return true;
   }
@@ -453,6 +726,7 @@ export class SettingsManager {
     charges.push(newCharge);
     localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
     syncToDatabase(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
+    syncServiceChargesToTable(charges);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'serviceCharges', data: charges } }));
     return newCharge;
   }
@@ -464,6 +738,7 @@ export class SettingsManager {
     charges[index] = { ...charges[index], ...updates };
     localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
     syncToDatabase(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
+    syncServiceChargesToTable(charges);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'serviceCharges', data: charges } }));
     return charges[index];
   }
@@ -475,6 +750,7 @@ export class SettingsManager {
     charges[index].archived = true;
     localStorage.setItem(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
     syncToDatabase(STORAGE_KEYS.SERVICE_CHARGES, JSON.stringify(charges));
+    syncServiceChargesToTable(charges);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'serviceCharges', data: charges } }));
     return true;
   }
@@ -570,6 +846,7 @@ export class SettingsManager {
     const updated = { ...current, ...updates };
     localStorage.setItem(STORAGE_KEYS.CHECKOUT_OPTIONS, JSON.stringify(updated));
     syncToDatabase(STORAGE_KEYS.CHECKOUT_OPTIONS, JSON.stringify(updated));
+    syncCheckoutOptionsToTable(updated);
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'checkoutOptions', data: updated } }));
     return updated;
   }
@@ -645,6 +922,221 @@ export class SettingsManager {
     
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'appearance', data: updated } }));
     return updated;
+  }
+
+  // ============= PAYMENT METHODS =============
+  static getPaymentMethodStates(): Record<string, boolean> {
+    const stored = localStorage.getItem(STORAGE_KEYS.PAYMENT_METHODS);
+    if (stored) {
+      try { return JSON.parse(stored); } catch {}
+    }
+    return {};
+  }
+
+  static updatePaymentMethodState(methodId: string, enabled: boolean): Record<string, boolean> {
+    const states = this.getPaymentMethodStates();
+    states[methodId] = enabled;
+    localStorage.setItem(STORAGE_KEYS.PAYMENT_METHODS, JSON.stringify(states));
+    syncToDatabase(STORAGE_KEYS.PAYMENT_METHODS, JSON.stringify(states));
+    syncPaymentMethodsToTable(states);
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'paymentMethods', data: states } }));
+    return states;
+  }
+
+  static setAllPaymentMethodStates(states: Record<string, boolean>): void {
+    localStorage.setItem(STORAGE_KEYS.PAYMENT_METHODS, JSON.stringify(states));
+    syncToDatabase(STORAGE_KEYS.PAYMENT_METHODS, JSON.stringify(states));
+    syncPaymentMethodsToTable(states);
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'paymentMethods', data: states } }));
+  }
+
+  // ============= CASH MANAGEMENT =============
+  static async createCashDrawerSession(drawerName: string, startingCash: number): Promise<string | null> {
+    const deviceId = getPerDeviceId();
+    const { data, error } = await (supabase as any).from("cash_drawer_sessions").insert({
+      device_id: deviceId,
+      drawer_name: drawerName,
+      starting_cash: startingCash,
+      status: 'open',
+    }).select('id').single();
+    if (error || !data) {
+      console.error("[SettingsManager] Failed to create cash drawer session:", error);
+      return null;
+    }
+    // Also store in localStorage for fast sync reads
+    const sessionData = {
+      id: data.id,
+      startingCash,
+      selectedDrawer: drawerName,
+      sessionStartTime: Date.now(),
+    };
+    localStorage.setItem('activeDrawerSession', JSON.stringify(sessionData));
+    return data.id;
+  }
+
+  static async getActiveDrawerSession(): Promise<any | null> {
+    const deviceId = getPerDeviceId();
+    const { data } = await (supabase as any).from("cash_drawer_sessions")
+      .select("*")
+      .eq("device_id", deviceId)
+      .eq("status", "open")
+      .order("opened_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return data || null;
+  }
+
+  static async closeCashDrawerSession(sessionId: string, closingData: {
+    closingCash: number;
+    cashSales: number;
+    cashRefunds: number;
+    expectedInDrawer: number;
+    difference: number;
+  }): Promise<boolean> {
+    const { error } = await (supabase as any).from("cash_drawer_sessions").update({
+      status: 'closed',
+      closed_at: new Date().toISOString(),
+      closing_cash: closingData.closingCash,
+      cash_sales: closingData.cashSales,
+      cash_refunds: closingData.cashRefunds,
+      expected_in_drawer: closingData.expectedInDrawer,
+      difference: closingData.difference,
+    }).eq("id", sessionId);
+    if (error) {
+      console.error("[SettingsManager] Failed to close cash drawer session:", error);
+      return false;
+    }
+    localStorage.removeItem('activeDrawerSession');
+    localStorage.removeItem('cashTransactions');
+    return true;
+  }
+
+  static async getLastClosedSession(): Promise<any | null> {
+    const deviceId = getPerDeviceId();
+    const { data } = await (supabase as any).from("cash_drawer_sessions")
+      .select("*")
+      .eq("device_id", deviceId)
+      .eq("status", "closed")
+      .order("closed_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    return data || null;
+  }
+
+  static async addCashTransaction(sessionId: string, transaction: {
+    type: 'pay_in' | 'pay_out';
+    amount: number;
+    reason: string;
+    note?: string;
+    employeeName?: string;
+  }): Promise<boolean> {
+    const deviceId = getPerDeviceId();
+    const { error } = await (supabase as any).from("cash_transactions").insert({
+      session_id: sessionId,
+      device_id: deviceId,
+      type: transaction.type,
+      amount: transaction.amount,
+      reason: transaction.reason,
+      note: transaction.note || null,
+      employee_name: transaction.employeeName || null,
+    });
+    if (error) {
+      console.error("[SettingsManager] Failed to add cash transaction:", error);
+      return false;
+    }
+    return true;
+  }
+
+  static async getCashTransactions(sessionId: string): Promise<any[]> {
+    const { data } = await (supabase as any).from("cash_transactions")
+      .select("*")
+      .eq("session_id", sessionId)
+      .order("created_at", { ascending: true });
+    return data || [];
+  }
+
+  // ============= VOUCHERS =============
+  static async createVoucher(voucher: {
+    code: string;
+    name?: string;
+    type: string;
+    value: number;
+    sellingPrice?: number;
+    expiryDate?: string;
+    redemptionLimit?: number;
+    minOrderAmount?: number;
+    buyerType?: string;
+    redemptionMode?: string;
+    serviceFeeType?: string;
+    serviceFeeValue?: number;
+    recipientPhone?: string;
+    recipientEmail?: string;
+    customerName?: string;
+    notes?: string;
+    tags?: string;
+    enableQrBarcode?: boolean;
+  }): Promise<boolean> {
+    const { error } = await (supabase as any).from("vouchers").insert({
+      device_id: SHARED_DEVICE_ID,
+      code: voucher.code,
+      name: voucher.name || '',
+      type: voucher.type,
+      value: voucher.value,
+      remaining_balance: voucher.type === 'percentage' ? voucher.value : voucher.value,
+      selling_price: voucher.sellingPrice || voucher.value,
+      expiry_date: voucher.expiryDate || null,
+      redemption_limit: voucher.redemptionLimit || 1,
+      min_order_amount: voucher.minOrderAmount || 0,
+      buyer_type: voucher.buyerType || 'both',
+      redemption_mode: voucher.redemptionMode || 'both',
+      service_fee_type: voucher.serviceFeeType || 'none',
+      service_fee_value: voucher.serviceFeeValue || 0,
+      recipient_phone: voucher.recipientPhone || null,
+      recipient_email: voucher.recipientEmail || null,
+      customer_name: voucher.customerName || null,
+      notes: voucher.notes || null,
+      tags: voucher.tags || null,
+      enable_qr_barcode: voucher.enableQrBarcode !== false,
+    });
+    if (error) {
+      console.error("[SettingsManager] Failed to create voucher:", error);
+      return false;
+    }
+    return true;
+  }
+
+  static async findVoucherByCode(code: string): Promise<any | null> {
+    const { data } = await (supabase as any).from("vouchers")
+      .select("*")
+      .eq("code", code.toUpperCase())
+      .maybeSingle();
+    return data || null;
+  }
+
+  static async redeemVoucher(code: string, amountUsed: number): Promise<{ success: boolean; remainingBalance: number }> {
+    const voucher = await this.findVoucherByCode(code);
+    if (!voucher) return { success: false, remainingBalance: 0 };
+    if (voucher.status !== 'active') return { success: false, remainingBalance: 0 };
+    if (voucher.times_redeemed >= voucher.redemption_limit) return { success: false, remainingBalance: 0 };
+
+    const newBalance = Math.max(0, Number(voucher.remaining_balance) - amountUsed);
+    const newTimesRedeemed = voucher.times_redeemed + 1;
+    const newStatus = newBalance <= 0 || newTimesRedeemed >= voucher.redemption_limit ? 'redeemed' : 'active';
+
+    await (supabase as any).from("vouchers").update({
+      remaining_balance: newBalance,
+      times_redeemed: newTimesRedeemed,
+      status: newStatus,
+    }).eq("id", voucher.id);
+
+    return { success: true, remainingBalance: newBalance };
+  }
+
+  static async getAllVouchers(): Promise<any[]> {
+    const { data } = await (supabase as any).from("vouchers")
+      .select("*")
+      .order("created_at", { ascending: false });
+    return data || [];
   }
 
   // Get all settings summary for AI

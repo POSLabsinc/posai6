@@ -32,7 +32,7 @@ interface PaymentOrder {
 }
 
 interface PaymentTabContentProps {
-  guest: { name: string };
+  guest: { id: string; name: string };
 }
 
 type SortField = "date" | "spent" | "tips" | "points" | "total";

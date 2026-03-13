@@ -385,15 +385,24 @@ const TableOrderDetails = () => {
     } catch { return []; }
   }, [tableId]);
 
-  // Get orders for this table with calculated totals (static + session orders)
-  const tableOrders = getOrdersByTable(tableId || "T2");
+  // Get orders for this table from DB (unified context)
+  const tableOrders = useMemo(() => allDbOrders.filter(o => o.table === (tableId || "T2")), [allDbOrders, tableId]);
   
   // Get persisted transfers that target specific existing orders
   const persistedTransfersForExistingOrders = persistedTransfers.filter(t => t.targetOrderId);
   const persistedTransfersForNewOrders = persistedTransfers.filter(t => !t.targetOrderId);
   
   const staticGuestOrders: GuestOrder[] = tableOrders.map((order, orderIndex) => {
-    const orderWithTotals = getOrderWithTotals(order) as GuestOrder;
+    // DB orders already have calculated totals
+    const orderWithTotals: GuestOrder = {
+      ...order,
+      subtotal: (order as any).subtotal ?? calculateOrderTotals(order.items, 0).subtotal,
+      discount: (order as any).discount ?? calculateOrderTotals(order.items, 0).discount,
+      serviceCharge: (order as any).serviceCharge ?? calculateOrderTotals(order.items, 0).serviceCharge,
+      tax: (order as any).tax ?? calculateOrderTotals(order.items, 0).tax,
+      tip: (order as any).tip ?? calculateOrderTotals(order.items, 0).tip,
+      total: (order as any).total ?? calculateOrderTotals(order.items, 0).total,
+    };
     
     // Attach split configuration from localStorage for static orders
     const splitKey = getStaticSplitKey(order.id);

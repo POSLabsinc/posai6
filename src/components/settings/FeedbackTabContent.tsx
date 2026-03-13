@@ -18,7 +18,7 @@ interface FeedbackItem {
 }
 
 interface FeedbackTabContentProps {
-  guest: { name: string };
+  guest: { id: string; name: string };
 }
 
 const platformLogos: Record<string, { src?: string; text?: string; textClass?: string }> = {

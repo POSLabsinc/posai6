@@ -1540,7 +1540,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
           </div>
 
           {/* Input - hide when in email/phone/code input steps or OTP/verified */}
-          {currentStep !== "sign-in-email" && currentStep !== "sign-in-phone" && currentStep !== "activate-code" && currentStep !== "activate-code-verifying" && currentStep !== "demo-otp" && currentStep !== "demo-verified" && (
+          {currentStep !== "sign-in-email" && currentStep !== "sign-in-phone" && currentStep !== "activate-code" && currentStep !== "activate-code-verifying" && currentStep !== "demo-otp" && currentStep !== "demo-verified" && currentStep !== "personal-invite-code" && currentStep !== "personal-invite-verifying" && currentStep !== "personal-sign-in" && currentStep !== "personal-access-denied" && (
             <div className="px-6 py-4 flex-shrink-0">
               {currentStep === "demo-email" ? (
                 <div className="space-y-2">

@@ -3510,12 +3510,12 @@ const TableOrderDetails = () => {
       {/* Transfer to Order Dialog (inline - no navigation) */}
       {showTransferToOrderDialog && (() => {
         const sourceOrder = allDbOrders.find(o => o.id === transferToOrderSourceId);
-        const availableTransferOrders = getAvailableTicketOrdersForTransfer(transferToOrderSourceId || '');
+        const availableTransferOrders = dbTicketOrders.filter(o => o.id !== transferToOrderSourceId && o.status !== 'PAID' && o.status !== 'Completed');
 
         const executeTransfer = () => {
           if (!selectedTransferOrderId || !sourceOrder) return;
           setShowTransferToOrderDialog(false);
-          const targetOrder = ticketOrders.find(o => o.id === selectedTransferOrderId);
+          const targetOrder = dbTicketOrders.find(o => o.id === selectedTransferOrderId);
           const targetTable = targetOrder?.table || sourceOrder.table;
           const itemNames = sourceOrder.items.map(item => item.name);
           

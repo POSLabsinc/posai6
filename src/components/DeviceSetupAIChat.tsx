@@ -715,7 +715,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     <div className="flex-shrink-0 mr-2 mt-1">
                       <AnimatedAIIcon size={18} />
                     </div>
-                    <div className="max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm bg-foreground/[0.04] text-foreground">
+                    <div className="max-w-[80%] rounded-2xl px-3.5 py-2.5 text-base bg-foreground/[0.04] text-foreground">
                       <p>Hi, How can I assist you today? Are you new here?</p>
                     </div>
                   </motion.div>

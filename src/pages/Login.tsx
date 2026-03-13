@@ -5299,12 +5299,22 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
   // Personal Device - Activation Approach Choice Screen (AI vs Manual)
   if (deviceType === "personal" && !showClockIn && !showPersonalPinEntry && !personalActivationApproach) {
-    // When AI chat is open, show it in the right panel
+    // When AI chat is open, show it in the right panel alongside PersonalDeviceAuthPanel
     if (showAIChat) {
       return (
-        <DeviceSetupLayout variant="setup" fullWidthRight>
-          <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} />
-        </DeviceSetupLayout>
+        <div className="fixed inset-0 login-bg flex overflow-hidden">
+          <div className="absolute inset-0 gradient-mesh opacity-30" />
+          
+          {/* Left Panel - Tablet/Desktop only */}
+          <div className="hidden md:block relative z-10">
+            <PersonalDeviceAuthPanel currentScreen="link-device" invitedUser={null} />
+          </div>
+          
+          {/* Right Panel - AI Chat */}
+          <div className="relative z-10 flex-1 flex h-full">
+            <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} />
+          </div>
+        </div>
       );
     }
 

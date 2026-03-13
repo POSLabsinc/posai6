@@ -274,6 +274,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setMessages([]);
       setCurrentStep("initial");
       setIsNewUser(null);
+      seenMessageIds.current.clear();
     } else if (currentStep === "activation-methods") {
       // Go back to device-type with the right user message
       const label = isNewUser ? "Yes, I'm new" : "No, I'm not new";

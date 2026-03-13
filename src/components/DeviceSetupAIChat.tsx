@@ -21,7 +21,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "chat";
+type StepType = "initial" | "device-type" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "chat";
 
 interface VerificationWaitingProps {
   currentStep: StepType;

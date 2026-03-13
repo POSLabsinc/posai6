@@ -960,74 +960,17 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                   />
                 )}
 
-                {/* Demo email input step */}
-                {currentStep === "demo-email" && !isLoading && (
+                {/* Demo email error display */}
+                {currentStep === "demo-email" && demoOtpError && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="pl-7 pt-3 pb-2 space-y-3"
+                    className="pl-7 pt-3 pb-2"
                   >
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
-                      <input
-                        ref={demoEmailRef}
-                        type="email"
-                        placeholder="your@email.com"
-                        value={demoEmail}
-                        onChange={(e) => { setDemoEmail(e.target.value); setDemoOtpError(""); }}
-                        onKeyDown={(e) => {
-                          if (e.key === "Enter" && demoEmail.includes("@")) {
-                            e.preventDefault();
-                            handleDemoSendOtp(demoEmail).then(ok => {
-                              if (ok) {
-                                const userMsg: Message = { id: Date.now().toString(), role: "user", content: demoEmail };
-                                const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `Verification code sent to **${demoEmail}**. Enter the 6-digit code below.` };
-                                setMessages(prev => [...prev, userMsg, assistantMsg]);
-                                setCurrentStep("demo-otp");
-                                setTimeout(() => demoOtpRef.current?.focus(), 100);
-                              }
-                            });
-                          }
-                        }}
-                        className="w-full h-11 pl-10 pr-3 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-foreground/30"
-                        autoFocus
-                      />
+                    <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">
+                      <AlertCircle className="w-3.5 h-3.5 text-destructive flex-shrink-0" />
+                      <span className="text-xs text-destructive">{demoOtpError}</span>
                     </div>
-
-                    {demoOtpError && (
-                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">
-                        <AlertCircle className="w-3.5 h-3.5 text-destructive flex-shrink-0" />
-                        <span className="text-xs text-destructive">{demoOtpError}</span>
-                      </div>
-                    )}
-
-                    <button
-                      onClick={async () => {
-                        const ok = await handleDemoSendOtp(demoEmail);
-                        if (ok) {
-                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: demoEmail };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `Verification code sent to **${demoEmail}**. Enter the 6-digit code below.` };
-                          setMessages(prev => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("demo-otp");
-                          setTimeout(() => demoOtpRef.current?.focus(), 100);
-                        }
-                      }}
-                      disabled={!demoEmail.includes("@") || demoSendingOtp}
-                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      {demoSendingOtp ? (
-                        <>
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-4 h-4" />
-                          Send Verification Code
-                        </>
-                      )}
-                    </button>
                   </motion.div>
                 )}
 

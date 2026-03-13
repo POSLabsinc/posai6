@@ -922,6 +922,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
   // Company Device - Activation Approach Choice Screen (AI vs Manual)
   if (deviceType === "company" && showDeviceSetup && !activationApproach) {
+    // When AI chat is open, show it in the right panel
+    if (showAIChat) {
+      return (
+        <DeviceSetupLayout variant="setup" fullWidthRight>
+          <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} />
+        </DeviceSetupLayout>
+      );
+    }
+
     return (
       <DeviceSetupLayout variant="setup">
         <motion.div 
@@ -991,9 +1000,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           >
             {/* Activate with AI */}
             <button
-              onClick={() => {
-                setShowAIChat(true);
-              }}
+              onClick={() => setShowAIChat(true)}
               className="w-full flex items-center gap-4 p-4 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
             >
               <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
@@ -1048,8 +1055,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
         />
-
-        <DeviceSetupAIChat open={showAIChat} onClose={() => setShowAIChat(false)} />
       </DeviceSetupLayout>
     );
   }

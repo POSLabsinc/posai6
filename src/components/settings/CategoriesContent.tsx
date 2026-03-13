@@ -36,43 +36,45 @@ interface CategoriesContentProps {
   onAIClick?: () => void;
 }
 
+const STORAGE_KEY = "categories-settings";
+
+const defaultCategories: Category[] = [
+  { id: "1", name: "A very very long category name for my taste", parent: "-", position: 1, course: 1, archived: false },
+  { id: "2", name: "Avocado Toast", parent: "Food", position: 2, course: 1, archived: false },
+  { id: "3", name: "Azucanela cake", parent: "Food", position: 1, course: 1, archived: false },
+  { id: "4", name: "Azuque Frio", parent: "Drinks", position: 6, course: 1, archived: false },
+  { id: "5", name: "Beverages", parent: "-", position: 4, course: null, archived: false },
+  { id: "6", name: "Café", parent: "Drinks", position: 1, course: 1, archived: false },
+  { id: "7", name: "Churro Trays Catering", parent: "Food", position: 3, course: 1, archived: false },
+  { id: "8", name: "Churros", parent: "Food", position: 4, course: 1, archived: false },
+  { id: "9", name: "Coffee Carriers 96 Oz", parent: "-", position: 1, course: 1, archived: false },
+];
+
 const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
   const [showAddScreen, setShowAddScreen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<Category[]>(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error("Failed to parse categories from localStorage", e);
+      }
+    }
+    return defaultCategories;
+  });
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [itemToArchive, setItemToArchive] = useState<Category | null>(null);
   const [dbProductNames, setDbProductNames] = useState<string[]>([]);
-
-  const fetchCategories = async () => {
-    const { data, error } = await supabase
-      .from("categories")
-      .select("*")
-      .order("sort_order");
-    if (data) {
-      setCategories(data.map((c: any) => ({
-        id: c.id,
-        name: c.name,
-        parent: c.icon || "-",
-        position: c.sort_order,
-        course: null,
-        archived: !c.active,
-        products: [],
-      })));
-    }
-    if (error) console.error("Failed to fetch categories", error);
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    fetchCategories();
-  }, []);
 
   // Fetch product names from Supabase for the product selector
   useEffect(() => {
@@ -90,7 +92,12 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
     fetchProducts();
   }, []);
 
-  const handleAddCategory = async (categoryData: {
+  const saveCategories = (newItems: Category[]) => {
+    setCategories(newItems);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(newItems));
+  };
+
+  const handleAddCategory = (categoryData: {
     name: string;
     position: number | null;
     courseName: string;
@@ -100,21 +107,23 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
     parentCategory: string;
     products: string[];
   }) => {
-    const { error } = await supabase.from("categories").insert({
+    const newCategory: Category = {
+      id: Date.now().toString(),
       name: categoryData.name,
-      icon: categoryData.parentCategory || "-",
-      sort_order: categoryData.position || categories.length + 1,
-      active: true,
+      parent: categoryData.parentCategory || "Parent Category",
+      position: categoryData.position || categories.length + 1,
+      course: categoryData.coursePosition,
+      archived: false,
+      products: categoryData.products,
+    };
+    saveCategories([...categories, newCategory]);
+    toast({
+      description: `Category "${categoryData.name}" has been added.`,
+      duration: 3000,
     });
-    if (!error) {
-      await fetchCategories();
-      toast({ description: `Category "${categoryData.name}" has been added.`, duration: 3000 });
-    } else {
-      toast({ description: "Failed to add category", variant: "destructive" });
-    }
   };
 
-  const handleEditCategory = async (categoryData: {
+  const handleEditCategory = (categoryData: {
     id: string;
     name: string;
     position: number | null;
@@ -125,31 +134,35 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
     parentCategory: string;
     products: string[];
   }) => {
-    const { error } = await supabase.from("categories").update({
-      name: categoryData.name,
-      icon: categoryData.parentCategory || "-",
-      sort_order: categoryData.position || 0,
-    }).eq("id", categoryData.id);
-    if (!error) {
-      await fetchCategories();
-      toast({ description: `Category "${categoryData.name}" has been updated.`, duration: 3000 });
-    } else {
-      toast({ description: "Failed to update category", variant: "destructive" });
-    }
+    const updatedCategories = categories.map(cat =>
+      cat.id === categoryData.id
+        ? {
+            ...cat,
+            name: categoryData.name,
+            parent: categoryData.parentCategory || "Parent Category",
+            position: categoryData.position || cat.position,
+            course: categoryData.coursePosition,
+            products: categoryData.products,
+          }
+        : cat
+    );
+    saveCategories(updatedCategories);
+    toast({
+      description: `Category "${categoryData.name}" has been updated.`,
+      duration: 3000,
+    });
   };
 
   const handleArchiveItem = (item: Category) => {
     setItemToArchive(item);
   };
 
-  const confirmArchiveItem = async () => {
+  const confirmArchiveItem = () => {
     if (itemToArchive) {
-      const { error } = await supabase.from("categories").update({
-        active: itemToArchive.archived, // toggle: archived=true means active=false, so restore means set active=true
-      }).eq("id", itemToArchive.id);
-      if (!error) {
-        await fetchCategories();
-      }
+      const updatedItems = categories.map(cat => 
+        cat.id === itemToArchive.id ? { ...cat, archived: !cat.archived } : cat
+      );
+      saveCategories(updatedItems);
       setItemToArchive(null);
     }
   };
@@ -162,16 +175,12 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
     });
   }, [categories, searchQuery, showArchived]);
 
-  // Compute dynamic parent category names
+  // Compute dynamic parent category names (categories that ARE parent categories)
   const parentCategoryNames = useMemo(() => {
     return categories
       .filter((c) => !c.archived && (c.parent === "Parent Category" || c.parent === "-"))
       .map((c) => c.name);
   }, [categories]);
-
-  if (loading) {
-    return <div className="h-full flex items-center justify-center text-muted-foreground">Loading...</div>;
-  }
 
   // Show Add Category Screen
   if (showAddScreen) {
@@ -232,14 +241,16 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
         )}
 
         <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
+          {/* Description */}
           <div className="mt-4 mb-4 px-1">
             <p className="text-sm text-muted-foreground leading-relaxed">
               {showArchived
                 ? "View and restore your archived categories."
-                : "Organize your menu products into categories for easy navigation and management."}
+                : "Organize your menu items into categories for easy navigation and management."}
             </p>
           </div>
 
+          {/* Search + Archive + Add row */}
           <section className="mt-6 flex items-center gap-2 lg:gap-4">
             <div className="flex-1 min-w-0 rounded-full bg-neutral-800/60 px-5 py-3 flex items-center gap-3">
               <Search className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
@@ -270,6 +281,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
             </button>
           </section>
 
+          {/* Table */}
           <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
             <div className="grid grid-cols-[1.5fr_1fr_1fr_80px_24px] items-center px-8 py-5 border-b border-neutral-700/50">
               <span className="text-[15px] font-semibold text-foreground">Category Name</span>
@@ -306,6 +318,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           </section>
         </div>
 
+        {/* Archive Confirmation Dialog */}
         <AlertDialog open={!!itemToArchive} onOpenChange={() => setItemToArchive(null)}>
           <AlertDialogContent className="bg-neutral-800/60 border-neutral-700/50">
             <AlertDialogHeader>
@@ -354,14 +367,16 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
       )}
 
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
+        {/* Description */}
         <div className="mb-4 px-1">
           <p className="text-sm text-muted-foreground leading-relaxed">
             {showArchived
               ? "View and restore your archived categories."
-              : "Organize your menu products into categories for easy navigation and management."}
+              : "Organize your menu items into categories for easy navigation and management."}
           </p>
         </div>
 
+        {/* Action Buttons */}
         <div className="flex gap-3 mb-4">
           <button
             onClick={() => setShowArchived(!showArchived)}
@@ -383,7 +398,9 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           </button>
         </div>
 
+        {/* Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          {/* Table Header */}
           <div className="grid grid-cols-[1fr_60px_50px_40px] items-center py-4 px-4 border-b border-neutral-700/50">
             <span className="text-neutral-400 text-sm font-medium text-left">Name</span>
             <span className="text-neutral-400 text-sm font-medium text-center">Parent</span>
@@ -391,6 +408,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
             <span className="text-neutral-400 text-sm font-medium text-right pr-5">Crs</span>
           </div>
 
+          {/* Rows */}
           {filteredItems.length > 0 ? (
             filteredItems.map((item, index) => (
               <div key={item.id}>
@@ -420,6 +438,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
         </div>
       </div>
 
+      {/* Bottom Search Bar */}
       <div className="px-4 pb-6 pt-2">
         <div className="bg-neutral-800/60 rounded-full flex items-center px-4 py-3">
           <Search className="w-5 h-5 text-neutral-500 mr-3" />
@@ -435,6 +454,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
         </div>
       </div>
 
+      {/* Archive Confirmation Dialog */}
       <AlertDialog open={!!itemToArchive} onOpenChange={() => setItemToArchive(null)}>
         <AlertDialogContent className="bg-neutral-800 border-neutral-700">
           <AlertDialogHeader>

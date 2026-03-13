@@ -1204,10 +1204,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     });
 
     setGuests(mapped);
-    // Auto-select first guest if none selected
-    if (mapped.length > 0 && !selectedGuestId) {
-      setSelectedGuestId(mapped[0].id);
-    }
     setLoading(false);
   }, []);
 

@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Textarea } from "@/components/ui/textarea";
-import { SettingsManager } from "@/lib/settingsManager";
 
 interface PayInOutContentProps {
   showHeader?: boolean;
@@ -88,32 +87,16 @@ const PayInOutContent = ({
     }
   };
 
-  const saveTransaction = async (type: 'payIn' | 'payOut') => {
+  const saveTransaction = (type: 'payIn' | 'payOut') => {
     const parsedAmount = parseFloat(amount);
-    
-    // Get active session ID from localStorage
-    const savedSession = localStorage.getItem('activeDrawerSession');
-    const sessionData = savedSession ? JSON.parse(savedSession) : null;
-    const sessionId = sessionData?.id;
-
-    if (sessionId) {
-      // Save to DB
-      await SettingsManager.addCashTransaction(sessionId, {
-        type: type === 'payIn' ? 'pay_in' : 'pay_out',
-        amount: parsedAmount,
-        reason: selectedReason,
-        note: note || undefined,
-        employeeName: 'User',
-      });
-    }
-
-    // Also save to localStorage for backwards compatibility
     const now = new Date();
     const timeString = now.toLocaleTimeString('en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
       hour12: true 
     });
+    
+    // Format date as YYYY-MM-DD for filtering
     const dateString = now.toISOString().split('T')[0];
 
     const newTransaction: CashTransaction = {
@@ -132,6 +115,7 @@ const PayInOutContent = ({
     const transactions: CashTransaction[] = existingTransactions 
       ? JSON.parse(existingTransactions) 
       : [];
+    
     transactions.push(newTransaction);
     localStorage.setItem('cashTransactions', JSON.stringify(transactions));
 
@@ -141,6 +125,7 @@ const PayInOutContent = ({
       : currentPaidInOut - parsedAmount;
     localStorage.setItem('paidInOut', newPaidInOut.toString());
 
+    // Navigate back without state - session is in localStorage
     navigate('/settings/payments/cash-management/details');
   };
 

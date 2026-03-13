@@ -4,7 +4,6 @@ import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { SettingsManager } from "@/lib/settingsManager";
 
 interface CashManagementContentProps {
   showHeader?: boolean;
@@ -52,38 +51,17 @@ const CashManagementContent = ({
   const drawerRef = useRef<HTMLButtonElement>(null);
   const hasAmount = openingCash.trim() !== "" && parseFloat(openingCash) >= 0;
 
-  // Load last closing data from DB on mount
+  // Load last closing data from localStorage on mount
   useEffect(() => {
-    const loadData = async () => {
-      // Load from localStorage first for instant display
-      const savedBalance = localStorage.getItem('lastClosingBalance');
-      if (savedBalance) {
-        setLastClosingBalance(parseFloat(savedBalance));
-      }
-      
-      // Then load from DB
-      const lastSession = await SettingsManager.getLastClosedSession();
-      if (lastSession) {
-        setLastClosingBalance(Number(lastSession.closing_cash) || 0);
-        setLastClosedSession({
-          drawer: lastSession.drawer_name,
-          closingBalance: Number(lastSession.closing_cash) || 0,
-          startingCash: Number(lastSession.starting_cash) || 0,
-          expectedInDrawer: Number(lastSession.expected_in_drawer) || 0,
-          difference: Number(lastSession.difference) || 0,
-          cashSales: Number(lastSession.cash_sales) || 0,
-          cashRefunds: Number(lastSession.cash_refunds) || 0,
-          paidInOut: 0, // calculated from transactions
-          closedAt: new Date(lastSession.closed_at).getTime(),
-        });
-      } else {
-        const savedSession = localStorage.getItem('lastClosedSession');
-        if (savedSession) {
-          setLastClosedSession(JSON.parse(savedSession));
-        }
-      }
-    };
-    loadData();
+    const savedBalance = localStorage.getItem('lastClosingBalance');
+    if (savedBalance) {
+      setLastClosingBalance(parseFloat(savedBalance));
+    }
+    
+    const savedSession = localStorage.getItem('lastClosedSession');
+    if (savedSession) {
+      setLastClosedSession(JSON.parse(savedSession));
+    }
   }, []);
 
   const formatDateTime = (timestamp: number) => {
@@ -98,16 +76,11 @@ const CashManagementContent = ({
     });
   };
 
-  const handleStartDrawer = async () => {
+  const handleStartDrawer = () => {
     if (hasAmount) {
-      const parsedCash = parseFloat(openingCash);
-      // Create session in DB
-      const sessionId = await SettingsManager.createCashDrawerSession(selectedDrawer, parsedCash);
-      
-      // Also persist to localStorage for fast reads
+      // Persist drawer session data to localStorage
       const sessionData = {
-        id: sessionId,
-        startingCash: parsedCash,
+        startingCash: parseFloat(openingCash),
         selectedDrawer: selectedDrawer,
         sessionStartTime: Date.now()
       };

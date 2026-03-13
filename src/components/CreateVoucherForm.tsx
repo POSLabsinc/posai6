@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import VoucherReceiptDialog from "./VoucherReceiptDialog";
-import { SettingsManager } from "@/lib/settingsManager";
 
 interface CreateVoucherFormProps {
   onClose: () => void;
@@ -64,20 +63,6 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
       if (!data.customCode) {
         data.customCode = generateVoucherCode();
       }
-      
-      // Save to DB
-      SettingsManager.createVoucher({
-        code: data.customCode,
-        name: data.type === 'free_item' ? 'Free Product Voucher' : `${data.type === 'percentage' ? data.value + '%' : '$' + data.value} Voucher`,
-        type: data.type === 'free_item' ? 'fixed' : data.type,
-        value: data.type === 'free_item' ? 0 : parseFloat(data.value) || 0,
-        expiryDate: data.expirationDate || undefined,
-        redemptionLimit: parseInt(data.maximumUses) || 1,
-        minOrderAmount: data.minimumPurchase ? parseFloat(data.minimumPurchase) : 0,
-        tags: data.tags || undefined,
-        enableQrBarcode: data.enableQrBarcode,
-      });
-
       setCreatedVoucherData(data);
       setShowReceiptDialog(true);
     }

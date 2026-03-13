@@ -216,13 +216,11 @@ async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string,
 async function fetchAIRules(supabaseUrl: string, serviceRoleKey: string, deviceId: string): Promise<string> {
   const supabase = createClient(supabaseUrl, serviceRoleKey);
   const ruleKeys = ["ai_rules_dos", "ai_rules_donts", "ai_rules_custom_instructions", "ai_rules_restaurant_type", "ai_rules_knowledge_base"];
-  // Use "shared" device_id for global settings, fallback to provided deviceId for backward compatibility
-  const sharedDeviceId = "shared";
   
   const { data } = await supabase
     .from("user_preferences")
     .select("preference_key, preference_value")
-    .eq("device_id", sharedDeviceId)
+    .eq("device_id", deviceId)
     .in("preference_key", ruleKeys);
 
   if (!data?.length) return "No custom AI rules configured.";
@@ -270,7 +268,6 @@ async function handleUpdateAIRules(
   value: any
 ): Promise<{ success: boolean; message: string }> {
   const supabase = createClient(supabaseUrl, serviceRoleKey);
-  const sharedDeviceId = "shared";
   
   const keyMap: Record<string, string> = {
     dos: "ai_rules_dos",
@@ -290,7 +287,7 @@ async function handleUpdateAIRules(
       const { data: existing } = await supabase
         .from("user_preferences")
         .select("preference_value")
-        .eq("device_id", sharedDeviceId)
+        .eq("device_id", deviceId)
         .eq("preference_key", prefKey)
         .maybeSingle();
 
@@ -315,7 +312,7 @@ async function handleUpdateAIRules(
       const { error } = await supabase
         .from("user_preferences")
         .upsert(
-          { device_id: sharedDeviceId, preference_key: prefKey, preference_value: newValue, updated_at: new Date().toISOString() },
+          { device_id: deviceId, preference_key: prefKey, preference_value: newValue, updated_at: new Date().toISOString() },
           { onConflict: "device_id,preference_key" }
         );
       if (error) throw error;
@@ -326,7 +323,7 @@ async function handleUpdateAIRules(
       const { error } = await supabase
         .from("user_preferences")
         .upsert(
-          { device_id: sharedDeviceId, preference_key: prefKey, preference_value: newValue, updated_at: new Date().toISOString() },
+          { device_id: deviceId, preference_key: prefKey, preference_value: newValue, updated_at: new Date().toISOString() },
           { onConflict: "device_id,preference_key" }
         );
       if (error) throw error;
@@ -370,7 +367,7 @@ serve(async (req) => {
       const { data: keyPref } = await supabaseAdmin
         .from("user_preferences")
         .select("preference_value")
-        .eq("device_id", "shared")
+        .eq("device_id", deviceId)
         .eq("preference_key", "ai_integration_api_key")
         .maybeSingle();
 

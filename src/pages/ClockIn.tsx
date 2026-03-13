@@ -10,7 +10,6 @@ import eatosLogo from "@/assets/icons/eatos-logo.svg";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
 import { Button } from "@/components/ui/button";
-import { lookupEmployeeByPin } from "@/lib/employeePinLookup";
 
 // Revenue centers assigned to employees - in production this would come from API
 const revenueCenters: Record<string, string> = {
@@ -141,32 +140,32 @@ const ClockIn = () => {
     
     return () => clearInterval(timer);
   }, []);
-  const handlePinComplete = useCallback(async (enteredPin: string) => {
+  const handlePinComplete = useCallback((enteredPin: string) => {
     setIsVerifying(true);
     
-    try {
-      const dbEmployee = await lookupEmployeeByPin(enteredPin);
+    // Simulate verification delay
+    setTimeout(() => {
+      // Look up employee by PIN
+      const employeeId = employeePinMapping[enteredPin];
       
-      if (dbEmployee) {
-        setSelectedEmployee({
-          id: dbEmployee.id,
-          name: dbEmployee.full_name,
-          role: dbEmployee.role,
-          avatar: dbEmployee.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(dbEmployee.full_name)}&background=random&size=100`
-        });
-        setIsVerifying(false);
-        setClockInTime(new Date());
-        setShowClockIn(true);
+      if (employeeId) {
+        const employee = locationEmployees.find(e => e.id === employeeId);
+        if (employee) {
+          setSelectedEmployee(employee);
+          setIsVerifying(false);
+          setClockInTime(new Date());
+          setShowClockIn(true);
+        } else {
+          setIsVerifying(false);
+          setPinError("Invalid PIN");
+          setPin("");
+        }
       } else {
         setIsVerifying(false);
-        setPinError("Invalid PIN. Please try again.");
+        setPinError("Invalid PIN");
         setPin("");
       }
-    } catch {
-      setIsVerifying(false);
-      setPinError("Invalid PIN. Please try again.");
-      setPin("");
-    }
+    }, 800);
   }, []);
 
   const handleConfirmClockIn = useCallback(() => {

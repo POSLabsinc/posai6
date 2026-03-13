@@ -7,10 +7,10 @@ import { printEndOfDayReport } from "@/utils/eodReportPrinter";
 const CHECK_INTERVAL_MS = 15_000; // 15 seconds
 const EOD_LAST_RUN_KEY = "pos_eod_last_run";
 const EOD_REMINDER_SHOWN_KEY = "pos_eod_reminder_shown";
-const SHARED_DEVICE_ID = "shared";
+const DEVICE_ID_KEY = "pos_device_id";
 
-function getSharedDeviceId(): string {
-  return SHARED_DEVICE_ID;
+function getDeviceId(): string {
+  return localStorage.getItem(DEVICE_ID_KEY) ?? "unknown";
 }
 
 /** Convert "11:00 PM" → "23:00" */
@@ -50,7 +50,7 @@ interface EodPrefs {
 }
 
 async function fetchEodPrefs(): Promise<EodPrefs> {
-  const deviceId = getSharedDeviceId();
+  const deviceId = getDeviceId();
   const { data } = await (supabase as any)
     .from("user_preferences")
     .select("preference_key, preference_value")

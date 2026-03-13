@@ -44,7 +44,14 @@ const PREF_KEYS = {
   status: "ai_integration_status",
 };
 
-const SHARED_DEVICE_ID = "shared";
+const getDeviceId = () => {
+  let id = localStorage.getItem("pos_device_id");
+  if (!id) {
+    id = crypto.randomUUID();
+    localStorage.setItem("pos_device_id", id);
+  }
+  return id;
+};
 
 const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegrationContentProps) => {
   const navigate = useNavigate();
@@ -60,7 +67,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
   const [hasSavedKey, setHasSavedKey] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const deviceId = SHARED_DEVICE_ID;
+  const deviceId = getDeviceId();
   
 
   useEffect(() => {

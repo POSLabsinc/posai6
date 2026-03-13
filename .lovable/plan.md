@@ -1,24 +1,16 @@
 
-# Plan: Unify Data Across Editor and Live Environments — COMPLETED
 
-## Root Cause
-Settings tables filtered by `device_id` (a random per-browser ID), causing different browsers to see different data.
+## Problem
 
-## Solution Applied
-Replaced per-browser `device_id` with a fixed `"shared"` constant for all global settings tables.
+The voucher mode fix was applied to `AppSidebar.tsx`, but the **actual sidebar rendered in the Layout** is `DraggableSidebar.tsx`. That's why the "New Order" link still shows as active — `DraggableSidebar.tsx` has no voucher mode logic at all.
 
-### Files Updated:
-1. **src/lib/settingsManager.ts** — All settings sync/read use `SHARED_DEVICE_ID = "shared"`. Cash drawer keeps `getPerDeviceId()`.
-2. **src/hooks/usePreference.ts** — Uses `SHARED_DEVICE_ID`
-3. **src/components/settings/DiscountsContent.tsx** — Uses `SHARED_DEVICE_ID`
-4. **src/components/settings/ServiceChargeContent.tsx** — Uses `SHARED_DEVICE_ID`
-5. **src/components/settings/TaxesContent.tsx** — Uses `SHARED_DEVICE_ID`
-6. **src/components/settings/AIRulesContent.tsx** — Uses `SHARED_DEVICE_ID`
-7. **src/components/settings/AIIntegrationContent.tsx** — Uses `SHARED_DEVICE_ID`
-8. **src/hooks/useEndOfDayScheduler.ts** — Uses `SHARED_DEVICE_ID`
-9. **src/lib/alertService.ts** — Uses shared key for notification sound preference
-10. **supabase/functions/ai-settings-chat/index.ts** — Uses `"shared"` device_id
+## Plan
 
-### What stays per-device:
-- `device_stores` (useDeviceStore.ts) — device-to-store binding
-- `cash_drawer_sessions` / `cash_transactions` — per-terminal cash management
+**File: `src/components/DraggableSidebar.tsx`**
+
+1. Import `useVoucherMode` from the context and `Link` + `useLocation` from react-router-dom
+2. Add the same `isOrdersVoucherMode` logic
+3. For the Orders nav item (when `isOrdersVoucherMode && item.url === '/orders'`), render a plain `<Link>` instead of `<NavLink>` to suppress the active state — same pattern already applied in `AppSidebar.tsx`
+
+This needs to be applied in the rendering logic around lines 240-265 where the nav items are rendered with `NavLink` and `activeClassName`.
+

@@ -1,9 +1,10 @@
-import { useMemo, useState, useEffect, useCallback } from "react";
+import { useMemo } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, Search, Mic, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { toast } from "@/hooks/use-toast";
+import { useSettingsSync } from "@/hooks/useSettingsSync";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +18,6 @@ import {
 import AddTaxContent from "./AddTaxContent";
 import EditTaxContent from "./EditTaxContent";
 import SwipeableTaxItem from "./SwipeableTaxItem";
-import { supabase } from "@/integrations/supabase/client";
 
 interface Tax {
   id: string;
@@ -35,40 +35,20 @@ interface TaxesContentProps {
   onAIClick?: () => void;
 }
 
-const SHARED_DEVICE_ID = "shared";
+const STORAGE_KEY = "taxes-settings";
+
+const defaultTaxes: Tax[] = [];
 
 const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-
-  const [taxes, setTaxes] = useState<Tax[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchTaxes = useCallback(async () => {
-    const { data, error } = await (supabase as any)
-      .from("taxes")
-      .select("*")
-      .eq("device_id", SHARED_DEVICE_ID)
-      .order("sort_order");
-    
-    if (data && !error) {
-      const mapped: Tax[] = data.map((d: any) => ({
-        id: d.id,
-        name: d.name,
-        amount: Number(d.amount),
-        type: d.type as "Exclusive" | "Inclusive",
-        archived: d.archived,
-        applicableTo: d.applicable_to,
-        applicableProducts: d.applicable_products || [],
-      }));
-      setTaxes(mapped);
-    }
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchTaxes();
-  }, [fetchTaxes]);
+  
+  // Use settings sync hook to listen for AI-driven updates
+  const [taxes, setTaxes] = useSettingsSync<Tax[]>(
+    'taxes',
+    STORAGE_KEY,
+    defaultTaxes
+  );
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
@@ -76,44 +56,35 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
   const [showAddScreen, setShowAddScreen] = useState(false);
   const [taxToEdit, setTaxToEdit] = useState<Tax | null>(null);
 
-  const handleAddTax = async (taxData: {
+  const saveTaxes = (newTaxes: Tax[]) => {
+    setTaxes(newTaxes);
+  };
+
+  const handleAddTax = (taxData: {
     name: string;
     amount: number;
     type: "Exclusive" | "Inclusive";
     applicableTo: string;
     applicableProducts: string[];
   }) => {
-    const { error } = await (supabase as any).from("taxes").insert({
-      device_id: SHARED_DEVICE_ID,
+    const newTax: Tax = {
+      id: Date.now().toString(),
       name: taxData.name,
       amount: taxData.amount,
       type: taxData.type,
-      applicable_to: taxData.applicableTo || "All Products",
-      applicable_products: taxData.applicableProducts || [],
+      applicableTo: taxData.applicableTo,
+      applicableProducts: taxData.applicableProducts,
       archived: false,
-      sort_order: taxes.length,
-    });
-
-    if (!error) {
-      await fetchTaxes();
-      toast({ description: "Tax added successfully" });
-    } else {
-      toast({ description: "Failed to add tax", variant: "destructive" });
-    }
+    };
+    saveTaxes([...taxes, newTax]);
     setShowAddScreen(false);
   };
 
-  const handleEditTax = async (updatedTax: Tax) => {
-    await (supabase as any).from("taxes").update({
-      name: updatedTax.name,
-      amount: updatedTax.amount,
-      type: updatedTax.type,
-      applicable_to: updatedTax.applicableTo || "All Products",
-      applicable_products: updatedTax.applicableProducts || [],
-      archived: updatedTax.archived,
-    }).eq("id", updatedTax.id);
-
-    await fetchTaxes();
+  const handleEditTax = (updatedTax: Tax) => {
+    const updatedTaxes = taxes.map(tax => 
+      tax.id === updatedTax.id ? updatedTax : tax
+    );
+    saveTaxes(updatedTaxes);
     setTaxToEdit(null);
   };
 
@@ -121,11 +92,12 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
     setTaxToArchive(tax);
   };
 
-  const confirmArchiveTax = async () => {
+  const confirmArchiveTax = () => {
     if (taxToArchive) {
-      const newArchived = !taxToArchive.archived;
-      await (supabase as any).from("taxes").update({ archived: newArchived }).eq("id", taxToArchive.id);
-      await fetchTaxes();
+      const updatedTaxes = taxes.map(tax => 
+        tax.id === taxToArchive.id ? { ...tax, archived: !tax.archived } : tax
+      );
+      saveTaxes(updatedTaxes);
       setTaxToArchive(null);
     }
   };

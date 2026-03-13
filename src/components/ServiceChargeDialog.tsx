@@ -7,7 +7,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { X } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 
 interface ServiceChargeOption {
   id: string;
@@ -23,22 +22,21 @@ interface ServiceChargeDialogProps {
   onApply: (amount: number, name: string) => void;
 }
 
+const STORAGE_KEY = "service-charges-settings";
+
 const defaultOptions: ServiceChargeOption[] = [
   { id: '1', name: 'Large Party (6+)', amount: 18, type: 'Percentage' },
   { id: '2', name: 'Delivery Fee', amount: 5, type: 'Fixed' },
   { id: '3', name: 'Holiday Surcharge', amount: 3, type: 'Percentage' },
 ];
 
-const fetchServiceChargeOptions = async (): Promise<ServiceChargeOption[]> => {
+const getServiceChargeOptions = (): ServiceChargeOption[] => {
   try {
-    const { data, error } = await supabase
-      .from('service_charges')
-      .select('id, name, amount, type')
-      .eq('archived', false)
-      .eq('is_active', true)
-      .order('sort_order');
-    if (error || !data || data.length === 0) return defaultOptions;
-    return data.map(c => ({ id: c.id, name: c.name, amount: Number(c.amount), type: c.type }));
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultOptions;
+    const charges: { id: string; name: string; amount: number; type: string; archived: boolean }[] = JSON.parse(raw);
+    const active = charges.filter(c => !c.archived);
+    return active.length > 0 ? active.map(c => ({ id: c.id, name: c.name, amount: c.amount, type: c.type })) : defaultOptions;
   } catch {
     return defaultOptions;
   }
@@ -53,11 +51,11 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [options, setOptions] = useState<ServiceChargeOption[]>([]);
 
-  // Reload options from database every time dialog opens
+  // Reload options from settings every time dialog opens
   useEffect(() => {
     if (open) {
+      setOptions(getServiceChargeOptions());
       setSelectedOption(null);
-      fetchServiceChargeOptions().then(setOptions);
     }
   }, [open]);
 

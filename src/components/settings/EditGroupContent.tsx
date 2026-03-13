@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Plus, Minus } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -6,13 +6,14 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/hooks/use-toast";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
-import { supabase } from "@/integrations/supabase/client";
 
 interface EditGroupContentProps {
   showHeader?: boolean;
   onBack?: () => void;
   groupId?: string;
 }
+
+const STORAGE_KEY = "groups-settings";
 
 const EditGroupContent = ({ showHeader = true, onBack, groupId: groupIdProp }: EditGroupContentProps) => {
   const isMobile = useIsMobile();
@@ -31,65 +32,91 @@ const EditGroupContent = ({ showHeader = true, onBack, groupId: groupIdProp }: E
   const [modifierGroupPosition, setModifierGroupPosition] = useState("");
   const [hasMaxSelections, setHasMaxSelections] = useState(false);
   const [maxSelections, setMaxSelections] = useState(1);
-  const [loading, setLoading] = useState(true);
 
-  const [modifierOptions, setModifierOptions] = useState<string[]>([]);
-  const [defaultModifierOptions, setDefaultModifierOptions] = useState<string[]>([]);
-  const [addOnOptions, setAddOnOptions] = useState<string[]>([]);
-
+  // Load existing group data
   useEffect(() => {
-    const fetchAll = async () => {
-      // Fetch group data
-      if (id) {
-        const { data } = await (supabase as any).from("groups").select("*").eq("id", id).single();
-        if (data) {
-          setGroupName(data.name || "");
-          setDisplayName(data.display_name || "");
-          setGroupType(data.type === "Modifier" ? "Modifier" : "Add-On");
-          setSelectedAddOns(data.selected_add_ons || []);
-          setSelectedModifiers(data.selected_modifiers || []);
-          setSelectedDefaultModifiers(data.selected_default_modifiers || []);
-          setModifierGroupPosition(data.modifier_group_position?.toString() || "");
-          setHasMaxSelections(data.has_max_selections || false);
-          setMaxSelections(data.max_selections || 1);
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored && id) {
+      try {
+        const parsed = JSON.parse(stored);
+        const item = parsed.find((g: any) => g.id === id);
+        if (item) {
+          setGroupName(item.name || "");
+          setDisplayName(item.displayName || "");
+          setGroupType(item.type === "Modifier" ? "Modifier" : "Add-On");
+          setSelectedAddOns(item.selectedAddOns || []);
+          setSelectedModifiers(item.selectedModifiers || []);
+          setSelectedDefaultModifiers(item.selectedDefaultModifiers || []);
+          setModifierGroupPosition(item.modifierGroupPosition || "");
+          setHasMaxSelections(item.hasMaxSelections || false);
+          setMaxSelections(item.maxSelections || 1);
         }
-      }
-
-      // Fetch options from DB
-      const [modRes, defModRes, addOnRes] = await Promise.all([
-        supabase.from("modifiers").select("name").eq("active", true),
-        (supabase as any).from("default_modifiers").select("name").eq("archived", false),
-        supabase.from("add_ons").select("name").eq("active", true),
-      ]);
-      if (modRes.data) setModifierOptions(modRes.data.map((m: any) => m.name));
-      if (defModRes.data) setDefaultModifierOptions(defModRes.data.map((m: any) => m.name));
-      if (addOnRes.data) setAddOnOptions(addOnRes.data.map((a: any) => a.name));
-
-      setLoading(false);
-    };
-    fetchAll();
+      } catch {}
+    }
   }, [id]);
 
-  const handleSave = async () => {
-    if (!id) return;
-    const { error } = await (supabase as any).from("groups").update({
-      name: groupName.trim() || undefined,
-      display_name: displayName,
-      type: groupType,
-      selected_add_ons: selectedAddOns,
-      selected_modifiers: selectedModifiers,
-      selected_default_modifiers: selectedDefaultModifiers,
-      modifier_group_position: parseInt(modifierGroupPosition) || 0,
-      has_max_selections: hasMaxSelections,
-      max_selections: maxSelections,
-    }).eq("id", id);
-    if (!error) {
-      toast({ title: "Group updated" });
+  const modifierOptions = useMemo(() => {
+    const stored = localStorage.getItem("modifiers-settings");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        return parsed.filter((m: any) => !m.archived).map((m: any) => m.name);
+      } catch {}
+    }
+    return ["Extra Cheese", "No Onions", "Gluten Free", "Spicy", "Mild", "Well Done", "Rare"];
+  }, []);
+
+  const defaultModifierOptions = useMemo(() => {
+    const stored = localStorage.getItem("default-modifiers-settings");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        return parsed.filter((m: any) => !m.archived).map((m: any) => m.name);
+      } catch {}
+    }
+    return [];
+  }, []);
+
+  const addOnOptions = useMemo(() => {
+    const stored = localStorage.getItem("addons-settings");
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        return parsed.filter((a: any) => !a.archived).map((a: any) => a.name);
+      } catch {}
+    }
+    return ["1 Scoop Vanilla", "Abuelita", "Add Avocado", "Add Brioche"];
+  }, []);
+
+  const handleSave = () => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored && id) {
+      try {
+        const parsed = JSON.parse(stored);
+        const updated = parsed.map((g: any) =>
+          g.id === id
+            ? {
+                ...g,
+                name: groupName.trim() || g.name,
+                displayName,
+                type: groupType,
+                selectedAddOns,
+                selectedModifiers,
+                selectedDefaultModifiers,
+                modifierGroupPosition,
+                hasMaxSelections,
+                maxSelections,
+              }
+            : g
+        );
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+        toast({ title: "Group updated" });
+      } catch {}
     }
   };
 
-  const handleBack = async () => {
-    await handleSave();
+  const handleBack = () => {
+    handleSave();
     if (onBack) onBack();
     else navigate('/settings/menu/groups');
   };
@@ -98,17 +125,17 @@ const EditGroupContent = ({ showHeader = true, onBack, groupId: groupIdProp }: E
     setGroupType(prev => prev === "Add-On" ? "Modifier" : "Add-On");
   };
 
-  if (loading) {
-    return <div className="h-full flex items-center justify-center text-muted-foreground">Loading...</div>;
-  }
-
   // Desktop / Tablet layout
   if (!isMobile) {
     return (
       <div className="h-full flex flex-col overflow-hidden bg-background">
         {showHeader && (
           <div className="flex items-center justify-center relative px-6 pt-5">
-            <button onClick={handleBack} className="absolute left-6 w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity" aria-label="Back">
+            <button
+              onClick={handleBack}
+              className="absolute left-6 w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+              aria-label="Back"
+            >
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
             <h1 className="text-2xl font-semibold text-foreground">Edit Group</h1>
@@ -179,7 +206,9 @@ const EditGroupContent = ({ showHeader = true, onBack, groupId: groupIdProp }: E
                 <div className="h-px bg-[hsl(var(--surface-border))] mx-4" />
                 <button className="flex items-center justify-between w-full px-8 py-5 hover:bg-neutral-700/30 transition-colors text-left">
                   <span className="text-[15px] text-foreground">Organize</span>
-                  <ChevronRight className="h-5 w-5 text-[hsl(var(--text-subtle))]" />
+                  <div className="flex items-center gap-2">
+                    <ChevronRight className="h-5 w-5 text-[hsl(var(--text-subtle))]" />
+                  </div>
                 </button>
                 <div className="h-px bg-[hsl(var(--surface-border))] mx-4" />
                 <div className="flex items-center justify-between w-full px-8 py-5">
@@ -299,7 +328,9 @@ const EditGroupContent = ({ showHeader = true, onBack, groupId: groupIdProp }: E
               <div className="h-px bg-neutral-700/50 mx-4" />
               <button className="flex items-center justify-between w-full py-4 px-4 active:bg-neutral-700/30 transition-colors text-left">
                 <span className="text-foreground text-base font-medium">Organize</span>
-                <ChevronRight className="w-4 h-4 text-neutral-500" />
+                <div className="flex items-center gap-2">
+                  <ChevronRight className="w-4 h-4 text-neutral-500" />
+                </div>
               </button>
               <div className="h-px bg-neutral-700/50 mx-4" />
               <div className="flex items-center justify-between w-full py-4 px-4">

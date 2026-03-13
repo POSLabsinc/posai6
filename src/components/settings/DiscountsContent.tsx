@@ -1,9 +1,10 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, Search, Mic, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
+import { useSettingsSync } from "@/hooks/useSettingsSync";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +21,6 @@ import SwipeableDiscountItem from "./SwipeableDiscountItem";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import infoIcon from "@/assets/icons/info.png";
 import discountsIcon from "@/assets/icons/discounts.png";
-import { supabase } from "@/integrations/supabase/client";
 
 interface Discount {
   id: string;
@@ -40,50 +40,38 @@ interface DiscountsContentProps {
   onAIClick?: () => void;
 }
 
-const SHARED_DEVICE_ID = "shared";
+const STORAGE_KEY = "discounts-settings";
+
+const defaultDiscounts: Discount[] = [
+  { id: "1", name: "Employee Discount", amount: 20, type: "Percentage", archived: false, requiresManagerPin: true, applicableTo: "All Products" },
+  { id: "2", name: "Happy Hour", amount: 15, type: "Percentage", archived: false, applicableTo: "Beverages Only", requiresManagerPin: false },
+  { id: "3", name: "Senior Discount", amount: 10, type: "Percentage", archived: false, requiresManagerPin: true, applicableTo: "All Products" },
+  { id: "4", name: "Military Discount", amount: 15, type: "Percentage", archived: false, requiresManagerPin: true, applicableTo: "All Products" },
+];
 
 const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
   
-  const [discounts, setDiscounts] = useState<Discount[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Use settings sync hook to listen for AI-driven updates
+  const [discounts, setDiscounts] = useSettingsSync<Discount[]>(
+    'discounts',
+    STORAGE_KEY,
+    defaultDiscounts
+  );
 
-  const fetchDiscounts = useCallback(async () => {
-    const { data, error } = await (supabase as any)
-      .from("discounts")
-      .select("*")
-      .eq("device_id", SHARED_DEVICE_ID)
-      .order("sort_order");
-    
-    if (data && !error) {
-      const mapped: Discount[] = data.map((d: any) => ({
-        id: d.id,
-        name: d.name,
-        amount: Number(d.amount),
-        type: d.type as "Percentage" | "Fixed",
-        archived: d.archived,
-        applicableTo: d.applicable_to,
-        applicableProducts: d.applicable_products || [],
-        requiresManagerPin: d.requires_manager_pin,
-        scheduleEnabled: d.schedule_enabled,
-      }));
-      setDiscounts(mapped);
-    }
-    setLoading(false);
-  }, []);
-
-  useEffect(() => {
-    fetchDiscounts();
-  }, [fetchDiscounts]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
   const [discountToArchive, setDiscountToArchive] = useState<Discount | null>(null);
   const [showAddScreen, setShowAddScreen] = useState(false);
   const [discountToEdit, setDiscountToEdit] = useState<Discount | null>(null);
 
-  const handleAddDiscount = async (discountData: {
+  const saveDiscounts = (newDiscounts: Discount[]) => {
+    setDiscounts(newDiscounts);
+  };
+
+  const handleAddDiscount = (discountData: {
     name: string;
     amount: number;
     type: "Percentage" | "Fixed";
@@ -92,43 +80,26 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     requiresManagerPin: boolean;
     scheduleEnabled: boolean;
   }) => {
-    const { data, error } = await (supabase as any).from("discounts").insert({
-      device_id: SHARED_DEVICE_ID,
+    const newDiscount: Discount = {
+      id: Date.now().toString(),
       name: discountData.name,
       amount: discountData.amount,
       type: discountData.type,
-      applicable_to: discountData.applicableTo || "All Products",
-      applicable_products: discountData.applicableProducts || [],
-      requires_manager_pin: discountData.requiresManagerPin,
-      schedule_enabled: discountData.scheduleEnabled,
+      applicableTo: discountData.applicableTo,
+      applicableProducts: discountData.applicableProducts ?? [],
       archived: false,
-      sort_order: discounts.length,
-    }).select().single();
-
-    if (!error && data) {
-      await fetchDiscounts();
-      toast({ description: "Discount added successfully" });
-    } else {
-      toast({ description: "Failed to add discount", variant: "destructive" });
-    }
+      requiresManagerPin: discountData.requiresManagerPin,
+      scheduleEnabled: discountData.scheduleEnabled,
+    };
+    saveDiscounts([...discounts, newDiscount]);
     setShowAddScreen(false);
   };
 
-  const handleEditDiscount = async (updatedDiscount: Discount) => {
-    const { error } = await (supabase as any).from("discounts").update({
-      name: updatedDiscount.name,
-      amount: updatedDiscount.amount,
-      type: updatedDiscount.type,
-      applicable_to: updatedDiscount.applicableTo || "All Products",
-      applicable_products: updatedDiscount.applicableProducts || [],
-      requires_manager_pin: updatedDiscount.requiresManagerPin,
-      schedule_enabled: updatedDiscount.scheduleEnabled || false,
-      archived: updatedDiscount.archived,
-    }).eq("id", updatedDiscount.id);
-
-    if (!error) {
-      await fetchDiscounts();
-    }
+  const handleEditDiscount = (updatedDiscount: Discount) => {
+    const updatedDiscounts = discounts.map(discount => 
+      discount.id === updatedDiscount.id ? updatedDiscount : discount
+    );
+    saveDiscounts(updatedDiscounts);
     setDiscountToEdit(null);
   };
 
@@ -136,11 +107,12 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     setDiscountToArchive(discount);
   };
 
-  const confirmArchiveDiscount = async () => {
+  const confirmArchiveDiscount = () => {
     if (discountToArchive) {
-      const newArchived = !discountToArchive.archived;
-      await (supabase as any).from("discounts").update({ archived: newArchived }).eq("id", discountToArchive.id);
-      await fetchDiscounts();
+      const updatedDiscounts = discounts.map(discount => 
+        discount.id === discountToArchive.id ? { ...discount, archived: !discount.archived } : discount
+      );
+      saveDiscounts(updatedDiscounts);
       setDiscountToArchive(null);
     }
   };

@@ -393,7 +393,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setMessages([userMsg, assistantMsg]);
       setCurrentStep("personal-link-methods");
       setInviteCode(["", "", "", "", "", ""]);
-    } else if (currentStep === "personal-sign-in") {
+    } else if (currentStep === "personal-sign-in-email") {
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
       const assistantMsg2: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "How would you like to link this device?" };
       setMessages([userMsg, assistantMsg2]);
@@ -403,6 +403,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setPersonalPassword("");
       setPersonalSignInError("");
       setInviteCode(["", "", "", "", "", ""]);
+    } else if (currentStep === "personal-sign-in-password") {
+      // Go back to email step - remove password ask message and user email bubble
+      const msgs = messages.slice(0, -2);
+      setMessages(msgs);
+      setCurrentStep("personal-sign-in-email");
+      setPersonalEmail("");
+      setPersonalPassword("");
     } else if (currentStep === "personal-access-denied") {
       setCurrentStep("personal-sign-in");
       setPersonalEmail("");

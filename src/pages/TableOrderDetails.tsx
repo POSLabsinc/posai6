@@ -1076,7 +1076,7 @@ const TableOrderDetails = () => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
-              <span className="text-white font-bold">{currentSelectedGuest.id}</span>
+              <span className="text-white font-bold">{currentSelectedGuest.orderNumber || 0}</span>
             </div>
             <div className="flex items-center gap-2">
               <img src={runnerIcon} alt="Runner" className="w-4 h-4 opacity-60" />

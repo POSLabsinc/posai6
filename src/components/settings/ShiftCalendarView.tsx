@@ -203,6 +203,12 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick, toolbarJobTypes =
   useEffect(() => { loadOpenShifts(); }, [loadOpenShifts]);
 
   useEffect(() => {
+    const handler = () => { loadOpenShifts(); };
+    window.addEventListener("open-shifts-updated", handler);
+    return () => window.removeEventListener("open-shifts-updated", handler);
+  }, [loadOpenShifts]);
+
+  useEffect(() => {
     const handler = () => loadEvents();
     window.addEventListener("events-updated", handler);
     return () => window.removeEventListener("events-updated", handler);

@@ -20,6 +20,7 @@ export interface TicketOrderItemRow {
 
 export interface TicketOrderRow {
   id: string;
+  order_number: number;
   name: string;
   phone: string;
   party_size: number;

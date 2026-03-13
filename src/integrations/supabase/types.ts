@@ -2230,6 +2230,158 @@ export type Database = {
         }
         Relationships: []
       }
+      ticket_order_items: {
+        Row: {
+          created_at: string
+          id: string
+          is_fired: boolean
+          is_shared: boolean
+          modifiers: string[]
+          name: string
+          no_tax: boolean
+          order_id: string
+          price: number
+          qty: number
+          seats: number[]
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_fired?: boolean
+          is_shared?: boolean
+          modifiers?: string[]
+          name: string
+          no_tax?: boolean
+          order_id: string
+          price?: number
+          qty?: number
+          seats?: number[]
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_fired?: boolean
+          is_shared?: boolean
+          modifiers?: string[]
+          name?: string
+          no_tax?: boolean
+          order_id?: string
+          price?: number
+          qty?: number
+          seats?: number[]
+          sort_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ticket_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "ticket_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ticket_orders: {
+        Row: {
+          check_number: string
+          created_at: string
+          discount: number
+          id: string
+          merged_from: Json | null
+          name: string
+          notes: string
+          order_type: string
+          paid_amount: string | null
+          party_size: number
+          payment_status: string | null
+          payment_type: string
+          payments: Json | null
+          phone: string
+          revenue_center: string
+          server: string
+          service_charge: number
+          session_id: string | null
+          split_configuration: Json | null
+          status: string
+          subtotal: number
+          table_id: string
+          tax: number
+          time: string
+          timer: string
+          tip: number
+          total: number
+          transfer_info: Json | null
+          transferred_from: Json | null
+          updated_at: string
+        }
+        Insert: {
+          check_number?: string
+          created_at?: string
+          discount?: number
+          id?: string
+          merged_from?: Json | null
+          name?: string
+          notes?: string
+          order_type?: string
+          paid_amount?: string | null
+          party_size?: number
+          payment_status?: string | null
+          payment_type?: string
+          payments?: Json | null
+          phone?: string
+          revenue_center?: string
+          server?: string
+          service_charge?: number
+          session_id?: string | null
+          split_configuration?: Json | null
+          status?: string
+          subtotal?: number
+          table_id?: string
+          tax?: number
+          time?: string
+          timer?: string
+          tip?: number
+          total?: number
+          transfer_info?: Json | null
+          transferred_from?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          check_number?: string
+          created_at?: string
+          discount?: number
+          id?: string
+          merged_from?: Json | null
+          name?: string
+          notes?: string
+          order_type?: string
+          paid_amount?: string | null
+          party_size?: number
+          payment_status?: string | null
+          payment_type?: string
+          payments?: Json | null
+          phone?: string
+          revenue_center?: string
+          server?: string
+          service_charge?: number
+          session_id?: string | null
+          split_configuration?: Json | null
+          status?: string
+          subtotal?: number
+          table_id?: string
+          tax?: number
+          time?: string
+          timer?: string
+          tip?: number
+          total?: number
+          transfer_info?: Json | null
+          transferred_from?: Json | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       timed_pricing_rules: {
         Row: {
           adjustment: number

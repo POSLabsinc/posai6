@@ -336,6 +336,7 @@ const Login = () => {
     setPersonalClockOutTime(null);
     setShowClockOutSuccess(false);
     setShowContactAdmin(false);
+    setActivationApproach(null);
   }, []);
 
   // Resend cooldown timer

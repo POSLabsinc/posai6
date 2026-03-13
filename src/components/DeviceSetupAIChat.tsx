@@ -988,24 +988,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           if (e.key === "Enter" && signInInput.length === selectedCountry.phoneLength) {
                             const phone = `${selectedCountry.dial} ${formatPhone(signInInput, selectedCountry.format)}`;
                             setSentAddress(phone);
-                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: phone };
-                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${phone}**` };
-                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                            setCurrentStep("sign-in-phone-sent");
-                            setSignInInput("");
-                          }
-                        }}
-                      />
-                      <button
-                        onClick={() => {
-                          if (signInInput.length === selectedCountry.phoneLength) {
-                            const phone = `${selectedCountry.dial} ${formatPhone(signInInput, selectedCountry.format)}`;
-                            setSentAddress(phone);
-                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: phone };
-                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${phone}**` };
-                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                            setCurrentStep("sign-in-phone-sent");
-                            setSignInInput("");
+                            appendChatTurn(phone, `We sent a secure sign-in link to **${phone}**`, "sign-in-phone-sent", {
+                              onAfterAssistant: () => setSignInInput(""),
+                            });
                           }
                         }}
                         disabled={signInInput.length !== selectedCountry.phoneLength}

@@ -224,11 +224,56 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     }
   }, []);
 
+  const transitionTimersRef = useRef<number[]>([]);
+
+  const clearTransitionTimers = useCallback(() => {
+    transitionTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    transitionTimersRef.current = [];
+  }, []);
+
+  const appendChatTurn = useCallback(
+    (
+      userContent: string,
+      assistantContent: string,
+      nextStep: StepType,
+      options?: {
+        resetFlow?: boolean;
+        delayMs?: number;
+        onAfterAssistant?: () => void;
+      }
+    ) => {
+      clearTransitionTimers();
+
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: userContent };
+      if (options?.resetFlow) {
+        seenMessageIds.current.clear();
+        setMessages([userMsg]);
+      } else {
+        setMessages((prev) => [...prev, userMsg]);
+      }
+
+      const timer = window.setTimeout(() => {
+        const assistantMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: assistantContent,
+        };
+        setMessages((prev) => [...prev, assistantMsg]);
+        setCurrentStep(nextStep);
+        options?.onAfterAssistant?.();
+      }, options?.delayMs ?? 300);
+
+      transitionTimersRef.current.push(timer);
+    },
+    [clearTransitionTimers]
+  );
+
   const handleSend = useCallback(
     (text?: string) => {
       const msg = (text || input).trim();
       if (!msg || isLoading) return;
 
+      clearTransitionTimers();
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: msg };
       const newMessages = [...messages, userMsg];
       setMessages(newMessages);
@@ -236,20 +281,15 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setCurrentStep("chat");
       streamChat(newMessages);
     },
-    [input, isLoading, messages, streamChat]
+    [clearTransitionTimers, input, isLoading, messages, streamChat]
   );
 
   const handleNotNew = useCallback(() => {
-    const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
-    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
-    seenMessageIds.current.clear();
-    setMessages([userMsg, assistantMsg]);
     setIsNewUser(false);
-    setCurrentStep("device-type");
-  }, []);
+    appendChatTurn("No, I'm not new", "Choose your device type to continue:", "device-type", { resetFlow: true });
+  }, [appendChatTurn]);
 
   const handleActivationOption = useCallback((option: string) => {
-    const userMsg: Message = { id: Date.now().toString(), role: "user", content: option };
     let followUp = "";
     let nextStep: "activate-code" | "sign-in-link" | "demo-mode" = "activate-code";
 
@@ -264,10 +304,8 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       nextStep = "demo-mode";
     }
 
-    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: followUp };
-    setMessages((prev) => [...prev, userMsg, assistantMsg]);
-    setCurrentStep(nextStep);
-  }, []);
+    appendChatTurn(option, followUp, nextStep);
+  }, [appendChatTurn]);
 
   const handleGoBack = useCallback(() => {
     if (currentStep === "device-type") {

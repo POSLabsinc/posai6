@@ -2895,8 +2895,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   onClick={() => handleCardClick(guest)}
                 >
                   <MobileTicketCard
-                    orderId={guest.check === "--" ? "--" : guest.check.slice(-3)}
-                    checkId={guest.check === "--" ? "000" : guest.check.slice(-3)}
+                    orderId={guest.id.slice(-3)}
+                    checkId={guest.check === "--" ? "--" : guest.check}
                     guestName={guest.name}
                     tableNumber={guest.table}
                     partySize={guest.partySize}

@@ -803,6 +803,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     );
   }
 
+  // AI Chat Screen (shown when user selects "Activate with AI")
+  if (showAIChat) {
+    return (
+      <DeviceSetupLayout variant="setup" fullWidthRight>
+        <DeviceSetupAIChat open={true} onClose={() => { setShowAIChat(false); setActivationApproach(null); }} />
+      </DeviceSetupLayout>
+    );
+  }
+
   // Activation Approach Selection Screen (FIRST CHECK)
   if (!deviceType && !activationApproach) {
     return (
@@ -2689,15 +2698,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
             </motion.div>
           </motion.div>
-        </DeviceSetupLayout>
-      );
-    }
-
-    // Main activation options screen
-    if (showAIChat) {
-      return (
-        <DeviceSetupLayout variant="setup" fullWidthRight>
-          <DeviceSetupAIChat open={true} onClose={() => { setShowAIChat(false); setActivationApproach(null); }} />
         </DeviceSetupLayout>
       );
     }

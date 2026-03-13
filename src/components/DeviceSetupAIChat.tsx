@@ -575,15 +575,17 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
     }
   }, [inviteCode]);
 
-  // Handle invite code verification → show sign-in
+  // Handle invite code verification → show profile + ask email
   useEffect(() => {
     if (currentStep === "personal-invite-verifying") {
       const timer = setTimeout(() => {
         const user = { name: "Alex Johnson", email: "alex.johnson@restaurant.com", role: "Manager" };
         setInvitedUser(user);
-        const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: `✅ Code verified! This invite was issued to **${user.name}** (${user.role}). Please sign in with your approved credentials.` };
+        const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: `✅ Code verified! This invite was issued to **${user.name}** (${user.role}). Please enter your email address to sign in.` };
         setMessages((prev) => [...prev, successMsg]);
         setCurrentStep("personal-sign-in-email");
+      }, 2000);
+      return () => clearTimeout(timer);
     }
   }, [currentStep]);
 

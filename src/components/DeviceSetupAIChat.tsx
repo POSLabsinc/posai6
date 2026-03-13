@@ -591,7 +591,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     animate="visible"
                     variants={{
                       hidden: {},
-                      visible: { transition: { staggerChildren: 0.12, delayChildren: messages.length * 0.15 + 0.1 } }
+                      visible: { transition: { staggerChildren: 0.12, delayChildren: 0.25 } }
                     }}
                     className="flex flex-col gap-2.5 pl-7 pt-3 pb-2"
                   >

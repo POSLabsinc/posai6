@@ -71,9 +71,9 @@ const MobileTicketCard: React.FC<MobileTicketCardProps> = ({
     >
       {/* Column 1: Order ID Box */}
       <div className="flex-shrink-0 p-2 flex items-center">
-        <div className="w-12 h-14 bg-neutral-700 rounded-lg flex flex-col items-center justify-center">
-          <span className="text-xl font-bold text-white leading-none">{orderId}</span>
-          <span className="text-xs text-neutral-400 leading-none mt-0.5">{checkId}</span>
+        <div className="w-12 h-14 bg-neutral-700 rounded-lg flex flex-col items-center justify-center overflow-hidden">
+          <span className="text-xl font-bold text-white leading-none truncate max-w-full px-0.5">{orderId}</span>
+          <span className="text-xs text-neutral-400 leading-none mt-0.5 truncate max-w-full px-0.5">{checkId}</span>
         </div>
       </div>
 

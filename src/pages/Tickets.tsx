@@ -495,14 +495,20 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   };
   const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
   const [activeFilter, setActiveFilter] = useState("All");
-  const [selectedGuest, setSelectedGuest] = useState<GuestOrder | null>(null);
+  const [selectedGuest, setSelectedGuest] = useState<GuestOrder>(() => allOrders[0] ?? FALLBACK_SELECTED_GUEST);
   
-  // Auto-select first order when data loads
+  // Keep selected ticket in sync when orders load or change
   useEffect(() => {
-    if (!selectedGuest && allOrders.length > 0) {
+    if (allOrders.length === 0) return;
+
+    const hasValidSelection =
+      selectedGuest.id !== FALLBACK_SELECTED_GUEST_ID &&
+      allOrders.some((order) => order.id === selectedGuest.id);
+
+    if (!hasValidSelection) {
       setSelectedGuest(allOrders[0]);
     }
-  }, [allOrders.length]);
+  }, [allOrders, selectedGuest.id]);
   
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);

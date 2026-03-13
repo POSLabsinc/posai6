@@ -411,13 +411,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setPersonalEmail("");
       setPersonalPassword("");
     } else if (currentStep === "personal-access-denied") {
-      setCurrentStep("personal-sign-in");
+      // Go back to email step
+      setCurrentStep("personal-sign-in-email");
       setPersonalEmail("");
       setPersonalPassword("");
       setPersonalSignInError("");
-      // Remove access denied messages
       const msgs = messages.slice(0, -1);
       setMessages(msgs);
+    } else if (currentStep === "personal-sign-in-verifying") {
+      // Can't go back during verification
     } else if (currentStep === "demo-otp") {
       const msgs = messages.slice(0, -2);
       setMessages(msgs);

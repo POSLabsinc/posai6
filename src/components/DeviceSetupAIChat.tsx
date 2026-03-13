@@ -340,7 +340,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const handleActivationOption = useCallback((option: string) => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: option };
     let followUp = "";
-    let nextStep: "activate-code" | "sign-in-link" | "demo-mode" = "activate-code";
+    let nextStep: "activate-code" | "sign-in-link" | "demo-email" = "activate-code";
 
     if (option === "Activate with Code") {
       followUp = "Great! Please enter your 6-digit activation code. You can find it from your manager or the Admin Portal.";
@@ -349,8 +349,8 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       followUp = "How would you like to receive your secure sign-in link?";
       nextStep = "sign-in-link";
     } else if (option === "Try Demo Mode") {
-      followUp = "Demo Mode lets you explore all features with sample data — no real data is affected. Tap \"Try Demo Mode\" on the left panel to get started! Need help with anything else?";
-      nextStep = "demo-mode";
+      followUp = "To access Demo Mode, we need to verify your email first. Please enter your email address below.";
+      nextStep = "demo-email";
     }
 
     const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: followUp };

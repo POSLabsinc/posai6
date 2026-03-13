@@ -124,8 +124,17 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const [showBranding, setShowBranding] = useState(false);
   const [showFirstQuestion, setShowFirstQuestion] = useState(false);
   const [showFirstButtons, setShowFirstButtons] = useState(false);
+  const [demoEmail, setDemoEmail] = useState("");
+  const [demoOtp, setDemoOtp] = useState("");
+  const [demoOtpError, setDemoOtpError] = useState("");
+  const [demoSendingOtp, setDemoSendingOtp] = useState(false);
+  const [demoVerifyingOtp, setDemoVerifyingOtp] = useState(false);
+  const [demoResendCooldown, setDemoResendCooldown] = useState(0);
+  const [demoResendCount, setDemoResendCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const demoEmailRef = useRef<HTMLInputElement>(null);
+  const demoOtpRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open && scrollRef.current) {

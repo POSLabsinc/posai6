@@ -251,6 +251,14 @@ const Login = () => {
   const [showDemoMode, setShowDemoMode] = useState(false);
   const [selectedDemoBusinessType, setSelectedDemoBusinessType] = useState<string | null>(null);
   const [isLoadingDemo, setIsLoadingDemo] = useState(false);
+  const [demoEmail, setDemoEmail] = useState("");
+  const [demoEmailVerified, setDemoEmailVerified] = useState(false);
+  const [demoOtpSent, setDemoOtpSent] = useState(false);
+  const [demoOtp, setDemoOtp] = useState("");
+  const [demoOtpError, setDemoOtpError] = useState("");
+  const [demoSendingOtp, setDemoSendingOtp] = useState(false);
+  const [demoVerifyingOtp, setDemoVerifyingOtp] = useState(false);
+  const [demoOtpResendCooldown, setDemoOtpResendCooldown] = useState(0);
   const [magicLinkEmail, setMagicLinkEmail] = useState("");
   const [magicLinkPhone, setMagicLinkPhone] = useState("");
   const [magicLinkInputType, setMagicLinkInputType] = useState<"email" | "phone">("email");

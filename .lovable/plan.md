@@ -53,12 +53,19 @@ ticket_order_items ────┘
         ├── UnifiedOrderContext (wraps hook, legacy API)
         ├── SessionOrderContext (session orders with session_id)
         ├── Tickets.tsx (direct hook usage)
-        ├── TableOrderDetails.tsx (via UnifiedOrderContext)
+        ├── TableOrderDetails.tsx (via UnifiedOrderContext + useTicketOrders — fully DB-backed)
         ├── Dashboard.tsx (via static data - next phase)
         └── TransferOrders.tsx (via UnifiedOrderContext)
 ```
 
+### Phase 7: TableOrderDetails.tsx Fully DB-Connected ✅
+- Replaced static `getOrdersByTable()` / `allOrders` from `src/data/orders.ts` with `useUnifiedOrders()` DB context
+- All order fields (name, server, status, party size, time, total, tip, revenue center, payment status, items) now come from `ticket_orders` DB table
+- Replaced `getAvailableTicketOrdersForTransfer()` / `ticketOrders.find()` with `useTicketOrders()` DB hook
+- Replaced hardcoded `discountTypes` array with live fetch from `discounts` DB table (with fallback defaults)
+- Merged panel data (`getMergedPanelData`) now uses DB orders
+- Transfer-to-order dialog uses DB-backed order list
+
 ### Remaining (Future Phases)
 - Dashboard.tsx still imports from `src/data/orders.ts` static array — needs migration to hook
-- TableOrderDetails.tsx still imports `allOrders` from `src/data/orders.ts` — needs migration
 - Remove static arrays from `src/data/orders.ts` and `src/data/ticketOrders.ts` once all consumers migrated

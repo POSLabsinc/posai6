@@ -5,6 +5,8 @@ import { useOrderTimers } from "@/hooks/use-order-timer";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
+import { useTicketOrders } from "@/hooks/use-ticket-orders";
+import { supabase } from "@/integrations/supabase/client";
 import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
 import RefundDialog from "@/components/RefundDialog";
@@ -14,16 +16,14 @@ import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phon
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
-import { ticketOrders, ticketToTemplateData, formatTicketPrice, getAvailableTicketOrdersForTransfer } from "@/data/ticketOrders";
+import { ticketToTemplateData, formatTicketPrice } from "@/data/ticketOrders";
+import type { TicketOrder } from "@/data/ticketOrders";
 
-// Import shared order data
+// Import shared order utilities (no static data)
 import { 
   Order, 
   OrderItem,
   PaymentMethod,
-  allOrders, 
-  getOrdersByTable, 
-  getOrderWithTotals,
   formatPrice,
   getStatusColor as getSharedStatusColor,
   getMergedOrderDisplay,
@@ -65,7 +65,7 @@ import discountBtnIcon from "@/assets/icons/discount-icon.svg";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
-// Discount types
+// Discount types - loaded from DB
 interface DiscountType {
   id: string;
   name: string;
@@ -74,21 +74,6 @@ interface DiscountType {
   fixedAmount?: number;
   icon: string;
 }
-
-const discountTypes: DiscountType[] = [
-  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
-  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
-  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
-  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
-  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
-  { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
-  { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
-  { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
-  { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
-  { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
-  { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
-  { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
-];
 
 const getDiscountIcon = (iconName: string) => {
   const icons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -190,11 +175,11 @@ const filterItemsBySeats = (items: OrderItem[], selectedSeats: number[], allSeat
 };
 
 // Dynamic function to build merged order data from actual orders
-const getMergedPanelData = (destOrderId: string | null, mergedOrderId: string | null, mergedFromTable: string | null) => {
+const getMergedPanelData = (destOrderId: string | null, mergedOrderId: string | null, mergedFromTable: string | null, allDbOrders: Order[]) => {
   if (!destOrderId || !mergedOrderId) return null;
   
-  const destOrder = allOrders.find(o => o.id === destOrderId);
-  const mergedOrder = allOrders.find(o => o.id === mergedOrderId);
+  const destOrder = allDbOrders.find(o => o.id === destOrderId);
+  const mergedOrder = allDbOrders.find(o => o.id === mergedOrderId);
   
   if (!destOrder || !mergedOrder) return null;
   
@@ -240,7 +225,49 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const TableOrderDetails = () => {
   const navigate = useNavigate();
-  const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
+  const { orders: unifiedOrders, updateOrders: updateUnifiedOrders, getOrdersByTable: getUnifiedOrdersByTable, getOrderById: getUnifiedOrderById } = useUnifiedOrders();
+  const { orders: dbTicketOrders } = useTicketOrders();
+  
+  // All DB orders as Order-compatible shape for lookups
+  const allDbOrders: Order[] = useMemo(() => unifiedOrders.map(o => ({
+    ...o,
+    orderType: o.orderType as Order['orderType'],
+  })), [unifiedOrders]);
+  
+  // Fetch discounts from DB
+  const [discountTypes, setDiscountTypes] = useState<DiscountType[]>([]);
+  useEffect(() => {
+    const fetchDiscounts = async () => {
+      const { data } = await (supabase as any).from('discounts').select('*').eq('archived', false).eq('device_id', 'shared').order('sort_order');
+      if (data && data.length > 0) {
+        setDiscountTypes(data.map((d: any) => ({
+          id: d.id,
+          name: d.name,
+          description: d.type === 'Percentage' ? `${d.amount}% off` : `$${Number(d.amount).toFixed(2)} off`,
+          percentage: d.type === 'Percentage' ? Number(d.amount) : undefined,
+          fixedAmount: d.type === 'Fixed' || d.type === 'Dollar' ? Number(d.amount) : undefined,
+          icon: d.requires_manager_pin ? 'dollar' : 'tag',
+        })));
+      } else {
+        // Fallback defaults if no DB discounts
+        setDiscountTypes([
+          { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
+          { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
+          { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
+          { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
+          { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
+          { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
+          { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
+          { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
+          { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
+          { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
+          { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
+          { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
+        ]);
+      }
+    };
+    fetchDiscounts();
+  }, []);
   const {
     tableId
   } = useParams();
@@ -269,7 +296,7 @@ const TableOrderDetails = () => {
   // Get the revenueCenter (area) of an order by ID
   const getOrderArea = (orderId: string | null): string => {
     if (!orderId) return "";
-    const order = allOrders.find(o => o.id === orderId);
+    const order = allDbOrders.find(o => o.id === orderId);
     return order?.revenueCenter || "";
   };
   const mergedSourceArea = getOrderArea(mergedOrderId);
@@ -358,15 +385,24 @@ const TableOrderDetails = () => {
     } catch { return []; }
   }, [tableId]);
 
-  // Get orders for this table with calculated totals (static + session orders)
-  const tableOrders = getOrdersByTable(tableId || "T2");
+  // Get orders for this table from DB (unified context)
+  const tableOrders = useMemo(() => allDbOrders.filter(o => o.table === (tableId || "T2")), [allDbOrders, tableId]);
   
   // Get persisted transfers that target specific existing orders
   const persistedTransfersForExistingOrders = persistedTransfers.filter(t => t.targetOrderId);
   const persistedTransfersForNewOrders = persistedTransfers.filter(t => !t.targetOrderId);
   
   const staticGuestOrders: GuestOrder[] = tableOrders.map((order, orderIndex) => {
-    const orderWithTotals = getOrderWithTotals(order) as GuestOrder;
+    // DB orders already have calculated totals
+    const orderWithTotals: GuestOrder = {
+      ...order,
+      subtotal: (order as any).subtotal ?? calculateOrderTotals(order.items, 0).subtotal,
+      discount: (order as any).discount ?? calculateOrderTotals(order.items, 0).discount,
+      serviceCharge: (order as any).serviceCharge ?? calculateOrderTotals(order.items, 0).serviceCharge,
+      tax: (order as any).tax ?? calculateOrderTotals(order.items, 0).tax,
+      tip: (order as any).tip ?? calculateOrderTotals(order.items, 0).tip,
+      total: (order as any).total ?? calculateOrderTotals(order.items, 0).total,
+    };
     
     // Attach split configuration from localStorage for static orders
     const splitKey = getStaticSplitKey(order.id);
@@ -376,7 +412,7 @@ const TableOrderDetails = () => {
     
     // If this order is the destination of a merge, add merged order data
     if (destOrderId === order.id && mergedOrderId) {
-      const mergedSource = allOrders.find(o => o.id === mergedOrderId);
+      const mergedSource = allDbOrders.find(o => o.id === mergedOrderId);
       if (mergedSource) {
         orderWithTotals.mergedFrom = [{
           orderId: mergedSource.id,
@@ -396,7 +432,7 @@ const TableOrderDetails = () => {
     
     // If this order is the destination of a transfer (exact ID match only) - URL params
     if (transferDestOrderId === order.id && transferredOrderId && transferredItemNames.length > 0) {
-      const transferSource = allOrders.find(o => o.id === transferredOrderId);
+      const transferSource = allDbOrders.find(o => o.id === transferredOrderId);
       if (transferSource) {
         const transferredItems = transferSource.items.filter(item => 
           transferredItemNames.includes(item.name)
@@ -465,16 +501,16 @@ const TableOrderDetails = () => {
     if (transferType === 'partial' && transferredOrderId && transferredItemNames.length > 0 && transferredFromTable !== tableId) {
       const alreadyAttached = staticGuestOrders.some(o => o.transferredFrom && o.transferredFrom.length > 0);
       if (!alreadyAttached) {
-        const transferSource = allOrders.find(o => o.id === transferredOrderId);
+        const transferSource = allDbOrders.find(o => o.id === transferredOrderId);
         if (transferSource) {
           const transferredItems = transferSource.items.filter(item => 
             transferredItemNames.includes(item.name)
           );
           if (transferredItems.length > 0) {
             const totals = calculateOrderTotals(transferredItems, 0);
-            const maxOrderId = Math.max(...allOrders.map(o => parseInt(o.id) || 0));
+            const maxOrderId = Math.max(...allDbOrders.map(o => parseInt(o.id) || 0));
             const newOrderId = String(maxOrderId + 1);
-            const maxCheck = Math.max(...allOrders.map(o => parseInt(o.check) || 0));
+            const maxCheck = Math.max(...allDbOrders.map(o => parseInt(o.check) || 0));
             const newCheck = String(maxCheck + 1);
             
             return [{
@@ -525,10 +561,10 @@ const TableOrderDetails = () => {
         // For full transfers, preserve the original order ID; for partial, generate new
         const newOrderId = transfer.transferType === 'full' 
           ? transfer.sourceOrderId 
-          : String(Math.max(...allOrders.map(o => parseInt(o.id) || 0)) + 1 + idx);
+          : String(Math.max(...allDbOrders.map(o => parseInt(o.id) || 0)) + 1 + idx);
         const newCheck = transfer.transferType === 'full'
           ? transfer.sourceOrderId
-          : String(Math.max(...allOrders.map(o => parseInt(o.check) || 0)) + 1 + idx);
+          : String(Math.max(...allDbOrders.map(o => parseInt(o.check) || 0)) + 1 + idx);
         
         return {
           id: newOrderId,
@@ -1958,7 +1994,7 @@ const TableOrderDetails = () => {
 
       {/* Right Panel - Order Details */}
       {(() => {
-        const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable);
+        const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable, allDbOrders);
         // Only show merged panel if the currently selected guest is the merge destination
         const showMergedPanel = mergedPanelData && currentSelectedGuest?.id === destOrderId;
         
@@ -2659,7 +2695,7 @@ const TableOrderDetails = () => {
 
       {/* Right Panel - Order Details (same as desktop) */}
       {(() => {
-        const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable);
+        const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable, allDbOrders);
         // Only show merged panel if the currently selected guest is the merge destination
         const showMergedPanel = mergedPanelData && currentSelectedGuest?.id === destOrderId;
         
@@ -3473,13 +3509,13 @@ const TableOrderDetails = () => {
 
       {/* Transfer to Order Dialog (inline - no navigation) */}
       {showTransferToOrderDialog && (() => {
-        const sourceOrder = allOrders.find(o => o.id === transferToOrderSourceId);
-        const availableTransferOrders = getAvailableTicketOrdersForTransfer(transferToOrderSourceId || '');
+        const sourceOrder = allDbOrders.find(o => o.id === transferToOrderSourceId);
+        const availableTransferOrders = dbTicketOrders.filter(o => o.id !== transferToOrderSourceId && o.status !== 'PAID' && o.status !== 'Completed');
 
         const executeTransfer = () => {
           if (!selectedTransferOrderId || !sourceOrder) return;
           setShowTransferToOrderDialog(false);
-          const targetOrder = ticketOrders.find(o => o.id === selectedTransferOrderId);
+          const targetOrder = dbTicketOrders.find(o => o.id === selectedTransferOrderId);
           const targetTable = targetOrder?.table || sourceOrder.table;
           const itemNames = sourceOrder.items.map(item => item.name);
           
@@ -3573,7 +3609,7 @@ const TableOrderDetails = () => {
                         style={{ backgroundColor: '#1B1C20' }}
                       >
                         <div className="p-3">
-                          <OrderLayoutTemplate order={ticketToTemplateData(order)} showBorder={false} />
+                          <OrderLayoutTemplate order={ticketToTemplateData(order as any)} showBorder={false} />
                           <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
                             {order.items.map((item, idx) => (
                               <div key={idx} className="flex items-center justify-between py-1">

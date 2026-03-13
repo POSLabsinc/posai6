@@ -376,8 +376,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   }, []);
 
   const handleGoBack = useCallback(() => {
-    if (currentStep === "activation-methods") {
-      // Go back to initial
+    if (currentStep === "activation-methods" || currentStep === "personal-link-methods") {
       setMessages([]);
       setCurrentStep("initial");
     } else if (["activate-code", "sign-in-link", "demo-email"].includes(currentStep)) {
@@ -388,23 +387,44 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setDemoEmail("");
       setDemoOtp("");
       setDemoOtpError("");
+    } else if (currentStep === "personal-invite-code") {
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "How would you like to link this device?" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("personal-link-methods");
+      setInviteCode(["", "", "", "", "", ""]);
+    } else if (currentStep === "personal-sign-in") {
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
+      const assistantMsg2: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "How would you like to link this device?" };
+      setMessages([userMsg, assistantMsg2]);
+      setCurrentStep("personal-link-methods");
+      setInvitedUser(null);
+      setPersonalEmail("");
+      setPersonalPassword("");
+      setPersonalSignInError("");
+      setInviteCode(["", "", "", "", "", ""]);
+    } else if (currentStep === "personal-access-denied") {
+      setCurrentStep("personal-sign-in");
+      setPersonalEmail("");
+      setPersonalPassword("");
+      setPersonalSignInError("");
+      // Remove access denied messages
+      const msgs = messages.slice(0, -1);
+      setMessages(msgs);
     } else if (currentStep === "demo-otp") {
-      // Go back to demo email input
       const msgs = messages.slice(0, -2);
       setMessages(msgs);
       setCurrentStep("demo-email");
       setDemoOtp("");
       setDemoOtpError("");
     } else if (currentStep === "sign-in-email" || currentStep === "sign-in-phone") {
-      // Go back to sign-in-link method selection
-      const msgs = messages.slice(0, -2); // Remove the Email/Phone user msg + assistant follow-up
+      const msgs = messages.slice(0, -2);
       setMessages(msgs);
       setCurrentStep("sign-in-link");
       setSignInInput("");
       setSentAddress("");
     } else if (currentStep === "sign-in-email-sent") {
-      // Go back to email input
-      const msgs = messages.slice(0, -2); // Remove the sent confirmation
+      const msgs = messages.slice(0, -2);
       setMessages(msgs);
       setCurrentStep("sign-in-email");
       setSignInInput(sentAddress);
@@ -416,11 +436,10 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setSignInInput(sentAddress);
       setSentAddress("");
     } else if (currentStep === "chat") {
-      // For AI chat, go back to initial
       setMessages([]);
       setCurrentStep("initial");
     }
-  }, [currentStep]);
+  }, [currentStep, messages, sentAddress]);
 
   const handleCodeInput = useCallback((index: number, value: string) => {
     if (value.length > 1) value = value.slice(-1);

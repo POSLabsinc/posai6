@@ -75,6 +75,9 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
       setRevenueCenter(editEmployee.revenue_center || "");
       setHourlyRate(editEmployee.hourly_rate ? String(editEmployee.hourly_rate) : "");
       setPin(editEmployee.pin && editEmployee.pin !== "0000" ? editEmployee.pin : "");
+      setDashboardAccess(editEmployee.dashboard_access || false);
+      setPayrollEnabled(editEmployee.payroll_enabled || false);
+      setEmployeeId(editEmployee.employee_code || "");
       // Parse phone - try to extract country code and number
       if (editEmployee.phone) {
         const phoneParts = editEmployee.phone.split(" ");
@@ -145,7 +148,10 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
           pin: pin.length === 4 ? pin : undefined,
           revenue_center: revenueCenter || undefined,
           assigned_job_types: jobType ? [jobType] : undefined,
-        });
+          dashboard_access: dashboardAccess,
+          payroll_enabled: payrollEnabled,
+          employee_code: employeeId.trim() || null,
+        } as any);
         // Save store assignments
         if (assignedStoreIds.length > 0) {
           await saveEmployeeStores.mutateAsync({
@@ -164,6 +170,9 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
           phone: phone.trim() ? `${selectedCountry.dialCode} ${phone.trim()}` : undefined,
           hourly_rate: hourlyRate ? parseFloat(hourlyRate) : 0,
           pin: pin.length === 4 ? pin : undefined,
+          dashboard_access: dashboardAccess,
+          payroll_enabled: payrollEnabled,
+          employee_code: employeeId.trim() || null,
         }).select("id").single();
         if (newEmp) savedEmployeeId = newEmp.id;
         // Save store assignments for new employee

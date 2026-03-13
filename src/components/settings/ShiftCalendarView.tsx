@@ -172,18 +172,38 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick, toolbarJobTypes =
 
   useEffect(() => { loadEvents(); }, [loadEvents]);
 
-  // Load open shifts from localStorage and listen for updates
-  const loadOpenShifts = useCallback(() => {
+  // Load open shifts from database
+  const loadOpenShifts = useCallback(async () => {
     try {
-      const raw = localStorage.getItem("pos_open_shifts");
-      setOpenShifts(raw ? JSON.parse(raw) : []);
+      const { data, error } = await (supabase as any)
+        .from("open_shifts")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      // Map DB fields to the format the component expects
+      const mapped = (data || []).map((os: any) => ({
+        id: os.id,
+        shiftName: os.shift_name,
+        shiftType: os.shift_type,
+        date: os.shift_date,
+        selectedDays: os.selected_days || [],
+        daySelectionMode: os.day_selection_mode || "all",
+        startTime: os.start_time,
+        endTime: os.end_time,
+        nextDay: os.next_day,
+        recurring: os.recurring,
+        allowOvertime: os.allow_overtime,
+        breaks: os.breaks || [],
+        shiftNote: os.shift_note,
+      }));
+      setOpenShifts(mapped);
     } catch { setOpenShifts([]); }
   }, []);
 
   useEffect(() => { loadOpenShifts(); }, [loadOpenShifts]);
 
   useEffect(() => {
-    const handler = () => loadOpenShifts();
+    const handler = () => { loadOpenShifts(); };
     window.addEventListener("open-shifts-updated", handler);
     return () => window.removeEventListener("open-shifts-updated", handler);
   }, [loadOpenShifts]);
@@ -381,13 +401,19 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick, toolbarJobTypes =
     navigate(`/settings/workforce/shift/add-open-shift?${params.toString()}`);
   };
 
-  const handleDeleteOpenShift = () => {
+  const handleDeleteOpenShift = async () => {
     if (!selectedOpenShift) return;
-    const shifts = JSON.parse(localStorage.getItem("pos_open_shifts") || "[]");
-    const updated = shifts.filter((s: any) => s.id !== selectedOpenShift.id);
-    localStorage.setItem("pos_open_shifts", JSON.stringify(updated));
-    window.dispatchEvent(new Event("open-shifts-updated"));
-    toast({ title: "Open shift deleted" });
+    try {
+      const { error } = await (supabase as any)
+        .from("open_shifts")
+        .delete()
+        .eq("id", selectedOpenShift.id);
+      if (error) throw error;
+      await loadOpenShifts();
+      toast({ title: "Open shift deleted" });
+    } catch {
+      toast({ title: "Failed to delete open shift" });
+    }
     setShowOpenShiftDeleteConfirm(false);
     setSelectedOpenShift(null);
   };

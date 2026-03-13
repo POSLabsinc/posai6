@@ -566,6 +566,86 @@ export type Database = {
         }
         Relationships: []
       }
+      employee_shifts: {
+        Row: {
+          allow_overtime: boolean
+          assign_section: string | null
+          break_minutes: number
+          clock_in: string | null
+          clock_out: string | null
+          created_at: string
+          employee_id: string
+          end_date: string | null
+          end_time: string | null
+          id: string
+          job_type: string | null
+          pay_rate: number
+          recurring: string
+          shift_date: string
+          shift_notes: string | null
+          shift_type: string
+          start_date: string | null
+          start_time: string | null
+          total_orders: number
+          total_tips: number
+          updated_at: string
+        }
+        Insert: {
+          allow_overtime?: boolean
+          assign_section?: string | null
+          break_minutes?: number
+          clock_in?: string | null
+          clock_out?: string | null
+          created_at?: string
+          employee_id: string
+          end_date?: string | null
+          end_time?: string | null
+          id?: string
+          job_type?: string | null
+          pay_rate?: number
+          recurring?: string
+          shift_date: string
+          shift_notes?: string | null
+          shift_type?: string
+          start_date?: string | null
+          start_time?: string | null
+          total_orders?: number
+          total_tips?: number
+          updated_at?: string
+        }
+        Update: {
+          allow_overtime?: boolean
+          assign_section?: string | null
+          break_minutes?: number
+          clock_in?: string | null
+          clock_out?: string | null
+          created_at?: string
+          employee_id?: string
+          end_date?: string | null
+          end_time?: string | null
+          id?: string
+          job_type?: string | null
+          pay_rate?: number
+          recurring?: string
+          shift_date?: string
+          shift_notes?: string | null
+          shift_type?: string
+          start_date?: string | null
+          start_time?: string | null
+          total_orders?: number
+          total_tips?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employee_shifts_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       employee_stores: {
         Row: {
           created_at: string
@@ -610,11 +690,15 @@ export type Database = {
           assigned_job_types: string[]
           avatar_url: string | null
           created_at: string
+          dashboard_access: boolean
           email: string | null
+          employee_code: string | null
           full_name: string
           hourly_rate: number
           id: string
           is_archived: boolean
+          is_on_leave: boolean
+          payroll_enabled: boolean
           phone: string | null
           pin: string
           revenue_center: string
@@ -625,11 +709,15 @@ export type Database = {
           assigned_job_types?: string[]
           avatar_url?: string | null
           created_at?: string
+          dashboard_access?: boolean
           email?: string | null
+          employee_code?: string | null
           full_name: string
           hourly_rate?: number
           id?: string
           is_archived?: boolean
+          is_on_leave?: boolean
+          payroll_enabled?: boolean
           phone?: string | null
           pin?: string
           revenue_center?: string
@@ -640,11 +728,15 @@ export type Database = {
           assigned_job_types?: string[]
           avatar_url?: string | null
           created_at?: string
+          dashboard_access?: boolean
           email?: string | null
+          employee_code?: string | null
           full_name?: string
           hourly_rate?: number
           id?: string
           is_archived?: boolean
+          is_on_leave?: boolean
+          payroll_enabled?: boolean
           phone?: string | null
           pin?: string
           revenue_center?: string
@@ -1284,6 +1376,57 @@ export type Database = {
           title?: string
           version?: string
           version_date?: string
+        }
+        Relationships: []
+      }
+      open_shifts: {
+        Row: {
+          allow_overtime: boolean | null
+          breaks: Json | null
+          created_at: string
+          day_selection_mode: string | null
+          end_time: string | null
+          id: string
+          next_day: boolean | null
+          recurring: boolean | null
+          selected_days: string[] | null
+          shift_date: string
+          shift_name: string
+          shift_note: string | null
+          shift_type: string
+          start_time: string | null
+        }
+        Insert: {
+          allow_overtime?: boolean | null
+          breaks?: Json | null
+          created_at?: string
+          day_selection_mode?: string | null
+          end_time?: string | null
+          id?: string
+          next_day?: boolean | null
+          recurring?: boolean | null
+          selected_days?: string[] | null
+          shift_date: string
+          shift_name: string
+          shift_note?: string | null
+          shift_type?: string
+          start_time?: string | null
+        }
+        Update: {
+          allow_overtime?: boolean | null
+          breaks?: Json | null
+          created_at?: string
+          day_selection_mode?: string | null
+          end_time?: string | null
+          id?: string
+          next_day?: boolean | null
+          recurring?: boolean | null
+          selected_days?: string[] | null
+          shift_date?: string
+          shift_name?: string
+          shift_note?: string | null
+          shift_type?: string
+          start_time?: string | null
         }
         Relationships: []
       }

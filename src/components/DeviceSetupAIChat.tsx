@@ -129,10 +129,13 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
 
   useEffect(() => {
     if (open && scrollRef.current) {
-      scrollRef.current.scrollTo({
-        top: scrollRef.current.scrollHeight,
-        behavior: 'smooth'
-      });
+      const timer = setTimeout(() => {
+        scrollRef.current?.scrollTo({
+          top: scrollRef.current.scrollHeight,
+          behavior: 'smooth'
+        });
+      }, 350);
+      return () => clearTimeout(timer);
     }
   }, [messages, open, showActivationOptions, currentStep, showFirstQuestion, showFirstButtons]);
 

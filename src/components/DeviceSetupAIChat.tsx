@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search } from "lucide-react";
+import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, Building2, User } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ReactMarkdown from "react-markdown";
 import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";
@@ -21,7 +21,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "chat";
+type StepType = "initial" | "device-type" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "chat";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -121,6 +121,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const [activationCode, setActivationCode] = useState<string[]>(["", "", "", "", "", ""]);
   const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [showBranding, setShowBranding] = useState(false);
+  const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
   const [showFirstQuestion, setShowFirstQuestion] = useState(false);
   const [showFirstButtons, setShowFirstButtons] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -233,9 +234,10 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
 
   const handleNotNew = useCallback(() => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
-    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
     setMessages([userMsg, assistantMsg]);
-    setCurrentStep("activation-methods");
+    setIsNewUser(false);
+    setCurrentStep("device-type");
   }, []);
 
   const handleActivationOption = useCallback((option: string) => {
@@ -260,25 +262,52 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   }, []);
 
   const handleGoBack = useCallback(() => {
-    if (currentStep === "activation-methods") {
+    if (currentStep === "device-type") {
       // Go back to initial
       setMessages([]);
       setCurrentStep("initial");
-    } else if (["activate-code", "sign-in-link", "demo-mode"].includes(currentStep)) {
-      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
-      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      setIsNewUser(null);
+    } else if (currentStep === "activation-methods") {
+      // Go back to device-type with the right user message
+      const label = isNewUser ? "Yes, I'm new" : "No, I'm not new";
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: label };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
       setMessages([userMsg, assistantMsg]);
+      setCurrentStep("device-type");
+    } else if (currentStep === "activate-code") {
+      // Go back to device-type
+      const label = isNewUser ? "Yes, I'm new" : "No, I'm not new";
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: label };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("device-type");
+    } else if (["sign-in-link", "demo-mode"].includes(currentStep)) {
+      // Go back to activation-methods
+      const msgs = messages.filter(m => m.role === "user").slice(0, 2); // keep first two user messages
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      setMessages([...msgs.slice(0, 1), messages[1], msgs[1] || messages[2], assistantMsg].filter(Boolean));
+      // Simpler: just rebuild
+      const label = isNewUser ? "Yes, I'm new" : "No, I'm not new";
+      const u1: Message = { id: Date.now().toString(), role: "user", content: label };
+      const a1: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
+      const u2: Message = { id: (Date.now() + 2).toString(), role: "user", content: "Company Device" };
+      const a2: Message = { id: (Date.now() + 3).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      setMessages([u1, a1, u2, a2]);
       setCurrentStep("activation-methods");
     } else if (currentStep === "sign-in-email" || currentStep === "sign-in-phone") {
-      // Go back to sign-in-link method selection
-      const msgs = messages.slice(0, -2); // Remove the Email/Phone user msg + assistant follow-up
-      setMessages(msgs);
+      const label = isNewUser ? "Yes, I'm new" : "No, I'm not new";
+      const u1: Message = { id: Date.now().toString(), role: "user", content: label };
+      const a1: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
+      const u2: Message = { id: (Date.now() + 2).toString(), role: "user", content: "Company Device" };
+      const a2: Message = { id: (Date.now() + 3).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      const u3: Message = { id: (Date.now() + 4).toString(), role: "user", content: "Sign in with Link" };
+      const a3: Message = { id: (Date.now() + 5).toString(), role: "assistant", content: "How would you like to receive your secure sign-in link?" };
+      setMessages([u1, a1, u2, a2, u3, a3]);
       setCurrentStep("sign-in-link");
       setSignInInput("");
       setSentAddress("");
     } else if (currentStep === "sign-in-email-sent") {
-      // Go back to email input
-      const msgs = messages.slice(0, -2); // Remove the sent confirmation
+      const msgs = messages.slice(0, -2);
       setMessages(msgs);
       setCurrentStep("sign-in-email");
       setSignInInput(sentAddress);
@@ -290,11 +319,11 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setSignInInput(sentAddress);
       setSentAddress("");
     } else if (currentStep === "chat") {
-      // For AI chat, go back to initial
       setMessages([]);
       setCurrentStep("initial");
+      setIsNewUser(null);
     }
-  }, [currentStep]);
+  }, [currentStep, isNewUser, messages, sentAddress]);
 
   const handleCodeInput = useCallback((index: number, value: string) => {
     if (value.length > 1) value = value.slice(-1);
@@ -455,9 +484,10 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     <button
                       onClick={() => {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, I'm new" };
-                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please contact your admin to get the Activation Code. Once you receive the code, enter it here to activate this device." };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
                         setMessages([userMsg, assistantMsg]);
-                        setCurrentStep("activate-code");
+                        setIsNewUser(true);
+                        setCurrentStep("device-type");
                       }}
                       className="px-5 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
@@ -526,6 +556,63 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     </div>
                   )}
                 </div>
+
+                {/* Device type selection */}
+                {currentStep === "device-type" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="flex gap-2.5 pl-7 pt-3 pb-2"
+                  >
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Company Device" };
+                        if (isNewUser) {
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please contact your admin to get the Activation Code. Once you receive the code, enter it here to activate this device." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("activate-code");
+                        } else {
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("activation-methods");
+                        }
+                      }}
+                      className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Building2 className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-medium text-foreground leading-tight">Company Device</p>
+                        <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Managed by your organization</p>
+                      </div>
+                    </button>
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Personal Device" };
+                        if (isNewUser) {
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please contact your admin to get the Activation Code. Once you receive the code, enter it here to activate this device." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("activate-code");
+                        } else {
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("activation-methods");
+                        }
+                      }}
+                      className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                        <User className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-medium text-foreground leading-tight">Personal Device</p>
+                        <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Your own phone or tablet</p>
+                      </div>
+                    </button>
+                  </motion.div>
+                )}
 
                 {/* Step-based action buttons */}
                 {currentStep === "activation-methods" && !isLoading && (

@@ -1504,8 +1504,8 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
             )}
           </div>
 
-          {/* Input - hide when in email/phone/code input steps or OTP/verified */}
-          {currentStep !== "sign-in-email" && currentStep !== "sign-in-phone" && currentStep !== "activate-code" && currentStep !== "activate-code-verifying" && currentStep !== "demo-otp" && currentStep !== "demo-verified" && currentStep !== "personal-invite-code" && currentStep !== "personal-invite-verifying" && currentStep !== "personal-sign-in" && currentStep !== "personal-access-denied" && (
+          {/* Input - hide when in specific steps */}
+          {currentStep !== "sign-in-email" && currentStep !== "sign-in-phone" && currentStep !== "activate-code" && currentStep !== "activate-code-verifying" && currentStep !== "demo-otp" && currentStep !== "demo-verified" && currentStep !== "personal-invite-code" && currentStep !== "personal-invite-verifying" && currentStep !== "personal-access-denied" && currentStep !== "personal-sign-in-verifying" && (
             <div className="px-6 py-4 flex-shrink-0">
               {currentStep === "demo-email" ? (
                 <div className="space-y-2">
@@ -1558,6 +1558,62 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       )}
                     </button>
                   </div>
+                </div>
+              ) : currentStep === "personal-sign-in-email" ? (
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                    <input
+                      ref={inputRef}
+                      type="email"
+                      value={personalEmail}
+                      onChange={(e) => setPersonalEmail(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handlePersonalEmailSubmit();
+                      }}
+                      placeholder="Enter your email address..."
+                      className="flex-1 w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/30 transition-colors"
+                      autoFocus
+                    />
+                  </div>
+                  <button
+                    onClick={handlePersonalEmailSubmit}
+                    disabled={!personalEmail.trim() || !personalEmail.includes("@")}
+                    className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    <Send className="w-4 h-4 text-primary-foreground" />
+                  </button>
+                </div>
+              ) : currentStep === "personal-sign-in-password" ? (
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                    <input
+                      ref={inputRef}
+                      type={showPersonalPassword ? "text" : "password"}
+                      value={personalPassword}
+                      onChange={(e) => setPersonalPassword(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") handlePersonalPasswordSubmit();
+                      }}
+                      placeholder="Enter your password..."
+                      className="flex-1 w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl pl-10 pr-10 py-2.5 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/30 transition-colors"
+                      autoFocus
+                    />
+                    <button
+                      onClick={() => setShowPersonalPassword(!showPersonalPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/50 transition-colors"
+                    >
+                      {showPersonalPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <button
+                    onClick={handlePersonalPasswordSubmit}
+                    disabled={!personalPassword.trim()}
+                    className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    <Send className="w-4 h-4 text-primary-foreground" />
+                  </button>
                 </div>
               ) : (
                 <div className="flex items-center gap-2">

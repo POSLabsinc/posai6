@@ -245,7 +245,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     }
   }, [demoEmail, demoOtp]);
 
-
+  const streamChat = useCallback(async (allMessages: Message[]) => {
     setIsLoading(true);
     let assistantContent = "";
 

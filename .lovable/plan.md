@@ -1,24 +1,34 @@
 
-# Plan: Unify Data Across Editor and Live Environments — COMPLETED
+# Plan: Guest Book Database — ID-Based Relational Structure — COMPLETED
 
-## Root Cause
-Settings tables filtered by `device_id` (a random per-browser ID), causing different browsers to see different data.
+## What Was Done
 
-## Solution Applied
-Replaced per-browser `device_id` with a fixed `"shared"` constant for all global settings tables.
+### Phase 1: Database Migration ✅
+- Added `guest_id` (uuid, FK → guests.id) to `orders`, `reservations`, `guest_feedback`
+- Created indexes on all three `guest_id` columns
+- Backfilled existing records by matching `customer_name`/`guest_name` → `guests.name`
 
-### Files Updated:
-1. **src/lib/settingsManager.ts** — All settings sync/read use `SHARED_DEVICE_ID = "shared"`. Cash drawer keeps `getPerDeviceId()`.
-2. **src/hooks/usePreference.ts** — Uses `SHARED_DEVICE_ID`
-3. **src/components/settings/DiscountsContent.tsx** — Uses `SHARED_DEVICE_ID`
-4. **src/components/settings/ServiceChargeContent.tsx** — Uses `SHARED_DEVICE_ID`
-5. **src/components/settings/TaxesContent.tsx** — Uses `SHARED_DEVICE_ID`
-6. **src/components/settings/AIRulesContent.tsx** — Uses `SHARED_DEVICE_ID`
-7. **src/components/settings/AIIntegrationContent.tsx** — Uses `SHARED_DEVICE_ID`
-8. **src/hooks/useEndOfDayScheduler.ts** — Uses `SHARED_DEVICE_ID`
-9. **src/lib/alertService.ts** — Uses shared key for notification sound preference
-10. **supabase/functions/ai-settings-chat/index.ts** — Uses `"shared"` device_id
+### Phase 2: Updated All Tab Queries to Use `guest_id` ✅
+- `PaymentTabContent` — queries orders by `guest_id` instead of `customer_name`
+- `FeedbackTabContent` — queries guest_feedback by `guest_id` instead of `guest_name`
+- `OrderHistoryTabContent` — queries orders by `guest_id` instead of `customer_name`
+- `ReservationTabContent` (inline in GuestBookContent) — queries reservations by `guest_id`
+- All props updated from `{ name: string }` to `{ id: string; name: string }`
 
-### What stays per-device:
-- `device_stores` (useDeviceStore.ts) — device-to-store binding
-- `cash_drawer_sessions` / `cash_transactions` — per-terminal cash management
+### Phase 3: Loyalty Stats Computation ✅
+- `fetchGuests` now queries `loyalty_points` table alongside orders/reservations
+- Computes `loyaltyEarned`, `loyaltyRedeemed`, `loyaltyAvailable`, `loyaltyAmount` from real data
+- All stats aggregation uses `guest_id` matching instead of name matching
+
+### Phase 4: Order/Reservation Creation
+- No insert code exists in codebase yet — will need `guest_id` set when those features are built
+
+### Data Flow Summary
+```
+guests table (profile) ←──┐
+                           │ guest_id FK
+orders ────────────────────┤
+reservations ──────────────┤
+guest_feedback ────────────┤
+loyalty_points ────────────┘ (already had guest_id)
+```

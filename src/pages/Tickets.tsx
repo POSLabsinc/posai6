@@ -6230,7 +6230,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                         className={`w-full rounded-xl border overflow-hidden text-left transition-all ${isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'}`}
                         style={{ backgroundColor: '#1B1C20' }}>
                         <div className="p-3">
-                          <OrderLayoutTemplate order={ticketToTemplateData(order)} showBorder={false} />
+                          <OrderLayoutTemplate order={{ ...ticketToTemplateData({ ...order, timer: order.timer || '00:00' } as any) }} showBorder={false} />
                           <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
                             {order.items.map((item, idx) => (
                               <div key={idx} className="flex items-center justify-between py-1">

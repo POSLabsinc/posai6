@@ -308,6 +308,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   }, [appendChatTurn]);
 
   const handleGoBack = useCallback(() => {
+    clearTransitionTimers();
     if (currentStep === "device-type") {
       // Go back to initial
       setMessages([]);

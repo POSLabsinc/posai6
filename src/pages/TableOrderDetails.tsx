@@ -412,7 +412,7 @@ const TableOrderDetails = () => {
     
     // If this order is the destination of a merge, add merged order data
     if (destOrderId === order.id && mergedOrderId) {
-      const mergedSource = allOrders.find(o => o.id === mergedOrderId);
+      const mergedSource = allDbOrders.find(o => o.id === mergedOrderId);
       if (mergedSource) {
         orderWithTotals.mergedFrom = [{
           orderId: mergedSource.id,
@@ -432,7 +432,7 @@ const TableOrderDetails = () => {
     
     // If this order is the destination of a transfer (exact ID match only) - URL params
     if (transferDestOrderId === order.id && transferredOrderId && transferredItemNames.length > 0) {
-      const transferSource = allOrders.find(o => o.id === transferredOrderId);
+      const transferSource = allDbOrders.find(o => o.id === transferredOrderId);
       if (transferSource) {
         const transferredItems = transferSource.items.filter(item => 
           transferredItemNames.includes(item.name)
@@ -501,16 +501,16 @@ const TableOrderDetails = () => {
     if (transferType === 'partial' && transferredOrderId && transferredItemNames.length > 0 && transferredFromTable !== tableId) {
       const alreadyAttached = staticGuestOrders.some(o => o.transferredFrom && o.transferredFrom.length > 0);
       if (!alreadyAttached) {
-        const transferSource = allOrders.find(o => o.id === transferredOrderId);
+        const transferSource = allDbOrders.find(o => o.id === transferredOrderId);
         if (transferSource) {
           const transferredItems = transferSource.items.filter(item => 
             transferredItemNames.includes(item.name)
           );
           if (transferredItems.length > 0) {
             const totals = calculateOrderTotals(transferredItems, 0);
-            const maxOrderId = Math.max(...allOrders.map(o => parseInt(o.id) || 0));
+            const maxOrderId = Math.max(...allDbOrders.map(o => parseInt(o.id) || 0));
             const newOrderId = String(maxOrderId + 1);
-            const maxCheck = Math.max(...allOrders.map(o => parseInt(o.check) || 0));
+            const maxCheck = Math.max(...allDbOrders.map(o => parseInt(o.check) || 0));
             const newCheck = String(maxCheck + 1);
             
             return [{
@@ -561,10 +561,10 @@ const TableOrderDetails = () => {
         // For full transfers, preserve the original order ID; for partial, generate new
         const newOrderId = transfer.transferType === 'full' 
           ? transfer.sourceOrderId 
-          : String(Math.max(...allOrders.map(o => parseInt(o.id) || 0)) + 1 + idx);
+          : String(Math.max(...allDbOrders.map(o => parseInt(o.id) || 0)) + 1 + idx);
         const newCheck = transfer.transferType === 'full'
           ? transfer.sourceOrderId
-          : String(Math.max(...allOrders.map(o => parseInt(o.check) || 0)) + 1 + idx);
+          : String(Math.max(...allDbOrders.map(o => parseInt(o.check) || 0)) + 1 + idx);
         
         return {
           id: newOrderId,
@@ -3509,7 +3509,7 @@ const TableOrderDetails = () => {
 
       {/* Transfer to Order Dialog (inline - no navigation) */}
       {showTransferToOrderDialog && (() => {
-        const sourceOrder = allOrders.find(o => o.id === transferToOrderSourceId);
+        const sourceOrder = allDbOrders.find(o => o.id === transferToOrderSourceId);
         const availableTransferOrders = getAvailableTicketOrdersForTransfer(transferToOrderSourceId || '');
 
         const executeTransfer = () => {

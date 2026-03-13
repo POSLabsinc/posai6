@@ -2688,7 +2688,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     if (showAIChat) {
       return (
         <DeviceSetupLayout variant="setup" fullWidthRight>
-          <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} />
+          <DeviceSetupAIChat open={true} onClose={() => { setShowAIChat(false); setActivationApproach(null); }} />
         </DeviceSetupLayout>
       );
     }

@@ -224,11 +224,67 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     }
   }, []);
 
+  const transitionTimersRef = useRef<number[]>([]);
+
+  const clearTransitionTimers = useCallback(() => {
+    transitionTimersRef.current.forEach((timer) => window.clearTimeout(timer));
+    transitionTimersRef.current = [];
+  }, []);
+
+  const appendChatTurn = useCallback(
+    (
+      userContent: string,
+      assistantContent: string,
+      nextStep: StepType,
+      options?: {
+        resetFlow?: boolean;
+        delayMs?: number;
+        onAfterAssistant?: () => void;
+      }
+    ) => {
+      clearTransitionTimers();
+
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: userContent };
+      if (options?.resetFlow) {
+        seenMessageIds.current.clear();
+        setMessages([userMsg]);
+      } else {
+        setMessages((prev) => [...prev, userMsg]);
+      }
+      setCurrentStep("chat");
+
+      const timer = window.setTimeout(() => {
+        const assistantMsg: Message = {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: assistantContent,
+        };
+        setMessages((prev) => [...prev, assistantMsg]);
+        setCurrentStep(nextStep);
+        options?.onAfterAssistant?.();
+      }, options?.delayMs ?? 300);
+
+      transitionTimersRef.current.push(timer);
+    },
+    [clearTransitionTimers]
+  );
+
+  useEffect(() => {
+    return () => clearTransitionTimers();
+  }, [clearTransitionTimers]);
+
+  useEffect(() => {
+    if (!open) {
+      clearTransitionTimers();
+    }
+  }, [open, clearTransitionTimers]);
+
   const handleSend = useCallback(
     (text?: string) => {
       const msg = (text || input).trim();
       if (!msg || isLoading) return;
 
+      clearTransitionTimers();
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: msg };
       const newMessages = [...messages, userMsg];
       setMessages(newMessages);
@@ -236,20 +292,15 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setCurrentStep("chat");
       streamChat(newMessages);
     },
-    [input, isLoading, messages, streamChat]
+    [clearTransitionTimers, input, isLoading, messages, streamChat]
   );
 
   const handleNotNew = useCallback(() => {
-    const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
-    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
-    seenMessageIds.current.clear();
-    setMessages([userMsg, assistantMsg]);
     setIsNewUser(false);
-    setCurrentStep("device-type");
-  }, []);
+    appendChatTurn("No, I'm not new", "Choose your device type to continue:", "device-type", { resetFlow: true });
+  }, [appendChatTurn]);
 
   const handleActivationOption = useCallback((option: string) => {
-    const userMsg: Message = { id: Date.now().toString(), role: "user", content: option };
     let followUp = "";
     let nextStep: "activate-code" | "sign-in-link" | "demo-mode" = "activate-code";
 
@@ -264,12 +315,11 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       nextStep = "demo-mode";
     }
 
-    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: followUp };
-    setMessages((prev) => [...prev, userMsg, assistantMsg]);
-    setCurrentStep(nextStep);
-  }, []);
+    appendChatTurn(option, followUp, nextStep);
+  }, [appendChatTurn]);
 
   const handleGoBack = useCallback(() => {
+    clearTransitionTimers();
     if (currentStep === "device-type") {
       // Go back to initial
       setMessages([]);
@@ -294,10 +344,6 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setCurrentStep("device-type");
     } else if (["sign-in-link", "demo-mode"].includes(currentStep)) {
       // Go back to activation-methods
-      const msgs = messages.filter(m => m.role === "user").slice(0, 2); // keep first two user messages
-      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
-      setMessages([...msgs.slice(0, 1), messages[1], msgs[1] || messages[2], assistantMsg].filter(Boolean));
-      // Simpler: just rebuild
       const label = isNewUser ? "Yes, I'm new" : "No, I'm not new";
       const u1: Message = { id: Date.now().toString(), role: "user", content: label };
       const a1: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
@@ -337,7 +383,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setIsNewUser(null);
       seenMessageIds.current.clear();
     }
-  }, [currentStep, isNewUser, messages, sentAddress]);
+  }, [clearTransitionTimers, currentStep, isNewUser, messages, sentAddress]);
 
   const handleCodeInput = useCallback((index: number, value: string) => {
     if (value.length > 1) value = value.slice(-1);
@@ -497,12 +543,8 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                   >
                     <button
                       onClick={() => {
-                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, I'm new" };
-                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
-                        seenMessageIds.current.clear();
-                        setMessages([userMsg, assistantMsg]);
                         setIsNewUser(true);
-                        setCurrentStep("device-type");
+                        appendChatTurn("Yes, I'm new", "Choose your device type to continue:", "device-type", { resetFlow: true });
                       }}
                       className="px-5 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
@@ -609,15 +651,14 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                         visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
                       }}
                       onClick={() => {
-                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Company Device" };
                         if (isNewUser) {
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please contact your admin to get the Activation Code. Once you receive the code, enter it here to activate this device." };
-                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("activate-code");
+                          appendChatTurn(
+                            "Company Device",
+                            "Please contact your admin to get the Activation Code. Once you receive the code, enter it here to activate this device.",
+                            "activate-code"
+                          );
                         } else {
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
-                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("activation-methods");
+                          appendChatTurn("Company Device", "Please choose one of these activation methods:", "activation-methods");
                         }
                       }}
                       className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
@@ -636,15 +677,14 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                         visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
                       }}
                       onClick={() => {
-                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Personal Device" };
                         if (isNewUser) {
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please contact your admin to get the Activation Code. Once you receive the code, enter it here to activate this device." };
-                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("activate-code");
+                          appendChatTurn(
+                            "Personal Device",
+                            "Please contact your admin to get the Activation Code. Once you receive the code, enter it here to activate this device.",
+                            "activate-code"
+                          );
                         } else {
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
-                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("activation-methods");
+                          appendChatTurn("Personal Device", "Please choose one of these activation methods:", "activation-methods");
                         }
                       }}
                       className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
@@ -791,11 +831,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     >
                       <button
                         onClick={() => {
-                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Email" };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please enter your email address to receive the secure sign-in link." };
-                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("sign-in-email");
-                          setSignInInput("");
+                          appendChatTurn("Email", "Please enter your email address to receive the secure sign-in link.", "sign-in-email", {
+                            onAfterAssistant: () => setSignInInput(""),
+                          });
                         }}
                         className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                       >
@@ -809,11 +847,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       </button>
                       <button
                         onClick={() => {
-                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Phone" };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please enter your phone number to receive the secure sign-in link." };
-                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("sign-in-phone");
-                          setSignInInput("");
+                          appendChatTurn("Phone", "Please enter your phone number to receive the secure sign-in link.", "sign-in-phone", {
+                            onAfterAssistant: () => setSignInInput(""),
+                          });
                         }}
                         className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                       >
@@ -848,11 +884,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           if (e.key === "Enter" && signInInput.trim() && signInInput.includes("@")) {
                             const email = signInInput.trim();
                             setSentAddress(email);
-                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: email };
-                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${email}**` };
-                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                            setCurrentStep("sign-in-email-sent");
-                            setSignInInput("");
+                            appendChatTurn(email, `We sent a secure sign-in link to **${email}**`, "sign-in-email-sent", {
+                              onAfterAssistant: () => setSignInInput(""),
+                            });
                           }
                         }}
                       />
@@ -861,11 +895,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           if (signInInput.trim() && signInInput.includes("@")) {
                             const email = signInInput.trim();
                             setSentAddress(email);
-                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: email };
-                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${email}**` };
-                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                            setCurrentStep("sign-in-email-sent");
-                            setSignInInput("");
+                            appendChatTurn(email, `We sent a secure sign-in link to **${email}**`, "sign-in-email-sent", {
+                              onAfterAssistant: () => setSignInInput(""),
+                            });
                           }
                         }}
                         disabled={!signInInput.trim() || !signInInput.includes("@")}
@@ -963,11 +995,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           if (e.key === "Enter" && signInInput.length === selectedCountry.phoneLength) {
                             const phone = `${selectedCountry.dial} ${formatPhone(signInInput, selectedCountry.format)}`;
                             setSentAddress(phone);
-                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: phone };
-                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${phone}**` };
-                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                            setCurrentStep("sign-in-phone-sent");
-                            setSignInInput("");
+                            appendChatTurn(phone, `We sent a secure sign-in link to **${phone}**`, "sign-in-phone-sent", {
+                              onAfterAssistant: () => setSignInInput(""),
+                            });
                           }
                         }}
                       />
@@ -976,11 +1006,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           if (signInInput.length === selectedCountry.phoneLength) {
                             const phone = `${selectedCountry.dial} ${formatPhone(signInInput, selectedCountry.format)}`;
                             setSentAddress(phone);
-                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: phone };
-                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${phone}**` };
-                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                            setCurrentStep("sign-in-phone-sent");
-                            setSignInInput("");
+                            appendChatTurn(phone, `We sent a secure sign-in link to **${phone}**`, "sign-in-phone-sent", {
+                              onAfterAssistant: () => setSignInInput(""),
+                            });
                           }
                         }}
                         disabled={signInInput.length !== selectedCountry.phoneLength}

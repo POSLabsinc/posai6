@@ -175,11 +175,11 @@ const filterItemsBySeats = (items: OrderItem[], selectedSeats: number[], allSeat
 };
 
 // Dynamic function to build merged order data from actual orders
-const getMergedPanelData = (destOrderId: string | null, mergedOrderId: string | null, mergedFromTable: string | null) => {
+const getMergedPanelData = (destOrderId: string | null, mergedOrderId: string | null, mergedFromTable: string | null, allDbOrders: Order[]) => {
   if (!destOrderId || !mergedOrderId) return null;
   
-  const destOrder = allOrders.find(o => o.id === destOrderId);
-  const mergedOrder = allOrders.find(o => o.id === mergedOrderId);
+  const destOrder = allDbOrders.find(o => o.id === destOrderId);
+  const mergedOrder = allDbOrders.find(o => o.id === mergedOrderId);
   
   if (!destOrder || !mergedOrder) return null;
   

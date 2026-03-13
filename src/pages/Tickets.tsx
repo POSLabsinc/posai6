@@ -403,6 +403,52 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
+  // Fetch all orders from database
+  const { orders: dbTicketOrders, isLoading: isLoadingOrders } = useTicketOrders();
+
+  // Convert DB orders to GuestOrder shape for this component
+  const allOrders: GuestOrder[] = dbTicketOrders.map(o => ({
+    id: o.id,
+    name: o.name,
+    phone: o.phone,
+    partySize: o.partySize,
+    time: o.time,
+    createdAt: o.createdAtDate || new Date(),
+    server: o.server,
+    check: o.check,
+    paymentType: o.paymentType,
+    revenueCenter: o.revenueCenter,
+    status: o.status,
+    notes: o.notes,
+    table: o.table,
+    orderType: o.orderType,
+    items: o.items.map(item => ({
+      qty: item.qty,
+      name: item.name,
+      price: item.price,
+      seats: item.seats || [],
+      modifiers: item.modifiers || [],
+    })),
+    subtotal: o.subtotal,
+    discount: o.discount,
+    serviceCharge: o.serviceCharge,
+    tax: o.tax,
+    tip: o.tip,
+    total: o.total,
+    paid: o.paid,
+    paidAt: o.paidAt,
+    paymentMethods: o.paymentMethods,
+  }));
+
+  // Helper: get available ticket orders for transfer (exclude source, paid, completed)
+  const getAvailableTicketOrdersForTransfer = (sourceOrderId: string) => {
+    return allOrders.filter(o => {
+      if (o.id === sourceOrderId) return false;
+      if (o.status === "PAID" || o.status === "Completed") return false;
+      return true;
+    });
+  };
+
   const handleAddProduct = () => {
     if (!selectedGuest) return;
     
@@ -419,7 +465,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   };
   const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
   const [activeFilter, setActiveFilter] = useState("All");
-  const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
+  const [selectedGuest, setSelectedGuest] = useState<GuestOrder | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);

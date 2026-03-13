@@ -1491,7 +1491,7 @@ const TableOrderDetails = () => {
                    {/* Column 1: Order Number - Tablet/Desktop style */}
                    <div className="hidden md:flex w-[15%] flex-shrink-0 px-2 py-2 items-center">
                      <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
-                       <span className="text-base font-bold text-white">{guest.id}</span>
+                       <span className="text-base font-bold text-white">{guest.orderNumber || 0}</span>
                        <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-cover" />
                      </div>
                    </div>

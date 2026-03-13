@@ -192,6 +192,7 @@ export type Database = {
           subdomain: string | null
           theme_mode: string | null
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           accent_color?: string | null
@@ -217,6 +218,7 @@ export type Database = {
           subdomain?: string | null
           theme_mode?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           accent_color?: string | null
@@ -242,6 +244,7 @@ export type Database = {
           subdomain?: string | null
           theme_mode?: string | null
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -1173,6 +1176,7 @@ export type Database = {
           sub_vertical_id: string | null
           updated_at: string
           user_count: number
+          user_id: string | null
           vertical_id: string | null
         }
         Insert: {
@@ -1192,6 +1196,7 @@ export type Database = {
           sub_vertical_id?: string | null
           updated_at?: string
           user_count?: number
+          user_id?: string | null
           vertical_id?: string | null
         }
         Update: {
@@ -1211,6 +1216,7 @@ export type Database = {
           sub_vertical_id?: string | null
           updated_at?: string
           user_count?: number
+          user_id?: string | null
           vertical_id?: string | null
         }
         Relationships: [
@@ -1924,6 +1930,7 @@ export type Database = {
           slug: string
           status: Database["public"]["Enums"]["brand_status"]
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           brand_id: string
@@ -1942,6 +1949,7 @@ export type Database = {
           slug: string
           status?: Database["public"]["Enums"]["brand_status"]
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           brand_id?: string
@@ -1960,6 +1968,7 @@ export type Database = {
           slug?: string
           status?: Database["public"]["Enums"]["brand_status"]
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -2433,11 +2442,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_user_brand_id: { Args: { _user_id: string }; Returns: string }
+      get_user_merchant_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      is_merchant_of_brand: {
+        Args: { _brand_id: string; _user_id: string }
+        Returns: boolean
+      }
+      owns_brand: {
+        Args: { _brand_id: string; _user_id: string }
         Returns: boolean
       }
     }

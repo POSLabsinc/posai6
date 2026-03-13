@@ -192,6 +192,34 @@ interface GuestOrder {
   timer?: string;
 }
 
+const FALLBACK_SELECTED_GUEST_ID = "__fallback-ticket__";
+const FALLBACK_SELECTED_GUEST: GuestOrder = {
+  id: FALLBACK_SELECTED_GUEST_ID,
+  name: "",
+  phone: "",
+  partySize: 1,
+  time: "",
+  createdAt: new Date(),
+  server: "",
+  check: "--",
+  paymentType: "--",
+  revenueCenter: "",
+  status: "ORDERING",
+  notes: "",
+  items: [],
+  subtotal: 0,
+  discount: 0,
+  serviceCharge: 0,
+  tax: 0,
+  tip: 0,
+  total: 0,
+  table: "",
+  orderType: "",
+  paid: false,
+  paymentMethods: [],
+  timer: "00:00",
+};
+
 // Helper function to format elapsed time dynamically
 // Under 1 hour: MM:SS Min (e.g., 02:35 Min)
 // Over 1 hour: HH:MM:SS Hrs (e.g., 01:16:23 Hrs)
@@ -467,14 +495,20 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   };
   const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
   const [activeFilter, setActiveFilter] = useState("All");
-  const [selectedGuest, setSelectedGuest] = useState<GuestOrder | null>(null);
+  const [selectedGuest, setSelectedGuest] = useState<GuestOrder>(() => allOrders[0] ?? FALLBACK_SELECTED_GUEST);
   
-  // Auto-select first order when data loads
+  // Keep selected ticket in sync when orders load or change
   useEffect(() => {
-    if (!selectedGuest && allOrders.length > 0) {
+    if (allOrders.length === 0) return;
+
+    const hasValidSelection =
+      selectedGuest.id !== FALLBACK_SELECTED_GUEST_ID &&
+      allOrders.some((order) => order.id === selectedGuest.id);
+
+    if (!hasValidSelection) {
       setSelectedGuest(allOrders[0]);
     }
-  }, [allOrders.length]);
+  }, [allOrders, selectedGuest.id]);
   
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);

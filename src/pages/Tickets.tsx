@@ -189,6 +189,7 @@ interface GuestOrder {
   paid?: boolean;
   paidAt?: string;
   paymentMethods?: PaymentMethod[]; // Split payment support
+  timer?: string;
 }
 
 // Helper function to format elapsed time dynamically

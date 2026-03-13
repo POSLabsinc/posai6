@@ -71,7 +71,7 @@ const PaymentTabContent = ({ guest }: PaymentTabContentProps) => {
       setLoading(false);
     };
     fetchOrders();
-  }, [guest.name]);
+  }, [guest.id]);
 
   // Group orders by category
   const grouped: Record<string, PaymentOrder[]> = {};

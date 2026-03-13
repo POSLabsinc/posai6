@@ -46,7 +46,7 @@ const FeedbackTabContent = ({ guest }: FeedbackTabContentProps) => {
       setLoading(false);
     };
     fetchFeedback();
-  }, [guest.name]);
+  }, [guest.id]);
 
   const formatDay = (dateStr: string) => {
     try { return format(new Date(dateStr), "dd"); } catch { return "--"; }

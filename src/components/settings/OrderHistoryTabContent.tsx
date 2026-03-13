@@ -56,7 +56,7 @@ const OrderHistoryTabContent = ({ guest }: OrderHistoryTabContentProps) => {
       setLoading(false);
     };
     fetchOrders();
-  }, [guest.name]);
+  }, [guest.id]);
 
   const toggleSort = (field: SortField) => {
     if (sortField === field) {

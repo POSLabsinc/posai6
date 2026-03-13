@@ -268,6 +268,16 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     [clearTransitionTimers]
   );
 
+  useEffect(() => {
+    return () => clearTransitionTimers();
+  }, [clearTransitionTimers]);
+
+  useEffect(() => {
+    if (!open) {
+      clearTransitionTimers();
+    }
+  }, [open, clearTransitionTimers]);
+
   const handleSend = useCallback(
     (text?: string) => {
       const msg = (text || input).trim();

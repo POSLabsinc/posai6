@@ -121,6 +121,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const [activationCode, setActivationCode] = useState<string[]>(["", "", "", "", "", ""]);
   const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [showBranding, setShowBranding] = useState(false);
+  const [isNewUser, setIsNewUser] = useState<boolean | null>(null);
   const [showFirstQuestion, setShowFirstQuestion] = useState(false);
   const [showFirstButtons, setShowFirstButtons] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);

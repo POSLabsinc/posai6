@@ -993,6 +993,17 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                             });
                           }
                         }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (signInInput.length === selectedCountry.phoneLength) {
+                            const phone = `${selectedCountry.dial} ${formatPhone(signInInput, selectedCountry.format)}`;
+                            setSentAddress(phone);
+                            appendChatTurn(phone, `We sent a secure sign-in link to **${phone}**`, "sign-in-phone-sent", {
+                              onAfterAssistant: () => setSignInInput(""),
+                            });
+                          }
+                        }}
                         disabled={signInInput.length !== selectedCountry.phoneLength}
                         className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                       >

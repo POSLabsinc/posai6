@@ -753,7 +753,13 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     }}
                     className="pl-7 pt-3 pb-2"
                   >
-                    <div className="flex gap-2.5">
+                    <motion.div
+                      variants={{
+                        hidden: { opacity: 0, y: 14, scale: 0.97 },
+                        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
+                      }}
+                      className="flex gap-2.5"
+                    >
                       <button
                         onClick={() => {
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Email" };
@@ -790,7 +796,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Receive a sign-in link via SMS</p>
                         </div>
                       </button>
-                    </div>
+                    </motion.div>
                   </motion.div>
                 )}
 

@@ -32,7 +32,7 @@ interface PaymentOrder {
 }
 
 interface PaymentTabContentProps {
-  guest: { name: string };
+  guest: { id: string; name: string };
 }
 
 type SortField = "date" | "spent" | "tips" | "points" | "total";
@@ -65,13 +65,13 @@ const PaymentTabContent = ({ guest }: PaymentTabContentProps) => {
       const { data } = await (supabase as any)
         .from("orders")
         .select("id, order_number, created_at, subtotal, tip_amount, total, payment_type, platform, discount_amount")
-        .eq("customer_name", guest.name)
+        .eq("guest_id", guest.id)
         .order("created_at", { ascending: false });
       setOrders(data || []);
       setLoading(false);
     };
     fetchOrders();
-  }, [guest.name]);
+  }, [guest.id]);
 
   // Group orders by category
   const grouped: Record<string, PaymentOrder[]> = {};

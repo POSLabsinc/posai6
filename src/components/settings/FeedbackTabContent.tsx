@@ -18,7 +18,7 @@ interface FeedbackItem {
 }
 
 interface FeedbackTabContentProps {
-  guest: { name: string };
+  guest: { id: string; name: string };
 }
 
 const platformLogos: Record<string, { src?: string; text?: string; textClass?: string }> = {
@@ -40,13 +40,13 @@ const FeedbackTabContent = ({ guest }: FeedbackTabContentProps) => {
       const { data } = await (supabase as any)
         .from("guest_feedback")
         .select("id, feedback_date, sentiment, comment, platform")
-        .eq("guest_name", guest.name)
+        .eq("guest_id", guest.id)
         .order("feedback_date", { ascending: false });
       setFeedback(data || []);
       setLoading(false);
     };
     fetchFeedback();
-  }, [guest.name]);
+  }, [guest.id]);
 
   const formatDay = (dateStr: string) => {
     try { return format(new Date(dateStr), "dd"); } catch { return "--"; }

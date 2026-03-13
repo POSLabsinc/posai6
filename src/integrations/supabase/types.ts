@@ -754,6 +754,7 @@ export type Database = {
           comment: string
           created_at: string
           feedback_date: string
+          guest_id: string | null
           guest_name: string
           id: string
           platform: string
@@ -763,6 +764,7 @@ export type Database = {
           comment?: string
           created_at?: string
           feedback_date: string
+          guest_id?: string | null
           guest_name: string
           id?: string
           platform?: string
@@ -772,12 +774,21 @@ export type Database = {
           comment?: string
           created_at?: string
           feedback_date?: string
+          guest_id?: string | null
           guest_name?: string
           id?: string
           platform?: string
           sentiment?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "guest_feedback_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       guests: {
         Row: {
@@ -1320,6 +1331,7 @@ export type Database = {
           customer_name: string | null
           discount_amount: number
           employee_name: string | null
+          guest_id: string | null
           id: string
           order_number: number
           order_type: string
@@ -1338,6 +1350,7 @@ export type Database = {
           customer_name?: string | null
           discount_amount?: number
           employee_name?: string | null
+          guest_id?: string | null
           id?: string
           order_number?: number
           order_type?: string
@@ -1356,6 +1369,7 @@ export type Database = {
           customer_name?: string | null
           discount_amount?: number
           employee_name?: string | null
+          guest_id?: string | null
           id?: string
           order_number?: number
           order_type?: string
@@ -1369,7 +1383,15 @@ export type Database = {
           total?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "orders_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       payment_methods: {
         Row: {
@@ -1811,6 +1833,7 @@ export type Database = {
           color_category: string | null
           created_at: string
           end_time: string | null
+          guest_id: string | null
           guest_name: string
           id: string
           location: string | null
@@ -1827,6 +1850,7 @@ export type Database = {
           color_category?: string | null
           created_at?: string
           end_time?: string | null
+          guest_id?: string | null
           guest_name: string
           id?: string
           location?: string | null
@@ -1843,6 +1867,7 @@ export type Database = {
           color_category?: string | null
           created_at?: string
           end_time?: string | null
+          guest_id?: string | null
           guest_name?: string
           id?: string
           location?: string | null
@@ -1855,7 +1880,15 @@ export type Database = {
           total_spent?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "reservations_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       service_charges: {
         Row: {

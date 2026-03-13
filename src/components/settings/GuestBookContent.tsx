@@ -242,7 +242,7 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
       const { data, error } = await (supabase as any)
         .from('reservations')
         .select('*')
-        .eq('guest_name', guest.name)
+        .eq('guest_id', guest.id)
         .order('reservation_date', { ascending: false });
 
       if (!error && data) {
@@ -254,14 +254,14 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
 
     // Realtime subscription
     const channel = supabase
-      .channel(`reservations-${guest.name}`)
+      .channel(`reservations-${guest.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reservations' }, () => {
         fetchReservations();
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [guest.name]);
+  }, [guest.id]);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -1150,17 +1150,24 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     const { data: guestRows } = await (supabase as any).from("guests").select("*").eq("is_archived", false).order("name");
     if (!guestRows) { setLoading(false); return; }
 
-    // Fetch all orders and reservations for stats
-    const guestNames = guestRows.map(g => g.name);
-    const { data: allOrders } = await (supabase as any).from("orders").select("customer_name, total, tip_amount, created_at, order_items(item_name, quantity)").in("customer_name", guestNames);
-    const { data: allReservations } = await (supabase as any).from("reservations").select("guest_name, reservation_date, status, no_show");
+    // Fetch all orders, reservations, and loyalty points for stats
+    const guestIds = guestRows.map(g => g.id);
+    const [ordersRes, reservationsRes, loyaltyRes] = await Promise.all([
+      (supabase as any).from("orders").select("guest_id, total, tip_amount, created_at, order_items(item_name, quantity)").in("guest_id", guestIds),
+      (supabase as any).from("reservations").select("guest_id, reservation_date, status, no_show").in("guest_id", guestIds),
+      (supabase as any).from("loyalty_points").select("guest_id, points, type").in("guest_id", guestIds),
+    ]);
+    const allOrders = ordersRes.data || [];
+    const allReservations = reservationsRes.data || [];
+    const allLoyalty = loyaltyRes.data || [];
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const mapped = guestRows.map(row => {
-      const orders = (allOrders || []).filter(o => o.customer_name === row.name);
-      const reservations = (allReservations || []).filter(r => r.guest_name === row.name);
+      const orders = allOrders.filter(o => o.guest_id === row.id);
+      const reservations = allReservations.filter(r => r.guest_id === row.id);
+      const loyaltyTxns = allLoyalty.filter(l => l.guest_id === row.id);
 
       const totalOrders = orders.length;
       const lifetimeSpend = orders.reduce((s, o) => s + Number(o.total), 0);
@@ -1187,7 +1194,12 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
       const canceledVisits = reservations.filter(r => r.status === 'cancelled').length;
       const noShows = reservations.filter(r => r.no_show).length;
 
-      return mapDbGuest(row, {
+      // Loyalty stats
+      const loyaltyEarned = loyaltyTxns.filter(l => l.type === 'earned').reduce((s, l) => s + Number(l.points), 0);
+      const loyaltyRedeemed = loyaltyTxns.filter(l => l.type === 'redeemed').reduce((s, l) => s + Math.abs(Number(l.points)), 0);
+      const loyaltyAvailable = Number(row.loyalty_points_balance || 0);
+
+      const guest = mapDbGuest(row, {
         lastVisit: lastVisitDate ? lastVisitDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "-- -- --",
         avgSpend: `$${avgSpend.toFixed(2)}`,
         lifetimeSpend: `$${lifetimeSpend.toFixed(2)}`,
@@ -1201,6 +1213,11 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
         mostOrderedCount: mostOrderedEntry ? mostOrderedEntry[1] : 0,
         lastOrdered: lastOrderedItem,
       });
+      guest.loyaltyEarned = loyaltyEarned;
+      guest.loyaltyRedeemed = loyaltyRedeemed;
+      guest.loyaltyAvailable = loyaltyAvailable;
+      guest.loyaltyAmount = `$${(loyaltyAvailable * 0.01).toFixed(2)}`;
+      return guest;
     });
 
     setGuests(mapped);

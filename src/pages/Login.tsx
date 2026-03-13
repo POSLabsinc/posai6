@@ -5455,7 +5455,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <motion.button
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              onClick={() => setDeviceType(null)}
+              onClick={() => setPersonalActivationApproach(null)}
               className="self-start mb-4 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />

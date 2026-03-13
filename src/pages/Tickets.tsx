@@ -468,6 +468,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState<GuestOrder | null>(null);
+  
+  // Auto-select first order when data loads
+  useEffect(() => {
+    if (!selectedGuest && allOrders.length > 0) {
+      setSelectedGuest(allOrders[0]);
+    }
+  }, [allOrders.length]);
+  
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);

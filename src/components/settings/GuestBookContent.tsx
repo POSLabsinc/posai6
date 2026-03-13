@@ -254,7 +254,7 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
 
     // Realtime subscription
     const channel = supabase
-      .channel(`reservations-${guest.name}`)
+      .channel(`reservations-${guest.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'reservations' }, () => {
         fetchReservations();
       })

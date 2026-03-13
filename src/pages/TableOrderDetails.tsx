@@ -1994,7 +1994,7 @@ const TableOrderDetails = () => {
 
       {/* Right Panel - Order Details */}
       {(() => {
-        const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable);
+        const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable, allDbOrders);
         // Only show merged panel if the currently selected guest is the merge destination
         const showMergedPanel = mergedPanelData && currentSelectedGuest?.id === destOrderId;
         

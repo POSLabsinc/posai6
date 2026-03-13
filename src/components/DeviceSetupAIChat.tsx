@@ -330,6 +330,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setMessages([]);
       setCurrentStep("initial");
       setIsNewUser(null);
+      seenMessageIds.current.clear();
     }
   }, [currentStep, isNewUser, messages, sentAddress]);
 

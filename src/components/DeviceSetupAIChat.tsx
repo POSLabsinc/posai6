@@ -363,11 +363,21 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       // Go back to initial
       setMessages([]);
       setCurrentStep("initial");
-    } else if (["activate-code", "sign-in-link", "demo-mode"].includes(currentStep)) {
+    } else if (["activate-code", "sign-in-link", "demo-email"].includes(currentStep)) {
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
       const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
       setMessages([userMsg, assistantMsg]);
       setCurrentStep("activation-methods");
+      setDemoEmail("");
+      setDemoOtp("");
+      setDemoOtpError("");
+    } else if (currentStep === "demo-otp") {
+      // Go back to demo email input
+      const msgs = messages.slice(0, -2);
+      setMessages(msgs);
+      setCurrentStep("demo-email");
+      setDemoOtp("");
+      setDemoOtpError("");
     } else if (currentStep === "sign-in-email" || currentStep === "sign-in-phone") {
       // Go back to sign-in-link method selection
       const msgs = messages.slice(0, -2); // Remove the Email/Phone user msg + assistant follow-up

@@ -536,12 +536,8 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                   >
                     <button
                       onClick={() => {
-                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, I'm new" };
-                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
-                        seenMessageIds.current.clear();
-                        setMessages([userMsg, assistantMsg]);
                         setIsNewUser(true);
-                        setCurrentStep("device-type");
+                        appendChatTurn("Yes, I'm new", "Choose your device type to continue:", "device-type", { resetFlow: true });
                       }}
                       className="px-5 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >

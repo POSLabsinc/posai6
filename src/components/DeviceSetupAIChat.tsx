@@ -732,7 +732,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         setMessages([userMsg, assistantMsg]);
                         setCurrentStep("activate-code");
                       }}
-                      className="px-5 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      className="px-5 py-2 rounded-full text-base font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
                       Yes, I'm New
                     </button>

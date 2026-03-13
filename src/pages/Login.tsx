@@ -883,7 +883,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               className="w-full flex items-center gap-5 p-5 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
             >
               <div className="w-14 h-14 rounded-2xl bg-secondary/50 flex items-center justify-center flex-shrink-0 group-hover:bg-secondary/70 transition-colors">
-                <ScanLine className="w-7 h-7 text-foreground/70" />
+                <Monitor className="w-7 h-7 text-foreground/70" />
               </div>
               <div className="flex-1 text-left">
                 <p className="text-base font-semibold text-foreground mb-0.5">

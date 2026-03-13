@@ -745,9 +745,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                 {/* Sign-in link options */}
                 {currentStep === "sign-in-link" && !isLoading && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      hidden: {},
+                      visible: { transition: { staggerChildren: 0.12, delayChildren: messages.length * 0.15 + 0.1 } }
+                    }}
                     className="pl-7 pt-3 pb-2"
                   >
                     <div className="flex gap-2.5">

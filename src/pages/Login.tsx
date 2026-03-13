@@ -1229,8 +1229,257 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       await handleDemoSendOtp();
     };
 
-    // Demo Mode Business Type Selection Screen
+    // Demo Mode Screen
     if (showDemoMode) {
+      // Step 1: Email verification (gate)
+      if (!demoEmailVerified) {
+        return (
+          <DeviceSetupLayout variant="demo">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="relative w-full flex flex-col items-center"
+            >
+              {/* Back Button */}
+              <motion.button
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                onClick={() => {
+                  setShowDemoMode(false);
+                  setDemoEmail("");
+                  setDemoOtp("");
+                  setDemoOtpSent(false);
+                  setDemoOtpError("");
+                }}
+                className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back</span>
+              </motion.button>
+
+              {/* Icon */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.05 }}
+                className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mb-5"
+              >
+                <Mail className="w-8 h-8 text-amber-500" />
+              </motion.div>
+
+              {/* Title */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="flex items-center gap-2 mb-1"
+              >
+                <h1 className="text-xl font-semibold text-foreground text-center">
+                  Verify Your Email
+                </h1>
+                <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-500">
+                  Demo
+                </span>
+              </motion.div>
+              
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15 }}
+                className="text-sm text-foreground/50 mb-6 text-center max-w-xs"
+              >
+                {demoOtpSent 
+                  ? `Enter the 6-digit code sent to ${demoEmail}`
+                  : "Enter your email to access demo mode"
+                }
+              </motion.p>
+
+              <AnimatePresence mode="wait">
+                {!demoOtpSent ? (
+                  /* Email Input */
+                  <motion.div
+                    key="email-input"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ delay: 0.2 }}
+                    className="w-full space-y-4"
+                  >
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                      <Input
+                        type="email"
+                        placeholder="your@email.com"
+                        value={demoEmail}
+                        onChange={(e) => {
+                          setDemoEmail(e.target.value);
+                          setDemoOtpError("");
+                        }}
+                        onKeyDown={(e) => e.key === "Enter" && handleDemoSendOtp()}
+                        className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.03] border-foreground/[0.08] focus:border-amber-500/40"
+                        disabled={demoSendingOtp}
+                      />
+                    </div>
+
+                    {demoOtpError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/20"
+                      >
+                        <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                        <p className="text-xs text-destructive">{demoOtpError}</p>
+                      </motion.div>
+                    )}
+
+                    <Button
+                      onClick={handleDemoSendOtp}
+                      disabled={!demoEmail || !demoEmail.includes("@") || demoSendingOtp}
+                      className="w-full h-14 text-base font-medium rounded-2xl"
+                      size="lg"
+                    >
+                      {demoSendingOtp ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                          Sending Code...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-5 h-5 mr-2" />
+                          Send Verification Code
+                        </>
+                      )}
+                    </Button>
+                  </motion.div>
+                ) : (
+                  /* OTP Input */
+                  <motion.div
+                    key="otp-input"
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -15 }}
+                    transition={{ delay: 0.1 }}
+                    className="w-full space-y-4"
+                  >
+                    {/* OTP digit boxes */}
+                    <div className="flex justify-center gap-2">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-11 h-14 rounded-xl border-2 flex items-center justify-center text-xl font-semibold transition-all ${
+                            demoOtp[i]
+                              ? "border-amber-500/40 bg-amber-500/5 text-foreground"
+                              : i === demoOtp.length
+                                ? "border-amber-500/30 bg-foreground/[0.02]"
+                                : "border-foreground/[0.08] bg-foreground/[0.02] text-foreground/30"
+                          }`}
+                        >
+                          {demoOtp[i] || ""}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Hidden input for OTP */}
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={demoOtp}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        setDemoOtp(val);
+                        setDemoOtpError("");
+                      }}
+                      className="sr-only"
+                      autoFocus
+                      id="demo-otp-input"
+                    />
+                    {/* Clickable area to focus the hidden input */}
+                    <label htmlFor="demo-otp-input" className="block w-full cursor-text" />
+
+                    {demoOtpError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/20"
+                      >
+                        <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                        <p className="text-xs text-destructive">{demoOtpError}</p>
+                      </motion.div>
+                    )}
+
+                    <Button
+                      onClick={handleDemoVerifyOtp}
+                      disabled={demoOtp.length !== 6 || demoVerifyingOtp}
+                      className="w-full h-14 text-base font-medium rounded-2xl"
+                      size="lg"
+                    >
+                      {demoVerifyingOtp ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                          Verifying...
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-5 h-5 mr-2" />
+                          Verify & Continue
+                        </>
+                      )}
+                    </Button>
+
+                    {/* Resend / Change email */}
+                    <div className="flex items-center justify-between pt-2">
+                      <button
+                        onClick={() => {
+                          setDemoOtpSent(false);
+                          setDemoOtp("");
+                          setDemoOtpError("");
+                        }}
+                        className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
+                      >
+                        Change email
+                      </button>
+                      <button
+                        onClick={handleDemoResendOtp}
+                        disabled={demoOtpResendCooldown > 0 || demoSendingOtp}
+                        className="text-xs text-primary hover:text-primary/80 transition-colors disabled:text-foreground/30 disabled:cursor-not-allowed"
+                      >
+                        {demoOtpResendCooldown > 0
+                          ? `Resend in ${demoOtpResendCooldown}s`
+                          : "Resend code"
+                        }
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Footer */}
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.35 }}
+                className="mt-6 text-xs text-foreground/30 text-center"
+              >
+                Ready to get started for real?{" "}
+                <button
+                  onClick={() => {
+                    setShowDemoMode(false);
+                    setDemoEmail("");
+                    setDemoOtp("");
+                    setDemoOtpSent(false);
+                  }}
+                  className="text-primary hover:underline"
+                >
+                  Activate your device
+                </button>
+              </motion.p>
+            </motion.div>
+          </DeviceSetupLayout>
+        );
+      }
+
+      // Step 2: Business type selection (after email verified)
       const businessTypes = [
         {
           id: "restaurant",
@@ -1266,9 +1515,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         
         setIsLoadingDemo(true);
         
-        // Simulate loading demo data
         setTimeout(() => {
-          // Create demo session
           localStorage.setItem("pos_device_session", JSON.stringify({
             deviceId: `demo_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
             deviceType: "company",
@@ -1276,6 +1523,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             lastValidated: new Date().toISOString(),
             isDemo: true,
             businessType: selectedDemoBusinessType,
+            demoEmail: demoEmail,
           }));
           
           localStorage.setItem("pos_session", JSON.stringify({
@@ -1302,13 +1550,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             animate={{ opacity: 1 }}
             className="relative w-full flex flex-col items-center"
           >
-            {/* Back Button - Self-aligned at top left */}
+            {/* Back Button */}
             <motion.button
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               onClick={() => {
                 setShowDemoMode(false);
                 setSelectedDemoBusinessType(null);
+                setDemoEmailVerified(false);
+                setDemoEmail("");
               }}
               disabled={isLoadingDemo}
               className="self-start mb-4 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors disabled:opacity-30"
@@ -1317,7 +1567,17 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <span>Back</span>
             </motion.button>
 
-            {/* Title with inline Demo Mode indicator */}
+            {/* Verified badge */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 mb-4"
+            >
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <span className="text-xs font-medium text-emerald-500">{demoEmail}</span>
+            </motion.div>
+
+            {/* Title */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1388,7 +1648,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               })}
             </motion.div>
 
-            {/* Demo Warning Notice - Compact */}
+            {/* Demo Warning */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1428,7 +1688,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </Button>
             </motion.div>
 
-            {/* Footer note */}
+            {/* Footer */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1440,6 +1700,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 onClick={() => {
                   setShowDemoMode(false);
                   setSelectedDemoBusinessType(null);
+                  setDemoEmailVerified(false);
+                  setDemoEmail("");
                 }}
                 disabled={isLoadingDemo}
                 className="text-primary hover:underline disabled:opacity-50"

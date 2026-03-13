@@ -1446,12 +1446,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       </button>
                       <button
                         onClick={handleDemoResendOtp}
-                        disabled={demoOtpResendCooldown > 0 || demoSendingOtp}
+                        disabled={demoOtpResendCooldown > 0 || demoSendingOtp || demoOtpResendCount >= maxDemoResends}
                         className="text-xs text-primary hover:text-primary/80 transition-colors disabled:text-foreground/30 disabled:cursor-not-allowed"
                       >
-                        {demoOtpResendCooldown > 0
-                          ? `Resend in ${demoOtpResendCooldown}s`
-                          : "Resend code"
+                        {demoOtpResendCount >= maxDemoResends
+                          ? "Max attempts reached"
+                          : demoOtpResendCooldown > 0
+                            ? `Resend in ${demoOtpResendCooldown}s`
+                            : "Resend code"
                         }
                       </button>
                     </div>

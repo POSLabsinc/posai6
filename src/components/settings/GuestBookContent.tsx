@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, Search, Plus, Phone, Mail, Star, Calendar, UtensilsCrossed, Car, AlertTriangle, ClipboardList, MessageSquare, Tag, Archive, ArrowDownAZ, X, Pencil, Clock, Users, ChevronRight, Info } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";

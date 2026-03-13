@@ -170,6 +170,9 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
           phone: phone.trim() ? `${selectedCountry.dialCode} ${phone.trim()}` : undefined,
           hourly_rate: hourlyRate ? parseFloat(hourlyRate) : 0,
           pin: pin.length === 4 ? pin : undefined,
+          dashboard_access: dashboardAccess,
+          payroll_enabled: payrollEnabled,
+          employee_code: employeeId.trim() || null,
         }).select("id").single();
         if (newEmp) savedEmployeeId = newEmp.id;
         // Save store assignments for new employee

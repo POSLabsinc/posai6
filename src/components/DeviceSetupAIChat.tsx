@@ -583,9 +583,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
         setInvitedUser(user);
         const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: `✅ Code verified! This invite was issued to **${user.name}** (${user.role}). Please sign in with your approved credentials.` };
         setMessages((prev) => [...prev, successMsg]);
-        setCurrentStep("personal-sign-in");
-      }, 2000);
-      return () => clearTimeout(timer);
+        setCurrentStep("personal-sign-in-email");
     }
   }, [currentStep]);
 

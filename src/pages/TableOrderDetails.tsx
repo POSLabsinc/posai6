@@ -296,7 +296,7 @@ const TableOrderDetails = () => {
   // Get the revenueCenter (area) of an order by ID
   const getOrderArea = (orderId: string | null): string => {
     if (!orderId) return "";
-    const order = allOrders.find(o => o.id === orderId);
+    const order = allDbOrders.find(o => o.id === orderId);
     return order?.revenueCenter || "";
   };
   const mergedSourceArea = getOrderArea(mergedOrderId);

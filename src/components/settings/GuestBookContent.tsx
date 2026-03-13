@@ -242,7 +242,7 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
       const { data, error } = await (supabase as any)
         .from('reservations')
         .select('*')
-        .eq('guest_name', guest.name)
+        .eq('guest_id', guest.id)
         .order('reservation_date', { ascending: false });
 
       if (!error && data) {

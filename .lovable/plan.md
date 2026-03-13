@@ -20,7 +20,17 @@
 - Computes `loyaltyEarned`, `loyaltyRedeemed`, `loyaltyAvailable`, `loyaltyAmount` from real data
 - All stats aggregation uses `guest_id` matching instead of name matching
 
-### Phase 4: Order/Reservation Creation
+### Phase 4: Profile Tab — Recent Orders & Online Reviews ✅
+- Replaced hardcoded "No Recent Orders to Show" with `RecentOrdersSection` component
+  - Queries last 3 orders from `orders` table via `guest_id`
+  - Joins `order_items` to show product names
+  - Shows date and total for each order
+- Replaced hardcoded mock reviews with `OnlineReviewsSection` component
+  - Queries `guest_feedback` table via `guest_id`, limited to 5
+  - Shows platform icon, star rating (based on sentiment), and comment
+  - Falls back to "No Reviews Yet" if empty
+
+### Phase 5: Order/Reservation Creation
 - No insert code exists in codebase yet — will need `guest_id` set when those features are built
 
 ### Data Flow Summary
@@ -32,3 +42,6 @@ reservations ──────────────┤
 guest_feedback ────────────┤
 loyalty_points ────────────┘ (already had guest_id)
 ```
+
+### Full Connectivity Status
+All fields across all 5 tabs (Profile, Reservation, Payment, Feedback, Order History) are now connected to live database data. Zero hardcoded mock data remains.

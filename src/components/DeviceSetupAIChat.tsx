@@ -156,7 +156,96 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
     }
   }, [open]);
 
-  const streamChat = useCallback(async (allMessages: Message[]) => {
+  // Demo OTP resend cooldown
+  useEffect(() => {
+    if (demoResendCooldown > 0) {
+      const timer = setTimeout(() => setDemoResendCooldown(c => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [demoResendCooldown]);
+
+  const handleDemoSendOtp = useCallback(async (email: string) => {
+    setDemoSendingOtp(true);
+    setDemoOtpError("");
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: true },
+      });
+      if (error) {
+        setDemoOtpError(error.message);
+        setDemoSendingOtp(false);
+        return false;
+      }
+      setDemoResendCooldown(60);
+      setDemoSendingOtp(false);
+      return true;
+    } catch {
+      setDemoOtpError("Failed to send code. Try again.");
+      setDemoSendingOtp(false);
+      return false;
+    }
+  }, []);
+
+  const handleDemoVerifyOtp = useCallback(async () => {
+    if (demoOtp.length !== 6) {
+      setDemoOtpError("Please enter the 6-digit code");
+      return;
+    }
+    setDemoVerifyingOtp(true);
+    setDemoOtpError("");
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: demoEmail,
+        token: demoOtp,
+        type: "email",
+      });
+      if (error) {
+        setDemoOtpError("Invalid or expired code. Try again.");
+        setDemoOtp("");
+        setDemoVerifyingOtp(false);
+        return;
+      }
+      // Sign out — demo doesn't need a real session
+      await supabase.auth.signOut();
+      
+      const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ Email verified! Starting demo mode with sample data..." };
+      setMessages(prev => [...prev, successMsg]);
+      setCurrentStep("demo-verified");
+      setDemoVerifyingOtp(false);
+
+      // Start demo after brief delay
+      setTimeout(() => {
+        localStorage.setItem("pos_device_session", JSON.stringify({
+          deviceId: `demo_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          deviceType: "company",
+          trustedAt: new Date().toISOString(),
+          lastValidated: new Date().toISOString(),
+          isDemo: true,
+          businessType: "restaurant",
+          demoEmail,
+        }));
+        localStorage.setItem("pos_session", JSON.stringify({
+          employeeId: "demo-user",
+          employeeName: "Demo User",
+          employeeRole: "Manager",
+          employeeAvatar: "",
+          revenueCenter: "Demo Station",
+          deviceType: "company",
+          isDemo: true,
+          businessType: "restaurant",
+          loginTime: new Date().toISOString(),
+        }));
+        window.location.href = "/";
+      }, 1500);
+    } catch {
+      setDemoOtpError("Verification failed. Try again.");
+      setDemoOtp("");
+      setDemoVerifyingOtp(false);
+    }
+  }, [demoEmail, demoOtp]);
+
+
     setIsLoading(true);
     let assistantContent = "";
 

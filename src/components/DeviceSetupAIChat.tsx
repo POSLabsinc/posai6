@@ -126,6 +126,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const [showFirstButtons, setShowFirstButtons] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const seenMessageIds = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     if (open && scrollRef.current) {

@@ -136,6 +136,16 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   const inputRef = useRef<HTMLInputElement>(null);
   const demoEmailRef = useRef<HTMLInputElement>(null);
   const demoOtpRef = useRef<HTMLInputElement>(null);
+  
+  // Personal device invite flow states
+  const [inviteCode, setInviteCode] = useState<string[]>(["", "", "", "", "", ""]);
+  const inviteCodeRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [invitedUser, setInvitedUser] = useState<{ name: string; email: string; role: string } | null>(null);
+  const [personalEmail, setPersonalEmail] = useState("");
+  const [personalPassword, setPersonalPassword] = useState("");
+  const [showPersonalPassword, setShowPersonalPassword] = useState(false);
+  const [personalSignInError, setPersonalSignInError] = useState("");
+  const [isPersonalSigningIn, setIsPersonalSigningIn] = useState(false);
 
   useEffect(() => {
     if (open && scrollRef.current) {

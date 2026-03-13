@@ -239,6 +239,9 @@ const Login = () => {
   const [showContactAdmin, setShowContactAdmin] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
   
+  // Activation approach: AI or Manual (shown before device type selection)
+  const [activationApproach, setActivationApproach] = useState<"ai" | "manual" | null>(null);
+  
   // Company Device - First-time device setup state
   const [showDeviceSetup, setShowDeviceSetup] = useState(false);
   const [activationMethod, setActivationMethod] = useState<"code" | "link" | "password" | null>(null);

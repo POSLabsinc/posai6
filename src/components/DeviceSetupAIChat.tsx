@@ -763,7 +763,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         </div>
                       )}
                       <div
-                        className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm ${
+                        className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-base ${
                           msg.role === "user"
                             ? "bg-primary text-primary-foreground"
                             : "bg-foreground/[0.04] text-foreground"

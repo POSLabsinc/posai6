@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search } from "lucide-react";
+import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, ShieldCheck, AlertCircle } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ReactMarkdown from "react-markdown";
 import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";
@@ -21,7 +22,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "chat";
+type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -123,8 +124,17 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const [showBranding, setShowBranding] = useState(false);
   const [showFirstQuestion, setShowFirstQuestion] = useState(false);
   const [showFirstButtons, setShowFirstButtons] = useState(false);
+  const [demoEmail, setDemoEmail] = useState("");
+  const [demoOtp, setDemoOtp] = useState("");
+  const [demoOtpError, setDemoOtpError] = useState("");
+  const [demoSendingOtp, setDemoSendingOtp] = useState(false);
+  const [demoVerifyingOtp, setDemoVerifyingOtp] = useState(false);
+  const [demoResendCooldown, setDemoResendCooldown] = useState(0);
+  const [demoResendCount, setDemoResendCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const demoEmailRef = useRef<HTMLInputElement>(null);
+  const demoOtpRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (open && scrollRef.current) {
@@ -145,6 +155,95 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     }
   }, [open]);
+
+  // Demo OTP resend cooldown
+  useEffect(() => {
+    if (demoResendCooldown > 0) {
+      const timer = setTimeout(() => setDemoResendCooldown(c => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [demoResendCooldown]);
+
+  const handleDemoSendOtp = useCallback(async (email: string) => {
+    setDemoSendingOtp(true);
+    setDemoOtpError("");
+    try {
+      const { error } = await supabase.auth.signInWithOtp({
+        email,
+        options: { shouldCreateUser: true },
+      });
+      if (error) {
+        setDemoOtpError(error.message);
+        setDemoSendingOtp(false);
+        return false;
+      }
+      setDemoResendCooldown(60);
+      setDemoSendingOtp(false);
+      return true;
+    } catch {
+      setDemoOtpError("Failed to send code. Try again.");
+      setDemoSendingOtp(false);
+      return false;
+    }
+  }, []);
+
+  const handleDemoVerifyOtp = useCallback(async () => {
+    if (demoOtp.length !== 6) {
+      setDemoOtpError("Please enter the 6-digit code");
+      return;
+    }
+    setDemoVerifyingOtp(true);
+    setDemoOtpError("");
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: demoEmail,
+        token: demoOtp,
+        type: "email",
+      });
+      if (error) {
+        setDemoOtpError("Invalid or expired code. Try again.");
+        setDemoOtp("");
+        setDemoVerifyingOtp(false);
+        return;
+      }
+      // Sign out — demo doesn't need a real session
+      await supabase.auth.signOut();
+      
+      const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ Email verified! Starting demo mode with sample data..." };
+      setMessages(prev => [...prev, successMsg]);
+      setCurrentStep("demo-verified");
+      setDemoVerifyingOtp(false);
+
+      // Start demo after brief delay
+      setTimeout(() => {
+        localStorage.setItem("pos_device_session", JSON.stringify({
+          deviceId: `demo_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          deviceType: "company",
+          trustedAt: new Date().toISOString(),
+          lastValidated: new Date().toISOString(),
+          isDemo: true,
+          businessType: "restaurant",
+          demoEmail,
+        }));
+        localStorage.setItem("pos_session", JSON.stringify({
+          employeeId: "demo-user",
+          employeeName: "Demo User",
+          employeeRole: "Manager",
+          employeeAvatar: "",
+          revenueCenter: "Demo Station",
+          deviceType: "company",
+          isDemo: true,
+          businessType: "restaurant",
+          loginTime: new Date().toISOString(),
+        }));
+        window.location.href = "/";
+      }, 1500);
+    } catch {
+      setDemoOtpError("Verification failed. Try again.");
+      setDemoOtp("");
+      setDemoVerifyingOtp(false);
+    }
+  }, [demoEmail, demoOtp]);
 
   const streamChat = useCallback(async (allMessages: Message[]) => {
     setIsLoading(true);
@@ -241,7 +340,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const handleActivationOption = useCallback((option: string) => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: option };
     let followUp = "";
-    let nextStep: "activate-code" | "sign-in-link" | "demo-mode" = "activate-code";
+    let nextStep: "activate-code" | "sign-in-link" | "demo-email" = "activate-code";
 
     if (option === "Activate with Code") {
       followUp = "Great! Please enter your 6-digit activation code. You can find it from your manager or the Admin Portal.";
@@ -250,8 +349,8 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       followUp = "How would you like to receive your secure sign-in link?";
       nextStep = "sign-in-link";
     } else if (option === "Try Demo Mode") {
-      followUp = "Demo Mode lets you explore all features with sample data — no real data is affected. Tap \"Try Demo Mode\" on the left panel to get started! Need help with anything else?";
-      nextStep = "demo-mode";
+      followUp = "To access Demo Mode, we need to verify your email first. Please enter your email address below.";
+      nextStep = "demo-email";
     }
 
     const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: followUp };
@@ -264,11 +363,21 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       // Go back to initial
       setMessages([]);
       setCurrentStep("initial");
-    } else if (["activate-code", "sign-in-link", "demo-mode"].includes(currentStep)) {
+    } else if (["activate-code", "sign-in-link", "demo-email"].includes(currentStep)) {
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
       const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
       setMessages([userMsg, assistantMsg]);
       setCurrentStep("activation-methods");
+      setDemoEmail("");
+      setDemoOtp("");
+      setDemoOtpError("");
+    } else if (currentStep === "demo-otp") {
+      // Go back to demo email input
+      const msgs = messages.slice(0, -2);
+      setMessages(msgs);
+      setCurrentStep("demo-email");
+      setDemoOtp("");
+      setDemoOtpError("");
     } else if (currentStep === "sign-in-email" || currentStep === "sign-in-phone") {
       // Go back to sign-in-link method selection
       const msgs = messages.slice(0, -2); // Remove the Email/Phone user msg + assistant follow-up
@@ -851,7 +960,209 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                   />
                 )}
 
-                {/* Device activated success */}
+                {/* Demo email input step */}
+                {currentStep === "demo-email" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-3"
+                  >
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                      <input
+                        ref={demoEmailRef}
+                        type="email"
+                        placeholder="your@email.com"
+                        value={demoEmail}
+                        onChange={(e) => { setDemoEmail(e.target.value); setDemoOtpError(""); }}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && demoEmail.includes("@")) {
+                            e.preventDefault();
+                            handleDemoSendOtp(demoEmail).then(ok => {
+                              if (ok) {
+                                const userMsg: Message = { id: Date.now().toString(), role: "user", content: demoEmail };
+                                const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `Verification code sent to **${demoEmail}**. Enter the 6-digit code below.` };
+                                setMessages(prev => [...prev, userMsg, assistantMsg]);
+                                setCurrentStep("demo-otp");
+                                setTimeout(() => demoOtpRef.current?.focus(), 100);
+                              }
+                            });
+                          }
+                        }}
+                        className="w-full h-11 pl-10 pr-3 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all placeholder:text-foreground/30"
+                        autoFocus
+                      />
+                    </div>
+
+                    {demoOtpError && (
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">
+                        <AlertCircle className="w-3.5 h-3.5 text-destructive flex-shrink-0" />
+                        <span className="text-xs text-destructive">{demoOtpError}</span>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={async () => {
+                        const ok = await handleDemoSendOtp(demoEmail);
+                        if (ok) {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: demoEmail };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `Verification code sent to **${demoEmail}**. Enter the 6-digit code below.` };
+                          setMessages(prev => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("demo-otp");
+                          setTimeout(() => demoOtpRef.current?.focus(), 100);
+                        }
+                      }}
+                      disabled={!demoEmail.includes("@") || demoSendingOtp}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {demoSendingOtp ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4" />
+                          Send Verification Code
+                        </>
+                      )}
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Demo OTP input step */}
+                {currentStep === "demo-otp" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-3"
+                  >
+                    <div className="flex gap-2 justify-start">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-9 h-11 rounded-xl border-2 flex items-center justify-center text-lg font-semibold transition-all ${
+                            demoOtp[i]
+                              ? "border-amber-500/40 bg-amber-500/5 text-foreground"
+                              : i === demoOtp.length
+                                ? "border-amber-500/30 bg-foreground/[0.02]"
+                                : "border-foreground/[0.08] bg-foreground/[0.02] text-foreground/30"
+                          }`}
+                        >
+                          {demoOtp[i] || ""}
+                        </div>
+                      ))}
+                    </div>
+                    <input
+                      ref={demoOtpRef}
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={6}
+                      value={demoOtp}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        setDemoOtp(val);
+                        setDemoOtpError("");
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && demoOtp.length === 6) {
+                          handleDemoVerifyOtp();
+                        }
+                      }}
+                      className="sr-only"
+                      autoFocus
+                    />
+                    <label htmlFor="" onClick={() => demoOtpRef.current?.focus()} className="block w-full cursor-text" />
+
+                    {demoOtpError && (
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">
+                        <AlertCircle className="w-3.5 h-3.5 text-destructive flex-shrink-0" />
+                        <span className="text-xs text-destructive">{demoOtpError}</span>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={handleDemoVerifyOtp}
+                      disabled={demoOtp.length !== 6 || demoVerifyingOtp}
+                      className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      {demoVerifyingOtp ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Verifying...
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-4 h-4" />
+                          Verify & Start Demo
+                        </>
+                      )}
+                    </button>
+
+                    <div className="flex items-center justify-between">
+                      <button
+                        onClick={() => {
+                          setCurrentStep("demo-email");
+                          setDemoOtp("");
+                          setDemoOtpError("");
+                          const msgs = messages.slice(0, -2);
+                          setMessages(msgs);
+                        }}
+                        className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
+                      >
+                        Change email
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (demoResendCooldown > 0 || demoResendCount >= 3) return;
+                          setDemoResendCount(c => c + 1);
+                          setDemoResendCooldown(30 * (demoResendCount + 1));
+                          handleDemoSendOtp(demoEmail);
+                        }}
+                        disabled={demoResendCooldown > 0 || demoSendingOtp || demoResendCount >= 3}
+                        className="text-xs text-primary hover:text-primary/80 transition-colors disabled:text-foreground/30 disabled:cursor-not-allowed"
+                      >
+                        {demoResendCount >= 3
+                          ? "Max attempts"
+                          : demoResendCooldown > 0
+                            ? `Resend in ${demoResendCooldown}s`
+                            : "Resend code"
+                        }
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Demo verified success */}
+                {currentStep === "demo-verified" && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-3"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center">
+                        <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">Demo Mode Starting!</p>
+                        <p className="text-xs text-foreground/50">Loading sample data...</p>
+                      </div>
+                    </div>
+                    <div className="w-full h-1 rounded-full bg-foreground/[0.08] overflow-hidden">
+                      <motion.div
+                        className="h-full bg-emerald-500 rounded-full"
+                        initial={{ width: "0%" }}
+                        animate={{ width: "100%" }}
+                        transition={{ duration: 1.5, ease: "linear" }}
+                      />
+                    </div>
+                  </motion.div>
+                )}
+
                 {currentStep === "sign-in-verified" && (
                   <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}

@@ -300,6 +300,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       const a1: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
       const u2: Message = { id: (Date.now() + 2).toString(), role: "user", content: "Company Device" };
       const a2: Message = { id: (Date.now() + 3).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      seenMessageIds.current.clear();
       setMessages([u1, a1, u2, a2]);
       setCurrentStep("activation-methods");
     } else if (currentStep === "sign-in-email" || currentStep === "sign-in-phone") {

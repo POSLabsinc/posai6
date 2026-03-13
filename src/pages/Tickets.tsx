@@ -437,7 +437,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     total: o.total,
     paid: o.paid,
     paidAt: o.paidAt,
-    paymentMethods: o.paymentMethods,
+    paymentMethods: o.paymentMethods as any,
+    timer: o.timer || '00:00',
   }));
 
   // Helper: get available ticket orders for transfer (exclude source, paid, completed)

@@ -111,6 +111,7 @@ function rowToUnified(row: TicketOrderRow): UnifiedTicketOrder {
 
   return {
     id: row.id,
+    orderNumber: row.order_number || 0,
     name: row.name,
     phone: row.phone,
     partySize: row.party_size,

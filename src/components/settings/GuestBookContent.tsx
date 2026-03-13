@@ -261,7 +261,7 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [guest.name]);
+  }, [guest.id]);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);

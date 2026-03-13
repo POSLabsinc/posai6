@@ -497,6 +497,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       onClick={() => {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, I'm new" };
                         const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
+                        seenMessageIds.current.clear();
                         setMessages([userMsg, assistantMsg]);
                         setIsNewUser(true);
                         setCurrentStep("device-type");

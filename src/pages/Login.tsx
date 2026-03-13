@@ -946,7 +946,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     if (showAIChat) {
       return (
         <DeviceSetupLayout variant="setup" fullWidthRight>
-          <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} />
+          <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} deviceType="company" />
         </DeviceSetupLayout>
       );
     }
@@ -5312,7 +5312,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           
           {/* Right Panel - AI Chat */}
           <div className="relative z-10 flex-1 flex h-full">
-            <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} />
+            <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} deviceType="personal" />
           </div>
         </div>
       );

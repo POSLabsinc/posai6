@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, ShieldCheck, AlertCircle } from "lucide-react";
+import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, ShieldCheck, AlertCircle, ScanLine, Lock, Eye, EyeOff, User, ShieldX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ReactMarkdown from "react-markdown";
@@ -22,7 +22,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat";
+type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in" | "personal-access-denied";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -106,9 +106,10 @@ const VerificationWaiting = ({ currentStep, sentAddress, messages, setMessages, 
 interface DeviceSetupAIChatProps {
   open: boolean;
   onClose: () => void;
+  deviceType?: "company" | "personal";
 }
 
-const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
+const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetupAIChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -135,6 +136,16 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const inputRef = useRef<HTMLInputElement>(null);
   const demoEmailRef = useRef<HTMLInputElement>(null);
   const demoOtpRef = useRef<HTMLInputElement>(null);
+  
+  // Personal device invite flow states
+  const [inviteCode, setInviteCode] = useState<string[]>(["", "", "", "", "", ""]);
+  const inviteCodeRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [invitedUser, setInvitedUser] = useState<{ name: string; email: string; role: string } | null>(null);
+  const [personalEmail, setPersonalEmail] = useState("");
+  const [personalPassword, setPersonalPassword] = useState("");
+  const [showPersonalPassword, setShowPersonalPassword] = useState(false);
+  const [personalSignInError, setPersonalSignInError] = useState("");
+  const [isPersonalSigningIn, setIsPersonalSigningIn] = useState(false);
 
   useEffect(() => {
     if (open && scrollRef.current) {
@@ -332,10 +343,16 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
 
   const handleNotNew = useCallback(() => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
-    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
-    setMessages([userMsg, assistantMsg]);
-    setCurrentStep("activation-methods");
-  }, []);
+    if (deviceType === "personal") {
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "How would you like to link this device?" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("personal-link-methods");
+    } else {
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("activation-methods");
+    }
+  }, [deviceType]);
 
   const handleActivationOption = useCallback((option: string) => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: option };
@@ -359,8 +376,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   }, []);
 
   const handleGoBack = useCallback(() => {
-    if (currentStep === "activation-methods") {
-      // Go back to initial
+    if (currentStep === "activation-methods" || currentStep === "personal-link-methods") {
       setMessages([]);
       setCurrentStep("initial");
     } else if (["activate-code", "sign-in-link", "demo-email"].includes(currentStep)) {
@@ -371,23 +387,44 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setDemoEmail("");
       setDemoOtp("");
       setDemoOtpError("");
+    } else if (currentStep === "personal-invite-code") {
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "How would you like to link this device?" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("personal-link-methods");
+      setInviteCode(["", "", "", "", "", ""]);
+    } else if (currentStep === "personal-sign-in") {
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
+      const assistantMsg2: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "How would you like to link this device?" };
+      setMessages([userMsg, assistantMsg2]);
+      setCurrentStep("personal-link-methods");
+      setInvitedUser(null);
+      setPersonalEmail("");
+      setPersonalPassword("");
+      setPersonalSignInError("");
+      setInviteCode(["", "", "", "", "", ""]);
+    } else if (currentStep === "personal-access-denied") {
+      setCurrentStep("personal-sign-in");
+      setPersonalEmail("");
+      setPersonalPassword("");
+      setPersonalSignInError("");
+      // Remove access denied messages
+      const msgs = messages.slice(0, -1);
+      setMessages(msgs);
     } else if (currentStep === "demo-otp") {
-      // Go back to demo email input
       const msgs = messages.slice(0, -2);
       setMessages(msgs);
       setCurrentStep("demo-email");
       setDemoOtp("");
       setDemoOtpError("");
     } else if (currentStep === "sign-in-email" || currentStep === "sign-in-phone") {
-      // Go back to sign-in-link method selection
-      const msgs = messages.slice(0, -2); // Remove the Email/Phone user msg + assistant follow-up
+      const msgs = messages.slice(0, -2);
       setMessages(msgs);
       setCurrentStep("sign-in-link");
       setSignInInput("");
       setSentAddress("");
     } else if (currentStep === "sign-in-email-sent") {
-      // Go back to email input
-      const msgs = messages.slice(0, -2); // Remove the sent confirmation
+      const msgs = messages.slice(0, -2);
       setMessages(msgs);
       setCurrentStep("sign-in-email");
       setSignInInput(sentAddress);
@@ -399,11 +436,10 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setSignInInput(sentAddress);
       setSentAddress("");
     } else if (currentStep === "chat") {
-      // For AI chat, go back to initial
       setMessages([]);
       setCurrentStep("initial");
     }
-  }, [currentStep]);
+  }, [currentStep, messages, sentAddress]);
 
   const handleCodeInput = useCallback((index: number, value: string) => {
     if (value.length > 1) value = value.slice(-1);
@@ -479,6 +515,115 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       return () => clearTimeout(timer);
     }
   }, [currentStep]);
+
+  // Invite code input handlers (personal device)
+  const handleInviteCodeInput = useCallback((index: number, value: string) => {
+    if (value.length > 1) value = value.slice(-1);
+    if (value && !/^[0-9]$/.test(value)) return;
+    
+    const newCode = [...inviteCode];
+    newCode[index] = value;
+    setInviteCode(newCode);
+    
+    if (value && index < 5) {
+      inviteCodeRefs.current[index + 1]?.focus();
+    }
+    
+    if (value && index === 5 && newCode.every(d => d !== "")) {
+      const code = newCode.join("");
+      setTimeout(() => {
+        const verifyMsg: Message = { id: Date.now().toString(), role: "assistant", content: `🔐 Verifying invite code **${code}**...` };
+        setMessages((prev) => [...prev, verifyMsg]);
+        setCurrentStep("personal-invite-verifying");
+      }, 300);
+    }
+  }, [inviteCode]);
+
+  const handleInviteCodeKeyDown = useCallback((index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !inviteCode[index] && index > 0) {
+      inviteCodeRefs.current[index - 1]?.focus();
+    }
+  }, [inviteCode]);
+
+  const handleInviteCodePaste = useCallback((e: React.ClipboardEvent) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+    const newCode = [...inviteCode];
+    for (let i = 0; i < pasted.length; i++) {
+      newCode[i] = pasted[i];
+    }
+    setInviteCode(newCode);
+    const focusIdx = Math.min(pasted.length, 5);
+    inviteCodeRefs.current[focusIdx]?.focus();
+    
+    if (newCode.every(d => d !== "")) {
+      setTimeout(() => {
+        const code = newCode.join("");
+        const verifyMsg: Message = { id: Date.now().toString(), role: "assistant", content: `🔐 Verifying invite code **${code}**...` };
+        setMessages((prev) => [...prev, verifyMsg]);
+        setCurrentStep("personal-invite-verifying");
+      }, 300);
+    }
+  }, [inviteCode]);
+
+  // Handle invite code verification → show sign-in
+  useEffect(() => {
+    if (currentStep === "personal-invite-verifying") {
+      const timer = setTimeout(() => {
+        const user = { name: "Alex Johnson", email: "alex.johnson@restaurant.com", role: "Manager" };
+        setInvitedUser(user);
+        const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: `✅ Code verified! This invite was issued to **${user.name}** (${user.role}). Please sign in with your approved credentials.` };
+        setMessages((prev) => [...prev, successMsg]);
+        setCurrentStep("personal-sign-in");
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep]);
+
+  // Handle personal device sign-in
+  const handlePersonalSignIn = useCallback(() => {
+    if (!personalEmail.trim() || !personalPassword.trim()) {
+      setPersonalSignInError("Please enter both email and password");
+      return;
+    }
+    
+    setIsPersonalSigningIn(true);
+    setPersonalSignInError("");
+    
+    setTimeout(() => {
+      setIsPersonalSigningIn(false);
+      
+      // Check if email matches invited user
+      if (invitedUser && personalEmail.trim().toLowerCase() !== invitedUser.email.toLowerCase()) {
+        const deniedMsg: Message = { id: Date.now().toString(), role: "assistant", content: "⛔ The email you entered doesn't match the invited user for this device code." };
+        setMessages((prev) => [...prev, deniedMsg]);
+        setCurrentStep("personal-access-denied");
+        return;
+      }
+      
+      // Success - save session and redirect
+      const successMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ Identity verified! Setting up your personal device..." };
+      setMessages((prev) => [...prev, successMsg]);
+      
+      setTimeout(() => {
+        localStorage.setItem("pos_device_session", JSON.stringify({
+          deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          deviceType: "personal",
+          trustedAt: new Date().toISOString(),
+        }));
+        localStorage.setItem("pos_session", JSON.stringify({
+          employeeId: "personal-user",
+          employeeName: invitedUser?.name || "User",
+          employeeRole: invitedUser?.role || "Staff",
+          employeeAvatar: "",
+          revenueCenter: "Personal Device",
+          deviceType: "personal",
+          loginTime: new Date().toISOString(),
+        }));
+        window.location.href = "/";
+      }, 1500);
+    }, 1500);
+  }, [personalEmail, personalPassword, invitedUser]);
 
 
   return (
@@ -680,7 +825,265 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                   </motion.div>
                 )}
 
-                {/* 6-digit code input for activate-code step */}
+                {/* Personal device link methods: Enter Code or Scan QR */}
+                {currentStep === "personal-link-methods" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="flex flex-col gap-2.5 pl-7 pt-3 pb-2"
+                  >
+                    <div className="flex gap-2.5">
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Enter Code" };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Enter the code from your manager's invite. Check your email or scan the QR from the admin portal." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("personal-invite-code");
+                          setInviteCode(["", "", "", "", "", ""]);
+                          setTimeout(() => inviteCodeRefs.current[0]?.focus(), 100);
+                        }}
+                        className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                          <KeyRound className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-medium text-foreground leading-tight">Enter Code</p>
+                          <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Code from your manager's invite</p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          // QR scanning would be handled here
+                        }}
+                        className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                          <ScanLine className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-medium text-foreground leading-tight">Scan QR Code</p>
+                          <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Scan from the admin portal</p>
+                        </div>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Personal invite code input */}
+                {currentStep === "personal-invite-code" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    <div className="flex gap-2 justify-start">
+                      {inviteCode.map((digit, i) => (
+                        <input
+                          key={i}
+                          ref={(el) => { inviteCodeRefs.current[i] = el; }}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => handleInviteCodeInput(i, e.target.value)}
+                          onKeyDown={(e) => handleInviteCodeKeyDown(i, e)}
+                          onPaste={i === 0 ? handleInviteCodePaste : undefined}
+                          className="w-10 h-12 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-lg font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                        />
+                      ))}
+                    </div>
+                    <div className="flex items-start gap-1.5 text-foreground/40">
+                      <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                      <span className="text-xs">Check your email or scan the QR from the admin portal.</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
+                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                      }}
+                      className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
+                    >
+                      <ScanLine className="w-4 h-4 text-foreground/60" />
+                      <span className="text-sm font-medium text-foreground/70">Scan QR Code</span>
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Personal invite code verifying */}
+                {currentStep === "personal-invite-verifying" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    <div className="flex items-center gap-2 text-foreground/50">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <span className="text-sm font-medium">Verifying invite code...</span>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Personal sign-in with credentials */}
+                {currentStep === "personal-sign-in" && !isLoading && invitedUser && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    {/* User info card */}
+                    <div className="flex flex-col items-center gap-3 py-4">
+                      <div className="w-16 h-16 rounded-full bg-foreground/[0.06] border border-foreground/[0.1] flex items-center justify-center">
+                        <User className="w-8 h-8 text-foreground/40" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-base font-semibold text-foreground">{invitedUser.name}</p>
+                        <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-medium bg-primary/15 text-primary">
+                          {invitedUser.role}
+                        </span>
+                      </div>
+                      <p className="text-xs text-foreground/40">Sign in with your approved credentials</p>
+                    </div>
+
+                    {/* Email input */}
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                      <input
+                        type="email"
+                        value={personalEmail}
+                        onChange={(e) => { setPersonalEmail(e.target.value); setPersonalSignInError(""); }}
+                        placeholder="Email address"
+                        className="w-full pl-10 pr-4 py-3 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                      />
+                    </div>
+
+                    {/* Password input */}
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                      <input
+                        type={showPersonalPassword ? "text" : "password"}
+                        value={personalPassword}
+                        onChange={(e) => { setPersonalPassword(e.target.value); setPersonalSignInError(""); }}
+                        placeholder="Password"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") handlePersonalSignIn();
+                        }}
+                        className="w-full pl-10 pr-10 py-3 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                      />
+                      <button
+                        onClick={() => setShowPersonalPassword(!showPersonalPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/30 hover:text-foreground/50 transition-colors"
+                      >
+                        {showPersonalPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      </button>
+                    </div>
+
+                    {/* Forgot password */}
+                    <div className="flex justify-end">
+                      <button className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors">
+                        Forgot password?
+                      </button>
+                    </div>
+
+                    {/* Error */}
+                    {personalSignInError && (
+                      <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">
+                        <AlertCircle className="w-3.5 h-3.5 text-destructive flex-shrink-0" />
+                        <span className="text-xs text-destructive">{personalSignInError}</span>
+                      </div>
+                    )}
+
+                    {/* Sign in button */}
+                    <button
+                      onClick={handlePersonalSignIn}
+                      disabled={!personalEmail.trim() || !personalPassword.trim() || isPersonalSigningIn}
+                      className="w-full py-3 rounded-xl bg-foreground/80 text-background text-sm font-semibold hover:bg-foreground/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                    >
+                      {isPersonalSigningIn ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          Signing In...
+                        </span>
+                      ) : (
+                        "Sign In"
+                      )}
+                    </button>
+
+                    {/* 2FA notice */}
+                    <div className="flex items-center justify-center gap-2 text-foreground/30">
+                      <ShieldCheck className="w-3.5 h-3.5" />
+                      <span className="text-xs">2FA required by organization policy</span>
+                    </div>
+
+                    <p className="text-[11px] text-foreground/30 text-center">
+                      Use the same email your administrator invited you with
+                    </p>
+                  </motion.div>
+                )}
+
+                {/* Personal access denied */}
+                {currentStep === "personal-access-denied" && invitedUser && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-4"
+                  >
+                    {/* Access denied icon */}
+                    <div className="flex flex-col items-center gap-3 py-4">
+                      <div className="w-16 h-16 rounded-full bg-destructive/10 border border-destructive/20 flex items-center justify-center">
+                        <ShieldX className="w-8 h-8 text-destructive" />
+                      </div>
+                      <div className="text-center">
+                        <p className="text-lg font-semibold text-foreground">Access Denied</p>
+                        <p className="text-xs text-foreground/40 mt-1 max-w-[280px]">
+                          The email you entered doesn't match the invited user for this device code.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Invited user info */}
+                    <div className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] p-4 space-y-1">
+                      <p className="text-[11px] text-foreground/40 uppercase tracking-wider font-medium">Invite Issued To</p>
+                      <p className="text-sm font-semibold text-foreground">{invitedUser.name}</p>
+                      <p className="text-xs text-foreground/50">{invitedUser.email}</p>
+                    </div>
+
+                    {/* Try again button */}
+                    <button
+                      onClick={() => {
+                        setCurrentStep("personal-sign-in");
+                        setPersonalEmail("");
+                        setPersonalPassword("");
+                        setPersonalSignInError("");
+                        const msgs = messages.slice(0, -1);
+                        setMessages(msgs);
+                      }}
+                      className="w-full py-3 rounded-xl bg-foreground/80 text-background text-sm font-semibold hover:bg-foreground/90 transition-all"
+                    >
+                      Try Again
+                    </button>
+
+                    <p className="text-xs text-foreground/40 text-center">Not you? Contact your administrator</p>
+
+                    <button
+                      className="flex items-center justify-center gap-2 w-full text-xs text-primary hover:text-primary/80 transition-colors"
+                    >
+                      <Send className="w-3 h-3" />
+                      Request New Invite
+                    </button>
+                  </motion.div>
+                )}
+
+
                 {currentStep === "activate-code" && !isLoading && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -1137,7 +1540,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
           </div>
 
           {/* Input - hide when in email/phone/code input steps or OTP/verified */}
-          {currentStep !== "sign-in-email" && currentStep !== "sign-in-phone" && currentStep !== "activate-code" && currentStep !== "activate-code-verifying" && currentStep !== "demo-otp" && currentStep !== "demo-verified" && (
+          {currentStep !== "sign-in-email" && currentStep !== "sign-in-phone" && currentStep !== "activate-code" && currentStep !== "activate-code-verifying" && currentStep !== "demo-otp" && currentStep !== "demo-verified" && currentStep !== "personal-invite-code" && currentStep !== "personal-invite-verifying" && currentStep !== "personal-sign-in" && currentStep !== "personal-access-denied" && (
             <div className="px-6 py-4 flex-shrink-0">
               {currentStep === "demo-email" ? (
                 <div className="space-y-2">

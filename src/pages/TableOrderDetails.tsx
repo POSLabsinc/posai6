@@ -65,7 +65,7 @@ import discountBtnIcon from "@/assets/icons/discount-icon.svg";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
-// Discount types
+// Discount types - loaded from DB
 interface DiscountType {
   id: string;
   name: string;
@@ -74,21 +74,6 @@ interface DiscountType {
   fixedAmount?: number;
   icon: string;
 }
-
-const discountTypes: DiscountType[] = [
-  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
-  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
-  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
-  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
-  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
-  { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
-  { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
-  { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
-  { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
-  { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
-  { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
-  { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
-];
 
 const getDiscountIcon = (iconName: string) => {
   const icons: Record<string, React.ComponentType<{ className?: string }>> = {

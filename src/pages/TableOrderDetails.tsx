@@ -5,6 +5,8 @@ import { useOrderTimers } from "@/hooks/use-order-timer";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
+import { useTicketOrders } from "@/hooks/use-ticket-orders";
+import { supabase } from "@/integrations/supabase/client";
 import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
 import RefundDialog from "@/components/RefundDialog";

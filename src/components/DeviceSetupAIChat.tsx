@@ -840,11 +840,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                       </button>
                       <button
                         onClick={() => {
-                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Phone" };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please enter your phone number to receive the secure sign-in link." };
-                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("sign-in-phone");
-                          setSignInInput("");
+                          appendChatTurn("Phone", "Please enter your phone number to receive the secure sign-in link.", "sign-in-phone", {
+                            onAfterAssistant: () => setSignInInput(""),
+                          });
                         }}
                         className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                       >

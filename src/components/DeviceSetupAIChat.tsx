@@ -251,6 +251,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       } else {
         setMessages((prev) => [...prev, userMsg]);
       }
+      setCurrentStep("chat");
 
       const timer = window.setTimeout(() => {
         const assistantMsg: Message = {

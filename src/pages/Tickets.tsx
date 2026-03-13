@@ -166,6 +166,7 @@ interface OrderItem {
 // Guest order interface with linked items
 interface GuestOrder {
   id: string;
+  orderNumber: number;
   name: string;
   phone: string;
   partySize: number;

@@ -16,7 +16,8 @@ import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phon
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
-import { ticketOrders, ticketToTemplateData, formatTicketPrice, getAvailableTicketOrdersForTransfer } from "@/data/ticketOrders";
+import { ticketToTemplateData, formatTicketPrice } from "@/data/ticketOrders";
+import type { TicketOrder } from "@/data/ticketOrders";
 
 // Import shared order data
 import { 

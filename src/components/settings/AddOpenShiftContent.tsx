@@ -6,6 +6,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { CompactTimePicker } from "@/components/ui/compact-time-picker";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { supabase } from "@/integrations/supabase/client";
 
 interface AddOpenShiftContentProps {
   showHeader?: boolean;

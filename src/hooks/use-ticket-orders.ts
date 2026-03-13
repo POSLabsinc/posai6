@@ -20,6 +20,7 @@ export interface TicketOrderItemRow {
 
 export interface TicketOrderRow {
   id: string;
+  order_number: number;
   name: string;
   phone: string;
   party_size: number;
@@ -55,6 +56,7 @@ export interface TicketOrderRow {
 // Legacy-compatible shape (matches GuestOrder in Tickets.tsx & TicketOrder in ticketOrders.ts)
 export interface UnifiedTicketOrder {
   id: string;
+  orderNumber: number;
   name: string;
   phone: string;
   partySize: number;
@@ -109,6 +111,7 @@ function rowToUnified(row: TicketOrderRow): UnifiedTicketOrder {
 
   return {
     id: row.id,
+    orderNumber: row.order_number || 0,
     name: row.name,
     phone: row.phone,
     partySize: row.party_size,

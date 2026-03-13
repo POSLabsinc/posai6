@@ -166,6 +166,7 @@ interface OrderItem {
 // Guest order interface with linked items
 interface GuestOrder {
   id: string;
+  orderNumber: number;
   name: string;
   phone: string;
   partySize: number;
@@ -195,6 +196,7 @@ interface GuestOrder {
 const FALLBACK_SELECTED_GUEST_ID = "__fallback-ticket__";
 const FALLBACK_SELECTED_GUEST: GuestOrder = {
   id: FALLBACK_SELECTED_GUEST_ID,
+  orderNumber: 0,
   name: "",
   phone: "",
   partySize: 1,
@@ -438,6 +440,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   // Convert DB orders to GuestOrder shape for this component
   const allOrders: GuestOrder[] = dbTicketOrders.map(o => ({
     id: o.id,
+    orderNumber: o.orderNumber || 0,
     name: o.name,
     phone: o.phone,
     partySize: o.partySize,
@@ -2120,7 +2123,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 {selectedGuest.partySize}
               </span>
             )}
-            <span className="text-white font-bold">{selectedGuest.id.slice(-3)}</span>
+            <span className="text-white font-bold">{String(selectedGuest.orderNumber || 0)}</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <img src={runnerIcon} alt="Runner" className="w-4 h-4" />
@@ -2895,7 +2898,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   onClick={() => handleCardClick(guest)}
                 >
                   <MobileTicketCard
-                    orderId={guest.id.slice(-3)}
+                    orderId={String(guest.orderNumber || 0)}
                     checkId={guest.check === "--" ? "--" : guest.check}
                     guestName={guest.name}
                     tableNumber={guest.table}
@@ -3133,7 +3136,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {/* Column 1: Order Number Box */}
                     <div className="flex-shrink-0 px-2 py-1.5 flex items-center">
                       <div className="relative w-12 h-[58px] bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                        <span className="text-lg font-bold text-white truncate max-w-full px-0.5">{guest.id.slice(-3)}</span>
+                        <span className="text-lg font-bold text-white truncate max-w-full px-0.5">{String(guest.orderNumber || 0)}</span>
                         <span className="text-[10px] text-gray-400 truncate max-w-full px-0.5">{guest.check === "--" ? "--" : guest.check}</span>
                       </div>
                     </div>
@@ -3339,7 +3342,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {selectedGuest.partySize}
                   </span>
                 )}
-                <span className="text-white font-bold">{selectedGuest.id.slice(-3)}</span>
+                <span className="text-white font-bold">{String(selectedGuest.orderNumber || 0)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
@@ -4049,7 +4052,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {/* Column 1: Order Number Box */}
                     <div className="flex-shrink-0 px-2 py-2 flex items-center">
                       <div className="relative w-12 h-[60px] bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                        <span className="text-lg font-bold text-white truncate max-w-full px-0.5">{guest.id.slice(-3)}</span>
+                        <span className="text-lg font-bold text-white truncate max-w-full px-0.5">{String(guest.orderNumber || 0)}</span>
                         <span className="text-xs text-gray-400 truncate max-w-full px-0.5">{guest.check === "--" ? "--" : guest.check}</span>
                       </div>
                     </div>
@@ -4218,7 +4221,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {selectedGuest.partySize}
                   </span>
                 )}
-                <span className="text-white font-bold text-sm">{selectedGuest.id.slice(-3)}</span>
+                <span className="text-white font-bold text-sm">{String(selectedGuest.orderNumber || 0)}</span>
               </div>
               <span className="text-white/50 text-xs">{selectedGuest.server}</span>
             </div>

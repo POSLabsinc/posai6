@@ -2419,6 +2419,7 @@ export type Database = {
           merged_from: Json | null
           name: string
           notes: string
+          order_number: number
           order_type: string
           paid_amount: string | null
           party_size: number
@@ -2451,6 +2452,7 @@ export type Database = {
           merged_from?: Json | null
           name?: string
           notes?: string
+          order_number?: number
           order_type?: string
           paid_amount?: string | null
           party_size?: number
@@ -2483,6 +2485,7 @@ export type Database = {
           merged_from?: Json | null
           name?: string
           notes?: string
+          order_number?: number
           order_type?: string
           paid_amount?: string | null
           party_size?: number

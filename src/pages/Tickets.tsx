@@ -946,7 +946,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   // Get effective discounts for the currently selected ticket
   const EMPTY_DISCOUNTS: Discount[] = useMemo(() => [], []);
   const getTicketDiscounts = (ticketId: string): Discount[] => ticketDiscounts[ticketId] || EMPTY_DISCOUNTS;
-  const currentTicketDiscounts = useMemo(() => ticketDiscounts[selectedGuest.id] || EMPTY_DISCOUNTS, [ticketDiscounts, selectedGuest.id, EMPTY_DISCOUNTS]);
+  const currentTicketDiscounts = useMemo(() => selectedGuest ? (ticketDiscounts[selectedGuest.id] || EMPTY_DISCOUNTS) : EMPTY_DISCOUNTS, [ticketDiscounts, selectedGuest?.id, EMPTY_DISCOUNTS]);
 
   // Calculate discount amount from applied discounts for a ticket
   const getAppliedDiscountAmount = (ticketId: string, subtotal: number): number => {
@@ -959,9 +959,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
 
   // Effective discount: if ticketDiscounts has entries for this ticket, use only those (single source of truth)
   // Otherwise fall back to raw selectedGuest.discount
-  const effectiveDiscount = ticketDiscounts[selectedGuest.id]
-    ? getAppliedDiscountAmount(selectedGuest.id, selectedGuest.subtotal)
-    : selectedGuest.discount;
+  const effectiveDiscount = selectedGuest
+    ? (ticketDiscounts[selectedGuest.id]
+      ? getAppliedDiscountAmount(selectedGuest.id, selectedGuest.subtotal)
+      : selectedGuest.discount)
+    : 0;
 
   // Handle applying discounts to current ticket
   const handleApplyTicketDiscounts = (discounts: Discount[]) => {

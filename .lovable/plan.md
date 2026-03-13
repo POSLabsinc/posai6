@@ -1,64 +1,38 @@
 
-# Database-Connected Orders System — Migration Complete
+Root cause analysis:
+- The fix was applied only to the mobile card path (`MobileTicketCard` at `src/pages/Tickets.tsx:2897-2899`).
+- Your current viewport is desktop (`1114px`, i.e. `lg`), so the app renders the desktop layout branch, which still hardcodes UUIDs:
+  - Left ticket list (desktop): `src/pages/Tickets.tsx:3136`
+  - Left ticket list (tablet): `src/pages/Tickets.tsx:4052`
+- The right order panel header also still hardcodes UUID in all three responsive variants:
+  - `src/pages/Tickets.tsx:2123`, `3342`, `4221`
+- So the UI keeps showing UUID even though mobile mapping was corrected.
 
-## What Was Done
+Plan to fix:
+1. Centralize display formatting in `Tickets.tsx` with two helpers (single source of truth):
+   - `displayOrderNumber` (short order number derived from `id`, e.g. last 3 chars)
+   - `displayCheckNumber` (actual check number from `check`, fallback `--`)
+2. Replace all user-facing UUID render points in Tickets page with these helpers:
+   - Desktop card ID block (`3136/3137`)
+   - Tablet card ID block (`4052/4053`)
+   - Right panel order header (`2123`, `3342`, `4221`)
+   - Keep existing mobile props aligned to same helper logic to prevent future drift.
+3. Add defensive text constraints where needed (desktop/tablet ID boxes):
+   - `overflow-hidden`, `truncate`, `max-w-full` on number spans so long values never break layout.
+4. Optional consistency pass (same screen):
+   - Replace any visible “order #UUID” text with formatted order number in modal/labels where customer-facing.
 
-### Phase 1: Database Tables ✅
-- Created `ticket_orders` table with all fields (name, phone, party_size, status, table_id, financials, transfer_info, split_configuration, etc.)
-- Created `ticket_order_items` table with FK to ticket_orders (qty, name, price, seats, modifiers, is_shared, is_fired, no_tax)
-- Added indexes on table_id, status, session_id, order_id
-- Added updated_at trigger
-- Enabled RLS with public access policies
-- Enabled Realtime on both tables
+Technical implementation details:
+- File: `src/pages/Tickets.tsx`
+- Create helper functions near existing format utilities:
+  - `getDisplayOrderNumber(id: string): string`
+  - `getDisplayCheckNumber(check: string): string`
+- Use helpers in JSX instead of raw `guest.id` / `selectedGuest.id`.
+- Do not change backend data model; this is strictly presentation-layer normalization.
 
-### Phase 2: Seed Data ✅
-- Inserted all 15 ticket orders from `ticketOrders.ts` with deterministic UUIDs
-- Inserted 8 unique orders from `orders.ts` (different tables/guests)
-- Inserted all line items for all 23 orders into `ticket_order_items`
-- Set multi-payment data for David Chen order
-
-### Phase 3: `useTicketOrders` Hook ✅
-- Created `src/hooks/use-ticket-orders.ts`
-- React Query-based with realtime subscription
-- Fetches `ticket_orders` + `ticket_order_items` and joins them
-- Provides CRUD: addOrder, updateOrder, updateOrderItems, removeOrder
-- Helpers: getOrdersByTable, getOrderById, getOrdersByStatus
-- Converts DB rows to `UnifiedTicketOrder` shape compatible with all consumers
-
-### Phase 4: `UnifiedOrderContext` Refactored ✅
-- Removed localStorage (`pos-unified-orders`) dependency
-- Now delegates all reads/writes to `useTicketOrders` hook
-- Maintains same API surface for backward compatibility
-- Transfer sync is now a no-op (handled via direct DB mutations)
-
-### Phase 5: `SessionOrderContext` Refactored ✅
-- Removed localStorage (`pos-session-orders`) dependency
-- `createOrder()` inserts into `ticket_orders` with `session_id`
-- `updateOrderItems()` writes to `ticket_order_items`
-- Split configurations stored in `split_configuration` jsonb column
-- KDS queue still uses localStorage (browser-local by design)
-
-### Phase 6: Tickets.tsx Updated ✅
-- Removed 275-line hardcoded `allOrders` array
-- Now fetches from DB via `useTicketOrders` hook
-- Auto-selects first order when data loads
-- Transfer helpers derived from live DB data
-
-### Data Flow Summary
-```
-ticket_orders (DB) ←──┐
-                       │ useTicketOrders hook
-ticket_order_items ────┘
-        │
-        ├── UnifiedOrderContext (wraps hook, legacy API)
-        ├── SessionOrderContext (session orders with session_id)
-        ├── Tickets.tsx (direct hook usage)
-        ├── TableOrderDetails.tsx (via UnifiedOrderContext)
-        ├── Dashboard.tsx (via static data - next phase)
-        └── TransferOrders.tsx (via UnifiedOrderContext)
-```
-
-### Remaining (Future Phases)
-- Dashboard.tsx still imports from `src/data/orders.ts` static array — needs migration to hook
-- TableOrderDetails.tsx still imports `allOrders` from `src/data/orders.ts` — needs migration
-- Remove static arrays from `src/data/orders.ts` and `src/data/ticketOrders.ts` once all consumers migrated
+Validation checklist (end-to-end):
+- Desktop (`lg`): left ticket cards show short order number + check number; no UUID wrapping.
+- Tablet (`md`): same behavior.
+- Mobile (`sm`): unchanged/correct behavior.
+- Right panel header shows formatted order/check values (not UUID).
+- Test data cases: numeric check (`123443`), placeholder (`--`), alphanumeric (`BQ-001`).

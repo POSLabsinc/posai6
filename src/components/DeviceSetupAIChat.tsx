@@ -242,6 +242,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
   const handleNotNew = useCallback(() => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
     const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
+    seenMessageIds.current.clear();
     setMessages([userMsg, assistantMsg]);
     setIsNewUser(false);
     setCurrentStep("device-type");

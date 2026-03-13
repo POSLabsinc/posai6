@@ -566,12 +566,19 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                 {/* Device type selection */}
                 {currentStep === "device-type" && !isLoading && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      hidden: {},
+                      visible: { transition: { staggerChildren: 0.12, delayChildren: messages.length * 0.15 + 0.1 } }
+                    }}
                     className="flex flex-col gap-2.5 pl-7 pt-3 pb-2"
                   >
-                    <button
+                    <motion.button
+                      variants={{
+                        hidden: { opacity: 0, y: 14, scale: 0.97 },
+                        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
+                      }}
                       onClick={() => {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Company Device" };
                         if (isNewUser) {
@@ -593,8 +600,12 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                         <p className="text-[13px] font-semibold text-foreground leading-tight">Company Device</p>
                         <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Shared POS / Tablet / Restaurant Computer</p>
                       </div>
-                    </button>
-                    <button
+                    </motion.button>
+                    <motion.button
+                      variants={{
+                        hidden: { opacity: 0, y: 14, scale: 0.97 },
+                        visible: { opacity: 1, y: 0, scale: 1, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } }
+                      }}
                       onClick={() => {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Personal Device" };
                         if (isNewUser) {
@@ -616,7 +627,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                         <p className="text-[13px] font-semibold text-foreground leading-tight">Personal Device</p>
                         <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Mobile / Personal Browser</p>
                       </div>
-                    </button>
+                    </motion.button>
                   </motion.div>
                 )}
 

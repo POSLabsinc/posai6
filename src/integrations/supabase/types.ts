@@ -268,6 +268,7 @@ export type Database = {
           drawer_name: string
           expected_in_drawer: number
           id: string
+          merchant_id: string | null
           opened_at: string
           starting_cash: number
           status: string
@@ -284,6 +285,7 @@ export type Database = {
           drawer_name: string
           expected_in_drawer?: number
           id?: string
+          merchant_id?: string | null
           opened_at?: string
           starting_cash?: number
           status?: string
@@ -300,12 +302,21 @@ export type Database = {
           drawer_name?: string
           expected_in_drawer?: number
           id?: string
+          merchant_id?: string | null
           opened_at?: string
           starting_cash?: number
           status?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "cash_drawer_sessions_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cash_transactions: {
         Row: {
@@ -357,6 +368,7 @@ export type Database = {
           created_at: string
           icon: string | null
           id: string
+          merchant_id: string | null
           name: string
           sort_order: number
           updated_at: string
@@ -366,6 +378,7 @@ export type Database = {
           created_at?: string
           icon?: string | null
           id?: string
+          merchant_id?: string | null
           name: string
           sort_order?: number
           updated_at?: string
@@ -375,11 +388,20 @@ export type Database = {
           created_at?: string
           icon?: string | null
           id?: string
+          merchant_id?: string | null
           name?: string
           sort_order?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "categories_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       checkout_options: {
         Row: {
@@ -530,6 +552,7 @@ export type Database = {
           created_at: string
           device_id: string
           id: string
+          merchant_id: string | null
           name: string
           requires_manager_pin: boolean
           schedule_enabled: boolean
@@ -545,6 +568,7 @@ export type Database = {
           created_at?: string
           device_id: string
           id?: string
+          merchant_id?: string | null
           name: string
           requires_manager_pin?: boolean
           schedule_enabled?: boolean
@@ -560,6 +584,7 @@ export type Database = {
           created_at?: string
           device_id?: string
           id?: string
+          merchant_id?: string | null
           name?: string
           requires_manager_pin?: boolean
           schedule_enabled?: boolean
@@ -567,7 +592,15 @@ export type Database = {
           type?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "discounts_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       employee_shifts: {
         Row: {
@@ -701,6 +734,7 @@ export type Database = {
           id: string
           is_archived: boolean
           is_on_leave: boolean
+          merchant_id: string | null
           payroll_enabled: boolean
           phone: string | null
           pin: string
@@ -720,6 +754,7 @@ export type Database = {
           id?: string
           is_archived?: boolean
           is_on_leave?: boolean
+          merchant_id?: string | null
           payroll_enabled?: boolean
           phone?: string | null
           pin?: string
@@ -739,6 +774,7 @@ export type Database = {
           id?: string
           is_archived?: boolean
           is_on_leave?: boolean
+          merchant_id?: string | null
           payroll_enabled?: boolean
           phone?: string | null
           pin?: string
@@ -746,7 +782,15 @@ export type Database = {
           role?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "employees_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       gratuity_settings: {
         Row: {
@@ -852,6 +896,7 @@ export type Database = {
           guest_id: string | null
           guest_name: string
           id: string
+          merchant_id: string | null
           platform: string
           sentiment: string
         }
@@ -862,6 +907,7 @@ export type Database = {
           guest_id?: string | null
           guest_name: string
           id?: string
+          merchant_id?: string | null
           platform?: string
           sentiment?: string
         }
@@ -872,6 +918,7 @@ export type Database = {
           guest_id?: string | null
           guest_name?: string
           id?: string
+          merchant_id?: string | null
           platform?: string
           sentiment?: string
         }
@@ -881,6 +928,13 @@ export type Database = {
             columns: ["guest_id"]
             isOneToOne: false
             referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "guest_feedback_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
             referencedColumns: ["id"]
           },
         ]
@@ -902,6 +956,7 @@ export type Database = {
           license_plate: string | null
           loyalty: string | null
           loyalty_points_balance: number
+          merchant_id: string | null
           middle_name: string | null
           name: string
           notes_allergies: string | null
@@ -933,6 +988,7 @@ export type Database = {
           license_plate?: string | null
           loyalty?: string | null
           loyalty_points_balance?: number
+          merchant_id?: string | null
           middle_name?: string | null
           name: string
           notes_allergies?: string | null
@@ -964,6 +1020,7 @@ export type Database = {
           license_plate?: string | null
           loyalty?: string | null
           loyalty_points_balance?: number
+          merchant_id?: string | null
           middle_name?: string | null
           name?: string
           notes_allergies?: string | null
@@ -979,7 +1036,15 @@ export type Database = {
           updated_at?: string
           vehicle?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "guests_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       integrations: {
         Row: {
@@ -1127,6 +1192,7 @@ export type Database = {
           description: string | null
           enabled: boolean
           id: string
+          merchant_id: string | null
           name: string
           revenue_centers: string[]
           sort_order: number
@@ -1139,6 +1205,7 @@ export type Database = {
           description?: string | null
           enabled?: boolean
           id?: string
+          merchant_id?: string | null
           name: string
           revenue_centers?: string[]
           sort_order?: number
@@ -1151,12 +1218,21 @@ export type Database = {
           description?: string | null
           enabled?: boolean
           id?: string
+          merchant_id?: string | null
           name?: string
           revenue_centers?: string[]
           sort_order?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "menus_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       merchants: {
         Row: {
@@ -1441,6 +1517,7 @@ export type Database = {
           category: string
           id: string
           item_name: string
+          merchant_id: string | null
           order_id: string
           quantity: number
           total_price: number
@@ -1450,6 +1527,7 @@ export type Database = {
           category?: string
           id?: string
           item_name: string
+          merchant_id?: string | null
           order_id: string
           quantity?: number
           total_price?: number
@@ -1459,12 +1537,20 @@ export type Database = {
           category?: string
           id?: string
           item_name?: string
+          merchant_id?: string | null
           order_id?: string
           quantity?: number
           total_price?: number
           unit_price?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "order_items_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "order_items_order_id_fkey"
             columns: ["order_id"]
@@ -1482,6 +1568,7 @@ export type Database = {
           employee_name: string | null
           guest_id: string | null
           id: string
+          merchant_id: string | null
           order_number: number
           order_type: string
           payment_type: string
@@ -1501,6 +1588,7 @@ export type Database = {
           employee_name?: string | null
           guest_id?: string | null
           id?: string
+          merchant_id?: string | null
           order_number?: number
           order_type?: string
           payment_type?: string
@@ -1520,6 +1608,7 @@ export type Database = {
           employee_name?: string | null
           guest_id?: string | null
           id?: string
+          merchant_id?: string | null
           order_number?: number
           order_type?: string
           payment_type?: string
@@ -1538,6 +1627,13 @@ export type Database = {
             columns: ["guest_id"]
             isOneToOne: false
             referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
             referencedColumns: ["id"]
           },
         ]
@@ -1829,6 +1925,7 @@ export type Database = {
           ingredients: string[] | null
           inventory_tracking: boolean
           max_price: number | null
+          merchant_id: string | null
           min_price: number | null
           name: string
           negative_inventory: boolean
@@ -1859,6 +1956,7 @@ export type Database = {
           ingredients?: string[] | null
           inventory_tracking?: boolean
           max_price?: number | null
+          merchant_id?: string | null
           min_price?: number | null
           name: string
           negative_inventory?: boolean
@@ -1889,6 +1987,7 @@ export type Database = {
           ingredients?: string[] | null
           inventory_tracking?: boolean
           max_price?: number | null
+          merchant_id?: string | null
           min_price?: number | null
           name?: string
           negative_inventory?: boolean
@@ -1908,6 +2007,13 @@ export type Database = {
             columns: ["category_id"]
             isOneToOne: false
             referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "products_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
             referencedColumns: ["id"]
           },
         ]
@@ -1989,6 +2095,7 @@ export type Database = {
           guest_name: string
           id: string
           location: string | null
+          merchant_id: string | null
           no_show: boolean
           party_size: number
           reservation_date: string
@@ -2006,6 +2113,7 @@ export type Database = {
           guest_name: string
           id?: string
           location?: string | null
+          merchant_id?: string | null
           no_show?: boolean
           party_size?: number
           reservation_date: string
@@ -2023,6 +2131,7 @@ export type Database = {
           guest_name?: string
           id?: string
           location?: string | null
+          merchant_id?: string | null
           no_show?: boolean
           party_size?: number
           reservation_date?: string
@@ -2038,6 +2147,13 @@ export type Database = {
             columns: ["guest_id"]
             isOneToOne: false
             referencedRelation: "guests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reservations_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
             referencedColumns: ["id"]
           },
         ]
@@ -2107,6 +2223,7 @@ export type Database = {
           email: string | null
           id: string
           location: string
+          merchant_id: string | null
           name: string
           phone: string | null
           updated_at: string
@@ -2118,6 +2235,7 @@ export type Database = {
           email?: string | null
           id?: string
           location?: string
+          merchant_id?: string | null
           name: string
           phone?: string | null
           updated_at?: string
@@ -2129,11 +2247,20 @@ export type Database = {
           email?: string | null
           id?: string
           location?: string
+          merchant_id?: string | null
           name?: string
           phone?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "stores_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sub_verticals: {
         Row: {

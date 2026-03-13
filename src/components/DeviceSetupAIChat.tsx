@@ -691,9 +691,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                 {/* 6-digit code input for activate-code step */}
                 {currentStep === "activate-code" && !isLoading && (
                   <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    initial={{ opacity: 0, y: 14, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ duration: 0.4, delay: messages.length * 0.15 + 0.1, ease: [0.22, 1, 0.36, 1] }}
                     className="pl-7 pt-3 pb-2 space-y-4"
                   >
                     <div className="flex gap-2 justify-start">

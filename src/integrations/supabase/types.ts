@@ -14,6 +14,45 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          action: string
+          actor_id: string | null
+          actor_role: Database["public"]["Enums"]["app_role"] | null
+          created_at: string
+          details: Json | null
+          entity_id: string | null
+          entity_name: string | null
+          entity_type: string
+          id: string
+          ip_address: unknown
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          actor_role?: Database["public"]["Enums"]["app_role"] | null
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_name?: string | null
+          entity_type: string
+          id?: string
+          ip_address?: unknown
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          actor_role?: Database["public"]["Enums"]["app_role"] | null
+          created_at?: string
+          details?: Json | null
+          entity_id?: string | null
+          entity_name?: string | null
+          entity_type?: string
+          id?: string
+          ip_address?: unknown
+        }
+        Relationships: []
+      }
       add_ons: {
         Row: {
           active: boolean
@@ -43,6 +82,176 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      brand_integrations: {
+        Row: {
+          brand_id: string
+          config: Json | null
+          configured: boolean
+          created_at: string
+          enabled: boolean
+          id: string
+          integration_id: string
+          updated_at: string
+        }
+        Insert: {
+          brand_id: string
+          config?: Json | null
+          configured?: boolean
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          integration_id: string
+          updated_at?: string
+        }
+        Update: {
+          brand_id?: string
+          config?: Json | null
+          configured?: boolean
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          integration_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_integrations_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brand_integrations_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brand_verticals: {
+        Row: {
+          brand_id: string
+          created_at: string
+          id: string
+          vertical_id: string
+        }
+        Insert: {
+          brand_id: string
+          created_at?: string
+          id?: string
+          vertical_id: string
+        }
+        Update: {
+          brand_id?: string
+          created_at?: string
+          id?: string
+          vertical_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_verticals_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brand_verticals_vertical_id_fkey"
+            columns: ["vertical_id"]
+            isOneToOne: false
+            referencedRelation: "verticals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      brands: {
+        Row: {
+          accent_color: string | null
+          billing_owner: string
+          brand_markup: number | null
+          brand_type: string
+          can_have_resellers: boolean
+          can_sell_plans: Database["public"]["Enums"]["plan_tier"][] | null
+          created_at: string
+          default_plan_id: string | null
+          favicon: string | null
+          id: string
+          logo_dark: string | null
+          logo_light: string | null
+          merchant_count: number
+          mrr: number
+          name: string
+          primary_domain: string | null
+          reseller_count: number
+          reseller_permissions: Json | null
+          slug: string
+          status: Database["public"]["Enums"]["brand_status"]
+          subdomain: string | null
+          theme_mode: string | null
+          updated_at: string
+        }
+        Insert: {
+          accent_color?: string | null
+          billing_owner?: string
+          brand_markup?: number | null
+          brand_type?: string
+          can_have_resellers?: boolean
+          can_sell_plans?: Database["public"]["Enums"]["plan_tier"][] | null
+          created_at?: string
+          default_plan_id?: string | null
+          favicon?: string | null
+          id?: string
+          logo_dark?: string | null
+          logo_light?: string | null
+          merchant_count?: number
+          mrr?: number
+          name: string
+          primary_domain?: string | null
+          reseller_count?: number
+          reseller_permissions?: Json | null
+          slug: string
+          status?: Database["public"]["Enums"]["brand_status"]
+          subdomain?: string | null
+          theme_mode?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accent_color?: string | null
+          billing_owner?: string
+          brand_markup?: number | null
+          brand_type?: string
+          can_have_resellers?: boolean
+          can_sell_plans?: Database["public"]["Enums"]["plan_tier"][] | null
+          created_at?: string
+          default_plan_id?: string | null
+          favicon?: string | null
+          id?: string
+          logo_dark?: string | null
+          logo_light?: string | null
+          merchant_count?: number
+          mrr?: number
+          name?: string
+          primary_domain?: string | null
+          reseller_count?: number
+          reseller_permissions?: Json | null
+          slug?: string
+          status?: Database["public"]["Enums"]["brand_status"]
+          subdomain?: string | null
+          theme_mode?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brands_default_plan_id_fkey"
+            columns: ["default_plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       cash_drawer_sessions: {
         Row: {
@@ -666,6 +875,60 @@ export type Database = {
         }
         Relationships: []
       }
+      integrations: {
+        Row: {
+          category: string
+          compatible_plans: Database["public"]["Enums"]["plan_tier"][] | null
+          config_schema: Json | null
+          controlled_by: string
+          created_at: string
+          credential_owner: string
+          customer_visible: boolean
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean
+          name: string
+          slug: string
+          tier: Database["public"]["Enums"]["integration_tier"]
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          compatible_plans?: Database["public"]["Enums"]["plan_tier"][] | null
+          config_schema?: Json | null
+          controlled_by?: string
+          created_at?: string
+          credential_owner?: string
+          customer_visible?: boolean
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          slug: string
+          tier?: Database["public"]["Enums"]["integration_tier"]
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          compatible_plans?: Database["public"]["Enums"]["plan_tier"][] | null
+          config_schema?: Json | null
+          controlled_by?: string
+          created_at?: string
+          credential_owner?: string
+          customer_visible?: boolean
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          slug?: string
+          tier?: Database["public"]["Enums"]["integration_tier"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       loyalty_points: {
         Row: {
           balance_after: number
@@ -788,6 +1051,102 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      merchants: {
+        Row: {
+          brand_id: string
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          location_count: number
+          mrr: number
+          name: string
+          onboarded_at: string | null
+          plan_id: string | null
+          reseller_id: string | null
+          slug: string
+          status: Database["public"]["Enums"]["merchant_status"]
+          sub_vertical_id: string | null
+          updated_at: string
+          user_count: number
+          vertical_id: string | null
+        }
+        Insert: {
+          brand_id: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          location_count?: number
+          mrr?: number
+          name: string
+          onboarded_at?: string | null
+          plan_id?: string | null
+          reseller_id?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["merchant_status"]
+          sub_vertical_id?: string | null
+          updated_at?: string
+          user_count?: number
+          vertical_id?: string | null
+        }
+        Update: {
+          brand_id?: string
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          location_count?: number
+          mrr?: number
+          name?: string
+          onboarded_at?: string | null
+          plan_id?: string | null
+          reseller_id?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["merchant_status"]
+          sub_vertical_id?: string | null
+          updated_at?: string
+          user_count?: number
+          vertical_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "merchants_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchants_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchants_reseller_id_fkey"
+            columns: ["reseller_id"]
+            isOneToOne: false
+            referencedRelation: "resellers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchants_sub_vertical_id_fkey"
+            columns: ["sub_vertical_id"]
+            isOneToOne: false
+            referencedRelation: "sub_verticals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "merchants_vertical_id_fkey"
+            columns: ["vertical_id"]
+            isOneToOne: false
+            referencedRelation: "verticals"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       modifier_groups: {
         Row: {
@@ -1042,6 +1401,120 @@ export type Database = {
         }
         Relationships: []
       }
+      plans: {
+        Row: {
+          allowed_integration_tiers:
+            | Database["public"]["Enums"]["integration_tier"][]
+            | null
+          allowed_verticals: string[] | null
+          base_price: number
+          billing_cycle: string
+          created_at: string
+          currency: string
+          description: string | null
+          feature_flags: Json | null
+          id: string
+          is_active: boolean
+          max_locations: number | null
+          max_products: number | null
+          max_users: number | null
+          name: string
+          slug: string
+          sort_order: number
+          tier: Database["public"]["Enums"]["plan_tier"]
+          updated_at: string
+        }
+        Insert: {
+          allowed_integration_tiers?:
+            | Database["public"]["Enums"]["integration_tier"][]
+            | null
+          allowed_verticals?: string[] | null
+          base_price?: number
+          billing_cycle?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          feature_flags?: Json | null
+          id?: string
+          is_active?: boolean
+          max_locations?: number | null
+          max_products?: number | null
+          max_users?: number | null
+          name: string
+          slug: string
+          sort_order?: number
+          tier: Database["public"]["Enums"]["plan_tier"]
+          updated_at?: string
+        }
+        Update: {
+          allowed_integration_tiers?:
+            | Database["public"]["Enums"]["integration_tier"][]
+            | null
+          allowed_verticals?: string[] | null
+          base_price?: number
+          billing_cycle?: string
+          created_at?: string
+          currency?: string
+          description?: string | null
+          feature_flags?: Json | null
+          id?: string
+          is_active?: boolean
+          max_locations?: number | null
+          max_products?: number | null
+          max_users?: number | null
+          name?: string
+          slug?: string
+          sort_order?: number
+          tier?: Database["public"]["Enums"]["plan_tier"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_add_ons: {
+        Row: {
+          billing_cycle: string
+          compatible_plans: Database["public"]["Enums"]["plan_tier"][] | null
+          created_at: string
+          currency: string
+          description: string | null
+          feature_flags: Json | null
+          id: string
+          is_active: boolean
+          name: string
+          price: number
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          billing_cycle?: string
+          compatible_plans?: Database["public"]["Enums"]["plan_tier"][] | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          feature_flags?: Json | null
+          id?: string
+          is_active?: boolean
+          name: string
+          price?: number
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          billing_cycle?: string
+          compatible_plans?: Database["public"]["Enums"]["plan_tier"][] | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          feature_flags?: Json | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          price?: number
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       product_add_ons: {
         Row: {
           add_on_id: string
@@ -1268,6 +1741,71 @@ export type Database = {
           },
         ]
       }
+      resellers: {
+        Row: {
+          brand_id: string
+          can_assign_plans: boolean
+          can_configure_branding: boolean
+          can_configure_integrations: boolean
+          can_manage_merchants: boolean
+          can_view_revenue: boolean
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          id: string
+          merchant_count: number
+          mrr: number
+          name: string
+          slug: string
+          status: Database["public"]["Enums"]["brand_status"]
+          updated_at: string
+        }
+        Insert: {
+          brand_id: string
+          can_assign_plans?: boolean
+          can_configure_branding?: boolean
+          can_configure_integrations?: boolean
+          can_manage_merchants?: boolean
+          can_view_revenue?: boolean
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          merchant_count?: number
+          mrr?: number
+          name: string
+          slug: string
+          status?: Database["public"]["Enums"]["brand_status"]
+          updated_at?: string
+        }
+        Update: {
+          brand_id?: string
+          can_assign_plans?: boolean
+          can_configure_branding?: boolean
+          can_configure_integrations?: boolean
+          can_manage_merchants?: boolean
+          can_view_revenue?: boolean
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          id?: string
+          merchant_count?: number
+          mrr?: number
+          name?: string
+          slug?: string
+          status?: Database["public"]["Enums"]["brand_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "resellers_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reservations: {
         Row: {
           color_category: string | null
@@ -1412,6 +1950,59 @@ export type Database = {
         }
         Relationships: []
       }
+      sub_verticals: {
+        Row: {
+          created_at: string
+          description: string | null
+          features: Json | null
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          status: Database["public"]["Enums"]["vertical_status"]
+          tier: Database["public"]["Enums"]["integration_tier"]
+          updated_at: string
+          vertical_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["vertical_status"]
+          tier?: Database["public"]["Enums"]["integration_tier"]
+          updated_at?: string
+          vertical_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          features?: Json | null
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["vertical_status"]
+          tier?: Database["public"]["Enums"]["integration_tier"]
+          updated_at?: string
+          vertical_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sub_verticals_vertical_id_fkey"
+            columns: ["vertical_id"]
+            isOneToOne: false
+            referencedRelation: "verticals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       taxes: {
         Row: {
           amount: number
@@ -1520,6 +2111,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      verticals: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          status: Database["public"]["Enums"]["vertical_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["vertical_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          status?: Database["public"]["Enums"]["vertical_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       vouchers: {
         Row: {
           buyer_type: string
@@ -1609,10 +2257,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role:
+        | "super_admin"
+        | "customer_success"
+        | "support"
+        | "finance"
+        | "brand_manager"
+        | "viewer"
+      brand_status: "draft" | "active" | "suspended" | "archived"
+      integration_tier: "core" | "standard" | "premium"
+      merchant_status: "active" | "inactive" | "suspended" | "churned"
+      plan_tier: "starter" | "pro" | "enterprise"
+      vertical_status: "active" | "inactive"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1739,6 +2404,20 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: [
+        "super_admin",
+        "customer_success",
+        "support",
+        "finance",
+        "brand_manager",
+        "viewer",
+      ],
+      brand_status: ["draft", "active", "suspended", "archived"],
+      integration_tier: ["core", "standard", "premium"],
+      merchant_status: ["active", "inactive", "suspended", "churned"],
+      plan_tier: ["starter", "pro", "enterprise"],
+      vertical_status: ["active", "inactive"],
+    },
   },
 } as const

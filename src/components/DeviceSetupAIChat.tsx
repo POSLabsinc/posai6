@@ -281,6 +281,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       const label = isNewUser ? "Yes, I'm new" : "No, I'm not new";
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: label };
       const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
+      seenMessageIds.current.clear();
       setMessages([userMsg, assistantMsg]);
       setCurrentStep("device-type");
     } else if (currentStep === "activate-code") {
@@ -288,6 +289,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       const label = isNewUser ? "Yes, I'm new" : "No, I'm not new";
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: label };
       const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Choose your device type to continue:" };
+      seenMessageIds.current.clear();
       setMessages([userMsg, assistantMsg]);
       setCurrentStep("device-type");
     } else if (["sign-in-link", "demo-mode"].includes(currentStep)) {

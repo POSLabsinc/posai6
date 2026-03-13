@@ -56,6 +56,7 @@ export interface TicketOrderRow {
 // Legacy-compatible shape (matches GuestOrder in Tickets.tsx & TicketOrder in ticketOrders.ts)
 export interface UnifiedTicketOrder {
   id: string;
+  orderNumber: number;
   name: string;
   phone: string;
   partySize: number;

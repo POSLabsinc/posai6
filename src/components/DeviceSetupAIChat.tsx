@@ -888,11 +888,9 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           if (signInInput.trim() && signInInput.includes("@")) {
                             const email = signInInput.trim();
                             setSentAddress(email);
-                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: email };
-                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We sent a secure sign-in link to **${email}**` };
-                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                            setCurrentStep("sign-in-email-sent");
-                            setSignInInput("");
+                            appendChatTurn(email, `We sent a secure sign-in link to **${email}**`, "sign-in-email-sent", {
+                              onAfterAssistant: () => setSignInInput(""),
+                            });
                           }
                         }}
                         disabled={!signInInput.trim() || !signInInput.includes("@")}

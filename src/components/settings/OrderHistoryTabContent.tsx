@@ -28,7 +28,7 @@ interface OrderWithItems {
 }
 
 interface OrderHistoryTabContentProps {
-  guest: { name: string };
+  guest: { id: string; name: string };
 }
 
 type SortField = "date" | "spent" | "tips" | "items" | "order_type";

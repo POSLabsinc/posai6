@@ -4218,7 +4218,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {selectedGuest.partySize}
                   </span>
                 )}
-                <span className="text-white font-bold text-sm">{selectedGuest.id}</span>
+                <span className="text-white font-bold text-sm">{selectedGuest.id.slice(-3)}</span>
               </div>
               <span className="text-white/50 text-xs">{selectedGuest.server}</span>
             </div>

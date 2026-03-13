@@ -100,25 +100,30 @@ const AddOpenShiftContent = ({ showHeader = true, onBack }: AddOpenShiftContentP
 
   const goBack = onBack || (() => navigate("/settings/workforce/shift"));
 
-  // Load existing data in edit mode
+  // Load existing data in edit mode from database
   useEffect(() => {
     if (!editId) return;
-    const shifts = JSON.parse(localStorage.getItem("pos_open_shifts") || "[]");
-    const os = shifts.find((s: any) => s.id === editId);
-    if (os) {
-      setShiftName(os.shiftName || "");
-      setShiftType(os.shiftType || "");
-      setSelectedDate(os.date ? new Date(os.date + "T00:00:00") : undefined);
-      setSelectedDays(os.selectedDays || []);
-      setDaySelectionMode(os.daySelectionMode || "all");
-      setDayStartTime(os.startTime || "09:00 AM");
-      setDayEndTime(os.endTime || "05:00 PM");
-      setNextDay(os.nextDay || false);
+    const loadShift = async () => {
+      const { data: os, error } = await (supabase as any)
+        .from("open_shifts")
+        .select("*")
+        .eq("id", editId)
+        .maybeSingle();
+      if (error || !os) return;
+      setShiftName(os.shift_name || "");
+      setShiftType(os.shift_type || "");
+      setSelectedDate(os.shift_date ? new Date(os.shift_date + "T00:00:00") : undefined);
+      setSelectedDays(os.selected_days || []);
+      setDaySelectionMode(os.day_selection_mode || "all");
+      setDayStartTime(os.start_time || "09:00 AM");
+      setDayEndTime(os.end_time || "05:00 PM");
+      setNextDay(os.next_day || false);
       setRecurring(os.recurring || false);
-      setAllowOvertime(os.allowOvertime || false);
+      setAllowOvertime(os.allow_overtime || false);
       if (os.breaks) setBreaks(os.breaks);
-      setShiftNote(os.shiftNote || "");
-    }
+      setShiftNote(os.shift_note || "");
+    };
+    loadShift();
   }, [editId]);
 
   const MAX_NOTE_WORDS = 1000;

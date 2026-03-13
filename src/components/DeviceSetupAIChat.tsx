@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, Building2, User } from "lucide-react";
+import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, Monitor, TabletSmartphone } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ReactMarkdown from "react-markdown";
 import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";
@@ -563,7 +563,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="flex gap-2.5 pl-7 pt-3 pb-2"
+                    className="flex flex-col gap-2.5 pl-7 pt-3 pb-2"
                   >
                     <button
                       onClick={() => {
@@ -578,14 +578,14 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           setCurrentStep("activation-methods");
                         }
                       }}
-                      className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                      className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                     >
-                      <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-                        <Building2 className="w-4 h-4 text-primary" />
+                      <div className="w-10 h-10 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center flex-shrink-0">
+                        <Monitor className="w-5 h-5 text-foreground/70" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[13px] font-medium text-foreground leading-tight">Company Device</p>
-                        <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Managed by your organization</p>
+                        <p className="text-[13px] font-semibold text-foreground leading-tight">Company Device</p>
+                        <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Shared POS / Tablet / Restaurant Computer</p>
                       </div>
                     </button>
                     <button
@@ -601,14 +601,14 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
                           setCurrentStep("activation-methods");
                         }
                       }}
-                      className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                      className="flex items-center gap-3 w-full px-4 py-3.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                     >
-                      <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
-                        <User className="w-4 h-4 text-primary" />
+                      <div className="w-10 h-10 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center flex-shrink-0">
+                        <TabletSmartphone className="w-5 h-5 text-foreground/70" />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[13px] font-medium text-foreground leading-tight">Personal Device</p>
-                        <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Your own phone or tablet</p>
+                        <p className="text-[13px] font-semibold text-foreground leading-tight">Personal Device</p>
+                        <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Mobile / Personal Browser</p>
                       </div>
                     </button>
                   </motion.div>

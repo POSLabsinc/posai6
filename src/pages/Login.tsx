@@ -242,6 +242,7 @@ const Login = () => {
   // Company Device - First-time device setup state
   const [showDeviceSetup, setShowDeviceSetup] = useState(false);
   const [activationMethod, setActivationMethod] = useState<"code" | "link" | "password" | null>(null);
+  const [activationApproach, setActivationApproach] = useState<"ai" | "manual" | null>(null);
   const [activationCode, setActivationCode] = useState("");
   const [activationError, setActivationError] = useState("");
   const [isActivating, setIsActivating] = useState(false);
@@ -335,6 +336,7 @@ const Login = () => {
     setPersonalClockOutTime(null);
     setShowClockOutSuccess(false);
     setShowContactAdmin(false);
+    setActivationApproach(null);
   }, []);
 
   // Resend cooldown timer
@@ -918,8 +920,142 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     );
   }
 
-  // Company Device - First-Time Device Setup Screen
-  if (deviceType === "company" && showDeviceSetup) {
+  // Company Device - Activation Approach Choice Screen (AI vs Manual)
+  if (deviceType === "company" && showDeviceSetup && !activationApproach) {
+    return (
+      <DeviceSetupLayout variant="setup">
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative w-full flex flex-col items-center"
+        >
+          {/* Back Button */}
+          <motion.button
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            onClick={() => {
+              setDeviceType(null);
+              setShowDeviceSetup(false);
+            }}
+            className="self-start mb-3 md:mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back</span>
+          </motion.button>
+
+          {/* Logo - only show on mobile */}
+          <motion.img
+            src={eatosLogo}
+            alt="eatOS"
+            className="w-16 h-auto mb-3 md:hidden"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          />
+
+          {/* Setup Icon */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.1 }}
+            className="w-12 h-12 md:w-20 md:h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-3 md:mb-6 border border-primary/20"
+          >
+            <Monitor className="w-6 h-6 md:w-10 md:h-10 text-primary" />
+          </motion.div>
+
+          {/* Title */}
+          <motion.h1
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.15 }}
+            className="text-xl md:text-2xl font-semibold text-foreground mb-2 text-center"
+          >
+            Activate This Device
+          </motion.h1>
+          
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            className="text-sm text-foreground/50 mb-4 md:mb-8 text-center max-w-xs leading-relaxed"
+          >
+            Choose how you'd like to set up and activate this device.
+          </motion.p>
+
+          {/* Activation Approach Options */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.25 }}
+            className="w-full space-y-2 md:space-y-3"
+          >
+            {/* Activate with AI */}
+            <button
+              onClick={() => {
+                setShowAIChat(true);
+              }}
+              className="w-full flex items-center gap-4 p-4 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
+                <AnimatedAIIcon size={24} />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-[15px] font-semibold text-foreground mb-0.5">
+                  Activate with AI
+                </p>
+                <p className="text-sm text-foreground/50">
+                  Let our AI assistant guide you through setup
+                </p>
+              </div>
+            </button>
+
+            {/* Activate Manually */}
+            <button
+              onClick={() => setActivationApproach("manual")}
+              className="w-full flex items-center gap-4 p-4 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-secondary/50 flex items-center justify-center flex-shrink-0 group-hover:bg-secondary/70 transition-colors">
+                <Monitor className="w-6 h-6 text-foreground/70" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-[15px] font-semibold text-foreground mb-0.5">
+                  Activate Manually
+                </p>
+                <p className="text-sm text-foreground/50">
+                  Use a code or sign-in link to activate
+                </p>
+              </div>
+            </button>
+          </motion.div>
+
+          {/* Help Link */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.35 }}
+            className="mt-4 md:mt-8"
+          >
+            <button
+              onClick={() => setShowContactAdmin(true)}
+              className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
+            >
+              Need help?
+            </button>
+          </motion.div>
+        </motion.div>
+
+        <ContactAdminDialog 
+          open={showContactAdmin} 
+          onOpenChange={setShowContactAdmin} 
+        />
+
+        <DeviceSetupAIChat open={showAIChat} onClose={() => setShowAIChat(false)} />
+      </DeviceSetupLayout>
+    );
+  }
+
+  // Company Device - First-Time Device Setup Screen (Manual approach)
+  if (deviceType === "company" && showDeviceSetup && activationApproach === "manual") {
     const handleActivateWithCode = () => {
       if (!activationCode.trim()) {
         setActivationError("Please enter an activation code");
@@ -2610,14 +2746,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       );
     }
 
-    // Main activation options screen
-    if (showAIChat) {
-      return (
-        <DeviceSetupLayout variant="setup" fullWidthRight>
-          <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} />
-        </DeviceSetupLayout>
-      );
-    }
 
     return (
       <DeviceSetupLayout variant="setup">
@@ -2631,8 +2759,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
             onClick={() => {
-              setDeviceType(null);
-              setShowDeviceSetup(false);
+              setActivationApproach(null);
               setActivationMethod(null);
               setActivationCode("");
               setActivationError("");
@@ -2782,25 +2909,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           onOpenChange={setShowContactAdmin} 
         />
 
-        {/* Floating Draggable AI Icon - positioned at top */}
-        <motion.div
-          drag="y"
-          dragConstraints={{ top: -300, bottom: 300 }}
-          dragElastic={0.1}
-          dragMomentum={false}
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-          whileDrag={{ scale: 1.1 }}
-          className="fixed top-6 right-6 z-50 cursor-grab active:cursor-grabbing touch-none"
-        >
-          <div
-            onClick={() => setShowAIChat(true)}
-            className="w-14 h-14 rounded-full bg-foreground/[0.06] backdrop-blur-xl border border-foreground/[0.1] flex items-center justify-center shadow-lg hover:bg-foreground/[0.1] transition-colors"
-          >
-            <AnimatedAIIcon size={28} />
-          </div>
-        </motion.div>
 
       </DeviceSetupLayout>
     );

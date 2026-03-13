@@ -1139,6 +1139,85 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
     const handleTryDemo = () => {
       setShowDemoMode(true);
+      setDemoEmailVerified(false);
+      setDemoOtpSent(false);
+      setDemoEmail("");
+      setDemoOtp("");
+      setDemoOtpError("");
+    };
+
+    const handleDemoSendOtp = async () => {
+      if (!demoEmail || !demoEmail.includes("@")) {
+        setDemoOtpError("Please enter a valid email address");
+        return;
+      }
+      setDemoSendingOtp(true);
+      setDemoOtpError("");
+      
+      try {
+        // Use Supabase OTP (magic link as OTP)
+        const { error } = await supabase.auth.signInWithOtp({
+          email: demoEmail,
+          options: {
+            shouldCreateUser: true,
+          },
+        });
+        
+        if (error) {
+          setDemoOtpError(error.message);
+        } else {
+          setDemoOtpSent(true);
+          setDemoOtpResendCooldown(60);
+          toast({
+            title: "Verification code sent",
+            description: `Check ${demoEmail} for your code`,
+          });
+        }
+      } catch {
+        setDemoOtpError("Failed to send verification code. Try again.");
+      } finally {
+        setDemoSendingOtp(false);
+      }
+    };
+
+    const handleDemoVerifyOtp = async () => {
+      if (demoOtp.length !== 6) {
+        setDemoOtpError("Please enter the 6-digit code");
+        return;
+      }
+      setDemoVerifyingOtp(true);
+      setDemoOtpError("");
+      
+      try {
+        const { error } = await supabase.auth.verifyOtp({
+          email: demoEmail,
+          token: demoOtp,
+          type: "email",
+        });
+        
+        if (error) {
+          setDemoOtpError("Invalid or expired code. Please try again.");
+          setDemoOtp("");
+        } else {
+          setDemoEmailVerified(true);
+          // Sign out after verification — demo doesn't need a real session
+          await supabase.auth.signOut();
+          toast({
+            title: "Email verified!",
+            description: "Select a business type to start exploring",
+          });
+        }
+      } catch {
+        setDemoOtpError("Verification failed. Please try again.");
+        setDemoOtp("");
+      } finally {
+        setDemoVerifyingOtp(false);
+      }
+    };
+
+    const handleDemoResendOtp = async () => {
+      if (demoOtpResendCooldown > 0) return;
+      await handleDemoSendOtp();
     };
 
     // Demo Mode Business Type Selection Screen

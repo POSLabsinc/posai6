@@ -372,7 +372,7 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
       setIsNewUser(null);
       seenMessageIds.current.clear();
     }
-  }, [currentStep, isNewUser, messages, sentAddress]);
+  }, [clearTransitionTimers, currentStep, isNewUser, messages, sentAddress]);
 
   const handleCodeInput = useCallback((index: number, value: string) => {
     if (value.length > 1) value = value.slice(-1);

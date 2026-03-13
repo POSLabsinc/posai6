@@ -343,10 +343,16 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
 
   const handleNotNew = useCallback(() => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
-    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
-    setMessages([userMsg, assistantMsg]);
-    setCurrentStep("activation-methods");
-  }, []);
+    if (deviceType === "personal") {
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "How would you like to link this device?" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("personal-link-methods");
+    } else {
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("activation-methods");
+    }
+  }, [deviceType]);
 
   const handleActivationOption = useCallback((option: string) => {
     const userMsg: Message = { id: Date.now().toString(), role: "user", content: option };

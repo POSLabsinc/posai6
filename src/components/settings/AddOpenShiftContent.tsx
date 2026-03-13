@@ -130,40 +130,47 @@ const AddOpenShiftContent = ({ showHeader = true, onBack }: AddOpenShiftContentP
   const wordCount = shiftNote.trim() ? shiftNote.trim().split(/\s+/).length : 0;
   const isFormEmpty = !shiftName.trim() && !shiftType && !shiftNote.trim();
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (isFormEmpty) { goBack(); return; }
     if (!shiftName.trim()) { toast.error("Please enter a shift name"); return; }
     if (!shiftType) { toast.error("Please select a shift type"); return; }
     if (!selectedDate) { toast.error("Please select a date"); return; }
 
-    const openShift = {
-      id: isEditMode ? editId : Date.now().toString(),
-      shiftName,
-      shiftType,
-      date: format(selectedDate, "yyyy-MM-dd"),
-      selectedDays,
-      daySelectionMode,
-      startTime: dayStartTime,
-      endTime: dayEndTime,
-      nextDay,
+    const openShiftData = {
+      shift_name: shiftName,
+      shift_type: shiftType,
+      shift_date: format(selectedDate, "yyyy-MM-dd"),
+      selected_days: selectedDays,
+      day_selection_mode: daySelectionMode,
+      start_time: dayStartTime,
+      end_time: dayEndTime,
+      next_day: nextDay,
       recurring,
-      allowOvertime,
+      allow_overtime: allowOvertime,
       breaks,
-      shiftNote,
+      shift_note: shiftNote,
     };
 
-    const existing = JSON.parse(localStorage.getItem("pos_open_shifts") || "[]");
-    if (isEditMode) {
-      const updated = existing.map((s: any) => s.id === editId ? openShift : s);
-      localStorage.setItem("pos_open_shifts", JSON.stringify(updated));
-      toast.success("Open shift updated successfully");
-    } else {
-      existing.push(openShift);
-      localStorage.setItem("pos_open_shifts", JSON.stringify(existing));
-      toast.success("Open shift created successfully");
+    try {
+      if (isEditMode) {
+        const { error } = await (supabase as any)
+          .from("open_shifts")
+          .update(openShiftData)
+          .eq("id", editId);
+        if (error) throw error;
+        toast.success("Open shift updated successfully");
+      } else {
+        const { error } = await (supabase as any)
+          .from("open_shifts")
+          .insert(openShiftData);
+        if (error) throw error;
+        toast.success("Open shift created successfully");
+      }
+      window.dispatchEvent(new Event("open-shifts-updated"));
+      goBack();
+    } catch (err) {
+      toast.error("Failed to save open shift");
     }
-    window.dispatchEvent(new Event("open-shifts-updated"));
-    goBack();
   };
 
   const allWeekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];

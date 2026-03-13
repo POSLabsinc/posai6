@@ -514,54 +514,74 @@ const DeviceSetupAIChat = ({ open, onClose }: DeviceSetupAIChatProps) => {
               <div className="flex flex-col h-full">
                 {/* Chat messages */}
                 <div className="flex-1 space-y-4">
-                  {messages.map((msg, index) => (
-                    <motion.div
-                      key={msg.id}
-                      initial={{ opacity: 0, y: 16 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.15, ease: [0.22, 1, 0.36, 1] }}
-                      className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                    >
-                      {msg.role === "assistant" && (
-                        <div className="flex-shrink-0 mr-2 mt-1">
-                          <AnimatedAIIcon size={18} />
-                        </div>
-                      )}
-                      <div
-                        className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm ${
-                          msg.role === "user"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-foreground/[0.04] text-foreground"
-                        }`}
-                      >
-                        {msg.role === "assistant" ? (
-                          <div className="prose prose-sm prose-invert max-w-none [&>p]:m-0 [&>p+p]:mt-2 [&>ul]:mt-1 [&>ul]:mb-0 [&>ol]:mt-1 [&>ol]:mb-0">
-                            <ReactMarkdown>{msg.content || "..."}</ReactMarkdown>
-                          </div>
-                        ) : (
-                          <p className="whitespace-pre-wrap">{msg.content}</p>
-                        )}
-                      </div>
-                      {msg.role === "user" && !isLoading && (
-                        <button
-                          onClick={handleGoBack}
-                          className="flex-shrink-0 ml-1.5 mt-1 w-6 h-6 rounded-full flex items-center justify-center hover:bg-foreground/[0.08] transition-colors opacity-40 hover:opacity-70"
-                          title="Edit"
-                        >
-                          <Pencil className="w-3 h-3" />
-                        </button>
-                      )}
-                    </motion.div>
-                  ))}
+                  <LayoutGroup>
+                    <AnimatePresence initial={false}>
+                      {messages.map((msg) => {
+                        const isNew = !seenMessageIds.current.has(msg.id);
+                        if (isNew) seenMessageIds.current.add(msg.id);
+                        
+                        return (
+                          <motion.div
+                            key={msg.id}
+                            layout="position"
+                            initial={isNew ? { opacity: 0, y: 20, scale: 0.97 } : false}
+                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                            transition={{
+                              layout: { duration: 0.3, ease: [0.22, 1, 0.36, 1] },
+                              opacity: { duration: 0.35 },
+                              y: { duration: 0.35, ease: [0.22, 1, 0.36, 1] },
+                              scale: { duration: 0.3 },
+                            }}
+                            className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                          >
+                            {msg.role === "assistant" && (
+                              <div className="flex-shrink-0 mr-2 mt-1">
+                                <AnimatedAIIcon size={18} />
+                              </div>
+                            )}
+                            <div
+                              className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm ${
+                                msg.role === "user"
+                                  ? "bg-primary text-primary-foreground"
+                                  : "bg-foreground/[0.04] text-foreground"
+                              }`}
+                            >
+                              {msg.role === "assistant" ? (
+                                <div className="prose prose-sm prose-invert max-w-none [&>p]:m-0 [&>p+p]:mt-2 [&>ul]:mt-1 [&>ul]:mb-0 [&>ol]:mt-1 [&>ol]:mb-0">
+                                  <ReactMarkdown>{msg.content || "..."}</ReactMarkdown>
+                                </div>
+                              ) : (
+                                <p className="whitespace-pre-wrap">{msg.content}</p>
+                              )}
+                            </div>
+                            {msg.role === "user" && !isLoading && (
+                              <button
+                                onClick={handleGoBack}
+                                className="flex-shrink-0 ml-1.5 mt-1 w-6 h-6 rounded-full flex items-center justify-center hover:bg-foreground/[0.08] transition-colors opacity-40 hover:opacity-70"
+                                title="Edit"
+                              >
+                                <Pencil className="w-3 h-3" />
+                              </button>
+                            )}
+                          </motion.div>
+                        );
+                      })}
+                    </AnimatePresence>
+                  </LayoutGroup>
 
                   {isLoading && messages[messages.length - 1]?.role === "user" && (
-                    <div className="flex items-center gap-2 text-foreground/40">
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3 }}
+                      className="flex items-center gap-2 text-foreground/40"
+                    >
                       <AnimatedAIIcon size={18} />
                       <div className="flex items-center gap-1.5 bg-foreground/[0.04] rounded-2xl px-3.5 py-2.5">
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
                         <span className="text-xs">Thinking...</span>
                       </div>
-                    </div>
+                    </motion.div>
                   )}
                 </div>
 

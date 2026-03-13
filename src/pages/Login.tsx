@@ -260,6 +260,7 @@ const Login = () => {
   const [demoSendingOtp, setDemoSendingOtp] = useState(false);
   const [demoVerifyingOtp, setDemoVerifyingOtp] = useState(false);
   const [demoOtpResendCooldown, setDemoOtpResendCooldown] = useState(0);
+  const [demoOtpResendCount, setDemoOtpResendCount] = useState(0);
   const [magicLinkEmail, setMagicLinkEmail] = useState("");
   const [magicLinkPhone, setMagicLinkPhone] = useState("");
   const [magicLinkInputType, setMagicLinkInputType] = useState<"email" | "phone">("email");
@@ -1224,8 +1225,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       }
     };
 
+    const maxDemoResends = 3;
     const handleDemoResendOtp = async () => {
-      if (demoOtpResendCooldown > 0) return;
+      if (demoOtpResendCooldown > 0 || demoOtpResendCount >= maxDemoResends) return;
+      setDemoOtpResendCount((c) => c + 1);
+      const cooldown = 30 * (demoOtpResendCount + 1); // 30s, 60s, 90s
+      setDemoOtpResendCooldown(cooldown);
       await handleDemoSendOtp();
     };
 
@@ -1441,12 +1446,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       </button>
                       <button
                         onClick={handleDemoResendOtp}
-                        disabled={demoOtpResendCooldown > 0 || demoSendingOtp}
+                        disabled={demoOtpResendCooldown > 0 || demoSendingOtp || demoOtpResendCount >= maxDemoResends}
                         className="text-xs text-primary hover:text-primary/80 transition-colors disabled:text-foreground/30 disabled:cursor-not-allowed"
                       >
-                        {demoOtpResendCooldown > 0
-                          ? `Resend in ${demoOtpResendCooldown}s`
-                          : "Resend code"
+                        {demoOtpResendCount >= maxDemoResends
+                          ? "Max attempts reached"
+                          : demoOtpResendCooldown > 0
+                            ? `Resend in ${demoOtpResendCooldown}s`
+                            : "Resend code"
                         }
                       </button>
                     </div>

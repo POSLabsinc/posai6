@@ -3609,7 +3609,7 @@ const TableOrderDetails = () => {
                         style={{ backgroundColor: '#1B1C20' }}
                       >
                         <div className="p-3">
-                          <OrderLayoutTemplate order={ticketToTemplateData(order)} showBorder={false} />
+                          <OrderLayoutTemplate order={ticketToTemplateData(order as any)} showBorder={false} />
                           <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
                             {order.items.map((item, idx) => (
                               <div key={idx} className="flex items-center justify-between py-1">

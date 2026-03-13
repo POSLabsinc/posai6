@@ -873,8 +873,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
             {/* Activate Manually */}
             <button
-              onClick={() => {
+              onClick={async () => {
                 setActivationApproach("manual");
+                await (supabase as any).from("user_preferences").upsert(
+                  { device_id: "shared", preference_key: "activation_method", preference_value: "manual" },
+                  { onConflict: "device_id,preference_key" }
+                );
               }}
               className="w-full flex items-center gap-5 p-5 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
             >

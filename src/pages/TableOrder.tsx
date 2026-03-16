@@ -237,31 +237,7 @@ const areaColorPresets = [
   { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', name: 'Orange' },
 ];
 
-// Load saved floor areas from localStorage
-const loadSavedFloorAreas = (): FloorArea[] => {
-  try {
-    const saved = localStorage.getItem('floorplan-areas');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (e) {
-    console.error('Error loading floor areas:', e);
-  }
-  return defaultFloorAreas;
-};
-
-// Load saved dividers from localStorage
-const loadSavedDividers = (): DividerType[] => {
-  try {
-    const saved = localStorage.getItem('floorplan-dividers');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (e) {
-    console.error('Error loading dividers:', e);
-  }
-  return defaultDividers;
-};
+// loadSavedFloorAreas and loadSavedDividers removed - now fetched from DB
 
 // Floor Plan Template type for saving/loading layouts
 type FloorPlanTemplate = {

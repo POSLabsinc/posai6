@@ -9,12 +9,8 @@ interface NumericKeypadProps {
 }
 
 /**
- * Shared numeric keypad component used across:
- * - Clock In / Clock Out flows
- * - Text Receipt phone number entry
- * 
- * Maintains identical layout, key sizing, spacing, typography, 
- * visual states (default, pressed, disabled), and interaction behavior.
+ * iOS 26-inspired numeric keypad with liquid glass design.
+ * Used across Clock In/Out flows and activation code entry.
  */
 export const NumericKeypad = ({ 
   onKeyPress, 
@@ -25,48 +21,48 @@ export const NumericKeypad = ({
 }: NumericKeypadProps) => {
   const isDark = variant === "dark";
   
+  // iOS 26 liquid glass style
   const buttonBaseClass = isDark
-    ? "rounded-2xl bg-foreground/[0.04] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] text-foreground transition-all duration-150 active:scale-95"
-    : "rounded-lg bg-white hover:bg-neutral-100 active:bg-neutral-200 transition-colors";
+    ? "rounded-[18px] bg-white/[0.06] backdrop-blur-md border border-white/[0.08] text-foreground transition-all duration-150 active:scale-[0.94] active:bg-white/[0.12] hover:bg-white/[0.09]"
+    : "rounded-[18px] bg-black/[0.04] backdrop-blur-md border border-black/[0.06] text-black transition-all duration-150 active:scale-[0.94] active:bg-black/[0.08] hover:bg-black/[0.06]";
   
   const textClass = isDark
-    ? "text-2xl font-medium"
-    : "text-black text-2xl font-medium";
+    ? "text-[26px] font-light tracking-wide"
+    : "text-[26px] font-light tracking-wide text-black";
 
   const deleteIconClass = isDark
-    ? "w-6 h-6 text-foreground/60"
-    : "w-6 h-6 text-black";
+    ? "w-6 h-6 text-foreground/50"
+    : "w-6 h-6 text-black/50";
 
-  // Full width mode uses rectangular buttons instead of square
-  const buttonHeight = fullWidth ? "h-[72px]" : "aspect-square";
-  const lastRowHeight = fullWidth ? "h-[72px]" : "h-[70px]";
+  const buttonHeight = fullWidth ? "h-[60px]" : "h-[56px]";
 
   return (
-    <div className={`flex flex-col gap-3 ${className}`}>
-      {/* Numeric Keypad 1-9 */}
-      <div className="grid grid-cols-3 gap-3">
+    <div className={`flex flex-col gap-2.5 ${className}`}>
+      {/* Numeric Keypad - 3x3 grid */}
+      <div className="grid grid-cols-3 gap-2.5">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
           <button
             key={num}
             onClick={() => onKeyPress(num.toString())}
-            className={`${buttonHeight} ${buttonBaseClass} flex items-center justify-center`}
+            className={`${buttonHeight} ${buttonBaseClass} flex items-center justify-center cursor-pointer select-none`}
           >
             <span className={textClass}>{num}</span>
           </button>
         ))}
       </div>
 
-      {/* Last row: 0 and Delete - 2 column layout */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Bottom row: empty, 0, delete */}
+      <div className="grid grid-cols-3 gap-2.5">
+        <div className={buttonHeight} />
         <button
           onClick={() => onKeyPress("0")}
-          className={`${lastRowHeight} ${buttonBaseClass} flex items-center justify-center`}
+          className={`${buttonHeight} ${buttonBaseClass} flex items-center justify-center cursor-pointer select-none`}
         >
           <span className={textClass}>0</span>
         </button>
         <button
           onClick={onDelete}
-          className={`${lastRowHeight} ${buttonBaseClass} flex items-center justify-center`}
+          className={`${buttonHeight} rounded-[18px] flex items-center justify-center cursor-pointer select-none transition-all duration-150 active:scale-[0.94] hover:bg-white/[0.04]`}
         >
           <Delete className={deleteIconClass} />
         </button>

@@ -604,9 +604,11 @@ const TableOrderDetails = () => {
   
   // Merge static and session orders - session orders shown first, virtual transfer orders on top
   const sessionGuestOrders: GuestOrder[] = sessionOrdersForTable.map(convertSessionToGuestOrder);
+  const sessionOrderIds = new Set(sessionGuestOrders.map(o => o.id));
+  const dedupedStaticOrders = staticGuestOrders.filter(o => !sessionOrderIds.has(o.id));
   const guestOrders: GuestOrder[] = virtualTransferOrder.length > 0 
-    ? [...virtualTransferOrder, ...sessionGuestOrders, ...staticGuestOrders] 
-    : [...sessionGuestOrders, ...staticGuestOrders];
+    ? [...virtualTransferOrder, ...sessionGuestOrders, ...dedupedStaticOrders] 
+    : [...sessionGuestOrders, ...dedupedStaticOrders];
   
 
   // Memoize order timer data to avoid recreating array on every render

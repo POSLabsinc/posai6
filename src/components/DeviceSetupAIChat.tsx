@@ -504,6 +504,28 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
     }
   }, [activationCode]);
 
+  const handleActivationKeypadPress = useCallback((key: string) => {
+    const nextIndex = activationCode.findIndex((digit) => digit === "");
+    if (nextIndex === -1) return;
+    handleCodeInput(nextIndex, key);
+  }, [activationCode, handleCodeInput]);
+
+  const handleActivationKeypadDelete = useCallback(() => {
+    let lastFilledIndex = -1;
+    for (let i = activationCode.length - 1; i >= 0; i--) {
+      if (activationCode[i]) {
+        lastFilledIndex = i;
+        break;
+      }
+    }
+    if (lastFilledIndex === -1) return;
+
+    const newCode = [...activationCode];
+    newCode[lastFilledIndex] = "";
+    setActivationCode(newCode);
+    codeInputRefs.current[lastFilledIndex]?.focus();
+  }, [activationCode]);
+
   // Handle activation code verification animation + redirect
   useEffect(() => {
     if (currentStep === "activate-code-verifying") {
@@ -574,6 +596,28 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
         setCurrentStep("personal-invite-verifying");
       }, 300);
     }
+  }, [inviteCode]);
+
+  const handleInviteKeypadPress = useCallback((key: string) => {
+    const nextIndex = inviteCode.findIndex((digit) => digit === "");
+    if (nextIndex === -1) return;
+    handleInviteCodeInput(nextIndex, key);
+  }, [inviteCode, handleInviteCodeInput]);
+
+  const handleInviteKeypadDelete = useCallback(() => {
+    let lastFilledIndex = -1;
+    for (let i = inviteCode.length - 1; i >= 0; i--) {
+      if (inviteCode[i]) {
+        lastFilledIndex = i;
+        break;
+      }
+    }
+    if (lastFilledIndex === -1) return;
+
+    const newCode = [...inviteCode];
+    newCode[lastFilledIndex] = "";
+    setInviteCode(newCode);
+    inviteCodeRefs.current[lastFilledIndex]?.focus();
   }, [inviteCode]);
 
   // Handle invite code verification → show profile + ask email
@@ -919,6 +963,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         />
                       ))}
                     </div>
+
+                    <InlineIOSKeyboard
+                      mode="phone"
+                      fullWidth
+                      size="large"
+                      onKeyPress={handleInviteKeypadPress}
+                      onDelete={handleInviteKeypadDelete}
+                    />
+
                     <div className="flex items-start gap-1.5 text-foreground/40">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">Check your email or scan the QR from the admin portal.</span>
@@ -1074,6 +1127,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         />
                       ))}
                     </div>
+
+                    <InlineIOSKeyboard
+                      mode="phone"
+                      fullWidth
+                      size="large"
+                      onKeyPress={handleActivationKeypadPress}
+                      onDelete={handleActivationKeypadDelete}
+                    />
+
                     <div className="flex items-start gap-1.5 text-foreground/40">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">One-time code: This code expires in 10 minutes and can only be used once.</span>
@@ -1407,6 +1469,21 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       autoFocus
                     />
                     <label htmlFor="" onClick={() => demoOtpRef.current?.focus()} className="block w-full cursor-text" />
+
+                    <InlineIOSKeyboard
+                      mode="phone"
+                      fullWidth
+                      size="large"
+                      onKeyPress={(key) => {
+                        if (demoOtp.length >= 6) return;
+                        setDemoOtp((prev) => `${prev}${key}`.slice(0, 6));
+                        setDemoOtpError("");
+                      }}
+                      onDelete={() => {
+                        setDemoOtp((prev) => prev.slice(0, -1));
+                        setDemoOtpError("");
+                      }}
+                    />
 
                     {demoOtpError && (
                       <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">

@@ -1527,7 +1527,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     }
   };
 
-  const handleConfirmRefund = () => {
+  const handleConfirmRefund = async () => {
     setShowRefundConfirmation(false);
     const orderId = selectedGuest.id;
     

@@ -272,6 +272,9 @@ const Login = () => {
   const [adminEmail, setAdminEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [showDemoEmailKeyboard, setShowDemoEmailKeyboard] = useState(false);
+  const [showAdminEmailKeyboard, setShowAdminEmailKeyboard] = useState(false);
+  const [showVerificationEmailKeyboard, setShowVerificationEmailKeyboard] = useState(false);
   
   // Forgot password states
   const [showForgotPassword, setShowForgotPassword] = useState(false);

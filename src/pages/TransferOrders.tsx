@@ -603,7 +603,7 @@ const TransferOrders = () => {
   };
 
   const getAvailableTables = () => {
-    return defaultTables.filter(table => table.id !== tableId);
+    return allTables.filter(table => table.id !== tableId);
   };
 
   // Calculate order totals using centralized function

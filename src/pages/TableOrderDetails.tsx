@@ -3433,7 +3433,16 @@ const TableOrderDetails = () => {
                 </div>
 
                 <div className="p-3 border-t border-neutral-700">
-                  <button onClick={() => setShowDiscountDialog(false)} className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm">
+                  <button onClick={() => {
+                    // Persist discount to DB
+                    if (currentSelectedGuest?.id && appliedDiscount > 0) {
+                      updateOrder(currentSelectedGuest.id, {
+                        discount: (currentSelectedGuest.discount || 0) + appliedDiscount,
+                        total: (currentSelectedGuest.total || 0) - appliedDiscount,
+                      });
+                    }
+                    setShowDiscountDialog(false);
+                  }} className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm">
                     Apply
                   </button>
                 </div>

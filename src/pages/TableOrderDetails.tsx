@@ -2775,7 +2775,7 @@ const TableOrderDetails = () => {
             </div>
             <div className="flex items-center gap-2">
               <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
-              <span className="text-white/50 text-sm">DUSTIN H</span>
+              <span className="text-white/50 text-sm">{currentSelectedGuest?.server || "Unassigned"}</span>
             </div>
           </div>
           

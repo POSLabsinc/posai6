@@ -28,6 +28,7 @@ export interface SessionOrder extends Order {
 interface SessionOrderContextType {
   sessionOrders: SessionOrder[];
   createOrder: (tableId: string, guestCount: number, serverName?: string, guestName?: string) => SessionOrder;
+  getActiveOrderForTable: (tableId: string) => SessionOrder | undefined;
   updateOrderItems: (sessionId: string, items: OrderItem[]) => void;
   updateOrderStatus: (sessionId: string, status: string) => void;
   fireOrder: (sessionId: string, checkNumber?: string) => void;

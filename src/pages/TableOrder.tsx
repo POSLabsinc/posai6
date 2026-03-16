@@ -1275,22 +1275,9 @@ const TableOrder = () => {
   
   const filterCounts = getFilterCounts(tablePositions);
 
-  // Save floor areas to localStorage when they change
-  useEffect(() => {
-    localStorage.setItem('floorplan-areas', JSON.stringify(floorAreas));
-  }, [floorAreas]);
+  // localStorage save effects removed - data now persisted via DB mutations
 
-  // Save dividers to localStorage when they change
-  useEffect(() => {
-    localStorage.setItem('floorplan-dividers', JSON.stringify(dividers));
-  }, [dividers]);
-
-  // Save positions to localStorage when they change
-  useEffect(() => {
-    localStorage.setItem('floorplan-tablePositions', JSON.stringify(tablePositions));
-  }, [tablePositions]);
-
-  // Save templates to localStorage when they change
+  // Save templates to localStorage when they change (templates still local)
   useEffect(() => {
     localStorage.setItem('floorplan-templates', JSON.stringify(templates));
   }, [templates]);

@@ -2963,6 +2963,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="tel"
                       placeholder="(XXX) XXX-XXXX"
                       value={formatPhoneDisplay(forgotPasswordPhone)}
+                      onFocus={() => setForgotPasswordKeyboardField("phone")}
                       onChange={(e) => {
                         const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
                         setForgotPasswordPhone(digits);

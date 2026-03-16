@@ -806,6 +806,10 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
+  // DB tables
+  const { tables: dbTables } = useRestaurantTables();
+  const mockTables = dbTables.map(t => ({ id: t.id, seats: t.seats, status: t.status }));
+  
   // Get session orders context
   const { sessionOrders } = useSessionOrders();
   

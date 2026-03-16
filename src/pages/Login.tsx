@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ContactAdminDialog from "@/components/ContactAdminDialog";
 import { NumericKeypad } from "@/components/NumericKeypad";
+import InlineIOSKeyboard from "@/components/InlineIOSKeyboard";
 import { DeviceSetupLayout } from "@/components/DeviceSetupLayout";
 import { PersonalDeviceAuthPanel } from "@/components/PersonalDeviceAuthPanel";
 import { SplashScreen } from "@/components/SplashScreen";

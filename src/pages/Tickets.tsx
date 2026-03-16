@@ -435,7 +435,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const navigate = useNavigate();
 
   // Fetch all orders from database
-  const { orders: dbTicketOrders, isLoading: isLoadingOrders } = useTicketOrders();
+  const { orders: dbTicketOrders, isLoading: isLoadingOrders, updateOrder: updateTicketOrder } = useTicketOrders();
 
   // Convert DB orders to GuestOrder shape for this component
   const allOrders: GuestOrder[] = dbTicketOrders.map(o => ({
@@ -1264,12 +1264,22 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     setMobileFilters(filters);
   };
 
-  const handleTipSelect = (tipAmount: number) => {
+  const handleTipSelect = async (tipAmount: number) => {
     // tipAmount is the ADDITIONAL tip to add (additive model)
     if (tipAmount > 0) {
       const existingTip = selectedGuest.tip;
       const newTotalTip = existingTip + tipAmount;
-      setSelectedGuest(prev => ({ ...prev, tip: newTotalTip }));
+      const newTotal = selectedGuest.total + tipAmount;
+      
+      // Persist to database
+      try {
+        await updateTicketOrder(selectedGuest.id, { tip: newTotalTip, total: newTotal });
+      } catch (err) {
+        console.error('Failed to persist tip:', err);
+      }
+      
+      // Update local state
+      setSelectedGuest(prev => ({ ...prev, tip: newTotalTip, total: newTotal }));
     }
     // If tipAmount is 0 (No Tip selected), keep existing tip unchanged
   };

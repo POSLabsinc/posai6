@@ -35,6 +35,7 @@ import registerIcon from "@/assets/icons/register.svg";
 import discountBtnIcon from "@/assets/icons/discount-icon.svg";
 import linkMergeIcon from "@/assets/icons/link-merge.png";
 import { useSessionOrders, SplitConfiguration, SplitCheck, SessionOrder } from "@/contexts/SessionOrderContext";
+import { useTicketOrders } from "@/hooks/use-ticket-orders";
 
 // Helper component for multi-payment display (matching TableOrderDetails)
 const MultiPaymentDisplay = ({ paymentMethods, paymentType }: { paymentMethods?: PaymentMethod[], paymentType: string }) => {
@@ -812,6 +813,7 @@ const Dashboard = () => {
   
   // Get session orders context
   const { sessionOrders } = useSessionOrders();
+  const { updateOrder: updateDashboardTicketOrder } = useTicketOrders();
   
   // Static split configs for non-session orders (persisted in localStorage)
   const [staticSplitConfigs, setStaticSplitConfigs] = useState<Record<string, SplitConfiguration>>(() => {
@@ -1916,8 +1918,17 @@ const Dashboard = () => {
         open={showTipDialog}
         onOpenChange={setShowTipDialog}
         orderTotal={selectedOrder?.total || 0}
-        onTipSelected={(tip) => {
-          console.log("Tip selected:", tip);
+        onTipSelected={async (tip) => {
+          if (selectedOrder && tip > 0) {
+            const existingTip = selectedOrder.tip ? parseFloat(selectedOrder.tip.replace('$', '')) || 0 : 0;
+            const newTotalTip = existingTip + tip;
+            const newTotal = (selectedOrder.total || 0) + tip;
+            try {
+              await updateDashboardTicketOrder(String(selectedOrder.id), { tip: newTotalTip, total: newTotal });
+            } catch (err) {
+              console.error('Failed to persist tip:', err);
+            }
+          }
         }}
       />
 

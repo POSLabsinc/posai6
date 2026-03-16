@@ -5094,6 +5094,37 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     />
                   </div>
                 </div>
+
+                <AnimatePresence mode="wait">
+                  {forgotPasswordKeyboardField !== "none" && (
+                    <motion.div
+                      key={forgotPasswordKeyboardField}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                    >
+                      <InlineIOSKeyboard
+                        mode={forgotPasswordKeyboardField}
+                        onKeyPress={(key) => {
+                          if (forgotPasswordKeyboardField === "email") {
+                            setForgotPasswordEmail((prev) => `${prev}${key}`.slice(0, 80));
+                          } else {
+                            setForgotPasswordPhone((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, 10));
+                          }
+                          setForgotPasswordError("");
+                        }}
+                        onDelete={() => {
+                          if (forgotPasswordKeyboardField === "email") {
+                            setForgotPasswordEmail((prev) => prev.slice(0, -1));
+                          } else {
+                            setForgotPasswordPhone((prev) => prev.slice(0, -1));
+                          }
+                          setForgotPasswordError("");
+                        }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 
                 <AnimatePresence mode="wait">
                   {forgotPasswordError && (

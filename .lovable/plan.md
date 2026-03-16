@@ -1,52 +1,71 @@
 
+# Database-Connected Orders System — Migration Complete
 
-# Two Order Flows — Current State & Fix Plan
+## What Was Done
 
-## The Two Flows
+### Phase 1: Database Tables ✅
+- Created `ticket_orders` table with all fields (name, phone, party_size, status, table_id, financials, transfer_info, split_configuration, etc.)
+- Created `ticket_order_items` table with FK to ticket_orders (qty, name, price, seats, modifiers, is_shared, is_fired, no_tax)
+- Added indexes on table_id, status, session_id, order_id
+- Added updated_at trigger
+- Enabled RLS with public access policies
+- Enabled Realtime on both tables
 
-### Flow 1: Table Order (via Table Selection)
-```text
-Floor Plan → Select Table → Create Session Order (DB) → Add Items (DB) → Fire (DB) → 
-→ View in TableOrderDetails → Payment → DB ✅ (recently fixed)
+### Phase 2: Seed Data ✅
+- Inserted all 15 ticket orders from `ticketOrders.ts` with deterministic UUIDs
+- Inserted 8 unique orders from `orders.ts` (different tables/guests)
+- Inserted all line items for all 23 orders into `ticket_order_items`
+- Set multi-payment data for David Chen order
+
+### Phase 3: `useTicketOrders` Hook ✅
+- Created `src/hooks/use-ticket-orders.ts`
+- React Query-based with realtime subscription
+- Fetches `ticket_orders` + `ticket_order_items` and joins them
+- Provides CRUD: addOrder, updateOrder, updateOrderItems, removeOrder
+- Helpers: getOrdersByTable, getOrderById, getOrdersByStatus
+- Converts DB rows to `UnifiedTicketOrder` shape compatible with all consumers
+
+### Phase 4: `UnifiedOrderContext` Refactored ✅
+- Removed localStorage (`pos-unified-orders`) dependency
+- Now delegates all reads/writes to `useTicketOrders` hook
+- Maintains same API surface for backward compatibility
+- Transfer sync is now a no-op (handled via direct DB mutations)
+
+### Phase 5: `SessionOrderContext` Refactored ✅
+- Removed localStorage (`pos-session-orders`) dependency
+- `createOrder()` inserts into `ticket_orders` with `session_id`
+- `updateOrderItems()` writes to `ticket_order_items`
+- Split configurations stored in `split_configuration` jsonb column
+- KDS queue still uses localStorage (browser-local by design)
+
+### Phase 6: Tickets.tsx Updated ✅
+- Removed 275-line hardcoded `allOrders` array
+- Now fetches from DB via `useTicketOrders` hook
+- Auto-selects first order when data loads
+- Transfer helpers derived from live DB data
+
+### Data Flow Summary
 ```
-- Uses `SessionOrderContext` → `useTicketOrders` hook → writes to `ticket_orders` + `ticket_order_items`
-- Payment persistence was recently added to `TableOrderDetails.tsx`
-
-### Flow 2: Quick Order (direct Orders screen)
-```text
-Orders screen → Select order type → Add items (local state only) → Fire (local toggle OR session) → Payment → ❌ NOT persisted
+ticket_orders (DB) ←──┐
+                       │ useTicketOrders hook
+ticket_order_items ────┘
+        │
+        ├── UnifiedOrderContext (wraps hook, legacy API)
+        ├── SessionOrderContext (session orders with session_id)
+        ├── Tickets.tsx (direct hook usage)
+        ├── TableOrderDetails.tsx (via UnifiedOrderContext + useTicketOrders — fully DB-backed)
+        ├── Dashboard.tsx (via static data - next phase)
+        └── TransferOrders.tsx (via UnifiedOrderContext)
 ```
-- Items live in `useState` (`orderItems`) — purely local
-- `onPaymentComplete` only triggers toast notifications, no DB write
-- No `useUnifiedOrders` or `useTicketOrders` hook is imported
-- If accessed via table URL params (`?sessionId=...&tableId=...`), items sync to session orders on Fire — but payment still not persisted
-- If accessed directly (no URL params), **nothing is saved to DB at all** — no order record, no items, no payment
 
-## What's Missing in Quick Order Flow
+### Phase 7: TableOrderDetails.tsx Fully DB-Connected ✅
+- Replaced static `getOrdersByTable()` / `allOrders` from `src/data/orders.ts` with `useUnifiedOrders()` DB context
+- All order fields (name, server, status, party size, time, total, tip, revenue center, payment status, items) now come from `ticket_orders` DB table
+- Replaced `getAvailableTicketOrdersForTransfer()` / `ticketOrders.find()` with `useTicketOrders()` DB hook
+- Replaced hardcoded `discountTypes` array with live fetch from `discounts` DB table (with fallback defaults)
+- Merged panel data (`getMergedPanelData`) now uses DB orders
+- Transfer-to-order dialog uses DB-backed order list
 
-| Field | Status |
-|-------|--------|
-| Order creation (ticket_orders row) | Not created for quick orders |
-| Items (ticket_order_items) | Not saved for quick orders |
-| Payment method, amount, status | Not persisted |
-| Subtotal, tax, discount, total | Not persisted |
-| Guest name, order type | Local state only |
-| Fire status | Local toggle only |
-
-## Implementation Plan
-
-### 1. Import `useTicketOrders` in Orders.tsx
-Add the hook to enable DB reads/writes for quick orders.
-
-### 2. Create DB order on Fire (quick order mode)
-When a quick order (non-session) is fired, create a `ticket_orders` record with all metadata (guest name, order type, server, items, subtotal, tax, total) and save items to `ticket_order_items`.
-
-### 3. Persist payment on completion
-Update `onPaymentComplete` to call `updateOrder` with status `PAID`, payment method, paid amount, and payment history — matching the logic already implemented in `TableOrderDetails.tsx` and `Tickets.tsx`.
-
-### 4. Track the created order ID
-Store the DB order ID in local state after creation so that subsequent operations (payment, split) can reference the correct record.
-
-### Files to modify
-- `src/pages/Orders.tsx` — add hook import, order creation on fire, payment persistence
-
+### Remaining (Future Phases)
+- Dashboard.tsx still imports from `src/data/orders.ts` static array — needs migration to hook
+- Remove static arrays from `src/data/orders.ts` and `src/data/ticketOrders.ts` once all consumers migrated

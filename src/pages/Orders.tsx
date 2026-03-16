@@ -10,6 +10,7 @@ import PaymentDialog from "@/components/PaymentDialog";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import { getActiveTaxRate } from "@/lib/orderUtils";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
+import { useTicketOrders } from "@/hooks/use-ticket-orders";
 import { toast } from "sonner";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
@@ -6044,6 +6045,8 @@ const Orders = () => {
   const navigate = useNavigate();
   const { panelLayout } = usePanelPosition();
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
+  const { addOrder: addTicketOrder, updateOrder: updateTicketOrder } = useTicketOrders();
+  const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
 
   // Fetch menus from database - only enabled & non-archived menus appear
   const { menuList, menuCategories } = useSupabaseMenus();
@@ -7103,9 +7106,47 @@ const Orders = () => {
       return;
     }
     if (!isSessionOrderMode || !sessionIdFromParams) {
-      // Not a session order, just toggle all items to fired
+      // Not a session order - create DB record and mark items as fired
       setOrderItems((prev) => prev.map((item) => ({ ...item, isFired: true })));
-      toast.success("Order items marked as fired!");
+
+      const quickTotal = subtotal - discount + serviceCharge + tax;
+      addTicketOrder({
+        name: guestName || 'Quick Order',
+        phone: guestPhone || '',
+        partySize: 1,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timer: '0:00',
+        server: '',
+        check: '',
+        paymentType: '',
+        revenueCenter: '',
+        status: 'ORDERED',
+        notes: orderNotes || '',
+        table: '',
+        orderType: orderType || 'DINE IN',
+        subtotal,
+        discount,
+        serviceCharge,
+        tax,
+        tip: 0,
+        total: quickTotal,
+        items: orderItems.map(item => ({
+          qty: item.qty,
+          name: item.name,
+          price: item.price,
+          seats: item.assignedSeats || [],
+          modifiers: item.modifiers || [],
+          isShared: false,
+          isFired: true,
+          noTax: item.noTax || false,
+        })),
+      }).then((data: any) => {
+        if (data?.id) {
+          setQuickOrderDbId(data.id);
+        }
+      }).catch(console.error);
+
+      toast.success("Order fired to kitchen!");
       return;
     }
 
@@ -9573,6 +9614,25 @@ const Orders = () => {
       }).map((v, idx) => ({ ...v, index: idx }))}
       onPaymentComplete={(history) => {
         console.log("Payment completed:", history);
+
+        // Persist payment to database
+        const dbId = quickOrderDbId || existingOrderId || sessionIdFromParams;
+        if (dbId) {
+          const totalPaid = history.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+          const paymentsArray = history.map((p: any) => ({
+            method: p.methodLabel || p.method || 'Card',
+            amount: p.amount || 0,
+          }));
+          updateTicketOrder(dbId, {
+            status: 'PAID',
+            paymentType: paymentsArray[0]?.method || 'Card',
+            payments: paymentsArray,
+            paidAmount: totalPaid.toFixed(2),
+            paymentStatus: 'completed',
+            tip: history.reduce((sum: number, p: any) => sum + (p.tipAmount || 0), 0),
+          }).catch(console.error);
+        }
+
         const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();
         if (checkoutSettings.printReceipt) {
           toast.success("Receipt sent to printer");

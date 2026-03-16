@@ -147,6 +147,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   const [showPersonalPassword, setShowPersonalPassword] = useState(false);
   const [personalSignInError, setPersonalSignInError] = useState("");
   const [isPersonalSigningIn, setIsPersonalSigningIn] = useState(false);
+  const [showKeyboard, setShowKeyboard] = useState(false);
 
   useEffect(() => {
     if (open && scrollRef.current) {

@@ -1236,6 +1236,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         value={signInInput}
                         placeholder="name@company.com"
                         readOnly
+                        onFocus={() => setShowKeyboard(true)}
                         className="flex-1 px-4 py-3 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.04] text-base text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && signInInput.trim() && signInInput.includes("@")) {

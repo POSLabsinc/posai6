@@ -1,5 +1,4 @@
-
-# Database-Connected Orders System — Migration Complete
+# Database-Connected Orders System - Migration Complete
 
 ## What Was Done
 
@@ -44,20 +43,6 @@
 - Auto-selects first order when data loads
 - Transfer helpers derived from live DB data
 
-### Data Flow Summary
-```
-ticket_orders (DB) ←──┐
-                       │ useTicketOrders hook
-ticket_order_items ────┘
-        │
-        ├── UnifiedOrderContext (wraps hook, legacy API)
-        ├── SessionOrderContext (session orders with session_id)
-        ├── Tickets.tsx (direct hook usage)
-        ├── TableOrderDetails.tsx (via UnifiedOrderContext + useTicketOrders — fully DB-backed)
-        ├── Dashboard.tsx (via static data - next phase)
-        └── TransferOrders.tsx (via UnifiedOrderContext)
-```
-
 ### Phase 7: TableOrderDetails.tsx Fully DB-Connected ✅
 - Replaced static `getOrdersByTable()` / `allOrders` from `src/data/orders.ts` with `useUnifiedOrders()` DB context
 - All order fields (name, server, status, party size, time, total, tip, revenue center, payment status, items) now come from `ticket_orders` DB table
@@ -66,6 +51,28 @@ ticket_order_items ────┘
 - Merged panel data (`getMergedPanelData`) now uses DB orders
 - Transfer-to-order dialog uses DB-backed order list
 
+### Phase 8: Restaurant Tables DB-Backed (Floor Plan) ✅
+- Created `restaurant_tables` table (table_number, seats, shape, status, x, y, guests, occupied_seats, time, merge fields, floor_area, sort_order, merchant_id)
+- Created `floor_areas` table (name, color, bg_color, x, y, anchor, sort_order)
+- Created `floor_dividers` table (orientation, position)
+- Seeded 12 default tables, 4 floor areas, 2 dividers
+- Enabled Realtime on `restaurant_tables`
+- Created `src/hooks/use-restaurant-tables.ts` hook with CRUD mutations and realtime sync
+- Refactored `TableOrder.tsx`: removed hardcoded `defaultTables`, `defaultFloorAreas`, `defaultDividers`, `loadSavedPositions`, `loadSavedFloorAreas`, `loadSavedDividers`; now initializes from DB with local state for fast drag interactions; guest seating and seat changes persist to DB
+- Refactored `Dashboard.tsx`: replaced `mockTables` with `useRestaurantTables` hook
+- Refactored `TransferOrders.tsx`: replaced `defaultTables` with `useRestaurantTables` hook
+
+### Data Flow Summary (Updated)
+```
+restaurant_tables (DB) ──── useRestaurantTables hook
+floor_areas (DB) ───────┘        │
+floor_dividers (DB) ────┘        ├── TableOrder.tsx (floor plan, all views)
+                                 ├── Dashboard.tsx (table cards)
+                                 └── TransferOrders.tsx (table selection grid)
+```
+
 ### Remaining (Future Phases)
-- Dashboard.tsx still imports from `src/data/orders.ts` static array — needs migration to hook
+- Dashboard.tsx still imports from `src/data/orders.ts` static array for order data
 - Remove static arrays from `src/data/orders.ts` and `src/data/ticketOrders.ts` once all consumers migrated
+- Templates still use localStorage (acceptable for now)
+- Split configurations and transfer records in localStorage can be migrated to DB columns

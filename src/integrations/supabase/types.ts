@@ -131,6 +131,42 @@ export type Database = {
           },
         ]
       }
+      brand_sub_verticals: {
+        Row: {
+          brand_id: string
+          created_at: string
+          id: string
+          sub_vertical_id: string
+        }
+        Insert: {
+          brand_id: string
+          created_at?: string
+          id?: string
+          sub_vertical_id: string
+        }
+        Update: {
+          brand_id?: string
+          created_at?: string
+          id?: string
+          sub_vertical_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_sub_verticals_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brand_sub_verticals_sub_vertical_id_fkey"
+            columns: ["sub_vertical_id"]
+            isOneToOne: false
+            referencedRelation: "sub_verticals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       brand_verticals: {
         Row: {
           brand_id: string

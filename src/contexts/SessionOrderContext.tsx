@@ -77,12 +77,25 @@ export function SessionOrderProvider({ children }: { children: ReactNode }) {
       splitConfiguration: o.splitConfiguration,
     }));
 
+  const getActiveOrderForTable = (tableId: string): SessionOrder | undefined => {
+    return sessionOrders.find(o => 
+      o.table === tableId && 
+      !['PAID', 'COMPLETED', 'Completed'].includes(o.status)
+    );
+  };
+
   const createOrder = (
     tableId: string,
     guestCount: number,
     serverName: string = 'Staff',
     guestName: string = 'Guest'
   ): SessionOrder => {
+    // Check for existing active order on this table
+    const existingActive = getActiveOrderForTable(tableId);
+    if (existingActive) {
+      return existingActive;
+    }
+
     const now = Date.now();
     const currentTime = new Date().toLocaleTimeString('en-US', {
       hour: 'numeric',

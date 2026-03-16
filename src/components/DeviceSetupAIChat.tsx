@@ -1109,9 +1109,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="pl-7 pt-3 pb-2 space-y-4"
+                    className="px-0 pt-3 pb-2 space-y-4"
                   >
-                    <div className="flex gap-2 justify-start">
+                    <div className="flex gap-2 justify-center">
                       {activationCode.map((digit, i) => (
                         <input
                           key={i}
@@ -1123,7 +1123,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           onChange={(e) => handleCodeInput(i, e.target.value)}
                           onKeyDown={(e) => handleCodeKeyDown(i, e)}
                           onPaste={i === 0 ? handleCodePaste : undefined}
-                          className="w-10 h-12 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-lg font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                          className="w-12 h-14 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-xl font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         />
                       ))}
                     </div>
@@ -1136,7 +1136,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       onDelete={handleActivationKeypadDelete}
                     />
 
-                    <div className="flex items-start gap-1.5 text-foreground/40">
+                    <div className="flex items-start gap-1.5 text-foreground/40 px-2">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">One-time code: This code expires in 10 minutes and can only be used once.</span>
                     </div>

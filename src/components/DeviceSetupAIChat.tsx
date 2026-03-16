@@ -963,6 +963,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         />
                       ))}
                     </div>
+
+                    <InlineIOSKeyboard
+                      mode="phone"
+                      fullWidth
+                      size="large"
+                      onKeyPress={handleInviteKeypadPress}
+                      onDelete={handleInviteKeypadDelete}
+                    />
+
                     <div className="flex items-start gap-1.5 text-foreground/40">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">Check your email or scan the QR from the admin portal.</span>

@@ -272,6 +272,9 @@ const Login = () => {
   const [adminEmail, setAdminEmail] = useState("");
   const [adminPassword, setAdminPassword] = useState("");
   const [showAdminPassword, setShowAdminPassword] = useState(false);
+  const [showDemoEmailKeyboard, setShowDemoEmailKeyboard] = useState(false);
+  const [showAdminEmailKeyboard, setShowAdminEmailKeyboard] = useState(false);
+  const [showVerificationEmailKeyboard, setShowVerificationEmailKeyboard] = useState(false);
   
   // Forgot password states
   const [showForgotPassword, setShowForgotPassword] = useState(false);
@@ -351,6 +354,9 @@ const Login = () => {
     setShowContactAdmin(false);
     setActivationApproach(null);
     setPersonalActivationApproach(null);
+    setShowDemoEmailKeyboard(false);
+    setShowAdminEmailKeyboard(false);
+    setShowVerificationEmailKeyboard(false);
   }, []);
 
   // Resend cooldown timer
@@ -1167,6 +1173,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       }
       setDemoSendingOtp(true);
       setDemoOtpError("");
+      setShowDemoEmailKeyboard(false);
       
       try {
         // Use Supabase OTP (magic link as OTP)
@@ -1259,6 +1266,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   setDemoOtp("");
                   setDemoOtpSent(false);
                   setDemoOtpError("");
+                  setShowDemoEmailKeyboard(false);
                 }}
                 className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
               >
@@ -1320,15 +1328,41 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         type="email"
                         placeholder="your@email.com"
                         value={demoEmail}
-                        onChange={(e) => {
-                          setDemoEmail(e.target.value);
+                        onFocus={() => {
+                          setShowDemoEmailKeyboard(true);
                           setDemoOtpError("");
                         }}
-                        onKeyDown={(e) => e.key === "Enter" && handleDemoSendOtp()}
+                        onClick={() => {
+                          setShowDemoEmailKeyboard(true);
+                          setDemoOtpError("");
+                        }}
+                        readOnly
                         className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.03] border-foreground/[0.08] focus:border-amber-500/40"
                         disabled={demoSendingOtp}
                       />
                     </div>
+
+                    <AnimatePresence>
+                      {showDemoEmailKeyboard && !demoSendingOtp && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                        >
+                          <InlineIOSKeyboard
+                            mode="email"
+                            onKeyPress={(key) => {
+                              setDemoEmail((prev) => `${prev}${key}`.slice(0, 80));
+                              setDemoOtpError("");
+                            }}
+                            onDelete={() => {
+                              setDemoEmail((prev) => prev.slice(0, -1));
+                              setDemoOtpError("");
+                            }}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
                     {demoOtpError && (
                       <motion.div
@@ -1732,6 +1766,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       setMagicLinkSent(false);
       setAdminEmail("");
       setAdminPassword("");
+      setShowAdminEmailKeyboard(false);
     };
 
     // Sub-screen: Activate with Code (using NumericKeypad)
@@ -3103,10 +3138,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 type="email"
                 placeholder="Email address"
                 value={adminEmail}
-                onChange={(e) => {
-                  setAdminEmail(e.target.value);
+                onFocus={() => {
+                  setShowAdminEmailKeyboard(true);
                   setActivationError("");
                 }}
+                onClick={() => {
+                  setShowAdminEmailKeyboard(true);
+                  setActivationError("");
+                }}
+                readOnly
                 className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
               />
               
@@ -3115,6 +3155,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   type={showAdminPassword ? "text" : "password"}
                   placeholder="Password"
                   value={adminPassword}
+                  onFocus={() => setShowAdminEmailKeyboard(false)}
                   onChange={(e) => {
                     setAdminPassword(e.target.value);
                     setActivationError("");
@@ -3140,12 +3181,35 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     setShowForgotPassword(true);
                     setForgotPasswordEmail(adminEmail);
                     setForgotPasswordKeyboardField("email");
+                    setShowAdminEmailKeyboard(false);
                   }}
                   className="text-sm text-foreground/50 hover:text-foreground/70 transition-colors"
                 >
                   Forgot password?
                 </button>
               </div>
+
+              <AnimatePresence>
+                {showAdminEmailKeyboard && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                  >
+                    <InlineIOSKeyboard
+                      mode="email"
+                      onKeyPress={(key) => {
+                        setAdminEmail((prev) => `${prev}${key}`.slice(0, 80));
+                        setActivationError("");
+                      }}
+                      onDelete={() => {
+                        setAdminEmail((prev) => prev.slice(0, -1));
+                        setActivationError("");
+                      }}
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               <AnimatePresence mode="wait">
                 {activationError && (
@@ -5192,6 +5256,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 setVerificationEmail("");
                 setLoginPassword("");
                 setIdentityError("");
+                setShowVerificationEmailKeyboard(false);
               }}
               className="self-start mb-4 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
             >
@@ -5303,10 +5368,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="email"
                       placeholder="Email address"
                       value={verificationEmail}
-                      onChange={(e) => {
-                        setVerificationEmail(e.target.value);
+                      onFocus={() => {
+                        setShowVerificationEmailKeyboard(true);
                         setIdentityError("");
                       }}
+                      onClick={() => {
+                        setShowVerificationEmailKeyboard(true);
+                        setIdentityError("");
+                      }}
+                      readOnly
                       className={`h-14 pl-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
                         identityError && identityError.includes("email") ? "border-destructive" : ""
                       }`}
@@ -5320,6 +5390,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type={showPassword ? "text" : "password"}
                       placeholder="Password"
                       value={loginPassword}
+                      onFocus={() => setShowVerificationEmailKeyboard(false)}
                       onChange={(e) => {
                         setLoginPassword(e.target.value);
                         setIdentityError("");
@@ -5345,12 +5416,35 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         setShowForgotPassword(true);
                         setForgotPasswordEmail(verificationEmail);
                         setForgotPasswordKeyboardField("email");
+                        setShowVerificationEmailKeyboard(false);
                       }}
                       className="text-sm text-foreground/50 hover:text-foreground/70 transition-colors"
                     >
                       Forgot password?
                     </button>
                   </div>
+
+                  <AnimatePresence>
+                    {showVerificationEmailKeyboard && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                      >
+                        <InlineIOSKeyboard
+                          mode="email"
+                          onKeyPress={(key) => {
+                            setVerificationEmail((prev) => `${prev}${key}`.slice(0, 80));
+                            setIdentityError("");
+                          }}
+                          onDelete={() => {
+                            setVerificationEmail((prev) => prev.slice(0, -1));
+                            setIdentityError("");
+                          }}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {/* Error Message */}
                   <AnimatePresence>

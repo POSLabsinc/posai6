@@ -966,13 +966,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       ))}
                     </div>
 
-                    <InlineIOSKeyboard
-                      mode="phone"
-                      fullWidth
-                      size="large"
-                      onKeyPress={handleInviteKeypadPress}
-                      onDelete={handleInviteKeypadDelete}
-                    />
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="phone"
+                        fullWidth
+                        size="large"
+                        onKeyPress={handleInviteKeypadPress}
+                        onDelete={handleInviteKeypadDelete}
+                      />
+                    )}
 
                     <div className="flex items-start gap-1.5 text-foreground/40 px-2">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />

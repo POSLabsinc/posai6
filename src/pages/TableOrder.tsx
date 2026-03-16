@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
+import { useTicketOrders } from "@/hooks/use-ticket-orders";
 import { useRestaurantTables, type RestaurantTable, type FloorArea as DBFloorArea, type FloorDivider } from "@/hooks/use-restaurant-tables";
 
 // Import icons

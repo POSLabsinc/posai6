@@ -1080,6 +1080,24 @@ const TableOrder = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
+  // DB hook for restaurant tables, floor areas, dividers
+  const {
+    tables: dbTables,
+    floorAreas: dbFloorAreas,
+    floorDividers: dbDividers,
+    isLoading: dbLoading,
+    updateTable: updateDbTable,
+    addTable: addDbTable,
+    removeTable: removeDbTable,
+    addFloorArea: addDbFloorArea,
+    updateFloorArea: updateDbFloorArea,
+    removeFloorArea: removeDbFloorArea,
+    replaceAllFloorAreas: replaceAllDbFloorAreas,
+    addDivider: addDbDivider,
+    removeDivider: removeDbDivider,
+    replaceAllDividers: replaceAllDbDividers,
+  } = useRestaurantTables();
+  
   // Get state from Full Reservations View (when coming back)
   const passedState = location.state as {
     openReservationsPanel?: boolean;

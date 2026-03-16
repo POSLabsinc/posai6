@@ -211,19 +211,7 @@ type DividerType = {
   position: number;
 };
 
-// Default floor areas
-const defaultFloorAreas: FloorArea[] = [
-  { id: 'kitchen', name: 'Kitchen', color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', x: 4, y: 4, anchor: 'top-left' },
-  { id: 'bar', name: 'Bar', color: '#a855f7', bgColor: 'rgba(168, 85, 247, 0.15)', x: 96, y: 4, anchor: 'top-right' },
-  { id: 'patio', name: 'Patio', color: '#22c55e', bgColor: 'rgba(34, 197, 94, 0.15)', x: 4, y: 96, anchor: 'bottom-left' },
-  { id: 'entry', name: 'Entry', color: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.15)', x: 96, y: 96, anchor: 'bottom-right' },
-];
-
-// Default dividers
-const defaultDividers: DividerType[] = [
-  { id: 'div-h-1', orientation: 'horizontal', position: 45 },
-  { id: 'div-v-1', orientation: 'vertical', position: 50 },
-];
+// Default floor areas/dividers removed - seeded in DB
 
 // Area color presets
 const areaColorPresets = [

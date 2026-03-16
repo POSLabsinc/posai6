@@ -5366,10 +5366,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="email"
                       placeholder="Email address"
                       value={verificationEmail}
-                      onChange={(e) => {
-                        setVerificationEmail(e.target.value);
+                      onFocus={() => {
+                        setShowVerificationEmailKeyboard(true);
                         setIdentityError("");
                       }}
+                      onClick={() => {
+                        setShowVerificationEmailKeyboard(true);
+                        setIdentityError("");
+                      }}
+                      readOnly
                       className={`h-14 pl-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
                         identityError && identityError.includes("email") ? "border-destructive" : ""
                       }`}

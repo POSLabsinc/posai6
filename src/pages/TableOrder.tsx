@@ -1608,6 +1608,8 @@ const TableOrder = () => {
         ? { ...t, guests: guestCount, occupiedSeats: Array.from({ length: guestCount }, (_, i) => i + 1), status: "Seated", time: "Just now" }
         : t
     ));
+    // Persist to DB
+    updateDbTable(tableId, { guests: guestCount, occupiedSeats: Array.from({ length: guestCount }, (_, i) => i + 1), status: "Seated", time: "Just now" });
     setTableOptionsOpen(null);
     toast.success(`${guestCount} guests seated at table ${tableId}`);
   };

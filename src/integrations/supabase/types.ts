@@ -828,6 +828,85 @@ export type Database = {
           },
         ]
       }
+      floor_areas: {
+        Row: {
+          anchor: string
+          bg_color: string
+          color: string
+          created_at: string
+          id: string
+          merchant_id: string | null
+          name: string
+          sort_order: number
+          x: number
+          y: number
+        }
+        Insert: {
+          anchor?: string
+          bg_color?: string
+          color?: string
+          created_at?: string
+          id?: string
+          merchant_id?: string | null
+          name: string
+          sort_order?: number
+          x?: number
+          y?: number
+        }
+        Update: {
+          anchor?: string
+          bg_color?: string
+          color?: string
+          created_at?: string
+          id?: string
+          merchant_id?: string | null
+          name?: string
+          sort_order?: number
+          x?: number
+          y?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "floor_areas_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      floor_dividers: {
+        Row: {
+          created_at: string
+          id: string
+          merchant_id: string | null
+          orientation: string
+          position: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          merchant_id?: string | null
+          orientation?: string
+          position?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          merchant_id?: string | null
+          orientation?: string
+          position?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "floor_dividers_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gratuity_settings: {
         Row: {
           allow_custom: boolean
@@ -2187,6 +2266,77 @@ export type Database = {
           },
           {
             foreignKeyName: "reservations_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      restaurant_tables: {
+        Row: {
+          created_at: string
+          floor_area: string
+          guests: number
+          id: string
+          is_merge_source: boolean
+          merchant_id: string | null
+          merge_group_id: string | null
+          merged_with: string | null
+          occupied_seats: Json
+          seats: number
+          shape: string
+          sort_order: number
+          status: string
+          table_number: string
+          time: string
+          updated_at: string
+          x: number
+          y: number
+        }
+        Insert: {
+          created_at?: string
+          floor_area?: string
+          guests?: number
+          id?: string
+          is_merge_source?: boolean
+          merchant_id?: string | null
+          merge_group_id?: string | null
+          merged_with?: string | null
+          occupied_seats?: Json
+          seats?: number
+          shape?: string
+          sort_order?: number
+          status?: string
+          table_number: string
+          time?: string
+          updated_at?: string
+          x?: number
+          y?: number
+        }
+        Update: {
+          created_at?: string
+          floor_area?: string
+          guests?: number
+          id?: string
+          is_merge_source?: boolean
+          merchant_id?: string | null
+          merge_group_id?: string | null
+          merged_with?: string | null
+          occupied_seats?: Json
+          seats?: number
+          shape?: string
+          sort_order?: number
+          status?: string
+          table_number?: string
+          time?: string
+          updated_at?: string
+          x?: number
+          y?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "restaurant_tables_merchant_id_fkey"
             columns: ["merchant_id"]
             isOneToOne: false
             referencedRelation: "merchants"

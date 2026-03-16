@@ -10,6 +10,7 @@ import PaymentDialog from "@/components/PaymentDialog";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import { getActiveTaxRate } from "@/lib/orderUtils";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
+import { useTicketOrders } from "@/hooks/use-ticket-orders";
 import { toast } from "sonner";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";

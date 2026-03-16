@@ -2159,7 +2159,7 @@ const TableOrderDetails = () => {
           >
             <Share2 className={`w-3.5 h-3.5 ${seatFilter.includes('all') ? 'text-black' : 'text-white'}`} />
           </button>
-          {[1, 2, 3, 4].map((seat) => (
+          {Array.from({ length: currentSelectedGuest?.partySize || 4 }, (_, i) => i + 1).map((seat) => (
             <button
               key={seat}
               onClick={() => toggleSeatFilter(seat)}

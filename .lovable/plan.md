@@ -1,71 +1,59 @@
 
-# Database-Connected Orders System — Migration Complete
 
-## What Was Done
+# Order Panel — Database Connection Audit & Fix Plan
 
-### Phase 1: Database Tables ✅
-- Created `ticket_orders` table with all fields (name, phone, party_size, status, table_id, financials, transfer_info, split_configuration, etc.)
-- Created `ticket_order_items` table with FK to ticket_orders (qty, name, price, seats, modifiers, is_shared, is_fired, no_tax)
-- Added indexes on table_id, status, session_id, order_id
-- Added updated_at trigger
-- Enabled RLS with public access policies
-- Enabled Realtime on both tables
+## Findings
 
-### Phase 2: Seed Data ✅
-- Inserted all 15 ticket orders from `ticketOrders.ts` with deterministic UUIDs
-- Inserted 8 unique orders from `orders.ts` (different tables/guests)
-- Inserted all line items for all 23 orders into `ticket_order_items`
-- Set multi-payment data for David Chen order
+After tracing every field in the order detail panel (desktop layout, lines 2109-2494), here is what is and isn't connected to the database:
 
-### Phase 3: `useTicketOrders` Hook ✅
-- Created `src/hooks/use-ticket-orders.ts`
-- React Query-based with realtime subscription
-- Fetches `ticket_orders` + `ticket_order_items` and joins them
-- Provides CRUD: addOrder, updateOrder, updateOrderItems, removeOrder
-- Helpers: getOrdersByTable, getOrderById, getOrdersByStatus
-- Converts DB rows to `UnifiedTicketOrder` shape compatible with all consumers
+### Connected (via `currentSelectedGuest` from DB orders)
+| Field | Source | Status |
+|-------|--------|--------|
+| Table ID | URL param `tableId` | Connected |
+| Guest Name | `currentSelectedGuest.name` | Connected |
+| Server | `currentSelectedGuest.server` | Connected (fallback "DUSTIN H" if empty) |
+| Phone | `currentSelectedGuest.phone` | Connected (fallback hardcoded) |
+| Time | `currentSelectedGuest.time` | Connected |
+| Status | `currentSelectedGuest.status` | Connected |
+| Order Items (qty, name, price, modifiers, seats) | `currentSelectedGuest.items` | Connected |
+| Subtotal | `currentSelectedGuest.subtotal` | Connected |
+| Discount | `currentSelectedGuest.discount` | Connected |
+| Service Charge | `currentSelectedGuest.serviceCharge` | Connected |
+| Tax | `currentSelectedGuest.tax` | Connected |
+| Total | `currentSelectedGuest.total` | Connected |
+| Transfer info | `currentSelectedGuest.transferredFrom` | Connected |
+| Payment methods | `currentSelectedGuest.paymentMethods` | Connected |
 
-### Phase 4: `UnifiedOrderContext` Refactored ✅
-- Removed localStorage (`pos-unified-orders`) dependency
-- Now delegates all reads/writes to `useTicketOrders` hook
-- Maintains same API surface for backward compatibility
-- Transfer sync is now a no-op (handled via direct DB mutations)
+### NOT Connected — Issues Found
 
-### Phase 5: `SessionOrderContext` Refactored ✅
-- Removed localStorage (`pos-session-orders`) dependency
-- `createOrder()` inserts into `ticket_orders` with `session_id`
-- `updateOrderItems()` writes to `ticket_order_items`
-- Split configurations stored in `split_configuration` jsonb column
-- KDS queue still uses localStorage (browser-local by design)
+| # | Field | Issue | Fix |
+|---|-------|-------|-----|
+| 1 | **Order Notes** (line 2162) | Local `useState("")` — never reads from `currentSelectedGuest.notes`, never writes back to DB | Initialize from `currentSelectedGuest.notes`, persist changes via `updateOrder` |
+| 2 | **Seat buttons** (line 2145) | Hardcoded `[1, 2, 3, 4]` — should derive from `currentSelectedGuest.partySize` | Generate seats dynamically: `Array.from({length: partySize}, (_, i) => i + 1)` |
+| 3 | **Items count** (line 2121) | Shows `items.length` but fallback is hardcoded `4` | Remove hardcoded fallback, use `0` |
+| 4 | **Order ID display** (line 2122) | Shows raw UUID `currentSelectedGuest.id` — should show order number or guest name | Show `currentSelectedGuest.orderNumber` or `currentSelectedGuest.name` |
+| 5 | **Phone fallback** (line 2030) | Hardcoded `"(415) 123-4567"` when phone is empty | Show "No phone" or empty |
+| 6 | **Server fallback** (line 2126) | Hardcoded `"DUSTIN H"` when server is empty | Show "Unassigned" or empty |
+| 7 | **Applied Discount** (line 2414) | `appliedDiscount` is session-local (from discount dialog selection) — not persisted to DB when applied | Persist discount changes to DB via `updateOrder` when discount is applied |
 
-### Phase 6: Tickets.tsx Updated ✅
-- Removed 275-line hardcoded `allOrders` array
-- Now fetches from DB via `useTicketOrders` hook
-- Auto-selects first order when data loads
-- Transfer helpers derived from live DB data
+## Implementation Plan
 
-### Data Flow Summary
-```
-ticket_orders (DB) ←──┐
-                       │ useTicketOrders hook
-ticket_order_items ────┘
-        │
-        ├── UnifiedOrderContext (wraps hook, legacy API)
-        ├── SessionOrderContext (session orders with session_id)
-        ├── Tickets.tsx (direct hook usage)
-        ├── TableOrderDetails.tsx (via UnifiedOrderContext + useTicketOrders — fully DB-backed)
-        ├── Dashboard.tsx (via static data - next phase)
-        └── TransferOrders.tsx (via UnifiedOrderContext)
-```
+### 1. Connect Order Notes to DB
+- Initialize `orderNotes` from `currentSelectedGuest.notes` using `useEffect`
+- On change, debounce and call `updateOrder(id, { notes })` to persist
 
-### Phase 7: TableOrderDetails.tsx Fully DB-Connected ✅
-- Replaced static `getOrdersByTable()` / `allOrders` from `src/data/orders.ts` with `useUnifiedOrders()` DB context
-- All order fields (name, server, status, party size, time, total, tip, revenue center, payment status, items) now come from `ticket_orders` DB table
-- Replaced `getAvailableTicketOrdersForTransfer()` / `ticketOrders.find()` with `useTicketOrders()` DB hook
-- Replaced hardcoded `discountTypes` array with live fetch from `discounts` DB table (with fallback defaults)
-- Merged panel data (`getMergedPanelData`) now uses DB orders
-- Transfer-to-order dialog uses DB-backed order list
+### 2. Dynamic Seat Buttons from Party Size
+- Replace `[1, 2, 3, 4]` with `Array.from({length: currentSelectedGuest?.partySize || 4}, (_, i) => i + 1)` in all 3 layouts (mobile/tablet/desktop)
 
-### Remaining (Future Phases)
-- Dashboard.tsx still imports from `src/data/orders.ts` static array — needs migration to hook
-- Remove static arrays from `src/data/orders.ts` and `src/data/ticketOrders.ts` once all consumers migrated
+### 3. Fix Hardcoded Fallbacks
+- Line 2121: Change `|| 4` to `|| 0`
+- Line 2122: Show `currentSelectedGuest?.name` instead of `currentSelectedGuest?.id`
+- Line 2030: Change `"(415) 123-4567"` to `"No phone"`
+- Line 2126: Change `"DUSTIN H"` to `"Unassigned"`
+
+### 4. Persist Applied Discount to DB
+- When a discount is confirmed in the discount dialog, call `updateOrder` to save the new discount value to the database
+
+### Files to modify
+- `src/pages/TableOrderDetails.tsx` — all changes above
+

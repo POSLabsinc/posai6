@@ -2178,7 +2178,7 @@ const TableOrderDetails = () => {
         <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
           <OrderNotesAutocomplete
             value={orderNotes}
-            onChange={setOrderNotes}
+            onChange={handleOrderNotesChange}
             placeholder="Order notes and Allergies"
           />
         </div>

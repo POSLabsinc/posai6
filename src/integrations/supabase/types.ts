@@ -2613,6 +2613,9 @@ export type Database = {
           payment_type: string
           payments: Json | null
           phone: string
+          refund_amount: number
+          refund_reason: string | null
+          refund_transactions: Json
           revenue_center: string
           server: string
           service_charge: number
@@ -2646,6 +2649,9 @@ export type Database = {
           payment_type?: string
           payments?: Json | null
           phone?: string
+          refund_amount?: number
+          refund_reason?: string | null
+          refund_transactions?: Json
           revenue_center?: string
           server?: string
           service_charge?: number
@@ -2679,6 +2685,9 @@ export type Database = {
           payment_type?: string
           payments?: Json | null
           phone?: string
+          refund_amount?: number
+          refund_reason?: string | null
+          refund_transactions?: Json
           revenue_center?: string
           server?: string
           service_charge?: number

@@ -104,6 +104,13 @@ const SystemSettingsContent = ({
         <p className="text-xs text-neutral-500 px-1 mb-4">
           Manage app restart, security, display, and operational controls.
         </p>
+
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">
+          <SettingsOption icon={aiIntegrationIcon} iconBgColor="#8B5CF6" label="AI Integration & Settings" onClick={() => onNavigate?.('/settings/network/ai-integration')} showDivider={false} />
+        </div>
+        <p className="text-xs text-neutral-500 px-1 mb-4">
+          Configure external AI providers, manage API keys, and control AI-powered features.
+        </p>
       </div>
     </div>;
 };

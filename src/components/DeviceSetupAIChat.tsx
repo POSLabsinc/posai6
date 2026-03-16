@@ -1446,7 +1446,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     className="pl-7 pt-3 pb-2 space-y-3"
                   >
-                    <div className="flex gap-2 justify-center">
+                    <div className="flex gap-2 justify-center cursor-text" onClick={() => { setShowKeyboard(true); demoOtpRef.current?.focus(); }}>
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div
                           key={i}

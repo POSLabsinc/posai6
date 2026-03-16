@@ -676,9 +676,10 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
           </motion.div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 scrollbar-hide flex flex-col">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 scrollbar-hide flex flex-col" style={{ scrollBehavior: 'smooth' }}>
+            <AnimatePresence mode="wait">
             {currentStep === "initial" ? (
-              <div className="flex flex-col h-full">
+              <motion.div key="initial" className="flex flex-col h-full" exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
                 {/* Centered branding area */}
                 <div className="flex-1 flex flex-col items-center justify-center gap-4">
                   <motion.div

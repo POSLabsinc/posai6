@@ -14,6 +14,7 @@ import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 import { toast } from "sonner";
 import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
+import { useRestaurantTables } from "@/hooks/use-restaurant-tables";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";

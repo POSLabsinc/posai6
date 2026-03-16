@@ -10,6 +10,7 @@ import SettingsIcon from "@/components/settings/SettingsIcon";
 import systemIcon from "@/assets/icons/settings-system.png";
 import appearanceIcon from "@/assets/icons/appearance.png";
 import controlCenterIcon from "@/assets/icons/control-center.png";
+import aiIntegrationIcon from "@/assets/icons/ai-integration.png";
 
 interface SettingsOptionProps {
   icon: string;

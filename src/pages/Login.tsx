@@ -1766,6 +1766,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       setMagicLinkSent(false);
       setAdminEmail("");
       setAdminPassword("");
+      setShowAdminEmailKeyboard(false);
     };
 
     // Sub-screen: Activate with Code (using NumericKeypad)

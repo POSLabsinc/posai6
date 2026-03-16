@@ -1565,11 +1565,17 @@ const TableOrder = () => {
     }
   }, [isDragging, handleDragMove, handleDragEnd]);
 
-  // Reset positions to default
+  // Reset positions to default - reload from DB
   const handleResetPositions = () => {
-    setTablePositions(defaultTables);
-    localStorage.removeItem('floorplan-tablePositions');
-    toast.success("Table positions reset to default");
+    // Re-sync from DB data
+    if (dbTables.length > 0) {
+      setTablePositions(dbTables.map(t => ({
+        id: t.id, seats: t.seats, shape: t.shape, status: t.status,
+        x: t.x, y: t.y, guests: t.guests, occupiedSeats: t.occupiedSeats,
+        time: t.time, mergedWith: t.mergedWith, isMergeSource: t.isMergeSource, mergeGroupId: t.mergeGroupId,
+      })));
+    }
+    toast.success("Table positions reset");
   };
 
   const filters = [

@@ -226,7 +226,7 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 const TableOrderDetails = () => {
   const navigate = useNavigate();
   const { orders: unifiedOrders, updateOrders: updateUnifiedOrders, updateOrder, getOrdersByTable: getUnifiedOrdersByTable, getOrderById: getUnifiedOrderById } = useUnifiedOrders();
-  const { orders: dbTicketOrders } = useTicketOrders();
+  const { orders: dbTicketOrders, updateOrder: updateTicketOrder } = useTicketOrders();
   
   // All DB orders as Order-compatible shape for lookups
   const allDbOrders: Order[] = useMemo(() => unifiedOrders.map(o => ({

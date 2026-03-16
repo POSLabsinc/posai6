@@ -945,7 +945,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="pl-7 pt-3 pb-2 space-y-4"
+                    className="px-0 pt-3 pb-2 space-y-4"
                   >
                     <div className="flex gap-2 justify-center">
                       {inviteCode.map((digit, i) => (
@@ -972,7 +972,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       onDelete={handleInviteKeypadDelete}
                     />
 
-                    <div className="flex items-start gap-1.5 text-foreground/40">
+                    <div className="flex items-start gap-1.5 text-foreground/40 px-2">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">Check your email or scan the QR from the admin portal.</span>
                     </div>

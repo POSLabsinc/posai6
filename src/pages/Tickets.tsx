@@ -496,7 +496,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     
     navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`);
   };
-  const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
+  const { updateOrders: updateUnifiedOrders, updateOrder } = useUnifiedOrders();
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState<GuestOrder>(() => allOrders[0] ?? FALLBACK_SELECTED_GUEST);
   

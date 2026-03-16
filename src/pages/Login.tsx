@@ -3154,6 +3154,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   type={showAdminPassword ? "text" : "password"}
                   placeholder="Password"
                   value={adminPassword}
+                  onFocus={() => setShowAdminEmailKeyboard(false)}
                   onChange={(e) => {
                     setAdminPassword(e.target.value);
                     setActivationError("");

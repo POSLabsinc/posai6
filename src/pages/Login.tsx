@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import ContactAdminDialog from "@/components/ContactAdminDialog";
 import { NumericKeypad } from "@/components/NumericKeypad";
+import InlineIOSKeyboard from "@/components/InlineIOSKeyboard";
 import { DeviceSetupLayout } from "@/components/DeviceSetupLayout";
 import { PersonalDeviceAuthPanel } from "@/components/PersonalDeviceAuthPanel";
 import { SplashScreen } from "@/components/SplashScreen";
@@ -276,6 +277,7 @@ const Login = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [forgotPasswordPhone, setForgotPasswordPhone] = useState("");
+  const [forgotPasswordKeyboardField, setForgotPasswordKeyboardField] = useState<"none" | "email" | "phone">("none");
   const [forgotPasswordError, setForgotPasswordError] = useState("");
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [resetOtpSent, setResetOtpSent] = useState(false);
@@ -2315,6 +2317,26 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </motion.div>
                 )}
               </AnimatePresence>
+
+              <InlineIOSKeyboard
+                mode={isEmail ? "email" : "phone"}
+                onKeyPress={(key) => {
+                  if (isEmail) {
+                    setMagicLinkEmail((prev) => `${prev}${key}`.slice(0, 80));
+                  } else {
+                    setMagicLinkPhone((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, 10));
+                  }
+                  setActivationError("");
+                }}
+                onDelete={() => {
+                  if (isEmail) {
+                    setMagicLinkEmail((prev) => prev.slice(0, -1));
+                  } else {
+                    setMagicLinkPhone((prev) => prev.slice(0, -1));
+                  }
+                  setActivationError("");
+                }}
+              />
               
               {/* Error Message */}
               <AnimatePresence mode="wait">
@@ -2913,6 +2935,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     type="email"
                     placeholder="Enter Your Email"
                     value={forgotPasswordEmail}
+                    onFocus={() => setForgotPasswordKeyboardField("email")}
                     onChange={(e) => {
                       setForgotPasswordEmail(e.target.value);
                       setForgotPasswordError("");
@@ -2940,6 +2963,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="tel"
                       placeholder="(XXX) XXX-XXXX"
                       value={formatPhoneDisplay(forgotPasswordPhone)}
+                      onFocus={() => setForgotPasswordKeyboardField("phone")}
                       onChange={(e) => {
                         const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
                         setForgotPasswordPhone(digits);
@@ -2949,6 +2973,37 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     />
                   </div>
                 </div>
+
+                <AnimatePresence mode="wait">
+                  {forgotPasswordKeyboardField !== "none" && (
+                    <motion.div
+                      key={forgotPasswordKeyboardField}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                    >
+                      <InlineIOSKeyboard
+                        mode={forgotPasswordKeyboardField}
+                        onKeyPress={(key) => {
+                          if (forgotPasswordKeyboardField === "email") {
+                            setForgotPasswordEmail((prev) => `${prev}${key}`.slice(0, 80));
+                          } else {
+                            setForgotPasswordPhone((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, 10));
+                          }
+                          setForgotPasswordError("");
+                        }}
+                        onDelete={() => {
+                          if (forgotPasswordKeyboardField === "email") {
+                            setForgotPasswordEmail((prev) => prev.slice(0, -1));
+                          } else {
+                            setForgotPasswordPhone((prev) => prev.slice(0, -1));
+                          }
+                          setForgotPasswordError("");
+                        }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 
                 <AnimatePresence mode="wait">
                   {forgotPasswordError && (
@@ -3092,6 +3147,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   onClick={() => {
                     setShowForgotPassword(true);
                     setForgotPasswordEmail(adminEmail);
+                    setForgotPasswordKeyboardField("email");
                   }}
                   className="text-sm text-foreground/50 hover:text-foreground/70 transition-colors"
                 >
@@ -5001,6 +5057,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     type="email"
                     placeholder="Enter Your Email"
                     value={forgotPasswordEmail}
+                    onFocus={() => setForgotPasswordKeyboardField("email")}
                     onChange={(e) => {
                       setForgotPasswordEmail(e.target.value);
                       setForgotPasswordError("");
@@ -5028,6 +5085,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="tel"
                       placeholder="(XXX) XXX-XXXX"
                       value={formatPhoneDisplay(forgotPasswordPhone)}
+                      onFocus={() => setForgotPasswordKeyboardField("phone")}
                       onChange={(e) => {
                         const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
                         setForgotPasswordPhone(digits);
@@ -5037,6 +5095,37 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     />
                   </div>
                 </div>
+
+                <AnimatePresence mode="wait">
+                  {forgotPasswordKeyboardField !== "none" && (
+                    <motion.div
+                      key={forgotPasswordKeyboardField}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -8 }}
+                    >
+                      <InlineIOSKeyboard
+                        mode={forgotPasswordKeyboardField}
+                        onKeyPress={(key) => {
+                          if (forgotPasswordKeyboardField === "email") {
+                            setForgotPasswordEmail((prev) => `${prev}${key}`.slice(0, 80));
+                          } else {
+                            setForgotPasswordPhone((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, 10));
+                          }
+                          setForgotPasswordError("");
+                        }}
+                        onDelete={() => {
+                          if (forgotPasswordKeyboardField === "email") {
+                            setForgotPasswordEmail((prev) => prev.slice(0, -1));
+                          } else {
+                            setForgotPasswordPhone((prev) => prev.slice(0, -1));
+                          }
+                          setForgotPasswordError("");
+                        }}
+                      />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
                 
                 <AnimatePresence mode="wait">
                   {forgotPasswordError && (
@@ -5268,6 +5357,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       onClick={() => {
                         setShowForgotPassword(true);
                         setForgotPasswordEmail(verificationEmail);
+                        setForgotPasswordKeyboardField("email");
                       }}
                       className="text-sm text-foreground/50 hover:text-foreground/70 transition-colors"
                     >

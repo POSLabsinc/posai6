@@ -496,7 +496,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     
     navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`);
   };
-  const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
+  const { updateOrders: updateUnifiedOrders, updateOrder } = useUnifiedOrders();
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState<GuestOrder>(() => allOrders[0] ?? FALLBACK_SELECTED_GUEST);
   
@@ -6112,12 +6112,30 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             console.log("Ticket payment completed:", paymentHistory);
             setShowPaymentDialog(false);
             
+            const totalPaid = paymentHistory.reduce((sum, p) => sum + p.amount, 0);
+            const primaryMethod = paymentHistory.length > 0 ? paymentHistory[0].methodLabel : "Card";
+            const paymentsArray = paymentHistory.map(p => ({
+              method: p.methodLabel,
+              amount: p.amount,
+            }));
+            
+            // Persist payment data to database
+            if (selectedGuest?.id) {
+              updateOrder(selectedGuest.id, {
+                status: "PAID",
+                paymentType: primaryMethod,
+                payments: paymentsArray,
+                paidAmount: totalPaid.toFixed(2),
+                paymentStatus: "completed",
+              } as any);
+            }
+            
             // Mark the ticket as paid so CTA switches to "Add Tip" + "Close"
             setSelectedGuest(prev => prev ? {
               ...prev,
               paid: true,
               status: "PAID",
-              paymentType: paymentHistory.length > 0 ? paymentHistory[0].methodLabel : "Card",
+              paymentType: primaryMethod,
               paidAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
             } : prev);
             

@@ -3188,6 +3188,27 @@ const TableOrderDetails = () => {
         total={currentSelectedGuest?.total || 0}
         onPaymentComplete={(history) => {
           console.log("Payment completed:", history);
+          
+          // Persist payment data to database
+          if (currentSelectedGuest?.id) {
+            const totalPaid = history.reduce((sum, p) => sum + p.amount, 0);
+            const primaryMethod = history.length > 0 ? history[0].methodLabel : "Card";
+            const paymentsArray = history.map(p => ({
+              method: p.methodLabel,
+              amount: p.amount,
+            }));
+            
+            updateOrder(currentSelectedGuest.id, {
+              status: "PAID",
+              paymentType: primaryMethod,
+              payments: paymentsArray,
+              paidAmount: totalPaid.toFixed(2),
+              paymentStatus: "completed",
+              total: currentSelectedGuest.total - appliedDiscount,
+              discount: (currentSelectedGuest.discount || 0) + appliedDiscount,
+            } as any);
+          }
+          
           const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();
           if (checkoutSettings.printReceipt) {
             toast.success("Receipt sent to printer");

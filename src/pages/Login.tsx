@@ -3147,6 +3147,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   onClick={() => {
                     setShowForgotPassword(true);
                     setForgotPasswordEmail(adminEmail);
+                    setForgotPasswordKeyboardField("email");
                   }}
                   className="text-sm text-foreground/50 hover:text-foreground/70 transition-colors"
                 >

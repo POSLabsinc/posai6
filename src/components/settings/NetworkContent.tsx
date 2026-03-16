@@ -1,11 +1,10 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import aiIntegrationIcon from "@/assets/icons/ai-integration.png";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 import networkIcon from "@/assets/icons/settings-network.png";
 import serverIcon from "@/assets/icons/server.png";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
 
@@ -68,22 +67,6 @@ const NetworkContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: Ne
         </div>
         <p className="text-sm text-neutral-400 leading-relaxed px-1 mb-6">
           Manage server connections, configure endpoints, and monitor server health and performance.
-        </p>
-
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
-          <button
-            onClick={() => onNavigate?.('/settings/network/ai-integration')}
-            className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
-          >
-            <div className="flex items-center gap-4">
-              <SettingsIcon bgColor="#8B5CF6" iconSrc={aiIntegrationIcon} iconAlt="AI Integration" />
-              <span className="text-foreground text-lg font-medium">AI Integration & Settings</span>
-            </div>
-            <ChevronRight className="w-5 h-5 text-neutral-500" />
-          </button>
-        </div>
-        <p className="text-sm text-neutral-400 leading-relaxed px-1 mb-6">
-          Configure external AI providers, manage API keys, and control AI-powered features across the platform.
         </p>
       </div>
     </div>

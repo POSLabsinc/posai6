@@ -9,6 +9,7 @@ import SettingsIcon from "@/components/settings/SettingsIcon";
 import systemIcon from "@/assets/icons/settings-system.png";
 import appearanceIcon from "@/assets/icons/appearance.png";
 import controlCenterIcon from "@/assets/icons/control-center.png";
+import aiIntegrationIcon from "@/assets/icons/ai-integration.png";
 
 interface SettingsOptionProps {
   icon: string;
@@ -112,6 +113,20 @@ const SystemSettings = () => {
         </div>
         <p className="text-xs text-neutral-500 px-1 mb-4">
           Manage app restart, security, display, and operational controls.
+        </p>
+
+        {/* AI Integration Card - Individual rounded-full */}
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">
+          <SettingsOption
+            icon={aiIntegrationIcon}
+            iconBgColor="#8B5CF6"
+            label="AI Integration & Settings"
+            onClick={() => navigate('/settings/network/ai-integration')}
+            showDivider={false}
+          />
+        </div>
+        <p className="text-xs text-neutral-500 px-1 mb-4">
+          Configure external AI providers, manage API keys, and control AI-powered features.
         </p>
       </div>
     </div>

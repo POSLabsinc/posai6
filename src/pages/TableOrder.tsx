@@ -1781,10 +1781,13 @@ const TableOrder = () => {
   }, [draggingAreaId, draggingDividerId, dividers]);
 
   const handleResetLayout = () => {
-    setFloorAreas(defaultFloorAreas);
-    setDividers(defaultDividers);
-    localStorage.removeItem('floorplan-areas');
-    localStorage.removeItem('floorplan-dividers');
+    // Re-sync from DB
+    if (dbFloorAreas.length > 0) {
+      setFloorAreas(dbFloorAreas.map(a => ({ id: a.id, name: a.name, color: a.color, bgColor: a.bgColor, x: a.x, y: a.y, anchor: a.anchor as FloorArea['anchor'] })));
+    }
+    if (dbDividers.length > 0) {
+      setDividers(dbDividers.map(d => ({ id: d.id, orientation: d.orientation, position: d.position })));
+    }
     toast.success("Floor plan layout reset");
   };
 

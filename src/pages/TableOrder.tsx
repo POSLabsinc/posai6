@@ -2310,6 +2310,11 @@ const TableOrder = () => {
                 const handleGuestSelectLocal = (guestCount: number) => {
                   setGuestDropdownTable(null);
                   setSelectedTable(table.id);
+                  if (hasActiveOrderOnTable(table.id)) {
+                    toast.info('This table already has an active order');
+                    navigate(`/tableorder/${table.id}`);
+                    return;
+                  }
                   const newOrder = createOrder(table.id, guestCount, 'Staff', 'Guest');
                   navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}&seats=${table.seats}&guests=${guestCount}`);
                 };

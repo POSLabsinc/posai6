@@ -606,9 +606,10 @@ const TableOrderDetails = () => {
   const sessionGuestOrders: GuestOrder[] = sessionOrdersForTable.map(convertSessionToGuestOrder);
   const sessionOrderIds = new Set(sessionGuestOrders.map(o => o.id));
   const dedupedStaticOrders = staticGuestOrders.filter(o => !sessionOrderIds.has(o.id));
-  const guestOrders: GuestOrder[] = virtualTransferOrder.length > 0 
+  const unsortedOrders: GuestOrder[] = virtualTransferOrder.length > 0 
     ? [...virtualTransferOrder, ...sessionGuestOrders, ...dedupedStaticOrders] 
     : [...sessionGuestOrders, ...dedupedStaticOrders];
+  const guestOrders: GuestOrder[] = unsortedOrders.sort((a, b) => (b.orderNumber || 0) - (a.orderNumber || 0));
   
 
   // Memoize order timer data to avoid recreating array on every render

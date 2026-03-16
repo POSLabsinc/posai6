@@ -5050,10 +5050,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     placeholder="Enter Your Email"
                     value={forgotPasswordEmail}
                     onFocus={() => setForgotPasswordKeyboardField("email")}
-                    onChange={(e) => {
-                      setForgotPasswordEmail(e.target.value);
-                      setForgotPasswordError("");
-                    }}
+                    onClick={() => setForgotPasswordKeyboardField("email")}
+                    readOnly
                     className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
                   />
                 </div>

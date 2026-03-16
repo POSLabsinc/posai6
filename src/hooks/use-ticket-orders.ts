@@ -48,6 +48,9 @@ export interface TicketOrderRow {
   transferred_from: any | null;
   session_id: string | null;
   split_configuration: any | null;
+  refund_amount: number;
+  refund_reason: string | null;
+  refund_transactions: any[];
   created_at: string;
   updated_at: string;
   items?: TicketOrderItemRow[];

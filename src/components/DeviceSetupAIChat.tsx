@@ -745,9 +745,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     </button>
                   </motion.div>
                 </div>
-              </div>
+              </motion.div>
             ) : (
-              <div className="flex flex-col h-full">
+              <motion.div key="messages" className="flex flex-col h-full" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.1 }}>
                 {/* Chat messages */}
                 <div className="flex-1 space-y-4">
                   {messages.map((msg, index) => (

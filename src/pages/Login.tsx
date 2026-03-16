@@ -5414,6 +5414,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         setShowForgotPassword(true);
                         setForgotPasswordEmail(verificationEmail);
                         setForgotPasswordKeyboardField("email");
+                        setShowVerificationEmailKeyboard(false);
                       }}
                       className="text-sm text-foreground/50 hover:text-foreground/70 transition-colors"
                     >

@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
+import { useRestaurantTables } from "@/hooks/use-restaurant-tables";
 import { SettingsManager } from "@/lib/settingsManager";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";

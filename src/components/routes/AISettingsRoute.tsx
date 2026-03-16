@@ -10,7 +10,7 @@ const AISettingsRoute = () => {
     <div className="h-full bg-background">
       <AISettingsContent 
         showHeader={true} 
-        onBack={() => navigate('/settings')} 
+        onBack={() => navigate('/settings/system')} 
         context={context}
       />
     </div>

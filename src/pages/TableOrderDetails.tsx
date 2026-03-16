@@ -620,7 +620,7 @@ const TableOrderDetails = () => {
   
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState<GuestOrder | null>(null);
-  const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [orderNotes, setOrderNotes] = useState("");

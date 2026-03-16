@@ -1127,6 +1127,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         />
                       ))}
                     </div>
+
+                    <InlineIOSKeyboard
+                      mode="phone"
+                      fullWidth
+                      size="large"
+                      onKeyPress={handleActivationKeypadPress}
+                      onDelete={handleActivationKeypadDelete}
+                    />
+
                     <div className="flex items-start gap-1.5 text-foreground/40">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">One-time code: This code expires in 10 minutes and can only be used once.</span>

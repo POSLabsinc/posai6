@@ -421,6 +421,37 @@ const Login = () => {
     }
   }, [deviceType, showQRScanner, helpTooltipInteracted]);
 
+  // Keep inline email keyboards visible by default on email entry screens
+  useEffect(() => {
+    if (activationMethod === "password") {
+      setShowAdminEmailKeyboard(true);
+    } else {
+      setShowAdminEmailKeyboard(false);
+    }
+  }, [activationMethod]);
+
+  useEffect(() => {
+    if (showIdentityVerification && !identityBlocked) {
+      setShowVerificationEmailKeyboard(true);
+    } else {
+      setShowVerificationEmailKeyboard(false);
+    }
+  }, [showIdentityVerification, identityBlocked]);
+
+  useEffect(() => {
+    if (showDemoMode && !demoEmailVerified && !demoOtpSent) {
+      setShowDemoEmailKeyboard(true);
+    } else {
+      setShowDemoEmailKeyboard(false);
+    }
+  }, [showDemoMode, demoEmailVerified, demoOtpSent]);
+
+  useEffect(() => {
+    if (showForgotPassword && !resetOtpSent && !showNewPasswordForm) {
+      setForgotPasswordKeyboardField((prev) => (prev === "none" ? "email" : prev));
+    }
+  }, [showForgotPassword, resetOtpSent, showNewPasswordForm]);
+
   const handleVerifyDeviceCode = useCallback(() => {
     if (!deviceCode.trim()) {
       setCodeError("Please enter a device code");

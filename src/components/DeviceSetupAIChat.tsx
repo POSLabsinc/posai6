@@ -1269,13 +1269,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       </button>
                     </div>
 
-                    <InlineIOSKeyboard
-                      mode="email"
-                      fullWidth
-                      size="large"
-                      onKeyPress={(key) => setSignInInput((prev) => `${prev}${key}`.slice(0, 80))}
-                      onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
-                    />
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="email"
+                        fullWidth
+                        size="large"
+                        onKeyPress={(key) => setSignInInput((prev) => `${prev}${key}`.slice(0, 80))}
+                        onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
+                      />
+                    )}
                   </motion.div>
                 )}
 

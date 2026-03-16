@@ -149,7 +149,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
 
   useEffect(() => {
     if (open && scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
     }
   }, [messages, open, showActivationOptions]);
 
@@ -676,9 +676,10 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
           </motion.div>
 
           {/* Messages */}
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 scrollbar-hide flex flex-col">
+          <div ref={scrollRef} className="flex-1 overflow-y-auto px-6 py-6 scrollbar-hide flex flex-col" style={{ scrollBehavior: 'smooth' }}>
+            <AnimatePresence mode="wait">
             {currentStep === "initial" ? (
-              <div className="flex flex-col h-full">
+              <motion.div key="initial" className="flex flex-col h-full" exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.3 }}>
                 {/* Centered branding area */}
                 <div className="flex-1 flex flex-col items-center justify-center gap-4">
                   <motion.div
@@ -744,9 +745,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     </button>
                   </motion.div>
                 </div>
-              </div>
+              </motion.div>
             ) : (
-              <div className="flex flex-col h-full">
+              <motion.div key="messages" className="flex flex-col h-full" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay: 0.1 }}>
                 {/* Chat messages */}
                 <div className="flex-1 space-y-4">
                   {messages.map((msg, index) => (
@@ -754,7 +755,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       key={msg.id}
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: index * 0.08, ease: "easeOut" }}
+                      transition={{ duration: 0.3, delay: index * 0.15, ease: "easeOut" }}
                       className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                     >
                       {msg.role === "assistant" && (
@@ -1500,8 +1501,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     </div>
                   </motion.div>
                 )}
-              </div>
+              </motion.div>
             )}
+            </AnimatePresence>
           </div>
 
           {/* Input - hide when in specific steps */}

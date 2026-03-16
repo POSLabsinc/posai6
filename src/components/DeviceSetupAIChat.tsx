@@ -1395,15 +1395,17 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       </button>
                     </div>
 
-                    <InlineIOSKeyboard
-                      mode="phone"
-                      fullWidth
-                      size="large"
-                      onKeyPress={(key) =>
-                        setSignInInput((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, selectedCountry.phoneLength))
-                      }
-                      onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
-                    />
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="phone"
+                        fullWidth
+                        size="large"
+                        onKeyPress={(key) =>
+                          setSignInInput((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, selectedCountry.phoneLength))
+                        }
+                        onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
+                      />
+                    )}
 
                     <p className="text-xs text-foreground/35 pl-0.5">{selectedCountry.hint}</p>
                   </motion.div>

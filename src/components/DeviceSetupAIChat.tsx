@@ -147,6 +147,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   const [showPersonalPassword, setShowPersonalPassword] = useState(false);
   const [personalSignInError, setPersonalSignInError] = useState("");
   const [isPersonalSigningIn, setIsPersonalSigningIn] = useState(false);
+  const [showKeyboard, setShowKeyboard] = useState(false);
 
   useEffect(() => {
     if (open && scrollRef.current) {
@@ -167,6 +168,11 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     }
   }, [open]);
+
+  // Reset keyboard visibility when step changes
+  useEffect(() => {
+    setShowKeyboard(false);
+  }, [currentStep]);
 
   // Demo OTP resend cooldown
   useEffect(() => {
@@ -959,18 +965,21 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           onChange={(e) => handleInviteCodeInput(i, e.target.value)}
                           onKeyDown={(e) => handleInviteCodeKeyDown(i, e)}
                           onPaste={i === 0 ? handleInviteCodePaste : undefined}
+                          onFocus={() => setShowKeyboard(true)}
                           className="w-12 h-14 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-xl font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         />
                       ))}
                     </div>
 
-                    <InlineIOSKeyboard
-                      mode="phone"
-                      fullWidth
-                      size="large"
-                      onKeyPress={handleInviteKeypadPress}
-                      onDelete={handleInviteKeypadDelete}
-                    />
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="phone"
+                        fullWidth
+                        size="large"
+                        onKeyPress={handleInviteKeypadPress}
+                        onDelete={handleInviteKeypadDelete}
+                      />
+                    )}
 
                     <div className="flex items-start gap-1.5 text-foreground/40 px-2">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
@@ -1123,18 +1132,21 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           onChange={(e) => handleCodeInput(i, e.target.value)}
                           onKeyDown={(e) => handleCodeKeyDown(i, e)}
                           onPaste={i === 0 ? handleCodePaste : undefined}
+                          onFocus={() => setShowKeyboard(true)}
                           className="w-12 h-14 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-xl font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         />
                       ))}
                     </div>
 
-                    <InlineIOSKeyboard
-                      mode="phone"
-                      fullWidth
-                      size="large"
-                      onKeyPress={handleActivationKeypadPress}
-                      onDelete={handleActivationKeypadDelete}
-                    />
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="phone"
+                        fullWidth
+                        size="large"
+                        onKeyPress={handleActivationKeypadPress}
+                        onDelete={handleActivationKeypadDelete}
+                      />
+                    )}
 
                     <div className="flex items-start gap-1.5 text-foreground/40 px-2">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
@@ -1229,6 +1241,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         value={signInInput}
                         placeholder="name@company.com"
                         readOnly
+                        onFocus={() => setShowKeyboard(true)}
                         className="flex-1 px-4 py-3 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.04] text-base text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && signInInput.trim() && signInInput.includes("@")) {
@@ -1261,13 +1274,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       </button>
                     </div>
 
-                    <InlineIOSKeyboard
-                      mode="email"
-                      fullWidth
-                      size="large"
-                      onKeyPress={(key) => setSignInInput((prev) => `${prev}${key}`.slice(0, 80))}
-                      onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
-                    />
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="email"
+                        fullWidth
+                        size="large"
+                        onKeyPress={(key) => setSignInInput((prev) => `${prev}${key}`.slice(0, 80))}
+                        onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
+                      />
+                    )}
                   </motion.div>
                 )}
 
@@ -1352,6 +1367,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         value={formatPhone(signInInput, selectedCountry.format)}
                         placeholder={selectedCountry.placeholder}
                         readOnly
+                        onFocus={() => setShowKeyboard(true)}
                         className="flex-1 px-4 py-3 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.04] text-base text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && signInInput.length === selectedCountry.phoneLength) {
@@ -1384,15 +1400,17 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       </button>
                     </div>
 
-                    <InlineIOSKeyboard
-                      mode="phone"
-                      fullWidth
-                      size="large"
-                      onKeyPress={(key) =>
-                        setSignInInput((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, selectedCountry.phoneLength))
-                      }
-                      onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
-                    />
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="phone"
+                        fullWidth
+                        size="large"
+                        onKeyPress={(key) =>
+                          setSignInInput((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, selectedCountry.phoneLength))
+                        }
+                        onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
+                      />
+                    )}
 
                     <p className="text-xs text-foreground/35 pl-0.5">{selectedCountry.hint}</p>
                   </motion.div>
@@ -1433,7 +1451,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     className="pl-7 pt-3 pb-2 space-y-3"
                   >
-                    <div className="flex gap-2 justify-center">
+                    <div className="flex gap-2 justify-center cursor-text" onClick={() => { setShowKeyboard(true); demoOtpRef.current?.focus(); }}>
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div
                           key={i}
@@ -1470,20 +1488,22 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     />
                     <label htmlFor="" onClick={() => demoOtpRef.current?.focus()} className="block w-full cursor-text" />
 
-                    <InlineIOSKeyboard
-                      mode="phone"
-                      fullWidth
-                      size="large"
-                      onKeyPress={(key) => {
-                        if (demoOtp.length >= 6) return;
-                        setDemoOtp((prev) => `${prev}${key}`.slice(0, 6));
-                        setDemoOtpError("");
-                      }}
-                      onDelete={() => {
-                        setDemoOtp((prev) => prev.slice(0, -1));
-                        setDemoOtpError("");
-                      }}
-                    />
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="phone"
+                        fullWidth
+                        size="large"
+                        onKeyPress={(key) => {
+                          if (demoOtp.length >= 6) return;
+                          setDemoOtp((prev) => `${prev}${key}`.slice(0, 6));
+                          setDemoOtpError("");
+                        }}
+                        onDelete={() => {
+                          setDemoOtp((prev) => prev.slice(0, -1));
+                          setDemoOtpError("");
+                        }}
+                      />
+                    )}
 
                     {demoOtpError && (
                       <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">

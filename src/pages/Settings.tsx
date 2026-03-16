@@ -471,7 +471,7 @@ const getContentForRoute = (
     return <ServerConnectionContent showHeader={true} onBack={() => navigate('/settings/network')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/network/ai-integration') {
-    return <AIIntegrationContent showHeader={true} onBack={() => navigate('/settings/network')} onAIClick={() => setShowAIChat(true)} />;
+    return <AIIntegrationContent showHeader={true} onBack={() => navigate('/settings/system')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/network/ai-integration/ai-instructions') {
     return <AIInstructionsRoute />;

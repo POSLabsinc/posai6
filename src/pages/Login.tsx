@@ -1328,15 +1328,41 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         type="email"
                         placeholder="your@email.com"
                         value={demoEmail}
-                        onChange={(e) => {
-                          setDemoEmail(e.target.value);
+                        onFocus={() => {
+                          setShowDemoEmailKeyboard(true);
                           setDemoOtpError("");
                         }}
-                        onKeyDown={(e) => e.key === "Enter" && handleDemoSendOtp()}
+                        onClick={() => {
+                          setShowDemoEmailKeyboard(true);
+                          setDemoOtpError("");
+                        }}
+                        readOnly
                         className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.03] border-foreground/[0.08] focus:border-amber-500/40"
                         disabled={demoSendingOtp}
                       />
                     </div>
+
+                    <AnimatePresence>
+                      {showDemoEmailKeyboard && !demoSendingOtp && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: -8 }}
+                        >
+                          <InlineIOSKeyboard
+                            mode="email"
+                            onKeyPress={(key) => {
+                              setDemoEmail((prev) => `${prev}${key}`.slice(0, 80));
+                              setDemoOtpError("");
+                            }}
+                            onDelete={() => {
+                              setDemoEmail((prev) => prev.slice(0, -1));
+                              setDemoOtpError("");
+                            }}
+                          />
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
                     {demoOtpError && (
                       <motion.div

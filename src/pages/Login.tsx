@@ -1173,6 +1173,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       }
       setDemoSendingOtp(true);
       setDemoOtpError("");
+      setShowDemoEmailKeyboard(false);
       
       try {
         // Use Supabase OTP (magic link as OTP)

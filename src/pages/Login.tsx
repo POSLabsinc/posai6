@@ -277,6 +277,7 @@ const Login = () => {
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotPasswordEmail, setForgotPasswordEmail] = useState("");
   const [forgotPasswordPhone, setForgotPasswordPhone] = useState("");
+  const [forgotPasswordKeyboardField, setForgotPasswordKeyboardField] = useState<"none" | "email" | "phone">("none");
   const [forgotPasswordError, setForgotPasswordError] = useState("");
   const [isSendingReset, setIsSendingReset] = useState(false);
   const [resetOtpSent, setResetOtpSent] = useState(false);

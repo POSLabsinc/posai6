@@ -204,8 +204,8 @@ export function DeviceSetupLayout({ children, title, subtitle, variant = "setup"
       </motion.div>
 
       {/* Right Panel - Action Content */}
-      <div className={`relative z-10 flex-1 h-full overflow-y-auto ${fullWidthRight ? '' : 'px-6 md:px-10 lg:px-16'}`}>
-        <div className={`w-full min-h-full flex items-center ${fullWidthRight ? '' : 'max-w-md mx-auto justify-center py-8'}`}>
+      <div className={`relative z-10 flex-1 flex items-center justify-center h-full ${fullWidthRight ? '' : 'px-6 md:px-10 lg:px-16'}`}>
+        <div className={`w-full h-full flex items-center ${fullWidthRight ? '' : 'max-w-md justify-center'}`}>
           {children}
         </div>
       </div>

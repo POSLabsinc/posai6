@@ -35,6 +35,7 @@ import registerIcon from "@/assets/icons/register.svg";
 import discountBtnIcon from "@/assets/icons/discount-icon.svg";
 import linkMergeIcon from "@/assets/icons/link-merge.png";
 import { useSessionOrders, SplitConfiguration, SplitCheck, SessionOrder } from "@/contexts/SessionOrderContext";
+import { useTicketOrders } from "@/hooks/use-ticket-orders";
 
 // Helper component for multi-payment display (matching TableOrderDetails)
 const MultiPaymentDisplay = ({ paymentMethods, paymentType }: { paymentMethods?: PaymentMethod[], paymentType: string }) => {

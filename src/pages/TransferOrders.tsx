@@ -82,6 +82,8 @@ type TransferStep = "select-items" | "select-target" | "confirm-direction" | "se
 const TransferOrders = () => {
   const navigate = useNavigate();
   const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
+  const { tables: dbTables } = useRestaurantTables();
+  const allTables = dbTables.map(t => ({ id: t.id, seats: t.seats, status: t.status, time: t.time }));
   const {
     tableId
   } = useParams();

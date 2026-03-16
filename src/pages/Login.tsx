@@ -5422,6 +5422,28 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     </button>
                   </div>
 
+                  <AnimatePresence>
+                    {showVerificationEmailKeyboard && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -8 }}
+                      >
+                        <InlineIOSKeyboard
+                          mode="email"
+                          onKeyPress={(key) => {
+                            setVerificationEmail((prev) => `${prev}${key}`.slice(0, 80));
+                            setIdentityError("");
+                          }}
+                          onDelete={() => {
+                            setVerificationEmail((prev) => prev.slice(0, -1));
+                            setIdentityError("");
+                          }}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   {/* Error Message */}
                   <AnimatePresence>
                     {identityError && (

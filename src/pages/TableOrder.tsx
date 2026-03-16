@@ -1217,8 +1217,33 @@ const TableOrder = () => {
   
   // Customization state
   const [isCustomizeMode, setIsCustomizeMode] = useState(false);
-  const [floorAreas, setFloorAreas] = useState<FloorArea[]>(loadSavedFloorAreas);
-  const [dividers, setDividers] = useState<DividerType[]>(loadSavedDividers);
+  const [floorAreas, setFloorAreas] = useState<FloorArea[]>([]);
+  const [dividers, setDividers] = useState<DividerType[]>([]);
+  
+  // Sync DB floor areas and dividers into local state
+  useEffect(() => {
+    if (dbFloorAreas.length > 0) {
+      setFloorAreas(dbFloorAreas.map(a => ({
+        id: a.id,
+        name: a.name,
+        color: a.color,
+        bgColor: a.bgColor,
+        x: a.x,
+        y: a.y,
+        anchor: a.anchor as FloorArea['anchor'],
+      })));
+    }
+  }, [dbFloorAreas]);
+  
+  useEffect(() => {
+    if (dbDividers.length > 0) {
+      setDividers(dbDividers.map(d => ({
+        id: d.id,
+        orientation: d.orientation,
+        position: d.position,
+      })));
+    }
+  }, [dbDividers]);
   const [showManageAreasDialog, setShowManageAreasDialog] = useState(false);
   const [editingArea, setEditingArea] = useState<FloorArea | null>(null);
   const [newAreaName, setNewAreaName] = useState("");

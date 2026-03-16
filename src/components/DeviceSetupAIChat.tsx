@@ -960,6 +960,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           onChange={(e) => handleInviteCodeInput(i, e.target.value)}
                           onKeyDown={(e) => handleInviteCodeKeyDown(i, e)}
                           onPaste={i === 0 ? handleInviteCodePaste : undefined}
+                          onFocus={() => setShowKeyboard(true)}
                           className="w-12 h-14 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-xl font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         />
                       ))}

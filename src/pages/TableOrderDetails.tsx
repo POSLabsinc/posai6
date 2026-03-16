@@ -386,7 +386,7 @@ const TableOrderDetails = () => {
   }, [tableId]);
 
   // Get orders for this table from DB (unified context)
-  const tableOrders = useMemo(() => allDbOrders.filter(o => o.table === (tableId || "T2") && !o.sessionId), [allDbOrders, tableId]);
+  const tableOrders = useMemo(() => allDbOrders.filter(o => o.table === (tableId || "T2")), [allDbOrders, tableId]);
   
   // Get persisted transfers that target specific existing orders
   const persistedTransfersForExistingOrders = persistedTransfers.filter(t => t.targetOrderId);

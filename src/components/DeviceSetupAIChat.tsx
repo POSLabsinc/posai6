@@ -1437,7 +1437,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div
                           key={i}
-                          className={`w-11 h-13 rounded-xl border-2 flex items-center justify-center text-xl font-semibold transition-all ${
+                          className={`w-11 h-12 rounded-xl border-2 flex items-center justify-center text-xl font-semibold transition-all ${
                             demoOtp[i]
                               ? "border-amber-500/40 bg-amber-500/5 text-foreground"
                               : i === demoOtp.length

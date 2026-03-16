@@ -5056,6 +5056,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     type="email"
                     placeholder="Enter Your Email"
                     value={forgotPasswordEmail}
+                    onFocus={() => setForgotPasswordKeyboardField("email")}
                     onChange={(e) => {
                       setForgotPasswordEmail(e.target.value);
                       setForgotPasswordError("");

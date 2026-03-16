@@ -670,10 +670,26 @@ const TableOrderDetails = () => {
     return discountType.fixedAmount || (currentSelectedGuest.subtotal * ((discountType.percentage || 0) / 100));
   }, [selectedDiscountId, currentSelectedGuest]);
 
-  // Reset refund mode when selected guest changes
+  // Reset refund mode and sync notes/seats when selected guest changes
   useEffect(() => {
     setShowRefundMode(false);
-  }, [selectedGuest?.id]);
+    // Sync order notes from DB
+    setOrderNotes(currentSelectedGuest?.notes || "");
+    // Sync seats from party size
+    const size = currentSelectedGuest?.partySize || 4;
+    setSelectedSeats(Array.from({ length: size }, (_, i) => i + 1));
+  }, [currentSelectedGuest?.id]);
+
+  // Debounced persist of order notes to DB
+  const handleOrderNotesChange = (value: string) => {
+    setOrderNotes(value);
+    if (orderNotesTimerRef.current) clearTimeout(orderNotesTimerRef.current);
+    orderNotesTimerRef.current = setTimeout(() => {
+      if (currentSelectedGuest?.id) {
+        updateOrder(currentSelectedGuest.id, { notes: value });
+      }
+    }, 800);
+  };
 
   // Swipe state for mobile cards
   const [swipeStates, setSwipeStates] = useState<Record<string, number>>({});

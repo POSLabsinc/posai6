@@ -624,6 +624,7 @@ const TableOrderDetails = () => {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [orderNotes, setOrderNotes] = useState("");
+  const orderNotesTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>(['all']);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);

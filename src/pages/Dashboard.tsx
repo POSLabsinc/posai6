@@ -1949,17 +1949,18 @@ const Dashboard = () => {
         onRefundComplete={async (amount, reason) => {
           if (selectedOrder?.id) {
             try {
-              const order = dbTicketOrders.find(o => o.id === selectedOrder.id);
+              const orderId = String(selectedOrder.id);
+              const order = dbTicketOrders.find(o => o.id === orderId);
               const existingRefundAmount = order?.refundAmount || 0;
               const existingTransactions = order?.refundTransactions || [];
               const newTransaction = {
-                id: `refund-${selectedOrder.id}-${Date.now()}`,
+                id: `refund-${orderId}-${Date.now()}`,
                 amount,
                 reason,
                 type: 'refund',
                 timestamp: new Date().toISOString(),
               };
-              await updateDashboardTicketOrder(selectedOrder.id, {
+              await updateDashboardTicketOrder(orderId, {
                 refundAmount: existingRefundAmount + amount,
                 refundReason: reason,
                 refundTransactions: [...existingTransactions, newTransaction],

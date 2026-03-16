@@ -94,6 +94,9 @@ export interface UnifiedTicketOrder {
   transferredFrom?: any;
   sessionId?: string;
   splitConfiguration?: any;
+  refundAmount?: number;
+  refundReason?: string;
+  refundTransactions?: any[];
   createdAt?: string;
   updatedAt?: string;
   // extra fields for Tickets.tsx compatibility

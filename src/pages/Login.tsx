@@ -1386,23 +1386,20 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       ))}
                     </div>
 
-                    {/* Hidden input for OTP */}
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={6}
-                      value={demoOtp}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "").slice(0, 6);
-                        setDemoOtp(val);
-                        setDemoOtpError("");
-                      }}
-                      className="sr-only"
-                      autoFocus
-                      id="demo-otp-input"
-                    />
-                    {/* Clickable area to focus the hidden input */}
-                    <label htmlFor="demo-otp-input" className="block w-full cursor-text" />
+                    <div className="w-full max-w-[280px] mx-auto">
+                      <NumericKeypad
+                        onKeyPress={(key) => {
+                          if (demoOtp.length >= 6) return;
+                          setDemoOtp((prev) => `${prev}${key}`.slice(0, 6));
+                          setDemoOtpError("");
+                        }}
+                        onDelete={() => {
+                          setDemoOtp((prev) => prev.slice(0, -1));
+                          setDemoOtpError("");
+                        }}
+                        variant="dark"
+                      />
+                    </div>
 
                     {demoOtpError && (
                       <motion.div
@@ -2716,6 +2713,26 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       }`}
                     />
                   ))}
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.28 }}
+                  className="w-full max-w-[280px] mx-auto mb-4"
+                >
+                  <NumericKeypad
+                    onKeyPress={(key) => {
+                      if (resetOtp.length >= 4) return;
+                      setResetOtp((prev) => `${prev}${key}`.slice(0, 4));
+                      setResetOtpError("");
+                    }}
+                    onDelete={() => {
+                      setResetOtp((prev) => prev.slice(0, -1));
+                      setResetOtpError("");
+                    }}
+                    variant="dark"
+                  />
                 </motion.div>
 
                 {/* Timer */}
@@ -4776,6 +4793,26 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       }`}
                     />
                   ))}
+                </motion.div>
+
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.28 }}
+                  className="w-full max-w-[280px] mx-auto mb-4"
+                >
+                  <NumericKeypad
+                    onKeyPress={(key) => {
+                      if (resetOtp.length >= 4) return;
+                      setResetOtp((prev) => `${prev}${key}`.slice(0, 4));
+                      setResetOtpError("");
+                    }}
+                    onDelete={() => {
+                      setResetOtp((prev) => prev.slice(0, -1));
+                      setResetOtpError("");
+                    }}
+                    variant="dark"
+                  />
                 </motion.div>
 
                 {/* Timer */}

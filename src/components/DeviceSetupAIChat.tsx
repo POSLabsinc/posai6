@@ -947,7 +947,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     className="pl-7 pt-3 pb-2 space-y-4"
                   >
-                    <div className="flex gap-2 justify-start">
+                    <div className="flex gap-2 justify-center">
                       {inviteCode.map((digit, i) => (
                         <input
                           key={i}
@@ -959,7 +959,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           onChange={(e) => handleInviteCodeInput(i, e.target.value)}
                           onKeyDown={(e) => handleInviteCodeKeyDown(i, e)}
                           onPaste={i === 0 ? handleInviteCodePaste : undefined}
-                          className="w-10 h-12 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-lg font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                          className="w-12 h-14 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-xl font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         />
                       ))}
                     </div>

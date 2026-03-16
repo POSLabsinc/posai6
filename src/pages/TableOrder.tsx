@@ -1847,13 +1847,21 @@ const TableOrder = () => {
   };
 
   const handleLoadDefaultLayout = () => {
-    setTablePositions(defaultTables);
-    setFloorAreas(defaultFloorAreas);
-    setDividers(defaultDividers);
+    // Re-sync all from DB
+    if (dbTables.length > 0) {
+      setTablePositions(dbTables.map(t => ({
+        id: t.id, seats: t.seats, shape: t.shape, status: t.status,
+        x: t.x, y: t.y, guests: t.guests, occupiedSeats: t.occupiedSeats,
+        time: t.time, mergedWith: t.mergedWith, isMergeSource: t.isMergeSource, mergeGroupId: t.mergeGroupId,
+      })));
+    }
+    if (dbFloorAreas.length > 0) {
+      setFloorAreas(dbFloorAreas.map(a => ({ id: a.id, name: a.name, color: a.color, bgColor: a.bgColor, x: a.x, y: a.y, anchor: a.anchor as FloorArea['anchor'] })));
+    }
+    if (dbDividers.length > 0) {
+      setDividers(dbDividers.map(d => ({ id: d.id, orientation: d.orientation, position: d.position })));
+    }
     setActiveTemplateId(null);
-    localStorage.setItem('floorplan-tablePositions', JSON.stringify(defaultTables));
-    localStorage.setItem('floorplan-areas', JSON.stringify(defaultFloorAreas));
-    localStorage.setItem('floorplan-dividers', JSON.stringify(defaultDividers));
     toast.success("Loaded default layout");
   };
 

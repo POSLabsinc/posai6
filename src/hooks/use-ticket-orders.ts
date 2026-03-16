@@ -202,6 +202,9 @@ function unifiedToRow(order: Partial<UnifiedTicketOrder>): Record<string, any> {
   if (order.transferredFrom !== undefined) row.transferred_from = order.transferredFrom;
   if (order.sessionId !== undefined) row.session_id = order.sessionId;
   if (order.splitConfiguration !== undefined) row.split_configuration = order.splitConfiguration;
+  if (order.refundAmount !== undefined) row.refund_amount = order.refundAmount;
+  if (order.refundReason !== undefined) row.refund_reason = order.refundReason;
+  if (order.refundTransactions !== undefined) row.refund_transactions = order.refundTransactions;
   return row;
 }
 

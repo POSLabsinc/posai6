@@ -1795,6 +1795,32 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       }]);
     }
     
+    // Persist refund data to database
+    try {
+      const refundAmount = getRefundDisplayAmount();
+      const existingRefundAmount = selectedGuest.refundAmount || 0;
+      const existingTransactions = selectedGuest.refundTransactions || [];
+      const reasonLabel = refundReason?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Other';
+      
+      const newTransaction = {
+        id: `refund-${orderId}-${Date.now()}`,
+        amount: refundAmount,
+        reason: reasonLabel,
+        type: originalRefundType === 'full-refund' ? 'full' : originalRefundType === 'tip-refund' ? 'tip' : originalRefundType === 'custom-refund' ? 'custom' : 'partial',
+        paymentMethod: selectedGuest.paymentMethods?.[0]?.label || selectedGuest.paymentType || 'Credit Card',
+        paymentType: selectedGuest.paymentMethods?.[0]?.type || 'credit_card',
+        timestamp: new Date().toISOString(),
+      };
+      
+      await updateTicketOrder(orderId, {
+        refundAmount: existingRefundAmount + refundAmount,
+        refundReason: reasonLabel,
+        refundTransactions: [...existingTransactions, newTransaction],
+      });
+    } catch (err) {
+      console.error('Failed to persist refund to database:', err);
+    }
+    
     // Reset originalRefundType after processing
     setOriginalRefundType(null);
     

@@ -1946,8 +1946,28 @@ const Dashboard = () => {
           qty: item.qty,
           modifiers: []
         }))}
-        onRefundComplete={(amount, reason) => {
-          console.log("Refund completed:", amount, reason);
+        onRefundComplete={async (amount, reason) => {
+          if (selectedOrder?.id) {
+            try {
+              const order = dbTicketOrders.find(o => o.id === selectedOrder.id);
+              const existingRefundAmount = order?.refundAmount || 0;
+              const existingTransactions = order?.refundTransactions || [];
+              const newTransaction = {
+                id: `refund-${selectedOrder.id}-${Date.now()}`,
+                amount,
+                reason,
+                type: 'refund',
+                timestamp: new Date().toISOString(),
+              };
+              await updateDashboardTicketOrder(selectedOrder.id, {
+                refundAmount: existingRefundAmount + amount,
+                refundReason: reason,
+                refundTransactions: [...existingTransactions, newTransaction],
+              });
+            } catch (err) {
+              console.error('Failed to persist refund:', err);
+            }
+          }
         }}
       />
     </div>

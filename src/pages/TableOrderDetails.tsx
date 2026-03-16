@@ -225,7 +225,7 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const TableOrderDetails = () => {
   const navigate = useNavigate();
-  const { orders: unifiedOrders, updateOrders: updateUnifiedOrders, getOrdersByTable: getUnifiedOrdersByTable, getOrderById: getUnifiedOrderById } = useUnifiedOrders();
+  const { orders: unifiedOrders, updateOrders: updateUnifiedOrders, updateOrder, getOrdersByTable: getUnifiedOrdersByTable, getOrderById: getUnifiedOrderById } = useUnifiedOrders();
   const { orders: dbTicketOrders } = useTicketOrders();
   
   // All DB orders as Order-compatible shape for lookups

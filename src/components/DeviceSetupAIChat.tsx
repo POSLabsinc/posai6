@@ -598,6 +598,28 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
     }
   }, [inviteCode]);
 
+  const handleInviteKeypadPress = useCallback((key: string) => {
+    const nextIndex = inviteCode.findIndex((digit) => digit === "");
+    if (nextIndex === -1) return;
+    handleInviteCodeInput(nextIndex, key);
+  }, [inviteCode, handleInviteCodeInput]);
+
+  const handleInviteKeypadDelete = useCallback(() => {
+    let lastFilledIndex = -1;
+    for (let i = inviteCode.length - 1; i >= 0; i--) {
+      if (inviteCode[i]) {
+        lastFilledIndex = i;
+        break;
+      }
+    }
+    if (lastFilledIndex === -1) return;
+
+    const newCode = [...inviteCode];
+    newCode[lastFilledIndex] = "";
+    setInviteCode(newCode);
+    inviteCodeRefs.current[lastFilledIndex]?.focus();
+  }, [inviteCode]);
+
   // Handle invite code verification → show profile + ask email
   useEffect(() => {
     if (currentStep === "personal-invite-verifying") {

@@ -1433,11 +1433,11 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     className="pl-7 pt-3 pb-2 space-y-3"
                   >
-                    <div className="flex gap-2 justify-start">
+                    <div className="flex gap-2 justify-center">
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div
                           key={i}
-                          className={`w-9 h-11 rounded-xl border-2 flex items-center justify-center text-lg font-semibold transition-all ${
+                          className={`w-11 h-13 rounded-xl border-2 flex items-center justify-center text-xl font-semibold transition-all ${
                             demoOtp[i]
                               ? "border-amber-500/40 bg-amber-500/5 text-foreground"
                               : i === demoOtp.length

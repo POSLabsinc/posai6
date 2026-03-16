@@ -435,7 +435,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const navigate = useNavigate();
 
   // Fetch all orders from database
-  const { orders: dbTicketOrders, isLoading: isLoadingOrders } = useTicketOrders();
+  const { orders: dbTicketOrders, isLoading: isLoadingOrders, updateOrder: updateTicketOrder } = useTicketOrders();
 
   // Convert DB orders to GuestOrder shape for this component
   const allOrders: GuestOrder[] = dbTicketOrders.map(o => ({

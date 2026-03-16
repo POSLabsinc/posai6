@@ -1,78 +1,58 @@
-# Database-Connected Orders System - Migration Complete
 
-## What Was Done
 
-### Phase 1: Database Tables ✅
-- Created `ticket_orders` table with all fields (name, phone, party_size, status, table_id, financials, transfer_info, split_configuration, etc.)
-- Created `ticket_order_items` table with FK to ticket_orders (qty, name, price, seats, modifiers, is_shared, is_fired, no_tax)
-- Added indexes on table_id, status, session_id, order_id
-- Added updated_at trigger
-- Enabled RLS with public access policies
-- Enabled Realtime on both tables
+# Fix MergeOrders Page — Replace Hardcoded Data with Database Records
 
-### Phase 2: Seed Data ✅
-- Inserted all 15 ticket orders from `ticketOrders.ts` with deterministic UUIDs
-- Inserted 8 unique orders from `orders.ts` (different tables/guests)
-- Inserted all line items for all 23 orders into `ticket_order_items`
-- Set multi-payment data for David Chen order
+## Problem
+The `MergeOrders.tsx` page is entirely hardcoded. It imports `allOrders` from `src/data/orders.ts` (static mock data) instead of reading from the database. This means:
+- The order list shows fake static orders, not real DB orders
+- Selecting and confirming a merge operates on stale/wrong data
+- The merge confirmation just navigates with query params — no actual DB merge happens
 
-### Phase 3: `useTicketOrders` Hook ✅
-- Created `src/hooks/use-ticket-orders.ts`
-- React Query-based with realtime subscription
-- Fetches `ticket_orders` + `ticket_order_items` and joins them
-- Provides CRUD: addOrder, updateOrder, updateOrderItems, removeOrder
-- Helpers: getOrdersByTable, getOrderById, getOrdersByStatus
-- Converts DB rows to `UnifiedTicketOrder` shape compatible with all consumers
+## What Needs to Change
 
-### Phase 4: `UnifiedOrderContext` Refactored ✅
-- Removed localStorage (`pos-unified-orders`) dependency
-- Now delegates all reads/writes to `useTicketOrders` hook
-- Maintains same API surface for backward compatibility
-- Transfer sync is now a no-op (handled via direct DB mutations)
+### 1. Replace static imports with DB hooks
+- Remove: `import { Order, allOrders, getOrderById, calculateOrderTotals, getOrderAmount, toOrderTemplateData } from "@/data/orders"`
+- Add: `useUnifiedOrders()` from `UnifiedOrderContext` (already used by TransferOrders and TableOrderDetails)
+- Use `orders` from the context as the data source instead of `allOrders`
 
-### Phase 5: `SessionOrderContext` Refactored ✅
-- Removed localStorage (`pos-session-orders`) dependency
-- `createOrder()` inserts into `ticket_orders` with `session_id`
-- `updateOrderItems()` writes to `ticket_order_items`
-- Split configurations stored in `split_configuration` jsonb column
-- KDS queue still uses localStorage (browser-local by design)
+### 2. Adapt order shape references
+The static `Order` type uses `id` as short strings like `"1"`, `"2"`. DB orders use UUIDs. The component displays `order.id` in the order number box — this needs to use `order.orderNumber` (sequential number) instead, and fall back gracefully.
 
-### Phase 6: Tickets.tsx Updated ✅
-- Removed 275-line hardcoded `allOrders` array
-- Now fetches from DB via `useTicketOrders` hook
-- Auto-selects first order when data loads
-- Transfer helpers derived from live DB data
+Key field mappings (already handled by `UnifiedOrderContext.toTicketOrder`):
+- `id` → UUID string
+- `orderNumber` → sequential display number
+- `table` → `"T2"` format (same)
+- `items`, `status`, `name`, `server`, etc. → same field names
 
-### Phase 7: TableOrderDetails.tsx Fully DB-Connected ✅
-- Replaced static `getOrdersByTable()` / `allOrders` from `src/data/orders.ts` with `useUnifiedOrders()` DB context
-- All order fields (name, server, status, party size, time, total, tip, revenue center, payment status, items) now come from `ticket_orders` DB table
-- Replaced `getAvailableTicketOrdersForTransfer()` / `ticketOrders.find()` with `useTicketOrders()` DB hook
-- Replaced hardcoded `discountTypes` array with live fetch from `discounts` DB table (with fallback defaults)
-- Merged panel data (`getMergedPanelData`) now uses DB orders
-- Transfer-to-order dialog uses DB-backed order list
+### 3. Wire up the actual merge operation on confirm
+Currently `handleFinalConfirm` just navigates with query params. The merge should:
+- Move all items from the source order into the destination order (via `updateOrderItems`)
+- Mark the source order with `merged_from` metadata or delete it
+- Update the destination order's `merged_from` column with source info
+- Then navigate back to the table view
 
-### Phase 8: Restaurant Tables DB-Backed (Floor Plan) ✅
-- Created `restaurant_tables` table (table_number, seats, shape, status, x, y, guests, occupied_seats, time, merge fields, floor_area, sort_order, merchant_id)
-- Created `floor_areas` table (name, color, bg_color, x, y, anchor, sort_order)
-- Created `floor_dividers` table (orientation, position)
-- Seeded 12 default tables, 4 floor areas, 2 dividers
-- Enabled Realtime on `restaurant_tables`
-- Created `src/hooks/use-restaurant-tables.ts` hook with CRUD mutations and realtime sync
-- Refactored `TableOrder.tsx`: removed hardcoded `defaultTables`, `defaultFloorAreas`, `defaultDividers`, `loadSavedPositions`, `loadSavedFloorAreas`, `loadSavedDividers`; now initializes from DB with local state for fast drag interactions; guest seating and seat changes persist to DB
-- Refactored `Dashboard.tsx`: replaced `mockTables` with `useRestaurantTables` hook
-- Refactored `TransferOrders.tsx`: replaced `defaultTables` with `useRestaurantTables` hook
+### 4. Update helper functions
+- Replace `getOrderAmount(order)` with inline total calculation using `calculateOrderTotals` from `orderUtils`
+- Replace `toOrderTemplateData(order)` calls with equivalent using DB order fields
+- Replace `calculateOrderTotals(order.items, order.tipAmount || 0)` with the shared utility
 
-### Data Flow Summary (Updated)
-```
-restaurant_tables (DB) ──── useRestaurantTables hook
-floor_areas (DB) ───────┘        │
-floor_dividers (DB) ────┘        ├── TableOrder.tsx (floor plan, all views)
-                                 ├── Dashboard.tsx (table cards)
-                                 └── TransferOrders.tsx (table selection grid)
-```
+## Implementation Steps
 
-### Remaining (Future Phases)
-- Dashboard.tsx still imports from `src/data/orders.ts` static array for order data
-- Remove static arrays from `src/data/orders.ts` and `src/data/ticketOrders.ts` once all consumers migrated
-- Templates still use localStorage (acceptable for now)
-- Split configurations and transfer records in localStorage can be migrated to DB columns
+1. **Update imports** — Swap `src/data/orders` imports for `useUnifiedOrders` + `useTicketOrders` hooks and shared utilities from `orderUtils`
+
+2. **Replace `allOrders` references** — Use `orders` from `useUnifiedOrders()` throughout the component (~15 references)
+
+3. **Fix order display fields** — Use `orderNumber` for display, UUID `id` for logic. Update `OrderCard`, `DesktopCurrentOrderCard`, `DesktopOrderListCard` components
+
+4. **Implement real merge logic in `handleFinalConfirm`**:
+   - Combine items from source into destination order via `updateOrderItems`
+   - Save `merged_from` metadata on destination order via `updateOrder`
+   - Delete or mark source order
+   - Navigate back to table view
+
+5. **Fix `getOrderAmount`** — Use `formatPrice(order.total)` or recalculate from items using shared utility
+
+6. **Fix `toOrderTemplateData`** — Map DB order fields to the template format inline or create a local adapter
+
+This is a single-file change to `src/pages/MergeOrders.tsx` with no schema modifications needed (the `merged_from` column already exists on `ticket_orders`).
+

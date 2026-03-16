@@ -9614,6 +9614,25 @@ const Orders = () => {
       }).map((v, idx) => ({ ...v, index: idx }))}
       onPaymentComplete={(history) => {
         console.log("Payment completed:", history);
+
+        // Persist payment to database
+        const dbId = quickOrderDbId || existingOrderId || sessionIdFromParams;
+        if (dbId) {
+          const totalPaid = history.reduce((sum: number, p: any) => sum + (p.amount || 0), 0);
+          const paymentsArray = history.map((p: any) => ({
+            method: p.methodLabel || p.method || 'Card',
+            amount: p.amount || 0,
+          }));
+          updateTicketOrder(dbId, {
+            status: 'PAID',
+            paymentType: paymentsArray[0]?.method || 'Card',
+            payments: paymentsArray,
+            paidAmount: totalPaid.toFixed(2),
+            paymentStatus: 'completed',
+            tip: history.reduce((sum: number, p: any) => sum + (p.tipAmount || 0), 0),
+          }).catch(console.error);
+        }
+
         const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();
         if (checkoutSettings.printReceipt) {
           toast.success("Receipt sent to printer");

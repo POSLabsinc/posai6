@@ -169,6 +169,11 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
     }
   }, [open]);
 
+  // Reset keyboard visibility when step changes
+  useEffect(() => {
+    setShowKeyboard(false);
+  }, [currentStep]);
+
   // Demo OTP resend cooldown
   useEffect(() => {
     if (demoResendCooldown > 0) {

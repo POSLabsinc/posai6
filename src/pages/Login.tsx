@@ -5561,19 +5561,31 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       inputMode="numeric"
                       placeholder="000000"
                       value={deviceCode}
-                      onChange={(e) => {
-                        // Remove non-numeric characters
-                        const rawValue = e.target.value.replace(/[^0-9]/g, '').slice(0, 6);
-                        setDeviceCode(rawValue);
-                        setCodeError("");
-                        setShowRequestAccess(false);
-                      }}
-                      className={`h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
+                      readOnly
+                      className={`h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] cursor-pointer ${
                         codeError ? "border-destructive" : ""
                       }`}
                       maxLength={6}
                     />
                   </div>
+
+                  <div className="w-full max-w-[280px] mx-auto">
+                    <NumericKeypad
+                      onKeyPress={(key) => {
+                        if (deviceCode.length >= 6) return;
+                        setDeviceCode((prev) => `${prev}${key}`.slice(0, 6));
+                        setCodeError("");
+                        setShowRequestAccess(false);
+                      }}
+                      onDelete={() => {
+                        setDeviceCode((prev) => prev.slice(0, -1));
+                        setCodeError("");
+                        setShowRequestAccess(false);
+                      }}
+                      variant="dark"
+                    />
+                  </div>
+
                   <Button
                     variant="outline"
                     onClick={startQRScanner}

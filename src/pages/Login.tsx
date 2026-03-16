@@ -2280,10 +2280,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="email"
                       placeholder="you@restaurant.com"
                       value={magicLinkEmail}
-                      onChange={(e) => {
-                        setMagicLinkEmail(e.target.value);
-                        setActivationError("");
-                      }}
+                      onFocus={() => setActivationError("")}
+                      onClick={() => setActivationError("")}
+                      readOnly
                       className={`h-14 text-center text-base rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
                         activationError ? "border-destructive" : ""
                       }`}
@@ -2305,11 +2304,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="tel"
                       placeholder="(555) 555-5555"
                       value={formatPhoneNumber(magicLinkPhone)}
-                      onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                        setMagicLinkPhone(digits);
-                        setActivationError("");
-                      }}
+                      onFocus={() => setActivationError("")}
+                      onClick={() => setActivationError("")}
+                      readOnly
                       className={`h-14 text-center text-base flex-1 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
                         activationError ? "border-destructive" : ""
                       }`}
@@ -2936,10 +2933,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     placeholder="Enter Your Email"
                     value={forgotPasswordEmail}
                     onFocus={() => setForgotPasswordKeyboardField("email")}
-                    onChange={(e) => {
-                      setForgotPasswordEmail(e.target.value);
-                      setForgotPasswordError("");
-                    }}
+                    onClick={() => setForgotPasswordKeyboardField("email")}
+                    readOnly
                     className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
                   />
                 </div>
@@ -2964,11 +2959,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       placeholder="(XXX) XXX-XXXX"
                       value={formatPhoneDisplay(forgotPasswordPhone)}
                       onFocus={() => setForgotPasswordKeyboardField("phone")}
-                      onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                        setForgotPasswordPhone(digits);
-                        setForgotPasswordError("");
-                      }}
+                      onClick={() => setForgotPasswordKeyboardField("phone")}
+                      readOnly
                       className="h-12 flex-1 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
                     />
                   </div>
@@ -5058,10 +5050,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     placeholder="Enter Your Email"
                     value={forgotPasswordEmail}
                     onFocus={() => setForgotPasswordKeyboardField("email")}
-                    onChange={(e) => {
-                      setForgotPasswordEmail(e.target.value);
-                      setForgotPasswordError("");
-                    }}
+                    onClick={() => setForgotPasswordKeyboardField("email")}
+                    readOnly
                     className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
                   />
                 </div>
@@ -5086,11 +5076,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       placeholder="(XXX) XXX-XXXX"
                       value={formatPhoneDisplay(forgotPasswordPhone)}
                       onFocus={() => setForgotPasswordKeyboardField("phone")}
-                      onChange={(e) => {
-                        const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                        setForgotPasswordPhone(digits);
-                        setForgotPasswordError("");
-                      }}
+                      onClick={() => setForgotPasswordKeyboardField("phone")}
+                      readOnly
                       className="h-12 flex-1 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
                     />
                   </div>

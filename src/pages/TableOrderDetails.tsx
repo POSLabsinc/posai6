@@ -2140,7 +2140,7 @@ const TableOrderDetails = () => {
           </div>
           <div className="flex items-center gap-2 text-xs">
             <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
-            <span className="text-neutral-400">{currentSelectedGuest?.server || "DUSTIN H"}</span>
+            <span className="text-neutral-400">{currentSelectedGuest?.server || "Unassigned"}</span>
           </div>
         </div>
         

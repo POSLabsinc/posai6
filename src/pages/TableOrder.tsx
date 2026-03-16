@@ -1625,11 +1625,14 @@ const TableOrder = () => {
   
   const confirmSeatChange = () => {
     if (seatEditTable && tempSeats >= 2 && tempSeats <= 12) {
+      const newOccupied = tablePositions.find(t => t.id === seatEditTable)?.occupiedSeats.filter(s => s <= tempSeats) || [];
       setTablePositions(prev => prev.map(t => 
         t.id === seatEditTable 
-          ? { ...t, seats: tempSeats, occupiedSeats: t.occupiedSeats.filter(s => s <= tempSeats) }
+          ? { ...t, seats: tempSeats, occupiedSeats: newOccupied }
           : t
       ));
+      // Persist to DB
+      updateDbTable(seatEditTable, { seats: tempSeats, occupiedSeats: newOccupied });
       toast.success(`Table ${seatEditTable} updated to ${tempSeats} seats`);
       setSeatEditTable(null);
       setTableOptionsOpen(null);

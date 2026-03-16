@@ -5388,6 +5388,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type={showPassword ? "text" : "password"}
                       placeholder="Password"
                       value={loginPassword}
+                      onFocus={() => setShowVerificationEmailKeyboard(false)}
                       onChange={(e) => {
                         setLoginPassword(e.target.value);
                         setIdentityError("");

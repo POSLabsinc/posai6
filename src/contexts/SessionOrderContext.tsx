@@ -245,6 +245,7 @@ export function SessionOrderProvider({ children }: { children: ReactNode }) {
     <SessionOrderContext.Provider value={{
       sessionOrders,
       createOrder,
+      getActiveOrderForTable,
       updateOrderItems: updateOrderItemsFn,
       updateOrderStatus,
       fireOrder,

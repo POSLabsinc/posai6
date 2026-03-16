@@ -6045,6 +6045,8 @@ const Orders = () => {
   const navigate = useNavigate();
   const { panelLayout } = usePanelPosition();
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
+  const { addOrder: addTicketOrder, updateOrder: updateTicketOrder } = useTicketOrders();
+  const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
 
   // Fetch menus from database - only enabled & non-archived menus appear
   const { menuList, menuCategories } = useSupabaseMenus();

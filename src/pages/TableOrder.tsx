@@ -159,31 +159,7 @@ const canMerge = (table1: TableType, table2: TableType): { allowed: boolean; rea
   return { allowed: false, reason: "These tables cannot be merged" };
 };
 
-// Load saved positions from localStorage or use defaults
-const loadSavedPositions = (): TableType[] => {
-  try {
-    const saved = localStorage.getItem('floorplan-tablePositions');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return defaultTables.map(table => {
-        const savedTable = parsed.find((t: TableType) => t.id === table.id);
-        // Always use the default status from defaultTables (source of truth)
-        // Only restore position and merge data from localStorage
-        return savedTable ? { 
-          ...table, 
-          x: savedTable.x, 
-          y: savedTable.y,
-          mergedWith: savedTable.mergedWith || null,
-          isMergeSource: savedTable.isMergeSource || false,
-          mergeGroupId: savedTable.mergeGroupId || undefined,
-        } : table;
-      });
-    }
-  } catch (e) {
-    console.error('Error loading table positions:', e);
-  }
-  return defaultTables;
-};
+// loadSavedPositions removed - tables now come from DB via useRestaurantTables
 
 // Filter categories with counts
 const getFilterCounts = (tables: TableType[]) => {

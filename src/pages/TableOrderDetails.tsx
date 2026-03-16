@@ -2787,7 +2787,7 @@ const TableOrderDetails = () => {
             <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
               <img src={splitIcon} alt="Split" className="w-4 h-4" />
             </button>
-            {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
+            {Array.from({ length: currentSelectedGuest?.partySize || 4 }, (_, i) => i + 1).map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {seat}
               </button>)}
           </div>

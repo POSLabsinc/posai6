@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, ShieldCheck, AlertCircle, ScanLine, Lock, Eye, EyeOff, User, ShieldX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import InlineIOSKeyboard from "@/components/InlineIOSKeyboard";
 import ReactMarkdown from "react-markdown";
 import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";
 import { formatPhone } from "@/components/voucher/voucherHelpers";
@@ -1164,8 +1165,8 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       <input
                         type="email"
                         value={signInInput}
-                        onChange={(e) => setSignInInput(e.target.value)}
                         placeholder="name@company.com"
+                        readOnly
                         className="flex-1 px-4 py-2.5 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && signInInput.trim() && signInInput.includes("@")) {
@@ -1197,6 +1198,12 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         Send
                       </button>
                     </div>
+
+                    <InlineIOSKeyboard
+                      mode="email"
+                      onKeyPress={(key) => setSignInInput((prev) => `${prev}${key}`.slice(0, 80))}
+                      onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
+                    />
                   </motion.div>
                 )}
 
@@ -1206,7 +1213,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="pl-7 pt-3 pb-2 space-y-2"
+                    className="pl-7 pt-3 pb-2 space-y-3"
                   >
                     <div className="flex gap-2">
                       {/* Country code selector */}
@@ -1279,8 +1286,8 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         type="tel"
                         inputMode="numeric"
                         value={formatPhone(signInInput, selectedCountry.format)}
-                        onChange={(e) => setSignInInput(e.target.value.replace(/\D/g, "").slice(0, selectedCountry.phoneLength))}
                         placeholder={selectedCountry.placeholder}
+                        readOnly
                         className="flex-1 px-4 py-2.5 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && signInInput.length === selectedCountry.phoneLength) {
@@ -1312,6 +1319,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         Send
                       </button>
                     </div>
+
+                    <InlineIOSKeyboard
+                      mode="phone"
+                      onKeyPress={(key) =>
+                        setSignInInput((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, selectedCountry.phoneLength))
+                      }
+                      onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
+                    />
+
                     <p className="text-[11px] text-foreground/35 pl-0.5">{selectedCountry.hint}</p>
                   </motion.div>
                 )}

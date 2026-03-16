@@ -7106,9 +7106,47 @@ const Orders = () => {
       return;
     }
     if (!isSessionOrderMode || !sessionIdFromParams) {
-      // Not a session order, just toggle all items to fired
+      // Not a session order - create DB record and mark items as fired
       setOrderItems((prev) => prev.map((item) => ({ ...item, isFired: true })));
-      toast.success("Order items marked as fired!");
+
+      const quickTotal = subtotal - discount + serviceCharge + tax;
+      addTicketOrder({
+        name: guestName || 'Quick Order',
+        phone: guestPhone || '',
+        partySize: 1,
+        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        timer: '0:00',
+        server: '',
+        check: '',
+        paymentType: '',
+        revenueCenter: '',
+        status: 'ORDERED',
+        notes: orderNotes || '',
+        table: '',
+        orderType: orderType || 'DINE IN',
+        subtotal,
+        discount,
+        serviceCharge,
+        tax,
+        tip: 0,
+        total: quickTotal,
+        items: orderItems.map(item => ({
+          qty: item.qty,
+          name: item.name,
+          price: item.price,
+          seats: item.assignedSeats || [],
+          modifiers: item.modifiers || [],
+          isShared: false,
+          isFired: true,
+          noTax: item.noTax || false,
+        })),
+      }).then((data: any) => {
+        if (data?.id) {
+          setQuickOrderDbId(data.id);
+        }
+      }).catch(console.error);
+
+      toast.success("Order fired to kitchen!");
       return;
     }
 

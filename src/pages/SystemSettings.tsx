@@ -119,7 +119,7 @@ const SystemSettings = () => {
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">
           <SettingsOption
             icon={aiIntegrationIcon}
-            iconBgColor="#8B5CF6"
+            iconBgColor="#3B82F6"
             label="AI Integration & Settings"
             onClick={() => navigate('/settings/network/ai-integration')}
             showDivider={false}

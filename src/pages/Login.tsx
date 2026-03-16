@@ -3180,6 +3180,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     setShowForgotPassword(true);
                     setForgotPasswordEmail(adminEmail);
                     setForgotPasswordKeyboardField("email");
+                    setShowAdminEmailKeyboard(false);
                   }}
                   className="text-sm text-foreground/50 hover:text-foreground/70 transition-colors"
                 >

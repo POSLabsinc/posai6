@@ -1819,10 +1819,6 @@ const TableOrder = () => {
     setDividers(template.dividers);
     setActiveTemplateId(templateId);
     
-    localStorage.setItem('floorplan-tablePositions', JSON.stringify(template.tables));
-    localStorage.setItem('floorplan-areas', JSON.stringify(template.floorAreas));
-    localStorage.setItem('floorplan-dividers', JSON.stringify(template.dividers));
-    
     toast.success(`Loaded template "${template.name}"`);
   };
 

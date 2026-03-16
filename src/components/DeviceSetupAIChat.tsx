@@ -504,6 +504,28 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
     }
   }, [activationCode]);
 
+  const handleActivationKeypadPress = useCallback((key: string) => {
+    const nextIndex = activationCode.findIndex((digit) => digit === "");
+    if (nextIndex === -1) return;
+    handleCodeInput(nextIndex, key);
+  }, [activationCode, handleCodeInput]);
+
+  const handleActivationKeypadDelete = useCallback(() => {
+    let lastFilledIndex = -1;
+    for (let i = activationCode.length - 1; i >= 0; i--) {
+      if (activationCode[i]) {
+        lastFilledIndex = i;
+        break;
+      }
+    }
+    if (lastFilledIndex === -1) return;
+
+    const newCode = [...activationCode];
+    newCode[lastFilledIndex] = "";
+    setActivationCode(newCode);
+    codeInputRefs.current[lastFilledIndex]?.focus();
+  }, [activationCode]);
+
   // Handle activation code verification animation + redirect
   useEffect(() => {
     if (currentStep === "activate-code-verifying") {

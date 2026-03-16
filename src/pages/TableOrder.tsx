@@ -1646,7 +1646,19 @@ const TableOrder = () => {
     setGuestDropdownTable(null);
   };
 
-  const { createOrder } = useSessionOrders();
+  const { createOrder, getActiveOrderForTable, getOrdersByTable: getSessionOrdersByTable } = useSessionOrders();
+  const { orders: allDbOrders } = useTicketOrders();
+
+  // Check if table has any active (non-paid/non-completed) order
+  const hasActiveOrderOnTable = (tableId: string): boolean => {
+    const activeSession = getActiveOrderForTable(tableId);
+    if (activeSession) return true;
+    const activeDb = allDbOrders.find(o => 
+      o.table === tableId && 
+      !['PAID', 'COMPLETED', 'Completed'].includes(o.status)
+    );
+    return !!activeDb;
+  };
 
   const handleGuestSelect = (tableId: string, guestCount: number) => {
     console.log(`Selected ${guestCount} guests for table ${tableId}`);
@@ -1655,11 +1667,18 @@ const TableOrder = () => {
     const table = tablePositions.find((t) => t.id === tableId);
     const seats = table?.seats ?? guestCount;
 
+    // Block if table already has an active order
+    if (hasActiveOrderOnTable(tableId)) {
+      toast.info('This table already has an active order');
+      navigate(`/tableorder/${tableId}`);
+      return;
+    }
+
     // Create a new session order for this table
     const newOrder = createOrder(tableId, guestCount, 'Staff', 'Guest');
     console.log('Created session order:', newOrder);
 
-    // Navigate to orders page with table context (seats + guests for Order section)
+    // Navigate to orders page with table context
     navigate(`/orders?tableId=${tableId}&sessionId=${newOrder.sessionId}&partySize=${guestCount}&seats=${seats}&guests=${guestCount}`);
   };
   

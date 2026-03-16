@@ -1035,7 +1035,7 @@ const Dashboard = () => {
   const filteredTables = useMemo(() => {
     if (activeTableFilter === "All") return mockTables;
     return mockTables.filter(table => table.status === activeTableFilter);
-  }, [activeTableFilter]);
+  }, [activeTableFilter, mockTables]);
 
   // Calculate counts for each table filter
   const tableFilters = useMemo(() => {
@@ -1043,7 +1043,7 @@ const Dashboard = () => {
       label,
       count: label === "All" ? mockTables.length : mockTables.filter(table => table.status === label).length
     }));
-  }, []);
+  }, [mockTables]);
 
   const handleOrderClick = (order: DashboardOrder) => {
     setSelectedOrder(order);

@@ -1,0 +1,1 @@
+ALTER TABLE public.ticket_orders ADD COLUMN IF NOT EXISTS refund_amount numeric NOT NULL DEFAULT 0, ADD COLUMN IF NOT EXISTS refund_reason text, ADD COLUMN IF NOT EXISTS refund_transactions jsonb NOT NULL DEFAULT '[]'::jsonb;

@@ -3357,8 +3357,28 @@ const TableOrderDetails = () => {
             price: idx % 2 === 1 ? (idx + 1) * 1.5 : 0
           }))
         }))}
-        onRefundComplete={(amount, reason) => {
-          console.log("Refund completed:", amount, reason);
+        onRefundComplete={async (amount, reason) => {
+          if (currentSelectedGuest?.id) {
+            try {
+              const order = dbTicketOrders.find(o => o.id === currentSelectedGuest.id);
+              const existingRefundAmount = order?.refundAmount || 0;
+              const existingTransactions = order?.refundTransactions || [];
+              const newTransaction = {
+                id: `refund-${currentSelectedGuest.id}-${Date.now()}`,
+                amount,
+                reason,
+                type: 'refund',
+                timestamp: new Date().toISOString(),
+              };
+              await updateTicketOrder(currentSelectedGuest.id, {
+                refundAmount: existingRefundAmount + amount,
+                refundReason: reason,
+                refundTransactions: [...existingTransactions, newTransaction],
+              });
+            } catch (err) {
+              console.error('Failed to persist refund:', err);
+            }
+          }
           setShowRefundMode(false);
         }}
       />

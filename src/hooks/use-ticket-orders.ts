@@ -48,6 +48,9 @@ export interface TicketOrderRow {
   transferred_from: any | null;
   session_id: string | null;
   split_configuration: any | null;
+  refund_amount: number;
+  refund_reason: string | null;
+  refund_transactions: any[];
   created_at: string;
   updated_at: string;
   items?: TicketOrderItemRow[];
@@ -94,6 +97,9 @@ export interface UnifiedTicketOrder {
   transferredFrom?: any;
   sessionId?: string;
   splitConfiguration?: any;
+  refundAmount?: number;
+  refundReason?: string;
+  refundTransactions?: any[];
   createdAt?: string;
   updatedAt?: string;
   // extra fields for Tickets.tsx compatibility
@@ -149,6 +155,9 @@ function rowToUnified(row: TicketOrderRow): UnifiedTicketOrder {
     transferredFrom: row.transferred_from,
     sessionId: row.session_id || undefined,
     splitConfiguration: row.split_configuration,
+    refundAmount: Number(row.refund_amount || 0),
+    refundReason: row.refund_reason || undefined,
+    refundTransactions: Array.isArray(row.refund_transactions) ? row.refund_transactions : [],
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     paid: isPaid,
@@ -196,6 +205,9 @@ function unifiedToRow(order: Partial<UnifiedTicketOrder>): Record<string, any> {
   if (order.transferredFrom !== undefined) row.transferred_from = order.transferredFrom;
   if (order.sessionId !== undefined) row.session_id = order.sessionId;
   if (order.splitConfiguration !== undefined) row.split_configuration = order.splitConfiguration;
+  if (order.refundAmount !== undefined) row.refund_amount = order.refundAmount;
+  if (order.refundReason !== undefined) row.refund_reason = order.refundReason;
+  if (order.refundTransactions !== undefined) row.refund_transactions = order.refundTransactions;
   return row;
 }
 

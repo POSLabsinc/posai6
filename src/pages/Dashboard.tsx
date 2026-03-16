@@ -813,7 +813,7 @@ const Dashboard = () => {
   
   // Get session orders context
   const { sessionOrders } = useSessionOrders();
-  const { updateOrder: updateDashboardTicketOrder } = useTicketOrders();
+  const { orders: dbTicketOrders, updateOrder: updateDashboardTicketOrder } = useTicketOrders();
   
   // Static split configs for non-session orders (persisted in localStorage)
   const [staticSplitConfigs, setStaticSplitConfigs] = useState<Record<string, SplitConfiguration>>(() => {
@@ -1946,8 +1946,29 @@ const Dashboard = () => {
           qty: item.qty,
           modifiers: []
         }))}
-        onRefundComplete={(amount, reason) => {
-          console.log("Refund completed:", amount, reason);
+        onRefundComplete={async (amount, reason) => {
+          if (selectedOrder?.id) {
+            try {
+              const orderId = String(selectedOrder.id);
+              const order = dbTicketOrders.find(o => o.id === orderId);
+              const existingRefundAmount = order?.refundAmount || 0;
+              const existingTransactions = order?.refundTransactions || [];
+              const newTransaction = {
+                id: `refund-${orderId}-${Date.now()}`,
+                amount,
+                reason,
+                type: 'refund',
+                timestamp: new Date().toISOString(),
+              };
+              await updateDashboardTicketOrder(orderId, {
+                refundAmount: existingRefundAmount + amount,
+                refundReason: reason,
+                refundTransactions: [...existingTransactions, newTransaction],
+              });
+            } catch (err) {
+              console.error('Failed to persist refund:', err);
+            }
+          }
         }}
       />
     </div>

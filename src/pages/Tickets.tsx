@@ -1527,7 +1527,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     }
   };
 
-  const handleConfirmRefund = () => {
+  const handleConfirmRefund = async () => {
     setShowRefundConfirmation(false);
     const orderId = selectedGuest.id;
     
@@ -1793,6 +1793,33 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         paymentType: paymentType as 'credit_card' | 'cash' | 'gift_card' | 'debit_card',
         timestamp: new Date()
       }]);
+    }
+    
+    // Persist refund data to database
+    try {
+      const refundAmount = getRefundDisplayAmount();
+      const dbOrder = dbTicketOrders.find(o => o.id === orderId);
+      const existingRefundAmount = dbOrder?.refundAmount || 0;
+      const existingTransactions = dbOrder?.refundTransactions || [];
+      const reasonLabel = refundReason?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Other';
+      
+      const newTransaction = {
+        id: `refund-${orderId}-${Date.now()}`,
+        amount: refundAmount,
+        reason: reasonLabel,
+        type: originalRefundType === 'full-refund' ? 'full' : originalRefundType === 'tip-refund' ? 'tip' : originalRefundType === 'custom-refund' ? 'custom' : 'partial',
+        paymentMethod: selectedGuest.paymentMethods?.[0]?.label || selectedGuest.paymentType || 'Credit Card',
+        paymentType: selectedGuest.paymentMethods?.[0]?.type || 'credit_card',
+        timestamp: new Date().toISOString(),
+      };
+      
+      await updateTicketOrder(orderId, {
+        refundAmount: existingRefundAmount + refundAmount,
+        refundReason: reasonLabel,
+        refundTransactions: [...existingTransactions, newTransaction],
+      });
+    } catch (err) {
+      console.error('Failed to persist refund to database:', err);
     }
     
     // Reset originalRefundType after processing

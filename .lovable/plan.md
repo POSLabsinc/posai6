@@ -1,62 +1,78 @@
+# Database-Connected Orders System - Migration Complete
 
+## What Was Done
 
-# Persist Refund Data to Database
+### Phase 1: Database Tables ✅
+- Created `ticket_orders` table with all fields (name, phone, party_size, status, table_id, financials, transfer_info, split_configuration, etc.)
+- Created `ticket_order_items` table with FK to ticket_orders (qty, name, price, seats, modifiers, is_shared, is_fired, no_tax)
+- Added indexes on table_id, status, session_id, order_id
+- Added updated_at trigger
+- Enabled RLS with public access policies
+- Enabled Realtime on both tables
 
-## Problem
-The refund flow exists in **three locations**, none of which persist to the database:
+### Phase 2: Seed Data ✅
+- Inserted all 15 ticket orders from `ticketOrders.ts` with deterministic UUIDs
+- Inserted 8 unique orders from `orders.ts` (different tables/guests)
+- Inserted all line items for all 23 orders into `ticket_order_items`
+- Set multi-payment data for David Chen order
 
-1. **Tickets.tsx** — Has the most comprehensive refund flow (full, partial, tip, custom, item-level, modifier-level refunds with split payment allocations). All refund records (`refundedItemRecords`, `refundedModifierRecords`, `refundedTipRecords`, `refundTransactionRecords`) are stored only in **React state** — lost on page refresh.
+### Phase 3: `useTicketOrders` Hook ✅
+- Created `src/hooks/use-ticket-orders.ts`
+- React Query-based with realtime subscription
+- Fetches `ticket_orders` + `ticket_order_items` and joins them
+- Provides CRUD: addOrder, updateOrder, updateOrderItems, removeOrder
+- Helpers: getOrdersByTable, getOrderById, getOrdersByStatus
+- Converts DB rows to `UnifiedTicketOrder` shape compatible with all consumers
 
-2. **TableOrderDetails.tsx** — Uses `RefundDialog` component. The `onRefundComplete` callback just does `console.log("Refund completed:", amount, reason)`.
+### Phase 4: `UnifiedOrderContext` Refactored ✅
+- Removed localStorage (`pos-unified-orders`) dependency
+- Now delegates all reads/writes to `useTicketOrders` hook
+- Maintains same API surface for backward compatibility
+- Transfer sync is now a no-op (handled via direct DB mutations)
 
-3. **Dashboard.tsx** — Same `RefundDialog` with `console.log("Refund completed:", amount, reason)`.
+### Phase 5: `SessionOrderContext` Refactored ✅
+- Removed localStorage (`pos-session-orders`) dependency
+- `createOrder()` inserts into `ticket_orders` with `session_id`
+- `updateOrderItems()` writes to `ticket_order_items`
+- Split configurations stored in `split_configuration` jsonb column
+- KDS queue still uses localStorage (browser-local by design)
 
-The `ticket_orders` table has **no refund columns** currently. The legacy `orders` table has a `refund_amount` column, but that's a separate reporting table.
+### Phase 6: Tickets.tsx Updated ✅
+- Removed 275-line hardcoded `allOrders` array
+- Now fetches from DB via `useTicketOrders` hook
+- Auto-selects first order when data loads
+- Transfer helpers derived from live DB data
 
-## Solution
+### Phase 7: TableOrderDetails.tsx Fully DB-Connected ✅
+- Replaced static `getOrdersByTable()` / `allOrders` from `src/data/orders.ts` with `useUnifiedOrders()` DB context
+- All order fields (name, server, status, party size, time, total, tip, revenue center, payment status, items) now come from `ticket_orders` DB table
+- Replaced `getAvailableTicketOrdersForTransfer()` / `ticketOrders.find()` with `useTicketOrders()` DB hook
+- Replaced hardcoded `discountTypes` array with live fetch from `discounts` DB table (with fallback defaults)
+- Merged panel data (`getMergedPanelData`) now uses DB orders
+- Transfer-to-order dialog uses DB-backed order list
 
-### Step 1: Add refund columns to `ticket_orders` table
-Add three new columns via migration:
-- `refund_amount` (numeric, default 0) — total cumulative refund amount
-- `refund_reason` (text, nullable) — reason for the last/primary refund
-- `refund_transactions` (jsonb, default '[]') — array of all refund transaction records with details (amount, payment method, reason, type, timestamp, items refunded)
+### Phase 8: Restaurant Tables DB-Backed (Floor Plan) ✅
+- Created `restaurant_tables` table (table_number, seats, shape, status, x, y, guests, occupied_seats, time, merge fields, floor_area, sort_order, merchant_id)
+- Created `floor_areas` table (name, color, bg_color, x, y, anchor, sort_order)
+- Created `floor_dividers` table (orientation, position)
+- Seeded 12 default tables, 4 floor areas, 2 dividers
+- Enabled Realtime on `restaurant_tables`
+- Created `src/hooks/use-restaurant-tables.ts` hook with CRUD mutations and realtime sync
+- Refactored `TableOrder.tsx`: removed hardcoded `defaultTables`, `defaultFloorAreas`, `defaultDividers`, `loadSavedPositions`, `loadSavedFloorAreas`, `loadSavedDividers`; now initializes from DB with local state for fast drag interactions; guest seating and seat changes persist to DB
+- Refactored `Dashboard.tsx`: replaced `mockTables` with `useRestaurantTables` hook
+- Refactored `TransferOrders.tsx`: replaced `defaultTables` with `useRestaurantTables` hook
 
-This single JSONB array captures the full history: each refund event is appended as an object with fields like `{ id, amount, reason, type, paymentMethod, items, timestamp }`.
-
-### Step 2: Update `use-ticket-orders.ts` hook
-- Add `refundAmount`, `refundReason`, `refundTransactions` to the `UnifiedTicketOrder` interface and the row-to-unified / unified-to-row mappers.
-
-### Step 3: Persist refunds in Tickets.tsx
-In the refund confirmation handler (~line 1758-1801), after recording the transaction in local state, also call `updateOrder()` to persist:
-- Append new transaction(s) to `refund_transactions` JSONB
-- Update cumulative `refund_amount`
-- Store `refund_reason`
-
-### Step 4: Persist refunds in TableOrderDetails.tsx
-Replace the `console.log` in `onRefundComplete` (~line 3360) with a `updateOrder()` call that persists the refund amount, reason, and a transaction record.
-
-### Step 5: Persist refunds in Dashboard.tsx
-Same pattern — replace `console.log` in `onRefundComplete` (~line 1949) with database persistence.
-
-## Data Shape
-Each entry in `refund_transactions` JSONB array:
-```json
-{
-  "id": "refund-uuid-timestamp",
-  "amount": 28.00,
-  "reason": "Customer Dissatisfaction",
-  "type": "partial",
-  "paymentMethod": "Credit Card",
-  "paymentType": "credit_card",
-  "items": [{"name": "Steak", "qty": 1, "amount": 28.00}],
-  "timestamp": "2026-03-16T..."
-}
+### Data Flow Summary (Updated)
+```
+restaurant_tables (DB) ──── useRestaurantTables hook
+floor_areas (DB) ───────┘        │
+floor_dividers (DB) ────┘        ├── TableOrder.tsx (floor plan, all views)
+                                 ├── Dashboard.tsx (table cards)
+                                 └── TransferOrders.tsx (table selection grid)
 ```
 
-## Files Changed
-- **Migration SQL** — Add 3 columns to `ticket_orders`
-- **`src/hooks/use-ticket-orders.ts`** — Map new fields
-- **`src/pages/Tickets.tsx`** — Persist after refund confirm
-- **`src/pages/TableOrderDetails.tsx`** — Persist in `onRefundComplete`
-- **`src/pages/Dashboard.tsx`** — Persist in `onRefundComplete`
-
+### Remaining (Future Phases)
+- Dashboard.tsx still imports from `src/data/orders.ts` static array for order data
+- Remove static arrays from `src/data/orders.ts` and `src/data/ticketOrders.ts` once all consumers migrated
+- Templates still use localStorage (acceptable for now)
+- Split configurations and transfer records in localStorage can be migrated to DB columns

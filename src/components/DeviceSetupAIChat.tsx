@@ -1483,20 +1483,22 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     />
                     <label htmlFor="" onClick={() => demoOtpRef.current?.focus()} className="block w-full cursor-text" />
 
-                    <InlineIOSKeyboard
-                      mode="phone"
-                      fullWidth
-                      size="large"
-                      onKeyPress={(key) => {
-                        if (demoOtp.length >= 6) return;
-                        setDemoOtp((prev) => `${prev}${key}`.slice(0, 6));
-                        setDemoOtpError("");
-                      }}
-                      onDelete={() => {
-                        setDemoOtp((prev) => prev.slice(0, -1));
-                        setDemoOtpError("");
-                      }}
-                    />
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="phone"
+                        fullWidth
+                        size="large"
+                        onKeyPress={(key) => {
+                          if (demoOtp.length >= 6) return;
+                          setDemoOtp((prev) => `${prev}${key}`.slice(0, 6));
+                          setDemoOtpError("");
+                        }}
+                        onDelete={() => {
+                          setDemoOtp((prev) => prev.slice(0, -1));
+                          setDemoOtpError("");
+                        }}
+                      />
+                    )}
 
                     {demoOtpError && (
                       <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">

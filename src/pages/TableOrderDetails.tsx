@@ -225,7 +225,7 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const TableOrderDetails = () => {
   const navigate = useNavigate();
-  const { orders: unifiedOrders, updateOrders: updateUnifiedOrders, getOrdersByTable: getUnifiedOrdersByTable, getOrderById: getUnifiedOrderById } = useUnifiedOrders();
+  const { orders: unifiedOrders, updateOrders: updateUnifiedOrders, updateOrder, getOrdersByTable: getUnifiedOrdersByTable, getOrderById: getUnifiedOrderById } = useUnifiedOrders();
   const { orders: dbTicketOrders } = useTicketOrders();
   
   // All DB orders as Order-compatible shape for lookups
@@ -620,10 +620,11 @@ const TableOrderDetails = () => {
   
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState<GuestOrder | null>(null);
-  const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [orderNotes, setOrderNotes] = useState("");
+  const orderNotesTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>(['all']);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -669,10 +670,26 @@ const TableOrderDetails = () => {
     return discountType.fixedAmount || (currentSelectedGuest.subtotal * ((discountType.percentage || 0) / 100));
   }, [selectedDiscountId, currentSelectedGuest]);
 
-  // Reset refund mode when selected guest changes
+  // Reset refund mode and sync notes/seats when selected guest changes
   useEffect(() => {
     setShowRefundMode(false);
-  }, [selectedGuest?.id]);
+    // Sync order notes from DB
+    setOrderNotes(currentSelectedGuest?.notes || "");
+    // Sync seats from party size
+    const size = currentSelectedGuest?.partySize || 4;
+    setSelectedSeats(Array.from({ length: size }, (_, i) => i + 1));
+  }, [currentSelectedGuest?.id]);
+
+  // Debounced persist of order notes to DB
+  const handleOrderNotesChange = (value: string) => {
+    setOrderNotes(value);
+    if (orderNotesTimerRef.current) clearTimeout(orderNotesTimerRef.current);
+    orderNotesTimerRef.current = setTimeout(() => {
+      if (currentSelectedGuest?.id) {
+        updateOrder(currentSelectedGuest.id, { notes: value });
+      }
+    }, 800);
+  };
 
   // Swipe state for mobile cards
   const [swipeStates, setSwipeStates] = useState<Record<string, number>>({});
@@ -1110,7 +1127,7 @@ const TableOrderDetails = () => {
             <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
               <img src={seatIcon} alt="Seat" className="w-4 h-4" />
             </button>
-            {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
+            {Array.from({ length: currentSelectedGuest?.partySize || 4 }, (_, i) => i + 1).map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {seat}
               </button>)}
           </div>
@@ -2027,7 +2044,7 @@ const TableOrderDetails = () => {
             <div className="flex items-center gap-3 text-white/50 text-sm">
               <div className="flex items-center gap-1">
                 <Phone className="w-3 h-3" />
-                <span>{currentSelectedGuest?.phone || "(415) 123-4567"}</span>
+                <span>{currentSelectedGuest?.phone || "No phone"}</span>
               </div>
               <div className="flex items-center gap-1">
                 <span>⚡</span>
@@ -2118,12 +2135,12 @@ const TableOrderDetails = () => {
               TABLE {tableId?.replace("T", "")}
             </span>
             <Users className="w-4 h-4 text-neutral-400" />
-            <span className="text-neutral-400 text-xs">{currentSelectedGuest?.items.length || 4}</span>
-            <span className="font-bold text-white text-sm">{currentSelectedGuest?.id}</span>
+            <span className="text-neutral-400 text-xs">{currentSelectedGuest?.items.length || 0}</span>
+            <span className="font-bold text-white text-sm">{currentSelectedGuest?.name || "Guest"}</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
-            <span className="text-neutral-400">{currentSelectedGuest?.server || "DUSTIN H"}</span>
+            <span className="text-neutral-400">{currentSelectedGuest?.server || "Unassigned"}</span>
           </div>
         </div>
         
@@ -2142,7 +2159,7 @@ const TableOrderDetails = () => {
           >
             <Share2 className={`w-3.5 h-3.5 ${seatFilter.includes('all') ? 'text-black' : 'text-white'}`} />
           </button>
-          {[1, 2, 3, 4].map((seat) => (
+          {Array.from({ length: currentSelectedGuest?.partySize || 4 }, (_, i) => i + 1).map((seat) => (
             <button
               key={seat}
               onClick={() => toggleSeatFilter(seat)}
@@ -2161,7 +2178,7 @@ const TableOrderDetails = () => {
         <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
           <OrderNotesAutocomplete
             value={orderNotes}
-            onChange={setOrderNotes}
+            onChange={handleOrderNotesChange}
             placeholder="Order notes and Allergies"
           />
         </div>
@@ -2758,7 +2775,7 @@ const TableOrderDetails = () => {
             </div>
             <div className="flex items-center gap-2">
               <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
-              <span className="text-white/50 text-sm">DUSTIN H</span>
+              <span className="text-white/50 text-sm">{currentSelectedGuest?.server || "Unassigned"}</span>
             </div>
           </div>
           
@@ -2770,7 +2787,7 @@ const TableOrderDetails = () => {
             <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
               <img src={splitIcon} alt="Split" className="w-4 h-4" />
             </button>
-            {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
+            {Array.from({ length: currentSelectedGuest?.partySize || 4 }, (_, i) => i + 1).map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {seat}
               </button>)}
           </div>
@@ -3416,7 +3433,16 @@ const TableOrderDetails = () => {
                 </div>
 
                 <div className="p-3 border-t border-neutral-700">
-                  <button onClick={() => setShowDiscountDialog(false)} className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm">
+                  <button onClick={() => {
+                    // Persist discount to DB
+                    if (currentSelectedGuest?.id && appliedDiscount > 0) {
+                      updateOrder(currentSelectedGuest.id, {
+                        discount: (currentSelectedGuest.discount || 0) + appliedDiscount,
+                        total: (currentSelectedGuest.total || 0) - appliedDiscount,
+                      });
+                    }
+                    setShowDiscountDialog(false);
+                  }} className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm">
                     Apply
                   </button>
                 </div>

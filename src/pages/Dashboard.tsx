@@ -375,24 +375,7 @@ const tableStatusConfig: Record<string, {
   "Paid": { textColor: "#000000", bgColor: "#34D399" }
 };
 
-// Mock table data (matching /tableorder screen)
-const mockTables = [
-  { id: "T1", seats: 6, status: "Available" },
-  { id: "T2", seats: 4, status: "Ordering" },
-  { id: "T3", seats: 6, status: "Ordered" },
-  { id: "T4", seats: 10, status: "Reserved" },
-  { id: "T5", seats: 10, status: "Seated" },
-  { id: "T6", seats: 8, status: "Running Late" },
-  { id: "T7", seats: 6, status: "1st Course" },
-  { id: "T8", seats: 4, status: "2nd Course" },
-  { id: "T9", seats: 2, status: "3rd Course" },
-  { id: "T10", seats: 6, status: "Dessert" },
-  { id: "T11", seats: 4, status: "Partially Seated" },
-  { id: "T12", seats: 8, status: "Served" },
-  { id: "T13", seats: 6, status: "Available" },
-  { id: "T14", seats: 4, status: "Paid" },
-  { id: "T15", seats: 2, status: "Ordering" }
-];
+// mockTables removed - now fetched from DB via useRestaurantTables hook
 
 // Discount types data
 interface DiscountType {

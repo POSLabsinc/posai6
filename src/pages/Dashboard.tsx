@@ -1924,7 +1924,7 @@ const Dashboard = () => {
             const newTotalTip = existingTip + tip;
             const newTotal = (selectedOrder.total || 0) + tip;
             try {
-              await updateDashboardTicketOrder(selectedOrder.id, { tip: newTotalTip, total: newTotal });
+              await updateDashboardTicketOrder(String(selectedOrder.id), { tip: newTotalTip, total: newTotal });
             } catch (err) {
               console.error('Failed to persist tip:', err);
             }

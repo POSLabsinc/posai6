@@ -354,6 +354,9 @@ const Login = () => {
     setShowContactAdmin(false);
     setActivationApproach(null);
     setPersonalActivationApproach(null);
+    setShowDemoEmailKeyboard(false);
+    setShowAdminEmailKeyboard(false);
+    setShowVerificationEmailKeyboard(false);
   }, []);
 
   // Resend cooldown timer

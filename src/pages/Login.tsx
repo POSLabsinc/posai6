@@ -1266,6 +1266,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   setDemoOtp("");
                   setDemoOtpSent(false);
                   setDemoOtpError("");
+                  setShowDemoEmailKeyboard(false);
                 }}
                 className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
               >

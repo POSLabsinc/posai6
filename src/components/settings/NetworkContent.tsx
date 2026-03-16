@@ -1,11 +1,10 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import aiIntegrationIcon from "@/assets/icons/ai-integration.png";
-import { useIsMobile } from "@/hooks/use-mobile";
 
 import networkIcon from "@/assets/icons/settings-network.png";
 import serverIcon from "@/assets/icons/server.png";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
 
@@ -69,7 +68,7 @@ const NetworkContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: Ne
         <p className="text-sm text-neutral-400 leading-relaxed px-1 mb-6">
           Manage server connections, configure endpoints, and monitor server health and performance.
         </p>
-
+      </div>
     </div>
   );
 };

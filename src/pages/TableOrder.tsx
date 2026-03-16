@@ -1140,7 +1140,27 @@ const TableOrder = () => {
   const [expandedMenuSection, setExpandedMenuSection] = useState<"layout" | "floor" | "area" | null>(null);
   
   // Floorplan-specific state
-  const [tablePositions, setTablePositions] = useState<TableType[]>(loadSavedPositions);
+  const [tablePositions, setTablePositions] = useState<TableType[]>([]);
+  
+  // Sync DB tables into local state for fast UI interactions (drag, etc.)
+  useEffect(() => {
+    if (dbTables.length > 0) {
+      setTablePositions(dbTables.map(t => ({
+        id: t.id,
+        seats: t.seats,
+        shape: t.shape,
+        status: t.status,
+        x: t.x,
+        y: t.y,
+        guests: t.guests,
+        occupiedSeats: t.occupiedSeats,
+        time: t.time,
+        mergedWith: t.mergedWith,
+        isMergeSource: t.isMergeSource,
+        mergeGroupId: t.mergeGroupId,
+      })));
+    }
+  }, [dbTables]);
 
   // Listen for active transfers (event-driven, not on mount)
   useEffect(() => {

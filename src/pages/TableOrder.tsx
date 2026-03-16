@@ -31,6 +31,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
+import { useRestaurantTables, type RestaurantTable, type FloorArea as DBFloorArea, type FloorDivider } from "@/hooks/use-restaurant-tables";
 
 // Import icons
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
@@ -124,21 +125,7 @@ const getSeatDotColor = (status: string): string => {
   }
 };
 
-// Default table data with x, y positions for map view
-const defaultTables: TableType[] = [
-  { id: "T1", seats: 8, status: "Available", time: "", shape: "circle", occupiedSeats: [], guests: 0, x: 80, y: 60 },
-  { id: "T2", seats: 5, status: "Ordering", time: "25M", shape: "square", occupiedSeats: [1, 2], guests: 2, x: 280, y: 80 },
-  { id: "T3", seats: 4, status: "Ordered", time: "2H 25M", shape: "circle", occupiedSeats: [1, 2, 3], guests: 3, x: 480, y: 50 },
-  { id: "T4", seats: 3, status: "Reserved", time: "2H 25M", shape: "square", occupiedSeats: [], guests: 0, x: 680, y: 90 },
-  { id: "T5", seats: 4, status: "Available", time: "", shape: "circle", occupiedSeats: [], guests: 0, x: 120, y: 220 },
-  { id: "T6", seats: 2, status: "Running Late", time: "45M", shape: "square", occupiedSeats: [], guests: 0, x: 320, y: 200 },
-  { id: "T7", seats: 5, status: "1st Course", time: "12M", shape: "circle", occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 520, y: 240 },
-  { id: "T8", seats: 4, status: "Available", time: "", shape: "square", occupiedSeats: [], guests: 0, x: 720, y: 220 },
-  { id: "T9", seats: 3, status: "3rd Course", time: "14M", shape: "circle", occupiedSeats: [1, 2, 3], guests: 3, x: 80, y: 380 },
-  { id: "T10", seats: 4, status: "Available", time: "", shape: "square", occupiedSeats: [], guests: 0, x: 280, y: 360 },
-  { id: "T11", seats: 5, status: "Partially Seated", time: "18M", shape: "circle", occupiedSeats: [1, 3, 5], guests: 3, x: 480, y: 400 },
-  { id: "T12", seats: 5, status: "Served", time: "36M", shape: "square", occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 680, y: 380 },
-];
+// Default tables removed - now fetched from database via useRestaurantTables hook
 
 // Merge validation - check if two tables can be merged based on their status
 const canMerge = (table1: TableType, table2: TableType): { allowed: boolean; reason: string } => {
@@ -172,31 +159,7 @@ const canMerge = (table1: TableType, table2: TableType): { allowed: boolean; rea
   return { allowed: false, reason: "These tables cannot be merged" };
 };
 
-// Load saved positions from localStorage or use defaults
-const loadSavedPositions = (): TableType[] => {
-  try {
-    const saved = localStorage.getItem('floorplan-tablePositions');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return defaultTables.map(table => {
-        const savedTable = parsed.find((t: TableType) => t.id === table.id);
-        // Always use the default status from defaultTables (source of truth)
-        // Only restore position and merge data from localStorage
-        return savedTable ? { 
-          ...table, 
-          x: savedTable.x, 
-          y: savedTable.y,
-          mergedWith: savedTable.mergedWith || null,
-          isMergeSource: savedTable.isMergeSource || false,
-          mergeGroupId: savedTable.mergeGroupId || undefined,
-        } : table;
-      });
-    }
-  } catch (e) {
-    console.error('Error loading table positions:', e);
-  }
-  return defaultTables;
-};
+// loadSavedPositions removed - tables now come from DB via useRestaurantTables
 
 // Filter categories with counts
 const getFilterCounts = (tables: TableType[]) => {
@@ -248,19 +211,7 @@ type DividerType = {
   position: number;
 };
 
-// Default floor areas
-const defaultFloorAreas: FloorArea[] = [
-  { id: 'kitchen', name: 'Kitchen', color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', x: 4, y: 4, anchor: 'top-left' },
-  { id: 'bar', name: 'Bar', color: '#a855f7', bgColor: 'rgba(168, 85, 247, 0.15)', x: 96, y: 4, anchor: 'top-right' },
-  { id: 'patio', name: 'Patio', color: '#22c55e', bgColor: 'rgba(34, 197, 94, 0.15)', x: 4, y: 96, anchor: 'bottom-left' },
-  { id: 'entry', name: 'Entry', color: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.15)', x: 96, y: 96, anchor: 'bottom-right' },
-];
-
-// Default dividers
-const defaultDividers: DividerType[] = [
-  { id: 'div-h-1', orientation: 'horizontal', position: 45 },
-  { id: 'div-v-1', orientation: 'vertical', position: 50 },
-];
+// Default floor areas/dividers removed - seeded in DB
 
 // Area color presets
 const areaColorPresets = [
@@ -274,31 +225,7 @@ const areaColorPresets = [
   { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', name: 'Orange' },
 ];
 
-// Load saved floor areas from localStorage
-const loadSavedFloorAreas = (): FloorArea[] => {
-  try {
-    const saved = localStorage.getItem('floorplan-areas');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (e) {
-    console.error('Error loading floor areas:', e);
-  }
-  return defaultFloorAreas;
-};
-
-// Load saved dividers from localStorage
-const loadSavedDividers = (): DividerType[] => {
-  try {
-    const saved = localStorage.getItem('floorplan-dividers');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-  } catch (e) {
-    console.error('Error loading dividers:', e);
-  }
-  return defaultDividers;
-};
+// loadSavedFloorAreas and loadSavedDividers removed - now fetched from DB
 
 // Floor Plan Template type for saving/loading layouts
 type FloorPlanTemplate = {
@@ -1141,6 +1068,24 @@ const TableOrder = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
+  // DB hook for restaurant tables, floor areas, dividers
+  const {
+    tables: dbTables,
+    floorAreas: dbFloorAreas,
+    floorDividers: dbDividers,
+    isLoading: dbLoading,
+    updateTable: updateDbTable,
+    addTable: addDbTable,
+    removeTable: removeDbTable,
+    addFloorArea: addDbFloorArea,
+    updateFloorArea: updateDbFloorArea,
+    removeFloorArea: removeDbFloorArea,
+    replaceAllFloorAreas: replaceAllDbFloorAreas,
+    addDivider: addDbDivider,
+    removeDivider: removeDbDivider,
+    replaceAllDividers: replaceAllDbDividers,
+  } = useRestaurantTables();
+  
   // Get state from Full Reservations View (when coming back)
   const passedState = location.state as {
     openReservationsPanel?: boolean;
@@ -1183,7 +1128,27 @@ const TableOrder = () => {
   const [expandedMenuSection, setExpandedMenuSection] = useState<"layout" | "floor" | "area" | null>(null);
   
   // Floorplan-specific state
-  const [tablePositions, setTablePositions] = useState<TableType[]>(loadSavedPositions);
+  const [tablePositions, setTablePositions] = useState<TableType[]>([]);
+  
+  // Sync DB tables into local state for fast UI interactions (drag, etc.)
+  useEffect(() => {
+    if (dbTables.length > 0) {
+      setTablePositions(dbTables.map(t => ({
+        id: t.id,
+        seats: t.seats,
+        shape: t.shape,
+        status: t.status,
+        x: t.x,
+        y: t.y,
+        guests: t.guests,
+        occupiedSeats: t.occupiedSeats,
+        time: t.time,
+        mergedWith: t.mergedWith,
+        isMergeSource: t.isMergeSource,
+        mergeGroupId: t.mergeGroupId,
+      })));
+    }
+  }, [dbTables]);
 
   // Listen for active transfers (event-driven, not on mount)
   useEffect(() => {
@@ -1240,8 +1205,33 @@ const TableOrder = () => {
   
   // Customization state
   const [isCustomizeMode, setIsCustomizeMode] = useState(false);
-  const [floorAreas, setFloorAreas] = useState<FloorArea[]>(loadSavedFloorAreas);
-  const [dividers, setDividers] = useState<DividerType[]>(loadSavedDividers);
+  const [floorAreas, setFloorAreas] = useState<FloorArea[]>([]);
+  const [dividers, setDividers] = useState<DividerType[]>([]);
+  
+  // Sync DB floor areas and dividers into local state
+  useEffect(() => {
+    if (dbFloorAreas.length > 0) {
+      setFloorAreas(dbFloorAreas.map(a => ({
+        id: a.id,
+        name: a.name,
+        color: a.color,
+        bgColor: a.bgColor,
+        x: a.x,
+        y: a.y,
+        anchor: a.anchor as FloorArea['anchor'],
+      })));
+    }
+  }, [dbFloorAreas]);
+  
+  useEffect(() => {
+    if (dbDividers.length > 0) {
+      setDividers(dbDividers.map(d => ({
+        id: d.id,
+        orientation: d.orientation,
+        position: d.position,
+      })));
+    }
+  }, [dbDividers]);
   const [showManageAreasDialog, setShowManageAreasDialog] = useState(false);
   const [editingArea, setEditingArea] = useState<FloorArea | null>(null);
   const [newAreaName, setNewAreaName] = useState("");
@@ -1273,22 +1263,9 @@ const TableOrder = () => {
   
   const filterCounts = getFilterCounts(tablePositions);
 
-  // Save floor areas to localStorage when they change
-  useEffect(() => {
-    localStorage.setItem('floorplan-areas', JSON.stringify(floorAreas));
-  }, [floorAreas]);
+  // localStorage save effects removed - data now persisted via DB mutations
 
-  // Save dividers to localStorage when they change
-  useEffect(() => {
-    localStorage.setItem('floorplan-dividers', JSON.stringify(dividers));
-  }, [dividers]);
-
-  // Save positions to localStorage when they change
-  useEffect(() => {
-    localStorage.setItem('floorplan-tablePositions', JSON.stringify(tablePositions));
-  }, [tablePositions]);
-
-  // Save templates to localStorage when they change
+  // Save templates to localStorage when they change (templates still local)
   useEffect(() => {
     localStorage.setItem('floorplan-templates', JSON.stringify(templates));
   }, [templates]);
@@ -1576,11 +1553,17 @@ const TableOrder = () => {
     }
   }, [isDragging, handleDragMove, handleDragEnd]);
 
-  // Reset positions to default
+  // Reset positions to default - reload from DB
   const handleResetPositions = () => {
-    setTablePositions(defaultTables);
-    localStorage.removeItem('floorplan-tablePositions');
-    toast.success("Table positions reset to default");
+    // Re-sync from DB data
+    if (dbTables.length > 0) {
+      setTablePositions(dbTables.map(t => ({
+        id: t.id, seats: t.seats, shape: t.shape, status: t.status,
+        x: t.x, y: t.y, guests: t.guests, occupiedSeats: t.occupiedSeats,
+        time: t.time, mergedWith: t.mergedWith, isMergeSource: t.isMergeSource, mergeGroupId: t.mergeGroupId,
+      })));
+    }
+    toast.success("Table positions reset");
   };
 
   const filters = [
@@ -1625,6 +1608,8 @@ const TableOrder = () => {
         ? { ...t, guests: guestCount, occupiedSeats: Array.from({ length: guestCount }, (_, i) => i + 1), status: "Seated", time: "Just now" }
         : t
     ));
+    // Persist to DB
+    updateDbTable(tableId, { guests: guestCount, occupiedSeats: Array.from({ length: guestCount }, (_, i) => i + 1), status: "Seated", time: "Just now" });
     setTableOptionsOpen(null);
     toast.success(`${guestCount} guests seated at table ${tableId}`);
   };
@@ -1640,11 +1625,14 @@ const TableOrder = () => {
   
   const confirmSeatChange = () => {
     if (seatEditTable && tempSeats >= 2 && tempSeats <= 12) {
+      const newOccupied = tablePositions.find(t => t.id === seatEditTable)?.occupiedSeats.filter(s => s <= tempSeats) || [];
       setTablePositions(prev => prev.map(t => 
         t.id === seatEditTable 
-          ? { ...t, seats: tempSeats, occupiedSeats: t.occupiedSeats.filter(s => s <= tempSeats) }
+          ? { ...t, seats: tempSeats, occupiedSeats: newOccupied }
           : t
       ));
+      // Persist to DB
+      updateDbTable(seatEditTable, { seats: tempSeats, occupiedSeats: newOccupied });
       toast.success(`Table ${seatEditTable} updated to ${tempSeats} seats`);
       setSeatEditTable(null);
       setTableOptionsOpen(null);
@@ -1786,10 +1774,13 @@ const TableOrder = () => {
   }, [draggingAreaId, draggingDividerId, dividers]);
 
   const handleResetLayout = () => {
-    setFloorAreas(defaultFloorAreas);
-    setDividers(defaultDividers);
-    localStorage.removeItem('floorplan-areas');
-    localStorage.removeItem('floorplan-dividers');
+    // Re-sync from DB
+    if (dbFloorAreas.length > 0) {
+      setFloorAreas(dbFloorAreas.map(a => ({ id: a.id, name: a.name, color: a.color, bgColor: a.bgColor, x: a.x, y: a.y, anchor: a.anchor as FloorArea['anchor'] })));
+    }
+    if (dbDividers.length > 0) {
+      setDividers(dbDividers.map(d => ({ id: d.id, orientation: d.orientation, position: d.position })));
+    }
     toast.success("Floor plan layout reset");
   };
 
@@ -1821,10 +1812,6 @@ const TableOrder = () => {
     setDividers(template.dividers);
     setActiveTemplateId(templateId);
     
-    localStorage.setItem('floorplan-tablePositions', JSON.stringify(template.tables));
-    localStorage.setItem('floorplan-areas', JSON.stringify(template.floorAreas));
-    localStorage.setItem('floorplan-dividers', JSON.stringify(template.dividers));
-    
     toast.success(`Loaded template "${template.name}"`);
   };
 
@@ -1849,13 +1836,21 @@ const TableOrder = () => {
   };
 
   const handleLoadDefaultLayout = () => {
-    setTablePositions(defaultTables);
-    setFloorAreas(defaultFloorAreas);
-    setDividers(defaultDividers);
+    // Re-sync all from DB
+    if (dbTables.length > 0) {
+      setTablePositions(dbTables.map(t => ({
+        id: t.id, seats: t.seats, shape: t.shape, status: t.status,
+        x: t.x, y: t.y, guests: t.guests, occupiedSeats: t.occupiedSeats,
+        time: t.time, mergedWith: t.mergedWith, isMergeSource: t.isMergeSource, mergeGroupId: t.mergeGroupId,
+      })));
+    }
+    if (dbFloorAreas.length > 0) {
+      setFloorAreas(dbFloorAreas.map(a => ({ id: a.id, name: a.name, color: a.color, bgColor: a.bgColor, x: a.x, y: a.y, anchor: a.anchor as FloorArea['anchor'] })));
+    }
+    if (dbDividers.length > 0) {
+      setDividers(dbDividers.map(d => ({ id: d.id, orientation: d.orientation, position: d.position })));
+    }
     setActiveTemplateId(null);
-    localStorage.setItem('floorplan-tablePositions', JSON.stringify(defaultTables));
-    localStorage.setItem('floorplan-areas', JSON.stringify(defaultFloorAreas));
-    localStorage.setItem('floorplan-dividers', JSON.stringify(defaultDividers));
     toast.success("Loaded default layout");
   };
 

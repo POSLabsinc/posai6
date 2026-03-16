@@ -14,6 +14,7 @@ import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 import { toast } from "sonner";
 import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
+import { useRestaurantTables } from "@/hooks/use-restaurant-tables";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -74,27 +75,15 @@ type TableType = {
   time: string;
 };
 
-// Default table data for selection grid
-const defaultTables: TableType[] = [
-  { id: "T1", seats: 8, status: "Available", time: "" },
-  { id: "T2", seats: 5, status: "Ordering", time: "25M" },
-  { id: "T3", seats: 4, status: "Ordered", time: "2H 25M" },
-  { id: "T4", seats: 3, status: "Reserved", time: "2H 25M" },
-  { id: "T5", seats: 4, status: "Seated", time: "25M" },
-  { id: "T6", seats: 2, status: "Running Late", time: "45M" },
-  { id: "T7", seats: 5, status: "1st Course", time: "12M" },
-  { id: "T8", seats: 4, status: "Ready", time: "13M" },
-  { id: "T9", seats: 3, status: "3rd Course", time: "14M" },
-  { id: "T10", seats: 4, status: "Dessert", time: "16M" },
-  { id: "T11", seats: 5, status: "Partially Seated", time: "18M" },
-  { id: "T12", seats: 5, status: "Served", time: "36M" },
-];
+// defaultTables removed - now fetched from DB via useRestaurantTables hook
 
 const transferFilters = ["All", "Ordering", "Ordered", "Preparing"];
 type TransferStep = "select-items" | "select-target" | "confirm-direction" | "select-table";
 const TransferOrders = () => {
   const navigate = useNavigate();
   const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
+  const { tables: dbTables } = useRestaurantTables();
+  const allTables = dbTables.map(t => ({ id: t.id, seats: t.seats, status: t.status, time: t.time }));
   const {
     tableId
   } = useParams();
@@ -614,7 +603,7 @@ const TransferOrders = () => {
   };
 
   const getAvailableTables = () => {
-    return defaultTables.filter(table => table.id !== tableId);
+    return allTables.filter(table => table.id !== tableId);
   };
 
   // Calculate order totals using centralized function

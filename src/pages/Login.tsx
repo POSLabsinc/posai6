@@ -5256,6 +5256,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 setVerificationEmail("");
                 setLoginPassword("");
                 setIdentityError("");
+                setShowVerificationEmailKeyboard(false);
               }}
               className="self-start mb-4 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
             >

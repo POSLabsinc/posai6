@@ -1798,8 +1798,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     // Persist refund data to database
     try {
       const refundAmount = getRefundDisplayAmount();
-      const existingRefundAmount = selectedGuest.refundAmount || 0;
-      const existingTransactions = selectedGuest.refundTransactions || [];
+      const dbOrder = dbTicketOrders.find(o => o.id === orderId);
+      const existingRefundAmount = dbOrder?.refundAmount || 0;
+      const existingTransactions = dbOrder?.refundTransactions || [];
       const reasonLabel = refundReason?.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase()) || 'Other';
       
       const newTransaction = {

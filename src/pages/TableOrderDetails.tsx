@@ -3325,9 +3325,17 @@ const TableOrderDetails = () => {
         open={showTipDialog}
         onOpenChange={setShowTipDialog}
         orderTotal={currentSelectedGuest?.total || 0}
-        onTipSelected={(tip) => {
-          console.log("Tip selected:", tip);
-          // Handle tip logic here
+        onTipSelected={async (tip) => {
+          if (currentSelectedGuest && tip > 0) {
+            const existingTip = currentSelectedGuest.tip || 0;
+            const newTotalTip = existingTip + tip;
+            const newTotal = currentSelectedGuest.total + tip;
+            try {
+              await updateTicketOrder(currentSelectedGuest.id, { tip: newTotalTip, total: newTotal });
+            } catch (err) {
+              console.error('Failed to persist tip:', err);
+            }
+          }
         }}
       />
 

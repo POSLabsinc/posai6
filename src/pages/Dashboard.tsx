@@ -1917,8 +1917,17 @@ const Dashboard = () => {
         open={showTipDialog}
         onOpenChange={setShowTipDialog}
         orderTotal={selectedOrder?.total || 0}
-        onTipSelected={(tip) => {
-          console.log("Tip selected:", tip);
+        onTipSelected={async (tip) => {
+          if (selectedOrder && tip > 0) {
+            const existingTip = selectedOrder.tip ? parseFloat(selectedOrder.tip.replace('$', '')) || 0 : 0;
+            const newTotalTip = existingTip + tip;
+            const newTotal = (selectedOrder.total || 0) + tip;
+            try {
+              await updateDashboardTicketOrder(selectedOrder.id, { tip: newTotalTip, total: newTotal });
+            } catch (err) {
+              console.error('Failed to persist tip:', err);
+            }
+          }
         }}
       />
 

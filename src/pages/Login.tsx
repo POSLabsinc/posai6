@@ -4795,6 +4795,26 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   ))}
                 </motion.div>
 
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.28 }}
+                  className="w-full max-w-[280px] mx-auto mb-4"
+                >
+                  <NumericKeypad
+                    onKeyPress={(key) => {
+                      if (resetOtp.length >= 4) return;
+                      setResetOtp((prev) => `${prev}${key}`.slice(0, 4));
+                      setResetOtpError("");
+                    }}
+                    onDelete={() => {
+                      setResetOtp((prev) => prev.slice(0, -1));
+                      setResetOtpError("");
+                    }}
+                    variant="dark"
+                  />
+                </motion.div>
+
                 {/* Timer */}
                 <motion.div
                   initial={{ opacity: 0 }}

@@ -2044,7 +2044,7 @@ const TableOrderDetails = () => {
             <div className="flex items-center gap-3 text-white/50 text-sm">
               <div className="flex items-center gap-1">
                 <Phone className="w-3 h-3" />
-                <span>{currentSelectedGuest?.phone || "(415) 123-4567"}</span>
+                <span>{currentSelectedGuest?.phone || "No phone"}</span>
               </div>
               <div className="flex items-center gap-1">
                 <span>⚡</span>

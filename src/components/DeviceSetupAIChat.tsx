@@ -536,6 +536,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
     codeInputRefs.current[lastFilledIndex]?.focus();
   }, [activationCode]);
 
+  // Auto-open keyboard when entering activate-code step
+  useEffect(() => {
+    if (currentStep === "activate-code") {
+      setShowKeyboard(true);
+    }
+  }, [currentStep]);
+
   // Handle activation code verification animation + redirect
   useEffect(() => {
     if (currentStep === "activate-code-verifying") {

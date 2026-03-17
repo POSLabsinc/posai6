@@ -538,7 +538,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
 
   // Auto-open keyboard when entering activate-code step
   useEffect(() => {
-    if (currentStep === "activate-code") {
+   if (currentStep === "activate-code" || currentStep === "personal-invite-code") {
       setShowKeyboard(true);
     }
   }, [currentStep]);

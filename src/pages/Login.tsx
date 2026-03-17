@@ -1359,41 +1359,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         type="email"
                         placeholder="your@email.com"
                         value={demoEmail}
-                        onFocus={() => {
-                          setShowDemoEmailKeyboard(true);
+                        onFocus={() => setDemoOtpError("")}
+                        onChange={(e) => {
+                          setDemoEmail(e.target.value);
                           setDemoOtpError("");
                         }}
-                        onClick={() => {
-                          setShowDemoEmailKeyboard(true);
-                          setDemoOtpError("");
-                        }}
-                        readOnly
                         className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.03] border-foreground/[0.08] focus:border-amber-500/40"
                         disabled={demoSendingOtp}
                       />
                     </div>
-
-                    <AnimatePresence>
-                      {showDemoEmailKeyboard && !demoSendingOtp && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 8 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -8 }}
-                        >
-                          <InlineIOSKeyboard
-                            mode="email"
-                            onKeyPress={(key) => {
-                              setDemoEmail((prev) => `${prev}${key}`.slice(0, 80));
-                              setDemoOtpError("");
-                            }}
-                            onDelete={() => {
-                              setDemoEmail((prev) => prev.slice(0, -1));
-                              setDemoOtpError("");
-                            }}
-                          />
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
 
                     {demoOtpError && (
                       <motion.div
@@ -1453,20 +1427,18 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       ))}
                     </div>
 
-                    <div className="w-full max-w-[280px] mx-auto">
-                      <NumericKeypad
-                        onKeyPress={(key) => {
-                          if (demoOtp.length >= 6) return;
-                          setDemoOtp((prev) => `${prev}${key}`.slice(0, 6));
-                          setDemoOtpError("");
-                        }}
-                        onDelete={() => {
-                          setDemoOtp((prev) => prev.slice(0, -1));
-                          setDemoOtpError("");
-                        }}
-                        variant="dark"
-                      />
-                    </div>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoFocus
+                      value={demoOtp}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        setDemoOtp(val);
+                        setDemoOtpError("");
+                      }}
+                      className="sr-only"
+                    />
 
                     {demoOtpError && (
                       <motion.div
@@ -1944,19 +1916,45 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </AnimatePresence>
             </div>
 
-            {/* Numeric Keypad */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-              className="w-full max-w-[280px]"
-            >
-              <NumericKeypad
-                onKeyPress={handleCodeKeyPress}
-                onDelete={handleCodeDelete}
-                variant="dark"
-              />
-            </motion.div>
+            {/* Visible input for native keyboard */}
+            <Input
+              type="text"
+              inputMode="numeric"
+              autoFocus
+              value={activationCode}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "").slice(0, CODE_LENGTH);
+                if (val.length <= CODE_LENGTH) {
+                  setActivationCode(val);
+                  setActivationError("");
+                  if (val.length === CODE_LENGTH && !isActivating) {
+                    // Trigger auto-submit
+                    setIsActivating(true);
+                    setTimeout(() => {
+                      if (val.startsWith("0")) {
+                        setIsActivating(false);
+                        setActivationError("This code has expired. Please request a new one.");
+                        setActivationCode("");
+                      } else if (val.startsWith("9")) {
+                        setIsActivating(false);
+                        setActivationError("Invalid code. Please check and try again.");
+                        setActivationCode("");
+                      } else {
+                        setIsActivating(false);
+                        localStorage.setItem("pos_device_session", JSON.stringify({
+                          deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+                          deviceType: "company",
+                          trustedAt: new Date().toISOString(),
+                        }));
+                        navigate("/");
+                      }
+                    }, 1500);
+                  }
+                }
+              }}
+              className="h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
+              maxLength={CODE_LENGTH}
+            />
 
             {/* Helper Text - Time-limited notice */}
             <motion.div
@@ -2346,9 +2344,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="email"
                       placeholder="you@restaurant.com"
                       value={magicLinkEmail}
-                      onFocus={() => setActivationError("")}
-                      onClick={() => setActivationError("")}
-                      readOnly
+                      onChange={(e) => {
+                        setMagicLinkEmail(e.target.value);
+                        setActivationError("");
+                      }}
                       className={`h-14 text-center text-base rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
                         activationError ? "border-destructive" : ""
                       }`}
@@ -2370,9 +2369,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="tel"
                       placeholder="(555) 555-5555"
                       value={formatPhoneNumber(magicLinkPhone)}
-                      onFocus={() => setActivationError("")}
-                      onClick={() => setActivationError("")}
-                      readOnly
+                      onChange={(e) => {
+                        setMagicLinkPhone(e.target.value.replace(/\D/g, "").slice(0, 10));
+                        setActivationError("");
+                      }}
                       className={`h-14 text-center text-base flex-1 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
                         activationError ? "border-destructive" : ""
                       }`}
@@ -2381,25 +2381,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 )}
               </AnimatePresence>
 
-              <InlineIOSKeyboard
-                mode={isEmail ? "email" : "phone"}
-                onKeyPress={(key) => {
-                  if (isEmail) {
-                    setMagicLinkEmail((prev) => `${prev}${key}`.slice(0, 80));
-                  } else {
-                    setMagicLinkPhone((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, 10));
-                  }
-                  setActivationError("");
-                }}
-                onDelete={() => {
-                  if (isEmail) {
-                    setMagicLinkEmail((prev) => prev.slice(0, -1));
-                  } else {
-                    setMagicLinkPhone((prev) => prev.slice(0, -1));
-                  }
-                  setActivationError("");
-                }}
-              />
               
               {/* Error Message */}
               <AnimatePresence mode="wait">
@@ -2800,25 +2781,18 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   ))}
                 </motion.div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.28 }}
-                  className="w-full max-w-[280px] mx-auto mb-4"
-                >
-                  <NumericKeypad
-                    onKeyPress={(key) => {
-                      if (resetOtp.length >= 4) return;
-                      setResetOtp((prev) => `${prev}${key}`.slice(0, 4));
-                      setResetOtpError("");
-                    }}
-                    onDelete={() => {
-                      setResetOtp((prev) => prev.slice(0, -1));
-                      setResetOtpError("");
-                    }}
-                    variant="dark"
-                  />
-                </motion.div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoFocus
+                  value={resetOtp}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                    setResetOtp(val);
+                    setResetOtpError("");
+                  }}
+                  className="sr-only"
+                />
 
                 {/* Timer */}
                 <motion.div
@@ -2998,9 +2972,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     type="email"
                     placeholder="Enter Your Email"
                     value={forgotPasswordEmail}
-                    onFocus={() => setForgotPasswordKeyboardField("email")}
-                    onClick={() => setForgotPasswordKeyboardField("email")}
-                    readOnly
+                    onChange={(e) => {
+                      setForgotPasswordEmail(e.target.value);
+                      setForgotPasswordError("");
+                    }}
                     className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
                   />
                 </div>
@@ -3024,44 +2999,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="tel"
                       placeholder="(XXX) XXX-XXXX"
                       value={formatPhoneDisplay(forgotPasswordPhone)}
-                      onFocus={() => setForgotPasswordKeyboardField("phone")}
-                      onClick={() => setForgotPasswordKeyboardField("phone")}
-                      readOnly
+                      onChange={(e) => {
+                        setForgotPasswordPhone(e.target.value.replace(/\D/g, "").slice(0, 10));
+                        setForgotPasswordError("");
+                      }}
                       className="h-12 flex-1 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
                     />
                   </div>
                 </div>
 
-                <AnimatePresence mode="wait">
-                  {forgotPasswordKeyboardField !== "none" && (
-                    <motion.div
-                      key={forgotPasswordKeyboardField}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                    >
-                      <InlineIOSKeyboard
-                        mode={forgotPasswordKeyboardField}
-                        onKeyPress={(key) => {
-                          if (forgotPasswordKeyboardField === "email") {
-                            setForgotPasswordEmail((prev) => `${prev}${key}`.slice(0, 80));
-                          } else {
-                            setForgotPasswordPhone((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, 10));
-                          }
-                          setForgotPasswordError("");
-                        }}
-                        onDelete={() => {
-                          if (forgotPasswordKeyboardField === "email") {
-                            setForgotPasswordEmail((prev) => prev.slice(0, -1));
-                          } else {
-                            setForgotPasswordPhone((prev) => prev.slice(0, -1));
-                          }
-                          setForgotPasswordError("");
-                        }}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
                 
                 <AnimatePresence mode="wait">
                   {forgotPasswordError && (
@@ -3169,15 +3115,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 type="email"
                 placeholder="Email address"
                 value={adminEmail}
-                onFocus={() => {
-                  setShowAdminEmailKeyboard(true);
+                onChange={(e) => {
+                  setAdminEmail(e.target.value);
                   setActivationError("");
                 }}
-                onClick={() => {
-                  setShowAdminEmailKeyboard(true);
-                  setActivationError("");
-                }}
-                readOnly
                 className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
               />
               
@@ -3220,27 +3161,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 </button>
               </div>
 
-              <AnimatePresence>
-                {showAdminEmailKeyboard && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                  >
-                    <InlineIOSKeyboard
-                      mode="email"
-                      onKeyPress={(key) => {
-                        setAdminEmail((prev) => `${prev}${key}`.slice(0, 80));
-                        setActivationError("");
-                      }}
-                      onDelete={() => {
-                        setAdminEmail((prev) => prev.slice(0, -1));
-                        setActivationError("");
-                      }}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
 
               <AnimatePresence mode="wait">
                 {activationError && (
@@ -4938,25 +4858,18 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   ))}
                 </motion.div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.28 }}
-                  className="w-full max-w-[280px] mx-auto mb-4"
-                >
-                  <NumericKeypad
-                    onKeyPress={(key) => {
-                      if (resetOtp.length >= 4) return;
-                      setResetOtp((prev) => `${prev}${key}`.slice(0, 4));
-                      setResetOtpError("");
-                    }}
-                    onDelete={() => {
-                      setResetOtp((prev) => prev.slice(0, -1));
-                      setResetOtpError("");
-                    }}
-                    variant="dark"
-                  />
-                </motion.div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoFocus
+                  value={resetOtp}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                    setResetOtp(val);
+                    setResetOtpError("");
+                  }}
+                  className="sr-only"
+                />
 
                 {/* Timer */}
                 <motion.div
@@ -5144,9 +5057,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     type="email"
                     placeholder="Enter Your Email"
                     value={forgotPasswordEmail}
-                    onFocus={() => setForgotPasswordKeyboardField("email")}
-                    onClick={() => setForgotPasswordKeyboardField("email")}
-                    readOnly
+                    onChange={(e) => {
+                      setForgotPasswordEmail(e.target.value);
+                      setForgotPasswordError("");
+                    }}
                     className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
                   />
                 </div>
@@ -5170,44 +5084,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="tel"
                       placeholder="(XXX) XXX-XXXX"
                       value={formatPhoneDisplay(forgotPasswordPhone)}
-                      onFocus={() => setForgotPasswordKeyboardField("phone")}
-                      onClick={() => setForgotPasswordKeyboardField("phone")}
-                      readOnly
+                      onChange={(e) => {
+                        setForgotPasswordPhone(e.target.value.replace(/\D/g, "").slice(0, 10));
+                        setForgotPasswordError("");
+                      }}
                       className="h-12 flex-1 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
                     />
                   </div>
                 </div>
-
-                <AnimatePresence mode="wait">
-                  {forgotPasswordKeyboardField !== "none" && (
-                    <motion.div
-                      key={forgotPasswordKeyboardField}
-                      initial={{ opacity: 0, y: 8 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -8 }}
-                    >
-                      <InlineIOSKeyboard
-                        mode={forgotPasswordKeyboardField}
-                        onKeyPress={(key) => {
-                          if (forgotPasswordKeyboardField === "email") {
-                            setForgotPasswordEmail((prev) => `${prev}${key}`.slice(0, 80));
-                          } else {
-                            setForgotPasswordPhone((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, 10));
-                          }
-                          setForgotPasswordError("");
-                        }}
-                        onDelete={() => {
-                          if (forgotPasswordKeyboardField === "email") {
-                            setForgotPasswordEmail((prev) => prev.slice(0, -1));
-                          } else {
-                            setForgotPasswordPhone((prev) => prev.slice(0, -1));
-                          }
-                          setForgotPasswordError("");
-                        }}
-                      />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
                 
                 <AnimatePresence mode="wait">
                   {forgotPasswordError && (
@@ -5399,15 +5283,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="email"
                       placeholder="Email address"
                       value={verificationEmail}
-                      onFocus={() => {
-                        setShowVerificationEmailKeyboard(true);
+                      onChange={(e) => {
+                        setVerificationEmail(e.target.value);
                         setIdentityError("");
                       }}
-                      onClick={() => {
-                        setShowVerificationEmailKeyboard(true);
-                        setIdentityError("");
-                      }}
-                      readOnly
                       className={`h-14 pl-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
                         identityError && identityError.includes("email") ? "border-destructive" : ""
                       }`}
@@ -5455,27 +5334,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     </button>
                   </div>
 
-                  <AnimatePresence>
-                    {showVerificationEmailKeyboard && (
-                      <motion.div
-                        initial={{ opacity: 0, y: 8 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -8 }}
-                      >
-                        <InlineIOSKeyboard
-                          mode="email"
-                          onKeyPress={(key) => {
-                            setVerificationEmail((prev) => `${prev}${key}`.slice(0, 80));
-                            setIdentityError("");
-                          }}
-                          onDelete={() => {
-                            setVerificationEmail((prev) => prev.slice(0, -1));
-                            setIdentityError("");
-                          }}
-                        />
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
 
                   {/* Error Message */}
                   <AnimatePresence>
@@ -5800,28 +5658,16 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       inputMode="numeric"
                       placeholder="000000"
                       value={deviceCode}
-                      readOnly
-                      className={`h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] cursor-pointer ${
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        setDeviceCode(val);
+                        setCodeError("");
+                        setShowRequestAccess(false);
+                      }}
+                      className={`h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
                         codeError ? "border-destructive" : ""
                       }`}
                       maxLength={6}
-                    />
-                  </div>
-
-                  <div className="w-full max-w-[280px] mx-auto">
-                    <NumericKeypad
-                      onKeyPress={(key) => {
-                        if (deviceCode.length >= 6) return;
-                        setDeviceCode((prev) => `${prev}${key}`.slice(0, 6));
-                        setCodeError("");
-                        setShowRequestAccess(false);
-                      }}
-                      onDelete={() => {
-                        setDeviceCode((prev) => prev.slice(0, -1));
-                        setCodeError("");
-                        setShowRequestAccess(false);
-                      }}
-                      variant="dark"
                     />
                   </div>
 

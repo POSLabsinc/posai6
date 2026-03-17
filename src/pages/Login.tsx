@@ -1861,7 +1861,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="flex gap-2 mb-3"
+              className="flex gap-2 mb-3 cursor-text"
+              onClick={() => document.getElementById('activation-code-hidden')?.focus()}
             >
               {Array.from({ length: CODE_LENGTH }).map((_, i) => (
                 <motion.div
@@ -1916,8 +1917,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </AnimatePresence>
             </div>
 
-            {/* Visible input for native keyboard */}
-            <Input
+            {/* Hidden input for native keyboard - captures input into code boxes */}
+            <input
               type="text"
               inputMode="numeric"
               autoFocus
@@ -1928,7 +1929,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   setActivationCode(val);
                   setActivationError("");
                   if (val.length === CODE_LENGTH && !isActivating) {
-                    // Trigger auto-submit
                     setIsActivating(true);
                     setTimeout(() => {
                       if (val.startsWith("0")) {
@@ -1952,8 +1952,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   }
                 }
               }}
-              className="h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
+              className="sr-only"
               maxLength={CODE_LENGTH}
+              id="activation-code-hidden"
             />
 
             {/* Helper Text - Time-limited notice */}

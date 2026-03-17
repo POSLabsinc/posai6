@@ -1359,14 +1359,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         type="email"
                         placeholder="your@email.com"
                         value={demoEmail}
-                        onFocus={() => {
-                          setShowDemoEmailKeyboard(true);
-                          setDemoOtpError("");
-                        }}
-                        onClick={() => {
-                          setShowDemoEmailKeyboard(true);
-                          setDemoOtpError("");
-                        }}
+                        onFocus={() => setDemoOtpError("")}
                         onChange={(e) => {
                           setDemoEmail(e.target.value);
                           setDemoOtpError("");

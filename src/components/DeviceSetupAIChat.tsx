@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { Html5Qrcode } from "html5-qrcode";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, ShieldCheck, AlertCircle, ScanLine, Lock, Eye, EyeOff, User, ShieldX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -23,7 +24,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied";
+type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -141,6 +142,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   // Personal device invite flow states
   const [inviteCode, setInviteCode] = useState<string[]>(["", "", "", "", "", ""]);
   const inviteCodeRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [scannerError, setScannerError] = useState("");
+  const qrScannerRef = useRef<Html5Qrcode | null>(null);
+  const scannerContainerRef = useRef<HTMLDivElement>(null);
   const [invitedUser, setInvitedUser] = useState<{ name: string; email: string; role: string } | null>(null);
   const [personalEmail, setPersonalEmail] = useState("");
   const [personalPassword, setPersonalPassword] = useState("");
@@ -626,6 +630,50 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
     inviteCodeRefs.current[lastFilledIndex]?.focus();
   }, [inviteCode]);
 
+  // QR Scanner handlers
+  const startQRScanner = useCallback(async () => {
+    setScannerError("");
+    setCurrentStep("personal-qr-scanner");
+
+    setTimeout(async () => {
+      try {
+        const html5QrCode = new Html5Qrcode("ai-qr-reader");
+        qrScannerRef.current = html5QrCode;
+
+        await html5QrCode.start(
+          { facingMode: "environment" },
+          { fps: 10, qrbox: { width: 220, height: 220 } },
+          (decodedText) => {
+            const digits = decodedText.replace(/\D/g, "").slice(0, 6);
+            const newCode = ["", "", "", "", "", ""];
+            for (let i = 0; i < digits.length; i++) newCode[i] = digits[i];
+            setInviteCode(newCode);
+            stopQRScanner();
+            const scannedMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ QR Code scanned! Verifying your invite code..." };
+            setMessages((prev) => [...prev, scannedMsg]);
+            setCurrentStep("personal-invite-verifying");
+          },
+          () => {}
+        );
+      } catch (err) {
+        console.error("QR Scanner error:", err);
+        setScannerError("Unable to access camera. Please check permissions.");
+      }
+    }, 150);
+  }, []);
+
+  const stopQRScanner = useCallback(async () => {
+    if (qrScannerRef.current) {
+      try {
+        await qrScannerRef.current.stop();
+        qrScannerRef.current = null;
+      } catch (err) {
+        console.error("Error stopping scanner:", err);
+      }
+    }
+    setScannerError("");
+  }, []);
+
   // Handle invite code verification → show profile + ask email
   useEffect(() => {
     if (currentStep === "personal-invite-verifying") {
@@ -929,7 +977,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
                           const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
                           setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          // QR scanning would be handled here
+                          startQRScanner();
                         }}
                         className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                       >
@@ -990,6 +1038,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
                         const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
                         setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                        startQRScanner();
                       }}
                       className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
                     >
@@ -999,7 +1048,43 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                   </motion.div>
                 )}
 
-                {/* Personal invite code verifying */}
+                {/* Personal QR Scanner */}
+                {currentStep === "personal-qr-scanner" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="px-0 pt-3 pb-2 space-y-3"
+                  >
+                    <div 
+                      id="ai-qr-reader" 
+                      ref={scannerContainerRef}
+                      className="w-full aspect-square max-w-[280px] mx-auto rounded-2xl overflow-hidden bg-black/50 border border-foreground/[0.1]"
+                    />
+                    {scannerError && (
+                      <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">
+                        <AlertCircle className="w-4 h-4 text-destructive" />
+                        <span className="text-sm font-medium text-destructive">{scannerError}</span>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => {
+                        stopQRScanner();
+                        setCurrentStep("personal-invite-code");
+                        setInviteCode(["", "", "", "", "", ""]);
+                        const msg: Message = { id: Date.now().toString(), role: "assistant", content: "Enter the code from your manager's invite." };
+                        setMessages((prev) => [...prev, msg]);
+                        setTimeout(() => inviteCodeRefs.current[0]?.focus(), 100);
+                      }}
+                      className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
+                    >
+                      <KeyRound className="w-4 h-4 text-foreground/60" />
+                      <span className="text-sm font-medium text-foreground/70">Enter code manually</span>
+                    </button>
+                  </motion.div>
+                )}
+
+
                 {currentStep === "personal-invite-verifying" && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}

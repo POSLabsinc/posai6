@@ -2983,9 +2983,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="tel"
                       placeholder="(XXX) XXX-XXXX"
                       value={formatPhoneDisplay(forgotPasswordPhone)}
-                      onFocus={() => setForgotPasswordKeyboardField("phone")}
-                      onClick={() => setForgotPasswordKeyboardField("phone")}
-                      readOnly
+                      onChange={(e) => {
+                        setForgotPasswordPhone(e.target.value.replace(/\D/g, "").slice(0, 10));
+                        setForgotPasswordError("");
+                      }}
                       className="h-12 flex-1 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
                     />
                   </div>

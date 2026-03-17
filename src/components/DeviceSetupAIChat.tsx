@@ -977,7 +977,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
                           const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
                           setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          // QR scanning would be handled here
+                          startQRScanner();
                         }}
                         className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                       >

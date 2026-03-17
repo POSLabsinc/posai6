@@ -1861,7 +1861,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
-              className="flex gap-2 mb-3"
+              className="flex gap-2 mb-3 cursor-text"
+              onClick={() => document.getElementById('activation-code-hidden')?.focus()}
             >
               {Array.from({ length: CODE_LENGTH }).map((_, i) => (
                 <motion.div

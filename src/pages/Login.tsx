@@ -2353,9 +2353,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="tel"
                       placeholder="(555) 555-5555"
                       value={formatPhoneNumber(magicLinkPhone)}
-                      onFocus={() => setActivationError("")}
-                      onClick={() => setActivationError("")}
-                      readOnly
+                      onChange={(e) => {
+                        setMagicLinkPhone(e.target.value.replace(/\D/g, "").slice(0, 10));
+                        setActivationError("");
+                      }}
                       className={`h-14 text-center text-base flex-1 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
                         activationError ? "border-destructive" : ""
                       }`}

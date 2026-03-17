@@ -172,7 +172,7 @@ const fetchDiscountsFromDB = async (): Promise<Discount[]> => {
       .eq('archived', false)
       .order('sort_order');
     if (error || !data || data.length === 0) return getDiscountsFromSettings();
-    return data.map(d => ({
+    const mapped = data.map(d => ({
       id: d.id,
       name: d.name,
       type: d.type === "Fixed" ? "amount" as const : "percentage" as const,
@@ -180,6 +180,7 @@ const fetchDiscountsFromDB = async (): Promise<Discount[]> => {
       icon: getIconForDiscount(d.name),
       reasonRequired: d.type === "Percentage" && Number(d.amount) === 100,
     }));
+    return ensureFullComp(mapped);
   } catch {
     return getDiscountsFromSettings();
   }

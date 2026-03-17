@@ -1047,29 +1047,31 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       <span className="text-xs">Check your email or scan the QR from the admin portal.</span>
                     </div>
 
-                    <button
-                      onClick={() => {
-                        setInviteCode(["", "", "", "", "", ""]);
-                        const reqMsg: Message = { id: Date.now().toString(), role: "assistant", content: "A new invite code has been requested. Please check your email or contact your manager for the new code." };
-                        setMessages((prev) => [...prev, reqMsg]);
-                      }}
-                      className="w-full py-2.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/50 text-[13px] font-medium transition-all"
-                    >
-                      Request a new code
-                    </button>
+                    <div className="flex gap-2 w-full">
+                      <button
+                        onClick={() => {
+                          setInviteCode(["", "", "", "", "", ""]);
+                          const reqMsg: Message = { id: Date.now().toString(), role: "assistant", content: "A new invite code has been requested. Please check your email or contact your manager for the new code." };
+                          setMessages((prev) => [...prev, reqMsg]);
+                        }}
+                        className="flex-1 py-2.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/50 text-[13px] font-medium transition-all"
+                      >
+                        Request a new code
+                      </button>
 
-                    <button
-                      onClick={() => {
-                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
-                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
-                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                        startQRScanner();
-                      }}
-                      className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
-                    >
-                      <ScanLine className="w-4 h-4 text-foreground/60" />
-                      <span className="text-sm font-medium text-foreground/70">Scan QR Code</span>
-                    </button>
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          startQRScanner();
+                        }}
+                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
+                      >
+                        <ScanLine className="w-4 h-4 text-foreground/60" />
+                        <span className="text-[13px] font-medium text-foreground/70">Scan QR Code</span>
+                      </button>
+                    </div>
 
                     {showKeyboard && (
                       <InlineIOSKeyboard

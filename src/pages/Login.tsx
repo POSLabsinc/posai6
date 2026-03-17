@@ -4842,25 +4842,18 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   ))}
                 </motion.div>
 
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.28 }}
-                  className="w-full max-w-[280px] mx-auto mb-4"
-                >
-                  <NumericKeypad
-                    onKeyPress={(key) => {
-                      if (resetOtp.length >= 4) return;
-                      setResetOtp((prev) => `${prev}${key}`.slice(0, 4));
-                      setResetOtpError("");
-                    }}
-                    onDelete={() => {
-                      setResetOtp((prev) => prev.slice(0, -1));
-                      setResetOtpError("");
-                    }}
-                    variant="dark"
-                  />
-                </motion.div>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  autoFocus
+                  value={resetOtp}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                    setResetOtp(val);
+                    setResetOtpError("");
+                  }}
+                  className="sr-only"
+                />
 
                 {/* Timer */}
                 <motion.div

@@ -3145,27 +3145,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 </button>
               </div>
 
-              <AnimatePresence>
-                {showAdminEmailKeyboard && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -8 }}
-                  >
-                    <InlineIOSKeyboard
-                      mode="email"
-                      onKeyPress={(key) => {
-                        setAdminEmail((prev) => `${prev}${key}`.slice(0, 80));
-                        setActivationError("");
-                      }}
-                      onDelete={() => {
-                        setAdminEmail((prev) => prev.slice(0, -1));
-                        setActivationError("");
-                      }}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
 
               <AnimatePresence mode="wait">
                 {activationError && (

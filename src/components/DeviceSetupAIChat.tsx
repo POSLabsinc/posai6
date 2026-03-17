@@ -536,6 +536,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
     codeInputRefs.current[lastFilledIndex]?.focus();
   }, [activationCode]);
 
+  // Auto-open keyboard when entering activate-code step
+  useEffect(() => {
+    if (currentStep === "activate-code") {
+      setShowKeyboard(true);
+    }
+  }, [currentStep]);
+
   // Handle activation code verification animation + redirect
   useEffect(() => {
     if (currentStep === "activate-code-verifying") {
@@ -1219,7 +1226,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="px-0 pt-3 pb-2 space-y-4"
+                    className="px-0 pt-3 pb-2 space-y-3"
                   >
                     <div className="flex gap-2 justify-center">
                       {activationCode.map((digit, i) => (
@@ -1239,16 +1246,6 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       ))}
                     </div>
 
-                    {showKeyboard && (
-                      <InlineIOSKeyboard
-                        mode="phone"
-                        fullWidth
-                        size="large"
-                        onKeyPress={handleActivationKeypadPress}
-                        onDelete={handleActivationKeypadDelete}
-                      />
-                    )}
-
                     <div className="flex items-start gap-1.5 text-foreground/40 px-2">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">One-time code: This code expires in 10 minutes and can only be used once.</span>
@@ -1264,6 +1261,14 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     >
                       Request a new code
                     </button>
+
+                    <InlineIOSKeyboard
+                      mode="phone"
+                      fullWidth
+                      size="large"
+                      onKeyPress={handleActivationKeypadPress}
+                      onDelete={handleActivationKeypadDelete}
+                    />
                   </motion.div>
                 )}
 

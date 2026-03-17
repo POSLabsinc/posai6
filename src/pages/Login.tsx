@@ -2365,25 +2365,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 )}
               </AnimatePresence>
 
-              <InlineIOSKeyboard
-                mode={isEmail ? "email" : "phone"}
-                onKeyPress={(key) => {
-                  if (isEmail) {
-                    setMagicLinkEmail((prev) => `${prev}${key}`.slice(0, 80));
-                  } else {
-                    setMagicLinkPhone((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, 10));
-                  }
-                  setActivationError("");
-                }}
-                onDelete={() => {
-                  if (isEmail) {
-                    setMagicLinkEmail((prev) => prev.slice(0, -1));
-                  } else {
-                    setMagicLinkPhone((prev) => prev.slice(0, -1));
-                  }
-                  setActivationError("");
-                }}
-              />
               
               {/* Error Message */}
               <AnimatePresence mode="wait">

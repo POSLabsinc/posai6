@@ -3099,15 +3099,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 type="email"
                 placeholder="Email address"
                 value={adminEmail}
-                onFocus={() => {
-                  setShowAdminEmailKeyboard(true);
+                onChange={(e) => {
+                  setAdminEmail(e.target.value);
                   setActivationError("");
                 }}
-                onClick={() => {
-                  setShowAdminEmailKeyboard(true);
-                  setActivationError("");
-                }}
-                readOnly
                 className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
               />
               

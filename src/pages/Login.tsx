@@ -1962,7 +1962,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               className="h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
               maxLength={CODE_LENGTH}
             />
-            />
 
             {/* Helper Text - Time-limited notice */}
             <motion.div

@@ -1042,20 +1042,22 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       ))}
                     </div>
 
-                    {showKeyboard && (
-                      <InlineIOSKeyboard
-                        mode="phone"
-                        fullWidth
-                        size="large"
-                        onKeyPress={handleInviteKeypadPress}
-                        onDelete={handleInviteKeypadDelete}
-                      />
-                    )}
-
                     <div className="flex items-start gap-1.5 text-foreground/40 px-2">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">Check your email or scan the QR from the admin portal.</span>
                     </div>
+
+                    <button
+                      onClick={() => {
+                        setInviteCode(["", "", "", "", "", ""]);
+                        const reqMsg: Message = { id: Date.now().toString(), role: "assistant", content: "A new invite code has been requested. Please check your email or contact your manager for the new code." };
+                        setMessages((prev) => [...prev, reqMsg]);
+                      }}
+                      className="w-full py-2.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/50 text-[13px] font-medium transition-all"
+                    >
+                      Request a new code
+                    </button>
+
                     <button
                       onClick={() => {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
@@ -1068,6 +1070,16 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       <ScanLine className="w-4 h-4 text-foreground/60" />
                       <span className="text-sm font-medium text-foreground/70">Scan QR Code</span>
                     </button>
+
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="phone"
+                        fullWidth
+                        size="large"
+                        onKeyPress={handleInviteKeypadPress}
+                        onDelete={handleInviteKeypadDelete}
+                      />
+                    )}
                   </motion.div>
                 )}
 

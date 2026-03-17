@@ -2328,9 +2328,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       type="email"
                       placeholder="you@restaurant.com"
                       value={magicLinkEmail}
-                      onFocus={() => setActivationError("")}
-                      onClick={() => setActivationError("")}
-                      readOnly
+                      onChange={(e) => {
+                        setMagicLinkEmail(e.target.value);
+                        setActivationError("");
+                      }}
                       className={`h-14 text-center text-base rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
                         activationError ? "border-destructive" : ""
                       }`}

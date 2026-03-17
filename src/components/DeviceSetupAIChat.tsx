@@ -631,48 +631,64 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   }, [inviteCode]);
 
   // QR Scanner handlers
-  const startQRScanner = useCallback(async () => {
-    setScannerError("");
-    setCurrentStep("personal-qr-scanner");
-
-    setTimeout(async () => {
-      try {
-        const html5QrCode = new Html5Qrcode("ai-qr-reader");
-        qrScannerRef.current = html5QrCode;
-
-        await html5QrCode.start(
-          { facingMode: "environment" },
-          { fps: 10, qrbox: { width: 220, height: 220 } },
-          (decodedText) => {
-            const digits = decodedText.replace(/\D/g, "").slice(0, 6);
-            const newCode = ["", "", "", "", "", ""];
-            for (let i = 0; i < digits.length; i++) newCode[i] = digits[i];
-            setInviteCode(newCode);
-            stopQRScanner();
-            const scannedMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ QR Code scanned! Verifying your invite code..." };
-            setMessages((prev) => [...prev, scannedMsg]);
-            setCurrentStep("personal-invite-verifying");
-          },
-          () => {}
-        );
-      } catch (err) {
-        console.error("QR Scanner error:", err);
-        setScannerError("Unable to access camera. Please check permissions.");
-      }
-    }, 150);
-  }, []);
-
   const stopQRScanner = useCallback(async () => {
     if (qrScannerRef.current) {
       try {
         await qrScannerRef.current.stop();
-        qrScannerRef.current = null;
       } catch (err) {
         console.error("Error stopping scanner:", err);
+      } finally {
+        qrScannerRef.current = null;
       }
     }
     setScannerError("");
   }, []);
+
+  const startQRScanner = useCallback(() => {
+    setShowKeyboard(false);
+    setScannerError("");
+    setCurrentStep("personal-qr-scanner");
+  }, []);
+
+  useEffect(() => {
+    if (currentStep !== "personal-qr-scanner") return;
+
+    const timer = setTimeout(() => {
+      const initScanner = async () => {
+        try {
+          await stopQRScanner();
+          const html5QrCode = new Html5Qrcode("ai-qr-reader");
+          qrScannerRef.current = html5QrCode;
+
+          await html5QrCode.start(
+            { facingMode: "environment" },
+            { fps: 10, qrbox: { width: 220, height: 220 } },
+            (decodedText) => {
+              const digits = decodedText.replace(/\D/g, "").slice(0, 6);
+              const newCode = ["", "", "", "", "", ""];
+              for (let i = 0; i < digits.length; i++) newCode[i] = digits[i];
+              setInviteCode(newCode);
+              void stopQRScanner();
+              const scannedMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ QR Code scanned! Verifying your invite code..." };
+              setMessages((prev) => [...prev, scannedMsg]);
+              setCurrentStep("personal-invite-verifying");
+            },
+            () => {}
+          );
+        } catch (err) {
+          console.error("QR Scanner error:", err);
+          setScannerError("Unable to access camera. Please check permissions.");
+        }
+      };
+
+      void initScanner();
+    }, 200);
+
+    return () => {
+      clearTimeout(timer);
+      void stopQRScanner();
+    };
+  }, [currentStep, stopQRScanner]);
 
   // Handle invite code verification → show profile + ask email
   useEffect(() => {

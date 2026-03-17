@@ -1434,20 +1434,18 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       ))}
                     </div>
 
-                    <div className="w-full max-w-[280px] mx-auto">
-                      <NumericKeypad
-                        onKeyPress={(key) => {
-                          if (demoOtp.length >= 6) return;
-                          setDemoOtp((prev) => `${prev}${key}`.slice(0, 6));
-                          setDemoOtpError("");
-                        }}
-                        onDelete={() => {
-                          setDemoOtp((prev) => prev.slice(0, -1));
-                          setDemoOtpError("");
-                        }}
-                        variant="dark"
-                      />
-                    </div>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoFocus
+                      value={demoOtp}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        setDemoOtp(val);
+                        setDemoOtpError("");
+                      }}
+                      className="sr-only"
+                    />
 
                     {demoOtpError && (
                       <motion.div

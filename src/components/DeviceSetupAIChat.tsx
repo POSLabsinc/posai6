@@ -155,7 +155,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
 
   useEffect(() => {
     if (open && scrollRef.current) {
-      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+      const container = scrollRef.current;
+      // Scroll incrementally to show new content without hiding the top header
+      const targetScroll = Math.min(
+        container.scrollTop + 120,
+        container.scrollHeight - container.clientHeight
+      );
+      container.scrollTo({ top: targetScroll, behavior: 'smooth' });
     }
   }, [messages, open, showActivationOptions]);
 

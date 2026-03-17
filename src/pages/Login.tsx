@@ -1916,8 +1916,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </AnimatePresence>
             </div>
 
-            {/* Visible input for native keyboard */}
-            <Input
+            {/* Hidden input for native keyboard - captures input into code boxes */}
+            <input
               type="text"
               inputMode="numeric"
               autoFocus
@@ -1928,7 +1928,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   setActivationCode(val);
                   setActivationError("");
                   if (val.length === CODE_LENGTH && !isActivating) {
-                    // Trigger auto-submit
                     setIsActivating(true);
                     setTimeout(() => {
                       if (val.startsWith("0")) {
@@ -1952,8 +1951,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   }
                 }
               }}
-              className="h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
+              className="sr-only"
               maxLength={CODE_LENGTH}
+              id="activation-code-hidden"
             />
 
             {/* Helper Text - Time-limited notice */}

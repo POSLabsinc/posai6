@@ -1923,19 +1923,22 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </AnimatePresence>
             </div>
 
-            {/* Numeric Keypad */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-              className="w-full max-w-[280px]"
-            >
-              <NumericKeypad
-                onKeyPress={handleCodeKeyPress}
-                onDelete={handleCodeDelete}
-                variant="dark"
-              />
-            </motion.div>
+            {/* Hidden numeric input for native keyboard */}
+            <input
+              type="text"
+              inputMode="numeric"
+              autoFocus
+              value={activationCode}
+              onChange={(e) => {
+                const val = e.target.value.replace(/\D/g, "").slice(0, CODE_LENGTH);
+                setActivationCode(val);
+                setActivationError("");
+                if (val.length === CODE_LENGTH) {
+                  handleCodeKeyPress(val[val.length - 1]);
+                }
+              }}
+              className="sr-only"
+            />
 
             {/* Helper Text - Time-limited notice */}
             <motion.div

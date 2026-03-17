@@ -142,6 +142,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   // Personal device invite flow states
   const [inviteCode, setInviteCode] = useState<string[]>(["", "", "", "", "", ""]);
   const inviteCodeRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const [scannerError, setScannerError] = useState("");
+  const qrScannerRef = useRef<Html5Qrcode | null>(null);
+  const scannerContainerRef = useRef<HTMLDivElement>(null);
   const [invitedUser, setInvitedUser] = useState<{ name: string; email: string; role: string } | null>(null);
   const [personalEmail, setPersonalEmail] = useState("");
   const [personalPassword, setPersonalPassword] = useState("");

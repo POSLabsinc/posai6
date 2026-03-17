@@ -1048,7 +1048,43 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                   </motion.div>
                 )}
 
-                {/* Personal invite code verifying */}
+                {/* Personal QR Scanner */}
+                {currentStep === "personal-qr-scanner" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="px-0 pt-3 pb-2 space-y-3"
+                  >
+                    <div 
+                      id="ai-qr-reader" 
+                      ref={scannerContainerRef}
+                      className="w-full aspect-square max-w-[280px] mx-auto rounded-2xl overflow-hidden bg-black/50 border border-foreground/[0.1]"
+                    />
+                    {scannerError && (
+                      <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">
+                        <AlertCircle className="w-4 h-4 text-destructive" />
+                        <span className="text-sm font-medium text-destructive">{scannerError}</span>
+                      </div>
+                    )}
+                    <button
+                      onClick={() => {
+                        stopQRScanner();
+                        setCurrentStep("personal-invite-code");
+                        setInviteCode(["", "", "", "", "", ""]);
+                        const msg: Message = { id: Date.now().toString(), role: "assistant", content: "Enter the code from your manager's invite." };
+                        setMessages((prev) => [...prev, msg]);
+                        setTimeout(() => inviteCodeRefs.current[0]?.focus(), 100);
+                      }}
+                      className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
+                    >
+                      <KeyRound className="w-4 h-4 text-foreground/60" />
+                      <span className="text-sm font-medium text-foreground/70">Enter code manually</span>
+                    </button>
+                  </motion.div>
+                )}
+
+
                 {currentStep === "personal-invite-verifying" && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}

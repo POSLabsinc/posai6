@@ -1923,21 +1923,45 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </AnimatePresence>
             </div>
 
-            {/* Hidden numeric input for native keyboard */}
-            <input
+            {/* Visible input for native keyboard */}
+            <Input
               type="text"
               inputMode="numeric"
               autoFocus
               value={activationCode}
               onChange={(e) => {
                 const val = e.target.value.replace(/\D/g, "").slice(0, CODE_LENGTH);
-                setActivationCode(val);
-                setActivationError("");
-                if (val.length === CODE_LENGTH) {
-                  handleCodeKeyPress(val[val.length - 1]);
+                if (val.length <= CODE_LENGTH) {
+                  setActivationCode(val);
+                  setActivationError("");
+                  if (val.length === CODE_LENGTH && !isActivating) {
+                    // Trigger auto-submit
+                    setIsActivating(true);
+                    setTimeout(() => {
+                      if (val.startsWith("0")) {
+                        setIsActivating(false);
+                        setActivationError("This code has expired. Please request a new one.");
+                        setActivationCode("");
+                      } else if (val.startsWith("9")) {
+                        setIsActivating(false);
+                        setActivationError("Invalid code. Please check and try again.");
+                        setActivationCode("");
+                      } else {
+                        setIsActivating(false);
+                        localStorage.setItem("pos_device_session", JSON.stringify({
+                          deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+                          deviceType: "company",
+                          trustedAt: new Date().toISOString(),
+                        }));
+                        navigate("/");
+                      }
+                    }, 1500);
+                  }
                 }
               }}
-              className="sr-only"
+              className="h-14 text-center text-2xl font-mono tracking-[0.5em] rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
+              maxLength={CODE_LENGTH}
+            />
             />
 
             {/* Helper Text - Time-limited notice */}

@@ -1253,6 +1253,17 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">One-time code: This code expires in 10 minutes and can only be used once.</span>
                     </div>
+
+                    <button
+                      onClick={() => {
+                        setActivationCode(["", "", "", "", "", ""]);
+                        const reqMsg: Message = { id: Date.now().toString(), role: "assistant", content: "A new activation code has been requested. Please check your admin portal or contact your manager for the new code." };
+                        setMessages((prev) => [...prev, reqMsg]);
+                      }}
+                      className="w-full py-2.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/50 hover:text-foreground/70 text-[13px] font-medium transition-all"
+                    >
+                      Request a new code
+                    </button>
                   </motion.div>
                 )}
 

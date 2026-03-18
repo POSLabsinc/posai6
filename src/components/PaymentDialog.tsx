@@ -8,7 +8,7 @@ import {
   ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, 
   Mail, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, 
   UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, 
-  RefreshCw, Send, Zap, Users, Clock, Share2, GripVertical, Save, Ticket
+  RefreshCw, Send, Zap, Users, Clock, Share2, GripVertical, Save, Ticket, Percent
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";

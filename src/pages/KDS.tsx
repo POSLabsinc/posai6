@@ -225,6 +225,8 @@ interface KDSMessageData {
   table_number?: string | null;
   linked_order_id?: string | null;
   linked_order_number?: number | null;
+  linked_order_ids?: string[] | null;
+  link_type?: string;
   timestamp: string;
   status: "pending" | "acknowledged";
   acknowledged_at?: string;
@@ -301,7 +303,24 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
             <Megaphone className="w-10 h-10 opacity-30" />
             <p className="text-xs font-medium">{filter === "pending" ? "No active messages" : "No acknowledged messages"}</p>
           </div>
-        ) : deduplicated.map(msg => (
+        ) : deduplicated.map(msg => {
+          // Resolve order numbers for table-linked messages
+          let displayOrderNumbers: number[] = [];
+          if (msg.linked_order_number) {
+            displayOrderNumbers = [msg.linked_order_number];
+          } else if (msg.linked_order_ids && msg.linked_order_ids.length > 0) {
+            try {
+              const ticketQueue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
+              displayOrderNumbers = msg.linked_order_ids
+                .map((id: string) => {
+                  const ticket = ticketQueue.find((t: any) => t.sessionId === id || t.id === id);
+                  return ticket?.orderNumber;
+                })
+                .filter((n: number | undefined): n is number => typeof n === "number");
+            } catch {}
+          }
+
+          return (
           <div key={msg.message_id} className={`rounded-xl overflow-hidden border transition-all duration-300 ${flashId === msg.message_id ? "border-violet-400 ring-2 ring-violet-400/50 animate-pulse" : "border-neutral-700"}`}>
             <div className="bg-gradient-to-r from-violet-700 to-indigo-700 px-3 py-2 flex items-center justify-between">
               <div className="flex items-center gap-1.5">
@@ -312,7 +331,7 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
             </div>
             <div className="bg-neutral-800 px-3 py-1.5 flex items-center gap-3 text-[10px] text-neutral-400 border-b border-neutral-700">
               <span>From: <span className="text-white font-medium">{msg.employee_name}</span></span>
-              {msg.linked_order_number && <span>·  Order <span className="text-white font-medium">#{msg.linked_order_number}</span></span>}
+              {displayOrderNumbers.length > 0 && <span>·  Order <span className="text-white font-medium">{displayOrderNumbers.map(n => `#${n}`).join(", ")}</span></span>}
               {(msg.table_id || msg.table_number) && <span>·  <span className="text-white font-medium">{msg.table_number || `Table ${msg.table_id}`}</span></span>}
             </div>
             <div className="bg-neutral-900 px-3 py-3">
@@ -333,7 +352,9 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
+
       </div>
     </div>
   );

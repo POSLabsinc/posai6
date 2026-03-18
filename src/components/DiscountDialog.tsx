@@ -544,16 +544,6 @@ export function DiscountDialog({
 
   const reasonViewContent = selected100Discount ? (
     <div className="max-h-[50vh] overflow-y-auto scrollbar-hide">
-      <div className="px-3 pt-2 pb-1">
-        <button
-          onClick={() => setView('list')}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back
-        </button>
-        <p className="text-sm font-semibold text-foreground mb-1">{selected100Discount.name} - Select Reason</p>
-      </div>
       {renderReasonSection(selected100Discount)}
     </div>
   ) : null;
@@ -611,7 +601,12 @@ export function DiscountDialog({
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent className="bg-neutral-900 border-sidebar-border">
           <DrawerHeader className="border-b border-sidebar-border pb-2">
-            <DrawerTitle className="text-foreground text-lg font-semibold text-center">
+            <DrawerTitle className="text-foreground text-lg font-semibold text-center flex items-center justify-center gap-2">
+              {view === 'reason' && (
+                <button onClick={() => setView('list')} className="absolute left-4 text-muted-foreground hover:text-foreground transition-colors">
+                  <ChevronLeft className="w-5 h-5" />
+                </button>
+              )}
               {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
             </DrawerTitle>
           </DrawerHeader>
@@ -625,7 +620,12 @@ export function DiscountDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[420px] bg-neutral-900 border-sidebar-border p-0 gap-0">
-        <DialogHeader className="p-4 pb-2 border-b border-sidebar-border">
+        <DialogHeader className="p-4 pb-2 border-b border-sidebar-border relative">
+          {view === 'reason' && (
+            <button onClick={() => setView('list')} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
+              <ChevronLeft className="w-5 h-5" />
+            </button>
+          )}
           <DialogTitle className="text-foreground text-lg font-semibold">
             {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
           </DialogTitle>

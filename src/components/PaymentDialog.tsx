@@ -5486,6 +5486,19 @@ export function PaymentDialog({
         </div>
         )}
       </div>
+
+      <DiscountDialog
+        open={showSplitDiscountDialog}
+        onOpenChange={setShowSplitDiscountDialog}
+        currentDiscounts={splitDiscounts}
+        onApplyDiscounts={(discounts) => {
+          setSplitDiscounts(discounts);
+          if (discounts.length > 0) {
+            toast.success(`Discount applied to all checks`);
+          }
+        }}
+        subtotal={subtotal}
+      />
     </div>
   );
 }

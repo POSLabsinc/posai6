@@ -1477,9 +1477,9 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           <EmptyDetailState />
         )}
       </div>
-      {/* Add Guest Full Screen */}
+      {/* Add Guest Full Panel */}
       {showAddGuest && (
-        <div className="fixed inset-0 z-50">
+        <div className="absolute inset-0 z-40">
           <AddGuestForm
             onClose={() => setShowAddGuest(false)}
             onSave={handleAddGuestSave}

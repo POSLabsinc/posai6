@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Loader2, Search } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 
 interface KDSTicketData {
   id: string;

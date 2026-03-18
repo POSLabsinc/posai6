@@ -5493,24 +5493,24 @@ export function PaymentDialog({
       </div>
 
       {showSplitDiscountDialog && (
-        <div className="fixed inset-0 z-[200]">
-          <div className="fixed inset-0 bg-black/80" onClick={() => setShowSplitDiscountDialog(false)} />
-          <div className="fixed inset-0 z-[201] pointer-events-none">
-            <DiscountDialog
-              open={showSplitDiscountDialog}
-              onOpenChange={setShowSplitDiscountDialog}
-              currentDiscounts={splitDiscounts}
-              onApplyDiscounts={(discounts) => {
-                setSplitDiscounts(discounts);
-                if (discounts.length > 0) {
-                  toast.success(`Discount applied to all checks`);
-                }
-              }}
-              subtotal={subtotal}
-            />
-          </div>
-        </div>
+        <style>{`
+          [data-radix-portal] { z-index: 200 !important; }
+          [data-radix-portal] [role="dialog"] { z-index: 200 !important; }
+          [data-radix-portal] > div:first-child { z-index: 200 !important; }
+        `}</style>
       )}
+      <DiscountDialog
+        open={showSplitDiscountDialog}
+        onOpenChange={setShowSplitDiscountDialog}
+        currentDiscounts={splitDiscounts}
+        onApplyDiscounts={(discounts) => {
+          setSplitDiscounts(discounts);
+          if (discounts.length > 0) {
+            toast.success(`Discount applied to all checks`);
+          }
+        }}
+        subtotal={subtotal}
+      />
     </div>
   );
 }

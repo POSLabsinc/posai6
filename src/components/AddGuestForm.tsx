@@ -155,7 +155,7 @@ const AddGuestForm = ({ onClose, onSave }: AddGuestFormProps) => {
     <div 
       className="flex flex-col h-full rounded-lg overflow-hidden"
       style={{ 
-        background: '#7575754D',
+        background: '#252525',
         boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
       }}
     >

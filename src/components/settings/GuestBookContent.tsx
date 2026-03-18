@@ -1481,7 +1481,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
       {showAddGuest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddGuest(false)}>
           <div className="absolute inset-0 bg-black/60" />
-          <div className="relative z-10 w-full max-w-md max-h-[85vh] rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+          <div className="relative z-10 w-full max-w-lg max-h-[85vh] rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
             <AddGuestForm
               onClose={() => setShowAddGuest(false)}
               onSave={handleAddGuestSave}

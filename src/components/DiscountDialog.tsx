@@ -612,10 +612,10 @@ export function DiscountDialog({
         <DrawerContent className="bg-neutral-900 border-sidebar-border">
           <DrawerHeader className="border-b border-sidebar-border pb-2">
             <DrawerTitle className="text-foreground text-lg font-semibold text-center">
-              Select Discounts
+              {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
             </DrawerTitle>
           </DrawerHeader>
-          {listContent}
+          {view === 'reason' && reasonViewContent ? reasonViewContent : listContent}
           {summaryAndApply}
         </DrawerContent>
       </Drawer>
@@ -627,10 +627,10 @@ export function DiscountDialog({
       <DialogContent className="sm:max-w-[420px] bg-neutral-900 border-sidebar-border p-0 gap-0">
         <DialogHeader className="p-4 pb-2 border-b border-sidebar-border">
           <DialogTitle className="text-foreground text-lg font-semibold">
-            Select Discounts
+            {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
           </DialogTitle>
         </DialogHeader>
-        {listContent}
+        {view === 'reason' && reasonViewContent ? reasonViewContent : listContent}
         {summaryAndApply}
       </DialogContent>
     </Dialog>

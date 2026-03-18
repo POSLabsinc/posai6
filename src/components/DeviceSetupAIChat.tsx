@@ -1,10 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Html5Qrcode } from "html5-qrcode";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, ShieldCheck, AlertCircle, ScanLine, Lock, Eye, EyeOff, User, ShieldX } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import InlineIOSKeyboard from "@/components/InlineIOSKeyboard";
 import ReactMarkdown from "react-markdown";
 import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";
 import { formatPhone } from "@/components/voucher/voucherHelpers";
@@ -24,7 +22,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner";
+type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -142,26 +140,16 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   // Personal device invite flow states
   const [inviteCode, setInviteCode] = useState<string[]>(["", "", "", "", "", ""]);
   const inviteCodeRefs = useRef<(HTMLInputElement | null)[]>([]);
-  const [scannerError, setScannerError] = useState("");
-  const qrScannerRef = useRef<Html5Qrcode | null>(null);
-  const scannerContainerRef = useRef<HTMLDivElement>(null);
   const [invitedUser, setInvitedUser] = useState<{ name: string; email: string; role: string } | null>(null);
   const [personalEmail, setPersonalEmail] = useState("");
   const [personalPassword, setPersonalPassword] = useState("");
   const [showPersonalPassword, setShowPersonalPassword] = useState(false);
   const [personalSignInError, setPersonalSignInError] = useState("");
   const [isPersonalSigningIn, setIsPersonalSigningIn] = useState(false);
-  const [showKeyboard, setShowKeyboard] = useState(false);
 
   useEffect(() => {
     if (open && scrollRef.current) {
-      const container = scrollRef.current;
-      // Scroll incrementally to show new content without hiding the top header
-      const targetScroll = Math.min(
-        container.scrollTop + 120,
-        container.scrollHeight - container.clientHeight
-      );
-      container.scrollTo({ top: targetScroll, behavior: 'smooth' });
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
     }
   }, [messages, open, showActivationOptions]);
 
@@ -178,11 +166,6 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
     }
   }, [open]);
-
-  // Reset keyboard visibility when step changes
-  useEffect(() => {
-    setShowKeyboard(false);
-  }, [currentStep]);
 
   // Demo OTP resend cooldown
   useEffect(() => {
@@ -520,35 +503,6 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
     }
   }, [activationCode]);
 
-  const handleActivationKeypadPress = useCallback((key: string) => {
-    const nextIndex = activationCode.findIndex((digit) => digit === "");
-    if (nextIndex === -1) return;
-    handleCodeInput(nextIndex, key);
-  }, [activationCode, handleCodeInput]);
-
-  const handleActivationKeypadDelete = useCallback(() => {
-    let lastFilledIndex = -1;
-    for (let i = activationCode.length - 1; i >= 0; i--) {
-      if (activationCode[i]) {
-        lastFilledIndex = i;
-        break;
-      }
-    }
-    if (lastFilledIndex === -1) return;
-
-    const newCode = [...activationCode];
-    newCode[lastFilledIndex] = "";
-    setActivationCode(newCode);
-    codeInputRefs.current[lastFilledIndex]?.focus();
-  }, [activationCode]);
-
-  // Auto-open keyboard when entering activate-code step
-  useEffect(() => {
-   if (currentStep === "activate-code" || currentStep === "personal-invite-code") {
-      setShowKeyboard(true);
-    }
-  }, [currentStep]);
-
   // Handle activation code verification animation + redirect
   useEffect(() => {
     if (currentStep === "activate-code-verifying") {
@@ -620,88 +574,6 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       }, 300);
     }
   }, [inviteCode]);
-
-  const handleInviteKeypadPress = useCallback((key: string) => {
-    const nextIndex = inviteCode.findIndex((digit) => digit === "");
-    if (nextIndex === -1) return;
-    handleInviteCodeInput(nextIndex, key);
-  }, [inviteCode, handleInviteCodeInput]);
-
-  const handleInviteKeypadDelete = useCallback(() => {
-    let lastFilledIndex = -1;
-    for (let i = inviteCode.length - 1; i >= 0; i--) {
-      if (inviteCode[i]) {
-        lastFilledIndex = i;
-        break;
-      }
-    }
-    if (lastFilledIndex === -1) return;
-
-    const newCode = [...inviteCode];
-    newCode[lastFilledIndex] = "";
-    setInviteCode(newCode);
-    inviteCodeRefs.current[lastFilledIndex]?.focus();
-  }, [inviteCode]);
-
-  // QR Scanner handlers
-  const stopQRScanner = useCallback(async () => {
-    if (qrScannerRef.current) {
-      try {
-        await qrScannerRef.current.stop();
-      } catch (err) {
-        console.error("Error stopping scanner:", err);
-      } finally {
-        qrScannerRef.current = null;
-      }
-    }
-    setScannerError("");
-  }, []);
-
-  const startQRScanner = useCallback(() => {
-    setShowKeyboard(false);
-    setScannerError("");
-    setCurrentStep("personal-qr-scanner");
-  }, []);
-
-  useEffect(() => {
-    if (currentStep !== "personal-qr-scanner") return;
-
-    const timer = setTimeout(() => {
-      const initScanner = async () => {
-        try {
-          await stopQRScanner();
-          const html5QrCode = new Html5Qrcode("ai-qr-reader");
-          qrScannerRef.current = html5QrCode;
-
-          await html5QrCode.start(
-            { facingMode: "environment" },
-            { fps: 10, qrbox: { width: 220, height: 220 } },
-            (decodedText) => {
-              const digits = decodedText.replace(/\D/g, "").slice(0, 6);
-              const newCode = ["", "", "", "", "", ""];
-              for (let i = 0; i < digits.length; i++) newCode[i] = digits[i];
-              setInviteCode(newCode);
-              void stopQRScanner();
-              const scannedMsg: Message = { id: Date.now().toString(), role: "assistant", content: "✅ QR Code scanned! Verifying your invite code..." };
-              setMessages((prev) => [...prev, scannedMsg]);
-              setCurrentStep("personal-invite-verifying");
-            },
-            () => {}
-          );
-        } catch (err) {
-          console.error("QR Scanner error:", err);
-          setScannerError("Unable to access camera. Please check permissions.");
-        }
-      };
-
-      void initScanner();
-    }, 200);
-
-    return () => {
-      clearTimeout(timer);
-      void stopQRScanner();
-    };
-  }, [currentStep, stopQRScanner]);
 
   // Handle invite code verification → show profile + ask email
   useEffect(() => {
@@ -1006,7 +878,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
                           const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
                           setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          startQRScanner();
+                          // QR scanning would be handled here
                         }}
                         className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                       >
@@ -1028,9 +900,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="px-0 pt-3 pb-2 space-y-4"
+                    className="pl-7 pt-3 pb-2 space-y-4"
                   >
-                    <div className="flex gap-2 justify-center">
+                    <div className="flex gap-2 justify-start">
                       {inviteCode.map((digit, i) => (
                         <input
                           key={i}
@@ -1042,92 +914,29 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           onChange={(e) => handleInviteCodeInput(i, e.target.value)}
                           onKeyDown={(e) => handleInviteCodeKeyDown(i, e)}
                           onPaste={i === 0 ? handleInviteCodePaste : undefined}
-                          onFocus={() => setShowKeyboard(true)}
-                          className="w-12 h-14 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-xl font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                          className="w-10 h-12 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-lg font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         />
                       ))}
                     </div>
-
-                    <div className="flex items-start gap-1.5 text-foreground/40 px-2">
+                    <div className="flex items-start gap-1.5 text-foreground/40">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">Check your email or scan the QR from the admin portal.</span>
                     </div>
-
-                    <div className="flex gap-2 w-full">
-                      <button
-                        onClick={() => {
-                          setInviteCode(["", "", "", "", "", ""]);
-                          const reqMsg: Message = { id: Date.now().toString(), role: "assistant", content: "A new invite code has been requested. Please check your email or contact your manager for the new code." };
-                          setMessages((prev) => [...prev, reqMsg]);
-                        }}
-                        className="flex-1 py-2.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/50 text-[13px] font-medium transition-all"
-                      >
-                        Request a new code
-                      </button>
-
-                      <button
-                        onClick={() => {
-                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
-                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          startQRScanner();
-                        }}
-                        className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
-                      >
-                        <ScanLine className="w-4 h-4 text-foreground/60" />
-                        <span className="text-[13px] font-medium text-foreground/70">Scan QR Code</span>
-                      </button>
-                    </div>
-
-                    {showKeyboard && (
-                      <InlineIOSKeyboard
-                        mode="phone"
-                        fullWidth
-                        size="large"
-                        onKeyPress={handleInviteKeypadPress}
-                        onDelete={handleInviteKeypadDelete}
-                      />
-                    )}
-                  </motion.div>
-                )}
-
-                {/* Personal QR Scanner */}
-                {currentStep === "personal-qr-scanner" && !isLoading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="px-0 pt-3 pb-2 space-y-3"
-                  >
-                    <div 
-                      id="ai-qr-reader" 
-                      ref={scannerContainerRef}
-                      className="w-full aspect-square max-w-[280px] mx-auto rounded-2xl overflow-hidden bg-black/50 border border-foreground/[0.1]"
-                    />
-                    {scannerError && (
-                      <div className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">
-                        <AlertCircle className="w-4 h-4 text-destructive" />
-                        <span className="text-sm font-medium text-destructive">{scannerError}</span>
-                      </div>
-                    )}
                     <button
                       onClick={() => {
-                        stopQRScanner();
-                        setCurrentStep("personal-invite-code");
-                        setInviteCode(["", "", "", "", "", ""]);
-                        const msg: Message = { id: Date.now().toString(), role: "assistant", content: "Enter the code from your manager's invite." };
-                        setMessages((prev) => [...prev, msg]);
-                        setTimeout(() => inviteCodeRefs.current[0]?.focus(), 100);
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Scan QR Code" };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please use your device camera to scan the QR code from the admin portal." };
+                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
                       }}
                       className="flex items-center justify-center gap-2.5 w-full px-4 py-3 rounded-xl border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
                     >
-                      <KeyRound className="w-4 h-4 text-foreground/60" />
-                      <span className="text-sm font-medium text-foreground/70">Enter code manually</span>
+                      <ScanLine className="w-4 h-4 text-foreground/60" />
+                      <span className="text-sm font-medium text-foreground/70">Scan QR Code</span>
                     </button>
                   </motion.div>
                 )}
 
-
+                {/* Personal invite code verifying */}
                 {currentStep === "personal-invite-verifying" && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -1246,9 +1055,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="px-0 pt-3 pb-2 space-y-3"
+                    className="pl-7 pt-3 pb-2 space-y-4"
                   >
-                    <div className="flex gap-2 justify-center">
+                    <div className="flex gap-2 justify-start">
                       {activationCode.map((digit, i) => (
                         <input
                           key={i}
@@ -1260,35 +1069,14 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           onChange={(e) => handleCodeInput(i, e.target.value)}
                           onKeyDown={(e) => handleCodeKeyDown(i, e)}
                           onPaste={i === 0 ? handleCodePaste : undefined}
-                          onFocus={() => setShowKeyboard(true)}
-                          className="w-12 h-14 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-xl font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                          className="w-10 h-12 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-center text-lg font-semibold text-foreground outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         />
                       ))}
                     </div>
-
-                    <div className="flex items-start gap-1.5 text-foreground/40 px-2">
+                    <div className="flex items-start gap-1.5 text-foreground/40">
                       <Info className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                       <span className="text-xs">One-time code: This code expires in 10 minutes and can only be used once.</span>
                     </div>
-
-                    <button
-                      onClick={() => {
-                        setActivationCode(["", "", "", "", "", ""]);
-                        const reqMsg: Message = { id: Date.now().toString(), role: "assistant", content: "A new activation code has been requested. Please check your admin portal or contact your manager for the new code." };
-                        setMessages((prev) => [...prev, reqMsg]);
-                      }}
-                      className="w-full py-2.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/50 hover:text-foreground/70 text-[13px] font-medium transition-all"
-                    >
-                      Request a new code
-                    </button>
-
-                    <InlineIOSKeyboard
-                      mode="phone"
-                      fullWidth
-                      size="large"
-                      onKeyPress={handleActivationKeypadPress}
-                      onDelete={handleActivationKeypadDelete}
-                    />
                   </motion.div>
                 )}
 
@@ -1370,16 +1158,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="px-0 pt-3 pb-2 space-y-4"
+                    className="pl-7 pt-3 pb-2 space-y-3"
                   >
                     <div className="flex gap-2">
                       <input
                         type="email"
                         value={signInInput}
+                        onChange={(e) => setSignInInput(e.target.value)}
                         placeholder="name@company.com"
-                        readOnly
-                        onFocus={() => setShowKeyboard(true)}
-                        className="flex-1 px-4 py-3 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.04] text-base text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                        className="flex-1 px-4 py-2.5 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && signInInput.trim() && signInInput.includes("@")) {
                             const email = signInInput.trim();
@@ -1405,21 +1192,11 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           }
                         }}
                         disabled={!signInInput.trim() || !signInInput.includes("@")}
-                        className="px-5 py-3 rounded-2xl bg-primary text-primary-foreground text-base font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                       >
                         Send
                       </button>
                     </div>
-
-                    {showKeyboard && (
-                      <InlineIOSKeyboard
-                        mode="email"
-                        fullWidth
-                        size="large"
-                        onKeyPress={(key) => setSignInInput((prev) => `${prev}${key}`.slice(0, 80))}
-                        onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
-                      />
-                    )}
                   </motion.div>
                 )}
 
@@ -1429,17 +1206,17 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: "easeOut" }}
-                    className="px-0 pt-3 pb-2 space-y-4"
+                    className="pl-7 pt-3 pb-2 space-y-2"
                   >
                     <div className="flex gap-2">
                       {/* Country code selector */}
                       <div className="relative">
                         <button
                           onClick={() => setShowCountryDropdown(!showCountryDropdown)}
-                          className="flex items-center gap-1 px-3 py-3 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground hover:bg-foreground/[0.06] transition-all h-full"
+                          className="flex items-center gap-1 px-2.5 py-2.5 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground hover:bg-foreground/[0.06] transition-all h-full"
                         >
                           <span className="text-base leading-none">{selectedCountry.flag}</span>
-                          <span className="text-sm text-foreground/60">{selectedCountry.dial}</span>
+                          <span className="text-xs text-foreground/60">{selectedCountry.dial}</span>
                           <ChevronDown className="w-3 h-3 text-foreground/40" />
                         </button>
 
@@ -1502,10 +1279,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         type="tel"
                         inputMode="numeric"
                         value={formatPhone(signInInput, selectedCountry.format)}
+                        onChange={(e) => setSignInInput(e.target.value.replace(/\D/g, "").slice(0, selectedCountry.phoneLength))}
                         placeholder={selectedCountry.placeholder}
-                        readOnly
-                        onFocus={() => setShowKeyboard(true)}
-                        className="flex-1 px-4 py-3 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.04] text-base text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                        className="flex-1 px-4 py-2.5 rounded-xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
                         onKeyDown={(e) => {
                           if (e.key === "Enter" && signInInput.length === selectedCountry.phoneLength) {
                             const phone = `${selectedCountry.dial} ${formatPhone(signInInput, selectedCountry.format)}`;
@@ -1531,25 +1307,12 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           }
                         }}
                         disabled={signInInput.length !== selectedCountry.phoneLength}
-                        className="px-5 py-3 rounded-2xl bg-primary text-primary-foreground text-base font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                        className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                       >
                         Send
                       </button>
                     </div>
-
-                    {showKeyboard && (
-                      <InlineIOSKeyboard
-                        mode="phone"
-                        fullWidth
-                        size="large"
-                        onKeyPress={(key) =>
-                          setSignInInput((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, selectedCountry.phoneLength))
-                        }
-                        onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
-                      />
-                    )}
-
-                    <p className="text-xs text-foreground/35 pl-0.5">{selectedCountry.hint}</p>
+                    <p className="text-[11px] text-foreground/35 pl-0.5">{selectedCountry.hint}</p>
                   </motion.div>
                 )}
 
@@ -1588,11 +1351,11 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     transition={{ duration: 0.35, ease: "easeOut" }}
                     className="pl-7 pt-3 pb-2 space-y-3"
                   >
-                    <div className="flex gap-2 justify-center cursor-text" onClick={() => { setShowKeyboard(true); demoOtpRef.current?.focus(); }}>
+                    <div className="flex gap-2 justify-start">
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div
                           key={i}
-                          className={`w-11 h-12 rounded-xl border-2 flex items-center justify-center text-xl font-semibold transition-all ${
+                          className={`w-9 h-11 rounded-xl border-2 flex items-center justify-center text-lg font-semibold transition-all ${
                             demoOtp[i]
                               ? "border-amber-500/40 bg-amber-500/5 text-foreground"
                               : i === demoOtp.length
@@ -1624,23 +1387,6 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       autoFocus
                     />
                     <label htmlFor="" onClick={() => demoOtpRef.current?.focus()} className="block w-full cursor-text" />
-
-                    {showKeyboard && (
-                      <InlineIOSKeyboard
-                        mode="phone"
-                        fullWidth
-                        size="large"
-                        onKeyPress={(key) => {
-                          if (demoOtp.length >= 6) return;
-                          setDemoOtp((prev) => `${prev}${key}`.slice(0, 6));
-                          setDemoOtpError("");
-                        }}
-                        onDelete={() => {
-                          setDemoOtp((prev) => prev.slice(0, -1));
-                          setDemoOtpError("");
-                        }}
-                      />
-                    )}
 
                     {demoOtpError && (
                       <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">

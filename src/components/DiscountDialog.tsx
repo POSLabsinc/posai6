@@ -129,20 +129,6 @@ const fallbackDiscounts: Discount[] = [
   { id: "promo-code", name: "Promo Code Discount", type: "percentage", value: 20, icon: Tag },
 ];
 
-const FULL_COMP_DEFAULT: Discount = {
-  id: "full-comp-default",
-  name: "Full Comp",
-  type: "percentage",
-  value: 100,
-  icon: Cake,
-  reasonRequired: true,
-};
-
-const ensureFullComp = (discounts: Discount[]): Discount[] => {
-  const has100 = discounts.some(d => d.value === 100 && d.type === "percentage");
-  return has100 ? discounts : [...discounts, FULL_COMP_DEFAULT];
-};
-
 const getDiscountsFromSettings = (): Discount[] => {
   try {
     const raw = localStorage.getItem("discounts-settings");
@@ -150,7 +136,7 @@ const getDiscountsFromSettings = (): Discount[] => {
     const settings: { id: string; name: string; amount: number; type: string; archived: boolean }[] = JSON.parse(raw);
     const active = settings.filter(d => !d.archived);
     if (active.length === 0) return fallbackDiscounts;
-    const mapped = active.map(d => ({
+    return active.map(d => ({
       id: d.id,
       name: d.name,
       type: d.type === "Fixed" ? "amount" as const : "percentage" as const,
@@ -158,7 +144,6 @@ const getDiscountsFromSettings = (): Discount[] => {
       icon: getIconForDiscount(d.name),
       reasonRequired: d.type === "Percentage" && d.amount === 100,
     }));
-    return ensureFullComp(mapped);
   } catch {
     return fallbackDiscounts;
   }
@@ -172,7 +157,7 @@ const fetchDiscountsFromDB = async (): Promise<Discount[]> => {
       .eq('archived', false)
       .order('sort_order');
     if (error || !data || data.length === 0) return getDiscountsFromSettings();
-    const mapped = data.map(d => ({
+    return data.map(d => ({
       id: d.id,
       name: d.name,
       type: d.type === "Fixed" ? "amount" as const : "percentage" as const,
@@ -180,7 +165,6 @@ const fetchDiscountsFromDB = async (): Promise<Discount[]> => {
       icon: getIconForDiscount(d.name),
       reasonRequired: d.type === "Percentage" && Number(d.amount) === 100,
     }));
-    return ensureFullComp(mapped);
   } catch {
     return getDiscountsFromSettings();
   }

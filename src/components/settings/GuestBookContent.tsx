@@ -12,7 +12,6 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import PaymentTabContent from "@/components/settings/PaymentTabContent";
 import FeedbackTabContent from "@/components/settings/FeedbackTabContent";
 import OrderHistoryTabContent from "@/components/settings/OrderHistoryTabContent";
-import AddGuestForm from "@/components/AddGuestForm";
 
 interface Guest {
   id: string;
@@ -1223,6 +1222,9 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
   const [guests, setGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddGuest, setShowAddGuest] = useState(false);
+  const [newGuestName, setNewGuestName] = useState("");
+  const [newGuestEmail, setNewGuestEmail] = useState("");
+  const [newGuestPhone, setNewGuestPhone] = useState("");
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
@@ -1349,8 +1351,25 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     }).eq("id", updated.id);
   }, []);
 
-  const handleAddGuestSave = async () => {
-    await fetchGuests();
+  const handleAddGuest = async () => {
+    if (!newGuestName.trim()) return;
+    const initials = newGuestName.trim().split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+    const colors = ["#6B7280", "#8B5CF6", "#F59E0B", "#10B981", "#6366F1", "#EC4899", "#F97316", "#EF4444"];
+    const avatarBg = colors[Math.floor(Math.random() * colors.length)];
+    const { data } = await (supabase as any).from("guests").insert({
+      name: newGuestName.trim(),
+      email: newGuestEmail.trim(),
+      phone: newGuestPhone.trim(),
+      initials,
+      avatar_bg: avatarBg,
+    }).select().single();
+    if (data) {
+      await fetchGuests();
+      setSelectedGuestId(data.id);
+    }
+    setNewGuestName("");
+    setNewGuestEmail("");
+    setNewGuestPhone("");
     setShowAddGuest(false);
   };
 
@@ -1477,24 +1496,27 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           <EmptyDetailState />
         )}
       </div>
-      {/* Add Guest Full Screen */}
+      {/* Add Guest Modal */}
       {showAddGuest && (
-        <div className="fixed inset-0 z-50 bg-[#131316] flex flex-col">
-          <div className="relative flex items-center h-14 px-4 border-b border-neutral-800">
-            <button
-              onClick={() => setShowAddGuest(false)}
-              className="absolute left-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-800 transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-foreground" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddGuest(false)}>
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative z-10 bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-semibold text-foreground">Add New Guest</p>
+              <button onClick={() => setShowAddGuest(false)} className="text-neutral-400 hover:text-foreground"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="space-y-3">
+              <input value={newGuestName} onChange={e => setNewGuestName(e.target.value)} placeholder="Full Name *"
+                className="w-full bg-neutral-700/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-neutral-500 outline-none" />
+              <input value={newGuestEmail} onChange={e => setNewGuestEmail(e.target.value)} placeholder="Email"
+                className="w-full bg-neutral-700/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-neutral-500 outline-none" />
+              <input value={newGuestPhone} onChange={e => setNewGuestPhone(e.target.value)} placeholder="Phone"
+                className="w-full bg-neutral-700/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-neutral-500 outline-none" />
+            </div>
+            <button onClick={handleAddGuest} disabled={!newGuestName.trim()}
+              className="w-full mt-4 py-2.5 rounded-xl bg-foreground text-background text-sm font-medium disabled:opacity-40">
+              Add Guest
             </button>
-            <h2 className="w-full text-center text-base font-semibold text-foreground">Add Guest</h2>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <AddGuestForm
-              onClose={() => setShowAddGuest(false)}
-              onSave={handleAddGuestSave}
-              hideHeader={true}
-            />
           </div>
         </div>
       )}

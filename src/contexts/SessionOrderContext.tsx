@@ -28,7 +28,6 @@ export interface SessionOrder extends Order {
 interface SessionOrderContextType {
   sessionOrders: SessionOrder[];
   createOrder: (tableId: string, guestCount: number, serverName?: string, guestName?: string) => SessionOrder;
-  getActiveOrderForTable: (tableId: string) => SessionOrder | undefined;
   updateOrderItems: (sessionId: string, items: OrderItem[]) => void;
   updateOrderStatus: (sessionId: string, status: string) => void;
   fireOrder: (sessionId: string, checkNumber?: string) => void;
@@ -77,25 +76,12 @@ export function SessionOrderProvider({ children }: { children: ReactNode }) {
       splitConfiguration: o.splitConfiguration,
     }));
 
-  const getActiveOrderForTable = (tableId: string): SessionOrder | undefined => {
-    return sessionOrders.find(o => 
-      o.table === tableId && 
-      !['PAID', 'COMPLETED', 'Completed'].includes(o.status)
-    );
-  };
-
   const createOrder = (
     tableId: string,
     guestCount: number,
     serverName: string = 'Staff',
     guestName: string = 'Guest'
   ): SessionOrder => {
-    // Check for existing active order on this table
-    const existingActive = getActiveOrderForTable(tableId);
-    if (existingActive) {
-      return existingActive;
-    }
-
     const now = Date.now();
     const currentTime = new Date().toLocaleTimeString('en-US', {
       hour: 'numeric',
@@ -245,7 +231,6 @@ export function SessionOrderProvider({ children }: { children: ReactNode }) {
     <SessionOrderContext.Provider value={{
       sessionOrders,
       createOrder,
-      getActiveOrderForTable,
       updateOrderItems: updateOrderItemsFn,
       updateOrderStatus,
       fireOrder,

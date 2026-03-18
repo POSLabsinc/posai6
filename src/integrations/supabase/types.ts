@@ -2039,7 +2039,6 @@ export type Database = {
           image_url: string | null
           ingredients: string[] | null
           inventory_tracking: boolean
-          is_available: boolean
           max_price: number | null
           merchant_id: string | null
           min_price: number | null
@@ -2052,7 +2051,6 @@ export type Database = {
           protein: string | null
           sku: string | null
           sort_order: number
-          stock_count: number | null
           takeaway: boolean
           updated_at: string
         }
@@ -2072,7 +2070,6 @@ export type Database = {
           image_url?: string | null
           ingredients?: string[] | null
           inventory_tracking?: boolean
-          is_available?: boolean
           max_price?: number | null
           merchant_id?: string | null
           min_price?: number | null
@@ -2085,7 +2082,6 @@ export type Database = {
           protein?: string | null
           sku?: string | null
           sort_order?: number
-          stock_count?: number | null
           takeaway?: boolean
           updated_at?: string
         }
@@ -2105,7 +2101,6 @@ export type Database = {
           image_url?: string | null
           ingredients?: string[] | null
           inventory_tracking?: boolean
-          is_available?: boolean
           max_price?: number | null
           merchant_id?: string | null
           min_price?: number | null
@@ -2118,7 +2113,6 @@ export type Database = {
           protein?: string | null
           sku?: string | null
           sort_order?: number
-          stock_count?: number | null
           takeaway?: boolean
           updated_at?: string
         }

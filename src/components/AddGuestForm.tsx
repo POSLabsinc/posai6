@@ -12,7 +12,6 @@ import addGuestIcon from "@/assets/icons/add-guest.svg";
 interface AddGuestFormProps {
   onClose: () => void;
   onSave: (guestData: GuestFormData) => void;
-  hideHeader?: boolean;
 }
 
 interface GuestFormData {
@@ -45,7 +44,7 @@ const vehicleBrands: Record<string, string[]> = {
   "Wagon": ["Volvo", "Audi", "BMW", "Mercedes", "Subaru"],
 };
 
-const AddGuestForm = ({ onClose, onSave, hideHeader }: AddGuestFormProps) => {
+const AddGuestForm = ({ onClose, onSave }: AddGuestFormProps) => {
   const [showVehicleDetails, setShowVehicleDetails] = useState(false);
   const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -156,25 +155,23 @@ const AddGuestForm = ({ onClose, onSave, hideHeader }: AddGuestFormProps) => {
     <div 
       className="flex flex-col h-full rounded-lg overflow-hidden"
       style={{ 
-        background: '#252525',
+        background: '#7575754D',
         boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
       }}
     >
       {/* Fixed Header */}
-      {!hideHeader && (
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <img src={addGuestIcon} alt="" className="w-5 h-5" />
-            <h2 className="text-lg font-semibold text-white">Add Guest</h2>
-          </div>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-white/10 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5 text-white/70" />
-          </button>
+      <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center gap-2">
+          <img src={addGuestIcon} alt="" className="w-5 h-5" />
+          <h2 className="text-lg font-semibold text-white">Add Guest</h2>
         </div>
-      )}
+        <button
+          onClick={onClose}
+          className="p-1 hover:bg-white/10 rounded-full transition-colors"
+        >
+          <X className="w-5 h-5 text-white/70" />
+        </button>
+      </div>
 
       {/* Scrollable Content */}
       <div 

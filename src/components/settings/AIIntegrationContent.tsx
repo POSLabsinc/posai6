@@ -355,7 +355,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
             <button
               onClick={handleSave}
               disabled={isSaving}
-              className="flex-1 bg-neutral-700 hover:bg-neutral-600 disabled:opacity-50 text-white font-semibold py-3.5 rounded-2xl text-sm tracking-wide transition-colors text-center"
+              className="flex-1 bg-green-600 hover:bg-green-500 disabled:opacity-50 text-white font-semibold py-3.5 rounded-2xl text-sm tracking-wide transition-colors text-center"
             >
               {isSaving ? "Saving..." : hasSavedKey ? "Update" : "Save"}
             </button>

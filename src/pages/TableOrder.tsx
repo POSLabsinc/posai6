@@ -31,7 +31,6 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
-import { useTicketOrders } from "@/hooks/use-ticket-orders";
 import { useRestaurantTables, type RestaurantTable, type FloorArea as DBFloorArea, type FloorDivider } from "@/hooks/use-restaurant-tables";
 
 // Import icons
@@ -1646,19 +1645,7 @@ const TableOrder = () => {
     setGuestDropdownTable(null);
   };
 
-  const { createOrder, getActiveOrderForTable, getOrdersByTable: getSessionOrdersByTable } = useSessionOrders();
-  const { orders: allDbOrders } = useTicketOrders();
-
-  // Check if table has any active (non-paid/non-completed) order
-  const hasActiveOrderOnTable = (tableId: string): boolean => {
-    const activeSession = getActiveOrderForTable(tableId);
-    if (activeSession) return true;
-    const activeDb = allDbOrders.find(o => 
-      o.table === tableId && 
-      !['PAID', 'COMPLETED', 'Completed'].includes(o.status)
-    );
-    return !!activeDb;
-  };
+  const { createOrder } = useSessionOrders();
 
   const handleGuestSelect = (tableId: string, guestCount: number) => {
     console.log(`Selected ${guestCount} guests for table ${tableId}`);
@@ -1667,18 +1654,11 @@ const TableOrder = () => {
     const table = tablePositions.find((t) => t.id === tableId);
     const seats = table?.seats ?? guestCount;
 
-    // Block if table already has an active order
-    if (hasActiveOrderOnTable(tableId)) {
-      toast.info('This table already has an active order');
-      navigate(`/tableorder/${tableId}`);
-      return;
-    }
-
     // Create a new session order for this table
     const newOrder = createOrder(tableId, guestCount, 'Staff', 'Guest');
     console.log('Created session order:', newOrder);
 
-    // Navigate to orders page with table context
+    // Navigate to orders page with table context (seats + guests for Order section)
     navigate(`/orders?tableId=${tableId}&sessionId=${newOrder.sessionId}&partySize=${guestCount}&seats=${seats}&guests=${guestCount}`);
   };
   
@@ -2232,11 +2212,6 @@ const TableOrder = () => {
               const handleGuestSelectLocal = (guestCount: number) => {
                 setGuestDropdownTable(null);
                 setSelectedTable(table.id);
-                if (hasActiveOrderOnTable(table.id)) {
-                  toast.info('This table already has an active order');
-                  navigate(`/tableorder/${table.id}`);
-                  return;
-                }
                 const newOrder = createOrder(table.id, guestCount, 'Staff', 'Guest');
                 navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}&seats=${table.seats}&guests=${guestCount}`);
               };
@@ -2310,11 +2285,6 @@ const TableOrder = () => {
                 const handleGuestSelectLocal = (guestCount: number) => {
                   setGuestDropdownTable(null);
                   setSelectedTable(table.id);
-                  if (hasActiveOrderOnTable(table.id)) {
-                    toast.info('This table already has an active order');
-                    navigate(`/tableorder/${table.id}`);
-                    return;
-                  }
                   const newOrder = createOrder(table.id, guestCount, 'Staff', 'Guest');
                   navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}&seats=${table.seats}&guests=${guestCount}`);
                 };
@@ -2732,11 +2702,6 @@ const TableOrder = () => {
               const handleGuestSelectLocal = (guestCount: number) => {
                 setGuestDropdownTable(null);
                 setSelectedTable(table.id);
-                if (hasActiveOrderOnTable(table.id)) {
-                  toast.info('This table already has an active order');
-                  navigate(`/tableorder/${table.id}`);
-                  return;
-                }
                 const newOrder = createOrder(table.id, guestCount, 'Staff', 'Guest');
                 navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}&seats=${table.seats}&guests=${guestCount}`);
               };

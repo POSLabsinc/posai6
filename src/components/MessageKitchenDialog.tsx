@@ -507,7 +507,6 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                             ? `${table.serverName} · Party of ${table.partySize} · ${table.time} · ${table.itemCount} ${table.itemCount === 1 ? "product" : "products"}`
                             : `${table.orderStatus === "AVAILABLE" ? "Available" : table.orderStatus}`}
                         </p>
-                        </p>
                       </button>
                     );
                   })}

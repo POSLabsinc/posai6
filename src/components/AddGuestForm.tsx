@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { X, Camera, Car, ChevronUp, ChevronDown, ChevronLeft, MapPin, Calendar, Upload } from "lucide-react";
+import { X, Camera, Car, ChevronUp, ChevronDown, ChevronLeft, MapPin, Calendar, Upload, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";

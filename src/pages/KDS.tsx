@@ -223,6 +223,8 @@ interface KDSMessageData {
   employee_name: string;
   table_id: string | null;
   table_number?: string | null;
+  linked_order_id?: string | null;
+  linked_order_number?: number | null;
   timestamp: string;
   status: "pending" | "acknowledged";
   acknowledged_at?: string;

@@ -4699,10 +4699,20 @@ export function PaymentDialog({
                         
                         {/* Check Header */}
                         <div className="flex items-center justify-between border-b border-neutral-600 mb-1 pb-1">
-                          <span className="text-white font-bold text-xs">
-                            {splitMode === 'seat' ? `Seat ${checkNum}` : getCheckLabel(checkNum - 1)}
-                          </span>
-                          <div className="flex flex-col items-end">
+                          <div className="flex flex-col min-w-0">
+                            <span className="text-white font-bold text-xs">
+                              {splitMode === 'seat' ? `Seat ${checkNum}` : getCheckLabel(checkNum - 1)}
+                            </span>
+                            {checkTotals.discount > 0 && splitDiscounts.length > 0 && (
+                              <div className="flex items-center gap-0.5 mt-0.5">
+                                <Percent className="w-2.5 h-2.5 text-red-400 flex-shrink-0" />
+                                <span className="text-red-400 text-[9px] truncate">
+                                  {splitDiscounts.map(d => d.name).join(', ')}
+                                </span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex flex-col items-end flex-shrink-0">
                             {checkTotals.discount > 0 && (
                               <span className="text-red-400 text-[9px] line-through">${(checkTotals.total + checkTotals.discount).toFixed(2)}</span>
                             )}

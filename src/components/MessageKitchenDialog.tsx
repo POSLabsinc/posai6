@@ -2,10 +2,9 @@ import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 
 interface KDSTicketData {
   id: string;
@@ -25,19 +24,32 @@ interface MessageKitchenDialogProps {
   serverName?: string;
 }
 
-const MAX_LENGTH = 100;
-const WARN_THRESHOLD = 90;
-const DANGER_THRESHOLD = 95;
+const MAX_LENGTH = 300;
+const WARN_THRESHOLD = 270;
+const DANGER_THRESHOLD = 295;
 
 const normalizeTableNumber = (raw: string | null | undefined): string => {
   if (!raw) return "";
   return raw.replace(/^Table\s*/i, "").replace(/^T\.?\s*/i, "").trim().toUpperCase();
 };
 
+const getOrderItemPreview = (order: KDSTicketData) => {
+  const uniqueNames: string[] = [];
+  const seen = new Set<string>();
+  for (const p of order.products) {
+    if (!seen.has(p.name)) {
+      seen.add(p.name);
+      uniqueNames.push(p.name);
+    }
+  }
+  const first3 = uniqueNames.slice(0, 3).join(", ");
+  const remaining = uniqueNames.length - 3;
+  if (remaining > 0) return `${first3}... +${remaining} more`;
+  return first3;
+};
+
 const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff" }: MessageKitchenDialogProps) => {
   const [message, setMessage] = useState("");
-  const [linkType, setLinkType] = useState<"none" | "table" | "order">("none");
-  const [selectedTable, setSelectedTable] = useState<string>(tableId || "none");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,26 +57,24 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
   const [orderSearch, setOrderSearch] = useState("");
   const [activeOrders, setActiveOrders] = useState<KDSTicketData[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     if (open) {
       setMessage("");
-      setLinkType(tableId ? "table" : "none");
-      setSelectedTable(tableId || "none");
       setSelectedOrderId(null);
       setError(null);
       setFieldError(null);
       setSending(false);
       setOrderSearch("");
-      // Fetch active orders
+      setDropdownOpen(false);
       loadActiveOrders();
     }
-  }, [open, tableId]);
+  }, [open]);
 
   const loadActiveOrders = () => {
     setLoadingOrders(true);
     try {
-      // Load from KDS ticket queue (real orders)
       const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
       const realOrders: KDSTicketData[] = queue
         .filter((e: any) => e.status === "active")
@@ -79,7 +89,6 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
           status: "active",
         }));
 
-      // Also load mock tickets if no real ones exist (for demo)
       if (realOrders.length === 0) {
         const now = new Date();
         const mockOrders: KDSTicketData[] = [
@@ -125,33 +134,6 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     return activeOrders.find(o => o.id === selectedOrderId) || null;
   }, [selectedOrderId, activeOrders]);
 
-  const getOrderItemPreview = (order: KDSTicketData) => {
-    const uniqueNames: string[] = [];
-    const seen = new Set<string>();
-    for (const p of order.products) {
-      if (!seen.has(p.name)) {
-        seen.add(p.name);
-        uniqueNames.push(p.name);
-      }
-    }
-    const totalItems = order.products.reduce((s, p) => s + p.qty, 0);
-    const first3 = uniqueNames.slice(0, 3).join(", ");
-    const remaining = uniqueNames.length - 3;
-    if (remaining > 0) return `${first3}... +${remaining} more`;
-    return first3;
-  };
-
-  const getTableContextSummary = (tableNum: string) => {
-    // Find matching order for this table from active orders
-    const normalizedTable = normalizeTableNumber(tableNum === "none" ? "" : `Table ${tableNum}`);
-    const order = activeOrders.find(o => normalizeTableNumber(o.tableNumber) === normalizedTable);
-    if (!order) return null;
-    const totalItems = order.products.reduce((s, p) => s + p.qty, 0);
-    const time = new Date(order.createdAt);
-    const timeStr = time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
-    return `${order.serverName}  ·  ${timeStr}  ·  ${totalItems} items`;
-  };
-
   const handleSend = async () => {
     if (trimmedMessage.length === 0) {
       setFieldError("Message cannot be empty");
@@ -164,16 +146,12 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
 
     const messageId = crypto.randomUUID();
 
-    // Determine table/order linkage
     let linkedTableId: string | null = null;
     let linkedTableNumber: string | null = null;
     let linkedOrderId: string | null = null;
     let linkedOrderNumber: number | null = null;
 
-    if (linkType === "table" && selectedTable !== "none") {
-      linkedTableId = selectedTable;
-      linkedTableNumber = `Table ${selectedTable}`;
-    } else if (linkType === "order" && selectedOrder) {
+    if (selectedOrder) {
       linkedOrderId = selectedOrder.id;
       linkedOrderNumber = selectedOrder.orderNumber;
       if (selectedOrder.tableNumber) {
@@ -211,6 +189,15 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     }
   };
 
+  const formatOrderTime = (iso: string) => {
+    return new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+  };
+
+  const formatTableDisplay = (tableNumber: string | null) => {
+    if (!tableNumber) return "No Table";
+    return `Table ${normalizeTableNumber(tableNumber)}`;
+  };
+
   return (
     <Dialog open={open} onOpenChange={sending ? undefined : onOpenChange}>
       <DialogContent className="bg-neutral-900 border-neutral-700 text-white max-w-md" hideCloseButton>
@@ -244,97 +231,80 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
             </div>
           </div>
 
-          {/* Link to (Optional) */}
+          {/* Select Order (Optional) */}
           <div className="space-y-1.5">
-            <label className="text-sm text-neutral-300">Link to <span className="text-neutral-500">(Optional)</span></label>
-            {/* Segmented Control */}
-            <div className="flex gap-0 bg-neutral-800 rounded-lg p-0.5 border border-neutral-600">
-              {(["none", "table", "order"] as const).map((type) => (
-                <button
-                  key={type}
-                  onClick={() => { setLinkType(type); setSelectedOrderId(null); setSelectedTable(tableId || "none"); }}
-                  className={`flex-1 py-1.5 text-xs font-semibold rounded-md transition-colors ${
-                    linkType === type
-                      ? "bg-neutral-600 text-white"
-                      : "text-neutral-400 hover:text-neutral-200"
-                  }`}
-                >
-                  {type === "none" ? "None" : type === "table" ? "Table" : "Order"}
-                </button>
-              ))}
-            </div>
+            <label className="text-sm text-neutral-300">Select Order <span className="text-neutral-500">(Optional)</span></label>
 
-            {/* Table selector */}
-            {linkType === "table" && (
+            {/* Selected order display / trigger */}
+            {selectedOrder ? (
               <div className="space-y-1">
-                <Select value={selectedTable} onValueChange={setSelectedTable}>
-                  <SelectTrigger className="bg-neutral-800 border-neutral-600 text-white">
-                    <SelectValue placeholder="Select table" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-neutral-800 border-neutral-600">
-                    <SelectItem value="none" className="text-white hover:bg-neutral-700">No Table</SelectItem>
-                    {Array.from({ length: 20 }, (_, i) => (
-                      <SelectItem key={i + 1} value={String(i + 1)} className="text-white hover:bg-neutral-700">
-                        Table {i + 1}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                {selectedTable !== "none" && (() => {
-                  const summary = getTableContextSummary(selectedTable);
-                  return summary ? <p className="text-[11px] text-neutral-400 px-1">{summary}</p> : null;
-                })()}
+                <div className="flex items-center gap-2 bg-neutral-800 border border-neutral-600 rounded-md px-2.5 py-2">
+                  <div className="flex-1 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-semibold">#{selectedOrder.orderNumber}</span>
+                      <span className="text-neutral-400">{formatTableDisplay(selectedOrder.tableNumber)}</span>
+                      <span className="text-neutral-500">·</span>
+                      <span className="text-neutral-400">{selectedOrder.serverName}</span>
+                      <span className="text-neutral-500 ml-auto">{formatOrderTime(selectedOrder.createdAt)}</span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { setSelectedOrderId(null); setDropdownOpen(false); }}
+                    className="p-0.5 hover:bg-neutral-700 rounded transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5 text-neutral-400" />
+                  </button>
+                </div>
+                <p className="text-[11px] text-neutral-400 px-1">{getOrderItemPreview(selectedOrder)}</p>
               </div>
+            ) : (
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="w-full flex items-center bg-neutral-800 border border-neutral-600 rounded-md px-2.5 py-2 text-xs text-neutral-500 hover:border-neutral-500 transition-colors"
+              >
+                No Order
+              </button>
             )}
 
-            {/* Order selector */}
-            {linkType === "order" && (
+            {/* Dropdown list */}
+            {dropdownOpen && !selectedOrder && (
               <div className="space-y-1.5">
                 <div className="relative">
                   <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
                   <Input
                     value={orderSearch}
                     onChange={(e) => setOrderSearch(e.target.value)}
-                    placeholder="Search by ticket # or table..."
+                    placeholder="Search by order number or table..."
                     className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 pl-8 h-8 text-xs"
                   />
                 </div>
                 {loadingOrders ? (
                   <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    Loading active orders...
+                    Loading orders...
                   </div>
                 ) : filteredOrders.length === 0 ? (
                   <p className="text-xs text-neutral-500 text-center py-3">No active orders at the moment</p>
                 ) : (
                   <div className="max-h-[140px] overflow-y-auto space-y-0.5 scrollbar-hide">
                     {filteredOrders.map(order => {
-                      const isSelected = selectedOrderId === order.id;
-                      const tableDisplay = order.tableNumber ? `Table ${normalizeTableNumber(order.tableNumber)}` : "";
-                      const time = new Date(order.createdAt);
-                      const timeStr = time.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+                      const tableDisplay = formatTableDisplay(order.tableNumber);
+                      const timeStr = formatOrderTime(order.createdAt);
                       return (
-                        <div key={order.id}>
-                          <button
-                            onClick={() => setSelectedOrderId(isSelected ? null : order.id)}
-                            className={`w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors ${
-                              isSelected ? "bg-neutral-700 border border-neutral-500" : "bg-neutral-800 hover:bg-neutral-750 border border-transparent"
-                            }`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <span className="text-white font-semibold">#{order.orderNumber}</span>
-                              {tableDisplay && <span className="text-neutral-400">{tableDisplay}</span>}
-                              <span className="text-neutral-500">·</span>
-                              <span className="text-neutral-400">{order.serverName}</span>
-                              <span className="text-neutral-500 ml-auto">{timeStr}</span>
-                            </div>
-                          </button>
-                          {isSelected && (
-                            <p className="text-[11px] text-neutral-400 px-3 py-1">
-                              {getOrderItemPreview(order)}
-                            </p>
-                          )}
-                        </div>
+                        <button
+                          key={order.id}
+                          onClick={() => { setSelectedOrderId(order.id); setDropdownOpen(false); setOrderSearch(""); }}
+                          className="w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors bg-neutral-800 hover:bg-neutral-700 border border-transparent"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-white font-semibold">#{order.orderNumber}</span>
+                            <span className="text-neutral-400">{tableDisplay}</span>
+                            <span className="text-neutral-500">·</span>
+                            <span className="text-neutral-400">{order.serverName}</span>
+                            <span className="text-neutral-500 ml-auto">{timeStr}</span>
+                          </div>
+                          <p className="text-[10px] text-neutral-500 mt-0.5">{getOrderItemPreview(order)}</p>
+                        </button>
                       );
                     })}
                   </div>

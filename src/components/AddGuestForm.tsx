@@ -345,16 +345,32 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
           </div>
           <div>
             <label className="text-sm text-white/70 mb-1 block">Customer Since</label>
-            <div className="relative">
-              <Input
-                type="text"
-                value={formData.customerSince}
-                onChange={(e) => handleInputChange("customerSince", e.target.value)}
-                placeholder="MM/DD/YYYY"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pl-9"
-              />
-              <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white pl-9 relative",
+                    !formData.customerSince && "text-white/40"
+                  )}
+                >
+                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+                  {formData.customerSince || "MM/DD/YYYY"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-neutral-800 border-white/10" align="start">
+                <Calendar
+                  mode="single"
+                  selected={formData.customerSince ? new Date(formData.customerSince) : undefined}
+                  onSelect={(date) => handleInputChange("customerSince", date ? format(date, "MM/dd/yyyy") : "")}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                  captionLayout="dropdown-buttons"
+                  fromYear={1950}
+                  toYear={new Date().getFullYear()}
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 

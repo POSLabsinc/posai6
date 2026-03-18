@@ -161,18 +161,20 @@ const AddGuestForm = ({ onClose, onSave, hideHeader }: AddGuestFormProps) => {
       }}
     >
       {/* Fixed Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10">
-        <div className="flex items-center gap-2">
-          <img src={addGuestIcon} alt="" className="w-5 h-5" />
-          <h2 className="text-lg font-semibold text-white">Add Guest</h2>
+      {!hideHeader && (
+        <div className="flex items-center justify-between p-4 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <img src={addGuestIcon} alt="" className="w-5 h-5" />
+            <h2 className="text-lg font-semibold text-white">Add Guest</h2>
+          </div>
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-white/10 rounded-full transition-colors"
+          >
+            <X className="w-5 h-5 text-white/70" />
+          </button>
         </div>
-        <button
-          onClick={onClose}
-          className="p-1 hover:bg-white/10 rounded-full transition-colors"
-        >
-          <X className="w-5 h-5 text-white/70" />
-        </button>
-      </div>
+      )}
 
       {/* Scrollable Content */}
       <div 

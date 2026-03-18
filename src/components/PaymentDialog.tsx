@@ -16,6 +16,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import tickSuccessIcon from "@/assets/icons/tick-success.svg";
 import splitCheckIcon from "@/assets/icons/split-check.svg";
 import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 
 // ============= TYPES =============
 export interface PaymentDialogOrderItem {
@@ -268,6 +269,7 @@ export function PaymentDialog({
   // Split check discount states
   const [showSplitDiscountDialog, setShowSplitDiscountDialog] = useState(false);
   const [splitDiscounts, setSplitDiscounts] = useState<Discount[]>([]);
+  const [showSplitDiscountMpin, setShowSplitDiscountMpin] = useState(false);
 
   // Mobile detection
   const isMobile = useIsMobile();
@@ -4582,7 +4584,7 @@ export function PaymentDialog({
                     </button>
                     <button
                       onClick={() => {
-                        setShowSplitDiscountDialog(true);
+                        setShowSplitDiscountMpin(true);
                       }}
                       className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 transition-colors`}
                       title="Apply discount"
@@ -4626,7 +4628,7 @@ export function PaymentDialog({
                     </button>
                     <button
                       onClick={() => {
-                        setShowSplitDiscountDialog(true);
+                        setShowSplitDiscountMpin(true);
                       }}
                       className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 transition-colors`}
                       title="Apply discount"
@@ -5492,11 +5494,28 @@ export function PaymentDialog({
         )}
       </div>
 
-      {showSplitDiscountDialog && (
+      {/* Split Discount MPIN Gate */}
+      {showSplitDiscountMpin && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            <AccessRestrictedModal
+              subtitle="Manager approval required to apply discount."
+              onBack={() => setShowSplitDiscountMpin(false)}
+              onSuccess={() => {
+                setShowSplitDiscountMpin(false);
+                setShowSplitDiscountDialog(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Split Discount Dialog */}
+      {(showSplitDiscountDialog) && (
         <style>{`
-          [data-radix-portal] { z-index: 200 !important; }
-          [data-radix-portal] [role="dialog"] { z-index: 200 !important; }
-          [data-radix-portal] > div:first-child { z-index: 200 !important; }
+          [data-radix-portal] { z-index: 250 !important; }
+          [data-radix-portal] [role="dialog"] { z-index: 250 !important; }
+          [data-radix-portal] > div:first-child { z-index: 250 !important; }
         `}</style>
       )}
       <DiscountDialog

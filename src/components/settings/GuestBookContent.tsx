@@ -1348,7 +1348,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
       notes_allergies: updated.notes.allergies,
     }).eq("id", updated.id);
   }, []);
-
+  const [showAddGuest, setShowAddGuest] = useState(false);
 
   // Mobile: show list or detail
   if (isMobile) {

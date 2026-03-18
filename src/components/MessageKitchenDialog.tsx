@@ -1,46 +1,113 @@
 import { useState, useEffect, useMemo } from "react";
-import { Loader2 } from "lucide-react";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
-import { ticketToTemplateData } from "@/data/ticketOrders";
-import { formatPrice } from "@/lib/orderUtils";
-import { useTicketOrders, UnifiedTicketOrder } from "@/hooks/use-ticket-orders";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { Loader2, Search, X } from "lucide-react";
 
-const MAX_LENGTH = 300;
-const WARN_THRESHOLD = 270;
-const DANGER_THRESHOLD = 295;
+interface KDSTicketData {
+  id: string;
+  orderNumber: number;
+  orderType: string;
+  tableNumber: string | null;
+  serverName: string;
+  createdAt: string;
+  products: { name: string; qty: number }[];
+  status: string;
+}
+
+interface MessageKitchenDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  tableId?: string | null;
+  serverName?: string;
+}
+
+const MAX_LENGTH = 100;
+const WARN_THRESHOLD = 90;
+const DANGER_THRESHOLD = 95;
 
 const normalizeTableNumber = (raw: string | null | undefined): string => {
   if (!raw) return "";
   return raw.replace(/^Table\s*/i, "").replace(/^T\.?\s*/i, "").trim().toUpperCase();
 };
 
-interface MessageKitchenDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  serverName?: string;
-}
+const getOrderItemPreview = (order: KDSTicketData) => {
+  const uniqueNames: string[] = [];
+  const seen = new Set<string>();
+  for (const p of order.products) {
+    if (!seen.has(p.name)) {
+      seen.add(p.name);
+      uniqueNames.push(p.name);
+    }
+  }
+  const first3 = uniqueNames.slice(0, 3).join(", ");
+  const remaining = uniqueNames.length - 3;
+  if (remaining > 0) return `${first3}... +${remaining} more`;
+  return first3;
+};
 
-const MessageKitchenDialog = ({ open, onOpenChange, serverName = "Staff" }: MessageKitchenDialogProps) => {
-  const { orders: allOrders, isLoading } = useTicketOrders();
-
+const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff" }: MessageKitchenDialogProps) => {
   const [message, setMessage] = useState("");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
-  const [showError, setShowError] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [fieldError, setFieldError] = useState<string | null>(null);
+  const [orderSearch, setOrderSearch] = useState("");
+  const [activeOrders, setActiveOrders] = useState<KDSTicketData[]>([]);
+  const [loadingOrders, setLoadingOrders] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-  // Reset state when popup opens
   useEffect(() => {
     if (open) {
       setMessage("");
       setSelectedOrderId(null);
+      setError(null);
+      setFieldError(null);
       setSending(false);
-      setShowError(false);
+      setOrderSearch("");
+      setDropdownOpen(false);
+      loadActiveOrders();
     }
   }, [open]);
+
+  const loadActiveOrders = () => {
+    setLoadingOrders(true);
+    try {
+      const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
+      const realOrders: KDSTicketData[] = queue
+        .filter((e: any) => e.status === "active")
+        .map((e: any) => ({
+          id: e.sessionId || `kds-live-${e.orderNumber}`,
+          orderNumber: e.orderNumber || 0,
+          orderType: e.orderType || "DINE IN",
+          tableNumber: e.tableNumber || null,
+          serverName: e.serverName || "Staff",
+          createdAt: e.createdAt || new Date().toISOString(),
+          products: (e.items || []).map((i: any) => ({ name: i.name, qty: i.qty || 1 })),
+          status: "active",
+        }));
+
+      if (realOrders.length === 0) {
+        const now = new Date();
+        const mockOrders: KDSTicketData[] = [
+          { id: "kds-1", orderNumber: 23, orderType: "DINE IN", tableNumber: "T2", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 38 * 60000).toISOString(), products: [{ name: "Fried Calamari", qty: 1 }, { name: "Filet Mignon", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }, { name: "Grassfed Sirloin Steak", qty: 1 }, { name: "Tres Leches", qty: 1 }], status: "active" },
+          { id: "kds-2", orderNumber: 24, orderType: "DINE IN", tableNumber: "T4", serverName: "Dustin H", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }], status: "active" },
+          { id: "kds-3", orderNumber: 25, orderType: "DINE IN", tableNumber: "T5", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 2 }], status: "active" },
+          { id: "kds-4", orderNumber: 26, orderType: "DINE IN", tableNumber: "T6", serverName: "Sarah K", createdAt: new Date(now.getTime() - 38 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }], status: "active" },
+          { id: "kds-5", orderNumber: 24, orderType: "DINE IN", tableNumber: "T8", serverName: "Dustin H", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Meatballs", qty: 2 }, { name: "Cheese Selection", qty: 1 }], status: "active" },
+          { id: "kds-6", orderNumber: 28, orderType: "DINE IN", tableNumber: "T3", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Filet Mignon", qty: 1 }, { name: "Meatballs", qty: 4 }, { name: "Grassfed Sirloin Steak", qty: 2 }, { name: "Tres Leches", qty: 3 }, { name: "Meatballs", qty: 1 }, { name: "Grassfed Sirloin Steak", qty: 2 }, { name: "Grassfed Sirloin Steak", qty: 1 }], status: "active" },
+        ];
+        setActiveOrders(mockOrders);
+      } else {
+        setActiveOrders(realOrders);
+      }
+    } catch {
+      setActiveOrders([]);
+    }
+    setLoadingOrders(false);
+  };
 
   const trimmedMessage = message.trim();
   const charCount = message.length;
@@ -52,39 +119,44 @@ const MessageKitchenDialog = ({ open, onOpenChange, serverName = "Staff" }: Mess
     return "text-neutral-500";
   }, [charCount]);
 
-  // Filter active orders only (Ordering, Ordered, Preparing)
-  const availableOrders = useMemo(() =>
-    allOrders.filter(o => {
-      const s = o.status.toUpperCase();
-      return s === "ORDERING" || s === "ORDERED" || s === "PREPARING";
-    }),
-    [allOrders]
-  );
+  const filteredOrders = useMemo(() => {
+    if (!orderSearch.trim()) return activeOrders;
+    const q = orderSearch.trim().toLowerCase();
+    return activeOrders.filter(o => {
+      const orderNum = `#${o.orderNumber}`.toLowerCase();
+      const tableNum = normalizeTableNumber(o.tableNumber).toLowerCase();
+      return orderNum.includes(q) || o.orderNumber.toString().includes(q) || tableNum.includes(q) || (o.tableNumber || "").toLowerCase().includes(q);
+    });
+  }, [activeOrders, orderSearch]);
 
-  const selectedOrder = selectedOrderId ? availableOrders.find(o => o.id === selectedOrderId) : null;
-
-  const handleClose = () => {
-    if (sending) return;
-    onOpenChange(false);
-  };
+  const selectedOrder = useMemo(() => {
+    if (!selectedOrderId) return null;
+    return activeOrders.find(o => o.id === selectedOrderId) || null;
+  }, [selectedOrderId, activeOrders]);
 
   const handleSend = async () => {
     if (trimmedMessage.length === 0) {
-      setShowError(true);
+      setFieldError("Message cannot be empty");
       return;
     }
     if (!canSend) return;
     setSending(true);
+    setError(null);
+    setFieldError(null);
 
     const messageId = crypto.randomUUID();
+
+    let linkedTableId: string | null = null;
     let linkedTableNumber: string | null = null;
+    let linkedOrderId: string | null = null;
     let linkedOrderNumber: number | null = null;
 
     if (selectedOrder) {
-      linkedOrderNumber = selectedOrder.orderNumber || null;
-      if (selectedOrder.table) {
-        const norm = normalizeTableNumber(selectedOrder.table);
-        linkedTableNumber = norm ? `Table ${norm}` : null;
+      linkedOrderId = selectedOrder.id;
+      linkedOrderNumber = selectedOrder.orderNumber;
+      if (selectedOrder.tableNumber) {
+        linkedTableId = normalizeTableNumber(selectedOrder.tableNumber);
+        linkedTableNumber = `Table ${normalizeTableNumber(selectedOrder.tableNumber)}`;
       }
     }
 
@@ -95,9 +167,9 @@ const MessageKitchenDialog = ({ open, onOpenChange, serverName = "Staff" }: Mess
       terminal_id: "default",
       employee_id: "default",
       employee_name: serverName,
-      table_id: linkedTableNumber ? normalizeTableNumber(selectedOrder?.table || null) : null,
+      table_id: linkedTableId,
       table_number: linkedTableNumber,
-      linked_order_id: selectedOrder?.id || null,
+      linked_order_id: linkedOrderId,
       linked_order_number: linkedOrderNumber,
       timestamp: new Date().toISOString(),
       status: "pending" as const,
@@ -109,145 +181,168 @@ const MessageKitchenDialog = ({ open, onOpenChange, serverName = "Staff" }: Mess
       localStorage.setItem("kds_message_queue", JSON.stringify(queue));
 
       onOpenChange(false);
-      toast.success("Message sent to kitchen \u2713", { duration: 3000 });
-    } catch {
+      toast.success("Message sent to kitchen ✓", { duration: 3000 });
+    } catch (err) {
+      setError("Failed to send message. Please try again.");
       toast.error("Failed to send message. Please try again.");
       setSending(false);
     }
   };
 
-  // Convert UnifiedTicketOrder to ticketToTemplateData format
-  const toTemplateData = (order: UnifiedTicketOrder) => ticketToTemplateData({
-    id: order.id,
-    name: order.name,
-    table: order.table || "",
-    partySize: order.partySize,
-    time: order.time,
-    timer: order.timer || "00:00",
-    server: order.server,
-    check: order.check || "--",
-    revenueCenter: order.revenueCenter || "",
-    paymentType: order.paymentType || "--",
-    phone: order.phone || "",
-    orderType: order.orderType || "",
-    status: order.status,
-    total: order.total,
-    subtotal: order.subtotal,
-    discount: order.discount,
-    serviceCharge: order.serviceCharge,
-    tax: order.tax,
-    tip: order.tip,
-    items: order.items,
-    notes: order.notes || "",
-  } as any);
+  const formatOrderTime = (iso: string) => {
+    return new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
+  };
 
-  const sendLabel = selectedOrder
-    ? `SEND TO ORDER #${selectedOrder.orderNumber || 0}`
-    : "SEND MESSAGE";
+  const formatTableDisplay = (tableNumber: string | null) => {
+    if (!tableNumber) return "No Table";
+    return `Table ${normalizeTableNumber(tableNumber)}`;
+  };
 
   return (
-    <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-      <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-lg overflow-hidden" aria-describedby={undefined}>
-        {/* Header - same structure as Transfer to Order */}
-        <div className="p-4 border-b border-white/10">
-          <h2 className="text-white text-lg font-semibold">Send Message to Kitchen</h2>
-        </div>
+    <Dialog open={open} onOpenChange={sending ? undefined : onOpenChange}>
+      <DialogContent className="bg-neutral-900 border-neutral-700 text-white max-w-md" hideCloseButton>
+        <DialogHeader>
+          <DialogTitle className="text-white text-lg">Send Message to Kitchen</DialogTitle>
+          <DialogDescription className="sr-only">Send a message to the kitchen display system</DialogDescription>
+        </DialogHeader>
 
-        {/* Message compose card - fixed above scrollable list */}
-        <div className="px-4 pt-2">
-          <div className="rounded-xl border border-white/[0.25] overflow-hidden" style={{ backgroundColor: '#1B1C20' }}>
-            <div className="p-3">
-              <label className="text-sm text-white font-medium">
-                Message <span className="text-destructive">*</span>
-              </label>
-              <Textarea
-                value={message}
-                onChange={(e) => {
-                  if (e.target.value.length <= MAX_LENGTH) {
-                    setMessage(e.target.value);
-                    if (e.target.value.trim().length > 0) setShowError(false);
-                  }
-                }}
-                placeholder="Type your message for the kitchen..."
-                className="mt-1.5 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 min-h-[80px] resize-none focus-visible:ring-orange-500"
-                maxLength={MAX_LENGTH}
-                autoFocus
-                disabled={sending}
-              />
-              <div className="flex items-center justify-between mt-1">
-                {showError && trimmedMessage.length === 0 ? (
-                  <span className="text-destructive text-xs">Message cannot be empty</span>
-                ) : (
-                  <span />
-                )}
-                <span className={`text-xs ${counterColorClass}`}>
-                  {charCount}/{MAX_LENGTH}
-                </span>
-              </div>
+        <div className="space-y-4">
+          {/* Message Field */}
+          <div className="space-y-1.5">
+            <label className="text-sm text-neutral-300">Message <span className="text-red-400">*</span></label>
+            <Textarea
+              value={message}
+              onChange={(e) => {
+                if (e.target.value.length <= MAX_LENGTH) {
+                  setMessage(e.target.value);
+                  if (e.target.value.trim().length > 0) setFieldError(null);
+                }
+              }}
+              placeholder="Type your message for the kitchen…"
+              className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 min-h-[100px] resize-none focus-visible:ring-orange-500"
+              maxLength={MAX_LENGTH}
+              autoFocus
+            />
+            {fieldError && (
+              <p className="text-xs text-destructive">{fieldError}</p>
+            )}
+            <div className={`text-xs text-right ${counterColorClass}`}>
+              {charCount}/{MAX_LENGTH}
             </div>
           </div>
-        </div>
 
-        {/* Scrollable order list - same card structure as Transfer to Order */}
-        <ScrollArea className="max-h-[45vh]">
-          <div className="p-4 pt-2 space-y-3">
-            {isLoading ? (
-              <div className="py-8 text-center text-white/50 text-sm">Loading orders...</div>
-            ) : availableOrders.length === 0 ? (
-              <div className="py-8 text-center text-white/50 text-sm">No active orders at the moment</div>
-            ) : (
-              availableOrders.map((order) => {
-                const isSelected = selectedOrderId === order.id;
-                return (
-                  <button
-                    key={order.id}
-                    onClick={() => setSelectedOrderId(isSelected ? null : order.id)}
-                    className={`w-full rounded-xl border overflow-hidden text-left transition-all ${isSelected ? 'border-orange-500 ring-1 ring-orange-500/30' : 'border-white/[0.25] hover:border-white/40'}`}
-                    style={{ backgroundColor: '#1B1C20' }}
-                  >
-                    <div className="p-3">
-                      <OrderLayoutTemplate order={toTemplateData(order)} showBorder={false} />
-                      <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
-                        {order.items.map((item, idx) => (
-                          <div key={idx} className="flex items-center justify-between py-1">
-                            <div className="flex items-center gap-3 min-w-0 flex-1">
-                              <span className="w-7 h-7 rounded-md border border-white/20 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">{item.qty}</span>
-                              <span className="text-white text-sm truncate">{item.name}</span>
-                            </div>
-                            <span className="text-white/70 text-sm font-medium flex-shrink-0 ml-2">{formatPrice(item.price * item.qty)}</span>
-                          </div>
-                        ))}
-                      </div>
-                      <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
-                        <span className="text-white/50 text-sm">{order.items.length} items</span>
-                        <span className="text-white font-semibold text-sm">{formatPrice(order.items.reduce((s, i) => s + i.price * i.qty, 0))}</span>
-                      </div>
+          {/* Select Order (Optional) */}
+          <div className="space-y-1.5">
+            <label className="text-sm text-neutral-300">Select Order <span className="text-neutral-500">(Optional)</span></label>
+
+            {/* Selected order display / trigger */}
+            {selectedOrder ? (
+              <div className="space-y-1">
+                <div className="flex items-center gap-2 bg-neutral-800 border border-neutral-600 rounded-md px-2.5 py-2">
+                  <div className="flex-1 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white font-semibold">#{selectedOrder.orderNumber}</span>
+                      <span className="text-neutral-400">{formatTableDisplay(selectedOrder.tableNumber)}</span>
+                      <span className="text-neutral-500">·</span>
+                      <span className="text-neutral-400">{selectedOrder.serverName}</span>
+                      <span className="text-neutral-500 ml-auto">{formatOrderTime(selectedOrder.createdAt)}</span>
                     </div>
+                  </div>
+                  <button
+                    onClick={() => { setSelectedOrderId(null); setDropdownOpen(false); }}
+                    className="p-0.5 hover:bg-neutral-700 rounded transition-colors"
+                  >
+                    <X className="w-3.5 h-3.5 text-neutral-400" />
                   </button>
-                );
-              })
+                </div>
+                <p className="text-[11px] text-neutral-400 px-1">{getOrderItemPreview(selectedOrder)}</p>
+              </div>
+            ) : (
+              <button
+                onClick={() => setDropdownOpen(!dropdownOpen)}
+                className="w-full flex items-center bg-neutral-800 border border-neutral-600 rounded-md px-2.5 py-2 text-xs text-neutral-500 hover:border-neutral-500 transition-colors"
+              >
+                No Order
+              </button>
+            )}
+
+            {/* Dropdown list */}
+            {dropdownOpen && !selectedOrder && (
+              <div className="space-y-1.5">
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                  <Input
+                    value={orderSearch}
+                    onChange={(e) => setOrderSearch(e.target.value)}
+                    placeholder="Search by order number or table..."
+                    className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 pl-8 h-8 text-xs"
+                  />
+                </div>
+                {loadingOrders ? (
+                  <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Loading orders...
+                  </div>
+                ) : filteredOrders.length === 0 ? (
+                  <p className="text-xs text-neutral-500 text-center py-3">No active orders at the moment</p>
+                ) : (
+                  <div className="max-h-[140px] overflow-y-auto space-y-0.5 scrollbar-hide">
+                    {filteredOrders.map(order => {
+                      const tableDisplay = formatTableDisplay(order.tableNumber);
+                      const timeStr = formatOrderTime(order.createdAt);
+                      return (
+                        <button
+                          key={order.id}
+                          onClick={() => { setSelectedOrderId(order.id); setDropdownOpen(false); setOrderSearch(""); }}
+                          className="w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors bg-neutral-800 hover:bg-neutral-700 border border-transparent"
+                        >
+                          <div className="flex items-center gap-2">
+                            <span className="text-white font-semibold">#{order.orderNumber}</span>
+                            <span className="text-neutral-400">{tableDisplay}</span>
+                            <span className="text-neutral-500">·</span>
+                            <span className="text-neutral-400">{order.serverName}</span>
+                            <span className="text-neutral-500 ml-auto">{timeStr}</span>
+                          </div>
+                          <p className="text-[10px] text-neutral-500 mt-0.5">{getOrderItemPreview(order)}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
             )}
           </div>
-        </ScrollArea>
 
-        {/* Bottom CTA bar - same as Transfer to Order */}
-        <div className="p-4 border-t border-white/10 flex gap-3">
-          <button
-            onClick={handleClose}
-            disabled={sending}
-            className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700 disabled:opacity-50"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSend}
-            disabled={!canSend}
-            className={`flex-1 py-2.5 rounded-full font-medium text-sm flex items-center justify-center gap-2 ${canSend ? 'text-black' : 'text-black/50 opacity-50'}`}
-            style={canSend ? { background: "linear-gradient(180deg, #F97316 0%, #EA580C 100%)" } : { background: '#555' }}
-          >
-            {sending && <Loader2 className="w-4 h-4 animate-spin" />}
-            {sendLabel}
-          </button>
+          {/* Error message */}
+          {error && (
+            <div className="text-sm text-red-400 bg-red-400/10 px-3 py-2 rounded-md">
+              {error}
+            </div>
+          )}
+
+          {/* Buttons */}
+          <div className="flex gap-2 pt-2">
+            <Button
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="flex-1 bg-neutral-800 border-neutral-600 text-white hover:bg-neutral-700"
+              disabled={sending}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleSend}
+              disabled={!canSend}
+              className="flex-1 bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50"
+            >
+              {sending ? (
+                <span className="flex items-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Sending…
+                </span>
+              ) : "Send"}
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

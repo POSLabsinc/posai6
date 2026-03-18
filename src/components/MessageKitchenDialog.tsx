@@ -25,9 +25,9 @@ interface MessageKitchenDialogProps {
   serverName?: string;
 }
 
-const MAX_LENGTH = 300;
-const WARN_THRESHOLD = 270;
-const DANGER_THRESHOLD = 295;
+const MAX_LENGTH = 100;
+const WARN_THRESHOLD = 90;
+const DANGER_THRESHOLD = 95;
 
 const normalizeTableNumber = (raw: string | null | undefined): string => {
   if (!raw) return "";

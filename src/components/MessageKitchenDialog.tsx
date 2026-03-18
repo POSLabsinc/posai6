@@ -245,7 +245,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     }
 
     return Array.from(merged.values());
-  }, [activeOrders]);
+  }, [activeOrders, allTables]);
 
   const filteredTables = useMemo(() => {
     if (!tableSearch.trim()) return tableGroups;

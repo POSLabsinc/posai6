@@ -607,9 +607,14 @@ export function DiscountDialog({
                   <ChevronLeft className="w-5 h-5" />
                 </button>
               )}
-              <DrawerTitle className="text-foreground text-lg font-semibold text-center">
-                {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
-              </DrawerTitle>
+              <div className="text-center">
+                <DrawerTitle className="text-foreground text-lg font-semibold">
+                  {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
+                </DrawerTitle>
+                {view === 'reason' && selected100Discount && (
+                  <p className="text-xs text-muted-foreground mt-0.5">{selected100Discount.name}</p>
+                )}
+              </div>
             </div>
           </DrawerHeader>
           {view === 'reason' && reasonViewContent ? reasonViewContent : listContent}

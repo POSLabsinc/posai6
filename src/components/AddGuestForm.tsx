@@ -248,7 +248,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
         </div>
 
         {/* Name Fields */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="text-sm text-white/70 mb-1 block">
               First Name <span className="text-primary">*</span>
@@ -269,10 +269,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
               className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
             />
           </div>
-        </div>
-
-        {/* Last Name & Email */}
-        <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-sm text-white/70 mb-1 block">
               Last Name <span className="text-primary">*</span>
@@ -284,6 +280,10 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
               className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
             />
           </div>
+        </div>
+
+        {/* Email & Phone & Customer Since */}
+        <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="text-sm text-white/70 mb-1 block">
               Email <span className="text-primary">*</span>
@@ -296,7 +296,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
               className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
             />
           </div>
-        </div>
 
         {/* Phone & Customer Since */}
         <div className="grid grid-cols-2 gap-3">

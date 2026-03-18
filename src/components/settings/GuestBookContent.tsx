@@ -1223,9 +1223,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
   const [guests, setGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddGuest, setShowAddGuest] = useState(false);
-  const [newGuestName, setNewGuestName] = useState("");
-  const [newGuestEmail, setNewGuestEmail] = useState("");
-  const [newGuestPhone, setNewGuestPhone] = useState("");
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();

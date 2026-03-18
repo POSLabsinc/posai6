@@ -1,47 +1,78 @@
+# Database-Connected Orders System - Migration Complete
 
+## What Was Done
 
-## Analysis: Guest Book "Add Guest" vs Order Screen "Add Guest"
+### Phase 1: Database Tables ✅
+- Created `ticket_orders` table with all fields (name, phone, party_size, status, table_id, financials, transfer_info, split_configuration, etc.)
+- Created `ticket_order_items` table with FK to ticket_orders (qty, name, price, seats, modifiers, is_shared, is_fired, no_tax)
+- Added indexes on table_id, status, session_id, order_id
+- Added updated_at trigger
+- Enabled RLS with public access policies
+- Enabled Realtime on both tables
 
-### Current State
+### Phase 2: Seed Data ✅
+- Inserted all 15 ticket orders from `ticketOrders.ts` with deterministic UUIDs
+- Inserted 8 unique orders from `orders.ts` (different tables/guests)
+- Inserted all line items for all 23 orders into `ticket_order_items`
+- Set multi-payment data for David Chen order
 
-**Guest Book (GuestBookContent.tsx)** — The plus icon opens a minimal modal with only 3 fields:
-- Full Name
-- Email  
-- Phone
+### Phase 3: `useTicketOrders` Hook ✅
+- Created `src/hooks/use-ticket-orders.ts`
+- React Query-based with realtime subscription
+- Fetches `ticket_orders` + `ticket_order_items` and joins them
+- Provides CRUD: addOrder, updateOrder, updateOrderItems, removeOrder
+- Helpers: getOrdersByTable, getOrderById, getOrdersByStatus
+- Converts DB rows to `UnifiedTicketOrder` shape compatible with all consumers
 
-**Order Screen (AddGuestForm.tsx)** — A full-featured form with:
-- Profile Photo (camera/upload)
-- First Name, Middle Name, Last Name
-- Email, Phone Number
-- Customer Since, Date of Birth, Anniversary (date fields with calendar icons)
-- Address (with map pin icon)
-- Collapsible Vehicle Details (type, color, brand, license plate)
-- Cancel / Save Guest buttons
+### Phase 4: `UnifiedOrderContext` Refactored ✅
+- Removed localStorage (`pos-unified-orders`) dependency
+- Now delegates all reads/writes to `useTicketOrders` hook
+- Maintains same API surface for backward compatibility
+- Transfer sync is now a no-op (handled via direct DB mutations)
 
-### What's Missing in Guest Book
+### Phase 5: `SessionOrderContext` Refactored ✅
+- Removed localStorage (`pos-session-orders`) dependency
+- `createOrder()` inserts into `ticket_orders` with `session_id`
+- `updateOrderItems()` writes to `ticket_order_items`
+- Split configurations stored in `split_configuration` jsonb column
+- KDS queue still uses localStorage (browser-local by design)
 
-The Guest Book's add guest modal is a bare-bones 3-field form. It lacks all the rich functionality from `AddGuestForm.tsx`:
-1. Profile photo upload (camera + file upload)
-2. Separate first/middle/last name fields
-3. Customer Since, Date of Birth, Anniversary date pickers
-4. Address field with map pin icon
-5. Collapsible vehicle details section
-6. Proper form validation (required field indicators)
-7. Styled footer with Cancel/Save buttons
+### Phase 6: Tickets.tsx Updated ✅
+- Removed 275-line hardcoded `allOrders` array
+- Now fetches from DB via `useTicketOrders` hook
+- Auto-selects first order when data loads
+- Transfer helpers derived from live DB data
 
-### Plan
+### Phase 7: TableOrderDetails.tsx Fully DB-Connected ✅
+- Replaced static `getOrdersByTable()` / `allOrders` from `src/data/orders.ts` with `useUnifiedOrders()` DB context
+- All order fields (name, server, status, party size, time, total, tip, revenue center, payment status, items) now come from `ticket_orders` DB table
+- Replaced `getAvailableTicketOrdersForTransfer()` / `ticketOrders.find()` with `useTicketOrders()` DB hook
+- Replaced hardcoded `discountTypes` array with live fetch from `discounts` DB table (with fallback defaults)
+- Merged panel data (`getMergedPanelData`) now uses DB orders
+- Transfer-to-order dialog uses DB-backed order list
 
-**Replace the simple modal in GuestBookContent.tsx with the existing `AddGuestForm` component.**
+### Phase 8: Restaurant Tables DB-Backed (Floor Plan) ✅
+- Created `restaurant_tables` table (table_number, seats, shape, status, x, y, guests, occupied_seats, time, merge fields, floor_area, sort_order, merchant_id)
+- Created `floor_areas` table (name, color, bg_color, x, y, anchor, sort_order)
+- Created `floor_dividers` table (orientation, position)
+- Seeded 12 default tables, 4 floor areas, 2 dividers
+- Enabled Realtime on `restaurant_tables`
+- Created `src/hooks/use-restaurant-tables.ts` hook with CRUD mutations and realtime sync
+- Refactored `TableOrder.tsx`: removed hardcoded `defaultTables`, `defaultFloorAreas`, `defaultDividers`, `loadSavedPositions`, `loadSavedFloorAreas`, `loadSavedDividers`; now initializes from DB with local state for fast drag interactions; guest seating and seat changes persist to DB
+- Refactored `Dashboard.tsx`: replaced `mockTables` with `useRestaurantTables` hook
+- Refactored `TransferOrders.tsx`: replaced `defaultTables` with `useRestaurantTables` hook
 
-1. **Import `AddGuestForm`** into `GuestBookContent.tsx`
-2. **Replace the inline modal** (lines 1499-1522) with a modal wrapper that renders `<AddGuestForm>` inside it
-3. **Wire up the `onSave` callback** to:
-   - Call `fetchGuests()` to refresh the guest list
-   - Auto-select the newly added guest
-   - Close the modal
-4. **Remove unused state** (`newGuestName`, `newGuestEmail`, `newGuestPhone`) and the old `handleAddGuest` function since `AddGuestForm` handles its own DB insertion
-5. **Modal sizing** — Render the form in a fixed-size modal dialog (max-w-md, max-h constrained) to match the reference screenshot's panel aesthetic
+### Data Flow Summary (Updated)
+```
+restaurant_tables (DB) ──── useRestaurantTables hook
+floor_areas (DB) ───────┘        │
+floor_dividers (DB) ────┘        ├── TableOrder.tsx (floor plan, all views)
+                                 ├── Dashboard.tsx (table cards)
+                                 └── TransferOrders.tsx (table selection grid)
+```
 
-### Files Changed
-- `src/components/settings/GuestBookContent.tsx` — Replace inline modal with `AddGuestForm`, remove old state/handler
-
+### Remaining (Future Phases)
+- Dashboard.tsx still imports from `src/data/orders.ts` static array for order data
+- Remove static arrays from `src/data/orders.ts` and `src/data/ticketOrders.ts` once all consumers migrated
+- Templates still use localStorage (acceptable for now)
+- Split configurations and transfer records in localStorage can be migrated to DB columns

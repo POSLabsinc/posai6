@@ -455,27 +455,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
         )}
       </div>
 
-      {/* Fixed Footer */}
-      <div className="p-4 border-t border-white/10 flex gap-3">
-        <Button
-          onClick={onClose}
-          variant="outline"
-          className="flex-1 h-11 bg-white/5 border-white/20 hover:bg-white/10 text-white"
-        >
-          Cancel
-        </Button>
-        <button
-          onClick={handleSave}
-          disabled={!isFormValid || isSaving}
-          className={`flex-1 h-11 rounded-lg font-medium transition-colors ${
-            isFormValid && !isSaving
-              ? "bg-primary text-primary-foreground hover:bg-primary/90"
-              : "bg-white/10 text-white/40 cursor-not-allowed"
-          }`}
-        >
-          {isSaving ? "Saving..." : "Save Guest"}
-        </button>
-      </div>
     </div>
   );
 };

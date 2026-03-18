@@ -543,14 +543,13 @@ export function PaymentDialog({
 
   // Calculate totals for a specific check
   const getCheckTotals = (checkNumber: number) => {
+    let result = { subtotal: 0, tax: 0, total: 0, discount: 0 };
+    
     if (splitMode === 'evenly') {
-      // Divide total evenly
-      const checkTotal = total / numberOfChecks;
       const checkSubtotal = subtotal / numberOfChecks;
       const checkTax = tax / numberOfChecks;
-      return { subtotal: checkSubtotal, tax: checkTax, total: checkTotal };
+      result = { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax, discount: 0 };
     } else if (splitMode === 'seat') {
-      // Calculate based on seat assignments with proper cost splitting
       const seatNumber = checkNumber;
       const partySize = orderDetails.partySize || numberOfChecks;
       
@@ -560,24 +559,38 @@ export function PaymentDialog({
         const isShared = item.isShared || (item.assignedSeats?.length === 0);
         
         if (isShared) {
-          // Shared items: divide cost by party size
           checkSubtotal += item.price / partySize;
         } else if (item.assignedSeats?.includes(seatNumber)) {
-          // Seat-specific items: divide by number of seats assigned
           const seatsForItem = item.assignedSeats.length;
           checkSubtotal += item.price / seatsForItem;
         }
       });
       
       const checkTax = checkSubtotal * getActiveTaxRate();
-      return { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax };
+      result = { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax, discount: 0 };
     } else {
-      // Calculate based on assigned items
       const items = getItemsForCheck(checkNumber);
       const checkSubtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
       const checkTax = checkSubtotal * getActiveTaxRate();
-      return { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax };
+      result = { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax, discount: 0 };
     }
+    
+    // Apply split discounts
+    if (splitDiscounts.length > 0) {
+      let discountAmount = 0;
+      splitDiscounts.forEach(d => {
+        if (d.type === 'percentage') {
+          discountAmount += result.subtotal * (d.value / 100);
+        } else {
+          discountAmount += d.value / numberOfChecks;
+        }
+      });
+      discountAmount = Math.min(discountAmount, result.total);
+      result.discount = discountAmount;
+      result.total = Math.max(0, result.total - discountAmount);
+    }
+    
+    return result;
   };
 
   // Handle initiating payment for a specific check - transitions to payment method selection

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Loader2, Search, X } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 
 interface KDSTicketData {
   id: string;

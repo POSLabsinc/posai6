@@ -5510,26 +5510,32 @@ export function PaymentDialog({
         </div>
       )}
 
-      {/* Split Discount Dialog */}
-      {(showSplitDiscountDialog) && (
-        <style>{`
-          [data-radix-portal] { z-index: 250 !important; }
-          [data-radix-portal] [role="dialog"] { z-index: 250 !important; }
-          [data-radix-portal] > div:first-child { z-index: 250 !important; }
-        `}</style>
+      {/* Split Discount Dialog - rendered in a custom high z-index overlay */}
+      {showSplitDiscountDialog && (
+        <div 
+          className="fixed inset-0 z-[250] flex items-center justify-center bg-black/70"
+          onClick={() => setShowSplitDiscountDialog(false)}
+          onMouseDown={(e) => e.stopPropagation()}
+        >
+          <div 
+            className="bg-neutral-900 border border-neutral-700 rounded-lg sm:max-w-[420px] w-[90%] max-h-[80vh] overflow-hidden shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <DiscountDialog
+              open={showSplitDiscountDialog}
+              onOpenChange={setShowSplitDiscountDialog}
+              currentDiscounts={splitDiscounts}
+              onApplyDiscounts={(discounts) => {
+                setSplitDiscounts(discounts);
+                if (discounts.length > 0) {
+                  toast.success(`Discount applied to all checks`);
+                }
+              }}
+              subtotal={subtotal}
+            />
+          </div>
+        </div>
       )}
-      <DiscountDialog
-        open={showSplitDiscountDialog}
-        onOpenChange={setShowSplitDiscountDialog}
-        currentDiscounts={splitDiscounts}
-        onApplyDiscounts={(discounts) => {
-          setSplitDiscounts(discounts);
-          if (discounts.length > 0) {
-            toast.success(`Discount applied to all checks`);
-          }
-        }}
-        subtotal={subtotal}
-      />
     </div>
   );
 }

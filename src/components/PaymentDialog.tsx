@@ -4816,6 +4816,12 @@ export function PaymentDialog({
                             <span className="text-neutral-400">Subtotal</span>
                             <span className="text-neutral-300">${checkTotals.subtotal.toFixed(2)}</span>
                           </div>
+                          {checkTotals.discount > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-red-400">Discount</span>
+                              <span className="text-red-400">-${checkTotals.discount.toFixed(2)}</span>
+                            </div>
+                          )}
                           <div className="flex justify-between">
                             <span className="text-neutral-400">Tax</span>
                             <span className="text-neutral-300">${checkTotals.tax.toFixed(2)}</span>

@@ -1651,14 +1651,17 @@ const OrderOS = () => {
     setCancelDialogOpen(true);
   }, []);
 
-  // Confirm cancel action
   const confirmCancelOrder = useCallback(() => {
     if (orderToCancel) {
+      const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
+      console.log('[CancelOrder] Order:', orderToCancel.orderNumber, 'Reason:', reason);
       handleCancelOrder(orderToCancel.id);
       setCancelDialogOpen(false);
       setOrderToCancel(null);
+      setCancelReason('');
+      setCustomCancelReason('');
     }
-  }, [orderToCancel, handleCancelOrder]);
+  }, [orderToCancel, handleCancelOrder, cancelReason, customCancelReason]);
 
   // Report Exception handlers
   const openReportDialog = useCallback((order: OnlineOrder) => {

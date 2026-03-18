@@ -16,6 +16,13 @@ interface AddGuestFormProps {
   onBack?: () => void;
 }
 
+interface VehicleEntry {
+  vehicleType: string;
+  vehicleColor: string;
+  vehicleBrand: string;
+  licensePlate: string;
+}
+
 interface GuestFormData {
   firstName: string;
   middleName: string;
@@ -26,10 +33,7 @@ interface GuestFormData {
   dateOfBirth: string;
   anniversary: string;
   address: string;
-  vehicleType: string;
-  vehicleColor: string;
-  vehicleBrand: string;
-  licensePlate: string;
+  vehicles: VehicleEntry[];
   profilePhoto: string | null;
 }
 

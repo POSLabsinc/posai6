@@ -1349,10 +1349,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     }).eq("id", updated.id);
   }, []);
 
-  const handleAddGuestSave = async () => {
-    await fetchGuests();
-    setShowAddGuest(false);
-  };
 
   // Mobile: show list or detail
   if (isMobile) {

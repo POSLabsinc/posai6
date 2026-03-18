@@ -45,6 +45,7 @@ interface DiscountDialogProps {
   onApplyDiscounts: (discounts: Discount[], payloads?: AppliedDiscountPayload[]) => void;
   currentDiscounts: Discount[];
   subtotal: number;
+  portalContainer?: HTMLElement | null;
 }
 
 // High-frequency flat reason chips (dynamically orderable in production)
@@ -199,6 +200,7 @@ export function DiscountDialog({
   onApplyDiscounts,
   currentDiscounts,
   subtotal,
+  portalContainer,
 }: DiscountDialogProps) {
   const [dynamicDiscounts, setDynamicDiscounts] = useState<Discount[]>(fallbackDiscounts);
   const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>(currentDiscounts);
@@ -621,6 +623,34 @@ export function DiscountDialog({
           {summaryAndApply}
         </DrawerContent>
       </Drawer>
+    );
+  }
+
+  // When portalContainer is provided, render inline without Radix Dialog portal
+  if (portalContainer) {
+    if (!open) return null;
+    return (
+      <div className="sm:max-w-[420px] w-full bg-neutral-900 border border-neutral-700 rounded-lg p-0 gap-0 overflow-hidden">
+        <div className="p-4 pb-2 border-b border-neutral-700">
+          <div className="flex items-center justify-center relative">
+            {view === 'reason' && (
+              <button onClick={() => setView('list')} className="absolute left-0 text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+            <div className="text-center">
+              <h2 className="text-foreground text-lg font-semibold">
+                {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
+              </h2>
+              {view === 'reason' && selected100Discount && (
+                <p className="text-xs text-muted-foreground mt-0.5">{selected100Discount.name}</p>
+              )}
+            </div>
+          </div>
+        </div>
+        {view === 'reason' && reasonViewContent ? reasonViewContent : listContent}
+        {summaryAndApply}
+      </div>
     );
   }
 

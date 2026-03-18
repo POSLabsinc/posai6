@@ -8444,10 +8444,8 @@ const Orders = () => {
                         <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2 min-w-0">
                           {item.name}
                         </span>
-                        <div className="flex items-center gap-1 shrink-0">
-                          {showStockBadge && (
-                            <span className="min-w-[16px] h-[16px] rounded-full bg-accent text-accent-foreground text-[8px] font-bold flex items-center justify-center px-1">{menuItem.stock_count}</span>
-                          )}
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <span className="text-[8px] font-semibold text-muted-foreground">{stockLabel}</span>
                           <span className="text-[10px] md:text-[11px] text-foreground font-semibold whitespace-nowrap">
                             {(item as MenuItem).isOpenPrice && item.price === 0 ? "" : `$${item.price.toFixed(2)}`}
                           </span>

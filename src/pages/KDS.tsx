@@ -311,8 +311,9 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
               <span className="text-[10px] text-white/70 font-mono">{format(new Date(msg.timestamp), "hh:mm a")}</span>
             </div>
             <div className="bg-neutral-800 px-3 py-1.5 flex items-center gap-3 text-[10px] text-neutral-400 border-b border-neutral-700">
-              <span>From. <span className="text-white font-medium">{msg.employee_name}</span></span>
-              {(msg.table_id || msg.table_number) && <span>Table. <span className="text-white font-medium">{msg.table_number || msg.table_id}</span></span>}
+              <span>From: <span className="text-white font-medium">{msg.employee_name}</span></span>
+              {msg.linked_order_number && <span>·  Order <span className="text-white font-medium">#{msg.linked_order_number}</span></span>}
+              {(msg.table_id || msg.table_number) && <span>·  <span className="text-white font-medium">{msg.table_number || `Table ${msg.table_id}`}</span></span>}
             </div>
             <div className="bg-neutral-900 px-3 py-3">
               <p className="text-xs leading-relaxed whitespace-pre-wrap break-words">{msg.message_text}</p>

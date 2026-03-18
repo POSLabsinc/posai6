@@ -1,62 +1,53 @@
 
 
-## Analysis: Old UI vs New Order Module
+## Old UI vs New Table Order Module — Gap Analysis
 
-After comparing the uploaded screenshots against the current `Orders.tsx` (9,828 lines), here is the feature gap analysis.
+After analyzing the 3 uploaded screenshots against the current `TableOrder.tsx` (3,322 lines), here is the comparison.
 
 ### Already Present in New Module
-All of these features from the old UI exist in the current code:
-- Menu navigation with categories and subcategories
-- Product grid (list view + thumbnail view)
-- Order type tabs (Dine-In, Takeout, Delivery)
-- Guest Name and Phone inputs with search/autocomplete
-- Right sidebar actions: Custom Item, Gift Card, Service Charge, Add Guest, Open Orders, Allergy, Merge, Reopen Check
-- Discount dialog (fetched from database)
-- No Tax / No VAT confirmation dialog
-- Custom Item panel with numpad and keyboard
-- Gift Card dialog with numpad
-- Service Charge selection dialog
-- Add New Guest form
-- Guest Information panel (name, email, phone, notes)
-- Search functionality
-- Menu selector with view modes (grid, list, thumbnail, horizontal scroll)
+- **Table grid with cards** showing table number, seat count (chair icon + "1/4"), and status badge ("AVAILABLE")
+- **Guest count dropdown** when tapping an available table (numbers 1 through seat count)
+- **Floor area filtering** via hamburger menu (service area selector)
+- **Multiple view modes** (grid, list, visual, floorplan) via hamburger menu
+- **Status filter tabs** (All, Available, Ordering, etc.)
+- **Reservations navigation**
+- **Floor area management** (add/edit/delete areas)
 
 ### Missing Features
 
-**1. Inventory Count Badges on Product Cards**
-The old UI shows circled numbers (8, 14, 11, 13, 10) on product cards indicating available inventory/stock count. The current module has no inventory tracking or display on the product grid.
+**1. Inline Area/Floor Tabs in the Header Bar**
+The old UI shows area tabs ("ALL", "knj,k", "kmkm", "jhhjgb") as horizontal clickable tabs directly in the top toolbar, with an underline indicator on the active tab. The new module buries the area selector inside the hamburger menu dropdown. Users cannot quickly switch areas without opening the menu.
 
-- **Scope**: Add an `inventory_count` (or `stock_count`) column to the `products` table. Display a small badge on each product card showing the count. Products with 0 stock show an "OUT OF STOCK" overlay.
+- **Scope**: Add a horizontal tab bar in the header (between the area dropdown and view toggles) that shows "ALL" + all floor areas from the database. Clicking a tab filters tables to that area. "ALL" shows all tables.
 
-**2. "OUT OF STOCK" Badge on Products**
-The old UI shows a red "OUT OF STOCK" circle badge on unavailable products. The current module has no stock status indicator.
+**2. Grid/Compact View Toggle Buttons in Header**
+The old UI has two toggle buttons (grid icon and compact grid icon) visible directly in the top-right header area, allowing instant switching between grid density modes. The new module requires opening the hamburger menu to change view modes.
 
-- **Scope**: Use the inventory count (above) or a boolean `is_available` flag. Render a red badge overlay and optionally disable the add-to-cart button for out-of-stock items.
+- **Scope**: Add two icon toggle buttons (Grid and Compact/List) in the header bar, right-aligned. These map to existing `viewMode` states ("grid" and "list").
 
-**3. Dynamic "ARRIVED AT" Timestamp**
-The old UI shows "ARRIVED AT 10:44 AM" dynamically in the order header. The current module hardcodes "12:30 PM".
+**3. Staff List Side Panel**
+The old UI has a people/staff icon button in the top-right that opens a slide-in right panel titled "Staff List" with a search bar and employees grouped by role (Manager, Account Managers). Each entry shows avatar initials (colored circle) and full name.
 
-- **Scope**: Replace the hardcoded time with a dynamic timestamp captured when the order session begins (e.g., `new Date()` formatted to locale time).
-
-**4. Menu Back/Forward Navigation Arrows**
-The old UI (screenshot 1) shows `←` and `→` arrow buttons next to the menu name for navigating between menus. The current module uses a dropdown `Select` for menu switching but lacks the sequential arrow navigation.
-
-- **Scope**: Add prev/next buttons that cycle through `menuList` entries, updating `selectedMenu` accordingly.
+- **Scope**: Add a staff icon button in the header. On tap, slide in a right panel fetching employees from the `employees` table, grouped by `role`. Each row shows initials (derived from `full_name`) in a colored circle + name. Include a search bar to filter by name.
 
 ### Implementation Plan
 
-1. **Database migration**: Add `stock_count` (integer, nullable, default null) and `is_available` (boolean, default true) columns to the `products` table.
+1. **Inline Area Tabs** (`TableOrder.tsx`):
+   - Extract unique `floor_area` values from `tablePositions`
+   - Render "ALL" + area names as horizontal tabs in the header bar (after the area dropdown/hamburger)
+   - Filter `filteredTables` by `selectedArea` when not "ALL"
 
-2. **Product grid UI updates** (`Orders.tsx`):
-   - In both list view and thumbnail view, render a stock count badge (small circle with number) when `stock_count` is not null and > 0.
-   - Render "OUT OF STOCK" red badge and dim the card when `is_available` is false or `stock_count` is 0.
-   - Prevent adding out-of-stock items to cart.
+2. **View Toggle Buttons** (`TableOrder.tsx`):
+   - Add Grid and Compact icon buttons in the header, right-aligned
+   - Wire to existing `setViewMode("grid")` / `setViewMode("list")`
 
-3. **Dynamic arrival time**: Replace the hardcoded `12:30 PM` with a state variable `arrivalTime` set to `new Date()` when the order session starts, formatted via `toLocaleTimeString`.
-
-4. **Menu arrow navigation**: Add two small arrow buttons (`ChevronLeft`, `ChevronRight`) beside the menu selector that call `handleMenuSelect` with the previous/next menu in `menuList`.
+3. **Staff List Panel** (`TableOrder.tsx`):
+   - Add `showStaffPanel` state
+   - Add staff/people icon button in header
+   - Create a slide-in panel that fetches from `employees` table (using existing `supabase` client)
+   - Group employees by `role`, display avatar initials + name
+   - Include search input filtering by `full_name`
 
 ### Files to Edit
-- **Database migration**: Add columns to `products` table
-- **`src/pages/Orders.tsx`**: Product grid badges, arrival time, menu arrows
+- **`src/pages/TableOrder.tsx`**: All 3 features (area tabs, view toggles, staff panel)
 

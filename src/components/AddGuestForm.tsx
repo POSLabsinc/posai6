@@ -175,6 +175,18 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
         boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
       }}
     >
+      {/* Back Header for embedded mode */}
+      {hideHeader && onBack && (
+        <div className="relative flex items-center h-14 px-4 border-b border-border flex-shrink-0">
+          <button
+            onClick={handleBack}
+            className="absolute left-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <h2 className="w-full text-center text-base font-semibold text-foreground">Add New Guest</h2>
+        </div>
+      )}
       {/* Fixed Header */}
       {!hideHeader && (
         <div className="flex items-center justify-between p-4 border-b border-white/10">

@@ -1370,7 +1370,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     }
 
     return (
-      <div className="h-full flex flex-col overflow-hidden relative">
+      <div className="h-full flex flex-col overflow-hidden">
         {showHeader && onBack && (
           <div className="px-6 pt-5">
             <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
@@ -1477,13 +1477,16 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           <EmptyDetailState />
         )}
       </div>
-      {/* Add Guest Full Panel */}
+      {/* Add Guest Modal */}
       {showAddGuest && (
-        <div className="absolute inset-0 z-40">
-          <AddGuestForm
-            onClose={() => setShowAddGuest(false)}
-            onSave={handleAddGuestSave}
-          />
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddGuest(false)}>
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative z-10 w-full max-w-xl max-h-[85vh] rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <AddGuestForm
+              onClose={() => setShowAddGuest(false)}
+              onSave={handleAddGuestSave}
+            />
+          </div>
         </div>
       )}
     </div>

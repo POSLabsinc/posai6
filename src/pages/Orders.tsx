@@ -8394,8 +8394,9 @@ const Orders = () => {
               return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2 pb-4 md:pb-0">
                 {filteredItems.map((item, index) => {
                   const menuItem = item as MenuItem;
-                  const isOutOfStock = menuItem.is_available === false || (menuItem.stock_count !== null && menuItem.stock_count !== undefined && menuItem.stock_count <= 0);
-                  const showStockBadge = menuItem.stock_count !== null && menuItem.stock_count !== undefined && menuItem.stock_count > 0 && menuItem.is_available !== false;
+                  const hasStockCount = menuItem.stock_count !== null && menuItem.stock_count !== undefined;
+                  const isOutOfStock = menuItem.is_available === false || (hasStockCount && menuItem.stock_count <= 0);
+                  const showStockBadge = hasStockCount;
                   return <div key={item.id} className={`flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700 relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
                     <div className="relative aspect-[2/1] md:aspect-square bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
                       <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
@@ -8406,7 +8407,7 @@ const Orders = () => {
                         <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
                       </button>
                       {showStockBadge && (
-                        <span className="absolute top-0.5 md:top-1 right-0.5 md:right-1 min-w-[18px] h-[18px] rounded-full bg-accent text-accent-foreground text-[9px] font-bold flex items-center justify-center px-1">{menuItem.stock_count}</span>
+                        <span className="absolute top-0.5 md:top-1 right-0.5 md:right-1 min-w-[18px] h-[18px] rounded-full bg-accent text-accent-foreground text-[9px] font-bold flex items-center justify-center px-1 z-20">{menuItem.stock_count}</span>
                       )}
                       {isOutOfStock && (
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
@@ -8425,14 +8426,18 @@ const Orders = () => {
                           <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold">${item.price.toFixed(2)}</span>
                         )}
                       </div>
+                      {hasStockCount && (
+                        <span className="text-[9px] md:text-[10px] text-muted-foreground font-semibold">Stock: {menuItem.stock_count}</span>
+                      )}
                     </div>
                   </div>;
                 })}
               </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5 pb-4 md:pb-0">
                 {filteredItems.map((item, index) => {
                   const menuItem = item as MenuItem;
-                  const isOutOfStock = menuItem.is_available === false || (menuItem.stock_count !== null && menuItem.stock_count !== undefined && menuItem.stock_count <= 0);
-                  const showStockBadge = menuItem.stock_count !== null && menuItem.stock_count !== undefined && menuItem.stock_count > 0 && menuItem.is_available !== false;
+                  const hasStockCount = menuItem.stock_count !== null && menuItem.stock_count !== undefined;
+                  const isOutOfStock = menuItem.is_available === false || (hasStockCount && menuItem.stock_count <= 0);
+                  const showStockBadge = hasStockCount;
                   return <div key={item.id} onClick={() => !isOutOfStock && openCustomizationDialog(item, index)} className={`flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border h-[48px] md:h-[54px] relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
                     <div className="flex-1 p-1.5 md:p-2 bg-muted flex flex-col justify-center gap-0.5 min-w-0">
                       <div className="flex items-start justify-between gap-1.5">
@@ -8450,6 +8455,9 @@ const Orders = () => {
                       </div>
                       {(item as MenuItem).isOpenPrice && (
                         <span className="self-start px-1.5 py-0 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 leading-relaxed">Open Price</span>
+                      )}
+                      {hasStockCount && (
+                        <span className="text-[8px] font-semibold text-muted-foreground uppercase">Stock: {menuItem.stock_count}</span>
                       )}
                       {isOutOfStock && (
                         <span className="text-[8px] font-bold text-destructive uppercase">Out of Stock</span>

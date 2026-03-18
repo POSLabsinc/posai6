@@ -6123,39 +6123,55 @@ const Orders = () => {
       for (const cat of cats) {
         const subs = dynamicSubcategories[cat] || categorySubcategories[cat] || [];
         const subItems: SubcategoryItems = {};
+        const dbCatProducts = dbProducts.filter(
+          (p) => p.category_name.toLowerCase() === cat.toLowerCase()
+        );
+        const dbProductsByName = new Map(
+          dbCatProducts.map((product) => [product.name.toLowerCase(), product])
+        );
+
         for (const sub of subs) {
           // Get products assigned to this subcategory
           const productNames = getCategoryProducts(sub);
           if (productNames.length > 0) {
-            subItems[sub] = productNames.map((name, idx) => ({
-              id: idx + 10000,
-              name,
-              price: 0,
-              isOpenPrice: true,
-            }));
+            subItems[sub] = productNames.map((name, idx) => {
+              const matchedDbProduct = dbProductsByName.get(name.toLowerCase());
+              return {
+                id: idx + 10000,
+                name,
+                price: matchedDbProduct ? matchedDbProduct.price : 0,
+                isOpenPrice: matchedDbProduct ? matchedDbProduct.price_type === 'open' : true,
+                stock_count: matchedDbProduct?.stock_count ?? null,
+                is_available: matchedDbProduct?.is_available ?? true,
+              };
+            });
           }
         }
+
         // Also get products directly assigned to the parent category
         const parentProducts = getCategoryProducts(cat);
         if (parentProducts.length > 0 && Object.keys(subItems).length === 0) {
-          subItems[cat] = parentProducts.map((name, idx) => ({
-            id: idx + 20000,
-            name,
-            price: 0,
-            isOpenPrice: true,
-          }));
+          subItems[cat] = parentProducts.map((name, idx) => {
+            const matchedDbProduct = dbProductsByName.get(name.toLowerCase());
+            return {
+              id: idx + 20000,
+              name,
+              price: matchedDbProduct ? matchedDbProduct.price : 0,
+              isOpenPrice: matchedDbProduct ? matchedDbProduct.price_type === 'open' : true,
+              stock_count: matchedDbProduct?.stock_count ?? null,
+              is_available: matchedDbProduct?.is_available ?? true,
+            };
+          });
         }
 
         // Merge DB products that belong to this category
-        const dbCatProducts = dbProducts.filter(
-          (p) => p.category_name.toLowerCase() === cat.toLowerCase()
-        );
         if (dbCatProducts.length > 0) {
           const existingNames = new Set<string>();
           // Collect names already in subItems
           for (const items of Object.values(subItems)) {
             for (const item of items) existingNames.add(item.name.toLowerCase());
           }
+
           const newDbItems = dbCatProducts
             .filter((p) => !existingNames.has(p.name.toLowerCase()))
             .map((p, idx) => ({
@@ -6166,6 +6182,7 @@ const Orders = () => {
               stock_count: p.stock_count,
               is_available: p.is_available,
             }));
+
           if (newDbItems.length > 0) {
             // Add to the category directly if no subcategories
             const targetKey = Object.keys(subItems).length > 0 ? Object.keys(subItems)[0] : cat;

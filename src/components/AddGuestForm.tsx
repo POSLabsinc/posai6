@@ -12,6 +12,7 @@ import addGuestIcon from "@/assets/icons/add-guest.svg";
 interface AddGuestFormProps {
   onClose: () => void;
   onSave: (guestData: GuestFormData) => void;
+  hideHeader?: boolean;
 }
 
 interface GuestFormData {

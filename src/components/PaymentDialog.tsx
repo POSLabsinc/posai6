@@ -5492,18 +5492,20 @@ export function PaymentDialog({
         )}
       </div>
 
-      <DiscountDialog
-        open={showSplitDiscountDialog}
-        onOpenChange={setShowSplitDiscountDialog}
-        currentDiscounts={splitDiscounts}
-        onApplyDiscounts={(discounts) => {
-          setSplitDiscounts(discounts);
-          if (discounts.length > 0) {
-            toast.success(`Discount applied to all checks`);
-          }
-        }}
-        subtotal={subtotal}
-      />
+      <div className="[&_[data-radix-portal]]:z-[200] [&_[role=dialog]]:z-[200]">
+        <DiscountDialog
+          open={showSplitDiscountDialog}
+          onOpenChange={setShowSplitDiscountDialog}
+          currentDiscounts={splitDiscounts}
+          onApplyDiscounts={(discounts) => {
+            setSplitDiscounts(discounts);
+            if (discounts.length > 0) {
+              toast.success(`Discount applied to all checks`);
+            }
+          }}
+          subtotal={subtotal}
+        />
+      </div>
     </div>
   );
 }

@@ -1222,7 +1222,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
   const [isExpanded, setIsExpanded] = useState(false);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddGuest, setShowAddGuest] = useState(false);
+  
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();

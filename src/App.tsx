@@ -45,7 +45,7 @@ import TableOrderB from "./pages/TableOrderB";
 import TableOrderDetails from "./pages/TableOrderDetails";
 import MergeOrders from "./pages/MergeOrders";
 import TransferOrders from "./pages/TransferOrders";
-import MessageKitchen from "./pages/MessageKitchen";
+
 import Tickets from "./pages/Tickets";
 import Settings from "./pages/Settings";
 import DiscountsRoute from "./components/routes/DiscountsRoute";
@@ -105,7 +105,7 @@ const AppInner = () => {
           <Route path="/tableorder/:tableId" element={<TableOrderDetails />} />
           <Route path="/tableorder/:tableId/merge" element={<MergeOrders />} />
           <Route path="/tableorder/:tableId/transfer" element={<TransferOrders />} />
-          <Route path="/message-kitchen" element={<MessageKitchen />} />
+          
           <Route path="/reservations" element={<FullReservationsView />} />
           <Route path="/tickets" element={<Tickets />} />
           <Route path="/closed-tickets" element={<ClosedTickets />} />

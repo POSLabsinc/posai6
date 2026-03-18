@@ -7545,7 +7545,7 @@ const Orders = () => {
                       <Ticket className="w-3.5 h-3.5" />
                       Voucher
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate(`/message-kitchen?server=${encodeURIComponent(currentServerName)}&return=${encodeURIComponent('/orders')}`)} className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                    <DropdownMenuItem onClick={() => setShowMessageKitchen(true)} className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                       <img src={messageKdsIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
                       Message Kitchen
                     </DropdownMenuItem>
@@ -9366,7 +9366,7 @@ const Orders = () => {
                       <span className="text-[9px] text-white text-center leading-tight">Merge</span>
                     </button>
               }
-                  <button onClick={() => { navigate(`/message-kitchen?server=${encodeURIComponent(currentServerName)}&return=${encodeURIComponent('/orders')}`); setIsOrderActionsSidebarOpen(false); }} className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                  <button onClick={() => { setShowMessageKitchen(true); setIsOrderActionsSidebarOpen(false); }} className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
                     <img src={messageKdsIcon} alt="" className="w-5 h-5 brightness-0 invert" />
                     <span className="text-[9px] text-white text-center leading-tight">Message<br />Kitchen</span>
                   </button>
@@ -9819,6 +9819,11 @@ const Orders = () => {
         </div>
     }
     
+      <MessageKitchenDialog
+        open={showMessageKitchen}
+        onOpenChange={setShowMessageKitchen}
+        serverName={currentServerName}
+      />
     </div>;
 };
 export default Orders;

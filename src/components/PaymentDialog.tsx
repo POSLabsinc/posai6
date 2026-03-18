@@ -5496,8 +5496,8 @@ export function PaymentDialog({
 
       {/* Split Discount MPIN Gate */}
       {showSplitDiscountMpin && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50">
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
             <AccessRestrictedModal
               subtitle="Manager approval required to apply discount."
               onBack={() => setShowSplitDiscountMpin(false)}

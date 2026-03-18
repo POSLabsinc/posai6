@@ -4557,7 +4557,7 @@ export function PaymentDialog({
                         setCheckAssignments({});
                         setPaidChecks([]);
                       }}
-                      className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 flex items-center justify-center hover:bg-red-500/20 transition-colors border border-red-500/40`}
+                      className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 flex items-center justify-center hover:bg-red-500/20 transition-colors`}
                       title="Clear all checks"
                     >
                       <span className="text-red-500 font-bold text-xs">C</span>
@@ -4601,7 +4601,7 @@ export function PaymentDialog({
                         setCheckAssignments({});
                         setPaidChecks([]);
                       }}
-                      className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 flex items-center justify-center hover:bg-red-500/20 transition-colors border border-red-500/40`}
+                      className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 flex items-center justify-center hover:bg-red-500/20 transition-colors`}
                       title="Clear all checks"
                     >
                       <span className="text-red-500 font-bold text-xs">C</span>

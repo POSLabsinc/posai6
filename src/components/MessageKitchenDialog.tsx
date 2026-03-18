@@ -15,6 +15,19 @@ interface KDSTicketData {
   createdAt: string;
   products: { name: string; qty: number }[];
   status: string;
+  partySize?: number;
+  orderStatus?: string;
+}
+
+interface TableGroup {
+  tableNumber: string;
+  displayName: string;
+  serverName: string;
+  partySize: number;
+  time: string;
+  itemCount: number;
+  orderStatus: string;
+  orderIds: string[];
 }
 
 interface MessageKitchenDialogProps {
@@ -27,6 +40,8 @@ interface MessageKitchenDialogProps {
 const MAX_LENGTH = 100;
 const WARN_THRESHOLD = 90;
 const DANGER_THRESHOLD = 95;
+
+type LinkTab = "orders" | "tables";
 
 const normalizeTableNumber = (raw: string | null | undefined): string => {
   if (!raw) return "";
@@ -48,26 +63,38 @@ const getOrderItemPreview = (order: KDSTicketData) => {
   return first3;
 };
 
+const getStatusColor = (status: string) => {
+  const s = status.toUpperCase();
+  if (s === "ORDERING") return "text-red-400";
+  if (s === "ORDERED") return "text-green-400";
+  if (s === "PREPARING") return "text-amber-400";
+  return "text-neutral-400";
+};
+
 const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff" }: MessageKitchenDialogProps) => {
   const [message, setMessage] = useState("");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
+  const [selectedTableKey, setSelectedTableKey] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [orderSearch, setOrderSearch] = useState("");
+  const [tableSearch, setTableSearch] = useState("");
   const [activeOrders, setActiveOrders] = useState<KDSTicketData[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [linkTab, setLinkTab] = useState<LinkTab>("orders");
 
   useEffect(() => {
     if (open) {
       setMessage("");
       setSelectedOrderId(null);
+      setSelectedTableKey(null);
       setError(null);
       setFieldError(null);
       setSending(false);
       setOrderSearch("");
-      setDropdownOpen(false);
+      setTableSearch("");
+      setLinkTab("orders");
       loadActiveOrders();
     }
   }, [open]);
@@ -87,17 +114,19 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
           createdAt: e.createdAt || new Date().toISOString(),
           products: (e.items || []).map((i: any) => ({ name: i.name, qty: i.qty || 1 })),
           status: "active",
+          partySize: e.partySize || 1,
+          orderStatus: e.orderStatus || "ORDERING",
         }));
 
       if (realOrders.length === 0) {
         const now = new Date();
         const mockOrders: KDSTicketData[] = [
-          { id: "kds-1", orderNumber: 23, orderType: "DINE IN", tableNumber: "T2", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 38 * 60000).toISOString(), products: [{ name: "Fried Calamari", qty: 1 }, { name: "Filet Mignon", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }, { name: "Grassfed Sirloin Steak", qty: 1 }, { name: "Tres Leches", qty: 1 }], status: "active" },
-          { id: "kds-2", orderNumber: 24, orderType: "DINE IN", tableNumber: "T4", serverName: "Dustin H", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }], status: "active" },
-          { id: "kds-3", orderNumber: 25, orderType: "DINE IN", tableNumber: "T5", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 2 }], status: "active" },
-          { id: "kds-4", orderNumber: 26, orderType: "DINE IN", tableNumber: "T6", serverName: "Sarah K", createdAt: new Date(now.getTime() - 38 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }], status: "active" },
-          { id: "kds-5", orderNumber: 24, orderType: "DINE IN", tableNumber: "T8", serverName: "Dustin H", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Meatballs", qty: 2 }, { name: "Cheese Selection", qty: 1 }], status: "active" },
-          { id: "kds-6", orderNumber: 28, orderType: "DINE IN", tableNumber: "T3", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Filet Mignon", qty: 1 }, { name: "Meatballs", qty: 4 }, { name: "Grassfed Sirloin Steak", qty: 2 }, { name: "Tres Leches", qty: 3 }, { name: "Meatballs", qty: 1 }, { name: "Grassfed Sirloin Steak", qty: 2 }, { name: "Grassfed Sirloin Steak", qty: 1 }], status: "active" },
+          { id: "kds-1", orderNumber: 23, orderType: "DINE IN", tableNumber: "T2", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 38 * 60000).toISOString(), products: [{ name: "Fried Calamari", qty: 1 }, { name: "Filet Mignon", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }, { name: "Grassfed Sirloin Steak", qty: 1 }, { name: "Tres Leches", qty: 1 }], status: "active", partySize: 4, orderStatus: "ORDERING" },
+          { id: "kds-2", orderNumber: 24, orderType: "DINE IN", tableNumber: "T4", serverName: "Dustin H", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }], status: "active", partySize: 2, orderStatus: "ORDERED" },
+          { id: "kds-3", orderNumber: 25, orderType: "DINE IN", tableNumber: "T5", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 2 }], status: "active", partySize: 3, orderStatus: "PREPARING" },
+          { id: "kds-4", orderNumber: 26, orderType: "DINE IN", tableNumber: "T6", serverName: "Sarah K", createdAt: new Date(now.getTime() - 38 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }], status: "active", partySize: 2, orderStatus: "ORDERING" },
+          { id: "kds-5", orderNumber: 27, orderType: "DINE IN", tableNumber: "T8", serverName: "Dustin H", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Meatballs", qty: 2 }, { name: "Cheese Selection", qty: 1 }], status: "active", partySize: 4, orderStatus: "ORDERED" },
+          { id: "kds-6", orderNumber: 28, orderType: "DINE IN", tableNumber: "T3", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Filet Mignon", qty: 1 }, { name: "Meatballs", qty: 4 }, { name: "Grassfed Sirloin Steak", qty: 2 }, { name: "Tres Leches", qty: 3 }, { name: "Meatballs", qty: 1 }, { name: "Grassfed Sirloin Steak", qty: 2 }, { name: "Grassfed Sirloin Steak", qty: 1 }], status: "active", partySize: 6, orderStatus: "PREPARING" },
         ];
         setActiveOrders(mockOrders);
       } else {
@@ -129,10 +158,58 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     });
   }, [activeOrders, orderSearch]);
 
+  // Group orders by table for Tables tab
+  const tableGroups = useMemo((): TableGroup[] => {
+    const groups = new Map<string, TableGroup>();
+    for (const o of activeOrders) {
+      if (!o.tableNumber) continue;
+      const key = normalizeTableNumber(o.tableNumber);
+      if (!key) continue;
+      const existing = groups.get(key);
+      if (existing) {
+        existing.orderIds.push(o.id);
+        existing.itemCount += o.products.length;
+      } else {
+        groups.set(key, {
+          tableNumber: key,
+          displayName: `Table ${key}`,
+          serverName: o.serverName,
+          partySize: o.partySize || 1,
+          time: formatOrderTime(o.createdAt),
+          itemCount: o.products.length,
+          orderStatus: (o.orderStatus || "ORDERING").toUpperCase(),
+          orderIds: [o.id],
+        });
+      }
+    }
+    return Array.from(groups.values());
+  }, [activeOrders]);
+
+  const filteredTables = useMemo(() => {
+    if (!tableSearch.trim()) return tableGroups;
+    const q = tableSearch.trim().toLowerCase();
+    return tableGroups.filter(t =>
+      t.tableNumber.toLowerCase().includes(q) || t.displayName.toLowerCase().includes(q)
+    );
+  }, [tableGroups, tableSearch]);
+
   const selectedOrder = useMemo(() => {
     if (!selectedOrderId) return null;
     return activeOrders.find(o => o.id === selectedOrderId) || null;
   }, [selectedOrderId, activeOrders]);
+
+  const selectedTable = useMemo(() => {
+    if (!selectedTableKey) return null;
+    return tableGroups.find(t => t.tableNumber === selectedTableKey) || null;
+  }, [selectedTableKey, tableGroups]);
+
+  const handleTabChange = (tab: LinkTab) => {
+    setLinkTab(tab);
+    setSelectedOrderId(null);
+    setSelectedTableKey(null);
+    setOrderSearch("");
+    setTableSearch("");
+  };
 
   const handleSend = async () => {
     if (trimmedMessage.length === 0) {
@@ -150,14 +227,19 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     let linkedTableNumber: string | null = null;
     let linkedOrderId: string | null = null;
     let linkedOrderNumber: number | null = null;
+    let linkedOrderIds: string[] | null = null;
 
-    if (selectedOrder) {
+    if (linkTab === "orders" && selectedOrder) {
       linkedOrderId = selectedOrder.id;
       linkedOrderNumber = selectedOrder.orderNumber;
       if (selectedOrder.tableNumber) {
         linkedTableId = normalizeTableNumber(selectedOrder.tableNumber);
         linkedTableNumber = `Table ${normalizeTableNumber(selectedOrder.tableNumber)}`;
       }
+    } else if (linkTab === "tables" && selectedTable) {
+      linkedTableId = selectedTable.tableNumber;
+      linkedTableNumber = selectedTable.displayName;
+      linkedOrderIds = selectedTable.orderIds;
     }
 
     const payload = {
@@ -171,6 +253,8 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       table_number: linkedTableNumber,
       linked_order_id: linkedOrderId,
       linked_order_number: linkedOrderNumber,
+      linked_order_ids: linkedOrderIds,
+      link_type: linkTab === "tables" && selectedTable ? "table" : linkTab === "orders" && selectedOrder ? "order" : "none",
       timestamp: new Date().toISOString(),
       status: "pending" as const,
     };
@@ -189,13 +273,24 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     }
   };
 
-  const formatOrderTime = (iso: string) => {
+  function formatOrderTime(iso: string) {
     return new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
-  };
+  }
 
   const formatTableDisplay = (tableNumber: string | null) => {
     if (!tableNumber) return "No Table";
     return `Table ${normalizeTableNumber(tableNumber)}`;
+  };
+
+  const sectionTitle = linkTab === "orders"
+    ? "Choose an order to link this message with (Optional)"
+    : "Choose a table to link this message with (Optional)";
+
+  const sendButtonLabel = () => {
+    if (sending) return null;
+    if (linkTab === "orders" && selectedOrder) return `SEND TO ORDER #${selectedOrder.orderNumber}`;
+    if (linkTab === "tables" && selectedTable) return `SEND TO ${selectedTable.displayName.toUpperCase()}`;
+    return "SEND";
   };
 
   return (
@@ -207,7 +302,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Message Field - no wrapper card */}
+          {/* Message Field */}
           <div className="space-y-1.5">
             <label className="text-sm text-neutral-300">Message <span className="text-red-400">*</span></label>
             <Textarea
@@ -218,7 +313,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                   if (e.target.value.trim().length > 0) setFieldError(null);
                 }
               }}
-              placeholder="Type your message for the kitchen…"
+              placeholder="Type your message for the kitchen..."
               className="bg-transparent border-neutral-600 text-white placeholder:text-neutral-500 min-h-[100px] resize-none focus-visible:ring-orange-500"
               maxLength={MAX_LENGTH}
               autoFocus
@@ -231,59 +326,129 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
             </div>
           </div>
 
-          {/* Divider + Section Title */}
+          {/* Divider */}
           <div className="border-t border-neutral-700" />
-          <p className="text-xs text-neutral-500">Choose an order to link this message with (Optional)</p>
 
-          {/* Search box always visible */}
-          <div className="relative">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
-            <Input
-              value={orderSearch}
-              onChange={(e) => setOrderSearch(e.target.value)}
-              placeholder="Search by order number or table..."
-              className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 pl-8 h-8 text-xs"
-            />
+          {/* Section Title */}
+          <p className="text-xs text-neutral-500">{sectionTitle}</p>
+
+          {/* Tab Bar */}
+          <div className="flex rounded-lg border border-neutral-600 overflow-hidden">
+            <button
+              onClick={() => handleTabChange("orders")}
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                linkTab === "orders"
+                  ? "bg-neutral-700 text-white"
+                  : "bg-transparent text-neutral-400 hover:text-neutral-300"
+              }`}
+            >
+              Orders
+            </button>
+            <button
+              onClick={() => handleTabChange("tables")}
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                linkTab === "tables"
+                  ? "bg-neutral-700 text-white"
+                  : "bg-transparent text-neutral-400 hover:text-neutral-300"
+              }`}
+            >
+              Tables
+            </button>
           </div>
 
-          {/* Order list */}
-          {loadingOrders ? (
-            <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Loading orders...
-            </div>
-          ) : filteredOrders.length === 0 ? (
-            <p className="text-xs text-neutral-500 text-center py-3">No active orders at the moment</p>
-          ) : (
-            <div className="max-h-[240px] overflow-y-auto space-y-0.5 scrollbar-hide">
-              {filteredOrders.map(order => {
-                const tableDisplay = formatTableDisplay(order.tableNumber);
-                const timeStr = formatOrderTime(order.createdAt);
-                const isSelected = selectedOrderId === order.id;
-                return (
-                  <button
-                    key={order.id}
-                    onClick={() => {
-                      if (isSelected) {
-                        setSelectedOrderId(null);
-                      } else {
-                        setSelectedOrderId(order.id);
-                      }
-                    }}
-                    className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors bg-neutral-800 hover:bg-neutral-700 border ${isSelected ? "border-orange-500" : "border-transparent"}`}
-                  >
-                    <div className="flex items-center gap-2 text-sm">
-                      <span className="text-white font-semibold">#{order.orderNumber}</span>
-                      <span className="text-neutral-400">{tableDisplay}</span>
-                      <span className="text-neutral-500">·</span>
-                      <span className="text-neutral-400">{order.serverName}</span>
-                      <span className="text-neutral-500 ml-auto">{timeStr}</span>
-                    </div>
-                    <p className="text-xs text-neutral-500 mt-0.5">{getOrderItemPreview(order)}</p>
-                  </button>
-                );
-              })}
-            </div>
+          {/* Orders Tab */}
+          {linkTab === "orders" && (
+            <>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                <Input
+                  value={orderSearch}
+                  onChange={(e) => setOrderSearch(e.target.value)}
+                  placeholder="Search by order number or table..."
+                  className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 pl-8 h-8 text-xs"
+                />
+              </div>
+
+              {loadingOrders ? (
+                <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Loading orders...
+                </div>
+              ) : filteredOrders.length === 0 ? (
+                <p className="text-xs text-neutral-500 text-center py-3">No active orders at the moment</p>
+              ) : (
+                <div className="max-h-[240px] overflow-y-auto space-y-0.5 scrollbar-hide">
+                  {filteredOrders.map(order => {
+                    const tableDisplay = formatTableDisplay(order.tableNumber);
+                    const timeStr = formatOrderTime(order.createdAt);
+                    const isSelected = selectedOrderId === order.id;
+                    return (
+                      <button
+                        key={order.id}
+                        onClick={() => setSelectedOrderId(isSelected ? null : order.id)}
+                        className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors bg-neutral-800 hover:bg-neutral-700 border ${isSelected ? "border-orange-500" : "border-transparent"}`}
+                      >
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-white font-semibold">#{order.orderNumber}</span>
+                          <span className="text-neutral-400">{tableDisplay}</span>
+                          <span className="text-neutral-500">·</span>
+                          <span className="text-neutral-400">{order.serverName}</span>
+                          <span className="text-neutral-500 ml-auto">{timeStr}</span>
+                        </div>
+                        <p className="text-xs text-neutral-500 mt-0.5">{getOrderItemPreview(order)}</p>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Tables Tab */}
+          {linkTab === "tables" && (
+            <>
+              <div className="relative">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                <Input
+                  value={tableSearch}
+                  onChange={(e) => setTableSearch(e.target.value)}
+                  placeholder="Search by table number or name..."
+                  className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 pl-8 h-8 text-xs"
+                />
+              </div>
+
+              {loadingOrders ? (
+                <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  Loading tables...
+                </div>
+              ) : filteredTables.length === 0 ? (
+                <p className="text-xs text-neutral-500 text-center py-3">No active tables at the moment</p>
+              ) : (
+                <div className="max-h-[240px] overflow-y-auto space-y-0.5 scrollbar-hide">
+                  {filteredTables.map(table => {
+                    const isSelected = selectedTableKey === table.tableNumber;
+                    return (
+                      <button
+                        key={table.tableNumber}
+                        onClick={() => setSelectedTableKey(isSelected ? null : table.tableNumber)}
+                        className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors bg-neutral-800 hover:bg-neutral-700 border ${isSelected ? "border-orange-500" : "border-transparent"}`}
+                      >
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-white font-semibold">{table.displayName}</span>
+                          <span className={`text-xs font-semibold ${getStatusColor(table.orderStatus)}`}>
+                            {table.orderStatus}
+                          </span>
+                        </div>
+                        <p className="text-xs text-neutral-500 mt-0.5">
+                          {table.serverName} · Party of {table.partySize} · {table.time} · {table.itemCount} {table.itemCount === 1 ? "product" : "products"}
+                        </p>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </>
           )}
 
           {/* Error message */}
@@ -311,9 +476,9 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
               {sending ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Sending…
+                  Sending...
                 </span>
-              ) : selectedOrder ? `SEND TO ORDER #${selectedOrder.orderNumber}` : "SEND"}
+              ) : sendButtonLabel()}
             </Button>
           </div>
         </div>

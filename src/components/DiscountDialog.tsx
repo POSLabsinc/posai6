@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 
-import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, MessageSquare } from "lucide-react";
+import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, MessageSquare, ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -203,6 +203,7 @@ export function DiscountDialog({
   const [dynamicDiscounts, setDynamicDiscounts] = useState<Discount[]>(fallbackDiscounts);
   const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>(currentDiscounts);
   const [expandedDiscountId, setExpandedDiscountId] = useState<string | null>(null);
+  const [view, setView] = useState<'list' | 'reason'>('list');
   const [reasonDataMap, setReasonDataMap] = useState<Record<string, DiscountReasonData>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   
@@ -223,6 +224,7 @@ export function DiscountDialog({
       setReasonDataMap({});
       setValidationErrors({});
       setCommentText({});
+      setView('list');
     }
     prevOpenRef.current = open;
   }, [open, currentDiscounts]);
@@ -268,9 +270,9 @@ export function DiscountDialog({
         if (expandedDiscountId === discount.id) setExpandedDiscountId(null);
         return prev.filter(d => d.id !== discount.id);
       } else {
-        // Select: only expand if reason is required (100% discounts)
-        if (isReasonRequired(discount)) {
-          setExpandedDiscountId(discount.id);
+        // Select: don't expand inline for 100% discounts (use two-step flow instead)
+        if (!isReasonRequired(discount)) {
+          // Non-100% discounts don't need reason, no expansion needed
         }
         return [...prev, discount];
       }
@@ -490,7 +492,6 @@ export function DiscountDialog({
       <div className="p-3 space-y-2">
         {dynamicDiscounts.map((discount) => {
           const isSelected = selectedDiscounts.some(d => d.id === discount.id);
-          const isExpanded = isSelected && expandedDiscountId === discount.id;
 
           return (
             <div key={discount.id} className="relative">
@@ -498,7 +499,7 @@ export function DiscountDialog({
                 onClick={() => toggleDiscount(discount)}
                 className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
                   isSelected
-                    ? `bg-primary/20 border border-primary ${isExpanded ? "rounded-b-none" : ""}`
+                    ? "bg-primary/20 border border-primary"
                     : "bg-neutral-800 hover:bg-neutral-700 border border-transparent"
                 }`}
               >
@@ -529,14 +530,6 @@ export function DiscountDialog({
                   </span>
                 </div>
               </button>
-
-              <AnimatePresence>
-                {isExpanded && (
-                  <div className="border border-t-0 border-primary rounded-b-lg bg-primary/10">
-                    {renderReasonSection(discount)}
-                  </div>
-                )}
-              </AnimatePresence>
             </div>
           );
         })}
@@ -544,9 +537,46 @@ export function DiscountDialog({
     </div>
   );
 
+  // Find the selected 100% discount for the reason view
+  const selected100Discount = selectedDiscounts.find(d => isReasonRequired(d));
+  const is100Selected = !!selected100Discount;
+  const has100Reason = is100Selected && !!reasonDataMap[selected100Discount!.id]?.reason;
+
+  const reasonViewContent = selected100Discount ? (
+    <div className="max-h-[50vh] overflow-y-auto scrollbar-hide">
+      <div className="px-3 pt-2 pb-1">
+        <button
+          onClick={() => setView('list')}
+          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back
+        </button>
+        <p className="text-sm font-semibold text-foreground mb-1">{selected100Discount.name} - Select Reason</p>
+      </div>
+      {renderReasonSection(selected100Discount)}
+    </div>
+  ) : null;
+
+  // CTA logic
+  const needsReasonStep = is100Selected && !has100Reason && view === 'list';
+  const ctaLabel = needsReasonStep
+    ? "Select Reason"
+    : selectedDiscounts.length > 0
+      ? `Apply (${selectedDiscounts.length})`
+      : "Apply";
+
+  const handleCTAClick = () => {
+    if (needsReasonStep) {
+      setView('reason');
+    } else {
+      handleApply();
+    }
+  };
+
   const summaryAndApply = (
     <>
-      {selectedDiscounts.length > 0 && (
+      {selectedDiscounts.length > 0 && view === 'list' && (
         <div className="px-4 py-3 bg-primary/10 border-t border-primary/20">
           <div className="flex items-center justify-between">
             <div>
@@ -566,10 +596,11 @@ export function DiscountDialog({
       )}
       <div className="p-4 pt-2 border-t border-sidebar-border">
         <Button
-          onClick={handleApply}
+          onClick={handleCTAClick}
           className="w-full bg-primary hover:bg-primary/90 text-primary-foreground"
+          disabled={selectedDiscounts.length === 0}
         >
-          Apply {selectedDiscounts.length > 0 ? `(${selectedDiscounts.length})` : ''}
+          {ctaLabel}
         </Button>
       </div>
     </>
@@ -581,10 +612,10 @@ export function DiscountDialog({
         <DrawerContent className="bg-neutral-900 border-sidebar-border">
           <DrawerHeader className="border-b border-sidebar-border pb-2">
             <DrawerTitle className="text-foreground text-lg font-semibold text-center">
-              Select Discounts
+              {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
             </DrawerTitle>
           </DrawerHeader>
-          {listContent}
+          {view === 'reason' && reasonViewContent ? reasonViewContent : listContent}
           {summaryAndApply}
         </DrawerContent>
       </Drawer>
@@ -596,10 +627,10 @@ export function DiscountDialog({
       <DialogContent className="sm:max-w-[420px] bg-neutral-900 border-sidebar-border p-0 gap-0">
         <DialogHeader className="p-4 pb-2 border-b border-sidebar-border">
           <DialogTitle className="text-foreground text-lg font-semibold">
-            Select Discounts
+            {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
           </DialogTitle>
         </DialogHeader>
-        {listContent}
+        {view === 'reason' && reasonViewContent ? reasonViewContent : listContent}
         {summaryAndApply}
       </DialogContent>
     </Dialog>

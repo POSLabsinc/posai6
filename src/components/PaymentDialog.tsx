@@ -4818,12 +4818,17 @@ export function PaymentDialog({
                             <span className="text-neutral-400">Subtotal</span>
                             <span className="text-neutral-300">${checkTotals.subtotal.toFixed(2)}</span>
                           </div>
-                          {checkTotals.discount > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-red-400">Discount</span>
-                              <span className="text-red-400">-${checkTotals.discount.toFixed(2)}</span>
-                            </div>
-                          )}
+                           {checkTotals.discount > 0 && (
+                             <div className="flex justify-between">
+                               <div className="flex items-center gap-1">
+                                 <Percent className="w-2.5 h-2.5 text-red-400" />
+                                 <span className="text-red-400">
+                                   {splitDiscounts.length > 0 ? splitDiscounts.map(d => d.name).join(', ') : 'Discount'}
+                                 </span>
+                               </div>
+                               <span className="text-red-400">-${checkTotals.discount.toFixed(2)}</span>
+                             </div>
+                           )}
                           <div className="flex justify-between">
                             <span className="text-neutral-400">Tax</span>
                             <span className="text-neutral-300">${checkTotals.tax.toFixed(2)}</span>

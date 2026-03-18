@@ -600,13 +600,13 @@ export function DiscountDialog({
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerContent className="bg-neutral-900 border-sidebar-border">
-          <DrawerHeader className="border-b border-sidebar-border pb-2">
-            <DrawerTitle className="text-foreground text-lg font-semibold text-center flex items-center justify-center gap-2">
-              {view === 'reason' && (
-                <button onClick={() => setView('list')} className="absolute left-4 text-muted-foreground hover:text-foreground transition-colors">
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-              )}
+          <DrawerHeader className="border-b border-sidebar-border pb-2 relative">
+            {view === 'reason' && (
+              <button onClick={() => setView('list')} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors z-10">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+            <DrawerTitle className="text-foreground text-lg font-semibold text-center">
               {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
             </DrawerTitle>
           </DrawerHeader>

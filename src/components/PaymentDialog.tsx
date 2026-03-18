@@ -4584,7 +4584,7 @@ export function PaymentDialog({
                     </button>
                     <button
                       onClick={() => {
-                        setShowSplitDiscountDialog(true);
+                        setShowSplitDiscountMpin(true);
                       }}
                       className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 transition-colors`}
                       title="Apply discount"

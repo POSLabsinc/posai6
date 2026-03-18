@@ -8435,6 +8435,7 @@ const Orders = () => {
                 {filteredItems.map((item, index) => {
                   const menuItem = item as MenuItem;
                   const hasStockCount = menuItem.stock_count !== null && menuItem.stock_count !== undefined;
+                  const stockLabel = hasStockCount ? menuItem.stock_count : 'N/A';
                   const isOutOfStock = menuItem.is_available === false || (hasStockCount && menuItem.stock_count <= 0);
                   const showStockBadge = hasStockCount;
                   return <div key={item.id} onClick={() => !isOutOfStock && openCustomizationDialog(item, index)} className={`flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border h-[48px] md:h-[54px] relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -8455,9 +8456,7 @@ const Orders = () => {
                       {(item as MenuItem).isOpenPrice && (
                         <span className="self-start px-1.5 py-0 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 leading-relaxed">Open Price</span>
                       )}
-                      {hasStockCount && (
-                        <span className="text-[8px] font-semibold text-muted-foreground uppercase">Stock: {menuItem.stock_count}</span>
-                      )}
+                      <span className="text-[8px] font-semibold text-muted-foreground uppercase">Stock: {stockLabel}</span>
                       {isOutOfStock && (
                         <span className="text-[8px] font-bold text-destructive uppercase">Out of Stock</span>
                       )}

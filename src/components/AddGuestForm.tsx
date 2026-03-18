@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { X, Camera, Car, ChevronUp, ChevronDown, ChevronLeft, MapPin, Calendar, Upload } from "lucide-react";
+import { X, Camera, Car, ChevronUp, ChevronDown, ChevronLeft, MapPin, Calendar, Upload, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -16,6 +16,13 @@ interface AddGuestFormProps {
   onBack?: () => void;
 }
 
+interface VehicleEntry {
+  vehicleType: string;
+  vehicleColor: string;
+  vehicleBrand: string;
+  licensePlate: string;
+}
+
 interface GuestFormData {
   firstName: string;
   middleName: string;
@@ -26,10 +33,7 @@ interface GuestFormData {
   dateOfBirth: string;
   anniversary: string;
   address: string;
-  vehicleType: string;
-  vehicleColor: string;
-  vehicleBrand: string;
-  licensePlate: string;
+  vehicles: VehicleEntry[];
   profilePhoto: string | null;
 }
 
@@ -60,12 +64,32 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
     dateOfBirth: "",
     anniversary: "",
     address: "",
-    vehicleType: "",
-    vehicleColor: "",
-    vehicleBrand: "",
-    licensePlate: "",
+    vehicles: [{ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" }],
     profilePhoto: null,
   });
+
+  const handleAddVehicle = () => {
+    setFormData(prev => ({
+      ...prev,
+      vehicles: [...prev.vehicles, { vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" }],
+    }));
+  };
+
+  const handleRemoveVehicle = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      vehicles: prev.vehicles.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleVehicleChange = (index: number, field: keyof VehicleEntry, value: string) => {
+    setFormData(prev => {
+      const vehicles = [...prev.vehicles];
+      vehicles[index] = { ...vehicles[index], [field]: value };
+      if (field === "vehicleType") vehicles[index].vehicleBrand = "";
+      return { ...prev, vehicles };
+    });
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -123,8 +147,16 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
     try {
       const fullName = [formData.firstName, formData.middleName, formData.lastName].filter(Boolean).join(" ");
       const initials = `${formData.firstName.charAt(0)}${formData.lastName.charAt(0)}`.toUpperCase();
-      const vehicleParts = [formData.vehicleColor, formData.vehicleBrand, formData.vehicleType].filter(Boolean);
-      const vehicleStr = vehicleParts.length > 0 ? vehicleParts.join(" ") : "";
+      
+      // Combine all vehicles into strings
+      const vehicleStrs = formData.vehicles
+        .filter(v => v.vehicleColor || v.vehicleBrand || v.vehicleType)
+        .map(v => [v.vehicleColor, v.vehicleBrand, v.vehicleType].filter(Boolean).join(" "));
+      const vehicleStr = vehicleStrs.join(", ");
+      const licensePlates = formData.vehicles
+        .filter(v => v.licensePlate)
+        .map(v => v.licensePlate)
+        .join(", ");
 
       const guestRow: Record<string, any> = {
         name: fullName,
@@ -136,7 +168,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
         anniversary: formData.anniversary || "",
         address: formData.address || "",
         vehicle: vehicleStr,
-        license_plate: formData.licensePlate || "",
+        license_plate: licensePlates,
         avatar_url: formData.profilePhoto || null,
         initials,
         is_archived: false,
@@ -382,83 +414,99 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
         </button>
 
         {showVehicleDetails && (
-          <div className="space-y-3 p-3 rounded-lg border border-white/10 bg-white/5">
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-white/60 mb-1 block">Vehicle Type</label>
-                <Select
-                  value={formData.vehicleType}
-                  onValueChange={(value) => {
-                    handleInputChange("vehicleType", value);
-                    handleInputChange("vehicleBrand", "");
-                  }}
-                >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                    <SelectValue placeholder="Select type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-neutral-800 border-white/10">
-                    {vehicleTypes.map((type) => (
-                      <SelectItem key={type} value={type} className="text-white hover:bg-white/10">
-                        {type}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <label className="text-xs text-white/60 mb-1 block">Vehicle Color</label>
-                <Select
-                  value={formData.vehicleColor}
-                  onValueChange={(value) => handleInputChange("vehicleColor", value)}
-                >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                    <SelectValue placeholder="Select color" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-neutral-800 border-white/10">
-                    {vehicleColors.map((color) => (
-                      <SelectItem key={color} value={color} className="text-white hover:bg-white/10">
-                        {color}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
+          <div className="space-y-4">
+            {formData.vehicles.map((vehicle, index) => (
+              <div key={index} className="space-y-3 p-3 rounded-lg border border-white/10 bg-white/5">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-white/60 font-medium">Vehicle {index + 1}</span>
+                  {formData.vehicles.length > 1 && (
+                    <button
+                      onClick={() => handleRemoveVehicle(index)}
+                      className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-500/20 transition-colors"
+                    >
+                      <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                    </button>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-white/60 mb-1 block">Vehicle Type</label>
+                    <Select
+                      value={vehicle.vehicleType}
+                      onValueChange={(value) => handleVehicleChange(index, "vehicleType", value)}
+                    >
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-neutral-800 border-white/10">
+                        {vehicleTypes.map((type) => (
+                          <SelectItem key={type} value={type} className="text-white hover:bg-white/10">
+                            {type}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-white/60 mb-1 block">Vehicle Color</label>
+                    <Select
+                      value={vehicle.vehicleColor}
+                      onValueChange={(value) => handleVehicleChange(index, "vehicleColor", value)}
+                    >
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                        <SelectValue placeholder="Select color" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-neutral-800 border-white/10">
+                        {vehicleColors.map((color) => (
+                          <SelectItem key={color} value={color} className="text-white hover:bg-white/10">
+                            {color}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="text-xs text-white/60 mb-1 block">
-                  Vehicle Brand <span className="text-primary">*</span>
-                </label>
-                <Select
-                  value={formData.vehicleBrand}
-                  onValueChange={(value) => handleInputChange("vehicleBrand", value)}
-                  disabled={!formData.vehicleType}
-                >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white disabled:opacity-50">
-                    <SelectValue placeholder={formData.vehicleType ? "Select brand" : "Select type first"} />
-                  </SelectTrigger>
-                  <SelectContent className="bg-neutral-800 border-white/10">
-                    {(formData.vehicleType && vehicleBrands[formData.vehicleType] || []).map((brand) => (
-                      <SelectItem key={brand} value={brand} className="text-white hover:bg-white/10">
-                        {brand}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="text-xs text-white/60 mb-1 block">Vehicle Brand</label>
+                    <Select
+                      value={vehicle.vehicleBrand}
+                      onValueChange={(value) => handleVehicleChange(index, "vehicleBrand", value)}
+                      disabled={!vehicle.vehicleType}
+                    >
+                      <SelectTrigger className="bg-white/10 border-white/20 text-white disabled:opacity-50">
+                        <SelectValue placeholder={vehicle.vehicleType ? "Select brand" : "Select type first"} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-neutral-800 border-white/10">
+                        {(vehicle.vehicleType && vehicleBrands[vehicle.vehicleType] || []).map((brand) => (
+                          <SelectItem key={brand} value={brand} className="text-white hover:bg-white/10">
+                            {brand}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-white/60 mb-1 block">License Plate</label>
+                    <Input
+                      value={vehicle.licensePlate}
+                      onChange={(e) => handleVehicleChange(index, "licensePlate", e.target.value.toUpperCase())}
+                      placeholder="Enter license plate"
+                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40 uppercase"
+                    />
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="text-xs text-white/60 mb-1 block">
-                  License Plate <span className="text-primary">*</span>
-                </label>
-                <Input
-                  value={formData.licensePlate}
-                  onChange={(e) => handleInputChange("licensePlate", e.target.value.toUpperCase())}
-                  placeholder="Enter license plate"
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 uppercase"
-                />
-              </div>
-            </div>
+            ))}
+
+            <button
+              onClick={handleAddVehicle}
+              className="flex items-center gap-2 text-primary text-sm hover:text-primary/80 transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Add another vehicle</span>
+            </button>
           </div>
         )}
       </div>

@@ -297,8 +297,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
             />
           </div>
 
-        {/* Phone & Customer Since */}
-        <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="text-sm text-white/70 mb-1 block">
               Phone Number <span className="text-primary">*</span>

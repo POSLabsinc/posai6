@@ -8412,18 +8412,30 @@ const Orders = () => {
                   </div>;
                 })}
               </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5 pb-4 md:pb-0">
-                {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border h-[48px] md:h-[54px]">
+                {filteredItems.map((item, index) => {
+                  const menuItem = item as MenuItem;
+                  const isOutOfStock = menuItem.is_available === false || (menuItem.stock_count !== null && menuItem.stock_count !== undefined && menuItem.stock_count <= 0);
+                  const showStockBadge = menuItem.stock_count !== null && menuItem.stock_count !== undefined && menuItem.stock_count > 0 && menuItem.is_available !== false;
+                  return <div key={item.id} onClick={() => !isOutOfStock && openCustomizationDialog(item, index)} className={`flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border h-[48px] md:h-[54px] relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
                     <div className="flex-1 p-1.5 md:p-2 bg-muted flex flex-col justify-center gap-0.5 min-w-0">
                       <div className="flex items-start justify-between gap-1.5">
                         <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2 min-w-0">
                           {item.name}
                         </span>
-                        <span className="text-[10px] md:text-[11px] text-foreground font-semibold shrink-0 whitespace-nowrap">
-                          {(item as MenuItem).isOpenPrice && item.price === 0 ? "" : `$${item.price.toFixed(2)}`}
-                        </span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {showStockBadge && (
+                            <span className="min-w-[16px] h-[16px] rounded-full bg-accent text-accent-foreground text-[8px] font-bold flex items-center justify-center px-1">{menuItem.stock_count}</span>
+                          )}
+                          <span className="text-[10px] md:text-[11px] text-foreground font-semibold whitespace-nowrap">
+                            {(item as MenuItem).isOpenPrice && item.price === 0 ? "" : `$${item.price.toFixed(2)}`}
+                          </span>
+                        </div>
                       </div>
                       {(item as MenuItem).isOpenPrice && (
                         <span className="self-start px-1.5 py-0 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 leading-relaxed">Open Price</span>
+                      )}
+                      {isOutOfStock && (
+                        <span className="text-[8px] font-bold text-destructive uppercase">Out of Stock</span>
                       )}
                     </div>
                     <button onClick={(e) => {
@@ -8434,7 +8446,8 @@ const Orders = () => {
                   }}>
                       <Plus className="w-3 md:w-3.5 h-3 md:h-3.5" strokeWidth={3.5} />
                     </button>
-                  </div>)}
+                  </div>;
+                })}
               </div>;
             })()}
         </ScrollArea>

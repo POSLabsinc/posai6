@@ -5492,6 +5492,13 @@ export function PaymentDialog({
         )}
       </div>
 
+      {showSplitDiscountDialog && (
+        <style>{`
+          [data-radix-portal] { z-index: 200 !important; }
+          [data-radix-portal] [role="dialog"] { z-index: 200 !important; }
+          [data-radix-portal] > div:first-child { z-index: 200 !important; }
+        `}</style>
+      )}
       <DiscountDialog
         open={showSplitDiscountDialog}
         onOpenChange={setShowSplitDiscountDialog}

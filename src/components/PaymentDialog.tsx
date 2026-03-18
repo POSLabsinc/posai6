@@ -4455,18 +4455,32 @@ export function PaymentDialog({
                   </button>
                   <span className={`text-white ${isMobile ? 'text-base' : 'text-lg'} font-medium`}>Split Payment</span>
                 </div>
-                <button 
-                  onClick={() => {
-                    setSelectedPaymentMethod('cash');
-                    setSplitMode('evenly');
-                    setNumberOfChecks(2);
-                    setCheckAssignments({});
-                    setPaidChecks([]);
-                  }}
-                  className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                >
-                  <X className="w-5 h-5 text-neutral-400" />
-                </button>
+                <div className="flex items-center gap-2">
+                  <button 
+                    onClick={() => {
+                      setSplitMode('evenly');
+                      setNumberOfChecks(2);
+                      setCheckAssignments({});
+                      setPaidChecks([]);
+                    }}
+                    className="w-8 h-8 rounded-full hover:bg-red-500/20 flex items-center justify-center transition-colors border border-red-500/40"
+                    title="Clear all checks"
+                  >
+                    <span className="text-red-500 font-bold text-sm">C</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setSelectedPaymentMethod('cash');
+                      setSplitMode('evenly');
+                      setNumberOfChecks(2);
+                      setCheckAssignments({});
+                      setPaidChecks([]);
+                    }}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <X className="w-5 h-5 text-neutral-400" />
+                  </button>
+                </div>
               </div>
 
               {/* Tab Navigation + Check Counter */}

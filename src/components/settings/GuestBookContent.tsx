@@ -12,7 +12,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import PaymentTabContent from "@/components/settings/PaymentTabContent";
 import FeedbackTabContent from "@/components/settings/FeedbackTabContent";
 import OrderHistoryTabContent from "@/components/settings/OrderHistoryTabContent";
-import AddGuestForm from "@/components/AddGuestForm";
+
 
 interface Guest {
   id: string;
@@ -1222,7 +1222,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
   const [isExpanded, setIsExpanded] = useState(false);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showAddGuest, setShowAddGuest] = useState(false);
+  
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
@@ -1349,10 +1349,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     }).eq("id", updated.id);
   }, []);
 
-  const handleAddGuestSave = async () => {
-    await fetchGuests();
-    setShowAddGuest(false);
-  };
 
   // Mobile: show list or detail
   if (isMobile) {
@@ -1396,9 +1392,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
             <Search className="w-4 h-4 text-neutral-500" />
             <input type="text" placeholder="Search guests..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-sm" />
-            <button onClick={() => setShowAddGuest(true)} className="w-7 h-7 rounded-full bg-neutral-700/60 flex items-center justify-center">
-              <Plus className="w-4 h-4 text-foreground" />
-            </button>
           </div>
         </div>
         {/* Guest List */}
@@ -1428,9 +1421,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
               </button>
             )}
             <div className="flex items-center gap-2">
-              <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
-                <Plus className="w-4 h-4 text-foreground" />
-              </button>
               <button className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
                 <Archive className="w-4 h-4 text-foreground" />
               </button>
@@ -1477,27 +1467,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           <EmptyDetailState />
         )}
       </div>
-      {/* Add Guest Full Screen - within app content area */}
-      {showAddGuest && (
-        <div className="absolute inset-0 z-40 bg-background flex flex-col">
-          <div className="relative flex items-center h-14 px-4 border-b border-border">
-            <button
-              onClick={() => setShowAddGuest(false)}
-              className="absolute left-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
-            <h2 className="w-full text-center text-base font-semibold text-foreground">Add Guest</h2>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <AddGuestForm
-              onClose={() => setShowAddGuest(false)}
-              onSave={handleAddGuestSave}
-              hideHeader={true}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

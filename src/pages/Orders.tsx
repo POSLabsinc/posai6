@@ -6048,6 +6048,12 @@ const Orders = () => {
   const { addOrder: addTicketOrder, updateOrder: updateTicketOrder } = useTicketOrders();
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
 
+  // Dynamic arrived-at time based on when the order screen was opened
+  const [arrivedAt] = useState(() => {
+    const now = new Date();
+    return now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  });
+
   // Fetch menus from database - only enabled & non-archived menus appear
   const { menuList, menuCategories } = useSupabaseMenus();
 
@@ -7233,7 +7239,7 @@ const Orders = () => {
             </div>
             <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
               <img src={timeIcon} alt="Time" className="w-4 h-4" />
-              <span className="text-white">12:30 PM</span>
+              <span className="text-white">{arrivedAt}</span>
             </div>
           </div>
           
@@ -8488,7 +8494,7 @@ const Orders = () => {
               </div>
               <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
                 <img src={timeIcon} alt="Time" className="w-3 h-3" />
-                <span className="text-white text-[10px]">12:30 PM</span>
+                <span className="text-white text-[10px]">{arrivedAt}</span>
                 <DraggablePanelHandle panelId="order" className="flex-shrink-0" />
               </div>
             </div>

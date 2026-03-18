@@ -5494,11 +5494,28 @@ export function PaymentDialog({
         )}
       </div>
 
-      {showSplitDiscountDialog && (
+      {/* Split Discount MPIN Gate */}
+      {showSplitDiscountMpin && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            <AccessRestrictedModal
+              subtitle="Manager approval required to apply discount."
+              onBack={() => setShowSplitDiscountMpin(false)}
+              onSuccess={() => {
+                setShowSplitDiscountMpin(false);
+                setShowSplitDiscountDialog(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Split Discount Dialog */}
+      {(showSplitDiscountDialog) && (
         <style>{`
-          [data-radix-portal] { z-index: 200 !important; }
-          [data-radix-portal] [role="dialog"] { z-index: 200 !important; }
-          [data-radix-portal] > div:first-child { z-index: 200 !important; }
+          [data-radix-portal] { z-index: 250 !important; }
+          [data-radix-portal] [role="dialog"] { z-index: 250 !important; }
+          [data-radix-portal] > div:first-child { z-index: 250 !important; }
         `}</style>
       )}
       <DiscountDialog

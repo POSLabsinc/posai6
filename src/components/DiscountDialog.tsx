@@ -270,9 +270,9 @@ export function DiscountDialog({
         if (expandedDiscountId === discount.id) setExpandedDiscountId(null);
         return prev.filter(d => d.id !== discount.id);
       } else {
-        // Select: only expand if reason is required (100% discounts)
-        if (isReasonRequired(discount)) {
-          setExpandedDiscountId(discount.id);
+        // Select: don't expand inline for 100% discounts (use two-step flow instead)
+        if (!isReasonRequired(discount)) {
+          // Non-100% discounts don't need reason, no expansion needed
         }
         return [...prev, discount];
       }

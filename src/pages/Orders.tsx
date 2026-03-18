@@ -8426,8 +8426,8 @@ const Orders = () => {
                         ) : (
                           <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold">${item.price.toFixed(2)}</span>
                         )}
+                        <span className="text-[9px] md:text-[10px] text-muted-foreground font-semibold">{stockLabel}</span>
                       </div>
-                      <span className="text-[9px] md:text-[10px] text-muted-foreground font-semibold">{stockLabel}</span>
                     </div>
                   </div>;
                 })}

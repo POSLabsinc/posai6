@@ -12,6 +12,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import PaymentTabContent from "@/components/settings/PaymentTabContent";
 import FeedbackTabContent from "@/components/settings/FeedbackTabContent";
 import OrderHistoryTabContent from "@/components/settings/OrderHistoryTabContent";
+import AddGuestForm from "@/components/AddGuestForm";
 
 interface Guest {
   id: string;

@@ -207,7 +207,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
         </DialogHeader>
 
         <div className="space-y-4">
-          {/* Message Field */}
+          {/* Message Field - no wrapper card */}
           <div className="space-y-1.5">
             <label className="text-sm text-neutral-300">Message <span className="text-red-400">*</span></label>
             <Textarea
@@ -219,7 +219,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                 }
               }}
               placeholder="Type your message for the kitchen…"
-              className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 min-h-[100px] resize-none focus-visible:ring-orange-500"
+              className="bg-transparent border-neutral-600 text-white placeholder:text-neutral-500 min-h-[100px] resize-none focus-visible:ring-orange-500"
               maxLength={MAX_LENGTH}
               autoFocus
             />
@@ -231,87 +231,60 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
             </div>
           </div>
 
-          {/* Select Order (Optional) */}
-          <div className="space-y-1.5">
-            <label className="text-sm text-neutral-300">Select Order <span className="text-neutral-500">(Optional)</span></label>
+          {/* Divider + Section Title */}
+          <div className="border-t border-neutral-700" />
+          <p className="text-xs text-neutral-500">Choose an order to link this message with (Optional)</p>
 
-            {/* Selected order display / trigger */}
-            {selectedOrder ? (
-              <div className="space-y-1">
-                <div className="flex items-center gap-2 bg-neutral-800 border border-neutral-600 rounded-md px-2.5 py-2">
-                  <div className="flex-1 text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="text-white font-semibold">#{selectedOrder.orderNumber}</span>
-                      <span className="text-neutral-400">{formatTableDisplay(selectedOrder.tableNumber)}</span>
-                      <span className="text-neutral-500">·</span>
-                      <span className="text-neutral-400">{selectedOrder.serverName}</span>
-                      <span className="text-neutral-500 ml-auto">{formatOrderTime(selectedOrder.createdAt)}</span>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => { setSelectedOrderId(null); setDropdownOpen(false); }}
-                    className="p-0.5 hover:bg-neutral-700 rounded transition-colors"
-                  >
-                    <X className="w-3.5 h-3.5 text-neutral-400" />
-                  </button>
-                </div>
-                <p className="text-[11px] text-neutral-400 px-1">{getOrderItemPreview(selectedOrder)}</p>
-              </div>
-            ) : (
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="w-full flex items-center bg-neutral-800 border border-neutral-600 rounded-md px-2.5 py-2 text-xs text-neutral-500 hover:border-neutral-500 transition-colors"
-              >
-                No Order
-              </button>
-            )}
-
-            {/* Dropdown list */}
-            {dropdownOpen && !selectedOrder && (
-              <div className="space-y-1.5">
-                <div className="relative">
-                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
-                  <Input
-                    value={orderSearch}
-                    onChange={(e) => setOrderSearch(e.target.value)}
-                    placeholder="Search by order number or table..."
-                    className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 pl-8 h-8 text-xs"
-                  />
-                </div>
-                {loadingOrders ? (
-                  <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    Loading orders...
-                  </div>
-                ) : filteredOrders.length === 0 ? (
-                  <p className="text-xs text-neutral-500 text-center py-3">No active orders at the moment</p>
-                ) : (
-                  <div className="max-h-[140px] overflow-y-auto space-y-0.5 scrollbar-hide">
-                    {filteredOrders.map(order => {
-                      const tableDisplay = formatTableDisplay(order.tableNumber);
-                      const timeStr = formatOrderTime(order.createdAt);
-                      return (
-                        <button
-                          key={order.id}
-                          onClick={() => { setSelectedOrderId(order.id); setDropdownOpen(false); setOrderSearch(""); }}
-                          className="w-full text-left px-2.5 py-2 rounded-lg text-xs transition-colors bg-neutral-800 hover:bg-neutral-700 border border-transparent"
-                        >
-                          <div className="flex items-center gap-2">
-                            <span className="text-white font-semibold">#{order.orderNumber}</span>
-                            <span className="text-neutral-400">{tableDisplay}</span>
-                            <span className="text-neutral-500">·</span>
-                            <span className="text-neutral-400">{order.serverName}</span>
-                            <span className="text-neutral-500 ml-auto">{timeStr}</span>
-                          </div>
-                          <p className="text-[10px] text-neutral-500 mt-0.5">{getOrderItemPreview(order)}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            )}
+          {/* Search box always visible */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+            <Input
+              value={orderSearch}
+              onChange={(e) => setOrderSearch(e.target.value)}
+              placeholder="Search by order number or table..."
+              className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 pl-8 h-8 text-xs"
+            />
           </div>
+
+          {/* Order list */}
+          {loadingOrders ? (
+            <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
+              <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              Loading orders...
+            </div>
+          ) : filteredOrders.length === 0 ? (
+            <p className="text-xs text-neutral-500 text-center py-3">No active orders at the moment</p>
+          ) : (
+            <div className="max-h-[240px] overflow-y-auto space-y-0.5 scrollbar-hide">
+              {filteredOrders.map(order => {
+                const tableDisplay = formatTableDisplay(order.tableNumber);
+                const timeStr = formatOrderTime(order.createdAt);
+                const isSelected = selectedOrderId === order.id;
+                return (
+                  <button
+                    key={order.id}
+                    onClick={() => {
+                      if (isSelected) {
+                        setSelectedOrderId(null);
+                      } else {
+                        setSelectedOrderId(order.id);
+                      }
+                    }}
+                    className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors bg-neutral-800 hover:bg-neutral-700 border ${isSelected ? "border-orange-500" : "border-transparent"}`}
+                  >
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="text-white font-semibold">#{order.orderNumber}</span>
+                      <span className="text-neutral-400">{tableDisplay}</span>
+                      <span className="text-neutral-500">·</span>
+                      <span className="text-neutral-400">{order.serverName}</span>
+                      <span className="text-neutral-500 ml-auto">{timeStr}</span>
+                    </div>
+                    <p className="text-xs text-neutral-500 mt-0.5">{getOrderItemPreview(order)}</p>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           {/* Error message */}
           {error && (

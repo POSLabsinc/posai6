@@ -105,8 +105,19 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
 
   const [isSaving, setIsSaving] = useState(false);
 
+  const isFormEmpty = !formData.firstName && !formData.lastName && !formData.email && !formData.phoneNumber;
+  const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phoneNumber;
+
   const handleSave = async () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phoneNumber) return;
+    if (isSaving) return;
+    if (isFormEmpty) {
+      onClose();
+      return;
+    }
+    if (!isFormValid) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
 
     setIsSaving(true);
     try {
@@ -142,7 +153,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
 
       toast.success("Guest saved successfully!");
       onSave(formData);
-      onClose();
     } catch (err) {
       console.error("Error saving guest:", err);
       toast.error("An unexpected error occurred.");
@@ -151,7 +161,11 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
     }
   };
 
-  const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phoneNumber;
+  const handleBack = () => {
+    handleSave();
+    if (onBack) onBack();
+    else onClose();
+  };
 
   return (
     <div 

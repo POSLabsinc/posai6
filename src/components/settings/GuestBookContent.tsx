@@ -1422,9 +1422,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
               </button>
             )}
             <div className="flex items-center gap-2">
-              <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
-                <Plus className="w-4 h-4 text-foreground" />
-              </button>
               <button className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
                 <Archive className="w-4 h-4 text-foreground" />
               </button>

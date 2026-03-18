@@ -6048,6 +6048,12 @@ const Orders = () => {
   const { addOrder: addTicketOrder, updateOrder: updateTicketOrder } = useTicketOrders();
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
 
+  // Dynamic arrived-at time based on when the order screen was opened
+  const [arrivedAt] = useState(() => {
+    const now = new Date();
+    return now.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+  });
+
   // Fetch menus from database - only enabled & non-archived menus appear
   const { menuList, menuCategories } = useSupabaseMenus();
 

@@ -204,6 +204,7 @@ export function DiscountDialog({
   const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>(currentDiscounts);
   const [expandedDiscountId, setExpandedDiscountId] = useState<string | null>(null);
   const [view, setView] = useState<'list' | 'reason'>('list');
+  const [reasonDataMap, setReasonDataMap] = useState<Record<string, DiscountReasonData>>({});
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   
   const [commentText, setCommentText] = useState<Record<string, string>>({});

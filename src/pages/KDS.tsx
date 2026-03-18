@@ -643,7 +643,7 @@ const KDS = () => {
 
   // Poll pending messages for badge + attached messages
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
-  const prevPendingCountRef = React.useRef(0);
+  const prevPendingCountRef = useRef(0);
   useEffect(() => {
     const load = () => {
       try {

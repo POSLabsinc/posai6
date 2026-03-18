@@ -479,13 +479,13 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                 />
               </div>
 
-              {loadingOrders ? (
+              {loadingTables ? (
                 <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   Loading tables...
                 </div>
               ) : filteredTables.length === 0 ? (
-                <p className="text-xs text-neutral-500 text-center py-3">No active tables at the moment</p>
+                <p className="text-xs text-neutral-500 text-center py-3">No tables at the moment</p>
               ) : (
                 <div className="max-h-[240px] overflow-y-auto space-y-0.5 scrollbar-hide">
                   {filteredTables.map(table => {

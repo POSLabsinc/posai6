@@ -5492,20 +5492,25 @@ export function PaymentDialog({
         )}
       </div>
 
-      <div className="[&_[data-radix-portal]]:z-[200] [&_[role=dialog]]:z-[200]">
-        <DiscountDialog
-          open={showSplitDiscountDialog}
-          onOpenChange={setShowSplitDiscountDialog}
-          currentDiscounts={splitDiscounts}
-          onApplyDiscounts={(discounts) => {
-            setSplitDiscounts(discounts);
-            if (discounts.length > 0) {
-              toast.success(`Discount applied to all checks`);
-            }
-          }}
-          subtotal={subtotal}
-        />
-      </div>
+      {showSplitDiscountDialog && (
+        <div className="fixed inset-0 z-[200]">
+          <div className="fixed inset-0 bg-black/80" onClick={() => setShowSplitDiscountDialog(false)} />
+          <div className="fixed inset-0 z-[201] pointer-events-none">
+            <DiscountDialog
+              open={showSplitDiscountDialog}
+              onOpenChange={setShowSplitDiscountDialog}
+              currentDiscounts={splitDiscounts}
+              onApplyDiscounts={(discounts) => {
+                setSplitDiscounts(discounts);
+                if (discounts.length > 0) {
+                  toast.success(`Discount applied to all checks`);
+                }
+              }}
+              subtotal={subtotal}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }

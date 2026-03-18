@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { X, Camera, Car, ChevronUp, ChevronDown, MapPin, Calendar, Upload } from "lucide-react";
+import { X, Camera, Car, ChevronUp, ChevronDown, ChevronLeft, MapPin, Calendar, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ interface AddGuestFormProps {
   onClose: () => void;
   onSave: (guestData: GuestFormData) => void;
   hideHeader?: boolean;
+  onBack?: () => void;
 }
 
 interface GuestFormData {
@@ -45,7 +46,7 @@ const vehicleBrands: Record<string, string[]> = {
   "Wagon": ["Volvo", "Audi", "BMW", "Mercedes", "Subaru"],
 };
 
-const AddGuestForm = ({ onClose, onSave, hideHeader }: AddGuestFormProps) => {
+const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps) => {
   const [showVehicleDetails, setShowVehicleDetails] = useState(false);
   const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -104,8 +105,19 @@ const AddGuestForm = ({ onClose, onSave, hideHeader }: AddGuestFormProps) => {
 
   const [isSaving, setIsSaving] = useState(false);
 
+  const isFormEmpty = !formData.firstName && !formData.lastName && !formData.email && !formData.phoneNumber;
+  const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phoneNumber;
+
   const handleSave = async () => {
-    if (!formData.firstName || !formData.lastName || !formData.email || !formData.phoneNumber) return;
+    if (isSaving) return;
+    if (isFormEmpty) {
+      onClose();
+      return;
+    }
+    if (!isFormValid) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
 
     setIsSaving(true);
     try {
@@ -141,7 +153,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader }: AddGuestFormProps) => {
 
       toast.success("Guest saved successfully!");
       onSave(formData);
-      onClose();
     } catch (err) {
       console.error("Error saving guest:", err);
       toast.error("An unexpected error occurred.");
@@ -150,7 +161,11 @@ const AddGuestForm = ({ onClose, onSave, hideHeader }: AddGuestFormProps) => {
     }
   };
 
-  const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phoneNumber;
+  const handleBack = () => {
+    handleSave();
+    if (onBack) onBack();
+    else onClose();
+  };
 
   return (
     <div 
@@ -160,6 +175,18 @@ const AddGuestForm = ({ onClose, onSave, hideHeader }: AddGuestFormProps) => {
         boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
       }}
     >
+      {/* Back Header for embedded mode */}
+      {hideHeader && onBack && (
+        <div className="relative flex items-center h-14 px-4 border-b border-border flex-shrink-0">
+          <button
+            onClick={handleBack}
+            className="absolute left-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <h2 className="w-full text-center text-base font-semibold text-foreground">Add New Guest</h2>
+        </div>
+      )}
       {/* Fixed Header */}
       {!hideHeader && (
         <div className="flex items-center justify-between p-4 border-b border-white/10">
@@ -440,27 +467,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader }: AddGuestFormProps) => {
         )}
       </div>
 
-      {/* Fixed Footer */}
-      <div className="p-4 border-t border-white/10 flex gap-3">
-        <Button
-          onClick={onClose}
-          variant="outline"
-          className="flex-1 h-11 bg-white/5 border-white/20 hover:bg-white/10 text-white"
-        >
-          Cancel
-        </Button>
-        <button
-          onClick={handleSave}
-          disabled={!isFormValid || isSaving}
-          className={`flex-1 h-11 rounded-lg font-medium transition-colors ${
-            isFormValid && !isSaving
-              ? "bg-primary text-primary-foreground hover:bg-primary/90"
-              : "bg-white/10 text-white/40 cursor-not-allowed"
-          }`}
-        >
-          {isSaving ? "Saving..." : "Save Guest"}
-        </button>
-      </div>
     </div>
   );
 };

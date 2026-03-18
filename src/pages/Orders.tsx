@@ -8395,6 +8395,7 @@ const Orders = () => {
                 {filteredItems.map((item, index) => {
                   const menuItem = item as MenuItem;
                   const hasStockCount = menuItem.stock_count !== null && menuItem.stock_count !== undefined;
+                  const stockLabel = hasStockCount ? menuItem.stock_count : 'N/A';
                   const isOutOfStock = menuItem.is_available === false || (hasStockCount && menuItem.stock_count <= 0);
                   const showStockBadge = hasStockCount;
                   return <div key={item.id} className={`flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700 relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -8426,9 +8427,7 @@ const Orders = () => {
                           <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold">${item.price.toFixed(2)}</span>
                         )}
                       </div>
-                      {hasStockCount && (
-                        <span className="text-[9px] md:text-[10px] text-muted-foreground font-semibold">Stock: {menuItem.stock_count}</span>
-                      )}
+                      <span className="text-[9px] md:text-[10px] text-muted-foreground font-semibold">Stock: {stockLabel}</span>
                     </div>
                   </div>;
                 })}

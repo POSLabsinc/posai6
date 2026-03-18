@@ -770,7 +770,11 @@ const KDS = () => {
           <div className="flex-1 overflow-x-auto overflow-y-auto">
              <div className="flex gap-3 p-3 h-full items-start">
               {activeTickets.map(ticket => (
-                <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} attachedMessages={ticket.tableNumber ? (messagesByTable.get(normalizeTableNumber(ticket.tableNumber)) || []) : []} onAcknowledgeMessage={handleAcknowledgeMessage} />
+                <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} attachedMessages={[
+                  ...(ticket.tableNumber ? (messagesByTable.get(normalizeTableNumber(ticket.tableNumber)) || []) : []),
+                  ...(messagesByOrder.get(ticket.id) || []),
+                  ...(messagesByOrder.get(`order-${ticket.orderNumber}`) || []),
+                ]} onAcknowledgeMessage={handleAcknowledgeMessage} />
               ))}
               {activeTickets.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 gap-3">

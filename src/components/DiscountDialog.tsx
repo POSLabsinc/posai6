@@ -224,6 +224,7 @@ export function DiscountDialog({
       setReasonDataMap({});
       setValidationErrors({});
       setCommentText({});
+      setView('list');
     }
     prevOpenRef.current = open;
   }, [open, currentDiscounts]);

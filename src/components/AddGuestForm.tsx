@@ -324,8 +324,8 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
           </div>
         </div>
 
-        {/* Date of Birth & Anniversary */}
-        <div className="grid grid-cols-2 gap-3">
+        {/* Date of Birth, Anniversary & Address */}
+        <div className="grid grid-cols-3 gap-3">
           <div>
             <label className="text-sm text-white/70 mb-1 block">Date of Birth</label>
             <div className="relative">
@@ -350,6 +350,18 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
                 className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pl-9"
               />
               <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm text-white/70 mb-1 block">Address</label>
+            <div className="relative">
+              <Input
+                value={formData.address}
+                onChange={(e) => handleInputChange("address", e.target.value)}
+                placeholder="Search for an address..."
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pl-9"
+              />
+              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
             </div>
           </div>
         </div>

@@ -147,8 +147,16 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
     try {
       const fullName = [formData.firstName, formData.middleName, formData.lastName].filter(Boolean).join(" ");
       const initials = `${formData.firstName.charAt(0)}${formData.lastName.charAt(0)}`.toUpperCase();
-      const vehicleParts = [formData.vehicleColor, formData.vehicleBrand, formData.vehicleType].filter(Boolean);
-      const vehicleStr = vehicleParts.length > 0 ? vehicleParts.join(" ") : "";
+      
+      // Combine all vehicles into strings
+      const vehicleStrs = formData.vehicles
+        .filter(v => v.vehicleColor || v.vehicleBrand || v.vehicleType)
+        .map(v => [v.vehicleColor, v.vehicleBrand, v.vehicleType].filter(Boolean).join(" "));
+      const vehicleStr = vehicleStrs.join(", ");
+      const licensePlates = formData.vehicles
+        .filter(v => v.licensePlate)
+        .map(v => v.licensePlate)
+        .join(", ");
 
       const guestRow: Record<string, any> = {
         name: fullName,
@@ -160,7 +168,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
         anniversary: formData.anniversary || "",
         address: formData.address || "",
         vehicle: vehicleStr,
-        license_plate: formData.licensePlate || "",
+        license_plate: licensePlates,
         avatar_url: formData.profilePhoto || null,
         initials,
         is_archived: false,

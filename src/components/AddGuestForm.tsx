@@ -64,12 +64,32 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps
     dateOfBirth: "",
     anniversary: "",
     address: "",
-    vehicleType: "",
-    vehicleColor: "",
-    vehicleBrand: "",
-    licensePlate: "",
+    vehicles: [{ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" }],
     profilePhoto: null,
   });
+
+  const handleAddVehicle = () => {
+    setFormData(prev => ({
+      ...prev,
+      vehicles: [...prev.vehicles, { vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" }],
+    }));
+  };
+
+  const handleRemoveVehicle = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      vehicles: prev.vehicles.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleVehicleChange = (index: number, field: keyof VehicleEntry, value: string) => {
+    setFormData(prev => {
+      const vehicles = [...prev.vehicles];
+      vehicles[index] = { ...vehicles[index], [field]: value };
+      if (field === "vehicleType") vehicles[index].vehicleBrand = "";
+      return { ...prev, vehicles };
+    });
+  };
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

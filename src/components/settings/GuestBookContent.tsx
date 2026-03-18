@@ -1392,9 +1392,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
             <Search className="w-4 h-4 text-neutral-500" />
             <input type="text" placeholder="Search guests..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-sm" />
-            <button onClick={() => setShowAddGuest(true)} className="w-7 h-7 rounded-full bg-neutral-700/60 flex items-center justify-center">
-              <Plus className="w-4 h-4 text-foreground" />
-            </button>
           </div>
         </div>
         {/* Guest List */}

@@ -544,16 +544,6 @@ export function DiscountDialog({
 
   const reasonViewContent = selected100Discount ? (
     <div className="max-h-[50vh] overflow-y-auto scrollbar-hide">
-      <div className="px-3 pt-2 pb-1">
-        <button
-          onClick={() => setView('list')}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors mb-2"
-        >
-          <ChevronLeft className="w-4 h-4" />
-          Back
-        </button>
-        <p className="text-sm font-semibold text-foreground mb-1">{selected100Discount.name} - Select Reason</p>
-      </div>
       {renderReasonSection(selected100Discount)}
     </div>
   ) : null;

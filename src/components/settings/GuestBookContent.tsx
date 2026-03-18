@@ -1349,25 +1349,8 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     }).eq("id", updated.id);
   }, []);
 
-  const handleAddGuest = async () => {
-    if (!newGuestName.trim()) return;
-    const initials = newGuestName.trim().split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
-    const colors = ["#6B7280", "#8B5CF6", "#F59E0B", "#10B981", "#6366F1", "#EC4899", "#F97316", "#EF4444"];
-    const avatarBg = colors[Math.floor(Math.random() * colors.length)];
-    const { data } = await (supabase as any).from("guests").insert({
-      name: newGuestName.trim(),
-      email: newGuestEmail.trim(),
-      phone: newGuestPhone.trim(),
-      initials,
-      avatar_bg: avatarBg,
-    }).select().single();
-    if (data) {
-      await fetchGuests();
-      setSelectedGuestId(data.id);
-    }
-    setNewGuestName("");
-    setNewGuestEmail("");
-    setNewGuestPhone("");
+  const handleAddGuestSave = async () => {
+    await fetchGuests();
     setShowAddGuest(false);
   };
 

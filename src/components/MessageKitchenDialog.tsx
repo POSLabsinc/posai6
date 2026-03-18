@@ -313,7 +313,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                   <Loader2 className="w-4 h-4 animate-spin" />
                   Sending…
                 </span>
-              ) : "Send"}
+              ) : selectedOrder ? `SEND TO ORDER #${selectedOrder.orderNumber}` : "SEND"}
             </Button>
           </div>
         </div>

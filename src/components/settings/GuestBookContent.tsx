@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, Search, Plus, Phone, Mail, Star, Calendar, UtensilsCrossed, Car, AlertTriangle, ClipboardList, MessageSquare, Tag, Archive, ArrowDownAZ, X, Pencil, Clock, Users, ChevronRight, Info } from "lucide-react";
@@ -12,7 +12,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import PaymentTabContent from "@/components/settings/PaymentTabContent";
 import FeedbackTabContent from "@/components/settings/FeedbackTabContent";
 import OrderHistoryTabContent from "@/components/settings/OrderHistoryTabContent";
-
+import AddGuestForm from "@/components/AddGuestForm";
 
 interface Guest {
   id: string;
@@ -1348,7 +1348,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
       notes_allergies: updated.notes.allergies,
     }).eq("id", updated.id);
   }, []);
-
+  const [showAddGuest, setShowAddGuest] = useState(false);
 
   // Mobile: show list or detail
   if (isMobile) {
@@ -1406,70 +1406,94 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
 
   // Desktop/Tablet: split layout
   return (
-    <div className="h-full flex overflow-hidden">
-      {/* Left Panel - Guest List */}
-      {!isExpanded && (
-        <div className="w-[300px] flex-shrink-0 bg-neutral-900/90 rounded-2xl flex flex-col h-full">
-          <div className="px-4 pt-5 pb-2 flex items-center justify-between overflow-visible" style={{ minHeight: 48 }}>
-            {onBack ? (
-              <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
-                <ChevronLeft className="w-5 h-5 text-foreground" />
-              </button>
-            ) : (
-              <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
-                <ChevronLeft className="w-5 h-5 text-foreground" />
-              </button>
-            )}
-            <div className="flex items-center gap-2">
-              <button className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
-                <Plus className="w-4 h-4 text-foreground" />
-              </button>
-              <button className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
-                <Archive className="w-4 h-4 text-foreground" />
-              </button>
-              <button
-                onClick={() => setSortAZ(prev => !prev)}
-                className={`w-8 h-8 rounded-full flex items-center justify-center active:opacity-70 transition-all ${sortAZ ? 'bg-foreground' : 'bg-neutral-800/60'}`}
-              >
-                <ArrowDownAZ className={`w-4 h-4 ${sortAZ ? 'text-background' : 'text-foreground'}`} />
-              </button>
+    <div className="h-full relative overflow-hidden">
+      <div className="h-full flex overflow-hidden">
+        {/* Left Panel - Guest List */}
+        {!isExpanded && (
+          <div className="w-[300px] flex-shrink-0 bg-neutral-900/90 rounded-2xl flex flex-col h-full">
+            <div className="px-4 pt-5 pb-2 flex items-center justify-between overflow-visible" style={{ minHeight: 48 }}>
+              {onBack ? (
+                <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                  <ChevronLeft className="w-5 h-5 text-foreground" />
+                </button>
+              ) : (
+                <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                  <ChevronLeft className="w-5 h-5 text-foreground" />
+                </button>
+              )}
+              <div className="flex items-center gap-2">
+                <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                  <Plus className="w-4 h-4 text-foreground" />
+                </button>
+                <button className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                  <Archive className="w-4 h-4 text-foreground" />
+                </button>
+                <button
+                  onClick={() => setSortAZ(prev => !prev)}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center active:opacity-70 transition-all ${sortAZ ? 'bg-foreground' : 'bg-neutral-800/60'}`}
+                >
+                  <ArrowDownAZ className={`w-4 h-4 ${sortAZ ? 'text-background' : 'text-foreground'}`} />
+                </button>
+              </div>
+            </div>
+            {/* Search + AI icon row */}
+            <div className="px-4 flex items-center gap-2 overflow-visible py-3">
+              <div className="flex-1 bg-neutral-800/40 rounded-full px-3 py-2 flex items-center gap-2">
+                <Search className="w-4 h-4 text-neutral-500" />
+                <input type="text" placeholder="Search" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-sm" />
+              </div>
+              <div className="overflow-visible flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32 }}>
+                <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+              </div>
+            </div>
+            {/* List */}
+            <div className="flex-1 overflow-y-auto px-2 pb-4 scrollbar-hide">
+              {filteredGuests.map(guest => (
+                <GuestListItem key={guest.id} guest={guest} isSelected={selectedGuestId === guest.id} onClick={() => setSelectedGuestId(guest.id)} />
+              ))}
             </div>
           </div>
-          {/* Search + AI icon row */}
-          <div className="px-4 flex items-center gap-2 overflow-visible py-3">
-            <div className="flex-1 bg-neutral-800/40 rounded-full px-3 py-2 flex items-center gap-2">
-              <Search className="w-4 h-4 text-neutral-500" />
-              <input type="text" placeholder="Search" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-sm" />
-            </div>
-            <div className="overflow-visible flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32 }}>
-              <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-            </div>
+        )}
+
+        {/* Right Panel - Guest Detail */}
+        <div
+          className="flex-1 h-full overflow-hidden cursor-pointer"
+          onClick={() => {
+            if (selectedGuest && !isExpanded) {
+              setIsExpanded(true);
+            }
+          }}
+        >
+          {selectedGuest ? (
+            <GuestDetailPanel guest={selectedGuest} onUpdateGuest={handleUpdateGuest} onCollapse={isExpanded ? () => setIsExpanded(false) : undefined} />
+          ) : (
+            <EmptyDetailState />
+          )}
+        </div>
+      </div>
+
+      {/* Add Guest Screen - within content area */}
+      {showAddGuest && (
+        <div className="absolute inset-0 z-40 bg-background flex flex-col">
+          <div className="relative flex items-center h-14 px-4 border-b border-border">
+            <button
+              onClick={() => setShowAddGuest(false)}
+              className="absolute left-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+            <h2 className="w-full text-center text-base font-semibold text-foreground">Add New Guest</h2>
           </div>
-          {/* List */}
-          <div className="flex-1 overflow-y-auto px-2 pb-4 scrollbar-hide">
-            {filteredGuests.map(guest => (
-              <GuestListItem key={guest.id} guest={guest} isSelected={selectedGuestId === guest.id} onClick={() => setSelectedGuestId(guest.id)} />
-            ))}
+          <div className="flex-1 overflow-y-auto">
+            <AddGuestForm
+              onClose={() => setShowAddGuest(false)}
+              onSave={async () => { await fetchGuests(); setShowAddGuest(false); }}
+              hideHeader={true}
+            />
           </div>
         </div>
       )}
-
-      {/* Right Panel - Guest Detail */}
-      <div
-        className="flex-1 h-full overflow-hidden cursor-pointer"
-        onClick={() => {
-          if (selectedGuest && !isExpanded) {
-            setIsExpanded(true);
-          }
-        }}
-      >
-        {selectedGuest ? (
-          <GuestDetailPanel guest={selectedGuest} onUpdateGuest={handleUpdateGuest} onCollapse={isExpanded ? () => setIsExpanded(false) : undefined} />
-        ) : (
-          <EmptyDetailState />
-        )}
-      </div>
     </div>
   );
 };

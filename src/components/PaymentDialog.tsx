@@ -8,7 +8,7 @@ import {
   ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, 
   Mail, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, 
   UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, 
-  RefreshCw, Send, Zap, Users, Clock, Share2, GripVertical, Save, Ticket
+  RefreshCw, Send, Zap, Users, Clock, Share2, GripVertical, Save, Ticket, Percent
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
@@ -4562,6 +4562,15 @@ export function PaymentDialog({
                     >
                       <span className="text-red-500 font-bold text-xs">C</span>
                     </button>
+                    <button
+                      onClick={() => {
+                        // TODO: Open discount dialog for split checks
+                      }}
+                      className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 transition-colors`}
+                      title="Apply discount"
+                    >
+                      <Percent className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                    </button>
                   </div>
                 )}
                 
@@ -4596,6 +4605,15 @@ export function PaymentDialog({
                       title="Clear all checks"
                     >
                       <span className="text-red-500 font-bold text-xs">C</span>
+                    </button>
+                    <button
+                      onClick={() => {
+                        // TODO: Open discount dialog for split checks
+                      }}
+                      className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 transition-colors`}
+                      title="Apply discount"
+                    >
+                      <Percent className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
                     </button>
                   </div>
                 )}

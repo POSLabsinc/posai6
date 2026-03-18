@@ -8494,7 +8494,7 @@ const Orders = () => {
               </div>
               <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
                 <img src={timeIcon} alt="Time" className="w-3 h-3" />
-                <span className="text-white text-[10px]">12:30 PM</span>
+                <span className="text-white text-[10px]">{arrivedAt}</span>
                 <DraggablePanelHandle panelId="order" className="flex-shrink-0" />
               </div>
             </div>

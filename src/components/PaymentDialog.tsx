@@ -4700,9 +4700,14 @@ export function PaymentDialog({
                           <span className="text-white font-bold text-xs">
                             {splitMode === 'seat' ? `Seat ${checkNum}` : getCheckLabel(checkNum - 1)}
                           </span>
-                          <span className="text-green-500 font-bold text-sm">
-                            ${checkTotals.total.toFixed(2)}
-                          </span>
+                          <div className="flex flex-col items-end">
+                            {checkTotals.discount > 0 && (
+                              <span className="text-red-400 text-[9px] line-through">${(checkTotals.total + checkTotals.discount).toFixed(2)}</span>
+                            )}
+                            <span className="text-green-500 font-bold text-sm">
+                              ${checkTotals.total.toFixed(2)}
+                            </span>
+                          </div>
                         </div>
                         
                         {/* Items List - Scrollable */}

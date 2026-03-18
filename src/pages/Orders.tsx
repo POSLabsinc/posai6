@@ -218,6 +218,8 @@ interface MenuItem {
   name: string;
   price: number;
   isOpenPrice?: boolean;
+  stock_count?: number | null;
+  is_available?: boolean;
 }
 type SubcategoryItems = Record<string, MenuItem[]>;
 type CategoryItems = Record<string, SubcategoryItems>;

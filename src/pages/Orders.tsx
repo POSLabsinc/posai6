@@ -218,6 +218,8 @@ interface MenuItem {
   name: string;
   price: number;
   isOpenPrice?: boolean;
+  stock_count?: number | null;
+  is_available?: boolean;
 }
 type SubcategoryItems = Record<string, MenuItem[]>;
 type CategoryItems = Record<string, SubcategoryItems>;
@@ -6058,12 +6060,12 @@ const Orders = () => {
   const { menuList, menuCategories } = useSupabaseMenus();
 
   // Fetch products from the database so newly added products show on the Orders screen
-  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; price: number; category_name: string; price_type: string; active: boolean; archived: boolean }>>([]);
+  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; price: number; category_name: string; price_type: string; active: boolean; archived: boolean; stock_count: number | null; is_available: boolean }>>([]);
   
   const fetchDbProducts = useCallback(async () => {
     const { data } = await (supabase as any)
       .from('products')
-      .select('id, name, price, price_type, active, archived, categories(name)')
+      .select('id, name, price, price_type, active, archived, stock_count, is_available, categories(name)')
       .eq('active', true)
       .eq('archived', false);
     if (data) {
@@ -6075,6 +6077,8 @@ const Orders = () => {
         price_type: p.price_type,
         active: p.active,
         archived: p.archived,
+        stock_count: p.stock_count,
+        is_available: p.is_available ?? true,
       })));
     }
   }, []);
@@ -6159,6 +6163,8 @@ const Orders = () => {
               name: p.name,
               price: p.price,
               isOpenPrice: p.price_type === 'open',
+              stock_count: p.stock_count,
+              is_available: p.is_available,
             }));
           if (newDbItems.length > 0) {
             // Add to the category directly if no subcategories
@@ -6191,6 +6197,8 @@ const Orders = () => {
           name: p.name,
           price: p.price,
           isOpenPrice: p.price_type === 'open',
+          stock_count: p.stock_count,
+          is_available: p.is_available,
         }));
         catItems[catName] = subItems;
       }
@@ -8367,7 +8375,11 @@ const Orders = () => {
               // Filter items based on search query
               const filteredItems = searchQuery.trim() ? currentItems.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : currentItems;
               return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2 pb-4 md:pb-0">
-                {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700">
+                {filteredItems.map((item, index) => {
+                  const menuItem = item as MenuItem;
+                  const isOutOfStock = menuItem.is_available === false || (menuItem.stock_count !== null && menuItem.stock_count !== undefined && menuItem.stock_count <= 0);
+                  const showStockBadge = menuItem.stock_count !== null && menuItem.stock_count !== undefined && menuItem.stock_count > 0 && menuItem.is_available !== false;
+                  return <div key={item.id} className={`flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700 relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
                     <div className="relative aspect-[2/1] md:aspect-square bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
                       <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
                       <button onClick={(e) => {
@@ -8376,6 +8388,14 @@ const Orders = () => {
                     }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
                         <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
                       </button>
+                      {showStockBadge && (
+                        <span className="absolute top-0.5 md:top-1 right-0.5 md:right-1 min-w-[18px] h-[18px] rounded-full bg-accent text-accent-foreground text-[9px] font-bold flex items-center justify-center px-1">{menuItem.stock_count}</span>
+                      )}
+                      {isOutOfStock && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                          <span className="text-[9px] md:text-[10px] font-bold text-destructive uppercase tracking-wider">Out of Stock</span>
+                        </div>
+                      )}
                     </div>
                     <div className="p-0.5 md:p-1 bg-neutral-900 flex flex-col gap-0.5" onClick={() => openCustomizationDialog(item, index)}>
                       <span className="text-[11px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-1">
@@ -8389,20 +8409,33 @@ const Orders = () => {
                         )}
                       </div>
                     </div>
-                  </div>)}
+                  </div>;
+                })}
               </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5 pb-4 md:pb-0">
-                {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border h-[48px] md:h-[54px]">
+                {filteredItems.map((item, index) => {
+                  const menuItem = item as MenuItem;
+                  const isOutOfStock = menuItem.is_available === false || (menuItem.stock_count !== null && menuItem.stock_count !== undefined && menuItem.stock_count <= 0);
+                  const showStockBadge = menuItem.stock_count !== null && menuItem.stock_count !== undefined && menuItem.stock_count > 0 && menuItem.is_available !== false;
+                  return <div key={item.id} onClick={() => !isOutOfStock && openCustomizationDialog(item, index)} className={`flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border h-[48px] md:h-[54px] relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
                     <div className="flex-1 p-1.5 md:p-2 bg-muted flex flex-col justify-center gap-0.5 min-w-0">
                       <div className="flex items-start justify-between gap-1.5">
                         <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2 min-w-0">
                           {item.name}
                         </span>
-                        <span className="text-[10px] md:text-[11px] text-foreground font-semibold shrink-0 whitespace-nowrap">
-                          {(item as MenuItem).isOpenPrice && item.price === 0 ? "" : `$${item.price.toFixed(2)}`}
-                        </span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {showStockBadge && (
+                            <span className="min-w-[16px] h-[16px] rounded-full bg-accent text-accent-foreground text-[8px] font-bold flex items-center justify-center px-1">{menuItem.stock_count}</span>
+                          )}
+                          <span className="text-[10px] md:text-[11px] text-foreground font-semibold whitespace-nowrap">
+                            {(item as MenuItem).isOpenPrice && item.price === 0 ? "" : `$${item.price.toFixed(2)}`}
+                          </span>
+                        </div>
                       </div>
                       {(item as MenuItem).isOpenPrice && (
                         <span className="self-start px-1.5 py-0 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 leading-relaxed">Open Price</span>
+                      )}
+                      {isOutOfStock && (
+                        <span className="text-[8px] font-bold text-destructive uppercase">Out of Stock</span>
                       )}
                     </div>
                     <button onClick={(e) => {
@@ -8413,7 +8446,8 @@ const Orders = () => {
                   }}>
                       <Plus className="w-3 md:w-3.5 h-3 md:h-3.5" strokeWidth={3.5} />
                     </button>
-                  </div>)}
+                  </div>;
+                })}
               </div>;
             })()}
         </ScrollArea>

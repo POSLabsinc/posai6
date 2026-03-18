@@ -1468,27 +1468,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           <EmptyDetailState />
         )}
       </div>
-      {/* Add Guest Full Screen */}
-      {showAddGuest && (
-        <div className="fixed inset-0 z-50 bg-[#131316] flex flex-col">
-          <div className="relative flex items-center h-14 px-4 border-b border-neutral-800">
-            <button
-              onClick={() => setShowAddGuest(false)}
-              className="absolute left-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-neutral-800 transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
-            <h2 className="w-full text-center text-base font-semibold text-foreground">Add Guest</h2>
-          </div>
-          <div className="flex-1 overflow-y-auto">
-            <AddGuestForm
-              onClose={() => setShowAddGuest(false)}
-              onSave={handleAddGuestSave}
-              hideHeader={true}
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };

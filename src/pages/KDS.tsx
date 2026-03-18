@@ -478,7 +478,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
               </div>
               <div className="bg-neutral-800 px-3 py-2">
                 <p className="text-xs text-white leading-relaxed whitespace-pre-wrap break-words">{msg.message_text}</p>
-                <p className="text-[10px] text-neutral-500 mt-1">From. <span className="text-neutral-300">{msg.employee_name}</span></p>
+                <p className="text-[10px] text-neutral-500 mt-1">From: <span className="text-neutral-300">{msg.employee_name}</span></p>
               </div>
               {msg.status === "pending" && onAcknowledgeMessage && (
                 <div className="bg-neutral-900 px-3 py-2">

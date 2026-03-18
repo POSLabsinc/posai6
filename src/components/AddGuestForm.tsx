@@ -1,12 +1,14 @@
 import { useState, useRef } from "react";
-import { X, Camera, Car, ChevronUp, ChevronDown, ChevronLeft, MapPin, Calendar, Upload, Plus, Trash2 } from "lucide-react";
+import { X, Camera, Car, ChevronUp, ChevronDown, ChevronLeft, MapPin, Calendar as CalendarIcon, Upload, Plus, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { formatPhoneNumber } from "@/lib/utils";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
+import { cn, formatPhoneNumber } from "@/lib/utils";
 import addGuestIcon from "@/assets/icons/add-guest.svg";
 
 interface AddGuestFormProps {

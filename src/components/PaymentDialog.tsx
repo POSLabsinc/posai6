@@ -4703,19 +4703,11 @@ export function PaymentDialog({
                             <span className="text-white font-bold text-xs">
                               {splitMode === 'seat' ? `Seat ${checkNum}` : getCheckLabel(checkNum - 1)}
                             </span>
-                            {checkTotals.discount > 0 && splitDiscounts.length > 0 && (
-                              <div className="flex items-center gap-0.5 mt-0.5">
-                                <Percent className="w-2.5 h-2.5 text-red-400 flex-shrink-0" />
-                                <span className="text-red-400 text-[9px] truncate">
-                                  {splitDiscounts.map(d => d.name).join(', ')}
-                                </span>
-                              </div>
-                            )}
                           </div>
                           <div className="flex flex-col items-end flex-shrink-0">
-                            {checkTotals.discount > 0 && (
-                              <span className="text-red-400 text-[9px] line-through">${(checkTotals.total + checkTotals.discount).toFixed(2)}</span>
-                            )}
+                             {checkTotals.discount > 0 && (
+                               <span className="text-red-400 text-[9px] line-through">${(checkTotals.total + checkTotals.discount).toFixed(2)}</span>
+                             )}
                             <span className="text-green-500 font-bold text-sm">
                               ${checkTotals.total.toFixed(2)}
                             </span>
@@ -4826,12 +4818,17 @@ export function PaymentDialog({
                             <span className="text-neutral-400">Subtotal</span>
                             <span className="text-neutral-300">${checkTotals.subtotal.toFixed(2)}</span>
                           </div>
-                          {checkTotals.discount > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-red-400">Discount</span>
-                              <span className="text-red-400">-${checkTotals.discount.toFixed(2)}</span>
-                            </div>
-                          )}
+                           {checkTotals.discount > 0 && (
+                             <div className="flex justify-between">
+                               <div className="flex items-center gap-1">
+                                 <Percent className="w-2.5 h-2.5 text-red-400" />
+                                 <span className="text-red-400">
+                                   {splitDiscounts.length > 0 ? splitDiscounts.map(d => d.name).join(', ') : 'Discount'}
+                                 </span>
+                               </div>
+                               <span className="text-red-400">-${checkTotals.discount.toFixed(2)}</span>
+                             </div>
+                           )}
                           <div className="flex justify-between">
                             <span className="text-neutral-400">Tax</span>
                             <span className="text-neutral-300">${checkTotals.tax.toFixed(2)}</span>

@@ -4455,32 +4455,18 @@ export function PaymentDialog({
                   </button>
                   <span className={`text-white ${isMobile ? 'text-base' : 'text-lg'} font-medium`}>Split Payment</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={() => {
-                      setSplitMode('evenly');
-                      setNumberOfChecks(2);
-                      setCheckAssignments({});
-                      setPaidChecks([]);
-                    }}
-                    className="w-8 h-8 rounded-full hover:bg-red-500/20 flex items-center justify-center transition-colors border border-red-500/40"
-                    title="Clear all checks"
-                  >
-                    <span className="text-red-500 font-bold text-sm">C</span>
-                  </button>
-                  <button 
-                    onClick={() => {
-                      setSelectedPaymentMethod('cash');
-                      setSplitMode('evenly');
-                      setNumberOfChecks(2);
-                      setCheckAssignments({});
-                      setPaidChecks([]);
-                    }}
-                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                  >
-                    <X className="w-5 h-5 text-neutral-400" />
-                  </button>
-                </div>
+                <button 
+                  onClick={() => {
+                    setSelectedPaymentMethod('cash');
+                    setSplitMode('evenly');
+                    setNumberOfChecks(2);
+                    setCheckAssignments({});
+                    setPaidChecks([]);
+                  }}
+                  className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5 text-neutral-400" />
+                </button>
               </div>
 
               {/* Tab Navigation + Check Counter */}
@@ -4564,6 +4550,18 @@ export function PaymentDialog({
                     >
                       <Save className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
                     </button>
+                    <button
+                      onClick={() => {
+                        setNumberOfChecks(0);
+                        setSavedNonSeatChecks(0);
+                        setCheckAssignments({});
+                        setPaidChecks([]);
+                      }}
+                      className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 flex items-center justify-center hover:bg-red-500/20 transition-colors border border-red-500/40`}
+                      title="Clear all checks"
+                    >
+                      <span className="text-red-500 font-bold text-xs">C</span>
+                    </button>
                   </div>
                 )}
                 
@@ -4586,6 +4584,18 @@ export function PaymentDialog({
                       className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 transition-colors ml-1`}
                     >
                       <Save className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        setNumberOfChecks(0);
+                        setSavedNonSeatChecks(0);
+                        setCheckAssignments({});
+                        setPaidChecks([]);
+                      }}
+                      className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 flex items-center justify-center hover:bg-red-500/20 transition-colors border border-red-500/40`}
+                      title="Clear all checks"
+                    >
+                      <span className="text-red-500 font-bold text-xs">C</span>
                     </button>
                   </div>
                 )}

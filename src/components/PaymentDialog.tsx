@@ -269,6 +269,7 @@ export function PaymentDialog({
   // Split check discount states
   const [showSplitDiscountDialog, setShowSplitDiscountDialog] = useState(false);
   const [splitDiscounts, setSplitDiscounts] = useState<Discount[]>([]);
+  const [showSplitDiscountMpin, setShowSplitDiscountMpin] = useState(false);
 
   // Mobile detection
   const isMobile = useIsMobile();

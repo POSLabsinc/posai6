@@ -45,6 +45,7 @@ interface DiscountDialogProps {
   onApplyDiscounts: (discounts: Discount[], payloads?: AppliedDiscountPayload[]) => void;
   currentDiscounts: Discount[];
   subtotal: number;
+  portalContainer?: HTMLElement | null;
 }
 
 // High-frequency flat reason chips (dynamically orderable in production)

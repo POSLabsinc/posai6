@@ -223,6 +223,8 @@ interface KDSMessageData {
   employee_name: string;
   table_id: string | null;
   table_number?: string | null;
+  linked_order_id?: string | null;
+  linked_order_number?: number | null;
   timestamp: string;
   status: "pending" | "acknowledged";
   acknowledged_at?: string;
@@ -309,8 +311,9 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
               <span className="text-[10px] text-white/70 font-mono">{format(new Date(msg.timestamp), "hh:mm a")}</span>
             </div>
             <div className="bg-neutral-800 px-3 py-1.5 flex items-center gap-3 text-[10px] text-neutral-400 border-b border-neutral-700">
-              <span>From. <span className="text-white font-medium">{msg.employee_name}</span></span>
-              {(msg.table_id || msg.table_number) && <span>Table. <span className="text-white font-medium">{msg.table_number || msg.table_id}</span></span>}
+              <span>From: <span className="text-white font-medium">{msg.employee_name}</span></span>
+              {msg.linked_order_number && <span>·  Order <span className="text-white font-medium">#{msg.linked_order_number}</span></span>}
+              {(msg.table_id || msg.table_number) && <span>·  <span className="text-white font-medium">{msg.table_number || `Table ${msg.table_id}`}</span></span>}
             </div>
             <div className="bg-neutral-900 px-3 py-3">
               <p className="text-xs leading-relaxed whitespace-pre-wrap break-words">{msg.message_text}</p>
@@ -475,7 +478,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
               </div>
               <div className="bg-neutral-800 px-3 py-2">
                 <p className="text-xs text-white leading-relaxed whitespace-pre-wrap break-words">{msg.message_text}</p>
-                <p className="text-[10px] text-neutral-500 mt-1">From. <span className="text-neutral-300">{msg.employee_name}</span></p>
+                <p className="text-[10px] text-neutral-500 mt-1">From: <span className="text-neutral-300">{msg.employee_name}</span></p>
               </div>
               {msg.status === "pending" && onAcknowledgeMessage && (
                 <div className="bg-neutral-900 px-3 py-2">
@@ -654,15 +657,32 @@ const KDS = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Build a map of table number -> pending messages for that table
+  // Build maps: table number -> pending messages, order id -> pending messages
   const messagesByTable = useMemo(() => {
     const map = new Map<string, KDSMessageData[]>();
-    kdsMessages.filter(m => m.status === "pending" && (m.table_number || m.table_id)).forEach(msg => {
+    kdsMessages.filter(m => m.status === "pending" && (m.table_number || m.table_id) && !m.linked_order_id).forEach(msg => {
       const tableKey = normalizeTableNumber(msg.table_number || msg.table_id || "");
       if (!tableKey) return;
       const arr = map.get(tableKey) || [];
       arr.push(msg);
       map.set(tableKey, arr);
+    });
+    return map;
+  }, [kdsMessages]);
+
+  const messagesByOrder = useMemo(() => {
+    const map = new Map<string, KDSMessageData[]>();
+    kdsMessages.filter(m => m.status === "pending" && m.linked_order_id).forEach(msg => {
+      const arr = map.get(msg.linked_order_id!) || [];
+      arr.push(msg);
+      map.set(msg.linked_order_id!, arr);
+    });
+    // Also map by order number for mock tickets
+    kdsMessages.filter(m => m.status === "pending" && m.linked_order_number && !m.linked_order_id).forEach(msg => {
+      const key = `order-${msg.linked_order_number}`;
+      const arr = map.get(key) || [];
+      arr.push(msg);
+      map.set(key, arr);
     });
     return map;
   }, [kdsMessages]);
@@ -750,7 +770,11 @@ const KDS = () => {
           <div className="flex-1 overflow-x-auto overflow-y-auto">
              <div className="flex gap-3 p-3 h-full items-start">
               {activeTickets.map(ticket => (
-                <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} attachedMessages={ticket.tableNumber ? (messagesByTable.get(normalizeTableNumber(ticket.tableNumber)) || []) : []} onAcknowledgeMessage={handleAcknowledgeMessage} />
+                <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} attachedMessages={[
+                  ...(ticket.tableNumber ? (messagesByTable.get(normalizeTableNumber(ticket.tableNumber)) || []) : []),
+                  ...(messagesByOrder.get(ticket.id) || []),
+                  ...(messagesByOrder.get(`order-${ticket.orderNumber}`) || []),
+                ]} onAcknowledgeMessage={handleAcknowledgeMessage} />
               ))}
               {activeTickets.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 gap-3">

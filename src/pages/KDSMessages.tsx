@@ -13,6 +13,8 @@ interface KDSMessage {
   employee_name: string;
   table_id: string | null;
   table_number?: string | null;
+  linked_order_id?: string | null;
+  linked_order_number?: number | null;
   timestamp: string;
   status: "pending" | "acknowledged";
   acknowledged_at?: string;
@@ -179,9 +181,12 @@ const KDSMessages = () => {
 
               {/* Card Meta */}
               <div className="bg-neutral-800 px-4 py-2 flex items-center gap-4 text-xs text-neutral-400 border-b border-neutral-700">
-                <span>From. <span className="text-white font-medium">{msg.employee_name}</span></span>
+                <span>From: <span className="text-white font-medium">{msg.employee_name}</span></span>
+                {msg.linked_order_number && (
+                  <span>·  Order <span className="text-white font-medium">#{msg.linked_order_number}</span></span>
+                )}
                 {(msg.table_id || msg.table_number) && (
-                  <span>Table. <span className="text-white font-medium">{msg.table_number || msg.table_id}</span></span>
+                  <span>·  <span className="text-white font-medium">{msg.table_number || `Table ${msg.table_id}`}</span></span>
                 )}
               </div>
 

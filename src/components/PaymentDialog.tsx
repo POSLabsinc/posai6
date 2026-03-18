@@ -265,6 +265,10 @@ export function PaymentDialog({
   const [draggingItemId, setDraggingItemId] = useState<number | null>(null);
   const [dragOverCheckNum, setDragOverCheckNum] = useState<number | null>(null);
 
+  // Split check discount states
+  const [showSplitDiscountDialog, setShowSplitDiscountDialog] = useState(false);
+  const [splitDiscounts, setSplitDiscounts] = useState<Discount[]>([]);
+
   // Mobile detection
   const isMobile = useIsMobile();
 

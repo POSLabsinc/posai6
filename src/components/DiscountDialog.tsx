@@ -200,6 +200,7 @@ export function DiscountDialog({
   onApplyDiscounts,
   currentDiscounts,
   subtotal,
+  portalContainer,
 }: DiscountDialogProps) {
   const [dynamicDiscounts, setDynamicDiscounts] = useState<Discount[]>(fallbackDiscounts);
   const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>(currentDiscounts);

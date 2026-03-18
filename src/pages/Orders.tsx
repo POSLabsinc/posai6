@@ -8395,7 +8395,6 @@ const Orders = () => {
                 {filteredItems.map((item, index) => {
                   const menuItem = item as MenuItem;
                   const hasStockCount = menuItem.stock_count !== null && menuItem.stock_count !== undefined;
-                  const stockLabel = hasStockCount ? menuItem.stock_count : Math.floor(Math.random() * 50) + 1;
                   const isOutOfStock = menuItem.is_available === false || (hasStockCount && menuItem.stock_count <= 0);
                   const showStockBadge = hasStockCount;
                   return <div key={item.id} className={`flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700 relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -8426,8 +8425,10 @@ const Orders = () => {
                         ) : (
                           <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold">${item.price.toFixed(2)}</span>
                         )}
-                        <span className="text-[9px] md:text-[10px] text-muted-foreground font-semibold">{stockLabel}</span>
                       </div>
+                      {hasStockCount && (
+                        <span className="text-[9px] md:text-[10px] text-muted-foreground font-semibold">Stock: {menuItem.stock_count}</span>
+                      )}
                     </div>
                   </div>;
                 })}
@@ -8435,7 +8436,6 @@ const Orders = () => {
                 {filteredItems.map((item, index) => {
                   const menuItem = item as MenuItem;
                   const hasStockCount = menuItem.stock_count !== null && menuItem.stock_count !== undefined;
-                  const stockLabel = hasStockCount ? menuItem.stock_count : Math.floor(Math.random() * 50) + 1;
                   const isOutOfStock = menuItem.is_available === false || (hasStockCount && menuItem.stock_count <= 0);
                   const showStockBadge = hasStockCount;
                   return <div key={item.id} onClick={() => !isOutOfStock && openCustomizationDialog(item, index)} className={`flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border h-[48px] md:h-[54px] relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
@@ -8444,8 +8444,10 @@ const Orders = () => {
                         <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2 min-w-0">
                           {item.name}
                         </span>
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <span className="text-[8px] font-semibold text-muted-foreground">{stockLabel}</span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {showStockBadge && (
+                            <span className="min-w-[16px] h-[16px] rounded-full bg-accent text-accent-foreground text-[8px] font-bold flex items-center justify-center px-1">{menuItem.stock_count}</span>
+                          )}
                           <span className="text-[10px] md:text-[11px] text-foreground font-semibold whitespace-nowrap">
                             {(item as MenuItem).isOpenPrice && item.price === 0 ? "" : `$${item.price.toFixed(2)}`}
                           </span>
@@ -8454,7 +8456,9 @@ const Orders = () => {
                       {(item as MenuItem).isOpenPrice && (
                         <span className="self-start px-1.5 py-0 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 leading-relaxed">Open Price</span>
                       )}
-                      
+                      {hasStockCount && (
+                        <span className="text-[8px] font-semibold text-muted-foreground uppercase">Stock: {menuItem.stock_count}</span>
+                      )}
                       {isOutOfStock && (
                         <span className="text-[8px] font-bold text-destructive uppercase">Out of Stock</span>
                       )}

@@ -6058,12 +6058,12 @@ const Orders = () => {
   const { menuList, menuCategories } = useSupabaseMenus();
 
   // Fetch products from the database so newly added products show on the Orders screen
-  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; price: number; category_name: string; price_type: string; active: boolean; archived: boolean }>>([]);
+  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; price: number; category_name: string; price_type: string; active: boolean; archived: boolean; stock_count: number | null; is_available: boolean }>>([]);
   
   const fetchDbProducts = useCallback(async () => {
     const { data } = await (supabase as any)
       .from('products')
-      .select('id, name, price, price_type, active, archived, categories(name)')
+      .select('id, name, price, price_type, active, archived, stock_count, is_available, categories(name)')
       .eq('active', true)
       .eq('archived', false);
     if (data) {
@@ -6075,6 +6075,8 @@ const Orders = () => {
         price_type: p.price_type,
         active: p.active,
         archived: p.archived,
+        stock_count: p.stock_count,
+        is_available: p.is_available ?? true,
       })));
     }
   }, []);

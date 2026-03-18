@@ -82,7 +82,9 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
   const [orderSearch, setOrderSearch] = useState("");
   const [tableSearch, setTableSearch] = useState("");
   const [activeOrders, setActiveOrders] = useState<KDSTicketData[]>([]);
+  const [allTables, setAllTables] = useState<TableGroup[]>([]);
   const [loadingOrders, setLoadingOrders] = useState(false);
+  const [loadingTables, setLoadingTables] = useState(false);
   const [linkTab, setLinkTab] = useState<LinkTab>("orders");
 
   useEffect(() => {
@@ -97,6 +99,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       setTableSearch("");
       setLinkTab("orders");
       loadActiveOrders();
+      loadAllTables();
     }
   }, [open]);
 

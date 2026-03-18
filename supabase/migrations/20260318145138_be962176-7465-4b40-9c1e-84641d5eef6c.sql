@@ -1,0 +1,1 @@
+UPDATE products SET archived = true, active = false WHERE id = '2976c1a6-6230-4f5c-9f69-381f0b18036c';

@@ -1477,16 +1477,13 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           <EmptyDetailState />
         )}
       </div>
-      {/* Add Guest Modal */}
+      {/* Add Guest Full Screen */}
       {showAddGuest && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddGuest(false)}>
-          <div className="absolute inset-0 bg-black/60" />
-          <div className="relative z-10 w-full max-w-xl max-h-[85vh] rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
-            <AddGuestForm
-              onClose={() => setShowAddGuest(false)}
-              onSave={handleAddGuestSave}
-            />
-          </div>
+        <div className="fixed inset-0 z-50">
+          <AddGuestForm
+            onClose={() => setShowAddGuest(false)}
+            onSave={handleAddGuestSave}
+          />
         </div>
       )}
     </div>

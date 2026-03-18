@@ -8427,7 +8427,7 @@ const Orders = () => {
                           <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold">${item.price.toFixed(2)}</span>
                         )}
                       </div>
-                      <span className="text-[9px] md:text-[10px] text-muted-foreground font-semibold">Stock: {stockLabel}</span>
+                      <span className="text-[9px] md:text-[10px] text-muted-foreground font-semibold">{stockLabel}</span>
                     </div>
                   </div>;
                 })}
@@ -8456,7 +8456,7 @@ const Orders = () => {
                       {(item as MenuItem).isOpenPrice && (
                         <span className="self-start px-1.5 py-0 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 leading-relaxed">Open Price</span>
                       )}
-                      <span className="text-[8px] font-semibold text-muted-foreground uppercase">Stock: {stockLabel}</span>
+                      <span className="text-[8px] font-semibold text-muted-foreground uppercase">{stockLabel}</span>
                       {isOutOfStock && (
                         <span className="text-[8px] font-bold text-destructive uppercase">Out of Stock</span>
                       )}

@@ -352,7 +352,9 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
               </div>
             )}
           </div>
-        ))}
+          );
+        })}
+
       </div>
     </div>
   );

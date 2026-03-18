@@ -203,7 +203,7 @@ export function DiscountDialog({
   const [dynamicDiscounts, setDynamicDiscounts] = useState<Discount[]>(fallbackDiscounts);
   const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>(currentDiscounts);
   const [expandedDiscountId, setExpandedDiscountId] = useState<string | null>(null);
-  const [reasonDataMap, setReasonDataMap] = useState<Record<string, DiscountReasonData>>({});
+  const [view, setView] = useState<'list' | 'reason'>('list');
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   
   const [commentText, setCommentText] = useState<Record<string, string>>({});

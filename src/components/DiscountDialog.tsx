@@ -626,7 +626,7 @@ export function DiscountDialog({
               <ChevronLeft className="w-5 h-5" />
             </button>
           )}
-          <DialogTitle className="text-foreground text-lg font-semibold">
+          <DialogTitle className={`text-foreground text-lg font-semibold ${view === 'reason' ? 'pl-8' : ''}`}>
             {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
           </DialogTitle>
         </DialogHeader>

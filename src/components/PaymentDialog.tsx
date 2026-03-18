@@ -4705,9 +4705,9 @@ export function PaymentDialog({
                             </span>
                           </div>
                           <div className="flex flex-col items-end flex-shrink-0">
-                            {checkTotals.discount > 0 && (
-                              <span className="text-red-400 text-[9px] line-through">${(checkTotals.total + checkTotals.discount).toFixed(2)}</span>
-                            )}
+                             {checkTotals.discount > 0 && (
+                               <span className="text-red-400 text-[9px] line-through">${(checkTotals.total + checkTotals.discount).toFixed(2)}</span>
+                             )}
                             <span className="text-green-500 font-bold text-sm">
                               ${checkTotals.total.toFixed(2)}
                             </span>

@@ -643,12 +643,18 @@ const KDS = () => {
 
   // Poll pending messages for badge + attached messages
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
+  const prevPendingCountRef = React.useRef(0);
   useEffect(() => {
     const load = () => {
       try {
         const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]").map((m: any) => ({ ...m, status: m.status || "pending" }));
         setKdsMessages(queue);
         const count = queue.filter(m => m.status !== "acknowledged").length;
+        // Auto-open messages panel when new messages arrive
+        if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {
+          setShowMessages(true);
+        }
+        prevPendingCountRef.current = count;
         setPendingMessageCount(count);
       } catch { setPendingMessageCount(0); setKdsMessages([]); }
     };

@@ -6195,6 +6195,8 @@ const Orders = () => {
           name: p.name,
           price: p.price,
           isOpenPrice: p.price_type === 'open',
+          stock_count: p.stock_count,
+          is_available: p.is_available,
         }));
         catItems[catName] = subItems;
       }

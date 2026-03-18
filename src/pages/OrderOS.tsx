@@ -1334,6 +1334,8 @@ const OrderOS = () => {
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [orderToCancel, setOrderToCancel] = useState<OnlineOrder | null>(null);
+  const [cancelReason, setCancelReason] = useState('');
+  const [customCancelReason, setCustomCancelReason] = useState('');
   const [columnSortOptions, setColumnSortOptions] = useState<Record<string, 'time' | 'order' | 'total'>>({});
   
   // Report Issue state

@@ -18,10 +18,10 @@ function Calendar({ className, classNames, showOutsideDays = true, ...props }: C
         caption: "flex justify-center pt-1 relative items-center",
         caption_label: "text-sm font-medium hidden",
         caption_dropdowns: "flex items-center gap-1.5",
-        dropdown_month: "relative",
-        dropdown_year: "relative",
+        dropdown_month: "relative h-8",
+        dropdown_year: "relative h-8",
         dropdown:
-          "appearance-none bg-neutral-700/60 border border-white/10 text-white text-sm rounded-md px-2 py-1 pr-6 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary max-h-[200px] overflow-y-auto",
+          "h-8 min-h-8 appearance-none bg-neutral-700/60 border border-white/10 text-white text-sm rounded-md px-2 py-1 pr-6 cursor-pointer focus:outline-none focus:ring-1 focus:ring-primary max-h-[200px] overflow-y-auto",
         vhidden: "hidden",
         nav: "space-x-1 flex items-center",
         nav_button: cn(

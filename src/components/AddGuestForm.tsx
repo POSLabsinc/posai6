@@ -13,6 +13,7 @@ interface AddGuestFormProps {
   onClose: () => void;
   onSave: (guestData: GuestFormData) => void;
   hideHeader?: boolean;
+  onBack?: () => void;
 }
 
 interface GuestFormData {

@@ -1,78 +1,62 @@
-# Database-Connected Orders System - Migration Complete
 
-## What Was Done
 
-### Phase 1: Database Tables ✅
-- Created `ticket_orders` table with all fields (name, phone, party_size, status, table_id, financials, transfer_info, split_configuration, etc.)
-- Created `ticket_order_items` table with FK to ticket_orders (qty, name, price, seats, modifiers, is_shared, is_fired, no_tax)
-- Added indexes on table_id, status, session_id, order_id
-- Added updated_at trigger
-- Enabled RLS with public access policies
-- Enabled Realtime on both tables
+## Analysis: Old UI vs New Order Module
 
-### Phase 2: Seed Data ✅
-- Inserted all 15 ticket orders from `ticketOrders.ts` with deterministic UUIDs
-- Inserted 8 unique orders from `orders.ts` (different tables/guests)
-- Inserted all line items for all 23 orders into `ticket_order_items`
-- Set multi-payment data for David Chen order
+After comparing the uploaded screenshots against the current `Orders.tsx` (9,828 lines), here is the feature gap analysis.
 
-### Phase 3: `useTicketOrders` Hook ✅
-- Created `src/hooks/use-ticket-orders.ts`
-- React Query-based with realtime subscription
-- Fetches `ticket_orders` + `ticket_order_items` and joins them
-- Provides CRUD: addOrder, updateOrder, updateOrderItems, removeOrder
-- Helpers: getOrdersByTable, getOrderById, getOrdersByStatus
-- Converts DB rows to `UnifiedTicketOrder` shape compatible with all consumers
+### Already Present in New Module
+All of these features from the old UI exist in the current code:
+- Menu navigation with categories and subcategories
+- Product grid (list view + thumbnail view)
+- Order type tabs (Dine-In, Takeout, Delivery)
+- Guest Name and Phone inputs with search/autocomplete
+- Right sidebar actions: Custom Item, Gift Card, Service Charge, Add Guest, Open Orders, Allergy, Merge, Reopen Check
+- Discount dialog (fetched from database)
+- No Tax / No VAT confirmation dialog
+- Custom Item panel with numpad and keyboard
+- Gift Card dialog with numpad
+- Service Charge selection dialog
+- Add New Guest form
+- Guest Information panel (name, email, phone, notes)
+- Search functionality
+- Menu selector with view modes (grid, list, thumbnail, horizontal scroll)
 
-### Phase 4: `UnifiedOrderContext` Refactored ✅
-- Removed localStorage (`pos-unified-orders`) dependency
-- Now delegates all reads/writes to `useTicketOrders` hook
-- Maintains same API surface for backward compatibility
-- Transfer sync is now a no-op (handled via direct DB mutations)
+### Missing Features
 
-### Phase 5: `SessionOrderContext` Refactored ✅
-- Removed localStorage (`pos-session-orders`) dependency
-- `createOrder()` inserts into `ticket_orders` with `session_id`
-- `updateOrderItems()` writes to `ticket_order_items`
-- Split configurations stored in `split_configuration` jsonb column
-- KDS queue still uses localStorage (browser-local by design)
+**1. Inventory Count Badges on Product Cards**
+The old UI shows circled numbers (8, 14, 11, 13, 10) on product cards indicating available inventory/stock count. The current module has no inventory tracking or display on the product grid.
 
-### Phase 6: Tickets.tsx Updated ✅
-- Removed 275-line hardcoded `allOrders` array
-- Now fetches from DB via `useTicketOrders` hook
-- Auto-selects first order when data loads
-- Transfer helpers derived from live DB data
+- **Scope**: Add an `inventory_count` (or `stock_count`) column to the `products` table. Display a small badge on each product card showing the count. Products with 0 stock show an "OUT OF STOCK" overlay.
 
-### Phase 7: TableOrderDetails.tsx Fully DB-Connected ✅
-- Replaced static `getOrdersByTable()` / `allOrders` from `src/data/orders.ts` with `useUnifiedOrders()` DB context
-- All order fields (name, server, status, party size, time, total, tip, revenue center, payment status, items) now come from `ticket_orders` DB table
-- Replaced `getAvailableTicketOrdersForTransfer()` / `ticketOrders.find()` with `useTicketOrders()` DB hook
-- Replaced hardcoded `discountTypes` array with live fetch from `discounts` DB table (with fallback defaults)
-- Merged panel data (`getMergedPanelData`) now uses DB orders
-- Transfer-to-order dialog uses DB-backed order list
+**2. "OUT OF STOCK" Badge on Products**
+The old UI shows a red "OUT OF STOCK" circle badge on unavailable products. The current module has no stock status indicator.
 
-### Phase 8: Restaurant Tables DB-Backed (Floor Plan) ✅
-- Created `restaurant_tables` table (table_number, seats, shape, status, x, y, guests, occupied_seats, time, merge fields, floor_area, sort_order, merchant_id)
-- Created `floor_areas` table (name, color, bg_color, x, y, anchor, sort_order)
-- Created `floor_dividers` table (orientation, position)
-- Seeded 12 default tables, 4 floor areas, 2 dividers
-- Enabled Realtime on `restaurant_tables`
-- Created `src/hooks/use-restaurant-tables.ts` hook with CRUD mutations and realtime sync
-- Refactored `TableOrder.tsx`: removed hardcoded `defaultTables`, `defaultFloorAreas`, `defaultDividers`, `loadSavedPositions`, `loadSavedFloorAreas`, `loadSavedDividers`; now initializes from DB with local state for fast drag interactions; guest seating and seat changes persist to DB
-- Refactored `Dashboard.tsx`: replaced `mockTables` with `useRestaurantTables` hook
-- Refactored `TransferOrders.tsx`: replaced `defaultTables` with `useRestaurantTables` hook
+- **Scope**: Use the inventory count (above) or a boolean `is_available` flag. Render a red badge overlay and optionally disable the add-to-cart button for out-of-stock items.
 
-### Data Flow Summary (Updated)
-```
-restaurant_tables (DB) ──── useRestaurantTables hook
-floor_areas (DB) ───────┘        │
-floor_dividers (DB) ────┘        ├── TableOrder.tsx (floor plan, all views)
-                                 ├── Dashboard.tsx (table cards)
-                                 └── TransferOrders.tsx (table selection grid)
-```
+**3. Dynamic "ARRIVED AT" Timestamp**
+The old UI shows "ARRIVED AT 10:44 AM" dynamically in the order header. The current module hardcodes "12:30 PM".
 
-### Remaining (Future Phases)
-- Dashboard.tsx still imports from `src/data/orders.ts` static array for order data
-- Remove static arrays from `src/data/orders.ts` and `src/data/ticketOrders.ts` once all consumers migrated
-- Templates still use localStorage (acceptable for now)
-- Split configurations and transfer records in localStorage can be migrated to DB columns
+- **Scope**: Replace the hardcoded time with a dynamic timestamp captured when the order session begins (e.g., `new Date()` formatted to locale time).
+
+**4. Menu Back/Forward Navigation Arrows**
+The old UI (screenshot 1) shows `←` and `→` arrow buttons next to the menu name for navigating between menus. The current module uses a dropdown `Select` for menu switching but lacks the sequential arrow navigation.
+
+- **Scope**: Add prev/next buttons that cycle through `menuList` entries, updating `selectedMenu` accordingly.
+
+### Implementation Plan
+
+1. **Database migration**: Add `stock_count` (integer, nullable, default null) and `is_available` (boolean, default true) columns to the `products` table.
+
+2. **Product grid UI updates** (`Orders.tsx`):
+   - In both list view and thumbnail view, render a stock count badge (small circle with number) when `stock_count` is not null and > 0.
+   - Render "OUT OF STOCK" red badge and dim the card when `is_available` is false or `stock_count` is 0.
+   - Prevent adding out-of-stock items to cart.
+
+3. **Dynamic arrival time**: Replace the hardcoded `12:30 PM` with a state variable `arrivalTime` set to `new Date()` when the order session starts, formatted via `toLocaleTimeString`.
+
+4. **Menu arrow navigation**: Add two small arrow buttons (`ChevronLeft`, `ChevronRight`) beside the menu selector that call `handleMenuSelect` with the previous/next menu in `menuList`.
+
+### Files to Edit
+- **Database migration**: Add columns to `products` table
+- **`src/pages/Orders.tsx`**: Product grid badges, arrival time, menu arrows
+

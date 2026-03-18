@@ -1472,28 +1472,28 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
       </div>
     </div>
 
-    {/* Add Guest Screen - within content area */}
-    {showAddGuest && (
-      <div className="absolute inset-0 z-40 bg-background flex flex-col">
-        <div className="relative flex items-center h-14 px-4 border-b border-border">
-          <button
-            onClick={() => setShowAddGuest(false)}
-            className="absolute left-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
-          <h2 className="w-full text-center text-base font-semibold text-foreground">Add New Guest</h2>
+      {/* Add Guest Screen - within content area */}
+      {showAddGuest && (
+        <div className="absolute inset-0 z-40 bg-background flex flex-col">
+          <div className="relative flex items-center h-14 px-4 border-b border-border">
+            <button
+              onClick={() => setShowAddGuest(false)}
+              className="absolute left-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+            <h2 className="w-full text-center text-base font-semibold text-foreground">Add New Guest</h2>
+          </div>
+          <div className="flex-1 overflow-y-auto">
+            <AddGuestForm
+              onClose={() => setShowAddGuest(false)}
+              onSave={async () => { await fetchGuests(); setShowAddGuest(false); }}
+              hideHeader={true}
+            />
+          </div>
         </div>
-        <div className="flex-1 overflow-y-auto">
-          <AddGuestForm
-            onClose={() => setShowAddGuest(false)}
-            onSave={async () => { await fetchGuests(); setShowAddGuest(false); }}
-            hideHeader={true}
-          />
-        </div>
-      </div>
-    )}
-  </div>
+      )}
+    </div>
   );
 };
 

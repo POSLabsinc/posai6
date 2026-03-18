@@ -1370,7 +1370,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     }
 
     return (
-      <div className="h-full flex flex-col overflow-hidden">
+      <div className="h-full flex flex-col overflow-hidden relative">
         {showHeader && onBack && (
           <div className="px-6 pt-5">
             <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">

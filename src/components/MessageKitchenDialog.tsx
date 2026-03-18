@@ -162,21 +162,52 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     });
   }, [activeOrders, orderSearch]);
 
-  // Group orders by table for Tables tab
+  // Load all tables from database
+  const loadAllTables = async () => {
+    setLoadingTables(true);
+    try {
+      const { data, error } = await supabase
+        .from('restaurant_tables')
+        .select('*')
+        .order('sort_order', { ascending: true });
+
+      if (error) throw error;
+
+      const dbTables: TableGroup[] = (data || []).map((row: any) => {
+        const tableNum = normalizeTableNumber(row.table_number);
+        return {
+          tableNumber: tableNum,
+          displayName: `Table ${tableNum}`,
+          serverName: "",
+          partySize: row.guests || 0,
+          time: "",
+          itemCount: 0,
+          orderStatus: (row.status || "AVAILABLE").toUpperCase(),
+          orderIds: [],
+        };
+      });
+
+      setAllTables(dbTables);
+    } catch {
+      setAllTables([]);
+    }
+    setLoadingTables(false);
+  };
+
+  // Merge DB tables with active order data
   const tableGroups = useMemo((): TableGroup[] => {
-    const groups = new Map<string, TableGroup>();
+    // Build order data grouped by table
+    const ordersByTable = new Map<string, { serverName: string; partySize: number; time: string; itemCount: number; orderStatus: string; orderIds: string[] }>();
     for (const o of activeOrders) {
       if (!o.tableNumber) continue;
       const key = normalizeTableNumber(o.tableNumber);
       if (!key) continue;
-      const existing = groups.get(key);
+      const existing = ordersByTable.get(key);
       if (existing) {
         existing.orderIds.push(o.id);
         existing.itemCount += o.products.length;
       } else {
-        groups.set(key, {
-          tableNumber: key,
-          displayName: `Table ${key}`,
+        ordersByTable.set(key, {
           serverName: o.serverName,
           partySize: o.partySize || 1,
           time: formatOrderTime(o.createdAt),
@@ -186,7 +217,34 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
         });
       }
     }
-    return Array.from(groups.values());
+
+    // Merge: start with all DB tables, enrich with order data
+    const merged = new Map<string, TableGroup>();
+    for (const t of allTables) {
+      const orderData = ordersByTable.get(t.tableNumber);
+      merged.set(t.tableNumber, {
+        ...t,
+        serverName: orderData?.serverName || "",
+        partySize: orderData?.partySize || t.partySize,
+        time: orderData?.time || "",
+        itemCount: orderData?.itemCount || 0,
+        orderStatus: orderData ? orderData.orderStatus : t.orderStatus,
+        orderIds: orderData?.orderIds || [],
+      });
+    }
+
+    // Add any order-only tables not in DB
+    for (const [key, od] of ordersByTable) {
+      if (!merged.has(key)) {
+        merged.set(key, {
+          tableNumber: key,
+          displayName: `Table ${key}`,
+          ...od,
+        });
+      }
+    }
+
+    return Array.from(merged.values());
   }, [activeOrders]);
 
   const filteredTables = useMemo(() => {

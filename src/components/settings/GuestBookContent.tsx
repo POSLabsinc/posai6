@@ -1481,23 +1481,11 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
       {showAddGuest && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddGuest(false)}>
           <div className="absolute inset-0 bg-black/60" />
-          <div className="relative z-10 bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-semibold text-foreground">Add New Guest</p>
-              <button onClick={() => setShowAddGuest(false)} className="text-neutral-400 hover:text-foreground"><X className="w-4 h-4" /></button>
-            </div>
-            <div className="space-y-3">
-              <input value={newGuestName} onChange={e => setNewGuestName(e.target.value)} placeholder="Full Name *"
-                className="w-full bg-neutral-700/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-neutral-500 outline-none" />
-              <input value={newGuestEmail} onChange={e => setNewGuestEmail(e.target.value)} placeholder="Email"
-                className="w-full bg-neutral-700/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-neutral-500 outline-none" />
-              <input value={newGuestPhone} onChange={e => setNewGuestPhone(e.target.value)} placeholder="Phone"
-                className="w-full bg-neutral-700/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-neutral-500 outline-none" />
-            </div>
-            <button onClick={handleAddGuest} disabled={!newGuestName.trim()}
-              className="w-full mt-4 py-2.5 rounded-xl bg-foreground text-background text-sm font-medium disabled:opacity-40">
-              Add Guest
-            </button>
+          <div className="relative z-10 w-full max-w-md max-h-[85vh] rounded-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <AddGuestForm
+              onClose={() => setShowAddGuest(false)}
+              onSave={handleAddGuestSave}
+            />
           </div>
         </div>
       )}

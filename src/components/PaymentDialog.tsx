@@ -5518,7 +5518,7 @@ export function PaymentDialog({
           onMouseDown={(e) => e.stopPropagation()}
         >
           <div 
-            className="bg-neutral-900 border border-neutral-700 rounded-lg sm:max-w-[420px] w-[90%] max-h-[80vh] overflow-hidden shadow-2xl"
+            className="w-[90%] sm:max-w-[420px] max-h-[80vh] overflow-hidden shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             <DiscountDialog
@@ -5532,6 +5532,7 @@ export function PaymentDialog({
                 }
               }}
               subtotal={subtotal}
+              portalContainer={document.body}
             />
           </div>
         </div>

@@ -45,7 +45,7 @@ import TableOrderB from "./pages/TableOrderB";
 import TableOrderDetails from "./pages/TableOrderDetails";
 import MergeOrders from "./pages/MergeOrders";
 import TransferOrders from "./pages/TransferOrders";
-import MessageKitchen from "./pages/MessageKitchen";
+
 import Tickets from "./pages/Tickets";
 import Settings from "./pages/Settings";
 import DiscountsRoute from "./components/routes/DiscountsRoute";

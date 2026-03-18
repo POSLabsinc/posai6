@@ -1646,6 +1646,8 @@ const OrderOS = () => {
   // Open cancel confirmation dialog
   const openCancelDialog = useCallback((order: OnlineOrder) => {
     setOrderToCancel(order);
+    setCancelReason('');
+    setCustomCancelReason('');
     setCancelDialogOpen(true);
   }, []);
 

@@ -622,15 +622,17 @@ export function DiscountDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[420px] bg-neutral-900 border-sidebar-border p-0 gap-0">
-        <DialogHeader className="p-4 pb-2 border-b border-sidebar-border relative">
-          {view === 'reason' && (
-            <button onClick={() => setView('list')} className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors">
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-          )}
-          <DialogTitle className={`text-foreground text-lg font-semibold ${view === 'reason' ? 'pl-8' : ''}`}>
-            {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
-          </DialogTitle>
+        <DialogHeader className="p-4 pb-2 border-b border-sidebar-border">
+          <div className="flex items-center justify-center relative">
+            {view === 'reason' && (
+              <button onClick={() => setView('list')} className="absolute left-0 text-muted-foreground hover:text-foreground transition-colors">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+            <DialogTitle className="text-foreground text-lg font-semibold text-center">
+              {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
+            </DialogTitle>
+          </div>
         </DialogHeader>
         {view === 'reason' && reasonViewContent ? reasonViewContent : listContent}
         {summaryAndApply}

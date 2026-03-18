@@ -9819,6 +9819,11 @@ const Orders = () => {
         </div>
     }
     
+      <MessageKitchenDialog
+        open={showMessageKitchen}
+        onOpenChange={setShowMessageKitchen}
+        serverName={currentServerName}
+      />
     </div>;
 };
 export default Orders;

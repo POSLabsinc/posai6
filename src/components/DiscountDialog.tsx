@@ -652,7 +652,7 @@ export function DiscountDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[420px] bg-neutral-900 border-sidebar-border p-0 gap-0">
+      <DialogContent className="sm:max-w-[520px] bg-neutral-900 border-sidebar-border p-0 gap-0">
         <DialogHeader className="p-4 pb-2 border-b border-sidebar-border">
           <div className="flex items-center justify-center relative">
             {view === 'reason' && (

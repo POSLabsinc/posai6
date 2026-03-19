@@ -499,36 +499,34 @@ export function DiscountDialog({
             <div key={discount.id} className="relative">
               <button
                 onClick={() => toggleDiscount(discount)}
-                className={`w-full flex flex-col items-center gap-2 p-3 rounded-lg transition-colors ${
+                className={`w-full flex items-center gap-2 p-2.5 rounded-lg transition-colors ${
                   isSelected
                     ? "bg-primary/20 border border-primary"
                     : "bg-neutral-800 hover:bg-neutral-700 border border-transparent"
                 }`}
               >
                 <div
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                  className={`w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center ${
                     isSelected ? "bg-primary" : "bg-neutral-700"
                   }`}
                 >
                   {isSelected ? (
-                    <Check className="w-4 h-4 text-primary-foreground" />
+                    <Check className="w-3.5 h-3.5 text-primary-foreground" />
                   ) : (
-                    <discount.icon className="w-4 h-4 text-muted-foreground" />
+                    <discount.icon className="w-3.5 h-3.5 text-muted-foreground" />
                   )}
                 </div>
-                <p className="text-sm font-medium text-foreground text-center leading-tight">
+                <span className="text-xs font-medium text-foreground truncate">
                   {discount.name}
-                </p>
-                <div className="flex flex-col items-center gap-1">
-                  {isSelected && isReasonRequired(discount) && !reasonDataMap[discount.id]?.reason && (
-                    <span className="text-[10px] text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded">Reason required</span>
-                  )}
-                  <span className="text-xs text-muted-foreground bg-neutral-700/60 px-2.5 py-1 rounded-full">
-                    {discount.type === "percentage"
-                      ? `${discount.value}% off`
-                      : `$${discount.value.toFixed(2)} off`}
-                  </span>
-                </div>
+                </span>
+                <span className="text-[11px] text-muted-foreground whitespace-nowrap ml-auto">
+                  {discount.type === "percentage"
+                    ? `${discount.value}% off`
+                    : `$${discount.value.toFixed(2)} off`}
+                </span>
+                {isSelected && isReasonRequired(discount) && !reasonDataMap[discount.id]?.reason && (
+                  <span className="text-[9px] text-amber-400 bg-amber-400/10 px-1 py-0.5 rounded flex-shrink-0">!</span>
+                )}
               </button>
             </div>
           );
@@ -628,7 +626,7 @@ export function DiscountDialog({
   if (portalContainer) {
     if (!open) return null;
     return (
-      <div className="sm:max-w-[420px] w-full bg-neutral-900 border border-neutral-700 rounded-lg p-0 gap-0 overflow-hidden">
+      <div className="sm:max-w-[520px] w-full bg-neutral-900 border border-neutral-700 rounded-lg p-0 gap-0 overflow-hidden">
         <div className="p-4 pb-2 border-b border-neutral-700">
           <div className="flex items-center justify-center relative">
             {view === 'reason' && (
@@ -654,7 +652,7 @@ export function DiscountDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[420px] bg-neutral-900 border-sidebar-border p-0 gap-0">
+      <DialogContent className="sm:max-w-[520px] bg-neutral-900 border-sidebar-border p-0 gap-0">
         <DialogHeader className="p-4 pb-2 border-b border-sidebar-border">
           <div className="flex items-center justify-center relative">
             {view === 'reason' && (

@@ -71,6 +71,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
   const { value: cancelUnpaidTickets, update: updateCancelUnpaidTickets } = usePreference("eod_cancel_unpaid", "false");
   const { value: printReport, update: updatePrintReport } = usePreference("eod_print_report", "false");
   const { value: includeEmployeeData, update: updateIncludeEmployeeData } = usePreference("eod_include_employee", "false");
+  const { value: printSummaryOnClockOut, update: updatePrintSummaryOnClockOut } = usePreference("eod_print_clock_out", "false");
   const { value: selectedDevice, update: updateSelectedDevice } = usePreference("eod_device", "POS 1.2");
   const { value: autoEndOfDayTime, update: updateAutoEndOfDayTime } = usePreference("eod_reminder_time", "11:00 PM");
   const { value: autoRunTime, update: updateAutoRunTime } = usePreference("eod_auto_run_time", "11:00 PM");
@@ -315,13 +316,21 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
             }} />
           </div>
           <div className="h-px bg-border mx-4" />
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-base">Print Summary on Clock-Out</span>
+            <Switch checked={printSummaryOnClockOut === "true"} onCheckedChange={(v) => {
+              updatePrintSummaryOnClockOut(v ? "true" : "false");
+              toast({ title: v ? "Clock-Out Summary Enabled" : "Clock-Out Summary Disabled", description: v ? "A summary will be printed when employees clock out." : "Clock-out summary printing has been turned off." });
+            }} />
+          </div>
+          <div className="h-px bg-border mx-4" />
           <button onClick={() => setShowEmployeePicker(true)} className="w-full flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-base">Send Daily Reports</span>
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground text-sm">{selectedEmployees.length > 0 ? `${selectedEmployees.length} Selected` : "Select"}</span>
               <ChevronRight size={18} className="text-muted-foreground" />
             </div>
-        </button>
+          </button>
         </div>
         <p className="text-muted-foreground text-xs px-4 mb-6">Automatically generate and distribute end-of-day reports to selected recipients.</p>
       </div>

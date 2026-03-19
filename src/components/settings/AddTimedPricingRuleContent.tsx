@@ -66,6 +66,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
   });
 
   const [showNameInput, setShowNameInput] = useState(false);
+  const [copiedDay, setCopiedDay] = useState<string | null>(null);
   const [activeTimePicker, setActiveTimePicker] = useState<{ day: string; field: "startTime" | "endTime" } | null>(null);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);

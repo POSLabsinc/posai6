@@ -881,7 +881,12 @@ const Dashboard = () => {
     // Convert session orders to dashboard format
     const dashboardSessionOrders = sessionOrders.map(convertSessionToDashboardOrder);
     
-    return [...dashboardSessionOrders, ...enrichedStaticOrders];
+    // Assign sequential order numbers (1, 2, 3...)
+    const merged = [...dashboardSessionOrders, ...enrichedStaticOrders];
+    return merged.map((order, idx) => ({
+      ...order,
+      orderNumber: order.orderNumber || (idx + 1),
+    }));
   }, [sessionOrders, staticSplitConfigs]);
   
   // Core state

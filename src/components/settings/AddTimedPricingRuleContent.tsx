@@ -369,8 +369,6 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
       </div>
 
       
-      {renderDatePicker(true)}
-      {renderDatePicker(false)}
     </div>
   );
 };

@@ -108,49 +108,81 @@ const recordSuggestionUse = (text: string) => {
 const SuggestionChips = ({ message, onSelect }: { message: string; onSelect: (text: string) => void }) => {
   const history = useMemo(() => getSuggestionHistory(), []);
 
-  const chips = useMemo(() => {
-    const trimmed = message.trim().toLowerCase();
-    const allSuggestions: { text: string; count: number }[] = [];
-
-    // Merge history with defaults
+  // Default chips (always visible, sorted by usage)
+  const defaultChips = useMemo(() => {
+    const allDefaults: { text: string; count: number }[] = [];
     const seen = new Set<string>();
     for (const h of history) {
-      allSuggestions.push(h);
+      allDefaults.push(h);
       seen.add(h.text.toLowerCase());
     }
     for (const d of DEFAULT_SUGGESTIONS) {
       if (!seen.has(d.toLowerCase())) {
-        allSuggestions.push({ text: d, count: 0 });
+        allDefaults.push({ text: d, count: 0 });
       }
     }
+    allDefaults.sort((a, b) => b.count - a.count);
+    return allDefaults.slice(0, 8);
+  }, [history]);
 
-    // Sort by usage count descending
-    allSuggestions.sort((a, b) => b.count - a.count);
+  // Search results from extended pool (only when typing)
+  const searchResults = useMemo(() => {
+    const trimmed = message.trim().toLowerCase();
+    if (trimmed.length === 0) return [];
 
-    if (trimmed.length === 0) {
-      return allSuggestions.slice(0, 8);
+    const defaultTexts = new Set(defaultChips.map(c => c.text.toLowerCase()));
+
+    // Combine all sources for search
+    const allSearchable = [
+      ...history.map(h => h.text),
+      ...DEFAULT_SUGGESTIONS,
+      ...EXTENDED_SUGGESTIONS,
+    ];
+
+    const seen = new Set<string>();
+    const results: string[] = [];
+    for (const s of allSearchable) {
+      const lower = s.toLowerCase();
+      if (!seen.has(lower) && lower.includes(trimmed) && lower !== trimmed && !defaultTexts.has(lower)) {
+        seen.add(lower);
+        results.push(s);
+      }
     }
-
-    // Filter by typed text
-    return allSuggestions
-      .filter(s => s.text.toLowerCase().includes(trimmed) && s.text.toLowerCase() !== trimmed)
-      .slice(0, 6);
-  }, [message, history]);
-
-  if (chips.length === 0) return null;
+    return results.slice(0, 5);
+  }, [message, history, defaultChips]);
 
   return (
-    <div className="flex flex-wrap gap-1.5 mt-1">
-      {chips.map((chip) => (
-        <button
-          key={chip.text}
-          type="button"
-          onClick={() => onSelect(chip.text)}
-          className="px-2.5 py-1 text-xs rounded-full bg-neutral-700/70 text-neutral-300 hover:bg-orange-500/20 hover:text-orange-400 border border-neutral-600/50 hover:border-orange-500/40 transition-colors truncate max-w-[200px]"
-        >
-          {chip.text}
-        </button>
-      ))}
+    <div className="space-y-2 mt-1">
+      {/* Default suggestion chips */}
+      <div className="flex flex-wrap gap-1.5">
+        {defaultChips.map((chip) => (
+          <button
+            key={chip.text}
+            type="button"
+            onClick={() => onSelect(chip.text)}
+            className="px-2.5 py-1 text-xs rounded-full bg-neutral-700/70 text-neutral-300 hover:bg-orange-500/20 hover:text-orange-400 border border-neutral-600/50 hover:border-orange-500/40 transition-colors truncate max-w-[200px]"
+          >
+            {chip.text}
+          </button>
+        ))}
+      </div>
+
+      {/* Search results dropdown when typing */}
+      {searchResults.length > 0 && (
+        <div className="rounded-lg border border-neutral-600/50 bg-neutral-800/90 overflow-hidden">
+          <p className="text-[10px] text-neutral-500 px-2.5 pt-1.5 pb-1 uppercase tracking-wide">Suggestions</p>
+          {searchResults.map((result) => (
+            <button
+              key={result}
+              type="button"
+              onClick={() => onSelect(result)}
+              className="w-full text-left px-2.5 py-1.5 text-xs text-neutral-300 hover:bg-orange-500/15 hover:text-orange-400 transition-colors"
+            >
+              {result}
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

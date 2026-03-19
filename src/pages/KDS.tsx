@@ -219,6 +219,7 @@ interface KDSMessageData {
   message_text: string;
   store_id: string;
   terminal_id: string;
+  terminal_name?: string;
   employee_id: string;
   employee_name: string;
   table_id: string | null;

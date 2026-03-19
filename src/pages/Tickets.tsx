@@ -2160,7 +2160,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 {selectedGuest.partySize}
               </span>
             )}
-            <span className="text-white font-bold">{String(selectedGuest.orderNumber || 0).padStart(3, '0').slice(-3)}</span>
+            <span className="text-white font-bold">{String(selectedGuest.orderNumber || 0)}</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <img src={runnerIcon} alt="Runner" className="w-4 h-4" />
@@ -2935,8 +2935,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   onClick={() => handleCardClick(guest)}
                 >
                   <MobileTicketCard
-                    orderId={String(guest.orderNumber || 0).padStart(3, '0').slice(-3)}
-                    checkId={guest.check === "--" ? "000" : String(guest.check).slice(0, 3)}
+                    orderId={String(guest.orderNumber || 0)}
+                    checkId=000
                     guestName={guest.name}
                     tableNumber={guest.table}
                     partySize={guest.partySize}
@@ -3173,8 +3173,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {/* Column 1: Order Number Box */}
                     <div className="flex-shrink-0 px-2 py-1.5 flex items-center">
                       <div className="relative w-12 h-[58px] bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                        <span className="text-lg font-bold text-white truncate max-w-full px-0.5">{String(guest.orderNumber || 0).padStart(3, '0').slice(-3)}</span>
-                        <span className="text-[10px] text-gray-400 truncate max-w-full px-0.5">{guest.check === "--" ? "000" : String(guest.check).slice(0, 3)}</span>
+                        <span className="text-lg font-bold text-white truncate max-w-full px-0.5">{String(guest.orderNumber || 0)}</span>
+                        <span className="text-[10px] text-gray-400 truncate max-w-full px-0.5">000</span>
                       </div>
                     </div>
 
@@ -3379,7 +3379,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {selectedGuest.partySize}
                   </span>
                 )}
-                <span className="text-white font-bold">{String(selectedGuest.orderNumber || 0).padStart(3, '0').slice(-3)}</span>
+                <span className="text-white font-bold">{String(selectedGuest.orderNumber || 0)}</span>
               </div>
               <div className="flex items-center gap-2">
                 <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
@@ -4089,8 +4089,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {/* Column 1: Order Number Box */}
                     <div className="flex-shrink-0 px-2 py-2 flex items-center">
                       <div className="relative w-12 h-[60px] bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                        <span className="text-lg font-bold text-white truncate max-w-full px-0.5">{String(guest.orderNumber || 0).padStart(3, '0').slice(-3)}</span>
-                        <span className="text-xs text-gray-400 truncate max-w-full px-0.5">{guest.check === "--" ? "000" : String(guest.check).slice(0, 3)}</span>
+                        <span className="text-lg font-bold text-white truncate max-w-full px-0.5">{String(guest.orderNumber || 0)}</span>
+                        <span className="text-xs text-gray-400 truncate max-w-full px-0.5">000</span>
                       </div>
                     </div>
 
@@ -4258,7 +4258,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {selectedGuest.partySize}
                   </span>
                 )}
-                <span className="text-white font-bold text-sm">{String(selectedGuest.orderNumber || 0).padStart(3, '0').slice(-3)}</span>
+                <span className="text-white font-bold text-sm">{String(selectedGuest.orderNumber || 0)}</span>
               </div>
               <span className="text-white/50 text-xs">{selectedGuest.server}</span>
             </div>

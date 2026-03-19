@@ -170,13 +170,10 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
     return (
       <>
         <div className="fixed inset-0 z-[99]" onClick={() => setActiveTimePicker(null)} />
-        <div
-          className="absolute top-full mt-1 z-[100] bg-neutral-900/95 backdrop-blur-sm rounded-xl shadow-2xl border border-neutral-700/50 overflow-hidden"
-          style={{ transform: "scale(0.65)", transformOrigin: "top center" }}
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 z-[100]" onClick={(e) => e.stopPropagation()}>
           <AppleWheelTimePicker
             isOpen
+            compact
             onClose={() => setActiveTimePicker(null)}
             onConfirm={(time) => { updateDayTime(day, field, time); setActiveTimePicker(null); }}
             selectedTime={currentTime}

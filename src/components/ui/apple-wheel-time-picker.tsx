@@ -13,8 +13,8 @@ const AppleWheelTimePicker = ({
   onClose,
   onConfirm,
   selectedTime,
+  compact = false,
 }: AppleWheelTimePickerProps) => {
-  // Parse the initial time
   const parseTime = (timeStr: string) => {
     const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
     if (match) {
@@ -40,9 +40,10 @@ const AppleWheelTimePicker = ({
   const minutes = Array.from({ length: 60 }, (_, i) => i);
   const periods: ("AM" | "PM")[] = ["AM", "PM"];
 
-  const ITEM_HEIGHT = 44;
+  const ITEM_HEIGHT = compact ? 34 : 44;
+  const COLUMN_HEIGHT = compact ? 170 : 220;
+  const GRADIENT_HEIGHT = compact ? 58 : 88;
 
-  // Sync internal state when selectedTime prop changes
   useEffect(() => {
     if (isOpen) {
       const parsed = parseTime(selectedTime);
@@ -52,7 +53,6 @@ const AppleWheelTimePicker = ({
     }
   }, [isOpen, selectedTime]);
 
-  // Scroll to selected items on mount
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => {
@@ -71,9 +71,9 @@ const AppleWheelTimePicker = ({
             periodScrollRef.current.scrollTop = periodIndex * ITEM_HEIGHT;
           }
         }
-      }, 50);
+      }, 30);
     }
-  }, [isOpen, selectedHour, selectedMinute, selectedPeriod]);
+  }, [isOpen, selectedHour, selectedMinute, selectedPeriod, ITEM_HEIGHT]);
 
   const handleScroll = (
     ref: React.RefObject<HTMLDivElement>,
@@ -85,7 +85,7 @@ const AppleWheelTimePicker = ({
     const scrollTop = ref.current.scrollTop;
     const index = Math.round(scrollTop / ITEM_HEIGHT);
     const clampedIndex = Math.max(0, Math.min(index, items.length - 1));
-    
+
     if (isHour) {
       setter(items[clampedIndex] as number);
     } else if (typeof items[0] === "number") {
@@ -112,10 +112,15 @@ const AppleWheelTimePicker = ({
     formatFn?: (value: number | string) => string
   ) => {
     return (
-      <div className="relative h-[220px] overflow-hidden flex-1">
-        {/* Gradient overlays for fade effect */}
-        <div className="absolute inset-x-0 top-0 h-[88px] bg-gradient-to-b from-neutral-900 via-neutral-900/80 to-transparent z-10 pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-[88px] bg-gradient-to-t from-neutral-900 via-neutral-900/80 to-transparent z-10 pointer-events-none" />
+      <div className="relative overflow-hidden flex-1" style={{ height: COLUMN_HEIGHT }}>
+        <div
+          className="absolute inset-x-0 top-0 bg-gradient-to-b from-neutral-900 via-neutral-900/80 to-transparent z-10 pointer-events-none"
+          style={{ height: GRADIENT_HEIGHT }}
+        />
+        <div
+          className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-neutral-900 via-neutral-900/80 to-transparent z-10 pointer-events-none"
+          style={{ height: GRADIENT_HEIGHT }}
+        />
 
         <div
           ref={ref}
@@ -123,7 +128,6 @@ const AppleWheelTimePicker = ({
           style={{ scrollSnapType: "y mandatory" }}
           onScroll={() => handleScroll(ref, items, setter, isHour)}
         >
-          {/* Padding items for centering */}
           <div style={{ height: ITEM_HEIGHT * 2 }} />
           {items.map((item, index) => {
             const isSelected = item === selectedValue;
@@ -138,8 +142,12 @@ const AppleWheelTimePicker = ({
                 <span
                   className={`transition-all duration-150 ${
                     isSelected
-                      ? "text-foreground text-xl font-semibold"
-                      : "text-neutral-500 text-lg font-normal"
+                      ? compact
+                        ? "text-foreground text-base font-semibold"
+                        : "text-foreground text-xl font-semibold"
+                      : compact
+                        ? "text-neutral-500 text-sm font-normal"
+                        : "text-neutral-500 text-lg font-normal"
                   }`}
                 >
                   {displayValue}
@@ -147,58 +155,59 @@ const AppleWheelTimePicker = ({
               </div>
             );
           })}
-          {/* Padding items for centering */}
           <div style={{ height: ITEM_HEIGHT * 2 }} />
         </div>
       </div>
     );
   };
 
+  const pickerContent = (
+    <div
+      className={compact ? "w-[280px] bg-neutral-900 rounded-xl border border-neutral-700/50 shadow-2xl" : "w-full max-w-md bg-neutral-900 rounded-t-3xl animate-in slide-in-from-bottom duration-300"}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className={compact ? "flex items-center justify-between px-3 py-2 border-b border-neutral-700/40" : "flex items-center justify-between px-4 py-4"}>
+        <button onClick={onClose} className={compact ? "text-neutral-400 text-xs font-medium" : "text-neutral-400 text-base font-medium"}>
+          Cancel
+        </button>
+        <button onClick={handleConfirm} className={compact ? "text-foreground text-xs font-medium" : "text-foreground text-base font-medium"}>
+          Done
+        </button>
+      </div>
+
+      <div className="relative">
+        <div
+          className={compact ? "absolute left-2 right-2 top-1/2 -translate-y-1/2 h-[34px] bg-neutral-800/50 rounded-md pointer-events-none z-0" : "absolute left-4 right-4 top-1/2 -translate-y-1/2 h-[44px] bg-neutral-800/50 rounded-xl pointer-events-none z-0"}
+        />
+
+        <div className={compact ? "flex px-2 relative z-10" : "flex px-4 relative z-10"}>
+          {renderWheelColumn(hours, selectedHour, hourScrollRef, setSelectedHour, true)}
+          {renderWheelColumn(
+            minutes,
+            selectedMinute,
+            minuteScrollRef,
+            setSelectedMinute,
+            false,
+            (val) => (val as number).toString().padStart(2, "0")
+          )}
+          {renderWheelColumn(periods, selectedPeriod, periodScrollRef, setSelectedPeriod)}
+        </div>
+      </div>
+
+      <div className={compact ? "h-2" : "h-8"} />
+    </div>
+  );
+
+  if (compact) {
+    return pickerContent;
+  }
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 animate-in fade-in duration-200"
       onClick={onClose}
     >
-      <div
-        className="w-full max-w-md bg-neutral-900 rounded-t-3xl animate-in slide-in-from-bottom duration-300"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4">
-          <button onClick={onClose} className="text-neutral-400 text-base font-medium">
-            Cancel
-          </button>
-          <button onClick={handleConfirm} className="text-foreground text-base font-medium">
-            Done
-          </button>
-        </div>
-
-        {/* Selection indicator bar */}
-        <div className="relative">
-          <div className="absolute left-4 right-4 top-1/2 -translate-y-1/2 h-[44px] bg-neutral-800/50 rounded-xl pointer-events-none z-0" />
-
-          {/* Three-column wheel picker */}
-          <div className="flex px-4 relative z-10">
-            {/* Hour Column */}
-            {renderWheelColumn(hours, selectedHour, hourScrollRef, setSelectedHour, true)}
-
-            {/* Minute Column */}
-            {renderWheelColumn(
-              minutes,
-              selectedMinute,
-              minuteScrollRef,
-              setSelectedMinute,
-              false,
-              (val) => (val as number).toString().padStart(2, "0")
-            )}
-
-            {/* AM/PM Column */}
-            {renderWheelColumn(periods, selectedPeriod, periodScrollRef, setSelectedPeriod)}
-          </div>
-        </div>
-
-        <div className="h-8" />
-      </div>
+      {pickerContent}
     </div>
   );
 };

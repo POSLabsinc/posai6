@@ -201,7 +201,8 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
 
   useEffect(() => {
     if (open) {
-      setMessage("");
+      setMessageChips([]);
+      setChipInput("");
       setSelectedOrderId(null);
       setSelectedTableKey(null);
       setError(null);

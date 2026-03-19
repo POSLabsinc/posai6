@@ -597,8 +597,8 @@ export function DiscountDialog({
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className="bg-neutral-900 border-l border-sidebar-border overflow-hidden flex flex-col"
       >
-        <div className="p-4 pb-2 border-b border-sidebar-border">
-          <h3 className="text-sm font-semibold text-foreground">Select Reason</h3>
+        <div className="p-4 pb-2 border-b border-sidebar-border flex items-center">
+          <h3 className="text-lg font-semibold text-foreground">Select Reason</h3>
         </div>
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           {renderReasonSection(selected100Discount)}

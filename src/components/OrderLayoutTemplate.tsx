@@ -88,8 +88,10 @@ const OrderLayoutTemplate = ({
       <div className="flex items-stretch w-full md:hidden">
         {/* Order Number - Mobile compact style */}
         <div className="flex-shrink-0 px-2 py-2 flex items-center">
-           <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-            <span className="text-lg font-bold text-white">{String(order.id)}</span>
+           <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600 overflow-hidden">
+            <div className="w-full overflow-hidden">
+              <span className={`block text-center font-bold text-white whitespace-nowrap ${String(order.id).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(order.id)}</span>
+            </div>
             <span className="text-[9px] text-gray-500">000</span>
           </div>
         </div>
@@ -136,8 +138,10 @@ const OrderLayoutTemplate = ({
         {/* Left Content with padding */}
         <div className="flex-1 flex items-stretch gap-3 p-3">
           {/* Order Number Box */}
-          <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
-            <span className="text-lg font-bold text-white">{String(order.id)}</span>
+          <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1 overflow-hidden" style={{ background: '#1A1A1A' }}>
+            <div className="w-full overflow-hidden">
+              <span className={`block text-center font-bold text-white whitespace-nowrap ${String(order.id).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(order.id)}</span>
+            </div>
             <span className="text-xs text-white/40">000</span>
           </div>
 

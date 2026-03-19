@@ -1131,8 +1131,10 @@ const Dashboard = () => {
             // Mobile Layout for split check
             <div className="flex items-stretch w-full p-3">
               <div className="flex-shrink-0 px-2 py-2 flex items-center">
-                <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                  <span className="text-lg font-bold text-white">{String(parentOrder.orderNumber || 0)}</span>
+                <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600 overflow-hidden">
+                  <div className="w-full overflow-hidden">
+                    <span className={`block text-center font-bold text-white whitespace-nowrap ${String(parentOrder.orderNumber || 0).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(parentOrder.orderNumber || 0)}</span>
+                  </div>
                   <span className="text-[9px] text-gray-500">{checkLetter}</span>
                 </div>
               </div>
@@ -1172,8 +1174,10 @@ const Dashboard = () => {
             // Desktop Layout for split check - 45%/35%/20% layout
             <div className="hidden md:flex items-stretch">
               <div className="flex-1 flex items-stretch gap-3 p-3">
-                <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
-                  <span className="text-lg font-bold text-white">{String(parentOrder.orderNumber || 0)}</span>
+                <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1 overflow-hidden" style={{ background: '#1A1A1A' }}>
+                  <div className="w-full overflow-hidden">
+                    <span className={`block text-center font-bold text-white whitespace-nowrap ${String(parentOrder.orderNumber || 0).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(parentOrder.orderNumber || 0)}</span>
+                  </div>
                   <span className="text-xs text-white/40">{checkLetter}</span>
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
@@ -1493,8 +1497,10 @@ const Dashboard = () => {
                     {/* Mobile Layout */}
                     <div className="flex items-stretch w-full md:hidden p-3">
                       <div className="flex-shrink-0 px-2 py-2 flex items-center">
-                        <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                          <span className="text-lg font-bold text-white">{String(order.orderNumber || 0)}</span>
+                        <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600 overflow-hidden">
+                          <div className="w-full overflow-hidden">
+                            <span className={`block text-center font-bold text-white whitespace-nowrap ${String(order.orderNumber || 0).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(order.orderNumber || 0)}</span>
+                          </div>
                           <span className="text-[9px] text-gray-500">000</span>
                         </div>
                       </div>
@@ -1534,8 +1540,10 @@ const Dashboard = () => {
                     {/* Tablet/Desktop Layout */}
                     <div className="hidden md:flex items-stretch">
                       <div className="flex-1 flex items-stretch gap-3 p-3">
-                        <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
-                          <span className="text-lg font-bold text-white">{String(order.orderNumber || 0)}</span>
+                        <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1 overflow-hidden" style={{ background: '#1A1A1A' }}>
+                          <div className="w-full overflow-hidden">
+                            <span className={`block text-center font-bold text-white whitespace-nowrap ${String(order.orderNumber || 0).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(order.orderNumber || 0)}</span>
+                          </div>
                           <span className="text-xs text-white/40">000</span>
                         </div>
                         <div className="flex-1 min-w-0 flex flex-col justify-between py-1">

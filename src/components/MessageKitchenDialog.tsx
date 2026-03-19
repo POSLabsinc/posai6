@@ -553,6 +553,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
 
             <SuggestionChips
               message={chipInput}
+              activeChips={messageChips}
               onSelect={(text) => {
                 addChip(text);
               }}

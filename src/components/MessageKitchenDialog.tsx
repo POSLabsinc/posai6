@@ -1,10 +1,9 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface KDSTicketData {
@@ -39,12 +38,11 @@ interface MessageKitchenDialogProps {
 }
 
 const MAX_LENGTH = 100;
-const WARN_THRESHOLD = 90;
-const DANGER_THRESHOLD = 95;
 
 const SUGGESTION_STORAGE_KEY = "kds_message_suggestions";
+const NOTE_DELIMITER = ' | ';
 
-const DEFAULT_SUGGESTIONS = [
+const ALL_SUGGESTIONS = [
   "86'd - Out of stock",
   "Rush this order",
   "Hold this order",
@@ -53,9 +51,6 @@ const DEFAULT_SUGGESTIONS = [
   "VIP guest",
   "Remake needed",
   "Low stock warning",
-];
-
-const EXTENDED_SUGGESTIONS = [
   "Cooking now",
   "Need more time",
   "Ready in 5 minutes",
@@ -102,56 +97,7 @@ const recordSuggestionUse = (text: string) => {
     history.push({ text, count: 1 });
   }
   history.sort((a, b) => b.count - a.count);
-  localStorage.setItem(SUGGESTION_STORAGE_KEY, JSON.stringify(history.slice(0, 30)));
-};
-
-const SuggestionChips = ({ message, onSelect }: { message: string; onSelect: (text: string) => void }) => {
-  const history = useMemo(() => getSuggestionHistory(), []);
-
-  const allPool = useMemo(() => {
-    const pool: { text: string; count: number }[] = [];
-    const seen = new Set<string>();
-    for (const h of history) {
-      pool.push(h);
-      seen.add(h.text.toLowerCase());
-    }
-    for (const d of [...DEFAULT_SUGGESTIONS, ...EXTENDED_SUGGESTIONS]) {
-      const lower = d.toLowerCase();
-      if (!seen.has(lower)) {
-        pool.push({ text: d, count: 0 });
-        seen.add(lower);
-      }
-    }
-    pool.sort((a, b) => b.count - a.count);
-    return pool;
-  }, [history]);
-
-  const chips = useMemo(() => {
-    const trimmed = message.trim().toLowerCase();
-    if (trimmed.length === 0) {
-      return allPool.slice(0, 8);
-    }
-    return allPool
-      .filter(s => s.text.toLowerCase().includes(trimmed) && s.text.toLowerCase() !== trimmed)
-      .slice(0, 8);
-  }, [message, allPool]);
-
-  if (chips.length === 0) return null;
-
-  return (
-    <div className="flex flex-wrap gap-1.5 mt-1">
-      {chips.map((chip) => (
-        <button
-          key={chip.text}
-          type="button"
-          onClick={() => onSelect(chip.text)}
-          className="px-2.5 py-1 text-xs rounded-full bg-neutral-700/70 text-neutral-300 hover:bg-orange-500/20 hover:text-orange-400 border border-neutral-600/50 hover:border-orange-500/40 transition-colors truncate max-w-[200px]"
-        >
-          {chip.text}
-        </button>
-      ))}
-    </div>
-  );
+  localStorage.setItem(SUGGESTION_STORAGE_KEY, JSON.stringify(history.slice(0, 50)));
 };
 
 type LinkTab = "orders" | "tables";
@@ -185,7 +131,9 @@ const getStatusColor = (status: string) => {
 };
 
 const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff" }: MessageKitchenDialogProps) => {
-  const [message, setMessage] = useState("");
+  const [selectedChips, setSelectedChips] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [selectedTableKey, setSelectedTableKey] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -198,10 +146,23 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [loadingTables, setLoadingTables] = useState(false);
   const [linkTab, setLinkTab] = useState<LinkTab>("orders");
+  const chipInputRef = useRef<HTMLInputElement>(null);
+  const chipContainerRef = useRef<HTMLDivElement>(null);
+
+  // Compose full message from chips
+  const composedMessage = useMemo(() => {
+    const parts = [...selectedChips];
+    if (inputValue.trim()) parts.push(inputValue.trim());
+    return parts.join(NOTE_DELIMITER);
+  }, [selectedChips, inputValue]);
+
+  const canSend = (selectedChips.length > 0 || inputValue.trim().length > 0) && !sending;
 
   useEffect(() => {
     if (open) {
-      setMessage("");
+      setSelectedChips([]);
+      setInputValue("");
+      setIsDropdownOpen(false);
       setSelectedOrderId(null);
       setSelectedTableKey(null);
       setError(null);
@@ -214,6 +175,94 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       loadAllTables();
     }
   }, [open]);
+
+  // Click outside to close dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (chipContainerRef.current && !chipContainerRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+        if (inputValue.trim()) {
+          addChip(inputValue.trim());
+          setInputValue("");
+        }
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [inputValue, selectedChips]);
+
+  const addChip = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    if (selectedChips.some(c => c.toLowerCase() === trimmed.toLowerCase())) return;
+    const newComposed = [...selectedChips, trimmed].join(NOTE_DELIMITER);
+    if (newComposed.length > MAX_LENGTH) return;
+    setSelectedChips(prev => [...prev, trimmed]);
+    setFieldError(null);
+  };
+
+  const removeChip = (chip: string) => {
+    setSelectedChips(prev => prev.filter(c => c !== chip));
+  };
+
+  // Build suggestion pool sorted by usage
+  const suggestionPool = useMemo(() => {
+    const history = getSuggestionHistory();
+    const pool: { text: string; count: number }[] = [];
+    const seen = new Set<string>();
+    for (const h of history) {
+      pool.push(h);
+      seen.add(h.text.toLowerCase());
+    }
+    for (const d of ALL_SUGGESTIONS) {
+      if (!seen.has(d.toLowerCase())) {
+        pool.push({ text: d, count: 0 });
+        seen.add(d.toLowerCase());
+      }
+    }
+    pool.sort((a, b) => b.count - a.count);
+    return pool;
+  }, []);
+
+  const filteredSuggestions = useMemo(() => {
+    const search = inputValue.trim().toLowerCase();
+    const available = suggestionPool.filter(
+      s => !selectedChips.some(c => c.toLowerCase() === s.text.toLowerCase())
+    );
+    const filtered = search
+      ? available.filter(s => s.text.toLowerCase().includes(search))
+      : available;
+    return filtered.slice(0, 8);
+  }, [inputValue, suggestionPool, selectedChips]);
+
+  const handleChipInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setInputValue(e.target.value);
+    setIsDropdownOpen(true);
+  };
+
+  const handleChipInputFocus = () => {
+    setIsDropdownOpen(true);
+  };
+
+  const handleChipKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setIsDropdownOpen(false);
+      chipInputRef.current?.blur();
+    } else if (e.key === 'Enter' && inputValue.trim()) {
+      e.preventDefault();
+      addChip(inputValue.trim());
+      setInputValue("");
+    } else if (e.key === 'Backspace' && !inputValue && selectedChips.length > 0) {
+      removeChip(selectedChips[selectedChips.length - 1]);
+    }
+  };
+
+  const handleSelectSuggestion = (text: string) => {
+    addChip(text);
+    setInputValue("");
+    setIsDropdownOpen(false);
+    chipInputRef.current?.focus();
+  };
 
   const loadActiveOrders = () => {
     setLoadingOrders(true);
@@ -254,16 +303,6 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     setLoadingOrders(false);
   };
 
-  const trimmedMessage = message.trim();
-  const charCount = message.length;
-  const canSend = trimmedMessage.length > 0 && !sending;
-
-  const counterColorClass = useMemo(() => {
-    if (charCount >= DANGER_THRESHOLD) return "text-destructive";
-    if (charCount >= WARN_THRESHOLD) return "text-orange-400";
-    return "text-neutral-500";
-  }, [charCount]);
-
   const filteredOrders = useMemo(() => {
     if (!orderSearch.trim()) return activeOrders;
     const q = orderSearch.trim().toLowerCase();
@@ -274,7 +313,6 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     });
   }, [activeOrders, orderSearch]);
 
-  // Load all tables from database
   const loadAllTables = async () => {
     setLoadingTables(true);
     try {
@@ -306,9 +344,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     setLoadingTables(false);
   };
 
-  // Merge DB tables with active order data
   const tableGroups = useMemo((): TableGroup[] => {
-    // Build order data grouped by table
     const ordersByTable = new Map<string, { serverName: string; partySize: number; time: string; itemCount: number; orderStatus: string; orderIds: string[] }>();
     for (const o of activeOrders) {
       if (!o.tableNumber) continue;
@@ -330,7 +366,6 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       }
     }
 
-    // Merge: start with all DB tables, enrich with order data
     const merged = new Map<string, TableGroup>();
     for (const t of allTables) {
       const orderData = ordersByTable.get(t.tableNumber);
@@ -345,7 +380,6 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       });
     }
 
-    // Add any order-only tables not in DB
     for (const [key, od] of ordersByTable) {
       if (!merged.has(key)) {
         merged.set(key, {
@@ -386,7 +420,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
   };
 
   const handleSend = async () => {
-    if (trimmedMessage.length === 0) {
+    if (composedMessage.length === 0) {
       setFieldError("Message cannot be empty");
       return;
     }
@@ -418,7 +452,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
 
     const payload = {
       message_id: messageId,
-      message_text: trimmedMessage,
+      message_text: composedMessage,
       store_id: "default",
       terminal_id: "default",
       employee_id: "default",
@@ -438,7 +472,12 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       queue.push(payload);
       localStorage.setItem("kds_message_queue", JSON.stringify(queue));
 
-      recordSuggestionUse(trimmedMessage);
+      for (const chip of selectedChips) {
+        recordSuggestionUse(chip);
+      }
+      if (inputValue.trim()) {
+        recordSuggestionUse(inputValue.trim());
+      }
 
       onOpenChange(false);
       toast.success("Message sent to kitchen ✓", { duration: 3000 });
@@ -478,36 +517,71 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
         </DialogHeader>
 
         <div className="flex flex-row gap-0">
-          {/* Left Column - Message */}
+          {/* Left Column - Message (chip-based) */}
           <div className="flex-1 pr-5 border-r border-neutral-700 space-y-1.5">
             <label className="text-sm text-neutral-300">Message <span className="text-red-400">*</span></label>
-            <Textarea
-              value={message}
-              onChange={(e) => {
-                if (e.target.value.length <= MAX_LENGTH) {
-                  setMessage(e.target.value);
-                  if (e.target.value.trim().length > 0) setFieldError(null);
-                }
-              }}
-              placeholder="Type your message for the kitchen..."
-              className="bg-transparent border-neutral-600 text-white placeholder:text-neutral-500 min-h-[100px] resize-none focus-visible:ring-orange-500"
-              maxLength={MAX_LENGTH}
-              autoFocus
-            />
+
+            <div className="relative" ref={chipContainerRef}>
+              <div
+                className="flex items-center gap-1.5 flex-wrap min-h-[44px] rounded-md border border-neutral-600 bg-transparent px-3 py-2 cursor-text"
+                onClick={() => chipInputRef.current?.focus()}
+              >
+                {selectedChips.map((chip, index) => (
+                  <span
+                    key={`${chip}-${index}`}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-orange-500/20 text-orange-300 border border-orange-500/40"
+                  >
+                    <span className="truncate max-w-[140px]">{chip}</span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeChip(chip);
+                      }}
+                      className="ml-0.5 hover:text-white transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  ref={chipInputRef}
+                  type="text"
+                  placeholder={selectedChips.length === 0 ? "Type or select a message..." : "Add more..."}
+                  value={inputValue}
+                  onChange={handleChipInputChange}
+                  onFocus={handleChipInputFocus}
+                  onKeyDown={handleChipKeyDown}
+                  className="flex-1 min-w-[80px] bg-transparent text-sm text-white placeholder:text-neutral-500 outline-none"
+                  autoFocus
+                />
+              </div>
+
+              {isDropdownOpen && filteredSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 rounded-lg overflow-hidden z-50 shadow-lg border border-neutral-700 max-h-[200px] overflow-y-auto scrollbar-hide bg-neutral-800">
+                  {filteredSuggestions.map((item, index) => (
+                    <button
+                      key={`${item.text}-${index}`}
+                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-orange-500/10 transition-colors text-left"
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => handleSelectSuggestion(item.text)}
+                    >
+                      <span className="flex-1 text-sm text-white truncate">{item.text}</span>
+                      {item.count > 0 && (
+                        <span className="text-xs text-neutral-500">used {item.count}x</span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {fieldError && (
               <p className="text-xs text-destructive">{fieldError}</p>
             )}
-            <div className={`text-xs text-right ${counterColorClass}`}>
-              {charCount}/{MAX_LENGTH}
+            <div className="text-xs text-right text-neutral-500">
+              {composedMessage.length}/{MAX_LENGTH}
             </div>
-
-            <SuggestionChips
-              message={message}
-              onSelect={(text) => {
-                setMessage(text.slice(0, MAX_LENGTH));
-                setFieldError(null);
-              }}
-            />
           </div>
 
           {/* Right Column - Link Selection */}

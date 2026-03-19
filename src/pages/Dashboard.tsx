@@ -1493,8 +1493,10 @@ const Dashboard = () => {
                     {/* Mobile Layout */}
                     <div className="flex items-stretch w-full md:hidden p-3">
                       <div className="flex-shrink-0 px-2 py-2 flex items-center">
-                        <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                          <span className="text-lg font-bold text-white">{String(order.orderNumber || 0)}</span>
+                        <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600 overflow-hidden">
+                          <div className="w-full overflow-hidden">
+                            <span className={`block text-center font-bold text-white whitespace-nowrap ${String(order.orderNumber || 0).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(order.orderNumber || 0)}</span>
+                          </div>
                           <span className="text-[9px] text-gray-500">000</span>
                         </div>
                       </div>

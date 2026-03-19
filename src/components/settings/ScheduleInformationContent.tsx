@@ -22,6 +22,7 @@ interface ScheduleInformationContentProps {
 const ScheduleInformationContent = ({
   showHeader = true,
   onBack,
+  onAIClick,
 }: ScheduleInformationContentProps) => {
   const navigate = useNavigate();
   const [schedules, setSchedules] = useState<Schedule[]>([]);

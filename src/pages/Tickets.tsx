@@ -3173,8 +3173,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {/* Column 1: Order Number Box */}
                     <div className="flex-shrink-0 px-2 py-1.5 flex items-center">
                       <div className="relative w-12 h-[58px] bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                        <span className="text-lg font-bold text-white truncate max-w-full px-0.5">{String(guest.orderNumber || 0)}</span>
-                        <span className="text-[10px] text-gray-400 truncate max-w-full px-0.5">{guest.check === "--" ? "--" : guest.check}</span>
+                        <span className="text-lg font-bold text-white truncate max-w-full px-0.5">{String(guest.orderNumber || 0).padStart(3, '0').slice(-3)}</span>
+                        <span className="text-[10px] text-gray-400 truncate max-w-full px-0.5">{guest.check === "--" ? "000" : String(guest.check).slice(0, 3)}</span>
                       </div>
                     </div>
 

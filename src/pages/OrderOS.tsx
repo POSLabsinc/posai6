@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useApp } from "@/contexts/AppContext";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Search, SlidersHorizontal, X, Phone, Clock, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, GripVertical, Printer, ArrowDownUp, Check, Package, Plus, CalendarDays, Info, Timer } from "lucide-react";

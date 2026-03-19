@@ -447,7 +447,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       linkedOrderIds = selectedTable.orderIds;
     }
 
-    const terminalName = localStorage.getItem("pos_terminal_name") || "POS";
+    const terminalName = localStorage.getItem("pos_terminal_name") || "POS 1";
 
     const payload = {
       message_id: messageId,

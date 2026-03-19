@@ -9,6 +9,7 @@ interface KDSMessage {
   message_text: string;
   store_id: string;
   terminal_id: string;
+  terminal_name?: string;
   employee_id: string;
   employee_name: string;
   table_id: string | null;
@@ -171,7 +172,7 @@ const KDSMessages = () => {
                 <div className="flex items-center gap-2">
                   <Megaphone className="w-4 h-4 text-white/80" />
                   <span className="text-xs font-bold uppercase tracking-wider text-white/90">
-                    Kitchen Message
+                    {msg.terminal_name ? `Message from ${msg.terminal_name}` : "Kitchen Message"}
                   </span>
                 </div>
                 <span className="text-xs text-white/70 font-mono">

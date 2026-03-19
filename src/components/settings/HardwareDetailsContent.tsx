@@ -1,5 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import settingsHardwareIcon from "@/assets/icons/settings-hardware.png";
@@ -20,6 +21,16 @@ const HardwareDetailsContent = ({ showHeader = true, onBack, onNavigate, onAICli
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
+  const [terminalName, setTerminalName] = useState(() => localStorage.getItem("pos_terminal_name") || "");
+
+  const handleTerminalNameChange = (value: string) => {
+    setTerminalName(value);
+    if (value.trim()) {
+      localStorage.setItem("pos_terminal_name", value.trim());
+    } else {
+      localStorage.removeItem("pos_terminal_name");
+    }
+  };
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {showHeader && (
@@ -44,6 +55,19 @@ const HardwareDetailsContent = ({ showHeader = true, onBack, onNavigate, onAICli
           <p className="text-sm text-muted-foreground leading-relaxed">
             Manage hardware components including printers, cash registers for secure cash transactions, and card readers for electronic card processing.
           </p>
+        </div>
+
+        {/* POS Terminal Name */}
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4 px-4 py-3.5">
+          <label className="text-sm text-muted-foreground mb-2 block">POS Terminal Name</label>
+          <input
+            type="text"
+            value={terminalName}
+            onChange={(e) => handleTerminalNameChange(e.target.value)}
+            placeholder="e.g. POS 1, Bar Terminal, Drive-Thru"
+            className="w-full bg-neutral-700/50 text-foreground text-sm rounded-lg px-3 py-2.5 border border-neutral-600/50 focus:outline-none focus:border-neutral-500 placeholder:text-neutral-500"
+          />
+          <p className="text-xs text-neutral-500 mt-1.5">This name appears on kitchen display messages</p>
         </div>
 
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

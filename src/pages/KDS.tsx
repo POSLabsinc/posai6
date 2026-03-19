@@ -219,6 +219,7 @@ interface KDSMessageData {
   message_text: string;
   store_id: string;
   terminal_id: string;
+  terminal_name?: string;
   employee_id: string;
   employee_name: string;
   table_id: string | null;
@@ -325,7 +326,7 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
             <div className="bg-gradient-to-r from-violet-700 to-indigo-700 px-3 py-2 flex items-center justify-between">
               <div className="flex items-center gap-1.5">
                 <Megaphone className="w-3 h-3 text-white/80" />
-                <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Kitchen Message</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">{msg.terminal_name ? `Message from ${msg.terminal_name}` : "Kitchen Message"}</span>
               </div>
               <span className="text-[10px] text-white/70 font-mono">{format(new Date(msg.timestamp), "hh:mm a")}</span>
             </div>
@@ -493,7 +494,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
               <div className="bg-gradient-to-r from-violet-700 to-indigo-700 px-3 py-1.5 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
                   <Megaphone className="w-3 h-3 text-white/80" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">Kitchen Message</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">{msg.terminal_name ? `Message from ${msg.terminal_name}` : "Kitchen Message"}</span>
                 </div>
                 <span className="text-[10px] text-white/70 font-mono">{format(new Date(msg.timestamp), "hh:mm a")}</span>
               </div>

@@ -42,6 +42,90 @@ const MAX_LENGTH = 100;
 const WARN_THRESHOLD = 90;
 const DANGER_THRESHOLD = 95;
 
+const SUGGESTION_STORAGE_KEY = "kds_message_suggestions";
+
+const DEFAULT_SUGGESTIONS = [
+  "86'd - Out of stock",
+  "Rush this order",
+  "Hold this order",
+  "Fire when ready",
+  "Allergy alert",
+  "VIP guest",
+  "Remake needed",
+  "Low stock warning",
+];
+
+const getSuggestionHistory = (): { text: string; count: number }[] => {
+  try {
+    return JSON.parse(localStorage.getItem(SUGGESTION_STORAGE_KEY) || "[]");
+  } catch {
+    return [];
+  }
+};
+
+const recordSuggestionUse = (text: string) => {
+  const history = getSuggestionHistory();
+  const existing = history.find(h => h.text.toLowerCase() === text.toLowerCase());
+  if (existing) {
+    existing.count += 1;
+    existing.text = text;
+  } else {
+    history.push({ text, count: 1 });
+  }
+  history.sort((a, b) => b.count - a.count);
+  localStorage.setItem(SUGGESTION_STORAGE_KEY, JSON.stringify(history.slice(0, 30)));
+};
+
+const SuggestionChips = ({ message, onSelect }: { message: string; onSelect: (text: string) => void }) => {
+  const history = useMemo(() => getSuggestionHistory(), []);
+
+  const chips = useMemo(() => {
+    const trimmed = message.trim().toLowerCase();
+    const allSuggestions: { text: string; count: number }[] = [];
+
+    // Merge history with defaults
+    const seen = new Set<string>();
+    for (const h of history) {
+      allSuggestions.push(h);
+      seen.add(h.text.toLowerCase());
+    }
+    for (const d of DEFAULT_SUGGESTIONS) {
+      if (!seen.has(d.toLowerCase())) {
+        allSuggestions.push({ text: d, count: 0 });
+      }
+    }
+
+    // Sort by usage count descending
+    allSuggestions.sort((a, b) => b.count - a.count);
+
+    if (trimmed.length === 0) {
+      return allSuggestions.slice(0, 8);
+    }
+
+    // Filter by typed text
+    return allSuggestions
+      .filter(s => s.text.toLowerCase().includes(trimmed) && s.text.toLowerCase() !== trimmed)
+      .slice(0, 6);
+  }, [message, history]);
+
+  if (chips.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-1.5 mt-1">
+      {chips.map((chip) => (
+        <button
+          key={chip.text}
+          type="button"
+          onClick={() => onSelect(chip.text)}
+          className="px-2.5 py-1 text-xs rounded-full bg-neutral-700/70 text-neutral-300 hover:bg-orange-500/20 hover:text-orange-400 border border-neutral-600/50 hover:border-orange-500/40 transition-colors truncate max-w-[200px]"
+        >
+          {chip.text}
+        </button>
+      ))}
+    </div>
+  );
+};
+
 type LinkTab = "orders" | "tables";
 
 const normalizeTableNumber = (raw: string | null | undefined): string => {

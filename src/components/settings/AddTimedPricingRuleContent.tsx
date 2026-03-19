@@ -5,7 +5,7 @@ import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
 import { AppleWheelDatePicker } from "@/components/ui/apple-wheel-date-picker";
-import { createPortal } from "react-dom";
+
 import { supabase } from "@/integrations/supabase/client";
 
 type RuleType = "happy_hour" | "peak_time" | "late_night" | "custom";

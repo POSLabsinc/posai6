@@ -123,8 +123,20 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
         </p>
       </div>
 
-      {/* Filters row */}
-      <div className="flex items-center gap-3 mb-6">
+      {/* Search + Filters row */}
+      <section className="mt-6 flex items-center gap-3 mb-6">
+        <div className="flex-1 min-w-0 rounded-full bg-neutral-800/60 px-5 py-3 flex items-center gap-3">
+          <Search className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-[15px]"
+          />
+          <Mic className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+        </div>
+
         <Select value={selectedStock} onValueChange={setSelectedStock}>
           <SelectTrigger className="w-auto min-w-[140px] rounded-full bg-neutral-800/60 border-0 text-foreground text-sm h-11 px-4 focus:ring-0">
             <SelectValue placeholder="All Stock" />

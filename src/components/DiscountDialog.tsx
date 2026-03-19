@@ -586,15 +586,16 @@ export function DiscountDialog({
     </>
   );
 
-  // Floating side panel for reason selection (desktop only)
+  // Floating side panel for reason selection (desktop only) - separate floating popup
   const reasonSidePanel = is100Selected && selected100Discount ? (
     <AnimatePresence>
       <motion.div
-        initial={{ width: 0, opacity: 0 }}
-        animate={{ width: 280, opacity: 1 }}
-        exit={{ width: 0, opacity: 0 }}
+        initial={{ width: 0, opacity: 0, x: -10 }}
+        animate={{ width: 280, opacity: 1, x: 0 }}
+        exit={{ width: 0, opacity: 0, x: -10 }}
         transition={{ duration: 0.25, ease: "easeInOut" }}
-        className="bg-neutral-900 border-l border-sidebar-border overflow-hidden flex flex-col"
+        className="bg-neutral-900 border border-sidebar-border rounded-lg overflow-hidden flex flex-col shadow-xl"
+        style={{ maxHeight: '70vh' }}
       >
         <div className="p-4 pb-2 border-b border-sidebar-border flex items-center">
           <h3 className="text-lg font-semibold text-foreground">Select Reason</h3>
@@ -638,10 +639,9 @@ export function DiscountDialog({
   if (portalContainer) {
     if (!open) return null;
     return (
-      <div className="flex">
+      <div className="flex items-start gap-2">
         <div
-          className="sm:max-w-[520px] w-full bg-neutral-900 border border-neutral-700 p-0 gap-0 overflow-hidden flex flex-col"
-          style={is100Selected ? { borderRadius: '0.5rem 0 0 0.5rem' } : { borderRadius: '0.5rem' }}
+          className="sm:max-w-[520px] w-full bg-neutral-900 border border-neutral-700 rounded-lg p-0 gap-0 overflow-hidden flex flex-col"
         >
           <div className="p-4 pb-2 border-b border-neutral-700">
             <div className="text-center">
@@ -651,11 +651,7 @@ export function DiscountDialog({
           {listContent}
           {summaryAndApply}
         </div>
-        {reasonSidePanel && (
-          <div className="border border-l-0 border-neutral-700 rounded-r-lg overflow-hidden">
-            {reasonSidePanel}
-          </div>
-        )}
+        {reasonSidePanel}
       </div>
     );
   }
@@ -663,12 +659,10 @@ export function DiscountDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`bg-neutral-900 border-sidebar-border p-0 gap-0 transition-all duration-200 ${
-          is100Selected ? 'sm:max-w-[800px]' : 'sm:max-w-[520px]'
-        }`}
+        className="bg-neutral-900 border-sidebar-border p-0 gap-0 sm:max-w-[520px] overflow-visible"
       >
-        <div className="flex">
-          <div className={`flex flex-col ${is100Selected ? 'w-[520px]' : 'w-full'}`}>
+        <div className="flex items-start">
+          <div className="flex flex-col w-full">
             <DialogHeader className="p-4 pb-2 border-b border-sidebar-border">
               <div className="text-center">
                 <DialogTitle className="text-foreground text-lg font-semibold">
@@ -679,7 +673,11 @@ export function DiscountDialog({
             {listContent}
             {summaryAndApply}
           </div>
-          {reasonSidePanel}
+          {reasonSidePanel && (
+            <div className="absolute left-full top-0 ml-2">
+              {reasonSidePanel}
+            </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

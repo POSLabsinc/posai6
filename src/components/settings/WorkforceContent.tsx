@@ -7,6 +7,7 @@ import SettingsIcon from "@/components/settings/SettingsIcon";
 import workforceIcon from "@/assets/icons/settings-workforce.png";
 import employeeIcon from "@/assets/icons/employee-icon.png";
 import shiftIcon from "@/assets/icons/shift-icon.png";
+import scheduleIcon from "@/assets/icons/scheduled.svg";
 
 interface WorkforceContentProps {
   showHeader?: boolean;
@@ -39,6 +40,13 @@ const WorkforceContent = ({
       label: "Shift",
       description: "Create and manage employee shifts, schedules, and clock-in/out records.",
       onClick: () => onNavigate?.("/settings/workforce/shift"),
+    },
+    {
+      icon: scheduleIcon,
+      iconBgColor: "#4A148C",
+      label: "Schedule Information",
+      description: "View and manage workforce scheduling details, availability, and time-off requests.",
+      onClick: () => onNavigate?.("/settings/workforce/schedule-information"),
     },
   ];
 

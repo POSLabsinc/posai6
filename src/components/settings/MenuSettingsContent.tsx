@@ -21,6 +21,7 @@ import productsIcon from "@/assets/icons/menu-products.png";
 import defaultModifiersIcon from "@/assets/icons/menu-default-modifiers.png";
 import groupsIcon from "@/assets/icons/menu-groups.png";
 import timedPricingIcon from "@/assets/icons/menu-timed-pricing.png";
+import inventoryIcon from "@/assets/icons/menu-inventory.png";
 import settingsMenuIcon from "@/assets/icons/settings-menu.png";
 interface MenuSettingsContentProps {
   showHeader?: boolean;

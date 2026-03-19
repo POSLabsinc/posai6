@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Plus, Search, Save } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Search, Archive, Mic } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";

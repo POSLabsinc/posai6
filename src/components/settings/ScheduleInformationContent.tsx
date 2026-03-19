@@ -28,7 +28,7 @@ const ScheduleInformationContent = ({
   const [schedules, setSchedules] = useState<Schedule[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showSearch, setShowSearch] = useState(false);
+  const [showArchived, setShowArchived] = useState(false);
 
   const goBack = onBack || (() => navigate("/settings/workforce"));
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronLeft, ChevronRight, Check, Copy } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Copy, ClipboardPaste } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -66,6 +66,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
   });
 
   const [showNameInput, setShowNameInput] = useState(false);
+  const [copiedDay, setCopiedDay] = useState<string | null>(null);
   const [activeTimePicker, setActiveTimePicker] = useState<{ day: string; field: "startTime" | "endTime" } | null>(null);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
@@ -84,18 +85,19 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
     }));
   };
 
-  const copySchedule = (fromDay: string) => {
-    const source = daySchedules[fromDay];
-    setDaySchedules((prev) => {
-      const next = { ...prev };
-      allDays.forEach((d) => {
-        if (d !== fromDay) {
-          next[d] = { ...next[d], startTime: source.startTime, endTime: source.endTime };
-        }
-      });
-      return next;
-    });
-    toast({ description: `Copied ${fromDay}'s schedule to all days` });
+  const copySchedule = (day: string) => {
+    setCopiedDay(day);
+    toast({ description: `Copied ${day}'s schedule` });
+  };
+
+  const pasteSchedule = (day: string) => {
+    if (!copiedDay) return;
+    const source = daySchedules[copiedDay];
+    setDaySchedules((prev) => ({
+      ...prev,
+      [day]: { ...prev[day], startTime: source.startTime, endTime: source.endTime },
+    }));
+    toast({ description: `Pasted schedule to ${day}` });
   };
 
   const handleSave = async () => {
@@ -289,7 +291,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
         {/* Days Schedule Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-6">
           {/* Table Header */}
-          <div className="grid grid-cols-[44px_1fr_1fr_1fr_36px] items-center px-4 py-3 border-b border-neutral-700/30">
+          <div className="grid grid-cols-[44px_1fr_1fr_1fr_68px] items-center px-4 py-3 border-b border-neutral-700/30">
             <span />
             <span className="text-sm font-semibold text-foreground">Days</span>
             <span className="text-sm font-semibold text-foreground text-center">Start Time</span>
@@ -301,7 +303,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
           {allDays.map((day, idx) => (
             <div key={day}>
               {idx > 0 && <div className="h-px bg-neutral-700/20 mx-4" />}
-              <div className="grid grid-cols-[44px_1fr_1fr_1fr_36px] items-center px-4 py-3.5">
+              <div className="grid grid-cols-[44px_1fr_1fr_1fr_68px] items-center px-4 py-3.5">
                 {/* Checkbox */}
                 <button onClick={() => toggleDay(day)} className="flex items-center justify-center">
                   <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
@@ -314,14 +316,14 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
                 </button>
 
                 {/* Day Name */}
-                <span className={`text-[15px] ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}>
+                <span className={`text-[15px] font-medium ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}>
                   {day}
                 </span>
 
                 {/* Start Time */}
                 <button
                   onClick={() => setActiveTimePicker({ day, field: "startTime" })}
-                  className="text-[15px] text-neutral-400 text-center active:opacity-70 transition-opacity"
+                  className={`text-[15px] text-center active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
                 >
                   {daySchedules[day].startTime}
                 </button>
@@ -329,21 +331,33 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
                 {/* End Time */}
                 <button
                   onClick={() => setActiveTimePicker({ day, field: "endTime" })}
-                  className="text-[15px] text-neutral-400 text-right active:opacity-70 transition-opacity"
+                  className={`text-[15px] text-right active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
                 >
                   {daySchedules[day].endTime}
                 </button>
 
-                {/* Copy Button */}
-                {daySchedules[day].enabled && (
+                {/* Copy & Paste Buttons */}
+                <div className="flex items-center justify-end gap-2">
                   <button
                     onClick={() => copySchedule(day)}
                     className="flex items-center justify-center active:opacity-70 transition-opacity"
-                    title={`Copy ${day}'s times to all days`}
+                    title={`Copy ${day}'s times`}
                   >
-                    <Copy className="w-4 h-4 text-neutral-500" />
+                    <Copy className={`w-4 h-4 ${copiedDay === day ? "text-foreground" : "text-neutral-500"}`} />
                   </button>
-                )}
+                  {copiedDay && copiedDay !== day && (
+                    <button
+                      onClick={() => pasteSchedule(day)}
+                      className="flex items-center justify-center active:opacity-70 transition-opacity"
+                      title={`Paste ${copiedDay}'s times`}
+                    >
+                      <ClipboardPaste className="w-4 h-4 text-emerald-500" />
+                    </button>
+                  )}
+                  {(!copiedDay || copiedDay === day) && (
+                    <div className="w-4" />
+                  )}
+                </div>
               </div>
             </div>
           ))}

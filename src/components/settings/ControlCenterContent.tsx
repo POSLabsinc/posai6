@@ -134,6 +134,11 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
     updateSetting('switchToKDS', value);
   };
 
+  const handleKdsNotificationChange = (value: boolean) => {
+    setKdsNotification(value);
+    updateSetting('kdsNotification', value);
+  };
+
   const handleDebugModeChange = (value: boolean) => {
     setDebugMode(value);
     updateSetting('debugMode', value);

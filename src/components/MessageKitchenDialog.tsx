@@ -509,19 +509,38 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
           {/* Left Column - Message */}
           <div className="flex-1 pr-5 border-r border-neutral-700 space-y-1.5">
             <label className="text-sm text-neutral-300">Message <span className="text-red-400">*</span></label>
-            <Textarea
-              value={message}
-              onChange={(e) => {
-                if (e.target.value.length <= MAX_LENGTH) {
-                  setMessage(e.target.value);
-                  if (e.target.value.trim().length > 0) setFieldError(null);
-                }
-              }}
-              placeholder="Type your message for the kitchen..."
-              className="bg-transparent border-neutral-600 text-white placeholder:text-neutral-500 min-h-[100px] resize-none focus-visible:ring-orange-500"
-              maxLength={MAX_LENGTH}
-              autoFocus
-            />
+            <div
+              className="min-h-[100px] w-full rounded-md border border-neutral-600 bg-transparent px-3 py-2 focus-within:ring-2 focus-within:ring-orange-500 focus-within:ring-offset-0 cursor-text"
+              onClick={() => document.getElementById("chip-input")?.focus()}
+            >
+              <div className="flex flex-wrap gap-1.5 items-center">
+                {messageChips.map((chip, idx) => (
+                  <span
+                    key={`${chip}-${idx}`}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/40"
+                  >
+                    {chip}
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); removeChip(idx); }}
+                      className="hover:text-orange-200 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  id="chip-input"
+                  type="text"
+                  value={chipInput}
+                  onChange={(e) => setChipInput(e.target.value)}
+                  onKeyDown={handleChipInputKeyDown}
+                  placeholder={messageChips.length === 0 ? "Type your message for the kitchen..." : ""}
+                  className="flex-1 min-w-[80px] bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none border-none py-1"
+                  autoFocus
+                />
+              </div>
+            </div>
             {fieldError && (
               <p className="text-xs text-destructive">{fieldError}</p>
             )}
@@ -530,10 +549,9 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
             </div>
 
             <SuggestionChips
-              message={message}
+              message={chipInput}
               onSelect={(text) => {
-                setMessage(text.slice(0, MAX_LENGTH));
-                setFieldError(null);
+                addChip(text);
               }}
             />
           </div>

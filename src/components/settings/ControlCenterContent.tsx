@@ -411,7 +411,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
                 {/* KDS Notification */}
                 <div className="py-3.5 px-4">
                   <div className="flex items-center justify-between">
-                    <span className="text-foreground text-lg font-medium">KDS Notification</span>
+                    <span className="text-foreground text-lg font-medium">Kitchen Display System Notification</span>
                     <Switch checked={kdsNotification} onCheckedChange={handleKdsNotificationChange} />
                   </div>
                   <p className="text-neutral-500 text-sm mt-1">Enable notification sounds and alerts when new orders arrive on the Kitchen Display System.</p>

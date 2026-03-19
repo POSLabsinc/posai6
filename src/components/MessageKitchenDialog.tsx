@@ -447,11 +447,14 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       linkedOrderIds = selectedTable.orderIds;
     }
 
+    const terminalName = localStorage.getItem("pos_terminal_name") || "POS";
+
     const payload = {
       message_id: messageId,
       message_text: trimmedMessage,
       store_id: "default",
       terminal_id: "default",
+      terminal_name: terminalName,
       employee_id: "default",
       employee_name: serverName,
       table_id: linkedTableId,

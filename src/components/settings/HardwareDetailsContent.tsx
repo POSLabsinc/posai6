@@ -57,6 +57,19 @@ const HardwareDetailsContent = ({ showHeader = true, onBack, onNavigate, onAICli
           </p>
         </div>
 
+        {/* POS Terminal Name */}
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4 px-4 py-3.5">
+          <label className="text-sm text-muted-foreground mb-2 block">POS Terminal Name</label>
+          <input
+            type="text"
+            value={terminalName}
+            onChange={(e) => handleTerminalNameChange(e.target.value)}
+            placeholder="e.g. POS 1, Bar Terminal, Drive-Thru"
+            className="w-full bg-neutral-700/50 text-foreground text-sm rounded-lg px-3 py-2.5 border border-neutral-600/50 focus:outline-none focus:border-neutral-500 placeholder:text-neutral-500"
+          />
+          <p className="text-xs text-neutral-500 mt-1.5">This name appears on kitchen display messages</p>
+        </div>
+
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {/* Printer */}
           <button

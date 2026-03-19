@@ -435,9 +435,8 @@ export function DiscountDialog({
                   handleNotesChange(discount.id, val);
                 }}
                 placeholder={data.reason === "Other" ? "Describe the reason..." : "Add details..."}
-                maxLength={200}
-                rows={2}
-                className="w-full px-3 py-2.5 rounded-lg border border-border bg-card/50 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:border-primary/50 transition-colors"
+                maxLength={100}
+                className="w-full px-3 py-2.5 rounded-lg border border-border bg-card/50 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:border-primary/50 transition-colors flex-1 min-h-[80px]"
                 onFocus={() => {
                   setTimeout(() => {
                     notesRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });

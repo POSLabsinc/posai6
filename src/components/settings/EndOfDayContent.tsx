@@ -71,6 +71,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
   const { value: cancelUnpaidTickets, update: updateCancelUnpaidTickets } = usePreference("eod_cancel_unpaid", "false");
   const { value: printReport, update: updatePrintReport } = usePreference("eod_print_report", "false");
   const { value: includeEmployeeData, update: updateIncludeEmployeeData } = usePreference("eod_include_employee", "false");
+  const { value: printSummaryOnClockOut, update: updatePrintSummaryOnClockOut } = usePreference("eod_print_clock_out", "false");
   const { value: selectedDevice, update: updateSelectedDevice } = usePreference("eod_device", "POS 1.2");
   const { value: autoEndOfDayTime, update: updateAutoEndOfDayTime } = usePreference("eod_reminder_time", "11:00 PM");
   const { value: autoRunTime, update: updateAutoRunTime } = usePreference("eod_auto_run_time", "11:00 PM");

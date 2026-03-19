@@ -471,15 +471,15 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
 
   return (
     <Dialog open={open} onOpenChange={sending ? undefined : onOpenChange}>
-      <DialogContent className="bg-neutral-900 border-neutral-700 text-white max-w-[480px]" hideCloseButton>
+      <DialogContent className="bg-neutral-900 border-neutral-700 text-white max-w-[820px]" hideCloseButton>
         <DialogHeader>
           <DialogTitle className="text-white text-lg">Send Message to Kitchen</DialogTitle>
           <DialogDescription className="sr-only">Send a message to the kitchen display system</DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-4">
-          {/* Message Field */}
-          <div className="space-y-1.5">
+        <div className="flex flex-row gap-0">
+          {/* Left Column - Message */}
+          <div className="flex-1 pr-5 border-r border-neutral-700 space-y-1.5">
             <label className="text-sm text-neutral-300">Message <span className="text-red-400">*</span></label>
             <Textarea
               value={message}
@@ -501,7 +501,6 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
               {charCount}/{MAX_LENGTH}
             </div>
 
-            {/* Suggestion Chips */}
             <SuggestionChips
               message={message}
               onSelect={(text) => {
@@ -511,163 +510,162 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
             />
           </div>
 
-          {/* Divider */}
-          <div className="border-t border-neutral-700" />
+          {/* Right Column - Link Selection */}
+          <div className="w-[380px] pl-5 space-y-3">
+            <p className="text-xs text-neutral-500">{sectionTitle}</p>
 
-          {/* Section Title */}
-          <p className="text-xs text-neutral-500">{sectionTitle}</p>
-
-          {/* Tab Bar */}
-          <div className="flex rounded-lg border border-neutral-600 overflow-hidden">
-            <button
-              onClick={() => handleTabChange("orders")}
-              className={`flex-1 py-2 text-sm font-medium transition-colors ${
-                linkTab === "orders"
-                  ? "bg-neutral-700 text-white"
-                  : "bg-transparent text-neutral-400 hover:text-neutral-300"
-              }`}
-            >
-              Orders
-            </button>
-            <button
-              onClick={() => handleTabChange("tables")}
-              className={`flex-1 py-2 text-sm font-medium transition-colors ${
-                linkTab === "tables"
-                  ? "bg-neutral-700 text-white"
-                  : "bg-transparent text-neutral-400 hover:text-neutral-300"
-              }`}
-            >
-              Tables
-            </button>
-          </div>
-
-          {/* Orders Tab */}
-          {linkTab === "orders" && (
-            <>
-              <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
-                <Input
-                  value={orderSearch}
-                  onChange={(e) => setOrderSearch(e.target.value)}
-                  placeholder="Search by order number or table..."
-                  className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 pl-8 h-8 text-xs"
-                />
-              </div>
-
-              {loadingOrders ? (
-                <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Loading orders...
-                </div>
-              ) : filteredOrders.length === 0 ? (
-                <p className="text-xs text-neutral-500 text-center py-3">No active orders at the moment</p>
-              ) : (
-                <div className="max-h-[240px] overflow-y-auto space-y-0.5 scrollbar-hide">
-                  {filteredOrders.map(order => {
-                    const tableDisplay = formatTableDisplay(order.tableNumber);
-                    const timeStr = formatOrderTime(order.createdAt);
-                    const isSelected = selectedOrderId === order.id;
-                    return (
-                      <button
-                        key={order.id}
-                        onClick={() => setSelectedOrderId(isSelected ? null : order.id)}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors bg-neutral-800 hover:bg-neutral-700 border ${isSelected ? "border-orange-500" : "border-transparent"}`}
-                      >
-                        <div className="flex items-center gap-2 text-sm">
-                          <span className="text-white font-semibold">#{order.orderNumber}</span>
-                          <span className="text-neutral-400">{tableDisplay}</span>
-                          <span className="text-neutral-500">·</span>
-                          <span className="text-neutral-400">{order.serverName}</span>
-                          <span className="text-neutral-500 ml-auto">{timeStr}</span>
-                        </div>
-                        <p className="text-xs text-neutral-500 mt-0.5">{getOrderItemPreview(order)}</p>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Tables Tab */}
-          {linkTab === "tables" && (
-            <>
-              <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
-                <Input
-                  value={tableSearch}
-                  onChange={(e) => setTableSearch(e.target.value)}
-                  placeholder="Search by table number or name..."
-                  className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 pl-8 h-8 text-xs"
-                />
-              </div>
-
-              {loadingTables ? (
-                <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  Loading tables...
-                </div>
-              ) : filteredTables.length === 0 ? (
-                <p className="text-xs text-neutral-500 text-center py-3">No tables at the moment</p>
-              ) : (
-                <div className="max-h-[240px] overflow-y-auto space-y-0.5 scrollbar-hide">
-                  {filteredTables.map(table => {
-                    const isSelected = selectedTableKey === table.tableNumber;
-                    return (
-                      <button
-                        key={table.tableNumber}
-                        onClick={() => setSelectedTableKey(isSelected ? null : table.tableNumber)}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors bg-neutral-800 hover:bg-neutral-700 border ${isSelected ? "border-orange-500" : "border-transparent"}`}
-                      >
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="text-white font-semibold">{table.displayName}</span>
-                          <span className={`text-xs font-semibold ${getStatusColor(table.orderStatus)}`}>
-                            {table.orderStatus}
-                          </span>
-                        </div>
-                        <p className="text-xs text-neutral-500 mt-0.5">
-                          {table.orderIds.length > 0
-                            ? `${table.serverName} · Party of ${table.partySize} · ${table.time} · ${table.itemCount} ${table.itemCount === 1 ? "product" : "products"}`
-                            : `${table.orderStatus === "AVAILABLE" ? "Available" : table.orderStatus}`}
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
-              )}
-            </>
-          )}
-
-          {/* Error message */}
-          {error && (
-            <div className="text-sm text-red-400 bg-red-400/10 px-3 py-2 rounded-md">
-              {error}
+            {/* Tab Bar */}
+            <div className="flex rounded-lg border border-neutral-600 overflow-hidden">
+              <button
+                onClick={() => handleTabChange("orders")}
+                className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                  linkTab === "orders"
+                    ? "bg-neutral-700 text-white"
+                    : "bg-transparent text-neutral-400 hover:text-neutral-300"
+                }`}
+              >
+                Orders
+              </button>
+              <button
+                onClick={() => handleTabChange("tables")}
+                className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                  linkTab === "tables"
+                    ? "bg-neutral-700 text-white"
+                    : "bg-transparent text-neutral-400 hover:text-neutral-300"
+                }`}
+              >
+                Tables
+              </button>
             </div>
-          )}
 
-          {/* Buttons */}
-          <div className="flex gap-2 pt-2">
-            <Button
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              className="flex-1 bg-neutral-800 border-neutral-600 text-white hover:bg-neutral-700"
-              disabled={sending}
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleSend}
-              disabled={!canSend}
-              className="flex-1 bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50"
-            >
-              {sending ? (
-                <span className="flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Sending...
-                </span>
-              ) : sendButtonLabel()}
-            </Button>
+            {/* Orders Tab */}
+            {linkTab === "orders" && (
+              <>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                  <Input
+                    value={orderSearch}
+                    onChange={(e) => setOrderSearch(e.target.value)}
+                    placeholder="Search by order number or table..."
+                    className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 pl-8 h-8 text-xs"
+                  />
+                </div>
+
+                {loadingOrders ? (
+                  <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Loading orders...
+                  </div>
+                ) : filteredOrders.length === 0 ? (
+                  <p className="text-xs text-neutral-500 text-center py-3">No active orders at the moment</p>
+                ) : (
+                  <div className="max-h-[220px] overflow-y-auto space-y-0.5 scrollbar-hide">
+                    {filteredOrders.map(order => {
+                      const tableDisplay = formatTableDisplay(order.tableNumber);
+                      const timeStr = formatOrderTime(order.createdAt);
+                      const isSelected = selectedOrderId === order.id;
+                      return (
+                        <button
+                          key={order.id}
+                          onClick={() => setSelectedOrderId(isSelected ? null : order.id)}
+                          className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors bg-neutral-800 hover:bg-neutral-700 border ${isSelected ? "border-orange-500" : "border-transparent"}`}
+                        >
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="text-white font-semibold">#{order.orderNumber}</span>
+                            <span className="text-neutral-400">{tableDisplay}</span>
+                            <span className="text-neutral-500">·</span>
+                            <span className="text-neutral-400">{order.serverName}</span>
+                            <span className="text-neutral-500 ml-auto">{timeStr}</span>
+                          </div>
+                          <p className="text-xs text-neutral-500 mt-0.5">{getOrderItemPreview(order)}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
+
+            {/* Tables Tab */}
+            {linkTab === "tables" && (
+              <>
+                <div className="relative">
+                  <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                  <Input
+                    value={tableSearch}
+                    onChange={(e) => setTableSearch(e.target.value)}
+                    placeholder="Search by table number or name..."
+                    className="bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 pl-8 h-8 text-xs"
+                  />
+                </div>
+
+                {loadingTables ? (
+                  <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    Loading tables...
+                  </div>
+                ) : filteredTables.length === 0 ? (
+                  <p className="text-xs text-neutral-500 text-center py-3">No tables at the moment</p>
+                ) : (
+                  <div className="max-h-[220px] overflow-y-auto space-y-0.5 scrollbar-hide">
+                    {filteredTables.map(table => {
+                      const isSelected = selectedTableKey === table.tableNumber;
+                      return (
+                        <button
+                          key={table.tableNumber}
+                          onClick={() => setSelectedTableKey(isSelected ? null : table.tableNumber)}
+                          className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors bg-neutral-800 hover:bg-neutral-700 border ${isSelected ? "border-orange-500" : "border-transparent"}`}
+                        >
+                          <div className="flex items-center justify-between text-sm">
+                            <span className="text-white font-semibold">{table.displayName}</span>
+                            <span className={`text-xs font-semibold ${getStatusColor(table.orderStatus)}`}>
+                              {table.orderStatus}
+                            </span>
+                          </div>
+                          <p className="text-xs text-neutral-500 mt-0.5">
+                            {table.orderIds.length > 0
+                              ? `${table.serverName} · Party of ${table.partySize} · ${table.time} · ${table.itemCount} ${table.itemCount === 1 ? "product" : "products"}`
+                              : `${table.orderStatus === "AVAILABLE" ? "Available" : table.orderStatus}`}
+                          </p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+              </>
+            )}
           </div>
+        </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="text-sm text-red-400 bg-red-400/10 px-3 py-2 rounded-md">
+            {error}
+          </div>
+        )}
+
+        {/* Buttons */}
+        <div className="flex gap-2 pt-2">
+          <Button
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            className="flex-1 bg-neutral-800 border-neutral-600 text-white hover:bg-neutral-700"
+            disabled={sending}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSend}
+            disabled={!canSend}
+            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50"
+          >
+            {sending ? (
+              <span className="flex items-center gap-2">
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Sending...
+              </span>
+            ) : sendButtonLabel()}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

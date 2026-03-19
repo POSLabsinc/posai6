@@ -183,7 +183,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
     );
   };
 
-  const renderDatePicker = (isStart: boolean) => {
+  const renderInlineDatePicker = (isStart: boolean) => {
     const show = isStart ? showStartDatePicker : showEndDatePicker;
     if (!show) return null;
     const current = isStart ? startDate : endDate;
@@ -202,19 +202,15 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
       );
     }
 
-    return createPortal(
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60" onClick={close}>
-        <div className="bg-neutral-900 rounded-2xl p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-          <AppleWheelDatePicker
-            isOpen
-            onClose={close}
-            onConfirm={close}
-            selectedDate={current}
-            onDateChange={(d) => setDate(d)}
-          />
-        </div>
-      </div>,
-      document.body
+    return (
+      <AppleWheelDatePicker
+        isOpen
+        mode="inline"
+        onClose={close}
+        onConfirm={close}
+        selectedDate={current}
+        onDateChange={(d) => setDate(d)}
+      />
     );
   };
 

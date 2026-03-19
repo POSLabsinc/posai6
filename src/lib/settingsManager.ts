@@ -333,6 +333,7 @@ const defaultControlCenterSettings: ControlCenterSettings = {
   lastRestartTime: null,
   autoLockTimer: "30",
   switchToKDS: false,
+  kdsNotification: false,
   debugMode: false,
   lockAfterFailed: false,
   forceClockIn: false,

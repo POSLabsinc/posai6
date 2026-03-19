@@ -544,7 +544,7 @@ const OrderPanelContent = ({
                 <Users className="w-3 h-3 text-white/60" />
                 <span className="text-white/60 text-xs">{guestCount}</span>
               </div>
-              <span className="text-white font-bold text-sm">{String(selectedOrder?.orderNumber || selectedOrder?.id || 0).padStart(3, '0').slice(-3)}</span>
+              <span className="text-white font-bold text-sm">{String(selectedOrder?.orderNumber || selectedOrder?.id || 0)}</span>
             </div>
             <div className="flex items-center gap-1">
               <img src={runnerIcon} alt="Server" className="w-4 h-4" />
@@ -1127,7 +1127,7 @@ const Dashboard = () => {
             <div className="flex items-stretch w-full p-3">
               <div className="flex-shrink-0 px-2 py-2 flex items-center">
                 <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                  <span className="text-lg font-bold text-white">{String(parentOrder.orderNumber || parentOrder.id).padStart(3, '0').slice(-3)}</span>
+                  <span className="text-lg font-bold text-white">{String(parentOrder.orderNumber || parentOrder.id)}</span>
                   <span className="text-[9px] text-gray-500">{checkLetter}</span>
                 </div>
               </div>
@@ -1168,7 +1168,7 @@ const Dashboard = () => {
             <div className="hidden md:flex items-stretch">
               <div className="flex-1 flex items-stretch gap-3 p-3">
                 <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
-                  <span className="text-lg font-bold text-white">{String(parentOrder.orderNumber || parentOrder.id).padStart(3, '0').slice(-3)}</span>
+                  <span className="text-lg font-bold text-white">{String(parentOrder.orderNumber || parentOrder.id)}</span>
                   <span className="text-xs text-white/40">{checkLetter}</span>
                 </div>
                 <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
@@ -1489,7 +1489,7 @@ const Dashboard = () => {
                     <div className="flex items-stretch w-full md:hidden p-3">
                       <div className="flex-shrink-0 px-2 py-2 flex items-center">
                         <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                          <span className="text-lg font-bold text-white">{String(order.orderNumber || order.id).padStart(3, '0').slice(-3)}</span>
+                          <span className="text-lg font-bold text-white">{String(order.orderNumber || order.id)}</span>
                           <span className="text-[9px] text-gray-500">{String(order.check).slice(0, 3) || '000'}</span>
                         </div>
                       </div>
@@ -1530,7 +1530,7 @@ const Dashboard = () => {
                     <div className="hidden md:flex items-stretch">
                       <div className="flex-1 flex items-stretch gap-3 p-3">
                         <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
-                          <span className="text-lg font-bold text-white">{String(order.orderNumber || order.id).padStart(3, '0').slice(-3)}</span>
+                          <span className="text-lg font-bold text-white">{String(order.orderNumber || order.id)}</span>
                           <span className="text-xs text-white/40">{String(order.check).slice(0, 3) || '000'}</span>
                         </div>
                         <div className="flex-1 min-w-0 flex flex-col justify-between py-1">

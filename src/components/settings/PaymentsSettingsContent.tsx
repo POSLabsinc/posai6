@@ -101,7 +101,7 @@ const PaymentsSettingsContent = ({
 
         <div className="space-y-4">
           <SettingsOption icon={paymentMethodsIcon} iconBgColor="#5F5F5F" label="Payment Methods" description="Configure which payment types are accepted at checkout and control their visibility across your point of sale terminals." onClick={() => onNavigate?.('/settings/payments/payment-methods')} />
-          <SettingsOption icon={paymentsHeaderIcon} iconBgColor="#0A84FF" label="Payment Platform" description="Select and configure the payment processing platform used for card transactions and digital payments." onClick={() => onNavigate?.('/settings/payments/payment-platform')} />
+          
           <SettingsOption icon={gratuityIcon} iconBgColor="#F80063" label="Gratuity" description="Set up tip presets, auto-gratuity rules for large parties, and configure tip pooling and distribution among staff." onClick={() => onNavigate?.('/settings/payments/gratuity')} />
           <SettingsOption icon={taxesIcon} iconBgColor="#AF1DFF" label="Taxes" description="Manage tax rates for different categories, set up tax exemptions, and configure tax-inclusive or exclusive pricing." onClick={() => onNavigate?.('/settings/payments/taxes')} />
           <SettingsOption icon={discountsIcon} iconBgColor="#00B6FA" label="Discounts" description="Create and manage percentage-based or fixed-amount discounts, set eligibility rules, and track discount usage." onClick={() => onNavigate?.('/settings/payments/discounts')} />

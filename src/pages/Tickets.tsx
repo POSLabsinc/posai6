@@ -2160,7 +2160,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 {selectedGuest.partySize}
               </span>
             )}
-            <span className="text-white font-bold">{String(selectedGuest.orderNumber || 0)}</span>
+            <span className="text-white font-bold">{String(selectedGuest.orderNumber || 0).padStart(3, '0').slice(-3)}</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <img src={runnerIcon} alt="Runner" className="w-4 h-4" />

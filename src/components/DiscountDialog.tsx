@@ -626,7 +626,7 @@ export function DiscountDialog({
   if (portalContainer) {
     if (!open) return null;
     return (
-      <div className="sm:max-w-[420px] w-full bg-neutral-900 border border-neutral-700 rounded-lg p-0 gap-0 overflow-hidden">
+      <div className="sm:max-w-[520px] w-full bg-neutral-900 border border-neutral-700 rounded-lg p-0 gap-0 overflow-hidden">
         <div className="p-4 pb-2 border-b border-neutral-700">
           <div className="flex items-center justify-center relative">
             {view === 'reason' && (

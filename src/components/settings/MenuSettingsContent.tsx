@@ -87,6 +87,7 @@ const menuItems: MenuItemData[] = [{
 }, {
   id: "inventory",
   iconSrc: inventoryIcon,
+  label: "Inventory",
   iconBgColor: "#34C759",
   description: "Track stock levels, manage inventory counts, set low-stock alerts, and control product availability across your locations."
 }];

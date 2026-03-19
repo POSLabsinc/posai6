@@ -469,7 +469,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       queue.push(payload);
       localStorage.setItem("kds_message_queue", JSON.stringify(queue));
 
-      recordSuggestionUse(trimmedMessage);
+      messageChips.forEach(chip => recordSuggestionUse(chip));
 
       onOpenChange(false);
       toast.success("Message sent to kitchen ✓", { duration: 3000 });

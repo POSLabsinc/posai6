@@ -1536,8 +1536,10 @@ const Dashboard = () => {
                     {/* Tablet/Desktop Layout */}
                     <div className="hidden md:flex items-stretch">
                       <div className="flex-1 flex items-stretch gap-3 p-3">
-                        <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
-                          <span className="text-lg font-bold text-white">{String(order.orderNumber || 0)}</span>
+                        <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1 overflow-hidden" style={{ background: '#1A1A1A' }}>
+                          <div className="w-full overflow-hidden">
+                            <span className={`block text-center font-bold text-white whitespace-nowrap ${String(order.orderNumber || 0).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(order.orderNumber || 0)}</span>
+                          </div>
                           <span className="text-xs text-white/40">000</span>
                         </div>
                         <div className="flex-1 min-w-0 flex flex-col justify-between py-1">

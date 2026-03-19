@@ -83,6 +83,12 @@ const menuItems: MenuItemData[] = [{
   label: "Timed Pricing",
   iconBgColor: "#0088FF",
   description: "Set up time-based pricing rules to automatically adjust product prices during happy hours, peak times, or scheduled promotions."
+}, {
+  id: "inventory",
+  iconSrc: productsIcon,
+  label: "Inventory",
+  iconBgColor: "#34C759",
+  description: "Track stock levels, manage inventory counts, set low-stock alerts, and control product availability across your locations."
 }];
 const additionalOptions = [{
   id: "menu-sort",

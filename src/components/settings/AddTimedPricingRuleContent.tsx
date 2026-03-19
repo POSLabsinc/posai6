@@ -169,8 +169,12 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
     }
 
     return createPortal(
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60" onClick={() => setActiveTimePicker(null)}>
-        <div className="bg-neutral-900 rounded-2xl p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="fixed inset-0 z-[9999]" onClick={() => setActiveTimePicker(null)}>
+        <div
+          className="absolute bg-neutral-900/95 backdrop-blur-sm rounded-xl shadow-2xl border border-neutral-700/50 overflow-hidden"
+          style={{ left: activeTimePicker.x, top: activeTimePicker.y, transform: "scale(0.8)", transformOrigin: "top left" }}
+          onClick={(e) => e.stopPropagation()}
+        >
           <AppleWheelTimePicker
             isOpen
             onClose={() => setActiveTimePicker(null)}

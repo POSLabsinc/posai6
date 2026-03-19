@@ -272,10 +272,6 @@ export function DiscountDialog({
         if (expandedDiscountId === discount.id) setExpandedDiscountId(null);
         return prev.filter(d => d.id !== discount.id);
       } else {
-        // Select: don't expand inline for 100% discounts (use two-step flow instead)
-        if (!isReasonRequired(discount)) {
-          // Non-100% discounts don't need reason, no expansion needed
-        }
         return [...prev, discount];
       }
     });
@@ -338,7 +334,6 @@ export function DiscountDialog({
     d => isReasonRequired(d) && !reasonDataMap[d.id]?.reason
   );
 
-
   const renderReasonSection = (discount: Discount) => {
     const data = reasonDataMap[discount.id] || { reason: null, reasonCategory: null, notes: null };
     const error = validationErrors[discount.id];
@@ -372,7 +367,6 @@ export function DiscountDialog({
                       : "bg-accent/60 text-foreground hover:bg-accent border border-border/50"
                   }`}
                 >
-                  
                   {reason}
                 </button>
               ))}
@@ -395,7 +389,6 @@ export function DiscountDialog({
                       : "bg-accent/60 text-foreground hover:bg-accent border border-border/50"
                   }`}
                 >
-                  
                   {reason}
                 </button>
               ))}
@@ -408,7 +401,6 @@ export function DiscountDialog({
                     : "bg-accent/60 text-foreground hover:bg-accent border border-border/50"
                 }`}
               >
-                
                 Other
               </button>
             </div>
@@ -421,7 +413,7 @@ export function DiscountDialog({
             </div>
           )}
 
-          {/* Comment field — shown when ANY reason is selected */}
+          {/* Comment field - shown when ANY reason is selected */}
           {data.reason && (
             <motion.div
               initial={{ height: 0, opacity: 0 }}
@@ -546,16 +538,17 @@ export function DiscountDialog({
     </div>
   ) : null;
 
-  // CTA logic
-  const needsReasonStep = is100Selected && !has100Reason && view === 'list';
-  const ctaLabel = needsReasonStep
+  // Desktop: no view navigation needed, side panel handles reasons
+  // Mobile: keep two-step flow
+  const needsReasonStepMobile = isMobile && is100Selected && !has100Reason && view === 'list';
+  const ctaLabel = needsReasonStepMobile
     ? "Select Reason"
     : selectedDiscounts.length > 0
       ? `Apply (${selectedDiscounts.length})`
       : "Apply";
 
   const handleCTAClick = () => {
-    if (needsReasonStep) {
+    if (needsReasonStepMobile) {
       setView('reason');
     } else {
       handleApply();
@@ -564,7 +557,7 @@ export function DiscountDialog({
 
   const summaryAndApply = (
     <>
-      {selectedDiscounts.length > 0 && view === 'list' && (
+      {selectedDiscounts.length > 0 && (isMobile ? view === 'list' : true) && (
         <div className="px-4 py-3 bg-primary/10 border-t border-primary/20">
           <div className="flex items-center justify-between">
             <div>
@@ -593,6 +586,27 @@ export function DiscountDialog({
       </div>
     </>
   );
+
+  // Floating side panel for reason selection (desktop only)
+  const reasonSidePanel = is100Selected && selected100Discount ? (
+    <AnimatePresence>
+      <motion.div
+        initial={{ width: 0, opacity: 0 }}
+        animate={{ width: 280, opacity: 1 }}
+        exit={{ width: 0, opacity: 0 }}
+        transition={{ duration: 0.25, ease: "easeInOut" }}
+        className="bg-neutral-900 border-l border-sidebar-border overflow-hidden flex flex-col"
+      >
+        <div className="p-4 pb-2 border-b border-sidebar-border">
+          <h3 className="text-sm font-semibold text-foreground">Select Reason</h3>
+          <p className="text-xs text-muted-foreground mt-0.5">{selected100Discount.name}</p>
+        </div>
+        <div className="flex-1 overflow-y-auto scrollbar-hide">
+          {renderReasonSection(selected100Discount)}
+        </div>
+      </motion.div>
+    </AnimatePresence>
+  ) : null;
 
   if (isMobile) {
     return (
@@ -626,52 +640,49 @@ export function DiscountDialog({
   if (portalContainer) {
     if (!open) return null;
     return (
-      <div className="sm:max-w-[520px] w-full bg-neutral-900 border border-neutral-700 rounded-lg p-0 gap-0 overflow-hidden">
-        <div className="p-4 pb-2 border-b border-neutral-700">
-          <div className="flex items-center justify-center relative">
-            {view === 'reason' && (
-              <button onClick={() => setView('list')} className="absolute left-0 text-muted-foreground hover:text-foreground transition-colors">
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-            )}
+      <div className="flex">
+        <div
+          className="sm:max-w-[520px] w-full bg-neutral-900 border border-neutral-700 p-0 gap-0 overflow-hidden flex flex-col"
+          style={is100Selected ? { borderRadius: '0.5rem 0 0 0.5rem' } : { borderRadius: '0.5rem' }}
+        >
+          <div className="p-4 pb-2 border-b border-neutral-700">
             <div className="text-center">
-              <h2 className="text-foreground text-lg font-semibold">
-                {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
-              </h2>
-              {view === 'reason' && selected100Discount && (
-                <p className="text-xs text-muted-foreground mt-0.5">{selected100Discount.name}</p>
-              )}
+              <h2 className="text-foreground text-lg font-semibold">Select Discounts</h2>
             </div>
           </div>
+          {listContent}
+          {summaryAndApply}
         </div>
-        {view === 'reason' && reasonViewContent ? reasonViewContent : listContent}
-        {summaryAndApply}
+        {reasonSidePanel && (
+          <div className="border border-l-0 border-neutral-700 rounded-r-lg overflow-hidden">
+            {reasonSidePanel}
+          </div>
+        )}
       </div>
     );
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[520px] bg-neutral-900 border-sidebar-border p-0 gap-0">
-        <DialogHeader className="p-4 pb-2 border-b border-sidebar-border">
-          <div className="flex items-center justify-center relative">
-            {view === 'reason' && (
-              <button onClick={() => setView('list')} className="absolute left-0 text-muted-foreground hover:text-foreground transition-colors">
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-            )}
-            <div className="text-center">
-              <DialogTitle className="text-foreground text-lg font-semibold">
-                {view === 'reason' ? 'Select Reason' : 'Select Discounts'}
-              </DialogTitle>
-              {view === 'reason' && selected100Discount && (
-                <p className="text-xs text-muted-foreground mt-0.5">{selected100Discount.name}</p>
-              )}
-            </div>
+      <DialogContent
+        className={`bg-neutral-900 border-sidebar-border p-0 gap-0 transition-all duration-200 ${
+          is100Selected ? 'sm:max-w-[800px]' : 'sm:max-w-[520px]'
+        }`}
+      >
+        <div className="flex">
+          <div className={`flex flex-col ${is100Selected ? 'w-[520px]' : 'w-full'}`}>
+            <DialogHeader className="p-4 pb-2 border-b border-sidebar-border">
+              <div className="text-center">
+                <DialogTitle className="text-foreground text-lg font-semibold">
+                  Select Discounts
+                </DialogTitle>
+              </div>
+            </DialogHeader>
+            {listContent}
+            {summaryAndApply}
           </div>
-        </DialogHeader>
-        {view === 'reason' && reasonViewContent ? reasonViewContent : listContent}
-        {summaryAndApply}
+          {reasonSidePanel}
+        </div>
       </DialogContent>
     </Dialog>
   );

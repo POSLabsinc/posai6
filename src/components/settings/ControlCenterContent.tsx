@@ -82,6 +82,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
         setRestartApp(settings.restartApp);
         setAutoLockTimer(settings.autoLockTimer);
         setSwitchToKDS(settings.switchToKDS);
+        setKdsNotification(settings.kdsNotification);
         setDebugMode(settings.debugMode);
         setLockAfterFailed(settings.lockAfterFailed);
         setForceClockIn(settings.forceClockIn);

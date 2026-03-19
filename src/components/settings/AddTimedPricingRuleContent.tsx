@@ -262,26 +262,28 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
 
         {/* Start Date / End Date */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-6">
-          <button
-            onClick={() => setShowStartDatePicker(true)}
-            className="flex items-center justify-between w-full py-3.5 px-4 border-b border-neutral-700/30 active:opacity-70 transition-opacity"
-          >
+          <div className="relative flex items-center justify-between w-full py-3.5 px-4 border-b border-neutral-700/30">
             <span className="text-foreground text-[15px]">Start Date</span>
-            <div className="flex items-center gap-1">
+            <button
+              onClick={() => { setShowStartDatePicker(!showStartDatePicker); setShowEndDatePicker(false); }}
+              className="flex items-center gap-1 active:opacity-70 transition-opacity"
+            >
               <span className="text-neutral-400 text-[15px]">{formatDate(startDate)}</span>
               <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
-            </div>
-          </button>
-          <button
-            onClick={() => setShowEndDatePicker(true)}
-            className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
-          >
+            </button>
+            {renderInlineDatePicker(true)}
+          </div>
+          <div className="relative flex items-center justify-between w-full py-3.5 px-4">
             <span className="text-foreground text-[15px]">End Date</span>
-            <div className="flex items-center gap-1">
+            <button
+              onClick={() => { setShowEndDatePicker(!showEndDatePicker); setShowStartDatePicker(false); }}
+              className="flex items-center gap-1 active:opacity-70 transition-opacity"
+            >
               <span className="text-neutral-400 text-[15px]">{formatDate(endDate)}</span>
               <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
-            </div>
-          </button>
+            </button>
+            {renderInlineDatePicker(false)}
+          </div>
         </div>
 
         {/* Days Schedule Table */}

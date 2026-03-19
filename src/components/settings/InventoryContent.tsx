@@ -180,48 +180,57 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
               {index > 0 && <div className="h-px bg-neutral-700/50" />}
               {/* Product Row */}
               <button
-                onClick={() => product.variants.length > 0 && toggleExpand(product.id)}
+                onClick={() => toggleExpand(product.id)}
                 className="grid grid-cols-[1.2fr_0.8fr_0.6fr_100px_24px] items-center px-6 py-4 w-full hover:bg-neutral-700/30 transition-colors text-left"
               >
                 <span className="text-[15px] text-foreground">{product.name}</span>
                 <span className="text-[15px] text-muted-foreground text-center">{product.sku || product.variants.length || "—"}</span>
                 <span className="text-[15px] text-muted-foreground text-center">{product.variants.length}</span>
                 <span className="text-[15px] text-foreground text-right">£{product.price.toFixed(2)}</span>
-                {product.variants.length > 0 ? (
-                  expandedId === product.id ? (
-                    <ChevronUp className="h-4 w-4 text-muted-foreground justify-self-end" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-muted-foreground justify-self-end" />
-                  )
+                {expandedId === product.id ? (
+                  <ChevronUp className="h-4 w-4 text-muted-foreground justify-self-end" />
                 ) : (
                   <ChevronRight className="h-4 w-4 text-muted-foreground justify-self-end" />
                 )}
               </button>
 
-              {/* Expanded Variants */}
-              {expandedId === product.id && product.variants.length > 0 && (
-                <div className="bg-amber-50/5 border-t border-neutral-700/30">
-                  {/* Variant sub-header */}
-                  <div className="grid grid-cols-[1.2fr_0.8fr_0.8fr_100px] items-center px-6 py-3 pl-12">
-                    <span className="text-xs font-medium text-muted-foreground">Variant</span>
-                    <span className="text-xs font-medium text-muted-foreground text-center">PAR</span>
-                    <span className="text-xs font-medium text-muted-foreground text-center">Stock on Hand</span>
-                    <span className="text-xs font-medium text-muted-foreground text-right">Adjustment</span>
-                  </div>
-                  {product.variants.map((variant, vIdx) => (
-                    <div key={variant.id}>
-                      {vIdx > 0 && <div className="h-px bg-neutral-700/20 ml-12 mr-6" />}
+              {/* Expanded Details */}
+              {expandedId === product.id && (
+                <div className="bg-amber-500/5 border-t border-neutral-700/30">
+                  {product.variants.length > 0 ? (
+                    <>
                       <div className="grid grid-cols-[1.2fr_0.8fr_0.8fr_100px] items-center px-6 py-3 pl-12">
-                        <div className="flex items-center gap-2">
-                          <span className="text-[15px] text-foreground">{variant.variant_name}</span>
-                          <AlertTriangle className="h-4 w-4 text-amber-400" />
-                        </div>
-                        <span className="text-[15px] text-muted-foreground text-center">0</span>
-                        <span className="text-[15px] text-muted-foreground text-center">0</span>
-                        <span className="text-[15px] text-foreground text-right">0</span>
+                        <span className="text-xs font-medium text-muted-foreground">Variant</span>
+                        <span className="text-xs font-medium text-muted-foreground text-center">PAR</span>
+                        <span className="text-xs font-medium text-muted-foreground text-center">Stock on Hand</span>
+                        <span className="text-xs font-medium text-muted-foreground text-right">Adjustment</span>
                       </div>
+                      {product.variants.map((variant, vIdx) => (
+                        <div key={variant.id}>
+                          {vIdx > 0 && <div className="h-px bg-neutral-700/20 ml-12 mr-6" />}
+                          <div className="grid grid-cols-[1.2fr_0.8fr_0.8fr_100px] items-center px-6 py-3 pl-12">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[15px] text-foreground">{variant.variant_name}</span>
+                              <AlertTriangle className="h-4 w-4 text-amber-400" />
+                            </div>
+                            <span className="text-[15px] text-muted-foreground text-center">0</span>
+                            <span className="text-[15px] text-muted-foreground text-center">0</span>
+                            <span className="text-[15px] text-foreground text-right">0</span>
+                          </div>
+                        </div>
+                      ))}
+                    </>
+                  ) : (
+                    <div className="grid grid-cols-[1.2fr_0.8fr_0.8fr_100px] items-center px-6 py-3 pl-12">
+                      <div className="flex items-center gap-2">
+                        <span className="text-[15px] text-foreground">Default</span>
+                        <AlertTriangle className="h-4 w-4 text-amber-400" />
+                      </div>
+                      <span className="text-[15px] text-muted-foreground text-center">0</span>
+                      <span className="text-[15px] text-muted-foreground text-center">{product.stock_count ?? 0}</span>
+                      <span className="text-[15px] text-foreground text-right">0</span>
                     </div>
-                  ))}
+                  )}
                 </div>
               )}
             </div>

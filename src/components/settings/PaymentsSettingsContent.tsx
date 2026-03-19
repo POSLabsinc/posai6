@@ -24,6 +24,7 @@ interface SettingsOptionProps {
   description?: string;
   onClick?: () => void;
   showDivider?: boolean;
+  rightText?: string;
 }
 
 const SettingsOption = ({
@@ -32,7 +33,8 @@ const SettingsOption = ({
   label,
   description,
   onClick,
-  showDivider = true
+  showDivider = true,
+  rightText
 }: SettingsOptionProps) => {
   return <div>
     <button onClick={onClick} className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity bg-neutral-800/60 rounded-2xl">
@@ -40,7 +42,11 @@ const SettingsOption = ({
         <SettingsIcon bgColor={iconBgColor} iconSrc={icon} iconAlt={label} />
         <span className="text-foreground text-base font-medium">{label}</span>
       </div>
-      <ChevronRight className="w-5 h-5 text-neutral-500" />
+      {rightText ? (
+        <span className="text-sm font-medium text-neutral-500">{rightText}</span>
+      ) : (
+        <ChevronRight className="w-5 h-5 text-neutral-500" />
+      )}
     </button>
     {description && <p className="text-neutral-500 text-xs mt-1.5 px-4 leading-relaxed">{description}</p>}
   </div>;
@@ -109,7 +115,7 @@ const PaymentsSettingsContent = ({
           <SettingsOption icon={cashManagementIcon} iconBgColor="#F80063" label="Cash Management" description="Track cash drawers, manage pay-ins and pay-outs, and handle end-of-day cash reconciliation across registers." onClick={() => onNavigate?.('/settings/payments/cash-management')} />
           <SettingsOption icon={voucherIcon} iconBgColor="#FF9500" label="Voucher" description="Sell and redeem vouchers, manage voucher types, expiry, and redemption limits at checkout." onClick={() => onNavigate?.('/voucher')} />
           <SettingsOption icon={checkoutOptionsIcon} iconBgColor="#000000" label="Checkout Options" description="Customize the checkout flow, receipt preferences, signature requirements, and order completion settings." onClick={() => onNavigate?.('/settings/payments/checkout-options')} />
-          <SettingsOption icon={paymentsHeaderIcon} iconBgColor="#F5A623" label="Payment Platform" description="The shown payment processor is being used to handle the transactions in your current device." onClick={() => onNavigate?.('/settings/payments/payment-platform')} />
+          <SettingsOption icon={paymentsHeaderIcon} iconBgColor="#F5A623" label="Payment Platform" description="The shown payment processor is being used to handle the transactions in your current device." onClick={() => onNavigate?.('/settings/payments/payment-platform')} rightText="NA" />
         </div>
       </div>
     </div>;

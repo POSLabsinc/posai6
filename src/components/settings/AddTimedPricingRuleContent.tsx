@@ -261,7 +261,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
         </div>
 
         {/* Start Date / End Date */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-6">
+        <div className="bg-neutral-800/60 rounded-2xl mt-6" style={{ overflow: 'visible' }}>
           <div className="relative flex items-center justify-between w-full py-3.5 px-4 border-b border-neutral-700/30">
             <span className="text-foreground text-[15px]">Start Date</span>
             <button

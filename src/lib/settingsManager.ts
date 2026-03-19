@@ -245,6 +245,7 @@ export interface ControlCenterSettings {
   lastRestartTime: string | null;
   autoLockTimer: string;
   switchToKDS: boolean;
+  kdsNotification: boolean;
   debugMode: boolean;
   lockAfterFailed: boolean;
   forceClockIn: boolean;
@@ -332,6 +333,7 @@ const defaultControlCenterSettings: ControlCenterSettings = {
   lastRestartTime: null,
   autoLockTimer: "30",
   switchToKDS: false,
+  kdsNotification: false,
   debugMode: false,
   lockAfterFailed: false,
   forceClockIn: false,
@@ -1217,6 +1219,7 @@ export class SettingsManager {
     summary += `- Restart App: ${controlCenter.restartApp ? `Enabled at ${controlCenter.restartTime}` : "Disabled"}\n`;
     summary += `- Auto Lock Timer: ${controlCenter.autoLockTimer === "never" ? "Never" : `${controlCenter.autoLockTimer} minutes`}\n`;
     summary += `- Switch To KDS: ${controlCenter.switchToKDS ? "Enabled" : "Disabled"}\n`;
+    summary += `- KDS Notification: ${controlCenter.kdsNotification ? "Enabled" : "Disabled"}\n`;
     summary += `- Debug Mode: ${controlCenter.debugMode ? "Enabled" : "Disabled"}\n`;
     summary += `- Lock After Failed Attempts: ${controlCenter.lockAfterFailed ? "Enabled" : "Disabled"}\n`;
     summary += `- Force Clock-In: ${controlCenter.forceClockIn ? "Enabled" : "Disabled"}\n`;
@@ -1684,6 +1687,10 @@ export function parseUserIntent(message: string): SettingsIntent {
   const controlCenterSettings: Record<string, keyof ControlCenterSettings> = {
     "kds": "switchToKDS",
     "kitchen display": "switchToKDS",
+    "kds notification": "kdsNotification",
+    "kds alert": "kdsNotification",
+    "kds sound": "kdsNotification",
+    "kitchen notification": "kdsNotification",
     "debug mode": "debugMode",
     "debug": "debugMode",
     "lock after failed": "lockAfterFailed",
@@ -2513,6 +2520,7 @@ export function executeIntent(intent: SettingsIntent): { success: boolean; messa
         lastRestartTime: "Last Restart Time",
         autoLockTimer: "Auto Lock Timer",
         switchToKDS: "Switch To KDS",
+        kdsNotification: "KDS Notification",
         debugMode: "Debug Mode",
         lockAfterFailed: "Lock After Failed Attempts",
         forceClockIn: "Force Clock-In",

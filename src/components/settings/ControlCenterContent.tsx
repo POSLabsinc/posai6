@@ -61,6 +61,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const [autoLockTimer, setAutoLockTimer] = useState(() => loadSettings().autoLockTimer);
   const [showAutoLockDropdown, setShowAutoLockDropdown] = useState(false);
   const [switchToKDS, setSwitchToKDS] = useState(() => loadSettings().switchToKDS);
+  const [kdsNotification, setKdsNotification] = useState(() => loadSettings().kdsNotification);
   const [debugMode, setDebugMode] = useState(() => loadSettings().debugMode);
   const [lockAfterFailed, setLockAfterFailed] = useState(() => loadSettings().lockAfterFailed);
   const [forceClockIn, setForceClockIn] = useState(() => loadSettings().forceClockIn);
@@ -81,6 +82,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
         setRestartApp(settings.restartApp);
         setAutoLockTimer(settings.autoLockTimer);
         setSwitchToKDS(settings.switchToKDS);
+        setKdsNotification(settings.kdsNotification);
         setDebugMode(settings.debugMode);
         setLockAfterFailed(settings.lockAfterFailed);
         setForceClockIn(settings.forceClockIn);
@@ -130,6 +132,11 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const handleSwitchToKDSChange = (value: boolean) => {
     setSwitchToKDS(value);
     updateSetting('switchToKDS', value);
+  };
+
+  const handleKdsNotificationChange = (value: boolean) => {
+    setKdsNotification(value);
+    updateSetting('kdsNotification', value);
   };
 
   const handleDebugModeChange = (value: boolean) => {
@@ -398,6 +405,16 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
                     <Switch checked={switchToKDS} onCheckedChange={handleSwitchToKDSChange} />
                   </div>
                   <p className="text-neutral-500 text-sm mt-1">Transform this device into a Kitchen Display System.</p>
+                </div>
+                <div className="h-px bg-neutral-700/50 mx-4" />
+
+                {/* KDS Notification */}
+                <div className="py-3.5 px-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground text-lg font-medium">KDS Notification</span>
+                    <Switch checked={kdsNotification} onCheckedChange={handleKdsNotificationChange} />
+                  </div>
+                  <p className="text-neutral-500 text-sm mt-1">Enable notification sounds and alerts when new orders arrive on the Kitchen Display System.</p>
                 </div>
                 <div className="h-px bg-neutral-700/50 mx-4" />
               </>

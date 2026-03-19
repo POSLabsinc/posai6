@@ -90,17 +90,22 @@ const ScheduleInformationContent = ({
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       <div className="pt-0 px-6 pb-28">
         {showHeader && (
-          <div className="flex items-center justify-between mb-6 md:hidden">
-            <button onClick={goBack} className="flex items-center gap-1 text-neutral-400">
-              <ChevronLeft className="w-5 h-5" />
-              <span className="text-sm">General</span>
-            </button>
-            <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">
+          <div className="flex items-center justify-between mb-6 md:hidden relative">
+            {onBack && (
+              <button
+                onClick={goBack}
+                className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+                aria-label="Back"
+              >
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+            )}
+            <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">
               Schedule Information
             </h1>
-            <button onClick={() => setShowSearch(!showSearch)}>
-              <Search className="w-5 h-5 text-neutral-400" />
-            </button>
+            <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+              <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+            </div>
           </div>
         )}
 

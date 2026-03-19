@@ -549,6 +549,9 @@ const getContentForRoute = (
   if (pathname === '/settings/workforce/schedule-information') {
     return <ScheduleInformationContent showHeader={true} onBack={() => navigate('/settings/workforce')} onAIClick={() => setShowAIChat(true)} />;
   }
+  if (pathname === '/settings/workforce/schedule-information/add') {
+    return <AddScheduleContent onBack={() => navigate('/settings/workforce/schedule-information')} />;
+  }
   if (pathname === '/settings/ai-assistant') {
     return <AISettingsContent showHeader={true} onBack={() => navigate('/settings')} />;
   }

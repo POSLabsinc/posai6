@@ -1329,6 +1329,7 @@ const OrderOS = () => {
   }, [showSearchInput]);
   const [filterDate, setFilterDate] = useState<Date | undefined>();
   const [autoAccept, setAutoAccept] = useState(true);
+  const [showAutoAcceptNote, setShowAutoAcceptNote] = useState(false);
   const [pauseOrders, setPauseOrders] = useState(false);
   const [prepTime, setPrepTime] = useState(10);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());

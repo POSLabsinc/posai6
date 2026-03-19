@@ -544,7 +544,7 @@ const OrderPanelContent = ({
                 <Users className="w-3 h-3 text-white/60" />
                 <span className="text-white/60 text-xs">{guestCount}</span>
               </div>
-              <span className="text-white font-bold text-sm">{selectedOrder?.id || "—"}</span>
+              <span className="text-white font-bold text-sm">{String(selectedOrder?.orderNumber || selectedOrder?.id || 0).padStart(3, '0').slice(-3)}</span>
             </div>
             <div className="flex items-center gap-1">
               <img src={runnerIcon} alt="Server" className="w-4 h-4" />

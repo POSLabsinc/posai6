@@ -245,6 +245,7 @@ export interface ControlCenterSettings {
   lastRestartTime: string | null;
   autoLockTimer: string;
   switchToKDS: boolean;
+  kdsNotification: boolean;
   debugMode: boolean;
   lockAfterFailed: boolean;
   forceClockIn: boolean;

@@ -2936,7 +2936,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 >
                   <MobileTicketCard
                     orderId={String(guest.orderNumber || 0)}
-                    checkId=000
+                    checkId={"000"}
                     guestName={guest.name}
                     tableNumber={guest.table}
                     partySize={guest.partySize}

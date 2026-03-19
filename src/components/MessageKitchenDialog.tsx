@@ -38,12 +38,11 @@ interface MessageKitchenDialogProps {
 }
 
 const MAX_LENGTH = 100;
-const WARN_THRESHOLD = 90;
-const DANGER_THRESHOLD = 95;
 
 const SUGGESTION_STORAGE_KEY = "kds_message_suggestions";
+const NOTE_DELIMITER = ' | ';
 
-const DEFAULT_SUGGESTIONS = [
+const ALL_SUGGESTIONS = [
   "86'd - Out of stock",
   "Rush this order",
   "Hold this order",
@@ -52,9 +51,6 @@ const DEFAULT_SUGGESTIONS = [
   "VIP guest",
   "Remake needed",
   "Low stock warning",
-];
-
-const EXTENDED_SUGGESTIONS = [
   "Cooking now",
   "Need more time",
   "Ready in 5 minutes",
@@ -101,56 +97,7 @@ const recordSuggestionUse = (text: string) => {
     history.push({ text, count: 1 });
   }
   history.sort((a, b) => b.count - a.count);
-  localStorage.setItem(SUGGESTION_STORAGE_KEY, JSON.stringify(history.slice(0, 30)));
-};
-
-const SuggestionChips = ({ message, onSelect }: { message: string; onSelect: (text: string) => void }) => {
-  const history = useMemo(() => getSuggestionHistory(), []);
-
-  const allPool = useMemo(() => {
-    const pool: { text: string; count: number }[] = [];
-    const seen = new Set<string>();
-    for (const h of history) {
-      pool.push(h);
-      seen.add(h.text.toLowerCase());
-    }
-    for (const d of [...DEFAULT_SUGGESTIONS, ...EXTENDED_SUGGESTIONS]) {
-      const lower = d.toLowerCase();
-      if (!seen.has(lower)) {
-        pool.push({ text: d, count: 0 });
-        seen.add(lower);
-      }
-    }
-    pool.sort((a, b) => b.count - a.count);
-    return pool;
-  }, [history]);
-
-  const chips = useMemo(() => {
-    const trimmed = message.trim().toLowerCase();
-    if (trimmed.length === 0) {
-      return allPool.slice(0, 8);
-    }
-    return allPool
-      .filter(s => s.text.toLowerCase().includes(trimmed) && s.text.toLowerCase() !== trimmed)
-      .slice(0, 8);
-  }, [message, allPool]);
-
-  if (chips.length === 0) return null;
-
-  return (
-    <div className="flex flex-wrap gap-1.5 mt-1">
-      {chips.map((chip) => (
-        <button
-          key={chip.text}
-          type="button"
-          onClick={() => onSelect(chip.text)}
-          className="px-2.5 py-1 text-xs rounded-full bg-neutral-700/70 text-neutral-300 hover:bg-orange-500/20 hover:text-orange-400 border border-neutral-600/50 hover:border-orange-500/40 transition-colors truncate max-w-[200px]"
-        >
-          {chip.text}
-        </button>
-      ))}
-    </div>
-  );
+  localStorage.setItem(SUGGESTION_STORAGE_KEY, JSON.stringify(history.slice(0, 50)));
 };
 
 type LinkTab = "orders" | "tables";

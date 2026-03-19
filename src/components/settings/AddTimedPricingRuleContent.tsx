@@ -5,7 +5,7 @@ import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
 import { AppleWheelDatePicker } from "@/components/ui/apple-wheel-date-picker";
-import { createPortal } from "react-dom";
+
 import { supabase } from "@/integrations/supabase/client";
 
 type RuleType = "happy_hour" | "peak_time" | "late_night" | "custom";
@@ -183,7 +183,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
     );
   };
 
-  const renderDatePicker = (isStart: boolean) => {
+  const renderInlineDatePicker = (isStart: boolean) => {
     const show = isStart ? showStartDatePicker : showEndDatePicker;
     if (!show) return null;
     const current = isStart ? startDate : endDate;
@@ -202,19 +202,15 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
       );
     }
 
-    return createPortal(
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60" onClick={close}>
-        <div className="bg-neutral-900 rounded-2xl p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-          <AppleWheelDatePicker
-            isOpen
-            onClose={close}
-            onConfirm={close}
-            selectedDate={current}
-            onDateChange={(d) => setDate(d)}
-          />
-        </div>
-      </div>,
-      document.body
+    return (
+      <AppleWheelDatePicker
+        isOpen
+        mode="inline"
+        onClose={close}
+        onConfirm={close}
+        selectedDate={current}
+        onDateChange={(d) => setDate(d)}
+      />
     );
   };
 
@@ -266,26 +262,28 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
 
         {/* Start Date / End Date */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-6">
-          <button
-            onClick={() => setShowStartDatePicker(true)}
-            className="flex items-center justify-between w-full py-3.5 px-4 border-b border-neutral-700/30 active:opacity-70 transition-opacity"
-          >
+          <div className="relative flex items-center justify-between w-full py-3.5 px-4 border-b border-neutral-700/30">
             <span className="text-foreground text-[15px]">Start Date</span>
-            <div className="flex items-center gap-1">
+            <button
+              onClick={() => { setShowStartDatePicker(!showStartDatePicker); setShowEndDatePicker(false); }}
+              className="flex items-center gap-1 active:opacity-70 transition-opacity"
+            >
               <span className="text-neutral-400 text-[15px]">{formatDate(startDate)}</span>
               <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
-            </div>
-          </button>
-          <button
-            onClick={() => setShowEndDatePicker(true)}
-            className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
-          >
+            </button>
+            {renderInlineDatePicker(true)}
+          </div>
+          <div className="relative flex items-center justify-between w-full py-3.5 px-4">
             <span className="text-foreground text-[15px]">End Date</span>
-            <div className="flex items-center gap-1">
+            <button
+              onClick={() => { setShowEndDatePicker(!showEndDatePicker); setShowStartDatePicker(false); }}
+              className="flex items-center gap-1 active:opacity-70 transition-opacity"
+            >
               <span className="text-neutral-400 text-[15px]">{formatDate(endDate)}</span>
               <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
-            </div>
-          </button>
+            </button>
+            {renderInlineDatePicker(false)}
+          </div>
         </div>
 
         {/* Days Schedule Table */}
@@ -371,8 +369,6 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
       </div>
 
       
-      {renderDatePicker(true)}
-      {renderDatePicker(false)}
     </div>
   );
 };

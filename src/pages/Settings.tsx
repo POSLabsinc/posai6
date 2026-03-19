@@ -444,6 +444,9 @@ const getContentForRoute = (
     } catch {}
     return <AddTimedPricingRuleContent onBack={() => navigate('/settings/menu/timed-pricing')} onSave={() => {}} editRule={editRule} />;
   }
+  if (pathname === '/settings/menu/inventory') {
+    return <InventoryContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
+  }
   if (pathname === '/settings/support') {
     return <SupportContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }

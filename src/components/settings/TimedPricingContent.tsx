@@ -145,33 +145,24 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
           </section>
 
           <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
-            <div className="grid grid-cols-[1.2fr_110px_140px_100px_80px_60px] items-center px-8 py-5 border-b border-neutral-700/50">
-              <span className="text-[15px] font-semibold text-foreground">Rule Name</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Type</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Schedule</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Days</span>
-              <span className="text-[15px] font-semibold text-foreground text-right">Adjust</span>
-              <span className="text-[15px] font-semibold text-foreground text-right">Active</span>
+            <div className="grid grid-cols-[1.5fr_1fr_1fr_1.2fr_32px] items-center px-8 py-4 border-b border-neutral-700/50">
+              <span className="text-sm font-medium text-muted-foreground">Timed Pricing Name</span>
+              <span className="text-sm font-medium text-muted-foreground">Start Date</span>
+              <span className="text-sm font-medium text-muted-foreground">End Date</span>
+              <span className="text-sm font-medium text-muted-foreground text-right">Days</span>
+              <span />
             </div>
 
             {filteredRules.length > 0 ? (
               filteredRules.map((rule, index) => (
                 <div key={rule.id}>
-                  {index > 0 && <div className="h-px bg-neutral-700/50" />}
-                  <button onClick={() => navigate(`/settings/menu/timed-pricing/edit/${rule.id}`)} className="grid grid-cols-[1.2fr_110px_140px_100px_80px_60px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors cursor-pointer">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: typeColors[rule.type] }} />
-                      <span className="text-[15px] text-foreground">{rule.name}</span>
-                    </div>
-                    <span className="text-[15px] text-foreground text-center">{typeLabels[rule.type]}</span>
-                    <span className="text-[15px] text-muted-foreground text-center">{rule.startTime} – {rule.endTime}</span>
-                    <span className="text-[15px] text-muted-foreground text-center">{rule.days.length === 7 ? "Every day" : rule.days.join(", ")}</span>
-                    <span className="text-[15px] font-medium text-right" style={{ color: rule.adjustment < 0 ? "#34C759" : "#FF9500" }}>
-                      {rule.adjustment > 0 ? "+" : ""}{rule.adjustment}%
-                    </span>
-                    <div className="flex justify-end">
-                      <Switch checked={rule.enabled} onCheckedChange={(checked) => handleToggle(rule.id, checked)} />
-                    </div>
+                  {index > 0 && <div className="h-px bg-neutral-700/30" />}
+                  <button onClick={() => navigate(`/settings/menu/timed-pricing/edit/${rule.id}`)} className="grid grid-cols-[1.5fr_1fr_1fr_1.2fr_32px] items-center px-8 py-5 w-full hover:bg-neutral-700/20 transition-colors cursor-pointer">
+                    <span className="text-[15px] text-foreground text-left">{rule.name}</span>
+                    <span className="text-[15px] text-muted-foreground">{rule.startTime}</span>
+                    <span className="text-[15px] text-muted-foreground">{rule.endTime}</span>
+                    <span className="text-[15px] text-muted-foreground text-right">{rule.days.length === 7 ? "Mon, Tue, Wed, Thu, Fri, Sat, Sun" : rule.days.join(", ")}</span>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground justify-self-end" />
                   </button>
                 </div>
               ))

@@ -599,7 +599,6 @@ export function DiscountDialog({
       >
         <div className="p-4 pb-2 border-b border-sidebar-border">
           <h3 className="text-sm font-semibold text-foreground">Select Reason</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">{selected100Discount.name}</p>
         </div>
         <div className="flex-1 overflow-y-auto scrollbar-hide">
           {renderReasonSection(selected100Discount)}

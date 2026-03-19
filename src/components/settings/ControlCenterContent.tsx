@@ -61,6 +61,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const [autoLockTimer, setAutoLockTimer] = useState(() => loadSettings().autoLockTimer);
   const [showAutoLockDropdown, setShowAutoLockDropdown] = useState(false);
   const [switchToKDS, setSwitchToKDS] = useState(() => loadSettings().switchToKDS);
+  const [kdsNotification, setKdsNotification] = useState(() => loadSettings().kdsNotification);
   const [debugMode, setDebugMode] = useState(() => loadSettings().debugMode);
   const [lockAfterFailed, setLockAfterFailed] = useState(() => loadSettings().lockAfterFailed);
   const [forceClockIn, setForceClockIn] = useState(() => loadSettings().forceClockIn);

@@ -46,6 +46,7 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedStock, setSelectedStock] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

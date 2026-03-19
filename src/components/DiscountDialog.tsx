@@ -444,7 +444,7 @@ export function DiscountDialog({
                 }}
               />
               <p className="text-[10px] text-muted-foreground text-right mt-0.5">
-                {currentComment.length}/200
+                {currentComment.length}/100
               </p>
 
               {/* Smart suggestions while typing */}

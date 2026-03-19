@@ -44,6 +44,7 @@ import GroupsContent from "@/components/settings/GroupsContent";
 import AddGroupContent from "@/components/settings/AddGroupContent";
 import EditGroupContent from "@/components/settings/EditGroupContent";
 import TimedPricingContent from "@/components/settings/TimedPricingContent";
+import InventoryContent from "@/components/settings/InventoryContent";
 import AddTimedPricingRuleContent from "@/components/settings/AddTimedPricingRuleContent";
 import AISettingsContent from "@/components/settings/AISettingsContent";
 import SupportContent from "@/components/settings/SupportContent";

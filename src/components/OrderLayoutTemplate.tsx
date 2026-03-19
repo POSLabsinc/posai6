@@ -90,7 +90,7 @@ const OrderLayoutTemplate = ({
         <div className="flex-shrink-0 px-2 py-2 flex items-center">
            <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
             <span className="text-lg font-bold text-white">{String(order.id)}</span>
-            <span className="text-[9px] text-gray-500">{String(order.check).slice(0, 3) || '000'}</span>
+            <span className="text-[9px] text-gray-500">000</span>
           </div>
         </div>
 
@@ -138,7 +138,7 @@ const OrderLayoutTemplate = ({
           {/* Order Number Box */}
           <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
             <span className="text-lg font-bold text-white">{String(order.id)}</span>
-            <span className="text-xs text-white/40">{String(order.check).slice(0, 3) || '000'}</span>
+            <span className="text-xs text-white/40">000</span>
           </div>
 
           {/* Main Content - 3 rows with 45%/35%/20% ratio */}

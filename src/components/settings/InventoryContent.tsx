@@ -82,12 +82,13 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
+      if (searchQuery && !p.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       if (selectedCategory !== "all" && p.category_id !== selectedCategory) return false;
       if (selectedStock === "in-stock" && (p.stock_count === null || p.stock_count <= 0)) return false;
       if (selectedStock === "out-of-stock" && p.stock_count !== 0 && p.is_available) return false;
       return true;
     });
-  }, [products, selectedStock, selectedCategory]);
+  }, [products, selectedStock, selectedCategory, searchQuery]);
 
   const stockCount = useMemo(() => products.length, [products]);
   const categoryCount = useMemo(() => categories.length, [categories]);

@@ -1132,7 +1132,7 @@ const Dashboard = () => {
             <div className="flex items-stretch w-full p-3">
               <div className="flex-shrink-0 px-2 py-2 flex items-center">
                 <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                  <span className="text-lg font-bold text-white">{String(parentOrder.orderNumber || parentOrder.id)}</span>
+                  <span className="text-lg font-bold text-white">{String(parentOrder.orderNumber || 0)}</span>
                   <span className="text-[9px] text-gray-500">{checkLetter}</span>
                 </div>
               </div>

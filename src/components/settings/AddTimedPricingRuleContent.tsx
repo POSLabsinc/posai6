@@ -67,7 +67,12 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
 
   const [showNameInput, setShowNameInput] = useState(false);
   const [copiedDay, setCopiedDay] = useState<string | null>(null);
-  const [activeTimePicker, setActiveTimePicker] = useState<{ day: string; field: "startTime" | "endTime" } | null>(null);
+  const [activeTimePicker, setActiveTimePicker] = useState<{
+    day: string;
+    field: "startTime" | "endTime";
+    top: number;
+    left: number;
+  } | null>(null);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
@@ -167,10 +172,18 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
       );
     }
 
+    const pickerLeft = typeof window !== "undefined"
+      ? Math.min(Math.max(activeTimePicker.left, 170), window.innerWidth - 170)
+      : activeTimePicker.left;
+
     return (
       <>
         <div className="fixed inset-0 z-[99]" onClick={() => setActiveTimePicker(null)} />
-        <div className="absolute top-full mt-1 left-1/2 -translate-x-1/2 z-[100]" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed z-[100]"
+          style={{ top: activeTimePicker.top, left: pickerLeft, transform: "translate(-50%, -50%)" }}
+          onClick={(e) => e.stopPropagation()}
+        >
           <AppleWheelTimePicker
             isOpen
             compact
@@ -261,7 +274,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
         </div>
 
         {/* Start Date / End Date */}
-        <div className="bg-neutral-800/60 rounded-2xl mt-6" style={{ overflow: 'visible' }}>
+        <div className="bg-neutral-800/60 rounded-2xl mt-6" style={{ overflow: "visible" }}>
           <div className="relative flex items-center justify-between w-full py-3.5 px-4 border-b border-neutral-700/30">
             <span className="text-foreground text-[15px]">Start Date</span>
             <button
@@ -287,7 +300,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
         </div>
 
         {/* Days Schedule Table */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-6">
+        <div className="bg-neutral-800/60 rounded-2xl mt-6" style={{ overflow: "visible" }}>
           {/* Table Header */}
           <div className="grid grid-cols-[44px_1fr_1fr_1fr_68px] items-center px-4 py-3 border-b border-neutral-700/30">
             <span />
@@ -321,7 +334,15 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
                 {/* Start Time */}
                 <div className="relative flex justify-center">
                   <button
-                    onClick={() => setActiveTimePicker({ day, field: "startTime" })}
+                    onClick={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setActiveTimePicker({
+                        day,
+                        field: "startTime",
+                        top: rect.top + rect.height / 2,
+                        left: rect.left + rect.width / 2,
+                      });
+                    }}
                     className={`text-[15px] text-center active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
                   >
                     {daySchedules[day].startTime}
@@ -332,7 +353,15 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
                 {/* End Time */}
                 <div className="relative flex justify-end">
                   <button
-                    onClick={() => setActiveTimePicker({ day, field: "endTime" })}
+                    onClick={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect();
+                      setActiveTimePicker({
+                        day,
+                        field: "endTime",
+                        top: rect.top + rect.height / 2,
+                        left: rect.left + rect.width / 2,
+                      });
+                    }}
                     className={`text-[15px] text-right active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
                   >
                     {daySchedules[day].endTime}

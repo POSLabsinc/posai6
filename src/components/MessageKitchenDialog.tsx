@@ -184,7 +184,8 @@ const getStatusColor = (status: string) => {
 };
 
 const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff" }: MessageKitchenDialogProps) => {
-  const [message, setMessage] = useState("");
+  const [messageChips, setMessageChips] = useState<string[]>([]);
+  const [chipInput, setChipInput] = useState("");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [selectedTableKey, setSelectedTableKey] = useState<string | null>(null);
   const [sending, setSending] = useState(false);

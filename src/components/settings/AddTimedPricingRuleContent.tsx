@@ -67,7 +67,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
 
   const [showNameInput, setShowNameInput] = useState(false);
   const [copiedDay, setCopiedDay] = useState<string | null>(null);
-  const [activeTimePicker, setActiveTimePicker] = useState<{ day: string; field: "startTime" | "endTime" } | null>(null);
+  const [activeTimePicker, setActiveTimePicker] = useState<{ day: string; field: "startTime" | "endTime"; x: number; y: number } | null>(null);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
@@ -169,8 +169,12 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
     }
 
     return createPortal(
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60" onClick={() => setActiveTimePicker(null)}>
-        <div className="bg-neutral-900 rounded-2xl p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="fixed inset-0 z-[9999]" onClick={() => setActiveTimePicker(null)}>
+        <div
+          className="absolute bg-neutral-900/95 backdrop-blur-sm rounded-xl shadow-2xl border border-neutral-700/50 overflow-hidden"
+          style={{ left: activeTimePicker.x, top: activeTimePicker.y, transform: "scale(0.8)", transformOrigin: "top left" }}
+          onClick={(e) => e.stopPropagation()}
+        >
           <AppleWheelTimePicker
             isOpen
             onClose={() => setActiveTimePicker(null)}
@@ -322,7 +326,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
 
                 {/* Start Time */}
                 <button
-                  onClick={() => setActiveTimePicker({ day, field: "startTime" })}
+                  onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); setActiveTimePicker({ day, field: "startTime", x: rect.left, y: rect.bottom + 4 }); }}
                   className={`text-[15px] text-center active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
                 >
                   {daySchedules[day].startTime}
@@ -330,7 +334,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
 
                 {/* End Time */}
                 <button
-                  onClick={() => setActiveTimePicker({ day, field: "endTime" })}
+                  onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); setActiveTimePicker({ day, field: "endTime", x: rect.left, y: rect.bottom + 4 }); }}
                   className={`text-[15px] text-right active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
                 >
                   {daySchedules[day].endTime}

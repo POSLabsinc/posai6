@@ -324,12 +324,13 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
             }} />
           </div>
           <div className="h-px bg-border mx-4" />
+          <button onClick={() => setShowEmployeePicker(true)} className="w-full flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-base">Send Daily Reports</span>
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground text-sm">{selectedEmployees.length > 0 ? `${selectedEmployees.length} Selected` : "Select"}</span>
               <ChevronRight size={18} className="text-muted-foreground" />
             </div>
-        </button>
+          </button>
         </div>
         <p className="text-muted-foreground text-xs px-4 mb-6">Automatically generate and distribute end-of-day reports to selected recipients.</p>
       </div>

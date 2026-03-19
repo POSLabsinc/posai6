@@ -255,15 +255,42 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     setLoadingOrders(false);
   };
 
-  const trimmedMessage = message.trim();
-  const charCount = message.length;
-  const canSend = trimmedMessage.length > 0 && !sending;
+  const composedMessage = messageChips.join(", ");
+  const trimmedMessage = composedMessage.trim();
+  const charCount = composedMessage.length;
+  const canSend = messageChips.length > 0 && !sending;
 
   const counterColorClass = useMemo(() => {
     if (charCount >= DANGER_THRESHOLD) return "text-destructive";
     if (charCount >= WARN_THRESHOLD) return "text-orange-400";
     return "text-neutral-500";
   }, [charCount]);
+
+  const addChip = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    if (messageChips.some(c => c.toLowerCase() === trimmed.toLowerCase())) return;
+    const newChips = [...messageChips, trimmed];
+    const newComposed = newChips.join(", ");
+    if (newComposed.length > MAX_LENGTH) return; // prevent exceeding limit
+    setMessageChips(newChips);
+    setChipInput("");
+    setFieldError(null);
+  };
+
+  const removeChip = (index: number) => {
+    setMessageChips(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleChipInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addChip(chipInput);
+    }
+    if (e.key === "Backspace" && chipInput === "" && messageChips.length > 0) {
+      removeChip(messageChips.length - 1);
+    }
+  };
 
   const filteredOrders = useMemo(() => {
     if (!orderSearch.trim()) return activeOrders;

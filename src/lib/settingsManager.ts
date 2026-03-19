@@ -2520,6 +2520,7 @@ export function executeIntent(intent: SettingsIntent): { success: boolean; messa
         lastRestartTime: "Last Restart Time",
         autoLockTimer: "Auto Lock Timer",
         switchToKDS: "Switch To KDS",
+        kdsNotification: "KDS Notification",
         debugMode: "Debug Mode",
         lockAfterFailed: "Lock After Failed Attempts",
         forceClockIn: "Force Clock-In",

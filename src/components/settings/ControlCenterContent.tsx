@@ -407,6 +407,16 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
                   <p className="text-neutral-500 text-sm mt-1">Transform this device into a Kitchen Display System.</p>
                 </div>
                 <div className="h-px bg-neutral-700/50 mx-4" />
+
+                {/* KDS Notification */}
+                <div className="py-3.5 px-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground text-lg font-medium">KDS Notification</span>
+                    <Switch checked={kdsNotification} onCheckedChange={handleKdsNotificationChange} />
+                  </div>
+                  <p className="text-neutral-500 text-sm mt-1">Enable notification sounds and alerts when new orders arrive on the Kitchen Display System.</p>
+                </div>
+                <div className="h-px bg-neutral-700/50 mx-4" />
               </>
             )}
 

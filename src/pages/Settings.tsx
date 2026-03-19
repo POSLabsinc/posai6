@@ -79,6 +79,7 @@ import AddShiftContent from "@/components/settings/AddShiftContent";
 import EditShiftContent from "@/components/settings/EditShiftContent";
 import AddEventContent from "@/components/settings/AddEventContent";
 import ScheduleInformationContent from "@/components/settings/ScheduleInformationContent";
+import AddScheduleContent from "@/components/settings/AddScheduleContent";
 import AddOpenShiftContent from "@/components/settings/AddOpenShiftContent";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -547,6 +548,9 @@ const getContentForRoute = (
   }
   if (pathname === '/settings/workforce/schedule-information') {
     return <ScheduleInformationContent showHeader={true} onBack={() => navigate('/settings/workforce')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/workforce/schedule-information/add') {
+    return <AddScheduleContent onBack={() => navigate('/settings/workforce/schedule-information')} />;
   }
   if (pathname === '/settings/ai-assistant') {
     return <AISettingsContent showHeader={true} onBack={() => navigate('/settings')} />;

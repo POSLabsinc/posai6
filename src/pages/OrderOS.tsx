@@ -3462,7 +3462,13 @@ const OrderOS = () => {
                   <span className="text-white/50 text-[10px]">Auto</span>
                   <span className="text-white/50 text-[10px]">Accept</span>
                 </div>
-                <Switch checked={autoAccept} onCheckedChange={setAutoAccept} />
+                <Switch checked={autoAccept} onCheckedChange={(checked) => {
+                  if (checked) {
+                    setShowAutoAcceptNote(true);
+                  } else {
+                    setAutoAccept(false);
+                  }
+                }} />
               </div>
               
               {/* Pause Orders Toggle */}

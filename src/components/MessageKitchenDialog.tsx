@@ -55,6 +55,35 @@ const DEFAULT_SUGGESTIONS = [
   "Low stock warning",
 ];
 
+const EXTENDED_SUGGESTIONS = [
+  "Cooking now",
+  "Need more time",
+  "Ready in 5 minutes",
+  "Ready in 10 minutes",
+  "Customer waiting",
+  "Special request",
+  "Extra sauce on the side",
+  "No onions",
+  "Make it spicy",
+  "Double portion",
+  "Gluten free needed",
+  "Dairy free needed",
+  "Check temperature",
+  "Plate presentation important",
+  "Send appetizers first",
+  "Hold dessert",
+  "Table is ready",
+  "Guest arriving soon",
+  "Comp this order",
+  "Manager approval needed",
+  "Out of ingredient",
+  "Substitute needed",
+  "Delay on this order",
+  "Priority order",
+  "Catering order",
+  "Large party incoming",
+];
+
 const getSuggestionHistory = (): { text: string; count: number }[] => {
   try {
     return JSON.parse(localStorage.getItem(SUGGESTION_STORAGE_KEY) || "[]");

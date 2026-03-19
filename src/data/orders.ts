@@ -559,6 +559,7 @@ export interface DashboardOrderItem {
 // Dashboard order interface
 export interface DashboardOrder {
   id: number;
+  orderNumber?: number;
   status: string;
   statusColor: string;
   filterCategory: string;
@@ -631,6 +632,7 @@ export const toDashboardOrder = (order: Order): DashboardOrder => {
   
   return {
     id: Number(order.id),
+    orderNumber: order.orderNumber || 0,
     status: order.status,
     statusColor: getStatusColorHex(order.status),
     filterCategory: getFilterCategory(order.status),

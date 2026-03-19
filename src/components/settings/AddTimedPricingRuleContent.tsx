@@ -193,8 +193,9 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
         <AppleWheelDatePicker
           isOpen
           onClose={close}
-          onConfirm={(d) => { setDate(d); close(); }}
+          onConfirm={close}
           selectedDate={current}
+          onDateChange={(d) => setDate(d)}
         />
       );
     }
@@ -205,8 +206,9 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
           <AppleWheelDatePicker
             isOpen
             onClose={close}
-            onConfirm={(d) => { setDate(d); close(); }}
+            onConfirm={close}
             selectedDate={current}
+            onDateChange={(d) => setDate(d)}
           />
         </div>
       </div>,

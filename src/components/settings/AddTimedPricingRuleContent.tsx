@@ -1,10 +1,10 @@
 import { useState } from "react";
-import { ChevronLeft, Plus, Minus, Clock } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
+import { ChevronLeft, ChevronRight, Check, Copy } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
+import { AppleWheelDatePicker } from "@/components/ui/apple-wheel-date-picker";
 import { createPortal } from "react-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -27,54 +27,97 @@ interface AddTimedPricingRuleContentProps {
   editRule?: TimedPricingRule | null;
 }
 
-const dayLabels = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const allDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+const dayAbbrev: Record<string, string> = {
+  Monday: "Mon", Tuesday: "Tue", Wednesday: "Wed", Thursday: "Thu",
+  Friday: "Fri", Saturday: "Sat", Sunday: "Sun",
+};
 
-const typeOptions: { value: RuleType; label: string; color: string }[] = [
-  { value: "happy_hour", label: "Happy Hour", color: "#34C759" },
-  { value: "peak_time", label: "Peak Time", color: "#FF9500" },
-  { value: "late_night", label: "Late Night", color: "#AF52DE" },
-  { value: "custom", label: "Custom", color: "#0088FF" },
-];
+const formatDate = (d: Date) =>
+  `${String(d.getMonth() + 1).padStart(2, "0")}/${String(d.getDate()).padStart(2, "0")}/${d.getFullYear()}`;
+
+interface DaySchedule {
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
+}
+
+const defaultSchedule = (): Record<string, DaySchedule> =>
+  Object.fromEntries(allDays.map((d) => [d, { enabled: true, startTime: "12:00 AM", endTime: "11:59 PM" }]));
 
 const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricingRuleContentProps) => {
   const isMobile = useIsMobile();
   const isEditing = !!editRule;
 
   const [name, setName] = useState(editRule?.name ?? "");
-  const [type, setType] = useState<RuleType>(editRule?.type ?? "happy_hour");
-  const [startTime, setStartTime] = useState(editRule?.startTime ?? "4:00 PM");
-  const [endTime, setEndTime] = useState(editRule?.endTime ?? "6:00 PM");
-  const [adjustment, setAdjustment] = useState(editRule?.adjustment ?? -10);
-  const [days, setDays] = useState<string[]>(editRule?.days ?? ["Mon", "Tue", "Wed", "Thu", "Fri"]);
-  const [enabled, setEnabled] = useState(editRule?.enabled ?? true);
+  const [revenueCenter, setRevenueCenter] = useState("");
+  const [orderingSource, setOrderingSource] = useState("");
+  const [startDate, setStartDate] = useState<Date>(new Date());
+  const [endDate, setEndDate] = useState<Date>(new Date());
+  const [daySchedules, setDaySchedules] = useState<Record<string, DaySchedule>>(() => {
+    if (editRule?.days) {
+      const s = defaultSchedule();
+      Object.keys(s).forEach((d) => {
+        s[d].enabled = editRule.days.includes(dayAbbrev[d]);
+      });
+      return s;
+    }
+    return defaultSchedule();
+  });
 
-  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
-  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+  const [showNameInput, setShowNameInput] = useState(false);
+  const [activeTimePicker, setActiveTimePicker] = useState<{ day: string; field: "startTime" | "endTime" } | null>(null);
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
 
   const toggleDay = (day: string) => {
-    setDays((prev) =>
-      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
-    );
+    setDaySchedules((prev) => ({
+      ...prev,
+      [day]: { ...prev[day], enabled: !prev[day].enabled },
+    }));
+  };
+
+  const updateDayTime = (day: string, field: "startTime" | "endTime", value: string) => {
+    setDaySchedules((prev) => ({
+      ...prev,
+      [day]: { ...prev[day], [field]: value },
+    }));
+  };
+
+  const copySchedule = (fromDay: string) => {
+    const source = daySchedules[fromDay];
+    setDaySchedules((prev) => {
+      const next = { ...prev };
+      allDays.forEach((d) => {
+        if (d !== fromDay) {
+          next[d] = { ...next[d], startTime: source.startTime, endTime: source.endTime };
+        }
+      });
+      return next;
+    });
+    toast({ description: `Copied ${fromDay}'s schedule to all days` });
   };
 
   const handleSave = async () => {
     if (!name.trim()) {
-      toast({ title: "Error", description: "Please enter a rule name", variant: "destructive" });
+      toast({ title: "Error", description: "Please enter a name", variant: "destructive" });
       return;
     }
-    if (days.length === 0) {
+    const enabledDays = allDays.filter((d) => daySchedules[d].enabled).map((d) => dayAbbrev[d]);
+    if (enabledDays.length === 0) {
       toast({ title: "Error", description: "Please select at least one day", variant: "destructive" });
       return;
     }
 
+    const firstEnabled = allDays.find((d) => daySchedules[d].enabled)!;
     const ruleData = {
       name: name.trim(),
-      type,
-      start_time: startTime,
-      end_time: endTime,
-      adjustment,
-      days,
-      enabled,
+      type: "custom" as RuleType,
+      start_time: daySchedules[firstEnabled].startTime,
+      end_time: daySchedules[firstEnabled].endTime,
+      adjustment: 0,
+      days: enabledDays,
+      enabled: true,
     };
 
     if (isEditing && editRule) {
@@ -94,59 +137,94 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
     const rule: TimedPricingRule = {
       id: editRule?.id ?? "",
       name: name.trim(),
-      type,
-      startTime,
-      endTime,
-      adjustment,
-      days,
-      enabled,
+      type: "custom",
+      startTime: ruleData.start_time,
+      endTime: ruleData.end_time,
+      adjustment: 0,
+      days: enabledDays,
+      enabled: true,
     };
 
     onSave(rule);
-    toast({ title: isEditing ? "Rule Updated" : "Rule Created", description: `"${rule.name}" has been ${isEditing ? "updated" : "created"} successfully.` });
+    toast({ description: `"${rule.name}" has been ${isEditing ? "updated" : "created"} successfully.` });
     onBack();
   };
 
-  const selectedTypeOption = typeOptions.find((t) => t.value === type)!;
+  const renderTimePicker = () => {
+    if (!activeTimePicker) return null;
+    const { day, field } = activeTimePicker;
+    const currentTime = daySchedules[day][field];
 
-  const timePickerPortal = (
-    <>
-      {isMobile ? (
-        <>
-          <AppleWheelTimePicker isOpen={showStartTimePicker} onClose={() => setShowStartTimePicker(false)} onConfirm={(time) => { setStartTime(time); setShowStartTimePicker(false); }} selectedTime={startTime} />
-          <AppleWheelTimePicker isOpen={showEndTimePicker} onClose={() => setShowEndTimePicker(false)} onConfirm={(time) => { setEndTime(time); setShowEndTimePicker(false); }} selectedTime={endTime} />
-        </>
-      ) : (
-        <>
-          {showStartTimePicker && createPortal(
-            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60" onClick={() => setShowStartTimePicker(false)}>
-              <div className="bg-neutral-900 rounded-2xl p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                <AppleWheelTimePicker isOpen onClose={() => setShowStartTimePicker(false)} onConfirm={(time) => { setStartTime(time); setShowStartTimePicker(false); }} selectedTime={startTime} />
-              </div>
-            </div>,
-            document.body
-          )}
-          {showEndTimePicker && createPortal(
-            <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60" onClick={() => setShowEndTimePicker(false)}>
-              <div className="bg-neutral-900 rounded-2xl p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-                <AppleWheelTimePicker isOpen onClose={() => setShowEndTimePicker(false)} onConfirm={(time) => { setEndTime(time); setShowEndTimePicker(false); }} selectedTime={endTime} />
-              </div>
-            </div>,
-            document.body
-          )}
-        </>
-      )}
-    </>
-  );
+    if (isMobile) {
+      return (
+        <AppleWheelTimePicker
+          isOpen
+          onClose={() => setActiveTimePicker(null)}
+          onConfirm={(time) => { updateDayTime(day, field, time); setActiveTimePicker(null); }}
+          selectedTime={currentTime}
+        />
+      );
+    }
+
+    return createPortal(
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60" onClick={() => setActiveTimePicker(null)}>
+        <div className="bg-neutral-900 rounded-2xl p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <AppleWheelTimePicker
+            isOpen
+            onClose={() => setActiveTimePicker(null)}
+            onConfirm={(time) => { updateDayTime(day, field, time); setActiveTimePicker(null); }}
+            selectedTime={currentTime}
+          />
+        </div>
+      </div>,
+      document.body
+    );
+  };
+
+  const renderDatePicker = (isStart: boolean) => {
+    const show = isStart ? showStartDatePicker : showEndDatePicker;
+    if (!show) return null;
+    const current = isStart ? startDate : endDate;
+    const setDate = isStart ? setStartDate : setEndDate;
+    const close = () => isStart ? setShowStartDatePicker(false) : setShowEndDatePicker(false);
+
+    if (isMobile) {
+      return (
+        <AppleWheelDatePicker
+          isOpen
+          onClose={close}
+          onConfirm={close}
+          selectedDate={current}
+          onDateChange={(d) => setDate(d)}
+        />
+      );
+    }
+
+    return createPortal(
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60" onClick={close}>
+        <div className="bg-neutral-900 rounded-2xl p-4 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <AppleWheelDatePicker
+            isOpen
+            onClose={close}
+            onConfirm={close}
+            selectedDate={current}
+            onDateChange={(d) => setDate(d)}
+          />
+        </div>
+      </div>,
+      document.body
+    );
+  };
 
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">
+      {/* Header */}
       <div className="flex items-center justify-between py-4 px-4 relative">
         <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
           <ChevronLeft className="w-5 h-5 text-foreground" />
         </button>
         <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">
-          {isEditing ? "Edit Rule" : "Add Rule"}
+          {isEditing ? "Edit Timed Pricing" : "Add Timed Pricing"}
         </h1>
         <button onClick={handleSave} className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium active:opacity-70 transition-opacity">
           Save
@@ -154,126 +232,127 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
       </div>
 
       <div className="flex-1 overflow-y-auto scrollbar-hide pt-0 px-6 pb-28">
-        <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">Rule Type</span>
-          <div className="grid grid-cols-2 gap-3">
-            {typeOptions.map((opt) => (
-              <button key={opt.value} onClick={() => setType(opt.value)} className={`flex items-center gap-3 py-3.5 px-4 rounded-2xl transition-all ${type === opt.value ? "bg-neutral-800/80" : "bg-neutral-800/40"}`} style={type === opt.value ? { boxShadow: `0 0 0 2px ${opt.color}` } : {}}>
-                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: opt.color + "22" }}>
-                  <Clock className="w-4 h-4" style={{ color: opt.color }} />
-                </div>
-                <span className="text-foreground text-[15px] font-medium">{opt.label}</span>
-              </button>
-            ))}
-          </div>
-        </div>
-        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">Select the type of pricing rule.</p>
-
-        <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">Rule Details</span>
-          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-            <div className="flex items-center justify-between py-3.5 px-4 border-b border-neutral-700/50">
-              <span className="text-foreground text-[15px]">Rule Name</span>
-              <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Enter Name" className="bg-transparent border-none text-right text-neutral-400 placeholder:text-neutral-500 w-40 h-auto p-0 focus-visible:ring-0" />
-            </div>
-            <div className="flex items-center justify-between py-3.5 px-4">
-              <span className="text-foreground text-[15px]">Enabled</span>
-              <Switch checked={enabled} onCheckedChange={setEnabled} />
+        {/* Name, Revenue Center, Ordering Source */}
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          <div className="flex items-center justify-between py-3.5 px-4 border-b border-neutral-700/30">
+            <span className="text-foreground text-[15px]">Timed Pricing Name</span>
+            <div className="flex items-center gap-1">
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter Name"
+                className="bg-transparent border-none text-right text-neutral-400 placeholder:text-neutral-500 w-36 h-auto p-0 focus-visible:ring-0"
+              />
+              <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
             </div>
           </div>
-        </div>
-        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">Give this rule a descriptive name.</p>
-
-        <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">Schedule</span>
-          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-            <button onClick={() => setShowStartTimePicker(true)} className="flex items-center justify-between w-full py-3.5 px-4 border-b border-neutral-700/50 active:opacity-70 transition-opacity">
-              <span className="text-foreground text-[15px]">Start Time</span>
-              <div className="flex items-center gap-2">
-                <span className="text-neutral-400 text-[15px]">{startTime}</span>
-                <Clock className="w-4 h-4 text-neutral-500" />
-              </div>
-            </button>
-            <button onClick={() => setShowEndTimePicker(true)} className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity">
-              <span className="text-foreground text-[15px]">End Time</span>
-              <div className="flex items-center gap-2">
-                <span className="text-neutral-400 text-[15px]">{endTime}</span>
-                <Clock className="w-4 h-4 text-neutral-500" />
-              </div>
-            </button>
+          <div className="flex items-center justify-between py-3.5 px-4 border-b border-neutral-700/30">
+            <span className="text-foreground text-[15px]">Revenue Center</span>
+            <div className="flex items-center gap-1">
+              <span className="text-neutral-500 text-[15px]">{revenueCenter || "Select Revenue Center"}</span>
+              <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
+            </div>
+          </div>
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-[15px]">Ordering Source</span>
+            <div className="flex items-center gap-1">
+              <span className="text-neutral-500 text-[15px]">{orderingSource || "Select Ordering Source"}</span>
+              <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
+            </div>
           </div>
         </div>
-        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">Set the time window.</p>
 
-        <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">Active Days</span>
-          <div className="flex gap-2">
-            {dayLabels.map((day) => {
-              const isActive = days.includes(day);
-              return (
-                <button key={day} onClick={() => toggleDay(day)} className={`flex-1 py-3 rounded-xl text-sm font-medium transition-all ${isActive ? "text-primary-foreground" : "bg-neutral-800/40 text-neutral-500"}`} style={isActive ? { backgroundColor: selectedTypeOption.color } : {}}>
+        {/* Start Date / End Date */}
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-6">
+          <button
+            onClick={() => setShowStartDatePicker(true)}
+            className="flex items-center justify-between w-full py-3.5 px-4 border-b border-neutral-700/30 active:opacity-70 transition-opacity"
+          >
+            <span className="text-foreground text-[15px]">Start Date</span>
+            <div className="flex items-center gap-1">
+              <span className="text-neutral-400 text-[15px]">{formatDate(startDate)}</span>
+              <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
+            </div>
+          </button>
+          <button
+            onClick={() => setShowEndDatePicker(true)}
+            className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
+          >
+            <span className="text-foreground text-[15px]">End Date</span>
+            <div className="flex items-center gap-1">
+              <span className="text-neutral-400 text-[15px]">{formatDate(endDate)}</span>
+              <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
+            </div>
+          </button>
+        </div>
+
+        {/* Days Schedule Table */}
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-6">
+          {/* Table Header */}
+          <div className="grid grid-cols-[44px_1fr_1fr_1fr_36px] items-center px-4 py-3 border-b border-neutral-700/30">
+            <span />
+            <span className="text-sm font-semibold text-foreground">Days</span>
+            <span className="text-sm font-semibold text-foreground text-center">Start Time</span>
+            <span className="text-sm font-semibold text-foreground text-right">End Time</span>
+            <span />
+          </div>
+
+          {/* Day Rows */}
+          {allDays.map((day, idx) => (
+            <div key={day}>
+              {idx > 0 && <div className="h-px bg-neutral-700/20 mx-4" />}
+              <div className="grid grid-cols-[44px_1fr_1fr_1fr_36px] items-center px-4 py-3.5">
+                {/* Checkbox */}
+                <button onClick={() => toggleDay(day)} className="flex items-center justify-center">
+                  <div className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-all ${
+                    daySchedules[day].enabled
+                      ? "bg-foreground border-foreground"
+                      : "border-neutral-500 bg-transparent"
+                  }`}>
+                    {daySchedules[day].enabled && <Check className="w-4 h-4 text-background" />}
+                  </div>
+                </button>
+
+                {/* Day Name */}
+                <span className={`text-[15px] ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}>
                   {day}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">Choose which days.</p>
-
-        <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">Price Adjustment</span>
-          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-            <div className="flex items-center justify-between py-3.5 px-4">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl font-semibold" style={{ color: adjustment < 0 ? "#34C759" : adjustment > 0 ? "#FF9500" : undefined }}>
-                  {adjustment > 0 ? "+" : ""}{adjustment}%
                 </span>
-                <span className="text-neutral-500 text-sm">{adjustment < 0 ? "Discount" : adjustment > 0 ? "Surcharge" : "No Change"}</span>
-              </div>
-              <div className="flex items-center bg-neutral-700/50 rounded-lg overflow-hidden">
-                <button onClick={() => setAdjustment(Math.max(-100, adjustment - 5))} className="w-10 h-10 flex items-center justify-center text-foreground active:opacity-70 transition-opacity border-r border-neutral-600">
-                  <Minus className="w-4 h-4" />
-                </button>
-                <button onClick={() => setAdjustment(Math.min(100, adjustment + 5))} className="w-10 h-10 flex items-center justify-center text-foreground active:opacity-70 transition-opacity">
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">Set the percentage adjustment.</p>
 
-        <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">Preview</span>
-          <div className="bg-neutral-800/60 rounded-2xl p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: selectedTypeOption.color + "22" }}>
-                <Clock className="w-5 h-5" style={{ color: selectedTypeOption.color }} />
-              </div>
-              <div>
-                <p className="text-foreground text-base font-medium">{name || "Untitled Rule"}</p>
-                <p className="text-muted-foreground text-xs">{selectedTypeOption.label}</p>
+                {/* Start Time */}
+                <button
+                  onClick={() => setActiveTimePicker({ day, field: "startTime" })}
+                  className="text-[15px] text-neutral-400 text-center active:opacity-70 transition-opacity"
+                >
+                  {daySchedules[day].startTime}
+                </button>
+
+                {/* End Time */}
+                <button
+                  onClick={() => setActiveTimePicker({ day, field: "endTime" })}
+                  className="text-[15px] text-neutral-400 text-right active:opacity-70 transition-opacity"
+                >
+                  {daySchedules[day].endTime}
+                </button>
+
+                {/* Copy Button */}
+                {daySchedules[day].enabled && (
+                  <button
+                    onClick={() => copySchedule(day)}
+                    className="flex items-center justify-center active:opacity-70 transition-opacity"
+                    title={`Copy ${day}'s times to all days`}
+                  >
+                    <Copy className="w-4 h-4 text-neutral-500" />
+                  </button>
+                )}
               </div>
             </div>
-            <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">{startTime} – {endTime}</span>
-              <span className="text-muted-foreground">{days.length === 7 ? "Every day" : days.length === 0 ? "No days" : days.join(", ")}</span>
-              <span className="font-medium" style={{ color: adjustment < 0 ? "#34C759" : "#FF9500" }}>
-                {adjustment > 0 ? "+" : ""}{adjustment}%
-              </span>
-            </div>
-            <div className="mt-4 pt-4 border-t border-neutral-700/50">
-              <p className="text-xs text-neutral-500 mb-2">Example: Product priced at £10.00</p>
-              <div className="flex items-center gap-3">
-                <span className="text-neutral-500 line-through text-sm">£10.00</span>
-                <span className="text-foreground font-semibold text-base">£{(10 + (10 * adjustment / 100)).toFixed(2)}</span>
-              </div>
-            </div>
-          </div>
+          ))}
         </div>
       </div>
 
-      {timePickerPortal}
+      {renderTimePicker()}
+      {renderDatePicker(true)}
+      {renderDatePicker(false)}
     </div>
   );
 };

@@ -21,6 +21,16 @@ const HardwareDetailsContent = ({ showHeader = true, onBack, onNavigate, onAICli
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
+  const [terminalName, setTerminalName] = useState(() => localStorage.getItem("pos_terminal_name") || "");
+
+  const handleTerminalNameChange = (value: string) => {
+    setTerminalName(value);
+    if (value.trim()) {
+      localStorage.setItem("pos_terminal_name", value.trim());
+    } else {
+      localStorage.removeItem("pos_terminal_name");
+    }
+  };
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {showHeader && (

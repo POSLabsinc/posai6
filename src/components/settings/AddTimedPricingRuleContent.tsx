@@ -152,9 +152,8 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
     onBack();
   };
 
-  const renderTimePicker = () => {
-    if (!activeTimePicker) return null;
-    const { day, field } = activeTimePicker;
+  const renderInlineTimePicker = (day: string, field: "startTime" | "endTime") => {
+    if (!activeTimePicker || activeTimePicker.day !== day || activeTimePicker.field !== field) return null;
     const currentTime = daySchedules[day][field];
 
     if (isMobile) {
@@ -168,11 +167,12 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
       );
     }
 
-    return createPortal(
-      <div className="fixed inset-0 z-[9999]" onClick={() => setActiveTimePicker(null)}>
+    return (
+      <>
+        <div className="fixed inset-0 z-[99]" onClick={() => setActiveTimePicker(null)} />
         <div
-          className="absolute bg-neutral-900/95 backdrop-blur-sm rounded-xl shadow-2xl border border-neutral-700/50 overflow-hidden"
-          style={{ left: activeTimePicker.x, top: activeTimePicker.y, transform: "scale(0.8)", transformOrigin: "top left" }}
+          className="absolute top-full mt-1 z-[100] bg-neutral-900/95 backdrop-blur-sm rounded-xl shadow-2xl border border-neutral-700/50 overflow-hidden"
+          style={{ transform: "scale(0.65)", transformOrigin: "top center" }}
           onClick={(e) => e.stopPropagation()}
         >
           <AppleWheelTimePicker
@@ -182,8 +182,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
             selectedTime={currentTime}
           />
         </div>
-      </div>,
-      document.body
+      </>
     );
   };
 

@@ -3782,6 +3782,39 @@ const OrderOS = () => {
         onScheduleRestore={handleScheduleRestore}
         onEightySixItem={handleEightySixItem}
       />
+
+      {/* Auto Accept Important Note Dialog */}
+      <Dialog open={showAutoAcceptNote} onOpenChange={setShowAutoAcceptNote}>
+        <DialogContent hideCloseButton className="max-w-[340px] rounded-2xl p-0 border-0 bg-white shadow-2xl overflow-hidden">
+          <DialogHeader className="pt-6 pb-3 px-6 space-y-2">
+            <DialogTitle className="text-[17px] font-bold text-black text-center tracking-[-0.4px]">
+              Important Note!
+            </DialogTitle>
+            <DialogDescription className="text-[13px] text-neutral-600 text-center leading-[18px] tracking-[-0.08px]">
+              During Auto Accept mode, the options to report issues and cancel orders will be temporarily disabled. Would you like to enable these features now?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex border-t border-neutral-200">
+            <button
+              onClick={() => {
+                setAutoAccept(true);
+                setShowAutoAcceptNote(false);
+              }}
+              className="flex-1 h-12 text-[16px] font-medium text-black hover:bg-neutral-100 transition-colors border-r border-neutral-200"
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => {
+                setShowAutoAcceptNote(false);
+              }}
+              className="flex-1 h-12 text-[16px] font-medium text-black hover:bg-neutral-100 transition-colors"
+            >
+              No
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

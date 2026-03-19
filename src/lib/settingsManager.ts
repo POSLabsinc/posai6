@@ -1219,6 +1219,7 @@ export class SettingsManager {
     summary += `- Restart App: ${controlCenter.restartApp ? `Enabled at ${controlCenter.restartTime}` : "Disabled"}\n`;
     summary += `- Auto Lock Timer: ${controlCenter.autoLockTimer === "never" ? "Never" : `${controlCenter.autoLockTimer} minutes`}\n`;
     summary += `- Switch To KDS: ${controlCenter.switchToKDS ? "Enabled" : "Disabled"}\n`;
+    summary += `- KDS Notification: ${controlCenter.kdsNotification ? "Enabled" : "Disabled"}\n`;
     summary += `- Debug Mode: ${controlCenter.debugMode ? "Enabled" : "Disabled"}\n`;
     summary += `- Lock After Failed Attempts: ${controlCenter.lockAfterFailed ? "Enabled" : "Disabled"}\n`;
     summary += `- Force Clock-In: ${controlCenter.forceClockIn ? "Enabled" : "Disabled"}\n`;

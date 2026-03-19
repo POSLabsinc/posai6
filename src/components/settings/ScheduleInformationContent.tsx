@@ -109,31 +109,43 @@ const ScheduleInformationContent = ({
           </div>
         )}
 
-        {showSearch && (
-          <div className="mb-4">
-            <input
-              type="text"
-              placeholder="Search schedules..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#252525] rounded-full px-4 py-3 text-sm text-foreground placeholder:text-neutral-500 outline-none"
-              autoFocus
-            />
-          </div>
-        )}
-
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-sm text-neutral-500">
+        {/* Description */}
+        <div className="mb-4 px-1 pt-2">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Manage and create the different operating schedules of your restaurant
           </p>
-          <div className="flex items-center gap-2 flex-shrink-0 ml-4">
-            <button className="w-10 h-10 rounded-full bg-[#252525] flex items-center justify-center active:opacity-70 transition-opacity">
-              <Save className="w-5 h-5 text-neutral-400" />
-            </button>
-            <button className="w-10 h-10 rounded-full bg-foreground flex items-center justify-center active:opacity-70 transition-opacity">
-              <Plus className="w-5 h-5 text-background" />
-            </button>
+        </div>
+
+        {/* Search + Archive + Add row */}
+        <div className="flex items-center gap-2 mb-4">
+          <div className="flex-1 min-w-[140px] rounded-full bg-neutral-800/60 px-4 py-3 flex items-center gap-3">
+            <Search className="h-5 w-5 flex-shrink-0 text-neutral-500" />
+            <input
+              type="text"
+              placeholder="Search"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-[15px]"
+            />
+            <Mic className="h-5 w-5 flex-shrink-0 text-neutral-500" />
           </div>
+
+          <button
+            onClick={() => setShowArchived(!showArchived)}
+            className={`h-12 rounded-full px-4 flex-shrink-0 flex items-center justify-center gap-2 border text-sm font-medium transition-colors ${
+              showArchived
+                ? "bg-foreground text-background border-foreground"
+                : "border-[hsl(var(--surface-border))] bg-transparent text-foreground"
+            }`}
+          >
+            <Archive className="h-4 w-4" />
+            Archive
+          </button>
+
+          <button className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity">
+            <Plus className="h-5 w-5" />
+            <span className="text-sm font-medium">Add</span>
+          </button>
         </div>
 
         {/* Table Header */}

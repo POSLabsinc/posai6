@@ -131,7 +131,9 @@ const getStatusColor = (status: string) => {
 };
 
 const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff" }: MessageKitchenDialogProps) => {
-  const [message, setMessage] = useState("");
+  const [selectedChips, setSelectedChips] = useState<string[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [selectedTableKey, setSelectedTableKey] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -144,6 +146,8 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [loadingTables, setLoadingTables] = useState(false);
   const [linkTab, setLinkTab] = useState<LinkTab>("orders");
+  const chipInputRef = useRef<HTMLInputElement>(null);
+  const chipContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open) {

@@ -147,7 +147,7 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </section>
 
       {/* Table */}
       <section className="rounded-2xl bg-neutral-800/60 overflow-hidden">

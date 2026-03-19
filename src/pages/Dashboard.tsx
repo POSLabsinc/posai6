@@ -830,6 +830,7 @@ const Dashboard = () => {
     const totals = calculateOrderTotals(sessionOrder.items, 0);
     return {
       id: Number(sessionOrder.id.replace(/\D/g, '')) || Date.now() % 10000,
+      orderNumber: sessionOrder.orderNumber || 0,
       status: sessionOrder.status,
       statusColor: sessionOrder.status === 'PAID' || sessionOrder.status === 'Completed' ? '#22C55E' : '#FACC15',
       filterCategory: sessionOrder.status === 'PAID' || sessionOrder.status === 'Completed' ? 'Paid' : 'In Progress',

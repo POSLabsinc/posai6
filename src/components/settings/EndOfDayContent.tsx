@@ -316,7 +316,14 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
             }} />
           </div>
           <div className="h-px bg-border mx-4" />
-          <button onClick={() => setShowEmployeePicker(true)} className="w-full flex items-center justify-between py-3.5 px-4">
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-base">Print Summary on Clock-Out</span>
+            <Switch checked={printSummaryOnClockOut === "true"} onCheckedChange={(v) => {
+              updatePrintSummaryOnClockOut(v ? "true" : "false");
+              toast({ title: v ? "Clock-Out Summary Enabled" : "Clock-Out Summary Disabled", description: v ? "A summary will be printed when employees clock out." : "Clock-out summary printing has been turned off." });
+            }} />
+          </div>
+          <div className="h-px bg-border mx-4" />
             <span className="text-foreground text-base">Send Daily Reports</span>
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground text-sm">{selectedEmployees.length > 0 ? `${selectedEmployees.length} Selected` : "Select"}</span>

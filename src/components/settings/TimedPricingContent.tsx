@@ -140,7 +140,7 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
             </div>
             <button onClick={() => navigate('/settings/menu/timed-pricing/add')} className="h-12 rounded-full px-5 lg:px-10 flex-shrink-0 flex items-center justify-center gap-2 bg-neutral-800/60 text-foreground active:opacity-70 transition-opacity">
               <Plus className="h-5 w-5" />
-              <span className="text-[15px] font-semibold">Add Rule</span>
+              <span className="text-[15px] font-semibold">Add</span>
             </button>
           </section>
 

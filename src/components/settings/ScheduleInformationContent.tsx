@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Plus, Search, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 interface Schedule {
   id: string;
@@ -15,6 +16,7 @@ interface Schedule {
 interface ScheduleInformationContentProps {
   showHeader?: boolean;
   onBack?: () => void;
+  onAIClick?: () => void;
 }
 
 const ScheduleInformationContent = ({

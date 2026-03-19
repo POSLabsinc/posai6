@@ -44,6 +44,7 @@ import GroupsContent from "@/components/settings/GroupsContent";
 import AddGroupContent from "@/components/settings/AddGroupContent";
 import EditGroupContent from "@/components/settings/EditGroupContent";
 import TimedPricingContent from "@/components/settings/TimedPricingContent";
+import InventoryContent from "@/components/settings/InventoryContent";
 import AddTimedPricingRuleContent from "@/components/settings/AddTimedPricingRuleContent";
 import AISettingsContent from "@/components/settings/AISettingsContent";
 import SupportContent from "@/components/settings/SupportContent";
@@ -442,6 +443,9 @@ const getContentForRoute = (
       editRule = rules.find((r: any) => r.id === ruleId) || null;
     } catch {}
     return <AddTimedPricingRuleContent onBack={() => navigate('/settings/menu/timed-pricing')} onSave={() => {}} editRule={editRule} />;
+  }
+  if (pathname === '/settings/menu/inventory') {
+    return <InventoryContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/support') {
     return <SupportContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;

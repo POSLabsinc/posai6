@@ -171,32 +171,6 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
             )}
           </section>
 
-          <section className="mt-6 grid grid-cols-3 gap-4">
-            <div className="bg-neutral-800/60 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: "#34C759" }} />
-                <span className="text-sm font-medium text-foreground">Happy Hours</span>
-              </div>
-              <p className="text-2xl font-semibold text-foreground">{rules.filter((r) => r.type === "happy_hour" && r.enabled).length}</p>
-              <p className="text-xs text-muted-foreground mt-1">Active discounts</p>
-            </div>
-            <div className="bg-neutral-800/60 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: "#FF9500" }} />
-                <span className="text-sm font-medium text-foreground">Peak Times</span>
-              </div>
-              <p className="text-2xl font-semibold text-foreground">{rules.filter((r) => r.type === "peak_time" && r.enabled).length}</p>
-              <p className="text-xs text-muted-foreground mt-1">Active surcharges</p>
-            </div>
-            <div className="bg-neutral-800/60 rounded-2xl p-5">
-              <div className="flex items-center gap-2 mb-2">
-                <Clock className="w-3 h-3 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">Total Rules</span>
-              </div>
-              <p className="text-2xl font-semibold text-foreground">{rules.length}</p>
-              <p className="text-xs text-muted-foreground mt-1">{rules.filter((r) => r.enabled).length} active</p>
-            </div>
-          </section>
         </div>
 
         <DeleteDialog rule={ruleToDelete} onCancel={() => setRuleToDelete(null)} onConfirm={confirmDelete} />

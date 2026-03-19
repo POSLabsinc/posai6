@@ -3786,22 +3786,22 @@ const OrderOS = () => {
 
       {/* Auto Accept Important Note Dialog */}
       <Dialog open={showAutoAcceptNote} onOpenChange={setShowAutoAcceptNote}>
-        <DialogContent hideCloseButton className="max-w-[340px] rounded-2xl p-0 border-0 bg-white shadow-2xl overflow-hidden">
+        <DialogContent hideCloseButton className="max-w-[340px] rounded-2xl p-0 border-0 bg-[#2C2C2E]/95 backdrop-blur-xl shadow-2xl overflow-hidden">
           <DialogHeader className="pt-6 pb-3 px-6 space-y-2">
-            <DialogTitle className="text-[17px] font-bold text-black text-center tracking-[-0.4px]">
+            <DialogTitle className="text-[17px] font-bold text-white text-center tracking-[-0.4px]">
               Important Note!
             </DialogTitle>
-            <DialogDescription className="text-[13px] text-neutral-600 text-center leading-[18px] tracking-[-0.08px]">
+            <DialogDescription className="text-[13px] text-[#EBEBF599] text-center leading-[18px] tracking-[-0.08px]">
               During Auto Accept mode, the options to report issues and cancel orders will be temporarily disabled. Would you like to enable these features now?
             </DialogDescription>
           </DialogHeader>
-          <div className="flex border-t border-neutral-200">
+          <div className="flex border-t border-[#545458]/50">
             <button
               onClick={() => {
                 setAutoAccept(true);
                 setShowAutoAcceptNote(false);
               }}
-              className="flex-1 h-12 text-[16px] font-medium text-black hover:bg-neutral-100 transition-colors border-r border-neutral-200"
+              className="flex-1 h-12 text-[16px] font-medium text-white/70 hover:bg-[#545458]/30 transition-colors border-r border-[#545458]/50"
             >
               Yes
             </button>
@@ -3809,7 +3809,7 @@ const OrderOS = () => {
               onClick={() => {
                 setShowAutoAcceptNote(false);
               }}
-              className="flex-1 h-12 text-[16px] font-medium text-black hover:bg-neutral-100 transition-colors"
+              className="flex-1 h-12 text-[16px] font-medium text-white/70 hover:bg-[#545458]/30 transition-colors"
             >
               No
             </button>

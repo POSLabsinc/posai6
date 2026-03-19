@@ -85,18 +85,19 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
     }));
   };
 
-  const copySchedule = (fromDay: string) => {
-    const source = daySchedules[fromDay];
-    setDaySchedules((prev) => {
-      const next = { ...prev };
-      allDays.forEach((d) => {
-        if (d !== fromDay) {
-          next[d] = { ...next[d], startTime: source.startTime, endTime: source.endTime };
-        }
-      });
-      return next;
-    });
-    toast({ description: `Copied ${fromDay}'s schedule to all days` });
+  const copySchedule = (day: string) => {
+    setCopiedDay(day);
+    toast({ description: `Copied ${day}'s schedule` });
+  };
+
+  const pasteSchedule = (day: string) => {
+    if (!copiedDay) return;
+    const source = daySchedules[copiedDay];
+    setDaySchedules((prev) => ({
+      ...prev,
+      [day]: { ...prev[day], startTime: source.startTime, endTime: source.endTime },
+    }));
+    toast({ description: `Pasted schedule to ${day}` });
   };
 
   const handleSave = async () => {

@@ -24,6 +24,7 @@ interface SettingsOptionProps {
   description?: string;
   onClick?: () => void;
   showDivider?: boolean;
+  rightText?: string;
 }
 
 const SettingsOption = ({
@@ -32,7 +33,8 @@ const SettingsOption = ({
   label,
   description,
   onClick,
-  showDivider = true
+  showDivider = true,
+  rightText
 }: SettingsOptionProps) => {
   return <div>
     <button onClick={onClick} className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity bg-neutral-800/60 rounded-2xl">
@@ -40,7 +42,11 @@ const SettingsOption = ({
         <SettingsIcon bgColor={iconBgColor} iconSrc={icon} iconAlt={label} />
         <span className="text-foreground text-base font-medium">{label}</span>
       </div>
-      <ChevronRight className="w-5 h-5 text-neutral-500" />
+      {rightText ? (
+        <span className="text-sm font-medium text-neutral-500">{rightText}</span>
+      ) : (
+        <ChevronRight className="w-5 h-5 text-neutral-500" />
+      )}
     </button>
     {description && <p className="text-neutral-500 text-xs mt-1.5 px-4 leading-relaxed">{description}</p>}
   </div>;

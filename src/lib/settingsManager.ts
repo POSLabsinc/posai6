@@ -1687,6 +1687,10 @@ export function parseUserIntent(message: string): SettingsIntent {
   const controlCenterSettings: Record<string, keyof ControlCenterSettings> = {
     "kds": "switchToKDS",
     "kitchen display": "switchToKDS",
+    "kds notification": "kdsNotification",
+    "kds alert": "kdsNotification",
+    "kds sound": "kdsNotification",
+    "kitchen notification": "kdsNotification",
     "debug mode": "debugMode",
     "debug": "debugMode",
     "lock after failed": "lockAfterFailed",

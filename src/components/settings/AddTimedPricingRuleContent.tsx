@@ -324,20 +324,26 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
                 </span>
 
                 {/* Start Time */}
-                <button
-                  onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); setActiveTimePicker({ day, field: "startTime", x: rect.left, y: rect.bottom + 4 }); }}
-                  className={`text-[15px] text-center active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
-                >
-                  {daySchedules[day].startTime}
-                </button>
+                <div className="relative flex justify-center">
+                  <button
+                    onClick={() => setActiveTimePicker({ day, field: "startTime" })}
+                    className={`text-[15px] text-center active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
+                  >
+                    {daySchedules[day].startTime}
+                  </button>
+                  {renderInlineTimePicker(day, "startTime")}
+                </div>
 
                 {/* End Time */}
-                <button
-                  onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); setActiveTimePicker({ day, field: "endTime", x: rect.left, y: rect.bottom + 4 }); }}
-                  className={`text-[15px] text-right active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
-                >
-                  {daySchedules[day].endTime}
-                </button>
+                <div className="relative flex justify-end">
+                  <button
+                    onClick={() => setActiveTimePicker({ day, field: "endTime" })}
+                    className={`text-[15px] text-right active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
+                  >
+                    {daySchedules[day].endTime}
+                  </button>
+                  {renderInlineTimePicker(day, "endTime")}
+                </div>
 
                 {/* Copy & Paste Buttons */}
                 <div className="flex items-center justify-end gap-2">

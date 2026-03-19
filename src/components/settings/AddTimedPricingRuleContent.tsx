@@ -322,7 +322,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
 
                 {/* Start Time */}
                 <button
-                  onClick={() => setActiveTimePicker({ day, field: "startTime" })}
+                  onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); setActiveTimePicker({ day, field: "startTime", x: rect.left, y: rect.bottom + 4 }); }}
                   className={`text-[15px] text-center active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
                 >
                   {daySchedules[day].startTime}
@@ -330,7 +330,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
 
                 {/* End Time */}
                 <button
-                  onClick={() => setActiveTimePicker({ day, field: "endTime" })}
+                  onClick={(e) => { const rect = e.currentTarget.getBoundingClientRect(); setActiveTimePicker({ day, field: "endTime", x: rect.left, y: rect.bottom + 4 }); }}
                   className={`text-[15px] text-right active:opacity-70 transition-opacity ${daySchedules[day].enabled ? "text-foreground" : "text-neutral-500"}`}
                 >
                   {daySchedules[day].endTime}

@@ -86,8 +86,7 @@ const menuItems: MenuItemData[] = [{
   description: "Set up time-based pricing rules to automatically adjust product prices during happy hours, peak times, or scheduled promotions."
 }, {
   id: "inventory",
-  iconSrc: productsIcon,
-  label: "Inventory",
+  iconSrc: inventoryIcon,
   iconBgColor: "#34C759",
   description: "Track stock levels, manage inventory counts, set low-stock alerts, and control product availability across your locations."
 }];

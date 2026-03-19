@@ -472,6 +472,15 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
             <div className={`text-xs text-right ${counterColorClass}`}>
               {charCount}/{MAX_LENGTH}
             </div>
+
+            {/* Suggestion Chips */}
+            <SuggestionChips
+              message={message}
+              onSelect={(text) => {
+                setMessage(text.slice(0, MAX_LENGTH));
+                setFieldError(null);
+              }}
+            />
           </div>
 
           {/* Divider */}

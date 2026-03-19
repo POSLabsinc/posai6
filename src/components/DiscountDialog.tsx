@@ -491,7 +491,7 @@ export function DiscountDialog({
 
   const listContent = (
     <div ref={scrollRef} className="max-h-[50vh] overflow-y-auto scrollbar-hide">
-      <div className="p-3 space-y-2">
+      <div className="p-3 grid grid-cols-2 gap-2">
         {dynamicDiscounts.map((discount) => {
           const isSelected = selectedDiscounts.some(d => d.id === discount.id);
 
@@ -499,29 +499,27 @@ export function DiscountDialog({
             <div key={discount.id} className="relative">
               <button
                 onClick={() => toggleDiscount(discount)}
-                className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
+                className={`w-full flex flex-col items-center gap-2 p-3 rounded-lg transition-colors ${
                   isSelected
                     ? "bg-primary/20 border border-primary"
                     : "bg-neutral-800 hover:bg-neutral-700 border border-transparent"
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  <div
-                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isSelected ? "bg-primary" : "bg-neutral-700"
-                    }`}
-                  >
-                    {isSelected ? (
-                      <Check className="w-4 h-4 text-primary-foreground" />
-                    ) : (
-                      <discount.icon className="w-4 h-4 text-muted-foreground" />
-                    )}
-                  </div>
-                  <p className="text-sm font-medium text-foreground">
-                    {discount.name}
-                  </p>
+                <div
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    isSelected ? "bg-primary" : "bg-neutral-700"
+                  }`}
+                >
+                  {isSelected ? (
+                    <Check className="w-4 h-4 text-primary-foreground" />
+                  ) : (
+                    <discount.icon className="w-4 h-4 text-muted-foreground" />
+                  )}
                 </div>
-                <div className="flex items-center gap-2">
+                <p className="text-sm font-medium text-foreground text-center leading-tight">
+                  {discount.name}
+                </p>
+                <div className="flex flex-col items-center gap-1">
                   {isSelected && isReasonRequired(discount) && !reasonDataMap[discount.id]?.reason && (
                     <span className="text-[10px] text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded">Reason required</span>
                   )}

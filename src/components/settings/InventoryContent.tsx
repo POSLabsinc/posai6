@@ -96,14 +96,14 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
   };
 
   const headerBlock = showHeader && (
-    <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4 md:hidden">
+    <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
       {onBack && (
         <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity" aria-label="Back">
           <ChevronLeft className="w-5 h-5 text-foreground" />
         </button>
       )}
       {!onBack && <div className="w-8 h-8" />}
-      <div className="absolute left-1/2 -translate-x-1/2">
+      <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
         <h1 className="text-base font-medium text-foreground">Inventory</h1>
       </div>
       <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>

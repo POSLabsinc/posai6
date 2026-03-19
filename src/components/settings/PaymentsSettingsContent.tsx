@@ -101,7 +101,7 @@ const PaymentsSettingsContent = ({
 
         <div className="space-y-4">
           <SettingsOption icon={paymentMethodsIcon} iconBgColor="#5F5F5F" label="Payment Methods" description="Configure which payment types are accepted at checkout and control their visibility across your point of sale terminals." onClick={() => onNavigate?.('/settings/payments/payment-methods')} />
-          <SettingsOption icon={paymentsHeaderIcon} iconBgColor="#0A84FF" label="Payment Platform" description="Select and configure the payment processing platform used for card transactions and digital payments." onClick={() => onNavigate?.('/settings/payments/payment-platform')} />
+          
           <SettingsOption icon={gratuityIcon} iconBgColor="#F80063" label="Gratuity" description="Set up tip presets, auto-gratuity rules for large parties, and configure tip pooling and distribution among staff." onClick={() => onNavigate?.('/settings/payments/gratuity')} />
           <SettingsOption icon={taxesIcon} iconBgColor="#AF1DFF" label="Taxes" description="Manage tax rates for different categories, set up tax exemptions, and configure tax-inclusive or exclusive pricing." onClick={() => onNavigate?.('/settings/payments/taxes')} />
           <SettingsOption icon={discountsIcon} iconBgColor="#00B6FA" label="Discounts" description="Create and manage percentage-based or fixed-amount discounts, set eligibility rules, and track discount usage." onClick={() => onNavigate?.('/settings/payments/discounts')} />
@@ -109,6 +109,7 @@ const PaymentsSettingsContent = ({
           <SettingsOption icon={cashManagementIcon} iconBgColor="#F80063" label="Cash Management" description="Track cash drawers, manage pay-ins and pay-outs, and handle end-of-day cash reconciliation across registers." onClick={() => onNavigate?.('/settings/payments/cash-management')} />
           <SettingsOption icon={voucherIcon} iconBgColor="#FF9500" label="Voucher" description="Sell and redeem vouchers, manage voucher types, expiry, and redemption limits at checkout." onClick={() => onNavigate?.('/voucher')} />
           <SettingsOption icon={checkoutOptionsIcon} iconBgColor="#000000" label="Checkout Options" description="Customize the checkout flow, receipt preferences, signature requirements, and order completion settings." onClick={() => onNavigate?.('/settings/payments/checkout-options')} />
+          <SettingsOption icon={paymentsHeaderIcon} iconBgColor="#F5A623" label="Payment Platform" description="The shown payment processor is being used to handle the transactions in your current device." onClick={() => onNavigate?.('/settings/payments/payment-platform')} />
         </div>
       </div>
     </div>;

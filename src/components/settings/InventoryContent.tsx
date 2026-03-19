@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, AlertTriangle, Save } from "lucide-react";
+import { ChevronLeft, ChevronRight, ChevronDown, ChevronUp, AlertTriangle, Save, Search, Mic } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -46,6 +46,7 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [selectedStock, setSelectedStock] = useState("all");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -81,12 +82,13 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
+      if (searchQuery && !p.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
       if (selectedCategory !== "all" && p.category_id !== selectedCategory) return false;
       if (selectedStock === "in-stock" && (p.stock_count === null || p.stock_count <= 0)) return false;
       if (selectedStock === "out-of-stock" && p.stock_count !== 0 && p.is_available) return false;
       return true;
     });
-  }, [products, selectedStock, selectedCategory]);
+  }, [products, selectedStock, selectedCategory, searchQuery]);
 
   const stockCount = useMemo(() => products.length, [products]);
   const categoryCount = useMemo(() => categories.length, [categories]);
@@ -121,8 +123,20 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
         </p>
       </div>
 
-      {/* Filters row */}
-      <div className="flex items-center gap-3 mb-6">
+      {/* Search + Filters row */}
+      <section className="mt-6 flex items-center gap-3 mb-6">
+        <div className="flex-1 min-w-0 rounded-full bg-neutral-800/60 px-5 py-3 flex items-center gap-3">
+          <Search className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-[15px]"
+          />
+          <Mic className="h-5 w-5 flex-shrink-0 text-muted-foreground" />
+        </div>
+
         <Select value={selectedStock} onValueChange={setSelectedStock}>
           <SelectTrigger className="w-auto min-w-[140px] rounded-full bg-neutral-800/60 border-0 text-foreground text-sm h-11 px-4 focus:ring-0">
             <SelectValue placeholder="All Stock" />
@@ -145,7 +159,7 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
             ))}
           </SelectContent>
         </Select>
-      </div>
+      </section>
 
       {/* Table */}
       <section className="rounded-2xl bg-neutral-800/60 overflow-hidden">

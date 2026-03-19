@@ -1,10 +1,9 @@
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, KeyboardEvent } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 interface KDSTicketData {
@@ -105,7 +104,7 @@ const recordSuggestionUse = (text: string) => {
   localStorage.setItem(SUGGESTION_STORAGE_KEY, JSON.stringify(history.slice(0, 30)));
 };
 
-const SuggestionChips = ({ message, onSelect }: { message: string; onSelect: (text: string) => void }) => {
+const SuggestionChips = ({ message, onSelect, activeChips = [] }: { message: string; onSelect: (text: string) => void; activeChips?: string[] }) => {
   const history = useMemo(() => getSuggestionHistory(), []);
 
   const allPool = useMemo(() => {
@@ -126,15 +125,18 @@ const SuggestionChips = ({ message, onSelect }: { message: string; onSelect: (te
     return pool;
   }, [history]);
 
+  const activeLower = useMemo(() => new Set(activeChips.map(c => c.toLowerCase())), [activeChips]);
+
   const chips = useMemo(() => {
     const trimmed = message.trim().toLowerCase();
+    const filtered = allPool.filter(s => !activeLower.has(s.text.toLowerCase()));
     if (trimmed.length === 0) {
-      return allPool.slice(0, 8);
+      return filtered.slice(0, 8);
     }
-    return allPool
+    return filtered
       .filter(s => s.text.toLowerCase().includes(trimmed) && s.text.toLowerCase() !== trimmed)
       .slice(0, 8);
-  }, [message, allPool]);
+  }, [message, allPool, activeLower]);
 
   if (chips.length === 0) return null;
 
@@ -185,7 +187,8 @@ const getStatusColor = (status: string) => {
 };
 
 const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff" }: MessageKitchenDialogProps) => {
-  const [message, setMessage] = useState("");
+  const [messageChips, setMessageChips] = useState<string[]>([]);
+  const [chipInput, setChipInput] = useState("");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [selectedTableKey, setSelectedTableKey] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -201,7 +204,8 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
 
   useEffect(() => {
     if (open) {
-      setMessage("");
+      setMessageChips([]);
+      setChipInput("");
       setSelectedOrderId(null);
       setSelectedTableKey(null);
       setError(null);
@@ -254,15 +258,42 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     setLoadingOrders(false);
   };
 
-  const trimmedMessage = message.trim();
-  const charCount = message.length;
-  const canSend = trimmedMessage.length > 0 && !sending;
+  const composedMessage = messageChips.join(", ");
+  const trimmedMessage = composedMessage.trim();
+  const charCount = composedMessage.length;
+  const canSend = messageChips.length > 0 && !sending;
 
   const counterColorClass = useMemo(() => {
     if (charCount >= DANGER_THRESHOLD) return "text-destructive";
     if (charCount >= WARN_THRESHOLD) return "text-orange-400";
     return "text-neutral-500";
   }, [charCount]);
+
+  const addChip = (text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    if (messageChips.some(c => c.toLowerCase() === trimmed.toLowerCase())) return;
+    const newChips = [...messageChips, trimmed];
+    const newComposed = newChips.join(", ");
+    if (newComposed.length > MAX_LENGTH) return; // prevent exceeding limit
+    setMessageChips(newChips);
+    setChipInput("");
+    setFieldError(null);
+  };
+
+  const removeChip = (index: number) => {
+    setMessageChips(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleChipInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addChip(chipInput);
+    }
+    if (e.key === "Backspace" && chipInput === "" && messageChips.length > 0) {
+      removeChip(messageChips.length - 1);
+    }
+  };
 
   const filteredOrders = useMemo(() => {
     if (!orderSearch.trim()) return activeOrders;
@@ -438,7 +469,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       queue.push(payload);
       localStorage.setItem("kds_message_queue", JSON.stringify(queue));
 
-      recordSuggestionUse(trimmedMessage);
+      messageChips.forEach(chip => recordSuggestionUse(chip));
 
       onOpenChange(false);
       toast.success("Message sent to kitchen ✓", { duration: 3000 });
@@ -481,19 +512,38 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
           {/* Left Column - Message */}
           <div className="flex-1 pr-5 border-r border-neutral-700 space-y-1.5">
             <label className="text-sm text-neutral-300">Message <span className="text-red-400">*</span></label>
-            <Textarea
-              value={message}
-              onChange={(e) => {
-                if (e.target.value.length <= MAX_LENGTH) {
-                  setMessage(e.target.value);
-                  if (e.target.value.trim().length > 0) setFieldError(null);
-                }
-              }}
-              placeholder="Type your message for the kitchen..."
-              className="bg-transparent border-neutral-600 text-white placeholder:text-neutral-500 min-h-[100px] resize-none focus-visible:ring-orange-500"
-              maxLength={MAX_LENGTH}
-              autoFocus
-            />
+            <div
+              className="min-h-[100px] w-full rounded-md border border-neutral-600 bg-transparent px-3 py-2 focus-within:ring-2 focus-within:ring-orange-500 focus-within:ring-offset-0 cursor-text"
+              onClick={() => document.getElementById("chip-input")?.focus()}
+            >
+              <div className="flex flex-wrap gap-1.5 items-center">
+                {messageChips.map((chip, idx) => (
+                  <span
+                    key={`${chip}-${idx}`}
+                    className="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded-full bg-orange-500/20 text-orange-400 border border-orange-500/40"
+                  >
+                    {chip}
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); removeChip(idx); }}
+                      className="hover:text-orange-200 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  id="chip-input"
+                  type="text"
+                  value={chipInput}
+                  onChange={(e) => setChipInput(e.target.value)}
+                  onKeyDown={handleChipInputKeyDown}
+                  placeholder={messageChips.length === 0 ? "Type your message for the kitchen..." : ""}
+                  className="flex-1 min-w-[80px] bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none border-none py-1"
+                  autoFocus
+                />
+              </div>
+            </div>
             {fieldError && (
               <p className="text-xs text-destructive">{fieldError}</p>
             )}
@@ -502,10 +552,10 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
             </div>
 
             <SuggestionChips
-              message={message}
+              message={chipInput}
+              activeChips={messageChips}
               onSelect={(text) => {
-                setMessage(text.slice(0, MAX_LENGTH));
-                setFieldError(null);
+                addChip(text);
               }}
             />
           </div>

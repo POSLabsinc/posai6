@@ -21,6 +21,7 @@ import productsIcon from "@/assets/icons/menu-products.png";
 import defaultModifiersIcon from "@/assets/icons/menu-default-modifiers.png";
 import groupsIcon from "@/assets/icons/menu-groups.png";
 import timedPricingIcon from "@/assets/icons/menu-timed-pricing.png";
+import inventoryIcon from "@/assets/icons/menu-inventory.png";
 import settingsMenuIcon from "@/assets/icons/settings-menu.png";
 interface MenuSettingsContentProps {
   showHeader?: boolean;
@@ -85,7 +86,7 @@ const menuItems: MenuItemData[] = [{
   description: "Set up time-based pricing rules to automatically adjust product prices during happy hours, peak times, or scheduled promotions."
 }, {
   id: "inventory",
-  iconSrc: productsIcon,
+  iconSrc: inventoryIcon,
   label: "Inventory",
   iconBgColor: "#34C759",
   description: "Track stock levels, manage inventory counts, set low-stock alerts, and control product availability across your locations."

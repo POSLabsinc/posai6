@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback, useEffect, useRef } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { useApp } from "@/contexts/AppContext";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Search, SlidersHorizontal, X, Phone, Clock, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, GripVertical, Printer, ArrowDownUp, Check, Package, Plus, CalendarDays, Info, Timer } from "lucide-react";
@@ -1329,6 +1330,7 @@ const OrderOS = () => {
   }, [showSearchInput]);
   const [filterDate, setFilterDate] = useState<Date | undefined>();
   const [autoAccept, setAutoAccept] = useState(true);
+  const [showAutoAcceptNote, setShowAutoAcceptNote] = useState(false);
   const [pauseOrders, setPauseOrders] = useState(false);
   const [prepTime, setPrepTime] = useState(10);
   const [expandedCards, setExpandedCards] = useState<Set<string>>(new Set());
@@ -3461,7 +3463,13 @@ const OrderOS = () => {
                   <span className="text-white/50 text-[10px]">Auto</span>
                   <span className="text-white/50 text-[10px]">Accept</span>
                 </div>
-                <Switch checked={autoAccept} onCheckedChange={setAutoAccept} />
+                <Switch checked={autoAccept} onCheckedChange={(checked) => {
+                  if (checked) {
+                    setShowAutoAcceptNote(true);
+                  } else {
+                    setAutoAccept(false);
+                  }
+                }} />
               </div>
               
               {/* Pause Orders Toggle */}
@@ -3775,6 +3783,39 @@ const OrderOS = () => {
         onScheduleRestore={handleScheduleRestore}
         onEightySixItem={handleEightySixItem}
       />
+
+      {/* Auto Accept Important Note Dialog */}
+      <Dialog open={showAutoAcceptNote} onOpenChange={setShowAutoAcceptNote}>
+        <DialogContent hideCloseButton className="max-w-[340px] rounded-2xl p-0 border-0 bg-white shadow-2xl overflow-hidden">
+          <DialogHeader className="pt-6 pb-3 px-6 space-y-2">
+            <DialogTitle className="text-[17px] font-bold text-black text-center tracking-[-0.4px]">
+              Important Note!
+            </DialogTitle>
+            <DialogDescription className="text-[13px] text-neutral-600 text-center leading-[18px] tracking-[-0.08px]">
+              During Auto Accept mode, the options to report issues and cancel orders will be temporarily disabled. Would you like to enable these features now?
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex border-t border-neutral-200">
+            <button
+              onClick={() => {
+                setAutoAccept(true);
+                setShowAutoAcceptNote(false);
+              }}
+              className="flex-1 h-12 text-[16px] font-medium text-black hover:bg-neutral-100 transition-colors border-r border-neutral-200"
+            >
+              Yes
+            </button>
+            <button
+              onClick={() => {
+                setShowAutoAcceptNote(false);
+              }}
+              className="flex-1 h-12 text-[16px] font-medium text-black hover:bg-neutral-100 transition-colors"
+            >
+              No
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };

@@ -104,7 +104,7 @@ const recordSuggestionUse = (text: string) => {
   localStorage.setItem(SUGGESTION_STORAGE_KEY, JSON.stringify(history.slice(0, 30)));
 };
 
-const SuggestionChips = ({ message, onSelect }: { message: string; onSelect: (text: string) => void }) => {
+const SuggestionChips = ({ message, onSelect, activeChips = [] }: { message: string; onSelect: (text: string) => void; activeChips?: string[] }) => {
   const history = useMemo(() => getSuggestionHistory(), []);
 
   const allPool = useMemo(() => {
@@ -125,15 +125,18 @@ const SuggestionChips = ({ message, onSelect }: { message: string; onSelect: (te
     return pool;
   }, [history]);
 
+  const activeLower = useMemo(() => new Set(activeChips.map(c => c.toLowerCase())), [activeChips]);
+
   const chips = useMemo(() => {
     const trimmed = message.trim().toLowerCase();
+    const filtered = allPool.filter(s => !activeLower.has(s.text.toLowerCase()));
     if (trimmed.length === 0) {
-      return allPool.slice(0, 8);
+      return filtered.slice(0, 8);
     }
-    return allPool
+    return filtered
       .filter(s => s.text.toLowerCase().includes(trimmed) && s.text.toLowerCase() !== trimmed)
       .slice(0, 8);
-  }, [message, allPool]);
+  }, [message, allPool, activeLower]);
 
   if (chips.length === 0) return null;
 

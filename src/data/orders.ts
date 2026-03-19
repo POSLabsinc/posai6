@@ -559,6 +559,7 @@ export interface DashboardOrderItem {
 // Dashboard order interface
 export interface DashboardOrder {
   id: number;
+  orderNumber?: number;
   status: string;
   statusColor: string;
   filterCategory: string;

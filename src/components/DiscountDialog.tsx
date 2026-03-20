@@ -269,8 +269,8 @@ export function DiscountDialog({
                   className="w-4.5 h-4.5 rounded-md flex-shrink-0 flex items-center justify-center transition-colors"
                   style={{
                     width: '18px', height: '18px',
-                    background: isSelected ? '#7c6ee0' : 'transparent',
-                    border: isSelected ? '1.5px solid #7c6ee0' : '1.5px solid #555',
+                    background: isSelected ? '#fff' : 'transparent',
+                    border: isSelected ? '1.5px solid #fff' : '1.5px solid #555',
                   }}
                 >
                   {isSelected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}

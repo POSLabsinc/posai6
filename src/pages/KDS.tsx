@@ -43,108 +43,7 @@ interface KDSTicket {
   priority: "normal" | "rush" | "vip";
 }
 
-// ─── Mock KDS Data ───
-const generateMockTickets = (): KDSTicket[] => {
-  const now = new Date();
-  return [
-    {
-      id: "kds-1",
-      orderNumber: 23,
-      orderType: "DINE IN",
-      tableNumber: "T2",
-      serverName: "Mia Jones",
-      createdAt: new Date(now.getTime() - 38 * 60000),
-      products: [
-        { qty: 1, name: "Fried Calamari", category: "APPETIZER", modifiers: [], status: "pending" },
-        { qty: 1, name: "Filet Mignon", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Extra Olive Oil", type: "add" }], status: "pending" },
-        { qty: 2, name: "Meatballs", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Potato Wedge", type: "add" }, { name: "Extra Olive Oil", type: "add" }], status: "pending" },
-        { qty: 1, name: "Meatballs", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Spicy Chimichurri Potatoes", type: "add" }, { name: "NO Parmesan", type: "remove" }, { name: "Peanut", type: "allergy" }], status: "pending" },
-        { qty: 1, name: "Grassfed Sirloin Steak", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Extra Butter", type: "add" }, { name: "Gluten", type: "allergy" }], status: "ready" },
-        { qty: 1, name: "Tres Leches", category: "DESSERT", modifiers: [{ name: "Gluten", type: "allergy" }, { name: "Peanut", type: "allergy" }, { name: "Tree Nuts", type: "allergy" }], status: "pending" },
-      ],
-      status: "active",
-      priority: "normal",
-    },
-    {
-      id: "kds-2",
-      orderNumber: 24,
-      orderType: "DINE IN",
-      tableNumber: "T4",
-      serverName: "Dustin H",
-      createdAt: new Date(now.getTime() - 23 * 60000),
-      products: [
-        { qty: 1, name: "Cheese Selection", category: "APPETIZER", modifiers: [{ name: "Peanut", type: "allergy" }], status: "pending" },
-        { qty: 2, name: "Meatballs", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Potato Wedge", type: "add" }, { name: "Extra Cheese", type: "add" }], status: "pending" },
-        { qty: 1, name: "Meatballs", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Spicy Chimichurri Potatoes", type: "add" }, { name: "NO Parmesan", type: "remove" }, { name: "Peanut", type: "allergy" }], status: "pending" },
-      ],
-      status: "active",
-      priority: "rush",
-    },
-    {
-      id: "kds-3",
-      orderNumber: 25,
-      orderType: "DINE IN",
-      tableNumber: "T5",
-      serverName: "Mia Jones",
-      createdAt: new Date(now.getTime() - 23 * 60000),
-      products: [
-        { qty: 2, name: "Meatballs", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Potato Wedge", type: "add" }, { name: "Extra Cheese", type: "add" }], status: "pending" },
-        { qty: 2, name: "Meatballs", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Potato Wedge", type: "add" }, { name: "Extra Cheese", type: "add" }], status: "pending" },
-      ],
-      status: "active",
-      priority: "normal",
-    },
-    {
-      id: "kds-4",
-      orderNumber: 26,
-      orderType: "DINE IN",
-      tableNumber: "T6",
-      serverName: "Sarah K",
-      createdAt: new Date(now.getTime() - 38 * 60000),
-      products: [
-        { qty: 1, name: "Cheese Selection", category: "APPETIZER", modifiers: [{ name: "Peanut", type: "allergy" }], status: "pending" },
-        { qty: 2, name: "Meatballs", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Potato Wedge", type: "add" }, { name: "Extra Cheese", type: "add" }], status: "pending" },
-        { qty: 1, name: "Meatballs", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Spicy Chimichurri Potatoes", type: "add" }, { name: "NO Parmesan", type: "remove" }, { name: "Peanut", type: "allergy" }], status: "pending" },
-      ],
-      status: "active",
-      priority: "normal",
-    },
-    {
-      id: "kds-5",
-      orderNumber: 24,
-      orderType: "DINE IN",
-      tableNumber: "T8",
-      serverName: "Dustin H",
-      createdAt: new Date(now.getTime() - 23 * 60000),
-      products: [
-        { qty: 2, name: "Meatballs", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Potato Wedge", type: "add" }, { name: "Extra Cheese", type: "add" }], status: "pending" },
-        { qty: 1, name: "Cheese Selection", category: "APPETIZER", modifiers: [{ name: "Peanut", type: "allergy" }], status: "pending" },
-      ],
-      status: "active",
-      priority: "normal",
-    },
-    {
-      id: "kds-6",
-      orderNumber: 28,
-      orderType: "DINE IN",
-      tableNumber: "T3",
-      serverName: "Mia Jones",
-      createdAt: new Date(now.getTime() - 23 * 60000),
-      products: [
-        { qty: 1, name: "Cheese Selection", category: "APPETIZER", modifiers: [{ name: "Peanut", type: "allergy" }], status: "pending" },
-        { qty: 1, name: "Filet Mignon", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Extra Olive Oil", type: "add" }], status: "pending" },
-        { qty: 4, name: "Meatballs", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Spicy Chimichurri Potato", type: "add" }, { name: "NO Parmesan", type: "remove" }, { name: "Peanut", type: "allergy" }], status: "pending" },
-        { qty: 2, name: "Grassfed Sirloin Steak", category: "ENTREE", modifiers: [{ name: "Extra Butter", type: "add" }, { name: "Gluten", type: "allergy" }], status: "pending" },
-        { qty: 3, name: "Tres Leches", category: "DESSERT", modifiers: [{ name: "Peanut, GLUTEN", type: "allergy" }], status: "pending" },
-        { qty: 1, name: "Meatballs", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Spicy Chimichurri Potato", type: "add" }, { name: "NO Parmesan", type: "remove" }, { name: "Peanut", type: "allergy" }], status: "pending" },
-        { qty: 2, name: "Grassfed Sirloin Steak", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "Extra Butter", type: "add" }, { name: "Gluten", type: "allergy" }], status: "pending" },
-        { qty: 1, name: "Grassfed Sirloin Steak", category: "ENTREE", modifiers: [{ name: "Rare", type: "note" }, { name: "Light", type: "add" }, { name: "Peanuts", type: "allergy" }], status: "pending" },
-      ],
-      status: "active",
-      priority: "normal",
-    },
-  ];
-};
+// Mock data removed - KDS now sources exclusively from localStorage kds_ticket_queue
 
 // ─── Time helpers ───
 const getElapsedMinutes = (createdAt: Date) => Math.floor((Date.now() - createdAt.getTime()) / 60000);
@@ -638,13 +537,11 @@ const KDS = () => {
   }
 
   const [tickets, setTickets] = useState<KDSTicket[]>(() => {
-    // Load real orders from KDS queue, fall back to mock data
     try {
       const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
-      const real = convertQueueToTickets(queue);
-      return real.length > 0 ? real : generateMockTickets();
+      return convertQueueToTickets(queue);
     } catch {
-      return generateMockTickets();
+      return [];
     }
   });
   const [showSummary, setShowSummary] = useState(true);
@@ -671,11 +568,7 @@ const KDS = () => {
                 audio.play().catch(() => {});
               } catch {}
             }
-            setTickets(prev => {
-              const isMockOnly = prev.every(t => t.id.startsWith("kds-") && !t.id.startsWith("kds-live-"));
-              const base = isMockOnly ? [] : prev;
-              return [...newOnes, ...base];
-            });
+            setTickets(prev => [...newOnes, ...prev]);
             setKnownIds(prev => {
               const next = new Set(prev);
               newOnes.forEach(t => next.add(t.id));

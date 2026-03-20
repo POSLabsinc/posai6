@@ -29,7 +29,7 @@ import clearIcon from "@/assets/icons/clear-c.png";
 import saveIcon from "@/assets/icons/save.png";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
-import { getDashboardOrders, DashboardOrder, DashboardOrderItem, PaymentMethod, formatTableName, calculateOrderTotals } from "@/data/orders";
+import { DashboardOrder, DashboardOrderItem, PaymentMethod, formatTableName, calculateOrderTotals, getStatusColorHex, getFilterCategory } from "@/data/orders";
 import receiptIcon from "@/assets/icons/receipt-icon.svg";
 import registerIcon from "@/assets/icons/register.svg";
 import discountBtnIcon from "@/assets/icons/discount-icon.svg";
@@ -350,8 +350,7 @@ const calculateOrderTotal = (items: OrderItemType[]): number => {
 // Static split configs storage key (same as TableOrderDetails)
 const STATIC_SPLITS_KEY = 'pos-tableorder-static-splits';
 
-// Get orders from centralized data store
-const getStaticDashboardOrders = (): DashboardOrder[] => getDashboardOrders();
+// Static mock orders removed - Dashboard now sources exclusively from DB and session orders
 
 // Default order items (used as fallback)
 const getDefaultOrderItems = (orders: DashboardOrder[]): OrderItemType[] => orders[0]?.items || [];
@@ -865,29 +864,59 @@ const Dashboard = () => {
     };
   };
   
-  // Merge static orders with session orders (session orders first)
+  // Source orders exclusively from DB ticket orders and session orders
   const allOrders = useMemo(() => {
-    const staticOrders = getStaticDashboardOrders();
-    
-    // Attach static split configs to static orders
-    const enrichedStaticOrders = staticOrders.map(order => {
-      const splitKey = `${order.table}:${order.id}`;
-      if (staticSplitConfigs[splitKey]) {
-        return { ...order, splitConfiguration: staticSplitConfigs[splitKey] };
-      }
-      return order;
-    });
-    
     // Convert session orders to dashboard format
     const dashboardSessionOrders = sessionOrders.map(convertSessionToDashboardOrder);
     
-    // Assign sequential order numbers (1, 2, 3...)
-    const merged = [...dashboardSessionOrders, ...enrichedStaticOrders];
+    // Convert DB ticket orders to dashboard format
+    const dashboardDbOrders: DashboardOrder[] = dbTicketOrders.map((order, idx) => {
+      const isPaid = order.status === 'PAID' || order.status === 'Completed';
+      return {
+        id: Number(order.id.replace(/\D/g, '').slice(0, 8)) || idx + 1,
+        orderNumber: order.orderNumber || (idx + 1),
+        status: order.status,
+        statusColor: getStatusColorHex(order.status),
+        filterCategory: getFilterCategory(order.status),
+        guest: order.name || 'Guest',
+        orderNo: `Order No ${order.orderNumber || idx + 1}`,
+        seats: order.partySize || 1,
+        date: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '',
+        arrivedAt: order.time || '',
+        timer: order.timer || '00:00',
+        type: order.orderType || 'Dine In',
+        check: order.check || '--',
+        revenueCenter: order.revenueCenter || 'Main',
+        tip: `$${(order.tip || 0).toFixed(2)}`,
+        paymentType: order.paymentType || '--',
+        isPaid,
+        server: order.server || 'Unknown',
+        total: order.total || 0,
+        phone: order.phone || '',
+        table: order.table || '',
+        notes: order.notes || '',
+        items: (order.items || []).map((item, itemIdx) => ({
+          id: itemIdx + 1,
+          qty: item.qty,
+          name: item.name,
+          price: item.price,
+          seats: item.seats || [],
+          noTax: item.noTax || false,
+          itemOrderType: order.orderType || 'Dine In',
+          isFired: item.isFired || false
+        })),
+        paymentMethods: order.paymentMethods as unknown as PaymentMethod[] | undefined,
+        splitConfiguration: order.splitConfiguration
+      };
+    });
+    
+    // Assign sequential order numbers
+    const merged = [...dashboardSessionOrders, ...dashboardDbOrders];
     return merged.map((order, idx) => ({
       ...order,
       orderNumber: order.orderNumber || (idx + 1),
     }));
-  }, [sessionOrders, staticSplitConfigs]);
+  }, [sessionOrders, dbTicketOrders]);
   
   // Core state
   const [activeFilter, setActiveFilter] = useState("All");

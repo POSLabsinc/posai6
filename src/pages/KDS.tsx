@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Clock, ChefHat, Settings, Eye, SlidersHorizontal, Volume2, VolumeX, Maximize, Minimize, Menu, X, ChevronRight, Megaphone, Check, Bell } from "lucide-react";
+import { Home, Clock, ChefHat, Settings, Eye, SlidersHorizontal, Volume2, VolumeX, Maximize, Minimize, Menu, X, ChevronRight, Megaphone, Check, Bell, Reply, CornerDownLeft } from "lucide-react";
 import messageKdsIcon from "@/assets/icons/message-kds.svg";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import { QRCodeSVG } from "qrcode.react";
 
 // ─── Table Number Normalization ───
 // Extracts just the numeric/alphanumeric table identifier from various formats

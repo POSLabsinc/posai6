@@ -518,7 +518,33 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
             </div>
           </div>
 
-          {/* Customer Facing Display Section */}
+          {/* Dashboard Metrics Section */}
+          <p className="text-neutral-500 text-base mb-3 px-1">Dashboard</p>
+          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-2">
+            {([
+              { key: 'totalSale' as const, label: 'Total Sale' },
+              { key: 'totalTip' as const, label: 'Total Tip' },
+              { key: 'totalHours' as const, label: 'Total Hours' },
+              { key: 'ordering' as const, label: 'Ordering' },
+              { key: 'readyToServed' as const, label: 'Ready to Served' },
+              { key: 'completed' as const, label: 'Completed' },
+            ]).map((metric, idx, arr) => (
+              <div key={metric.key}>
+                <div className="py-3.5 px-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground text-lg font-medium">{metric.label}</span>
+                    <Switch checked={dashboardMetrics[metric.key]} onCheckedChange={(v) => handleDashboardMetricToggle(metric.key, v)} />
+                  </div>
+                </div>
+                {idx < arr.length - 1 && <div className="h-px bg-neutral-700/50 mx-4" />}
+              </div>
+            ))}
+          </div>
+          <p className="text-neutral-500 text-sm mb-6 px-1">
+            Choose which metric cards are visible on the dashboard summary bar.
+          </p>
+
+
            <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-2">
             <div className="flex items-center justify-between py-3 px-4">
                <div>

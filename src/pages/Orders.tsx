@@ -83,15 +83,17 @@ import { usePanelPosition } from "@/contexts/PanelPositionContext";
 import { PanelDropZones } from "@/components/PanelDropZone";
 import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
 import AddGuestForm from "@/components/AddGuestForm";
-import DineInGuestForm, { DineInGuestData } from "@/components/DineInGuestForm";
-import TakeOutGuestForm, { TakeOutGuestData } from "@/components/TakeOutGuestForm";
-import DeliveryGuestForm, { DeliveryGuestData } from "@/components/DeliveryGuestForm";
-import BanquetGuestForm, { BanquetGuestData } from "@/components/BanquetGuestForm";
-import DriveThruGuestForm, { DriveThruGuestData } from "@/components/DriveThruGuestForm";
-import CurbSideGuestForm, { CurbSideGuestData } from "@/components/CurbSideGuestForm";
-import ScheduledGuestForm, { ScheduledGuestData } from "@/components/ScheduledGuestForm";
-import PhoneInGuestForm, { PhoneInGuestData } from "@/components/PhoneInGuestForm";
-import CustomOrderGuestForm, { CustomOrderGuestData } from "@/components/CustomOrderGuestForm";
+import DineInGuestForm from "@/components/DineInGuestForm";
+import TakeOutGuestForm from "@/components/TakeOutGuestForm";
+import DeliveryGuestForm from "@/components/DeliveryGuestForm";
+import BanquetGuestForm from "@/components/BanquetGuestForm";
+import DriveThruGuestForm from "@/components/DriveThruGuestForm";
+import CurbSideGuestForm from "@/components/CurbSideGuestForm";
+import ScheduledGuestForm from "@/components/ScheduledGuestForm";
+import PhoneInGuestForm from "@/components/PhoneInGuestForm";
+import CustomOrderGuestForm from "@/components/CustomOrderGuestForm";
+import { useOrderTypeGuests } from "@/hooks/useOrderTypeGuests";
+import { useMenuNavigation } from "@/hooks/useMenuNavigation";
 import MPINDialog from "@/components/MPINDialog";
 import PriceOverrideDialog from "@/components/PriceOverrideDialog";
 import VoucherDialog from "@/components/VoucherDialog";
@@ -463,51 +465,23 @@ const Orders = () => {
   const existingOrderPaymentStatus = existingOrder?.paymentStatus || existingOrder?.status;
   const isExistingOrderPaid = existingOrderPaymentStatus === 'Paid' || existingOrderPaymentStatus === 'PAID';
 
-  // Helper to get first category and subcategory for a menu
-  const getFirstCategoryAndSubcategory = (menu: string) => {
-    const categories = augmentedMenuCategories[menu] || [];
-    const firstCategory = categories[0] || "";
-    const subcategories = mergedCategorySubcategories[firstCategory] || [];
-    const firstSubcategory = subcategories[0] || "";
-    return {
-      firstCategory,
-      firstSubcategory
-    };
-  };
-  const defaultMenu = "BAR MENU";
+  // Menu navigation hook - manages active category, subcategory, menu selection, and position
   const {
-    firstCategory: defaultCategory,
-    firstSubcategory: defaultSubcategory
-  } = getFirstCategoryAndSubcategory(defaultMenu);
-  const [activeCategory, setActiveCategory] = useState(defaultCategory);
-  const [activeSubcategory, setActiveSubcategory] = useState(defaultSubcategory);
-  const [activeFoodCategory, setActiveFoodCategory] = useState("Appetizer");
-  const [selectedMenu, setSelectedMenu] = useState(defaultMenu);
-  const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
+    activeCategory, setActiveCategory,
+    activeSubcategory, setActiveSubcategory,
+    selectedMenu, setSelectedMenu,
+    isMenuSelectOpen, setIsMenuSelectOpen,
+    menuPosition, setMenuPosition,
+    handleMenuSelect,
+    handleCategoryChange,
+    getFirstCategoryAndSubcategory,
+  } = useMenuNavigation({
+    menuList,
+    augmentedMenuCategories,
+    mergedCategorySubcategories,
+  });
   const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
-
-  // Sync selected menu & category when menu list changes (e.g. toggle on/off in settings)
-  useEffect(() => {
-    if (menuList.length > 0) {
-      // If the currently selected menu is no longer in the list, select the first one
-      if (!menuList.includes(selectedMenu)) {
-        setSelectedMenu(menuList[0]);
-      }
-    }
-  }, [menuList]);
-
-  // Sync active category/subcategory when menu data loads from DB
-  useEffect(() => {
-    if (menuList.length > 0 && augmentedMenuCategories[selectedMenu]?.length) {
-      const cats = augmentedMenuCategories[selectedMenu];
-      if (!activeCategory || !cats.includes(activeCategory)) {
-        const firstCat = cats[0] || "";
-        setActiveCategory(firstCat);
-        const subs = mergedCategorySubcategories[firstCat] || [];
-        setActiveSubcategory(subs[0] || "");
-      }
-    }
-  }, [menuList, augmentedMenuCategories, selectedMenu]);
+  const [activeFoodCategory, setActiveFoodCategory] = useState("Appetizer");
   const [existingItems, setExistingItems] = useState<OrderItem[]>([]);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
@@ -517,29 +491,25 @@ const Orders = () => {
   const showSaveButton = checkoutOptionsSettings.showSaveButton;
   const autoCloseTicket = checkoutOptionsSettings.autoCloseTicket;
   const [orderType, setOrderType] = useState(() => requireOrderType ? "" : "DINE IN");
-  const [showDineInForm, setShowDineInForm] = useState(false);
-  const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
-  const [showTakeOutForm, setShowTakeOutForm] = useState(false);
-  const [takeOutGuestData, setTakeOutGuestData] = useState<TakeOutGuestData | null>(null);
-  const [showDeliveryForm, setShowDeliveryForm] = useState(false);
-  const [deliveryGuestData, setDeliveryGuestData] = useState<DeliveryGuestData | null>(null);
-  const [showBanquetForm, setShowBanquetForm] = useState(false);
-  const [banquetGuestData, setBanquetGuestData] = useState<BanquetGuestData | null>(null);
-  const [showDriveThruForm, setShowDriveThruForm] = useState(false);
-  const [driveThruGuestData, setDriveThruGuestData] = useState<DriveThruGuestData | null>(null);
-  const [showCurbSideForm, setShowCurbSideForm] = useState(false);
-  const [curbSideGuestData, setCurbSideGuestData] = useState<CurbSideGuestData | null>(null);
-  const [showScheduledForm, setShowScheduledForm] = useState(false);
-  const [scheduledGuestData, setScheduledGuestData] = useState<ScheduledGuestData | null>(null);
-  const [showPhoneInForm, setShowPhoneInForm] = useState(false);
-  const [phoneInGuestData, setPhoneInGuestData] = useState<PhoneInGuestData | null>(null);
-  const [showCustomOrderForm, setShowCustomOrderForm] = useState(false);
-  const [customOrderGuestData, setCustomOrderGuestData] = useState<CustomOrderGuestData | null>(null);
+  // Guest form state hook - manages all 9 order type guest forms
+  const guestForms = useOrderTypeGuests();
+  const {
+    showDineInForm, setShowDineInForm, dineInGuestData, setDineInGuestData,
+    showTakeOutForm, setShowTakeOutForm, takeOutGuestData, setTakeOutGuestData,
+    showDeliveryForm, setShowDeliveryForm, deliveryGuestData, setDeliveryGuestData,
+    showBanquetForm, setShowBanquetForm, banquetGuestData, setBanquetGuestData,
+    showDriveThruForm, setShowDriveThruForm, driveThruGuestData, setDriveThruGuestData,
+    showCurbSideForm, setShowCurbSideForm, curbSideGuestData, setCurbSideGuestData,
+    showScheduledForm, setShowScheduledForm, scheduledGuestData, setScheduledGuestData,
+    showPhoneInForm, setShowPhoneInForm, phoneInGuestData, setPhoneInGuestData,
+    showCustomOrderForm, setShowCustomOrderForm, customOrderGuestData, setCustomOrderGuestData,
+    openFormForType, clearAllGuestData,
+  } = guestForms;
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const [isOrderPanelExpanded, setIsOrderPanelExpanded] = useState(false);
-  const [menuPosition, setMenuPosition] = useState<'minimized' | 'center' | 'full'>('center');
+  
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchStartTime, setTouchStartTime] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
@@ -704,26 +674,8 @@ const Orders = () => {
     setExpandedCartItems(new Set());
     setVoucherMode(false);
     setEditingVoucherData(null);
-    // Clear all guest-specific form data
-    setDineInGuestData(null);
-    setTakeOutGuestData(null);
-    setDeliveryGuestData(null);
-    setBanquetGuestData(null);
-    setDriveThruGuestData(null);
-    setCurbSideGuestData(null);
-    setScheduledGuestData(null);
-    setPhoneInGuestData(null);
-    setCustomOrderGuestData(null);
-    // Close all guest forms
-    setShowDineInForm(false);
-    setShowTakeOutForm(false);
-    setShowDeliveryForm(false);
-    setShowBanquetForm(false);
-    setShowDriveThruForm(false);
-    setShowCurbSideForm(false);
-    setShowScheduledForm(false);
-    setShowPhoneInForm(false);
-    setShowCustomOrderForm(false);
+    // Clear all guest-specific form data and close all forms
+    clearAllGuestData();
     // Reset panel state
     setIsOrderPanelExpanded(false);
     setSeatFilter([]);
@@ -1295,25 +1247,6 @@ const Orders = () => {
       setActiveCustomItemField('name');
     }
   };
-  const handleMenuSelect = (value: string) => {
-    setSelectedMenu(value);
-    setIsMenuSelectOpen(false);
-    // Auto-select first category and subcategory for the new menu
-    const {
-      firstCategory,
-      firstSubcategory
-    } = getFirstCategoryAndSubcategory(value);
-    setActiveCategory(firstCategory);
-    setActiveSubcategory(firstSubcategory);
-  };
-
-  // Handle category change - auto-select first subcategory
-  const handleCategoryChange = (category: string) => {
-    setActiveCategory(category);
-    const subcategories = mergedCategorySubcategories[category] || [];
-    const firstSubcategory = subcategories[0] || "";
-    setActiveSubcategory(firstSubcategory);
-  };
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const discount = selectedDiscounts.reduce((sum, d) => {
     if (d.type === "percentage") return sum + (subtotal * d.value) / 100;
@@ -1613,37 +1546,8 @@ const Orders = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px] p-1 z-50">
                     {orderTypes.map((type) => <DropdownMenuItem key={type.label} onClick={() => {
-                  const isSameType = orderType === type.label;
                   setOrderType(type.label);
-                  // Close all forms first
-                  setShowDineInForm(false);
-                  setShowTakeOutForm(false);
-                  setShowDeliveryForm(false);
-                  setShowBanquetForm(false);
-                  setShowDriveThruForm(false);
-                  setShowCurbSideForm(false);
-                  setShowScheduledForm(false);
-                  setShowPhoneInForm(false);
-                  setShowCustomOrderForm(false);
-                  if (type.label === "DINE IN") {
-                    setShowDineInForm(true);
-                  } else if (type.label === "TAKE OUT") {
-                    setShowTakeOutForm(true);
-                  } else if (type.label === "DELIVERY") {
-                    setShowDeliveryForm(true);
-                  } else if (type.label === "BANQUET") {
-                    setShowBanquetForm(true);
-                  } else if (type.label === "DRIVE THRU") {
-                    setShowDriveThruForm(true);
-                  } else if (type.label === "CURB SIDE") {
-                    setShowCurbSideForm(true);
-                  } else if (type.label === "SCHEDULED") {
-                    setShowScheduledForm(true);
-                  } else if (type.label === "PHONE-IN") {
-                    setShowPhoneInForm(true);
-                  } else if (type.label === "CUSTOM") {
-                    setShowCustomOrderForm(true);
-                  }
+                  openFormForType(type.label);
                 }} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2 flex items-center gap-2">
                         <img src={type.icon} alt="" className="w-4 h-4" />
                         {type.label}
@@ -2853,37 +2757,8 @@ const Orders = () => {
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
                         {orderTypes.map((type) => <DropdownMenuItem key={type.label} onClick={() => {
-                      const isSameType = orderType === type.label;
                       setOrderType(type.label);
-                      // Close all forms first
-                      setShowDineInForm(false);
-                      setShowTakeOutForm(false);
-                      setShowDeliveryForm(false);
-                      setShowBanquetForm(false);
-                      setShowDriveThruForm(false);
-                      setShowCurbSideForm(false);
-                      setShowScheduledForm(false);
-                      setShowPhoneInForm(false);
-                      setShowCustomOrderForm(false);
-                      if (type.label === "DINE IN") {
-                        setShowDineInForm(true);
-                      } else if (type.label === "TAKE OUT") {
-                        setShowTakeOutForm(true);
-                      } else if (type.label === "DELIVERY") {
-                        setShowDeliveryForm(true);
-                      } else if (type.label === "BANQUET") {
-                        setShowBanquetForm(true);
-                      } else if (type.label === "DRIVE THRU") {
-                        setShowDriveThruForm(true);
-                      } else if (type.label === "CURB SIDE") {
-                        setShowCurbSideForm(true);
-                      } else if (type.label === "SCHEDULED") {
-                        setShowScheduledForm(true);
-                      } else if (type.label === "PHONE-IN") {
-                        setShowPhoneInForm(true);
-                      } else if (type.label === "CUSTOM") {
-                        setShowCustomOrderForm(true);
-                      }
+                      openFormForType(type.label);
                     }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
                             <img src={type.icon} alt="" className="w-4 h-4" />
                             {type.label}

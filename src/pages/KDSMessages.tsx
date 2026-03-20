@@ -119,10 +119,7 @@ const KDSMessages = () => {
       const orderRef = originalMsg.linked_order_number ? `Order #${originalMsg.linked_order_number}` : "";
       const tableRef = originalMsg.table_number || "";
       const contextParts = [orderRef, tableRef].filter(Boolean).join(" · ");
-      const previewParts = [
-        contextParts ? contextParts : "",
-        `Reply: "${replyText.length > 40 ? replyText.slice(0, 37) + "..." : replyText}"`,
-      ].filter(Boolean).join(" - ");
+      const previewParts = `Reply: "${replyText.length > 40 ? replyText.slice(0, 37) + "..." : replyText}"`;
       (supabase as any).from("notifications").insert({
         title: `Kitchen Reply${contextParts ? ` - ${contextParts}` : ""}`,
         preview: previewParts,

@@ -2051,7 +2051,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
                   >
                     <img src={registerIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
-                    Register
+                    No Sale
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>
@@ -3180,7 +3180,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
               >
                 <img src={registerIcon} alt="" className="w-3 h-3" />
-                Register
+                No Sale
               </button>
             </div>
           )}
@@ -4059,7 +4059,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
               >
                 <img src={registerIcon} alt="" className="w-3 h-3" />
-                Register
+                No Sale
               </button>
             </div>
           )}

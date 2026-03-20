@@ -2831,7 +2831,9 @@ const Orders = () => {
                   setGuestName(`${guestData.firstName} ${guestData.lastName}`);
                   setGuestPhone(guestData.phoneNumber);
                   setShowAddGuestForm(false);
-                }} />
+                }}
+                hideHeader={true}
+                onBack={() => setShowAddGuestForm(false)} />
 
                 </div>
             }

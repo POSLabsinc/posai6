@@ -943,6 +943,10 @@ const KDS = () => {
 
   // Reply state
   const [kdsReplies, setKdsReplies] = useState<KDSReply[]>(() => readReplies());
+  const [localNotifCount, setLocalNotifCount] = useState(() => {
+    try { return JSON.parse(localStorage.getItem("kds_sent_reply_notifications") || "[]").filter((n: any) => !n.read).length; } catch { return 0; }
+  });
+  const [showNotifPopover, setShowNotifPopover] = useState(false);
 
   const handleSendReply = useCallback((messageId: string, replyText: string) => {
     const originalMsg = kdsMessages.find(m => m.message_id === messageId);

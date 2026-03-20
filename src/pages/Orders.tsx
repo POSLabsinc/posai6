@@ -1545,7 +1545,7 @@ const Orders = () => {
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <img src={runnerIcon} alt="User" className="w-4 h-4" />
-                  <span className="text-neutral-400">{guestName || "Mia Jone"}</span>
+                  <span className="text-neutral-400">{currentServerName}</span>
                   <button onClick={() => {
                 const newExpanded = !isOrderPanelExpanded;
                 setIsOrderPanelExpanded(newExpanded);

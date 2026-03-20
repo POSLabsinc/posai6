@@ -678,6 +678,15 @@ const KDS = () => {
   // Poll pending messages for badge + attached messages using shared helper
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
   const prevPendingCountRef = useRef(0);
+  // One-time session cleanup: clear old messages on hard refresh/new tab only
+  useEffect(() => {
+    const alreadyCleared = sessionStorage.getItem("kds_session_cleared");
+    if (!alreadyCleared) {
+      localStorage.removeItem("kds_message_queue");
+      sessionStorage.setItem("kds_session_cleared", "true");
+    }
+  }, []);
+
   useEffect(() => {
     const load = () => {
       const allMessages = readSessionMessages();

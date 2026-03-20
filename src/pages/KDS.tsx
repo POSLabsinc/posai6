@@ -238,8 +238,7 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
       const raw = localStorage.getItem("kds_message_queue");
       if (!raw) { setMessages([]); return; }
       const allParsed: KDSMessageData[] = JSON.parse(raw).map((m: any) => ({ ...m, status: m.status || "pending" }));
-      // Only show messages that were NOT present when KDS loaded
-      const parsed = allParsed.filter(m => !staleIds.has(m.message_id));
+      const parsed = allParsed;
       setMessages(parsed);
       const pendingCount = parsed.filter(m => m.status === "pending").length;
       if (pendingCount > prevCountRef.current && prevCountRef.current > 0) {

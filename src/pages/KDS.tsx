@@ -519,7 +519,7 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
                 <Button onClick={() => onAcknowledge(msg.message_id)} className="flex-1 bg-white text-black hover:bg-neutral-200 font-bold text-xs py-3 rounded-lg">
                   <Check className="w-3 h-3 mr-1.5" /> ACKNOWLEDGE
                 </Button>
-                <Button variant="outline" onClick={() => setReplyingTo(replyingTo === msg.message_id ? null : msg.message_id)} className="flex-1 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-xs py-3 rounded-lg">
+                <Button variant="outline" onClick={() => onOpenReplyDialog(msg)} className="flex-1 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-xs py-3 rounded-lg">
                   <Reply className="w-3 h-3 mr-1.5" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
                 </Button>
               </div>
@@ -529,17 +529,13 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
                   <Check className="w-3 h-3" />
                   <span>Acknowledged {msg.acknowledged_at ? format(new Date(msg.acknowledged_at), "hh:mm a") : ""}</span>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setReplyingTo(replyingTo === msg.message_id ? null : msg.message_id)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
+                <Button variant="outline" size="sm" onClick={() => onOpenReplyDialog(msg)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
                   <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
                 </Button>
               </div>
             )}
             {/* Threaded replies */}
             <RepliesThread replies={msgReplies} />
-            {/* Reply panel */}
-            {replyingTo === msg.message_id && (
-              <KDSReplyPanel message={msg} onSend={(text) => handleSendReply(msg.message_id, text)} onCancel={() => setReplyingTo(null)} />
-            )}
           </div>
           );
         })}

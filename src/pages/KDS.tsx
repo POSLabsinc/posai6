@@ -744,7 +744,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
         {isMessage ? (
           <div className="py-3">
             <p className="text-sm text-white leading-relaxed">{ticket.products[0]?.name}</p>
-            <p className="text-[10px] text-neutral-500 mt-2">From: {ticket.serverName}</p>
+            <p className="text-[10px] text-neutral-500 mt-2">From: {ticket.serverName}{(() => { const s = staffList.find(st => st.name === ticket.serverName); return s ? ` | ${s.role}` : ""; })()}</p>
           </div>
         ) : (
           categoryOrder.map(cat => {

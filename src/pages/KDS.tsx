@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
 import { staffList } from "@/data/staff";
 import KDSReplyDialog from "@/components/KDSReplyDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 // ─── Table Number Normalization ───
 // Extracts just the numeric/alphanumeric table identifier from various formats

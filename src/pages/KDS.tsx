@@ -247,8 +247,6 @@ const readSessionMessages = (): KDSMessageData[] => {
     return parsed
       .map((m: any) => ({ ...m, status: m.status || "pending" } as KDSMessageData))
       .filter((m) => {
-        const ts = new Date(m.timestamp || 0).getTime();
-        if (ts <= PAGE_SESSION_START) return false;
         if (seen.has(m.message_id)) return false;
         seen.add(m.message_id);
         return true;

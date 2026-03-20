@@ -58,6 +58,7 @@ import serviceChargeIcon from "@/assets/icons/service-charge.svg";
 import addGuestIcon from "@/assets/icons/add-guest.svg";
 import openOrdersIcon from "@/assets/icons/open-orders.svg";
 import allergyIcon from "@/assets/icons/allergy.svg";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import splitCheckIcon from "@/assets/icons/split-check.svg";
 import reopenCheckIcon from "@/assets/icons/reopen-check.svg";
 import messageKdsIcon from "@/assets/icons/message-kds.svg";

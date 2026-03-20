@@ -753,9 +753,10 @@ const KDS = () => {
       const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
       const updated = queue.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m);
       localStorage.setItem("kds_message_queue", JSON.stringify(updated));
-      setKdsMessages(updated);
+      // Re-apply session filter so stale messages don't leak into state
+      setKdsMessages(filterSessionMessages(updated.map((m: any) => ({ ...m, status: m.status || "pending" }))));
     } catch {}
-  }, []);
+  }, [filterSessionMessages]);
 
   const activeTickets = tickets.filter(t => t.status === "active");
   const totalInQueue = activeTickets.reduce((sum, t) => sum + t.products.filter(p => p.status === "pending" || p.status === "cooking").length, 0);

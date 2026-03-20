@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { Search, X, Car, Pencil, Trash2 } from "lucide-react";
+import { Search, X, Car, Pencil, Trash2, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +21,13 @@ interface DriveThruGuestFormProps {
   initialData?: DriveThruGuestData | null;
 }
 
+export interface VehicleInfo {
+  vehicleType: string;
+  vehicleColor: string;
+  vehicleBrand: string;
+  licensePlate: string;
+}
+
 export interface DriveThruGuestData {
   guestName: string;
   phoneNumber: string;
@@ -30,115 +37,137 @@ export interface DriveThruGuestData {
   vehicleColor: string;
   vehicleBrand: string;
   licensePlate: string;
+  vehicles?: VehicleInfo[];
 }
 
 const vehicleTypes = ["Sedan", "SUV", "Truck", "Van", "Coupe", "Hatchback", "Convertible", "Wagon"];
 const vehicleColors = ["Black", "White", "Silver", "Gray", "Red", "Blue", "Green", "Yellow", "Orange", "Brown"];
 
+const emptyVehicle: VehicleInfo = { vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" };
+
 const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThruGuestFormProps) => {
-  const [formData, setFormData] = useState<DriveThruGuestData>({
+  // Migrate legacy single vehicle to vehicles array
+  const initVehicles = (): VehicleInfo[] => {
+    if (initialData?.vehicles && initialData.vehicles.length > 0) return initialData.vehicles;
+    if (initialData?.vehicleBrand || initialData?.licensePlate || initialData?.vehicleColor || initialData?.vehicleType) {
+      return [{
+        vehicleType: initialData.vehicleType || "",
+        vehicleColor: initialData.vehicleColor || "",
+        vehicleBrand: initialData.vehicleBrand || "",
+        licensePlate: initialData.licensePlate || "",
+      }];
+    }
+    return [];
+  };
+
+  const [formData, setFormData] = useState({
     guestName: initialData?.guestName || "",
     phoneNumber: initialData?.phoneNumber ? formatPhoneNumber(initialData.phoneNumber) : "",
     email: initialData?.email || "",
     notes: initialData?.notes || "",
-    vehicleType: initialData?.vehicleType || "",
-    vehicleColor: initialData?.vehicleColor || "",
-    vehicleBrand: initialData?.vehicleBrand || "",
-    licensePlate: initialData?.licensePlate || "",
   });
-  const { searchQuery, setSearchQuery, searchResults, showSearchResults, setShowSearchResults } = useCustomerSearch();
-  const [showVehicleInfo, setShowVehicleInfo] = useState(false);
-  const [vehicleSaved, setVehicleSaved] = useState(!!(initialData?.vehicleBrand || initialData?.licensePlate || initialData?.vehicleColor));
-  
-  const [vehicleSwipeX, setVehicleSwipeX] = useState(0);
-  const [isVehicleSwiping, setIsVehicleSwiping] = useState(false);
-  const vehicleStartX = useRef(0);
-  const swipeThreshold = -80;
 
+  const [vehicles, setVehicles] = useState<VehicleInfo[]>(initVehicles());
+  const [editingVehicleIndex, setEditingVehicleIndex] = useState<number | null>(null);
+  const [editingVehicle, setEditingVehicle] = useState<VehicleInfo>({ ...emptyVehicle });
+  const [isAddingNew, setIsAddingNew] = useState(false);
+
+  const { searchQuery, setSearchQuery, searchResults, showSearchResults, setShowSearchResults } = useCustomerSearch();
   const { showConflictDialog, setShowConflictDialog, conflictCustomer, setConflictCustomer, clearConflict } = usePhoneConflict(formData.phoneNumber, formData.guestName);
 
-  const hasVehicleInfo = formData.vehicleBrand || formData.licensePlate || formData.vehicleColor;
+  // Swipe state per vehicle
+  const [swipeStates, setSwipeStates] = useState<Record<number, number>>({});
+  const [swipingIndex, setSwipingIndex] = useState<number | null>(null);
+  const swipeStartX = useRef(0);
+  const swipeThreshold = -80;
+
+  const handleAddVehicle = () => {
+    setEditingVehicle({ ...emptyVehicle });
+    setEditingVehicleIndex(null);
+    setIsAddingNew(true);
+  };
+
+  const handleEditVehicle = (index: number) => {
+    setEditingVehicle({ ...vehicles[index] });
+    setEditingVehicleIndex(index);
+    setIsAddingNew(true);
+    setSwipeStates(prev => ({ ...prev, [index]: 0 }));
+  };
+
+  const handleDeleteVehicle = (index: number) => {
+    setVehicles(prev => prev.filter((_, i) => i !== index));
+    setSwipeStates(prev => {
+      const next = { ...prev };
+      delete next[index];
+      return next;
+    });
+  };
 
   const handleSaveVehicle = () => {
-    if (hasVehicleInfo) {
-      setVehicleSaved(true);
-      setShowVehicleInfo(false);
-    }
-  };
+    const hasInfo = editingVehicle.vehicleBrand || editingVehicle.licensePlate || editingVehicle.vehicleColor || editingVehicle.vehicleType;
+    if (!hasInfo) return;
 
-  const handleEditVehicle = () => {
-    setVehicleSwipeX(0);
-    setVehicleSaved(false);
-    setShowVehicleInfo(true);
-  };
-
-  const handleDeleteVehicle = () => {
-    setFormData(prev => ({
-      ...prev,
-      vehicleType: "",
-      vehicleColor: "",
-      vehicleBrand: "",
-      licensePlate: "",
-    }));
-    setVehicleSaved(false);
-    setVehicleSwipeX(0);
-  };
-
-  const handleVehicleTouchStart = (e: React.TouchEvent) => {
-    vehicleStartX.current = e.touches[0].clientX;
-    setIsVehicleSwiping(true);
-  };
-
-  const handleVehicleTouchMove = (e: React.TouchEvent) => {
-    if (!isVehicleSwiping) return;
-    const diff = e.touches[0].clientX - vehicleStartX.current;
-    setVehicleSwipeX(Math.max(swipeThreshold, Math.min(0, diff)));
-  };
-
-  const handleVehicleTouchEnd = () => {
-    setIsVehicleSwiping(false);
-    if (vehicleSwipeX < swipeThreshold / 2) {
-      setVehicleSwipeX(swipeThreshold);
+    if (editingVehicleIndex !== null) {
+      setVehicles(prev => prev.map((v, i) => i === editingVehicleIndex ? { ...editingVehicle } : v));
     } else {
-      setVehicleSwipeX(0);
+      setVehicles(prev => [...prev, { ...editingVehicle }]);
     }
+    setIsAddingNew(false);
+    setEditingVehicleIndex(null);
+    setEditingVehicle({ ...emptyVehicle });
   };
 
-  const handleVehicleMouseDown = (e: React.MouseEvent) => {
-    vehicleStartX.current = e.clientX;
-    setIsVehicleSwiping(true);
+  const handleCancelVehicleEdit = () => {
+    setIsAddingNew(false);
+    setEditingVehicleIndex(null);
+    setEditingVehicle({ ...emptyVehicle });
   };
 
-  const handleVehicleMouseMove = (e: React.MouseEvent) => {
-    if (!isVehicleSwiping) return;
-    const diff = e.clientX - vehicleStartX.current;
-    setVehicleSwipeX(Math.max(swipeThreshold, Math.min(0, diff)));
+  const handleVehicleFieldChange = (field: keyof VehicleInfo, value: string) => {
+    setEditingVehicle(prev => ({ ...prev, [field]: value }));
   };
 
-  const handleVehicleMouseUp = () => {
-    setIsVehicleSwiping(false);
-    if (vehicleSwipeX < swipeThreshold / 2) {
-      setVehicleSwipeX(swipeThreshold);
-    } else {
-      setVehicleSwipeX(0);
-    }
+  // Swipe handlers
+  const handleTouchStart = (index: number, e: React.TouchEvent) => {
+    swipeStartX.current = e.touches[0].clientX;
+    setSwipingIndex(index);
   };
-
-  const handleVehicleMouseLeave = () => {
-    if (isVehicleSwiping) {
-      setIsVehicleSwiping(false);
-      if (vehicleSwipeX < swipeThreshold / 2) {
-        setVehicleSwipeX(swipeThreshold);
-      } else {
-        setVehicleSwipeX(0);
-      }
+  const handleTouchMove = (index: number, e: React.TouchEvent) => {
+    if (swipingIndex !== index) return;
+    const diff = e.touches[0].clientX - swipeStartX.current;
+    setSwipeStates(prev => ({ ...prev, [index]: Math.max(swipeThreshold, Math.min(0, diff)) }));
+  };
+  const handleTouchEnd = (index: number) => {
+    setSwipingIndex(null);
+    const x = swipeStates[index] || 0;
+    setSwipeStates(prev => ({ ...prev, [index]: x < swipeThreshold / 2 ? swipeThreshold : 0 }));
+  };
+  const handleMouseDown = (index: number, e: React.MouseEvent) => {
+    swipeStartX.current = e.clientX;
+    setSwipingIndex(index);
+  };
+  const handleMouseMove = (index: number, e: React.MouseEvent) => {
+    if (swipingIndex !== index) return;
+    const diff = e.clientX - swipeStartX.current;
+    setSwipeStates(prev => ({ ...prev, [index]: Math.max(swipeThreshold, Math.min(0, diff)) }));
+  };
+  const handleMouseUp = (index: number) => {
+    setSwipingIndex(null);
+    const x = swipeStates[index] || 0;
+    setSwipeStates(prev => ({ ...prev, [index]: x < swipeThreshold / 2 ? swipeThreshold : 0 }));
+  };
+  const handleMouseLeave = (index: number) => {
+    if (swipingIndex === index) {
+      setSwipingIndex(null);
+      const x = swipeStates[index] || 0;
+      setSwipeStates(prev => ({ ...prev, [index]: x < swipeThreshold / 2 ? swipeThreshold : 0 }));
     }
   };
 
   const maxNotes = 70;
 
   const handleSelectGuest = (guest: Customer) => {
-    setFormData((prev) => ({
+    setFormData(prev => ({
       ...prev,
       guestName: guest.name,
       phoneNumber: guest.phone,
@@ -148,23 +177,28 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
     setShowSearchResults(false);
   };
 
-  const handleInputChange = (field: keyof DriveThruGuestData, value: string) => {
+  const handleInputChange = (field: keyof typeof formData, value: string) => {
     if (field === "notes" && value.length > maxNotes) return;
     if (field === "phoneNumber") {
-      setFormData((prev) => ({ ...prev, [field]: formatPhoneNumber(value) }));
+      setFormData(prev => ({ ...prev, [field]: formatPhoneNumber(value) }));
       return;
     }
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   const handleSave = () => {
-    // Phone is optional for drive-thru, but if provided must be valid
     const phoneValid = !formData.phoneNumber || isValidPhoneNumber(formData.phoneNumber);
     if (formData.guestName && phoneValid) {
       const cleanPhoneNumber = formData.phoneNumber.replace(/\D/g, "");
+      const primaryVehicle = vehicles[0] || emptyVehicle;
       onSave({
         ...formData,
         phoneNumber: cleanPhoneNumber,
+        vehicleType: primaryVehicle.vehicleType,
+        vehicleColor: primaryVehicle.vehicleColor,
+        vehicleBrand: primaryVehicle.vehicleBrand,
+        licensePlate: primaryVehicle.licensePlate,
+        vehicles,
       });
     }
   };
@@ -177,18 +211,19 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
 
   const handleUseExisting = () => {
     if (conflictCustomer) {
-      setFormData((prev) => ({ ...prev, guestName: conflictCustomer.name, email: conflictCustomer.email || prev.email }));
+      setFormData(prev => ({ ...prev, guestName: conflictCustomer.name, email: conflictCustomer.email || prev.email }));
     }
     clearConflict();
   };
   const handleUpdateName = () => clearConflict();
   const handleAddFamilyMember = () => clearConflict();
   const handleCreateNew = () => {
-    setFormData((prev) => ({ ...prev, phoneNumber: "" }));
+    setFormData(prev => ({ ...prev, phoneNumber: "" }));
     clearConflict();
   };
 
   const isFormValid = formData.guestName;
+  const hasEditingVehicleInfo = editingVehicle.vehicleBrand || editingVehicle.licensePlate || editingVehicle.vehicleColor || editingVehicle.vehicleType;
 
   return (
     <div className="flex flex-col h-full rounded-b-lg overflow-hidden bg-neutral-900">
@@ -281,78 +316,97 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
 
         {/* Vehicle Information Header */}
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-medium text-white/90">Vehicle Information</h3>
-          <button
-            type="button"
-            onClick={() => vehicleSaved ? handleEditVehicle() : setShowVehicleInfo(!showVehicleInfo)}
-            className="p-1.5 bg-neutral-800 rounded hover:bg-neutral-700 transition-colors"
-          >
-            <Car className="w-4 h-4 text-neutral-400" />
-          </button>
+          <h3 className="text-sm font-medium text-white/90">
+            Vehicles {vehicles.length > 0 && <span className="text-neutral-400">({vehicles.length})</span>}
+          </h3>
+          {!isAddingNew && (
+            <button
+              type="button"
+              onClick={handleAddVehicle}
+              className="flex items-center gap-1 px-2.5 py-1.5 bg-neutral-800 rounded-lg hover:bg-neutral-700 transition-colors text-xs text-neutral-300"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              Add Vehicle
+            </button>
+          )}
         </div>
 
-        {/* Vehicle Info Saved Display - Swipeable */}
-        {vehicleSaved && hasVehicleInfo && !showVehicleInfo && (
-          <div className="relative overflow-hidden rounded-lg">
-            <div 
-              className="absolute inset-y-0 right-0 flex items-center gap-2 pr-2"
-              style={{
-                opacity: vehicleSwipeX < 0 ? 1 : 0,
-                pointerEvents: vehicleSwipeX < swipeThreshold / 2 ? 'auto' : 'none',
-              }}
-            >
-              <button
-                onClick={handleEditVehicle}
-                className="w-8 h-8 flex items-center justify-center bg-muted/50 rounded-full hover:bg-muted transition-colors"
+        {/* Saved Vehicles List */}
+        {vehicles.map((vehicle, index) => {
+          // Skip showing the card if currently editing this index
+          if (editingVehicleIndex === index && isAddingNew) return null;
+          const swipeX = swipeStates[index] || 0;
+          return (
+            <div key={index} className="relative overflow-hidden rounded-lg">
+              <div 
+                className="absolute inset-y-0 right-0 flex items-center gap-2 pr-2"
+                style={{
+                  opacity: swipeX < 0 ? 1 : 0,
+                  pointerEvents: swipeX < swipeThreshold / 2 ? 'auto' : 'none',
+                }}
               >
-                <Pencil className="w-4 h-4 text-muted-foreground" />
-              </button>
-              <button
-                onClick={handleDeleteVehicle}
-                className="w-8 h-8 flex items-center justify-center bg-red-500/20 rounded-full hover:bg-red-500/30 transition-colors"
+                <button
+                  onClick={() => handleEditVehicle(index)}
+                  className="w-8 h-8 flex items-center justify-center bg-muted/50 rounded-full hover:bg-muted transition-colors"
+                >
+                  <Pencil className="w-4 h-4 text-muted-foreground" />
+                </button>
+                <button
+                  onClick={() => handleDeleteVehicle(index)}
+                  className="w-8 h-8 flex items-center justify-center bg-red-500/20 rounded-full hover:bg-red-500/30 transition-colors"
+                >
+                  <Trash2 className="w-4 h-4 text-red-400" />
+                </button>
+              </div>
+              
+              <div 
+                className="relative p-3 bg-neutral-800/50 rounded-lg border border-neutral-700 flex items-center gap-3 cursor-grab active:cursor-grabbing select-none"
+                style={{
+                  transform: `translateX(${swipeX}px)`,
+                  transition: swipingIndex === index ? "none" : "transform 0.2s ease-out",
+                }}
+                onTouchStart={(e) => handleTouchStart(index, e)}
+                onTouchMove={(e) => handleTouchMove(index, e)}
+                onTouchEnd={() => handleTouchEnd(index)}
+                onMouseDown={(e) => handleMouseDown(index, e)}
+                onMouseMove={(e) => handleMouseMove(index, e)}
+                onMouseUp={() => handleMouseUp(index)}
+                onMouseLeave={() => handleMouseLeave(index)}
               >
-                <Trash2 className="w-4 h-4 text-red-400" />
-              </button>
-            </div>
-            
-            <div 
-              className="relative p-3 bg-neutral-800/50 rounded-lg border border-neutral-700 flex items-center gap-3 cursor-grab active:cursor-grabbing select-none"
-              style={{
-                transform: `translateX(${vehicleSwipeX}px)`,
-                transition: isVehicleSwiping ? "none" : "transform 0.2s ease-out",
-              }}
-              onTouchStart={handleVehicleTouchStart}
-              onTouchMove={handleVehicleTouchMove}
-              onTouchEnd={handleVehicleTouchEnd}
-              onMouseDown={handleVehicleMouseDown}
-              onMouseMove={handleVehicleMouseMove}
-              onMouseUp={handleVehicleMouseUp}
-              onMouseLeave={handleVehicleMouseLeave}
-            >
-              <div className="p-2 bg-neutral-800 rounded">
-                <Car className="w-5 h-5 text-neutral-400" />
-              </div>
-              <div className="flex flex-col flex-1">
-                <span className="text-sm font-medium text-white">
-                  {formData.vehicleBrand}{formData.vehicleType ? ` (${formData.vehicleType})` : ''}
-                </span>
-                <span className="text-xs text-white/60">
-                  {[formData.licensePlate, formData.vehicleColor].filter(Boolean).join(' | ')}
+                <div className="p-2 bg-neutral-800 rounded">
+                  <Car className="w-5 h-5 text-neutral-400" />
+                </div>
+                <div className="flex flex-col flex-1 min-w-0">
+                  <span className="text-sm font-medium text-white truncate">
+                    {vehicle.vehicleBrand}{vehicle.vehicleType ? ` (${vehicle.vehicleType})` : ''}
+                    {!vehicle.vehicleBrand && vehicle.vehicleType ? vehicle.vehicleType : ''}
+                  </span>
+                  <span className="text-xs text-white/60 truncate">
+                    {[vehicle.licensePlate, vehicle.vehicleColor].filter(Boolean).join(' | ')}
+                  </span>
+                </div>
+                <span className="text-[10px] text-neutral-500 uppercase shrink-0">
+                  {index === 0 ? "Primary" : `#${index + 1}`}
                 </span>
               </div>
             </div>
-          </div>
-        )}
+          );
+        })}
 
-        {/* Vehicle Information Fields - Collapsible */}
-        {showVehicleInfo && (
+        {/* Vehicle Add/Edit Form */}
+        {isAddingNew && (
           <div className="p-3 bg-neutral-800/50 rounded-lg border border-neutral-700 space-y-3">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs font-medium text-neutral-400 uppercase tracking-wider">
+                {editingVehicleIndex !== null ? "Edit Vehicle" : "New Vehicle"}
+              </span>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="text-xs text-neutral-500 mb-1 block">Vehicle Type</label>
                 <Select
-                  value={formData.vehicleType}
-                  onValueChange={(value) => handleInputChange("vehicleType", value)}
+                  value={editingVehicle.vehicleType}
+                  onValueChange={(value) => handleVehicleFieldChange("vehicleType", value)}
                 >
                   <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
                     <SelectValue placeholder="Select type" />
@@ -367,8 +421,8 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
               <div>
                 <label className="text-xs text-neutral-500 mb-1 block">Color</label>
                 <Select
-                  value={formData.vehicleColor}
-                  onValueChange={(value) => handleInputChange("vehicleColor", value)}
+                  value={editingVehicle.vehicleColor}
+                  onValueChange={(value) => handleVehicleFieldChange("vehicleColor", value)}
                 >
                   <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
                     <SelectValue placeholder="Select color" />
@@ -386,8 +440,8 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
                 <label className="text-xs text-neutral-500 mb-1 block">Brand</label>
                 <Input
                   placeholder="Enter brand"
-                  value={formData.vehicleBrand}
-                  onChange={(e) => handleInputChange("vehicleBrand", e.target.value)}
+                  value={editingVehicle.vehicleBrand}
+                  onChange={(e) => handleVehicleFieldChange("vehicleBrand", e.target.value)}
                   className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
                 />
               </div>
@@ -395,8 +449,8 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
                 <label className="text-xs text-neutral-500 mb-1 block">License Plate</label>
                 <Input
                   placeholder="Enter plate"
-                  value={formData.licensePlate}
-                  onChange={(e) => handleInputChange("licensePlate", e.target.value)}
+                  value={editingVehicle.licensePlate}
+                  onChange={(e) => handleVehicleFieldChange("licensePlate", e.target.value)}
                   className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
                 />
               </div>
@@ -405,7 +459,7 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setShowVehicleInfo(false)}
+                onClick={handleCancelVehicleEdit}
                 className="flex-1 h-9 bg-neutral-800 border-neutral-700 hover:bg-neutral-700 text-white"
               >
                 Cancel
@@ -413,10 +467,10 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
               <Button
                 type="button"
                 onClick={handleSaveVehicle}
-                disabled={!hasVehicleInfo}
+                disabled={!hasEditingVehicleInfo}
                 className="flex-1 h-9 bg-primary hover:bg-primary/90"
               >
-                Save Vehicle
+                {editingVehicleIndex !== null ? "Update Vehicle" : "Save Vehicle"}
               </Button>
             </div>
           </div>
@@ -457,7 +511,7 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
         isOpen={showConflictDialog}
         onClose={() => {
           setShowConflictDialog(false);
-          setConflictCustomer(null);
+          clearConflict();
         }}
         existingCustomer={conflictCustomer}
         newName={formData.guestName}

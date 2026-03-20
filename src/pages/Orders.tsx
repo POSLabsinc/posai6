@@ -2372,11 +2372,11 @@ const Orders = () => {
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Desktop Search Button - Top Right Corner */}
-          <div className="hidden md:flex absolute top-1 right-0 z-10 items-center">
+          <div className="hidden md:flex absolute top-1 right-0 z-10 items-center gap-1">
+            <AnimatedAIIcon size={20} onClick={() => navigate('/settings/ai')} />
             <button
                 className="cursor-pointer"
                 onClick={() => setIsDesktopSearchOpen(true)}>
-
               <img src={searchIcon} alt="Search" className="w-8 h-8 lg:w-9 lg:h-9" />
             </button>
           </div>

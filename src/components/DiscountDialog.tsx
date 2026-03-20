@@ -308,16 +308,16 @@ export function DiscountDialog({
                   onClick={() => setSelectedReason(isSelected ? null : r.label)}
                   className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[10px] transition-all"
                   style={{
-                    background: isSelected ? 'rgba(124,110,224,0.12)' : 'transparent',
+                    background: isSelected ? 'rgba(255,255,255,0.08)' : 'transparent',
                     border: isSelected
-                      ? '1px solid #7c6ee0'
+                      ? '1px solid rgba(255,255,255,0.25)'
                       : r.isAI
                         ? '1px solid rgba(245,166,35,0.15)'
                         : '1px solid rgba(255,255,255,0.04)',
                   }}
                 >
                   <span className="text-base leading-none">{r.emoji}</span>
-                  <span className="text-[11px] font-medium" style={{ color: isSelected ? '#c4bcf0' : '#aaa' }}>
+                  <span className="text-[11px] font-medium" style={{ color: isSelected ? '#fff' : '#aaa' }}>
                     {r.label}
                   </span>
                   {r.isAI && !isSelected && (

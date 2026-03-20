@@ -239,6 +239,15 @@ export interface AppearanceSettings {
   brightness: number;
 }
 
+export interface DashboardMetricsVisibility {
+  totalSale: boolean;
+  totalTip: boolean;
+  totalHours: boolean;
+  ordering: boolean;
+  readyToServed: boolean;
+  completed: boolean;
+}
+
 export interface ControlCenterSettings {
   restartApp: boolean;
   restartTime: string;
@@ -258,6 +267,7 @@ export interface ControlCenterSettings {
   resetTablesDaily: boolean;
   businessHoursStart: string;
   businessHoursEnd: string;
+  dashboardMetrics: DashboardMetricsVisibility;
 }
 
 export interface CheckoutOptionsSettings {

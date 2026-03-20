@@ -1,25 +1,36 @@
 
 
-# Plan: Clear Messages from localStorage on KDS Refresh
+# Fix: KDS Messages Not Showing After Refresh
 
-## What
-On KDS mount (page load/refresh), clear the `kds_message_queue` from localStorage so old messages are fully deleted, not just hidden.
+## Problem
+The current `localStorage.removeItem("kds_message_queue")` on mount clears ALL messages every time KDS loads. Since POS and KDS share the same browser tab, the flow is:
 
-## Changes in `src/pages/KDS.tsx`
+1. User opens KDS → localStorage cleared ✓
+2. User navigates to POS → sends message → written to localStorage ✓
+3. User navigates back to KDS → **localStorage cleared again** ✗ (message deleted!)
 
-Add a single `localStorage.removeItem("kds_message_queue")` call at component mount, before any polling begins. This goes inside an existing `useEffect` or a new one-time mount effect:
+## Solution
+Replace the blanket clear with a **session timestamp filter**. On KDS mount, record `Date.now()` as the session start. Only display messages whose `timestamp` is **after** the session start. Old messages are effectively hidden without deleting new ones.
 
-```ts
-useEffect(() => {
-  localStorage.removeItem("kds_message_queue");
-}, []);
-```
+### Changes in `src/pages/KDS.tsx`
 
-This ensures:
-- On refresh/navigate to KDS, all previous messages are deleted from storage
-- New messages sent from POS after KDS opens will be stored fresh and displayed
-- No stale messages accumulate in localStorage over time
-- The `sessionStartRef` timestamp filter (from the previous plan) becomes unnecessary — can be removed if present
+1. **Replace** the `localStorage.removeItem` mount effect (lines 675-678) with a `sessionStartRef`:
+   ```ts
+   const sessionStartRef = useRef(Date.now());
+   ```
 
-**Single file, ~3 lines added.**
+2. **Add timestamp filter** in the polling `load` function (line 686):
+   ```ts
+   const allMessages = parsed
+     .filter(m => new Date(m.timestamp || m.sent_at || 0).getTime() > sessionStartRef.current);
+   ```
+
+3. **Same filter** in `handleAcknowledgeMessage` if needed.
+
+This way:
+- On refresh, old messages are hidden (filtered by timestamp)
+- New messages sent from POS after KDS opens will have a newer timestamp and appear correctly
+- No data is deleted from localStorage, so the POS→KDS navigation cycle doesn't destroy messages
+
+**Single file, ~5 lines changed.**
 

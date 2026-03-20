@@ -311,7 +311,7 @@ const KDSMessages = () => {
                       className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-sm py-4 rounded-xl"
                     >
                       <Reply className="w-4 h-4 mr-2" />
-                      {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                      {"REPLY"}
                     </Button>
                   </div>
                 ) : (
@@ -326,7 +326,7 @@ const KDSMessages = () => {
                       className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-xs py-3 rounded-xl"
                     >
                       <Reply className="w-3.5 h-3.5 mr-1.5" />
-                      {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                      {"REPLY"}
                     </Button>
                   </div>
                 );

@@ -696,10 +696,10 @@ const KDS = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // Build maps: table number -> pending messages, order id -> pending messages
+  // Build maps: table number -> all messages (pending + acknowledged), order id -> all messages
   const messagesByTable = useMemo(() => {
     const map = new Map<string, KDSMessageData[]>();
-    kdsMessages.filter(m => m.status === "pending" && (m.table_number || m.table_id) && !m.linked_order_id).forEach(msg => {
+    kdsMessages.filter(m => (m.status === "pending" || m.status === "acknowledged") && (m.table_number || m.table_id) && !m.linked_order_id).forEach(msg => {
       const tableKey = normalizeTableNumber(msg.table_number || msg.table_id || "");
       if (!tableKey) return;
       const arr = map.get(tableKey) || [];
@@ -711,13 +711,13 @@ const KDS = () => {
 
   const messagesByOrder = useMemo(() => {
     const map = new Map<string, KDSMessageData[]>();
-    kdsMessages.filter(m => m.status === "pending" && m.linked_order_id).forEach(msg => {
+    kdsMessages.filter(m => (m.status === "pending" || m.status === "acknowledged") && m.linked_order_id).forEach(msg => {
       const arr = map.get(msg.linked_order_id!) || [];
       arr.push(msg);
       map.set(msg.linked_order_id!, arr);
     });
     // Also map by order number for mock tickets
-    kdsMessages.filter(m => m.status === "pending" && m.linked_order_number && !m.linked_order_id).forEach(msg => {
+    kdsMessages.filter(m => (m.status === "pending" || m.status === "acknowledged") && m.linked_order_number && !m.linked_order_id).forEach(msg => {
       const key = `order-${msg.linked_order_number}`;
       const arr = map.get(key) || [];
       arr.push(msg);

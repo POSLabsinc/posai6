@@ -421,10 +421,9 @@ const readSessionMessages = (): KDSMessageData[] => {
   }
 };
 
-const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allReplies }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void; onSendReply: (messageId: string, text: string) => void; allReplies: KDSReply[] }) => {
+const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allReplies, onOpenReplyDialog }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void; onSendReply: (messageId: string, text: string) => void; allReplies: KDSReply[]; onOpenReplyDialog: (msg: KDSMessageData) => void }) => {
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
   const [flashId, setFlashId] = useState<string | null>(null);
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const prevCountRef = useRef(0);
 
   // Flash animation on new pending messages

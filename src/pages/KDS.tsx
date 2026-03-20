@@ -227,7 +227,7 @@ interface KDSMessageData {
   acknowledged_at?: string;
 }
 
-const KDSMessagesPanel = ({ onClose, staleIds }: { onClose: () => void; staleIds: Set<string> }) => {
+const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
   const [messages, setMessages] = useState<KDSMessageData[]>([]);
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
   const [flashId, setFlashId] = useState<string | null>(null);

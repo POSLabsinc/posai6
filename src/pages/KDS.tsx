@@ -985,6 +985,24 @@ const KDS = () => {
     setTickets(prev => prev.map(t => t.id === id ? { ...t, status: "seen" as const } : t));
   }, []);
 
+  // Reply dialog state
+  const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [replyDialogMessage, setReplyDialogMessage] = useState<KDSMessageData | null>(null);
+
+  const handleOpenReplyDialog = useCallback((msg: KDSMessageData) => {
+    setReplyDialogMessage(msg);
+    setReplyDialogOpen(true);
+  }, []);
+
+  const handleReplyDialogSend = useCallback((messageId: string, text: string) => {
+    handleSendReply(messageId, text);
+  }, [handleSendReply]);
+
+  const replyDialogHasReplied = useMemo(() => {
+    if (!replyDialogMessage) return false;
+    return kdsReplies.some(r => r.message_id === replyDialogMessage.message_id);
+  }, [replyDialogMessage, kdsReplies]);
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();

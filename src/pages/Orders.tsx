@@ -594,7 +594,16 @@ const Orders = () => {
   const [appliedServiceCharge, setAppliedServiceCharge] = useState(0);
   const [appliedServiceChargeName, setAppliedServiceChargeName] = useState('');
   const [showTransferCheckDialog, setShowTransferCheckDialog] = useState(false);
-  const [currentServerName, setCurrentServerName] = useState("Mia Jones");
+  const [currentServerName, setCurrentServerName] = useState(() => {
+    try {
+      const session = localStorage.getItem("pos_session");
+      if (session) {
+        const parsed = JSON.parse(session);
+        return parsed.employeeName || "Server";
+      }
+    } catch {}
+    return "Server";
+  });
   const [showAddGuestForm, setShowAddGuestForm] = useState(false);
   const [showMessageKitchen, setShowMessageKitchen] = useState(false);
   const [showMPINDialog, setShowMPINDialog] = useState(false);
@@ -1536,7 +1545,7 @@ const Orders = () => {
                 </div>
                 <div className="flex items-center gap-2 text-xs">
                   <img src={runnerIcon} alt="User" className="w-4 h-4" />
-                  <span className="text-neutral-400">{guestName || "Mia Jone"}</span>
+                  <span className="text-neutral-400">{currentServerName}</span>
                   <button onClick={() => {
                 const newExpanded = !isOrderPanelExpanded;
                 setIsOrderPanelExpanded(newExpanded);
@@ -1718,7 +1727,7 @@ const Orders = () => {
               </div>
               <div className="flex items-center gap-2 text-xs">
                 <img src={runnerIcon} alt="User" className="w-4 h-4" />
-                <span>Dustin H</span>
+                <span>{currentServerName}</span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="w-5 h-5 bg-white rounded-full flex items-center justify-center ml-2">
@@ -2862,7 +2871,7 @@ const Orders = () => {
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
-                      <span className="text-neutral-400">{guestName || "MIA JONE"}</span>
+                      <span className="text-neutral-400">{currentServerName}</span>
                     </div>
                   </div>
                   {/* Table Order Header - Row 2: Select seats */}
@@ -3018,7 +3027,7 @@ const Orders = () => {
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                   <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
-                    <span>{guestName || "Guest"}</span>
+                    <span>{currentServerName}</span>
                   </div>
                 </div>
             }

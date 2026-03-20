@@ -665,12 +665,6 @@ const KDS = () => {
     return () => clearInterval(interval);
   }, [knownIds, soundEnabled]);
 
-  // Helper: filter messages to only those arriving after KDS session started
-  const filterSessionMessages = useCallback((allMessages: KDSMessageData[]): KDSMessageData[] => {
-    const staleIds = staleMessageIdsRef.current;
-    if (!staleIds || staleIds.size === 0) return allMessages;
-    return allMessages.filter(m => !staleIds.has(m.message_id));
-  }, []);
 
   // Poll pending messages for badge + attached messages (filtered by session boundary)
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);

@@ -185,6 +185,7 @@ export function DiscountDialog({
       fetchDiscountsFromDB().then(setDynamicDiscounts);
       setSelectedDiscount(currentDiscounts.length > 0 ? currentDiscounts[0] : null);
       setSelectedReason(null);
+      setCommentText("");
       setView('list');
     }
     prevOpenRef.current = open;

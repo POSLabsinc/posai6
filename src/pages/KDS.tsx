@@ -673,9 +673,7 @@ const KDS = () => {
     const load = () => {
       try {
         const allMessages: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]").map((m: any) => ({ ...m, status: m.status || "pending" }));
-        // Only include messages that arrived after this KDS session started
-        const sessionMessages = filterSessionMessages(allMessages);
-        setKdsMessages(sessionMessages);
+        setKdsMessages(allMessages);
         const count = sessionMessages.filter(m => m.status !== "acknowledged").length;
         // Auto-open messages panel when new messages arrive
         if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {

@@ -229,9 +229,92 @@ const Header = () => {
             <img src={supportIcon} alt="Support" className="w-5 h-5" />
           </button>
 
-          <button className="p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors">
-            <img src={notificationIcon} alt="Notifications" className="w-4 md:w-5 h-4 md:h-5" />
-          </button>
+          {/* Notification Bell with Popover */}
+          <div className="relative" ref={notifRef}>
+            <button
+              className="p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors relative"
+              onClick={() => setShowNotifPopover((v) => !v)}
+            >
+              <img src={notificationIcon} alt="Notifications" className="w-4 md:w-5 h-4 md:h-5" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] rounded-full bg-[#ED1C24] text-white text-[9px] font-bold flex items-center justify-center px-0.5">
+                  {unreadCount}
+                </span>
+              )}
+            </button>
+
+            {showNotifPopover && (
+              <div className="absolute right-0 top-full mt-2 w-80 bg-[#1C1C1E] border border-white/10 rounded-2xl shadow-2xl z-[999] overflow-hidden">
+                {/* Header - clickable to go to all notifications */}
+                <button
+                  onClick={() => {
+                    setShowNotifPopover(false);
+                    navigate("/settings/notifications/all");
+                  }}
+                  className="w-full flex items-center justify-between px-4 py-3 border-b border-white/10 hover:bg-white/5 transition-colors"
+                >
+                  <span className="text-sm font-semibold text-white">Notifications</span>
+                  {unreadCount > 0 && (
+                    <span className="min-w-[20px] h-5 rounded-full bg-[#ED1C24] text-white text-[10px] font-bold flex items-center justify-center px-1.5">
+                      {unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {/* Notification list */}
+                <div className="max-h-64 overflow-y-auto">
+                  {recentNotifs.length === 0 ? (
+                    <div className="px-4 py-6 text-center text-neutral-500 text-xs">
+                      No notifications yet
+                    </div>
+                  ) : (
+                    recentNotifs.map((n) => {
+                      const icon = n.category === "team" || n.title?.includes("Kitchen")
+                        ? <ChefHat className="w-4 h-4 text-orange-400" />
+                        : n.title?.includes("Order")
+                        ? <ShoppingBag className="w-4 h-4 text-blue-400" />
+                        : <BellIcon className="w-4 h-4 text-neutral-400" />;
+                      const timeAgo = getTimeAgo(n.created_at);
+                      return (
+                        <button
+                          key={n.id}
+                          onClick={() => {
+                            setShowNotifPopover(false);
+                            navigate("/settings/notifications/all");
+                          }}
+                          className={`w-full flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left ${!n.is_read ? "bg-white/[0.03]" : ""}`}
+                        >
+                          <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
+                            {icon}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-xs font-medium truncate ${!n.is_read ? "text-white" : "text-neutral-300"}`}>
+                              {n.title}
+                            </p>
+                            <p className="text-[11px] text-neutral-500 truncate mt-0.5">{n.preview}</p>
+                          </div>
+                          <span className="text-[10px] text-neutral-600 shrink-0 mt-0.5">{timeAgo}</span>
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
+
+                {/* View More */}
+                {recentNotifs.length > 0 && (
+                  <button
+                    onClick={() => {
+                      setShowNotifPopover(false);
+                      navigate("/settings/notifications/all");
+                    }}
+                    className="w-full px-4 py-2.5 border-t border-white/10 text-center text-xs font-medium text-blue-400 hover:bg-white/5 transition-colors"
+                  >
+                    View More
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
 
           <img src={wifiIcon} alt="Wifi" className="w-4 md:w-5 h-4 md:h-5" />
 

@@ -1976,8 +1976,7 @@ const Orders = () => {
                 setGuestPhone(guestData.phoneNumber);
                 setShowAddGuestForm(false);
               }}
-              hideHeader={true}
-              onBack={() => setShowAddGuestForm(false)} />
+              compact />
 
               </div>
             </div>
@@ -2832,8 +2831,7 @@ const Orders = () => {
                   setGuestPhone(guestData.phoneNumber);
                   setShowAddGuestForm(false);
                 }}
-                hideHeader={true}
-                onBack={() => setShowAddGuestForm(false)} />
+                compact />
 
                 </div>
             }

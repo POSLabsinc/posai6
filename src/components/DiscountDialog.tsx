@@ -291,7 +291,7 @@ export function DiscountDialog({
         <p className="text-[11px] text-[#888] mt-0.5">Select a reason for the comp</p>
       </div>
       {needsReason ? (
-        <div className="flex-1 overflow-y-auto scrollbar-hide px-3 pb-3">
+        <div className="flex-1 flex flex-col overflow-hidden px-3 pb-3">
           {/* AI suggested pill */}
           <div className="flex items-center gap-1.5 mb-2.5 px-1">
             <span className="text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1" style={{ background: 'rgba(245,166,35,0.12)', color: '#f5a623' }}>
@@ -330,8 +330,8 @@ export function DiscountDialog({
               );
             })}
           </div>
-          {/* Comment box */}
-          <div className="mt-2 px-1">
+          {/* Comment box - fills remaining space */}
+          <div className="mt-2 px-1 flex-1 flex flex-col min-h-0">
             <textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value.slice(0, 100))}
@@ -340,7 +340,7 @@ export function DiscountDialog({
               style={{
                 background: 'rgba(255,255,255,0.03)',
                 border: '1px solid rgba(255,255,255,0.06)',
-                minHeight: '60px',
+                minHeight: '80px',
               }}
               onFocus={(e) => e.target.style.borderColor = 'rgba(124,110,224,0.4)'}
               onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}

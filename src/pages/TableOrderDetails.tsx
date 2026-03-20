@@ -1459,7 +1459,7 @@ const TableOrderDetails = () => {
                     }} 
                     className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-neutral-600 hover:bg-neutral-500"
                   >
-                    <img src={registerIcon} alt="Register" className="w-5 h-5 object-contain" />
+                    <img src={registerIcon} alt="No Sale" className="w-5 h-5 object-contain" />
                   </button>
                 </div>
               ) : (

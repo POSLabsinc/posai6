@@ -123,7 +123,7 @@ const AppInner = () => {
           <Route path="/settings/payments/discounts" element={<DiscountsRoute />} />
           <Route path="/settings/*" element={<Settings />} />
           <Route path="/account" element={<Account />} />
-          <Route path="/reports" element={<Reports />} />
+          <Route path="/reports" element={<ReportsRoute />} />
           <Route path="/orderos" element={<OrderOS />} />
           <Route path="/login" element={<Login />} />
           <Route path="/kds" element={<KDS />} />

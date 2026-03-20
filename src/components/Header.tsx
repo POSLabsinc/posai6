@@ -52,6 +52,10 @@ const Header = () => {
   const [isOnBreak, setIsOnBreak] = useState(false);
   const [isDemoMode, setIsDemoMode] = useState(false);
   const [showExitDemoDialog, setShowExitDemoDialog] = useState(false);
+  const [showNotifPopover, setShowNotifPopover] = useState(false);
+  const [recentNotifs, setRecentNotifs] = useState<any[]>([]);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const notifRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // Load session from localStorage

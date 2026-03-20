@@ -2871,7 +2871,7 @@ const Orders = () => {
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
-                      <span className="text-neutral-400">{guestName || "MIA JONE"}</span>
+                      <span className="text-neutral-400">{currentServerName}</span>
                     </div>
                   </div>
                   {/* Table Order Header - Row 2: Select seats */}

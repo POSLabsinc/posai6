@@ -239,6 +239,165 @@ interface KDSMessageData {
   acknowledged_at?: string;
 }
 
+// ─── Reply types ───
+interface KDSReply {
+  reply_id: string;
+  message_id: string;
+  reply_text: string;
+  timestamp: string;
+  source: "kds";
+}
+
+const REPLY_STORAGE_KEY = "kds_message_replies";
+const POS_REPLY_NOTIFICATION_KEY = "pos_reply_notifications";
+
+const REPLY_PRESETS = ["Got it", "On its way", "5 mins", "Need more time", "Out of stock"];
+
+const readReplies = (): KDSReply[] => {
+  try { return JSON.parse(localStorage.getItem(REPLY_STORAGE_KEY) || "[]"); } catch { return []; }
+};
+
+const saveReply = (reply: KDSReply) => {
+  const replies = readReplies();
+  replies.push(reply);
+  localStorage.setItem(REPLY_STORAGE_KEY, JSON.stringify(replies));
+};
+
+const pushPosNotification = (reply: KDSReply, originalMessage: KDSMessageData) => {
+  try {
+    const queue = JSON.parse(localStorage.getItem(POS_REPLY_NOTIFICATION_KEY) || "[]");
+    queue.push({
+      id: reply.reply_id,
+      title: "Reply from Kitchen",
+      body: reply.reply_text,
+      meta: `Re: ${originalMessage.message_text.slice(0, 30)}${originalMessage.message_text.length > 30 ? "..." : ""}`,
+      timestamp: reply.timestamp,
+      message_id: originalMessage.message_id,
+      order_id: originalMessage.linked_order_id || null,
+      order_number: originalMessage.linked_order_number || null,
+      table_number: originalMessage.table_number || null,
+      is_read: false,
+    });
+    localStorage.setItem(POS_REPLY_NOTIFICATION_KEY, JSON.stringify(queue));
+  } catch {}
+};
+
+// ─── Inline Reply Panel ───
+const KDSReplyPanel = ({ message, onSend, onCancel }: { message: KDSMessageData; onSend: (text: string) => void; onCancel: () => void }) => {
+  const [selectedChip, setSelectedChip] = useState<string | null>(null);
+  const [text, setText] = useState("");
+  const [showQR, setShowQR] = useState(false);
+  const qrTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (showQR) {
+      qrTimerRef.current = setTimeout(() => setShowQR(false), 60000);
+      return () => { if (qrTimerRef.current) clearTimeout(qrTimerRef.current); };
+    }
+  }, [showQR]);
+
+  const handleChipClick = (chip: string) => {
+    if (selectedChip === chip) {
+      setSelectedChip(null);
+      setText("");
+    } else {
+      setSelectedChip(chip);
+      setText(chip);
+    }
+  };
+
+  const handleTextChange = (val: string) => {
+    if (val.length <= 150) {
+      setText(val);
+      if (selectedChip) setSelectedChip(null);
+    }
+  };
+
+  const canSend = text.trim().length > 0;
+
+  const qrUrl = `https://${window.location.host}/kds-reply?messageId=${message.message_id}&orderId=${message.linked_order_id || ""}&table=${message.table_number || message.table_id || ""}&session=${sessionStorage.getItem("kds_session_cleared") || ""}`;
+
+  return (
+    <div className="bg-neutral-800 border-t border-neutral-700 px-3 py-2 space-y-2">
+      {/* Preset chips */}
+      <div className="flex flex-wrap gap-1.5">
+        {REPLY_PRESETS.map(chip => (
+          <button
+            key={chip}
+            onClick={() => handleChipClick(chip)}
+            className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-colors ${
+              selectedChip === chip
+                ? "bg-orange-500 border-orange-500 text-white"
+                : "bg-neutral-700 border-neutral-600 text-neutral-300 hover:bg-neutral-600"
+            }`}
+          >
+            {chip}
+          </button>
+        ))}
+      </div>
+      {/* Text input */}
+      <Input
+        value={text}
+        onChange={e => handleTextChange(e.target.value)}
+        placeholder="Type a reply..."
+        maxLength={150}
+        className="h-8 text-xs bg-neutral-900 border-neutral-700 text-white placeholder:text-neutral-500"
+      />
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" onClick={onCancel} className="flex-1 text-[10px] h-7 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent">
+          Cancel
+        </Button>
+        <Button
+          size="sm"
+          disabled={!canSend}
+          onClick={() => onSend(text.trim())}
+          className="flex-1 text-[10px] h-7 bg-orange-500 hover:bg-orange-600 text-white font-bold disabled:opacity-40"
+        >
+          Send Reply
+        </Button>
+      </div>
+      {/* QR option */}
+      <div className="pt-1">
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-px bg-neutral-700" />
+          <span className="text-[9px] text-neutral-500">or reply via mobile</span>
+          <div className="flex-1 h-px bg-neutral-700" />
+        </div>
+        <button onClick={() => setShowQR(true)} className="w-full text-center text-[10px] text-violet-400 hover:text-violet-300 font-medium mt-1 transition-colors">
+          Show QR Code
+        </button>
+      </div>
+      {/* QR overlay */}
+      {showQR && (
+        <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-4 flex flex-col items-center gap-3">
+          <QRCodeSVG value={qrUrl} size={120} bgColor="transparent" fgColor="white" />
+          <span className="text-[10px] text-neutral-400 text-center">Scan to reply from your phone</span>
+          <button onClick={() => setShowQR(false)} className="text-[10px] text-neutral-500 hover:text-white transition-colors">Close</button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Threaded Replies Display ───
+const RepliesThread = ({ replies }: { replies: KDSReply[] }) => {
+  if (replies.length === 0) return null;
+  return (
+    <div className="bg-neutral-900 px-3 pb-2 space-y-1">
+      {replies.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).map(r => (
+        <div key={r.reply_id} className="pl-3 border-l-2 border-neutral-700 py-1">
+          <p className="text-[10px] text-neutral-400">
+            <CornerDownLeft className="w-2.5 h-2.5 inline mr-1 opacity-60" />
+            You replied: <span className="text-neutral-300">{r.reply_text}</span>
+          </p>
+          <span className="text-[9px] text-neutral-600">{format(new Date(r.timestamp), "hh:mm a")}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // ─── Shared message reader ───
 // Single source of truth for reading, normalizing, filtering, and deduping messages.
 const readSessionMessages = (): KDSMessageData[] => {

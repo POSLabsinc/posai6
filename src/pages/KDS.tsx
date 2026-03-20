@@ -678,27 +678,20 @@ const KDS = () => {
   }, [knownIds, soundEnabled]);
 
 
-  // Session start timestamp - messages before this are hidden (soft-delete on refresh)
-  const sessionStartRef = useRef(Date.now());
-
-  // Poll pending messages for badge + attached messages
+  // Poll pending messages for badge + attached messages using shared helper
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
   const prevPendingCountRef = useRef(0);
   useEffect(() => {
     const load = () => {
-      try {
-        const allMessages: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]")
-          .map((m: any) => ({ ...m, status: m.status || "pending" }))
-          .filter((m: KDSMessageData) => new Date(m.timestamp || 0).getTime() > sessionStartRef.current);
-        setKdsMessages(allMessages);
-        const count = allMessages.filter(m => m.status !== "acknowledged").length;
-        // Auto-open messages panel when new messages arrive
-        if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {
-          setShowMessages(true);
-        }
-        prevPendingCountRef.current = count;
-        setPendingMessageCount(count);
-      } catch { setPendingMessageCount(0); setKdsMessages([]); }
+      const allMessages = readSessionMessages();
+      setKdsMessages(allMessages);
+      const count = allMessages.filter(m => m.status !== "acknowledged").length;
+      // Auto-open messages panel when new messages arrive
+      if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {
+        setShowMessages(true);
+      }
+      prevPendingCountRef.current = count;
+      setPendingMessageCount(count);
     };
     load();
     const interval = setInterval(load, 2000);

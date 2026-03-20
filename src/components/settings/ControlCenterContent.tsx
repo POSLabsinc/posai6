@@ -74,6 +74,9 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const [hideSeatSelector, setHideSeatSelector] = useState(() => loadSettings().hideSeatSelector);
   const [resetTablesDaily, setResetTablesDaily] = useState(() => loadSettings().resetTablesDaily);
   const [dashboardMetrics, setDashboardMetrics] = useState<DashboardMetricsVisibility>(() => loadSettings().dashboardMetrics);
+  const [showMetricsPinModal, setShowMetricsPinModal] = useState(false);
+  const [pendingMetricToggle, setPendingMetricToggle] = useState<{ key: keyof DashboardMetricsVisibility; value: boolean } | null>(null);
+  const [metricsUnlocked, setMetricsUnlocked] = useState(false);
 
   // Sync all settings when a settings-updated event is received
   useEffect(() => {

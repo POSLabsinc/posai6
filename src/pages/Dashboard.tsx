@@ -350,8 +350,7 @@ const calculateOrderTotal = (items: OrderItemType[]): number => {
 // Static split configs storage key (same as TableOrderDetails)
 const STATIC_SPLITS_KEY = 'pos-tableorder-static-splits';
 
-// Get orders from centralized data store
-const getStaticDashboardOrders = (): DashboardOrder[] => getDashboardOrders();
+// Static mock orders removed - Dashboard now sources exclusively from DB and session orders
 
 // Default order items (used as fallback)
 const getDefaultOrderItems = (orders: DashboardOrder[]): OrderItemType[] => orders[0]?.items || [];

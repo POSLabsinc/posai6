@@ -227,7 +227,7 @@ interface KDSMessageData {
   acknowledged_at?: string;
 }
 
-const KDSMessagesPanel = ({ onClose, staleIds }: { onClose: () => void; staleIds: Set<string> }) => {
+const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
   const [messages, setMessages] = useState<KDSMessageData[]>([]);
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
   const [flashId, setFlashId] = useState<string | null>(null);
@@ -238,8 +238,7 @@ const KDSMessagesPanel = ({ onClose, staleIds }: { onClose: () => void; staleIds
       const raw = localStorage.getItem("kds_message_queue");
       if (!raw) { setMessages([]); return; }
       const allParsed: KDSMessageData[] = JSON.parse(raw).map((m: any) => ({ ...m, status: m.status || "pending" }));
-      // Only show messages that were NOT present when KDS loaded
-      const parsed = allParsed.filter(m => !staleIds.has(m.message_id));
+      const parsed = allParsed;
       setMessages(parsed);
       const pendingCount = parsed.filter(m => m.status === "pending").length;
       if (pendingCount > prevCountRef.current && prevCountRef.current > 0) {
@@ -248,7 +247,7 @@ const KDSMessagesPanel = ({ onClose, staleIds }: { onClose: () => void; staleIds
       }
       prevCountRef.current = pendingCount;
     } catch { setMessages([]); }
-  }, [staleIds]);
+  }, []);
 
   useEffect(() => {
     refreshMessages();
@@ -619,17 +618,6 @@ const convertQueueToTickets = (queue: any[]): KDSTicket[] => {
 
 // ─── Main KDS Page ───
 const KDS = () => {
-  // Session boundary: capture message IDs that exist at mount time so we can exclude them.
-  // This avoids fragile timestamp comparisons across POS/KDS.
-  const staleMessageIdsRef = useRef<Set<string> | null>(null);
-  if (staleMessageIdsRef.current === null) {
-    try {
-      const existing: any[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
-      staleMessageIdsRef.current = new Set(existing.map((m: any) => m.message_id).filter(Boolean));
-    } catch {
-      staleMessageIdsRef.current = new Set();
-    }
-  }
 
   const [tickets, setTickets] = useState<KDSTicket[]>(() => {
     try {
@@ -677,12 +665,6 @@ const KDS = () => {
     return () => clearInterval(interval);
   }, [knownIds, soundEnabled]);
 
-  // Helper: filter messages to only those arriving after KDS session started
-  const filterSessionMessages = useCallback((allMessages: KDSMessageData[]): KDSMessageData[] => {
-    const staleIds = staleMessageIdsRef.current;
-    if (!staleIds || staleIds.size === 0) return allMessages;
-    return allMessages.filter(m => !staleIds.has(m.message_id));
-  }, []);
 
   // Poll pending messages for badge + attached messages (filtered by session boundary)
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
@@ -691,10 +673,8 @@ const KDS = () => {
     const load = () => {
       try {
         const allMessages: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]").map((m: any) => ({ ...m, status: m.status || "pending" }));
-        // Only include messages that arrived after this KDS session started
-        const sessionMessages = filterSessionMessages(allMessages);
-        setKdsMessages(sessionMessages);
-        const count = sessionMessages.filter(m => m.status !== "acknowledged").length;
+        setKdsMessages(allMessages);
+        const count = allMessages.filter(m => m.status !== "acknowledged").length;
         // Auto-open messages panel when new messages arrive
         if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {
           setShowMessages(true);
@@ -706,7 +686,7 @@ const KDS = () => {
     load();
     const interval = setInterval(load, 2000);
     return () => clearInterval(interval);
-  }, [filterSessionMessages]);
+  }, []);
   // Build maps: table number -> all messages (pending + acknowledged), order id -> all messages
   const messagesByTable = useMemo(() => {
     const map = new Map<string, KDSMessageData[]>();
@@ -742,10 +722,9 @@ const KDS = () => {
       const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
       const updated = queue.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m);
       localStorage.setItem("kds_message_queue", JSON.stringify(updated));
-      // Re-apply session filter so stale messages don't leak into state
-      setKdsMessages(filterSessionMessages(updated.map((m: any) => ({ ...m, status: m.status || "pending" }))));
+      setKdsMessages(updated.map((m: any) => ({ ...m, status: m.status || "pending" })));
     } catch {}
-  }, [filterSessionMessages]);
+  }, []);
 
   const activeTickets = tickets.filter(t => t.status === "active");
   const totalInQueue = activeTickets.reduce((sum, t) => sum + t.products.filter(p => p.status === "pending" || p.status === "cooking").length, 0);
@@ -841,7 +820,7 @@ const KDS = () => {
           {showSummary && <ItemSummary tickets={activeTickets} />}
 
           {/* Messages Panel */}
-          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} staleIds={staleMessageIdsRef.current || new Set()} />}
+          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} />}
         </div>
 
         {/* Bottom Bar */}

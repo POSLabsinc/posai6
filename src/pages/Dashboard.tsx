@@ -522,7 +522,7 @@ const OrderPanelContent = ({
           </button>
           <button className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors">
             <img src={registerIcon} alt="" className="w-3 h-3" />
-            Register
+            No Sale
           </button>
         </div>
       </div>
@@ -1662,7 +1662,7 @@ const Dashboard = () => {
                             className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500 rounded-br-xl"
                             onClick={(e) => { e.stopPropagation(); }}
                           >
-                            <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
+                            <img src={registerIcon} alt="No Sale" className="w-4 h-4 object-contain" />
                           </button>
                         </div>
                       ) : (

@@ -416,7 +416,7 @@ const OrdersD = () => {
                 No Tax
               </Button>
               <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-2 whitespace-nowrap">
-                Register
+                No Sale
               </Button>
               <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-2 whitespace-nowrap">
                 Gift

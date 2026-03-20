@@ -6397,7 +6397,7 @@ const OrdersF = () => {
                 No Tax
               </Button>
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
-                Register
+                No Sale
               </Button>
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
                 Gift
@@ -6462,7 +6462,7 @@ const OrdersF = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <img src={cashRegisterIcon} alt="" className="w-3.5 h-3.5" />
-                    Open Register
+                    No Sale
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <Receipt className="w-3.5 h-3.5" />
@@ -6813,7 +6813,7 @@ const OrdersF = () => {
                 No Tax
               </Button>
               <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 whitespace-nowrap">
-                Register
+                No Sale
               </Button>
               <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 whitespace-nowrap">
                 Gift

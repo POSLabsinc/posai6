@@ -19,28 +19,6 @@ const normalizeTableNumber = (raw: string | null | undefined): string => {
 // ─── Page-level session boundary ───
 // Survives route navigation (KDS→POS→KDS) but resets on hard browser refresh.
 const PAGE_SESSION_START = Date.now();
-
-// ─── Shared message reader ───
-// Single source of truth for reading, normalizing, filtering, and deduping messages.
-const readSessionMessages = (): KDSMessageData[] => {
-  try {
-    const raw = localStorage.getItem("kds_message_queue");
-    if (!raw) return [];
-    const parsed: KDSMessageData[] = JSON.parse(raw);
-    const seen = new Set<string>();
-    return parsed
-      .map((m: any) => ({ ...m, status: m.status || "pending" }))
-      .filter((m: KDSMessageData) => {
-        const ts = new Date(m.timestamp || m.sent_at || 0).getTime();
-        if (ts <= PAGE_SESSION_START) return false;
-        if (seen.has(m.message_id)) return false;
-        seen.add(m.message_id);
-        return true;
-      });
-  } catch {
-    return [];
-  }
-};
 };
 
 // ─── KDS Ticket Types ───

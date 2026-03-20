@@ -1061,7 +1061,7 @@ const KDS = () => {
                   ...(ticket.tableNumber ? (messagesByTable.get(normalizeTableNumber(ticket.tableNumber)) || []) : []),
                   ...(messagesByOrder.get(ticket.id) || []),
                   ...(messagesByOrder.get(`order-${ticket.orderNumber}`) || []),
-                ]} onAcknowledgeMessage={handleAcknowledgeMessage} onSendReply={handleSendReply} allReplies={kdsReplies} />
+                ]} onAcknowledgeMessage={handleAcknowledgeMessage} onSendReply={handleSendReply} allReplies={kdsReplies} onOpenReplyDialog={handleOpenReplyDialog} />
               ))}
               {activeTickets.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 gap-3">

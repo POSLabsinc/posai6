@@ -826,6 +826,7 @@ const convertQueueToTickets = (queue: any[]): KDSTicket[] => {
       orderType: (entry.orderType || "DINE IN") as KDSTicket["orderType"],
       tableNumber: entry.tableNumber || null,
       serverName: entry.serverName || "Staff",
+      serverJobType: entry.serverJobType || entry.jobType || "",
       createdAt: new Date(entry.createdAt),
       products: (entry.items || []).map((item: any) => ({
         qty: item.qty || 1,

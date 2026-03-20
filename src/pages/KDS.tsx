@@ -1065,6 +1065,62 @@ const KDS = () => {
             <h1 className="text-sm font-bold">Kitchen Display</h1>
           </div>
           <div className="flex items-center gap-2">
+            {/* Notification Bell */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setShowNotifPopover(p => !p);
+                  // Mark all as read
+                  if (!showNotifPopover) {
+                    try {
+                      const notifs = JSON.parse(localStorage.getItem("kds_sent_reply_notifications") || "[]");
+                      const updated = notifs.map((n: any) => ({ ...n, read: true }));
+                      localStorage.setItem("kds_sent_reply_notifications", JSON.stringify(updated));
+                      setLocalNotifCount(0);
+                    } catch {}
+                  }
+                }}
+                className={`p-2 rounded-lg transition-colors relative ${showNotifPopover ? "bg-white/15 text-white" : "text-neutral-500 hover:text-white hover:bg-white/10"}`}
+                title="Sent Replies"
+              >
+                <Bell className="w-4 h-4" />
+                {localNotifCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center px-1">
+                    {localNotifCount}
+                  </span>
+                )}
+              </button>
+
+              {/* Notification Popover */}
+              {showNotifPopover && (
+                <div className="absolute right-0 top-full mt-2 w-[320px] bg-neutral-900 border border-neutral-700 rounded-xl shadow-2xl z-50 overflow-hidden">
+                  <div className="px-4 py-3 border-b border-neutral-800 flex items-center justify-between">
+                    <span className="text-sm font-semibold text-white">Sent Replies</span>
+                    <button onClick={() => setShowNotifPopover(false)} className="text-neutral-500 hover:text-white">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                  <div className="max-h-[300px] overflow-y-auto">
+                    {(() => {
+                      const notifs = (() => { try { return JSON.parse(localStorage.getItem("kds_sent_reply_notifications") || "[]"); } catch { return []; } })();
+                      if (notifs.length === 0) return (
+                        <div className="px-4 py-8 text-center text-neutral-500 text-sm">No replies sent yet</div>
+                      );
+                      return notifs.slice(0, 10).map((n: any, i: number) => (
+                        <div key={n.id || i} className="px-4 py-3 border-b border-neutral-800/50 last:border-b-0 hover:bg-neutral-800/50 transition-colors">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs font-semibold text-orange-400">Reply to {n.to}</span>
+                            <span className="text-[10px] text-neutral-500">{(() => { try { const d = new Date(n.timestamp); return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }); } catch { return ""; } })()}</span>
+                          </div>
+                          <p className="text-xs text-neutral-300 line-clamp-2">{n.text}</p>
+                        </div>
+                      ));
+                    })()}
+                  </div>
+                </div>
+              )}
+            </div>
+
             <button
               onClick={() => setShowSummary(!showSummary)}
               className={`p-2 rounded-lg transition-colors ${showSummary ? "bg-white/15 text-white" : "text-neutral-500 hover:text-white hover:bg-white/10"}`}

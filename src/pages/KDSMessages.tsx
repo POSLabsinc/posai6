@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import KDSReplyDialog from "@/components/KDSReplyDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 interface KDSMessage {
   message_id: string;
@@ -113,6 +114,26 @@ const KDSMessages = () => {
       saveReplyToStorage(reply);
       pushPosNotification(reply, originalMsg);
       setKdsReplies(readReplies());
+
+      // Insert notification into DB for Settings > All Notifications
+      const orderRef = originalMsg.linked_order_number ? `Order #${originalMsg.linked_order_number}` : "";
+      const tableRef = originalMsg.table_number || "";
+      const contextParts = [orderRef, tableRef].filter(Boolean).join(" · ");
+      (supabase as any).from("notifications").insert({
+        title: "Kitchen Reply Sent",
+        preview: replyText.length > 60 ? replyText.slice(0, 57) + "..." : replyText,
+        headline: `Reply to: ${originalMsg.employee_name}`,
+        body: `Kitchen replied: "${replyText}"${contextParts ? ` (${contextParts})` : ""}. Original message: "${originalMsg.message_text}"`,
+        bullets: [],
+        version: "KDS",
+        version_date: new Date().toISOString().slice(0, 10),
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        category: "team",
+        has_update: false,
+        is_read: false,
+        footer: null,
+      }).then(() => {});
+
       toast.success("Reply sent \u2713", { duration: 3000 });
     } catch {
       toast.error("Failed to send reply. Try again.");

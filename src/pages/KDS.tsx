@@ -625,8 +625,17 @@ const convertQueueToTickets = (queue: any[]): KDSTicket[] => {
 
 // ─── Main KDS Page ───
 const KDS = () => {
-  // Session boundary: only messages sent after this timestamp are shown on the KDS
-  const sessionStartRef = useRef<string>(new Date().toISOString());
+  // Session boundary: capture message IDs that exist at mount time so we can exclude them.
+  // This avoids fragile timestamp comparisons across POS/KDS.
+  const staleMessageIdsRef = useRef<Set<string> | null>(null);
+  if (staleMessageIdsRef.current === null) {
+    try {
+      const existing: any[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
+      staleMessageIdsRef.current = new Set(existing.map((m: any) => m.message_id).filter(Boolean));
+    } catch {
+      staleMessageIdsRef.current = new Set();
+    }
+  }
 
   const [tickets, setTickets] = useState<KDSTicket[]>(() => {
     // Load real orders from KDS queue, fall back to mock data
@@ -679,6 +688,13 @@ const KDS = () => {
     return () => clearInterval(interval);
   }, [knownIds, soundEnabled]);
 
+  // Helper: filter messages to only those arriving after KDS session started
+  const filterSessionMessages = useCallback((allMessages: KDSMessageData[]): KDSMessageData[] => {
+    const staleIds = staleMessageIdsRef.current;
+    if (!staleIds || staleIds.size === 0) return allMessages;
+    return allMessages.filter(m => !staleIds.has(m.message_id));
+  }, []);
+
   // Poll pending messages for badge + attached messages (filtered by session boundary)
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
   const prevPendingCountRef = useRef(0);
@@ -686,8 +702,8 @@ const KDS = () => {
     const load = () => {
       try {
         const allMessages: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]").map((m: any) => ({ ...m, status: m.status || "pending" }));
-        // Only include messages sent during or after this KDS session
-        const sessionMessages = allMessages.filter(m => m.timestamp >= sessionStartRef.current);
+        // Only include messages that arrived after this KDS session started
+        const sessionMessages = filterSessionMessages(allMessages);
         setKdsMessages(sessionMessages);
         const count = sessionMessages.filter(m => m.status !== "acknowledged").length;
         // Auto-open messages panel when new messages arrive
@@ -701,7 +717,7 @@ const KDS = () => {
     load();
     const interval = setInterval(load, 2000);
     return () => clearInterval(interval);
-  }, []);
+  }, [filterSessionMessages]);
   // Build maps: table number -> all messages (pending + acknowledged), order id -> all messages
   const messagesByTable = useMemo(() => {
     const map = new Map<string, KDSMessageData[]>();

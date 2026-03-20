@@ -146,7 +146,7 @@ const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied =
         <DialogHeader>
           <DialogTitle className="text-white text-lg">Reply to kitchen message</DialogTitle>
           <DialogDescription className="text-neutral-400 text-sm">
-            Replying to {message.employee_name}{subtitleParts.length > 0 ? ` · ${subtitleParts.join(" · ")}` : ""}
+            Replying to {message.employee_name}{message.employee_role ? ` | ${message.employee_role}` : ""}{subtitleParts.length > 0 ? ` · ${subtitleParts.join(" · ")}` : ""}
           </DialogDescription>
         </DialogHeader>
 
@@ -157,9 +157,6 @@ const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied =
             <div className="border-l-2 border-violet-500 bg-neutral-800/60 border-y border-r border-neutral-700/50 px-3 py-2.5">
               <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Original message</span>
               <p className="text-xs text-neutral-300 mt-1 line-clamp-2">{message.message_text}</p>
-              <p className="text-[11px] text-neutral-500 mt-1.5">
-                From: {message.employee_name} · {format(new Date(message.timestamp), "hh:mm a")}
-              </p>
             </div>
 
             {/* Reply Field */}
@@ -196,18 +193,18 @@ const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied =
             </div>
 
             {/* Cancel + Send Reply */}
-            <div className="pt-2 space-y-2">
+            <div className="pt-2 flex gap-3">
               <button
                 onClick={() => onOpenChange(false)}
                 disabled={sending}
-                className="w-full text-center text-sm text-neutral-400 hover:text-white transition-colors disabled:opacity-50"
+                className="flex-1 h-10 rounded-md text-sm text-neutral-400 hover:text-white border border-neutral-600 hover:border-neutral-500 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <Button
                 onClick={handleSend}
                 disabled={!canSend}
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold disabled:opacity-50"
+                className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold disabled:opacity-50"
               >
                 {sending ? (
                   <span className="flex items-center gap-2">
@@ -228,7 +225,6 @@ const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied =
             </div>
 
             <div className="text-center space-y-1">
-              <p className="text-[13px] font-medium text-neutral-200">Scan to reply on mobile</p>
               <p className="text-xs text-neutral-400 leading-relaxed max-w-[220px]">
                 Open your phone camera and scan this code to reply from your phone
               </p>

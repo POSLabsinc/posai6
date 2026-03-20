@@ -1727,7 +1727,7 @@ const Orders = () => {
               </div>
               <div className="flex items-center gap-2 text-xs">
                 <img src={runnerIcon} alt="User" className="w-4 h-4" />
-                <span>Dustin H</span>
+                <span>{currentServerName}</span>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="w-5 h-5 bg-white rounded-full flex items-center justify-center ml-2">

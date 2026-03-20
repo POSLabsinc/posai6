@@ -864,29 +864,45 @@ const Dashboard = () => {
     };
   };
   
-  // Merge static orders with session orders (session orders first)
+  // Source orders exclusively from DB ticket orders and session orders
   const allOrders = useMemo(() => {
-    const staticOrders = getStaticDashboardOrders();
-    
-    // Attach static split configs to static orders
-    const enrichedStaticOrders = staticOrders.map(order => {
-      const splitKey = `${order.table}:${order.id}`;
-      if (staticSplitConfigs[splitKey]) {
-        return { ...order, splitConfiguration: staticSplitConfigs[splitKey] };
-      }
-      return order;
-    });
-    
     // Convert session orders to dashboard format
     const dashboardSessionOrders = sessionOrders.map(convertSessionToDashboardOrder);
     
-    // Assign sequential order numbers (1, 2, 3...)
-    const merged = [...dashboardSessionOrders, ...enrichedStaticOrders];
+    // Convert DB ticket orders to dashboard format
+    const dashboardDbOrders: DashboardOrder[] = dbTicketOrders.map((order, idx) => ({
+      id: order.id,
+      table: order.tableNumber ? `Table ${order.tableNumber}` : '',
+      server: order.employeeName || 'Unknown',
+      guests: order.guestCount || 1,
+      time: new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      amount: `$${(order.total || 0).toFixed(2)}`,
+      status: order.status === 'PAID' ? 'Paid' as const : order.status === 'VOIDED' ? 'Cancelled' as const : 'Unpaid' as const,
+      orderType: (order.orderType as 'Dine In' | 'Takeaway' | 'Delivery') || 'Dine In',
+      paymentType: order.paymentType || '--',
+      items: (order.items || []).map(item => ({
+        name: item.name,
+        qty: item.quantity,
+        price: `$${(item.unitPrice || 0).toFixed(2)}`,
+        modifiers: item.modifiers || [],
+        category: item.category || 'Uncategorized',
+        allergies: [],
+        notes: item.notes || '',
+        seat: item.seat,
+        noTax: false,
+        itemOrderType: (order.orderType as 'Dine In' | 'Takeaway' | 'Delivery') || 'Dine In',
+        isFired: true
+      })),
+      orderNumber: order.orderNumber || (idx + 1),
+    }));
+    
+    // Assign sequential order numbers
+    const merged = [...dashboardSessionOrders, ...dashboardDbOrders];
     return merged.map((order, idx) => ({
       ...order,
       orderNumber: order.orderNumber || (idx + 1),
     }));
-  }, [sessionOrders, staticSplitConfigs]);
+  }, [sessionOrders, dbTicketOrders]);
   
   // Core state
   const [activeFilter, setActiveFilter] = useState("All");

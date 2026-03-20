@@ -3004,14 +3004,24 @@ const OrderOS = () => {
                <div className="text-muted-foreground text-xs">Items</div>
                <div className="text-foreground font-bold">{selectedOrder.itemCount}</div>
              </div>
-             <div className="flex-1 p-2 bg-muted rounded-lg">
-               <div className="text-muted-foreground text-xs">
-                 {selectedOrder.status === 'NEW' ? 'Est. Ready By' : 'Ready At'}
-               </div>
-               <div className={`font-bold ${selectedOrder.status === 'NEW' ? 'text-[#FF6B6B]' : 'text-foreground'}`}>
-                 {selectedOrder.estimateReady}
-               </div>
-             </div>
+             <button
+               onClick={() => {
+                 if (selectedOrder.status !== 'COMPLETED' && selectedOrder.status !== 'CANCELLED') {
+                   setReadyTimePickerOpen(true);
+                 }
+               }}
+               className={`flex-1 p-2 bg-muted rounded-lg text-left transition-colors ${selectedOrder.status !== 'COMPLETED' && selectedOrder.status !== 'CANCELLED' ? 'hover:bg-muted/80 cursor-pointer active:scale-[0.97]' : ''}`}
+             >
+                <div className="text-muted-foreground text-xs flex items-center gap-1">
+                  {selectedOrder.status === 'NEW' ? 'Est. Ready By' : 'Ready At'}
+                  {selectedOrder.status !== 'COMPLETED' && selectedOrder.status !== 'CANCELLED' && (
+                    <Clock className="w-3 h-3 text-muted-foreground/60" />
+                  )}
+                </div>
+                <div className={`font-bold ${selectedOrder.status === 'NEW' ? 'text-[#FF6B6B]' : 'text-foreground'}`}>
+                  {selectedOrder.estimateReady}
+                </div>
+             </button>
           </div>
         </div>
         

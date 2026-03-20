@@ -1042,6 +1042,18 @@ const Dashboard = () => {
     return compareDate;
   };
 
+  // Listen for control center settings changes to update metric visibility
+  const [metricsVersion, setMetricsVersion] = useState(0);
+  useEffect(() => {
+    const handler = (e: CustomEvent) => {
+      if (e.detail?.type === 'controlCenter' || e.detail?.type === 'all') {
+        setMetricsVersion(v => v + 1);
+      }
+    };
+    window.addEventListener('settings-updated', handler as EventListener);
+    return () => window.removeEventListener('settings-updated', handler as EventListener);
+  }, []);
+
   // Get stats based on selected date filter, filtered by Control Center visibility settings
   const stats = useMemo(() => {
     const allStats = statsData[dateFilter] || statsData["Today"];
@@ -1058,7 +1070,8 @@ const Dashboard = () => {
       const key = labelToKey[stat.label];
       return key ? metrics[key] !== false : true;
     });
-  }, [dateFilter]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateFilter, metricsVersion]);
 
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = subtotal;

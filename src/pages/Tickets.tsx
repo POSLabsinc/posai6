@@ -2051,7 +2051,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
                   >
                     <img src={registerIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
-                    Register
+                    No Sale
                   </DropdownMenuItem>
                 )}
               </DropdownMenuContent>

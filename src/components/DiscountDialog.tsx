@@ -287,35 +287,41 @@ export function DiscountDialog({
         <p className="text-[11px] text-[#888] mt-0.5">Select a reason for the comp</p>
       </div>
       {needsReason ? (
-        <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-3">
+        <div className="flex-1 overflow-y-auto scrollbar-hide px-3 pb-3">
           {/* AI suggested pill */}
-          <div className="flex items-center gap-1.5 mb-3">
-            <span className="text-xs font-medium px-2.5 py-1 rounded-full flex items-center gap-1" style={{ background: 'rgba(245,166,35,0.12)', color: '#f5a623' }}>
-              <Zap className="w-3 h-3" /> AI suggested
+          <div className="flex items-center gap-1.5 mb-2.5 px-1">
+            <span className="text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1" style={{ background: 'rgba(245,166,35,0.12)', color: '#f5a623' }}>
+              <Zap className="w-2.5 h-2.5" /> AI suggested
             </span>
           </div>
-          {/* 4-column reason grid */}
-          <div className="grid grid-cols-4 gap-2">
+          {/* Vertical list of reasons */}
+          <div className="space-y-1">
             {REASON_OPTIONS.map((r) => {
               const isSelected = selectedReason === r.label;
               return (
                 <button
                   key={r.label}
                   onClick={() => setSelectedReason(isSelected ? null : r.label)}
-                  className="flex flex-col items-center gap-1.5 py-3 px-1 rounded-[10px] transition-all"
+                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[10px] transition-all"
                   style={{
-                    background: isSelected ? 'rgba(124,110,224,0.12)' : 'rgba(255,255,255,0.03)',
+                    background: isSelected ? 'rgba(124,110,224,0.12)' : 'transparent',
                     border: isSelected
-                      ? '1.5px solid #7c6ee0'
+                      ? '1px solid #7c6ee0'
                       : r.isAI
-                        ? '1px solid rgba(245,166,35,0.2)'
-                        : '1px solid rgba(255,255,255,0.06)',
+                        ? '1px solid rgba(245,166,35,0.15)'
+                        : '1px solid rgba(255,255,255,0.04)',
                   }}
                 >
-                  <span className="text-xl leading-none">{r.emoji}</span>
-                  <span className="text-[10px] font-medium text-center leading-tight" style={{ color: isSelected ? '#c4bcf0' : '#aaa' }}>
+                  <span className="text-base leading-none">{r.emoji}</span>
+                  <span className="text-[11px] font-medium" style={{ color: isSelected ? '#c4bcf0' : '#aaa' }}>
                     {r.label}
                   </span>
+                  {r.isAI && !isSelected && (
+                    <Zap className="w-2.5 h-2.5 ml-auto" style={{ color: 'rgba(245,166,35,0.4)' }} />
+                  )}
+                  {isSelected && (
+                    <Check className="w-3 h-3 ml-auto" style={{ color: '#7c6ee0' }} />
+                  )}
                 </button>
               );
             })}

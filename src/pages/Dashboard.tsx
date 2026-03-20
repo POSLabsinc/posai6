@@ -29,7 +29,7 @@ import clearIcon from "@/assets/icons/clear-c.png";
 import saveIcon from "@/assets/icons/save.png";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
-import { DashboardOrder, DashboardOrderItem, PaymentMethod, formatTableName, calculateOrderTotals } from "@/data/orders";
+import { DashboardOrder, DashboardOrderItem, PaymentMethod, formatTableName, calculateOrderTotals, getStatusColorHex, getFilterCategory } from "@/data/orders";
 import receiptIcon from "@/assets/icons/receipt-icon.svg";
 import registerIcon from "@/assets/icons/register.svg";
 import discountBtnIcon from "@/assets/icons/discount-icon.svg";

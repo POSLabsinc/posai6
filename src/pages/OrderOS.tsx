@@ -3485,8 +3485,21 @@ const OrderOS = () => {
                 }}
                 triggerRef={prepTimeTriggerRef}
                 externalInputValue={prepTimeInputValue === "" ? undefined : parseInt(prepTimeInputValue, 10)}
-              />
-              
+               />
+
+               {/* Ready Time Picker for adjusting Est. Ready By */}
+               {selectedOrder && (
+                 <AppleWheelTimePicker
+                   isOpen={readyTimePickerOpen}
+                   onClose={() => setReadyTimePickerOpen(false)}
+                   selectedTime={selectedOrder.estimateReady}
+                   onConfirm={(newTime) => {
+                     updateEstimatedReadyTime(selectedOrder.id, newTime);
+                     setReadyTimePickerOpen(false);
+                   }}
+                 />
+               )}
+               
               {/* Auto Accept Toggle */}
               <div className="flex items-center gap-2 px-3 py-1 rounded-xl shrink-0 h-[36px]" style={{ background: "rgba(100, 100, 100, 0.4)" }}>
                 <div className="flex flex-col items-center leading-tight">

@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Coffee, LogOut, FlaskConical } from "lucide-react";
+import { Coffee, LogOut, FlaskConical, ChefHat, ShoppingBag, Bell as BellIcon } from "lucide-react";
 import dinnerIcon from "@/assets/icons/dinner.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import localHostIcon from "@/assets/icons/local-host.png";
@@ -12,6 +12,7 @@ import switchUserIcon from "@/assets/icons/switch-user.png";
 import { useApp } from "@/contexts/AppContext";
 import { ClockOutOverlay } from "@/components/ClockOutOverlay";
 import AppleAlertDialog from "@/components/AppleAlertDialog";
+import { supabase } from "@/integrations/supabase/client";
 import {
   Tooltip,
   TooltipContent,

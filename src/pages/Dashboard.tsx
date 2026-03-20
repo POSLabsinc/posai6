@@ -1662,7 +1662,7 @@ const Dashboard = () => {
                             className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500 rounded-br-xl"
                             onClick={(e) => { e.stopPropagation(); }}
                           >
-                            <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
+                            <img src={registerIcon} alt="No Sale" className="w-4 h-4 object-contain" />
                           </button>
                         </div>
                       ) : (

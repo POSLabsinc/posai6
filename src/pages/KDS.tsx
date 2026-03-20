@@ -17,6 +17,10 @@ const normalizeTableNumber = (raw: string | null | undefined): string => {
     .toUpperCase();
 };
 
+// ─── Page-level session boundary ───
+// Survives route navigation (KDS→POS→KDS) but resets on hard browser refresh.
+const PAGE_SESSION_START = Date.now();
+
 // ─── KDS Ticket Types ───
 interface KDSModifier {
   name: string;
@@ -233,39 +237,42 @@ interface KDSMessageData {
   acknowledged_at?: string;
 }
 
-const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
-  const [messages, setMessages] = useState<KDSMessageData[]>([]);
+// ─── Shared message reader ───
+// Single source of truth for reading, normalizing, filtering, and deduping messages.
+const readSessionMessages = (): KDSMessageData[] => {
+  try {
+    const raw = localStorage.getItem("kds_message_queue");
+    if (!raw) return [];
+    const parsed = JSON.parse(raw) as any[];
+    const seen = new Set<string>();
+    return parsed
+      .map((m: any) => ({ ...m, status: m.status || "pending" } as KDSMessageData))
+      .filter((m) => {
+        const ts = new Date(m.timestamp || 0).getTime();
+        if (ts <= PAGE_SESSION_START) return false;
+        if (seen.has(m.message_id)) return false;
+        seen.add(m.message_id);
+        return true;
+      });
+  } catch {
+    return [];
+  }
+};
+
+const KDSMessagesPanel = ({ onClose, messages, onAcknowledge }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void }) => {
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
   const [flashId, setFlashId] = useState<string | null>(null);
   const prevCountRef = useRef(0);
 
-  const refreshMessages = useCallback(() => {
-    try {
-      const raw = localStorage.getItem("kds_message_queue");
-      if (!raw) { setMessages([]); return; }
-      const allParsed: KDSMessageData[] = JSON.parse(raw).map((m: any) => ({ ...m, status: m.status || "pending" }));
-      const parsed = allParsed;
-      setMessages(parsed);
-      const pendingCount = parsed.filter(m => m.status === "pending").length;
-      if (pendingCount > prevCountRef.current && prevCountRef.current > 0) {
-        const newest = parsed.filter(m => m.status === "pending").sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
-        if (newest) { setFlashId(newest.message_id); setTimeout(() => setFlashId(null), 2000); }
-      }
-      prevCountRef.current = pendingCount;
-    } catch { setMessages([]); }
-  }, []);
-
+  // Flash animation on new pending messages
   useEffect(() => {
-    refreshMessages();
-    const interval = setInterval(refreshMessages, 2000);
-    return () => clearInterval(interval);
-  }, [refreshMessages]);
-
-  const handleAcknowledge = (messageId: string) => {
-    const updated = messages.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m);
-    localStorage.setItem("kds_message_queue", JSON.stringify(updated));
-    setMessages(updated);
-  };
+    const pendingCount = messages.filter(m => m.status === "pending").length;
+    if (pendingCount > prevCountRef.current && prevCountRef.current > 0) {
+      const newest = messages.filter(m => m.status === "pending").sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+      if (newest) { setFlashId(newest.message_id); setTimeout(() => setFlashId(null), 2000); }
+    }
+    prevCountRef.current = pendingCount;
+  }, [messages]);
 
   const filtered = messages.filter(m => m.status === filter).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   const seen = new Set<string>();
@@ -306,7 +313,6 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
             <p className="text-xs font-medium">{filter === "pending" ? "No active messages" : "No acknowledged messages"}</p>
           </div>
         ) : deduplicated.map(msg => {
-          // Resolve order numbers for table-linked messages
           let displayOrderNumbers: number[] = [];
           if (msg.linked_order_number) {
             displayOrderNumbers = [msg.linked_order_number];
@@ -341,7 +347,7 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
             </div>
             {msg.status === "pending" ? (
               <div className="bg-neutral-900 px-3 pb-3 pt-1">
-                <Button onClick={() => handleAcknowledge(msg.message_id)} className="w-full bg-white text-black hover:bg-neutral-200 font-bold text-xs py-3 rounded-lg">
+                <Button onClick={() => onAcknowledge(msg.message_id)} className="w-full bg-white text-black hover:bg-neutral-200 font-bold text-xs py-3 rounded-lg">
                   <Check className="w-3 h-3 mr-1.5" /> ACKNOWLEDGE
                 </Button>
               </div>
@@ -672,27 +678,20 @@ const KDS = () => {
   }, [knownIds, soundEnabled]);
 
 
-  // Session start timestamp - messages before this are hidden (soft-delete on refresh)
-  const sessionStartRef = useRef(Date.now());
-
-  // Poll pending messages for badge + attached messages
+  // Poll pending messages for badge + attached messages using shared helper
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
   const prevPendingCountRef = useRef(0);
   useEffect(() => {
     const load = () => {
-      try {
-        const allMessages: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]")
-          .map((m: any) => ({ ...m, status: m.status || "pending" }))
-          .filter((m: KDSMessageData) => new Date(m.timestamp || 0).getTime() > sessionStartRef.current);
-        setKdsMessages(allMessages);
-        const count = allMessages.filter(m => m.status !== "acknowledged").length;
-        // Auto-open messages panel when new messages arrive
-        if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {
-          setShowMessages(true);
-        }
-        prevPendingCountRef.current = count;
-        setPendingMessageCount(count);
-      } catch { setPendingMessageCount(0); setKdsMessages([]); }
+      const allMessages = readSessionMessages();
+      setKdsMessages(allMessages);
+      const count = allMessages.filter(m => m.status !== "acknowledged").length;
+      // Auto-open messages panel when new messages arrive
+      if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {
+        setShowMessages(true);
+      }
+      prevPendingCountRef.current = count;
+      setPendingMessageCount(count);
     };
     load();
     const interval = setInterval(load, 2000);
@@ -733,7 +732,8 @@ const KDS = () => {
       const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
       const updated = queue.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m);
       localStorage.setItem("kds_message_queue", JSON.stringify(updated));
-      setKdsMessages(updated.map((m: any) => ({ ...m, status: m.status || "pending" })));
+      // Re-read through shared helper to keep filtering/dedupe consistent
+      setKdsMessages(readSessionMessages());
     } catch {}
   }, []);
 
@@ -831,7 +831,7 @@ const KDS = () => {
           {showSummary && <ItemSummary tickets={activeTickets} />}
 
           {/* Messages Panel */}
-          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} />}
+          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} messages={kdsMessages} onAcknowledge={handleAcknowledgeMessage} />}
         </div>
 
         {/* Bottom Bar */}

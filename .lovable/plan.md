@@ -1,19 +1,25 @@
 
 
-# Fix: KDS Kitchen Messages Not Showing
+# Plan: Clear Messages from localStorage on KDS Refresh
 
-## Problem
-The `staleMessageIdsRef` (lines 622-632) captures all message IDs present in `kds_message_queue` localStorage when KDS mounts, then `filterSessionMessages` (lines 681-685) excludes them. Since POS and KDS share the same browser, any message sent before navigating to `/kds` is immediately filtered out.
+## What
+On KDS mount (page load/refresh), clear the `kds_message_queue` from localStorage so old messages are fully deleted, not just hidden.
 
-## Fix
-Remove the session boundary filtering. Show **all** messages from localStorage. The existing acknowledge system already handles message lifecycle (pending → acknowledged).
+## Changes in `src/pages/KDS.tsx`
 
-### Changes in `src/pages/KDS.tsx`:
-1. **Delete** `staleMessageIdsRef` block (lines 622-632)
-2. **Delete** `filterSessionMessages` callback (lines 680-685)
-3. **Update message polling** (line 695): use `allMessages` directly instead of `filterSessionMessages(allMessages)`
-4. **Update `handleAcknowledgeMessage`** (line 746): set state with `updated` directly instead of wrapping with `filterSessionMessages`
-5. **Remove** `staleIds` prop from `KDSMessagesPanel` call site if passed
+Add a single `localStorage.removeItem("kds_message_queue")` call at component mount, before any polling begins. This goes inside an existing `useEffect` or a new one-time mount effect:
 
-No new logic added. ~15 lines removed/simplified. Messages (standalone and order-linked) will appear in the sidebar and inline on order cards as designed.
+```ts
+useEffect(() => {
+  localStorage.removeItem("kds_message_queue");
+}, []);
+```
+
+This ensures:
+- On refresh/navigate to KDS, all previous messages are deleted from storage
+- New messages sent from POS after KDS opens will be stored fresh and displayed
+- No stale messages accumulate in localStorage over time
+- The `sessionStartRef` timestamp filter (from the previous plan) becomes unnecessary — can be removed if present
+
+**Single file, ~3 lines added.**
 

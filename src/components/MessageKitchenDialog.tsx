@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { Loader2, Search, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { staffList } from "@/data/staff";
 
 interface KDSTicketData {
   id: string;

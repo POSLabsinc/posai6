@@ -1,28 +1,19 @@
 
-# Plan: Resolve Remaining Audit Items - COMPLETED
 
-## Status: All 3 workstreams complete
+# Fix: KDS Kitchen Messages Not Showing
 
----
+## Problem
+The `staleMessageIdsRef` (lines 622-632) captures all message IDs present in `kds_message_queue` localStorage when KDS mounts, then `filterSessionMessages` (lines 681-685) excludes them. Since POS and KDS share the same browser, any message sent before navigating to `/kds` is immediately filtered out.
 
-## Workstream 1: KDS Mock Replacement - DONE
-- Removed `generateMockTickets()` from KDS.tsx
-- Empty state shown when no active orders
+## Fix
+Remove the session boundary filtering. Show **all** messages from localStorage. The existing acknowledge system already handles message lifecycle (pending → acknowledged).
 
-## Workstream 2: Dashboard DB Migration - DONE
-- Removed `getStaticDashboardOrders()` mock data dependency
-- Dashboard sources orders exclusively from DB and session
+### Changes in `src/pages/KDS.tsx`:
+1. **Delete** `staleMessageIdsRef` block (lines 622-632)
+2. **Delete** `filterSessionMessages` callback (lines 680-685)
+3. **Update message polling** (line 695): use `allMessages` directly instead of `filterSessionMessages(allMessages)`
+4. **Update `handleAcknowledgeMessage`** (line 746): set state with `updated` directly instead of wrapping with `filterSessionMessages`
+5. **Remove** `staleIds` prop from `KDSMessagesPanel` call site if passed
 
-## Workstream 3: Mega-File Decomposition - DONE (Pass 1)
+No new logic added. ~15 lines removed/simplified. Messages (standalone and order-linked) will appear in the sidebar and inline on order cards as designed.
 
-### Completed extractions:
-- **Orders.tsx**: 9,954 -> 4,164 lines (-58%)
-  - Extracted `src/data/orderMenuData.ts` (5,804 lines) - all static menu data, category colors, helper functions
-- **Tickets.tsx**: 6,440 -> 6,262 lines (-3%)
-  - Extracted `src/components/tickets/TicketModifierTree.tsx` (184 lines) - ModifierTree components
-- **Login.tsx**: 6,481 -> 6,342 lines (-2%)
-  - Extracted `src/data/loginData.tsx` (145 lines) - static employee/revenue center data
-
-### Remaining opportunity (future passes):
-- Tickets.tsx and Login.tsx could benefit from JSX decomposition (extracting return block sections into sub-components)
-- This is a larger effort requiring careful prop threading and would be a separate task

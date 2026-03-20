@@ -905,7 +905,7 @@ const Dashboard = () => {
           itemOrderType: order.orderType || 'Dine In',
           isFired: item.isFired || false
         })),
-        paymentMethods: order.paymentMethods,
+        paymentMethods: order.paymentMethods as unknown as PaymentMethod[] | undefined,
         splitConfiguration: order.splitConfiguration
       };
     });

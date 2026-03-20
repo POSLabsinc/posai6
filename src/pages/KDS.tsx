@@ -17,9 +17,8 @@ const normalizeTableNumber = (raw: string | null | undefined): string => {
     .toUpperCase();
 };
 
-// ─── Page-level session boundary ───
-// Survives route navigation (KDS→POS→KDS) but resets on hard browser refresh.
-const PAGE_SESSION_START = Date.now();
+// ─── Session cleanup key ───
+// Used with sessionStorage to clear old messages once per browser session.
 
 // ─── KDS Ticket Types ───
 interface KDSModifier {

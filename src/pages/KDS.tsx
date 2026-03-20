@@ -683,7 +683,7 @@ const KDS = () => {
       try {
         const allMessages: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]")
           .map((m: any) => ({ ...m, status: m.status || "pending" }))
-          .filter((m: KDSMessageData) => new Date(m.timestamp || m.sent_at || 0).getTime() > sessionStartRef.current);
+          .filter((m: KDSMessageData) => new Date(m.timestamp || 0).getTime() > sessionStartRef.current);
         setKdsMessages(allMessages);
         const count = allMessages.filter(m => m.status !== "acknowledged").length;
         // Auto-open messages panel when new messages arrive

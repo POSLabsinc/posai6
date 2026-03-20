@@ -15,11 +15,11 @@ const normalizeTableNumber = (raw: string | null | undefined): string => {
     .replace(/^T\.?\s*/i, "")   // then strip "T." or "T"
     .trim()
     .toUpperCase();
+};
 
 // ─── Page-level session boundary ───
 // Survives route navigation (KDS→POS→KDS) but resets on hard browser refresh.
 const PAGE_SESSION_START = Date.now();
-};
 
 // ─── KDS Ticket Types ───
 interface KDSModifier {

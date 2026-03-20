@@ -1265,25 +1265,6 @@ const Orders = () => {
       setActiveCustomItemField('name');
     }
   };
-  const handleMenuSelect = (value: string) => {
-    setSelectedMenu(value);
-    setIsMenuSelectOpen(false);
-    // Auto-select first category and subcategory for the new menu
-    const {
-      firstCategory,
-      firstSubcategory
-    } = getFirstCategoryAndSubcategory(value);
-    setActiveCategory(firstCategory);
-    setActiveSubcategory(firstSubcategory);
-  };
-
-  // Handle category change - auto-select first subcategory
-  const handleCategoryChange = (category: string) => {
-    setActiveCategory(category);
-    const subcategories = mergedCategorySubcategories[category] || [];
-    const firstSubcategory = subcategories[0] || "";
-    setActiveSubcategory(firstSubcategory);
-  };
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const discount = selectedDiscounts.reduce((sum, d) => {
     if (d.type === "percentage") return sum + (subtotal * d.value) / 100;

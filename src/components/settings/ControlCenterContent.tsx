@@ -72,6 +72,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const [hideEmployeeFeedback, setHideEmployeeFeedback] = useState(() => loadSettings().hideEmployeeFeedback);
   const [hideSeatSelector, setHideSeatSelector] = useState(() => loadSettings().hideSeatSelector);
   const [resetTablesDaily, setResetTablesDaily] = useState(() => loadSettings().resetTablesDaily);
+  const [dashboardMetrics, setDashboardMetrics] = useState<DashboardMetricsVisibility>(() => loadSettings().dashboardMetrics);
 
   // Sync all settings when a settings-updated event is received
   useEffect(() => {

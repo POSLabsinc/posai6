@@ -1,49 +1,17 @@
 
 
-# Fix: KDS Messages Not Appearing After POS→KDS Navigation
+## Fix: Stack Acknowledge & Reply Buttons Vertically in Inline Message Cards
 
-## Root Cause
+**Problem**: The Acknowledge and Reply buttons sit side-by-side horizontally inside the inline message card on order tickets, causing the Reply button to be cut off/hidden.
 
-`PAGE_SESSION_START = Date.now()` is a **module-level constant** inside `KDS.tsx`, which is **lazy-loaded** (`React.lazy(() => import("./pages/KDS"))`).
+**Solution**: Change the button container from horizontal (`flex gap-1.5`) to vertical (`flex flex-col gap-1.5`) layout so Acknowledge appears first, Reply below it.
 
-The module only loads when the user **first visits /kds**. If the user is on POS, sends a message at time T1, then navigates to /kds, the module loads at T2 (where T2 > T1). The filter `timestamp > PAGE_SESSION_START` then rejects the message because T1 < T2.
+### Changes — `src/pages/KDS.tsx`
 
-```text
-Timeline:
-  App loads → User on POS → Sends message (T1)
-                                   ↓
-                          Navigates to /kds → Module loads → PAGE_SESSION_START = T2
-                                   ↓
-                          Filter: T1 > T2? NO → Message hidden!
-```
+**Line 710** — Change the pending state button container:
+- From: `<div className="bg-neutral-900 px-3 py-2 flex gap-1.5">`
+- To: `<div className="bg-neutral-900 px-3 py-2 flex flex-col gap-1.5">`
+- Remove `flex-1` from both buttons since they'll be full-width stacked
 
-This is why "it was working before" — the session boundary filter was added recently and broke the flow.
-
-## Fix
-
-**Remove the timestamp-based session filter entirely.** Instead, use the original plan of clearing localStorage on mount. But do it **smartly** — only clear once per browser session using `sessionStorage` as a flag:
-
-### Changes in `src/pages/KDS.tsx`
-
-1. **Remove** `PAGE_SESSION_START` constant (line 22)
-2. **Replace** `readSessionMessages()` — remove the timestamp filter, keep only parsing + normalization + dedup
-3. **Add** a one-time session cleanup in the KDS component mount:
-
-```ts
-// Inside KDS component, first useEffect:
-useEffect(() => {
-  const alreadyCleared = sessionStorage.getItem("kds_session_cleared");
-  if (!alreadyCleared) {
-    localStorage.removeItem("kds_message_queue");
-    sessionStorage.setItem("kds_session_cleared", "true");
-  }
-}, []);
-```
-
-**How this works:**
-- On hard refresh / new tab: `sessionStorage` is empty → queue is cleared → fresh start
-- On POS→KDS navigation (same session): `sessionStorage` flag exists → queue is NOT cleared → messages persist
-- `sessionStorage` automatically resets on tab close/refresh (browser native behavior)
-
-This is 3 lines of logic, no timing edge cases, and matches the user's original request: "delete messages on refresh."
+This single change affects the inline message buttons when the message is still pending (unacknowledged). The acknowledged state (lines 718-727) already stacks vertically, so no change needed there.
 

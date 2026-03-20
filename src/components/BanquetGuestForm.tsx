@@ -233,7 +233,7 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
                   </span>
                 </button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-white border border-gray-200 shadow-xl rounded-2xl" align="start" sideOffset={8}>
+              <PopoverContent className="w-auto p-0 bg-neutral-800 border border-neutral-700 shadow-xl rounded-2xl" align="start" sideOffset={8}>
                 <CalendarComponent
                   mode="single"
                   selected={formData.eventDate ? new Date(formData.eventDate) : undefined}
@@ -244,7 +244,7 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
                     }
                   }}
                   initialFocus
-                  className="p-3 pointer-events-auto bg-white rounded-2xl"
+                  className="p-3 pointer-events-auto bg-neutral-800 text-white rounded-2xl"
                 />
               </PopoverContent>
             </Popover>

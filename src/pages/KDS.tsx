@@ -707,11 +707,11 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                   return (
                     <>
                       {msg.status === "pending" && onAcknowledgeMessage ? (
-                        <div className="bg-neutral-900 px-3 py-2 flex gap-1.5">
-                          <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="flex-1 bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
+                        <div className="bg-neutral-900 px-3 py-2 flex flex-col gap-1.5">
+                          <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
                             <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
                           </Button>
-                          <Button variant="outline" onClick={() => setInlineReplyingTo(inlineReplyingTo === msg.message_id ? null : msg.message_id)} className="flex-1 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
+                          <Button variant="outline" onClick={() => setInlineReplyingTo(inlineReplyingTo === msg.message_id ? null : msg.message_id)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
                             <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
                           </Button>
                         </div>

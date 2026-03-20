@@ -1042,9 +1042,22 @@ const Dashboard = () => {
     return compareDate;
   };
 
-  // Get stats based on selected date filter
+  // Get stats based on selected date filter, filtered by Control Center visibility settings
   const stats = useMemo(() => {
-    return statsData[dateFilter] || statsData["Today"];
+    const allStats = statsData[dateFilter] || statsData["Today"];
+    const metrics = SettingsManager.getControlCenterSettings().dashboardMetrics;
+    const labelToKey: Record<string, keyof typeof metrics> = {
+      "Total Sale": "totalSale",
+      "Total Tip": "totalTip",
+      "Total Hours": "totalHours",
+      "Ordering": "ordering",
+      "Ready to Served": "readyToServed",
+      "Completed": "completed",
+    };
+    return allStats.filter(stat => {
+      const key = labelToKey[stat.label];
+      return key ? metrics[key] !== false : true;
+    });
   }, [dateFilter]);
 
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);

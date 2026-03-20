@@ -356,6 +356,14 @@ const defaultControlCenterSettings: ControlCenterSettings = {
   resetTablesDaily: false,
   businessHoursStart: "6:00 AM",
   businessHoursEnd: "1:00 AM",
+  dashboardMetrics: {
+    totalSale: true,
+    totalTip: true,
+    totalHours: true,
+    ordering: true,
+    readyToServed: true,
+    completed: true,
+  },
 };
 
 const defaultCheckoutOptionsSettings: CheckoutOptionsSettings = {

@@ -225,7 +225,6 @@ const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied =
             </div>
 
             <div className="text-center space-y-1">
-              <p className="text-[13px] font-medium text-neutral-200">Scan to reply on mobile</p>
               <p className="text-xs text-neutral-400 leading-relaxed max-w-[220px]">
                 Open your phone camera and scan this code to reply from your phone
               </p>

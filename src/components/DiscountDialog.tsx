@@ -273,7 +273,7 @@ export function DiscountDialog({
                     border: isSelected ? '1.5px solid #fff' : '1.5px solid #555',
                   }}
                 >
-                  {isSelected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+                  {isSelected && <Check className="w-2.5 h-2.5 text-black" strokeWidth={3} />}
                 </div>
               </button>
             );

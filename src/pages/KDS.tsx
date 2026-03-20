@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
+import { staffList } from "@/data/staff";
 
 // ─── Table Number Normalization ───
 // Extracts just the numeric/alphanumeric table identifier from various formats

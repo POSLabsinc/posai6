@@ -18,6 +18,7 @@ import AppleAlertDialog from "@/components/AppleAlertDialog";
 import { ReportExceptionDialog, ReportedItem } from "@/components/ReportExceptionDialog";
 import { EightySixSheet, EightySixedItem } from "@/components/EightySixSheet";
 import { PrepTimeWheelPicker } from "@/components/PrepTimeWheelPicker";
+import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
 import {
   DndContext,
   DragOverlay,
@@ -1361,6 +1362,9 @@ const OrderOS = () => {
   const prepTimeTriggerRef = useRef<HTMLDivElement>(null);
   const prepTimeInputRef = useRef<HTMLInputElement>(null);
 
+  // Ready Time Picker state (for adjusting Est. Ready By)
+  const [readyTimePickerOpen, setReadyTimePickerOpen] = useState(false);
+
   // Animation state for accepted/cancelled orders
   const [acceptedOrderId, setAcceptedOrderId] = useState<string | null>(null);
   const [cancelledOrderId, setCancelledOrderId] = useState<string | null>(null);
@@ -1479,6 +1483,22 @@ const OrderOS = () => {
       description: `Order #${orders.find(o => o.id === orderId)?.orderNumber} has been updated.`,
     });
   }, [orders, toast]);
+
+  // Handler to update estimated ready time for an order
+  const updateEstimatedReadyTime = useCallback((orderId: string, newTime: string) => {
+    setOrders(prevOrders =>
+      prevOrders.map(order =>
+        order.id === orderId ? { ...order, estimateReady: newTime } : order
+      )
+    );
+    setSelectedOrder(prev =>
+      prev?.id === orderId ? { ...prev, estimateReady: newTime } : prev
+    );
+    toast({
+      title: "Ready time updated",
+      description: `Estimated ready time changed to ${newTime}.`,
+    });
+  }, [toast]);
 
   // Sound feedback for accept order
   const playAcceptSound = useCallback(() => {
@@ -2967,7 +2987,7 @@ const OrderOS = () => {
               </div>
             </div>
             <button 
-              onClick={() => setSelectedOrder(null)}
+              onClick={() => { setSelectedOrder(null); setReadyTimePickerOpen(false); }}
                className="p-2 rounded-full hover:bg-muted transition-colors"
              >
                <X className="w-5 h-5 text-muted-foreground" />
@@ -2984,14 +3004,24 @@ const OrderOS = () => {
                <div className="text-muted-foreground text-xs">Items</div>
                <div className="text-foreground font-bold">{selectedOrder.itemCount}</div>
              </div>
-             <div className="flex-1 p-2 bg-muted rounded-lg">
-               <div className="text-muted-foreground text-xs">
-                 {selectedOrder.status === 'NEW' ? 'Est. Ready By' : 'Ready At'}
-               </div>
-               <div className={`font-bold ${selectedOrder.status === 'NEW' ? 'text-[#FF6B6B]' : 'text-foreground'}`}>
-                 {selectedOrder.estimateReady}
-               </div>
-             </div>
+             <button
+               onClick={() => {
+                 if (selectedOrder.status !== 'COMPLETED' && selectedOrder.status !== 'CANCELLED') {
+                   setReadyTimePickerOpen(true);
+                 }
+               }}
+               className={`flex-1 p-2 bg-muted rounded-lg text-left transition-colors ${selectedOrder.status !== 'COMPLETED' && selectedOrder.status !== 'CANCELLED' ? 'hover:bg-muted/80 cursor-pointer active:scale-[0.97]' : ''}`}
+             >
+                <div className="text-muted-foreground text-xs flex items-center gap-1">
+                  {selectedOrder.status === 'NEW' ? 'Est. Ready By' : 'Ready At'}
+                  {selectedOrder.status !== 'COMPLETED' && selectedOrder.status !== 'CANCELLED' && (
+                    <Clock className="w-3 h-3 text-muted-foreground/60" />
+                  )}
+                </div>
+                <div className={`font-bold ${selectedOrder.status === 'NEW' ? 'text-[#FF6B6B]' : 'text-foreground'}`}>
+                  {selectedOrder.estimateReady}
+                </div>
+             </button>
           </div>
         </div>
         
@@ -3455,8 +3485,21 @@ const OrderOS = () => {
                 }}
                 triggerRef={prepTimeTriggerRef}
                 externalInputValue={prepTimeInputValue === "" ? undefined : parseInt(prepTimeInputValue, 10)}
-              />
-              
+               />
+
+               {/* Ready Time Picker for adjusting Est. Ready By */}
+               {selectedOrder && (
+                 <AppleWheelTimePicker
+                   isOpen={readyTimePickerOpen}
+                   onClose={() => setReadyTimePickerOpen(false)}
+                   selectedTime={selectedOrder.estimateReady}
+                   onConfirm={(newTime) => {
+                     updateEstimatedReadyTime(selectedOrder.id, newTime);
+                     setReadyTimePickerOpen(false);
+                   }}
+                 />
+               )}
+               
               {/* Auto Accept Toggle */}
               <div className="flex items-center gap-2 px-3 py-1 rounded-xl shrink-0 h-[36px]" style={{ background: "rgba(100, 100, 100, 0.4)" }}>
                 <div className="flex flex-col items-center leading-tight">

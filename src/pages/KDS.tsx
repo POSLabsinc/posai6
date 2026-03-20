@@ -43,7 +43,6 @@ interface KDSTicket {
   orderType: "DINE IN" | "TAKEOUT" | "DELIVERY" | "BAR";
   tableNumber: string | null;
   serverName: string;
-  serverJobType?: string;
   createdAt: Date;
   products: KDSProduct[];
   status: "active" | "seen" | "bumped";
@@ -61,7 +60,6 @@ const generateMockTickets = (): KDSTicket[] => {
       orderType: "DINE IN",
       tableNumber: "T2",
       serverName: "Mia Jones",
-      serverJobType: "Manager",
       createdAt: new Date(now.getTime() - 38 * 60000),
       products: [
         { qty: 1, name: "Fried Calamari", category: "APPETIZER", modifiers: [], status: "pending" },
@@ -79,7 +77,6 @@ const generateMockTickets = (): KDSTicket[] => {
       orderType: "DINE IN",
       tableNumber: "T4",
       serverName: "Dustin H",
-      serverJobType: "Server",
       createdAt: new Date(now.getTime() - 23 * 60000),
       products: [
         { qty: 1, name: "Cheese Selection", category: "APPETIZER", modifiers: [], status: "pending" },
@@ -95,7 +92,6 @@ const generateMockTickets = (): KDSTicket[] => {
       orderType: "DINE IN",
       tableNumber: "T5",
       serverName: "Mia Jones",
-      serverJobType: "Manager",
       createdAt: new Date(now.getTime() - 23 * 60000),
       products: [
         { qty: 2, name: "Meatballs", category: "ENTREE", modifiers: [], status: "pending" },
@@ -110,7 +106,6 @@ const generateMockTickets = (): KDSTicket[] => {
       orderType: "DINE IN",
       tableNumber: "T6",
       serverName: "Sarah K",
-      serverJobType: "Bartender",
       createdAt: new Date(now.getTime() - 38 * 60000),
       products: [
         { qty: 1, name: "Cheese Selection", category: "APPETIZER", modifiers: [], status: "ready" },
@@ -126,7 +121,6 @@ const generateMockTickets = (): KDSTicket[] => {
       orderType: "DINE IN",
       tableNumber: "T8",
       serverName: "Dustin H",
-      serverJobType: "Server",
       createdAt: new Date(now.getTime() - 23 * 60000),
       products: [
         { qty: 2, name: "Meatballs", category: "ENTREE", modifiers: [], status: "pending" },
@@ -141,7 +135,6 @@ const generateMockTickets = (): KDSTicket[] => {
       orderType: "DINE IN",
       tableNumber: "T3",
       serverName: "Mia Jones",
-      serverJobType: "Manager",
       createdAt: new Date(now.getTime() - 23 * 60000),
       products: [
         { qty: 1, name: "Cheese Selection", category: "APPETIZER", modifiers: [], status: "pending" },
@@ -678,9 +671,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
               {String(Math.floor(elapsedSeconds / 3600)).padStart(2, '0')}:{String(Math.floor((elapsedSeconds % 3600) / 60)).padStart(2, '0')}:{String(elapsedSeconds % 60).padStart(2, '0')}
             </span>
             {ticket.serverName && (
-              <span className="text-[10px] text-neutral-400 font-semibold uppercase truncate max-w-[140px]">
-                {ticket.serverName}{ticket.serverJobType ? ` · ${ticket.serverJobType}` : ""}
-              </span>
+              <span className="text-[10px] text-neutral-400 font-semibold uppercase truncate max-w-[120px]">{ticket.serverName}</span>
             )}
           </div>
         </div>
@@ -751,7 +742,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
         {isMessage ? (
           <div className="py-3">
             <p className="text-sm text-white leading-relaxed">{ticket.products[0]?.name}</p>
-            <p className="text-[10px] text-neutral-500 mt-2">From: {ticket.serverName}{ticket.serverJobType ? ` · ${ticket.serverJobType}` : ""}</p>
+            <p className="text-[10px] text-neutral-500 mt-2">From: {ticket.serverName}</p>
           </div>
         ) : (
           categoryOrder.map(cat => {
@@ -826,7 +817,6 @@ const convertQueueToTickets = (queue: any[]): KDSTicket[] => {
       orderType: (entry.orderType || "DINE IN") as KDSTicket["orderType"],
       tableNumber: entry.tableNumber || null,
       serverName: entry.serverName || "Staff",
-      serverJobType: entry.serverJobType || entry.jobType || "",
       createdAt: new Date(entry.createdAt),
       products: (entry.items || []).map((item: any) => ({
         qty: item.qty || 1,

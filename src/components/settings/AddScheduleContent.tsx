@@ -232,7 +232,12 @@ const AddScheduleContent = ({ onBack }: AddScheduleContentProps) => {
           <div className="relative flex items-center justify-between w-full py-3.5 px-4">
             <span className="text-foreground text-[15px]">End Date</span>
             <button
-              onClick={() => { setShowEndDatePicker(!showEndDatePicker); setShowStartDatePicker(false); }}
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                setDatePickerPos({ top: rect.bottom + 8, left: rect.right });
+                setShowEndDatePicker(!showEndDatePicker);
+                setShowStartDatePicker(false);
+              }}
               className="flex items-center gap-1 active:opacity-70 transition-opacity"
             >
               <span className="text-neutral-400 text-[15px]">{formatDate(endDate)}</span>

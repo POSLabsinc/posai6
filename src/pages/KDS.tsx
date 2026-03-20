@@ -492,28 +492,36 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
       {/* Attached Kitchen Messages — shown at top */}
       {!isMessage && attachedMessages.length > 0 && (
         <div className="border-b border-violet-600/40">
-          {attachedMessages.map(msg => (
-            <div key={msg.message_id} className="border-b border-neutral-700 last:border-b-0">
-              <div className="bg-gradient-to-r from-violet-700 to-indigo-700 px-3 py-1.5 flex items-center justify-between">
-                <div className="flex items-center gap-1.5">
-                  <Megaphone className="w-3 h-3 text-white/80" />
-                  <span className="text-[10px] font-bold uppercase tracking-wider text-white/90">{msg.terminal_name ? `Message from ${msg.terminal_name}` : "Kitchen Message"}</span>
+          {attachedMessages.map(msg => {
+            const isAcked = msg.status === "acknowledged";
+            return (
+              <div key={msg.message_id} className="border-b border-neutral-700 last:border-b-0">
+                <div className={`${isAcked ? "bg-gradient-to-r from-violet-900/50 to-indigo-900/40" : "bg-gradient-to-r from-violet-700 to-indigo-700"} px-3 py-1.5 flex items-center justify-between`}>
+                  <div className="flex items-center gap-1.5">
+                    <Megaphone className={`w-3 h-3 ${isAcked ? "text-white/40" : "text-white/80"}`} />
+                    <span className={`text-[10px] font-bold uppercase tracking-wider ${isAcked ? "text-white/50" : "text-white/90"}`}>{msg.terminal_name ? `Message from ${msg.terminal_name}` : "Kitchen Message"}</span>
+                  </div>
+                  <span className={`text-[10px] font-mono ${isAcked ? "text-white/40" : "text-white/70"}`}>{format(new Date(msg.timestamp), "hh:mm a")}</span>
                 </div>
-                <span className="text-[10px] text-white/70 font-mono">{format(new Date(msg.timestamp), "hh:mm a")}</span>
-              </div>
-              <div className="bg-neutral-800 px-3 py-2">
-                <p className="text-xs text-white leading-relaxed whitespace-pre-wrap break-words">{msg.message_text}</p>
-                <p className="text-[10px] text-neutral-500 mt-1">From: <span className="text-neutral-300">{msg.employee_name}</span></p>
-              </div>
-              {msg.status === "pending" && onAcknowledgeMessage && (
-                <div className="bg-neutral-900 px-3 py-2">
-                  <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
-                    <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
-                  </Button>
+                <div className={`${isAcked ? "bg-neutral-800/60" : "bg-neutral-800"} px-3 py-2`}>
+                  <p className={`text-xs leading-relaxed whitespace-pre-wrap break-words ${isAcked ? "text-neutral-400" : "text-white"}`}>{msg.message_text}</p>
+                  <p className="text-[10px] text-neutral-500 mt-1">From: <span className={isAcked ? "text-neutral-500" : "text-neutral-300"}>{msg.employee_name}</span></p>
                 </div>
-              )}
-            </div>
-          ))}
+                {msg.status === "pending" && onAcknowledgeMessage ? (
+                  <div className="bg-neutral-900 px-3 py-2">
+                    <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
+                      <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
+                    </Button>
+                  </div>
+                ) : isAcked ? (
+                  <div className="bg-neutral-900/60 px-3 py-1.5 flex items-center gap-1.5">
+                    <Check className="w-3 h-3 text-emerald-500" />
+                    <span className="text-[10px] text-emerald-500 font-medium">Acknowledged{msg.acknowledged_at ? ` ${format(new Date(msg.acknowledged_at), "hh:mm a")}` : ""}</span>
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
         </div>
       )}
 

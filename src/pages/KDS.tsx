@@ -17,9 +17,8 @@ const normalizeTableNumber = (raw: string | null | undefined): string => {
     .toUpperCase();
 };
 
-// ─── Page-level session boundary ───
-// Survives route navigation (KDS→POS→KDS) but resets on hard browser refresh.
-const PAGE_SESSION_START = Date.now();
+// ─── Session cleanup key ───
+// Used with sessionStorage to clear old messages once per browser session.
 
 // ─── KDS Ticket Types ───
 interface KDSModifier {
@@ -248,8 +247,6 @@ const readSessionMessages = (): KDSMessageData[] => {
     return parsed
       .map((m: any) => ({ ...m, status: m.status || "pending" } as KDSMessageData))
       .filter((m) => {
-        const ts = new Date(m.timestamp || 0).getTime();
-        if (ts <= PAGE_SESSION_START) return false;
         if (seen.has(m.message_id)) return false;
         seen.add(m.message_id);
         return true;
@@ -681,6 +678,15 @@ const KDS = () => {
   // Poll pending messages for badge + attached messages using shared helper
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
   const prevPendingCountRef = useRef(0);
+  // One-time session cleanup: clear old messages on hard refresh/new tab only
+  useEffect(() => {
+    const alreadyCleared = sessionStorage.getItem("kds_session_cleared");
+    if (!alreadyCleared) {
+      localStorage.removeItem("kds_message_queue");
+      sessionStorage.setItem("kds_session_cleared", "true");
+    }
+  }, []);
+
   useEffect(() => {
     const load = () => {
       const allMessages = readSessionMessages();

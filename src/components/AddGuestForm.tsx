@@ -614,6 +614,26 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
         )}
       </div>
 
+      {/* Footer buttons for compact/order mode */}
+      {compact && (
+        <div className="flex gap-3 p-4 border-t border-white/10 flex-shrink-0">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSave}
+            disabled={isSaving || !isFormValid}
+            className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
+            {isSaving ? "Saving..." : "Save Guest"}
+          </Button>
+        </div>
+      )}
+
     </div>
   );
 };

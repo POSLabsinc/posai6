@@ -1070,7 +1070,7 @@ const KDS = () => {
           {showSummary && <ItemSummary tickets={activeTickets} />}
 
           {/* Messages Panel */}
-          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} messages={kdsMessages} onAcknowledge={handleAcknowledgeMessage} />}
+          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} messages={kdsMessages} onAcknowledge={handleAcknowledgeMessage} onSendReply={handleSendReply} allReplies={kdsReplies} />}
         </div>
 
         {/* Bottom Bar */}

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import KDSReplyDialog from "@/components/KDSReplyDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 interface KDSMessage {
   message_id: string;

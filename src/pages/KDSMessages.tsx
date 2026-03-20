@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Megaphone, Check, ArrowLeft, Bell } from "lucide-react";
+import { Megaphone, Check, ArrowLeft, Bell, Reply } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import KDSReplyDialog from "@/components/KDSReplyDialog";
 
 interface KDSMessage {
   message_id: string;

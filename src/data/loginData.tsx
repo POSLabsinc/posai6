@@ -1,5 +1,5 @@
 // Static login data extracted from Login.tsx
-import { Briefcase, Users, Truck, ShieldCheck, UtensilsCrossed, Zap } from "lucide-react";
+import { Briefcase, Users, Truck, ShieldCheck, UtensilsCrossed, Zap, Wine, ChefHat, Sparkles, Sunrise, Sun, Sunset, Moon } from "lucide-react";
 
 // Revenue centers assigned to employees - in production this would come from API
 export const revenueCenters: Record<string, string> = {

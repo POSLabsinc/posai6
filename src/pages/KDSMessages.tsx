@@ -90,6 +90,36 @@ const KDSMessages = () => {
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
   const [flashId, setFlashId] = useState<string | null>(null);
   const prevCountRef = useRef(0);
+  const [kdsReplies, setKdsReplies] = useState<KDSReply[]>(() => readReplies());
+  const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [replyDialogMessage, setReplyDialogMessage] = useState<KDSMessage | null>(null);
+
+  const handleOpenReplyDialog = useCallback((msg: KDSMessage) => {
+    setReplyDialogMessage(msg);
+    setReplyDialogOpen(true);
+  }, []);
+
+  const handleSendReply = useCallback((messageId: string, replyText: string) => {
+    const originalMsg = messages.find(m => m.message_id === messageId);
+    if (!originalMsg) return;
+    const reply: KDSReply = {
+      reply_id: `reply-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      message_id: messageId,
+      reply_text: replyText,
+      timestamp: new Date().toISOString(),
+      source: "kds",
+    };
+    try {
+      saveReplyToStorage(reply);
+      pushPosNotification(reply, originalMsg);
+      setKdsReplies(readReplies());
+      toast.success("Reply sent \u2713", { duration: 3000 });
+    } catch {
+      toast.error("Failed to send reply. Try again.");
+    }
+  }, [messages]);
+
+  const replyDialogHasReplied = replyDialogMessage ? kdsReplies.some(r => r.message_id === replyDialogMessage.message_id) : false;
 
   const refreshMessages = useCallback(() => {
     const all = loadMessages();

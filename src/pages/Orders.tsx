@@ -2867,31 +2867,22 @@ const Orders = () => {
                       setShowCustomOrderForm(false);
                       if (type.label === "DINE IN") {
                         setShowDineInForm(true);
-                        if (!isSameType) setDineInGuestData(null);
                       } else if (type.label === "TAKE OUT") {
                         setShowTakeOutForm(true);
-                        if (!isSameType) setTakeOutGuestData(null);
                       } else if (type.label === "DELIVERY") {
                         setShowDeliveryForm(true);
-                        if (!isSameType) setDeliveryGuestData(null);
                       } else if (type.label === "BANQUET") {
                         setShowBanquetForm(true);
-                        if (!isSameType) setBanquetGuestData(null);
                       } else if (type.label === "DRIVE THRU") {
                         setShowDriveThruForm(true);
-                        if (!isSameType) setDriveThruGuestData(null);
                       } else if (type.label === "CURB SIDE") {
                         setShowCurbSideForm(true);
-                        if (!isSameType) setCurbSideGuestData(null);
                       } else if (type.label === "SCHEDULED") {
                         setShowScheduledForm(true);
-                        if (!isSameType) setScheduledGuestData(null);
                       } else if (type.label === "PHONE-IN") {
                         setShowPhoneInForm(true);
-                        if (!isSameType) setPhoneInGuestData(null);
                       } else if (type.label === "CUSTOM") {
                         setShowCustomOrderForm(true);
-                        if (!isSameType) setCustomOrderGuestData(null);
                       }
                     }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
                             <img src={type.icon} alt="" className="w-4 h-4" />

@@ -605,6 +605,7 @@ const ProductStatusIcon = ({ status }: { status: string }) => {
 const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowledgeMessage, onSendReply, allReplies = [] }: { ticket: KDSTicket; onBump: (id: string) => void; onSeen: (id: string) => void; attachedMessages?: KDSMessageData[]; onAcknowledgeMessage?: (messageId: string) => void; onSendReply?: (messageId: string, text: string) => void; allReplies?: KDSReply[] }) => {
   const isMessage = (ticket as any).type === "MESSAGE";
   const [elapsedSeconds, setElapsedSeconds] = useState(() => Math.floor((Date.now() - ticket.createdAt.getTime()) / 1000));
+  const [inlineReplyingTo, setInlineReplyingTo] = useState<string | null>(null);
   const elapsed = Math.floor(elapsedSeconds / 60);
 
   useEffect(() => {

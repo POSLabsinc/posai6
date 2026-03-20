@@ -1,4 +1,4 @@
-import { ChevronRight, ChevronLeft } from "lucide-react";
+import { ChevronRight, ChevronLeft, Lock } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -10,6 +10,7 @@ import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContex
 import SettingsIcon from "@/components/settings/SettingsIcon";
 import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 
 // Import custom icons
 import controlCenterIcon from "@/assets/icons/control-center.png";
@@ -73,6 +74,9 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const [hideSeatSelector, setHideSeatSelector] = useState(() => loadSettings().hideSeatSelector);
   const [resetTablesDaily, setResetTablesDaily] = useState(() => loadSettings().resetTablesDaily);
   const [dashboardMetrics, setDashboardMetrics] = useState<DashboardMetricsVisibility>(() => loadSettings().dashboardMetrics);
+  const [showMetricsPinModal, setShowMetricsPinModal] = useState(false);
+  const [pendingMetricToggle, setPendingMetricToggle] = useState<{ key: keyof DashboardMetricsVisibility; value: boolean } | null>(null);
+  const [metricsUnlocked, setMetricsUnlocked] = useState(false);
 
   // Sync all settings when a settings-updated event is received
   useEffect(() => {
@@ -193,9 +197,25 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   };
 
   const handleDashboardMetricToggle = (metric: keyof DashboardMetricsVisibility, value: boolean) => {
-    const updated = { ...dashboardMetrics, [metric]: value };
-    setDashboardMetrics(updated);
-    updateSetting('dashboardMetrics', updated);
+    if (metricsUnlocked) {
+      const updated = { ...dashboardMetrics, [metric]: value };
+      setDashboardMetrics(updated);
+      updateSetting('dashboardMetrics', updated);
+    } else {
+      setPendingMetricToggle({ key: metric, value });
+      setShowMetricsPinModal(true);
+    }
+  };
+
+  const handleMetricsPinSuccess = () => {
+    setShowMetricsPinModal(false);
+    setMetricsUnlocked(true);
+    if (pendingMetricToggle) {
+      const updated = { ...dashboardMetrics, [pendingMetricToggle.key]: pendingMetricToggle.value };
+      setDashboardMetrics(updated);
+      updateSetting('dashboardMetrics', updated);
+      setPendingMetricToggle(null);
+    }
   };
 
   const autoLockDropdownRef = useRef<HTMLDivElement>(null);
@@ -519,7 +539,10 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
           </div>
 
           {/* Dashboard Metrics Section */}
-          <p className="text-neutral-500 text-base mb-3 px-1">Dashboard</p>
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <p className="text-neutral-500 text-base">Dashboard</p>
+            {!metricsUnlocked && <Lock className="w-3.5 h-3.5 text-neutral-500" />}
+          </div>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-2">
             {([
               { key: 'totalSale' as const, label: 'Total Sale' },
@@ -541,7 +564,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
             ))}
           </div>
           <p className="text-neutral-500 text-sm mb-6 px-1">
-            Choose which metric cards are visible on the dashboard summary bar.
+            Choose which metric cards are visible on the dashboard summary bar. Manager PIN required.
           </p>
 
 
@@ -606,6 +629,22 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Manager PIN Modal for Dashboard Metrics */}
+      {showMetricsPinModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            <AccessRestrictedModal
+              subtitle="Manager PIN required to change dashboard metrics."
+              onBack={() => {
+                setShowMetricsPinModal(false);
+                setPendingMetricToggle(null);
+              }}
+              onSuccess={handleMetricsPinSuccess}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };

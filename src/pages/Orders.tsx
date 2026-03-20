@@ -2822,15 +2822,16 @@ const Orders = () => {
           }}>
               {/* Add Guest Form Overlay */}
               {showAddGuestForm &&
-            <div className="absolute inset-0 z-10 bg-background">
-                  <AddGuestForm
-                onClose={() => setShowAddGuestForm(false)}
-                onSave={(guestData) => {
-                  setGuestName(`${guestData.firstName} ${guestData.lastName}`);
-                  setGuestPhone(guestData.phoneNumber);
-                  setShowAddGuestForm(false);
-                }} />
-
+            <div className="absolute inset-0 z-10 bg-black/50 flex items-center justify-center">
+                  <div className="w-full max-w-md h-[85%] rounded-xl overflow-hidden relative bg-card">
+                    <AddGuestForm
+                  onClose={() => setShowAddGuestForm(false)}
+                  onSave={(guestData) => {
+                    setGuestName(`${guestData.firstName} ${guestData.lastName}`);
+                    setGuestPhone(guestData.phoneNumber);
+                    setShowAddGuestForm(false);
+                  }} />
+                  </div>
                 </div>
             }
               {/* Create Voucher Form Overlay */}

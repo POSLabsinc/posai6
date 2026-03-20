@@ -175,6 +175,7 @@ export function DiscountDialog({
   const [dynamicDiscounts, setDynamicDiscounts] = useState<Discount[]>(fallbackDiscounts);
   const [selectedDiscount, setSelectedDiscount] = useState<Discount | null>(null);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState("");
   const [view, setView] = useState<'list' | 'reason'>('list');
   const isMobile = useIsMobile();
 

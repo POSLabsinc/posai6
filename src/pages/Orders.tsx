@@ -594,7 +594,16 @@ const Orders = () => {
   const [appliedServiceCharge, setAppliedServiceCharge] = useState(0);
   const [appliedServiceChargeName, setAppliedServiceChargeName] = useState('');
   const [showTransferCheckDialog, setShowTransferCheckDialog] = useState(false);
-  const [currentServerName, setCurrentServerName] = useState("Mia Jones");
+  const [currentServerName, setCurrentServerName] = useState(() => {
+    try {
+      const session = localStorage.getItem("pos_session");
+      if (session) {
+        const parsed = JSON.parse(session);
+        return parsed.employeeName || "Server";
+      }
+    } catch {}
+    return "Server";
+  });
   const [showAddGuestForm, setShowAddGuestForm] = useState(false);
   const [showMessageKitchen, setShowMessageKitchen] = useState(false);
   const [showMPINDialog, setShowMPINDialog] = useState(false);

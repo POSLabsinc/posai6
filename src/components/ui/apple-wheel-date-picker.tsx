@@ -192,24 +192,25 @@ const AppleWheelDatePicker = ({
     );
   };
 
-  // Inline mode: positioned relative to parent
+  // Inline mode: self-contained picker content (parent handles positioning)
   if (isInline) {
     return (
-      <>
-        <div className="fixed inset-0 z-40" onClick={onClose} />
-        <div className="absolute bottom-full right-0 mb-1 z-50" style={{ width: 220 }}>
-          <div className="mx-0 my-1 bg-neutral-800/80 rounded-xl overflow-hidden">
-            <div className="relative px-3 py-1">
-              <div className="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-[32px] bg-neutral-700/50 rounded-lg pointer-events-none z-0" />
-              <div className="flex relative z-10">
-                {renderWheelColumn(months, selectedMonth, monthScrollRef, setSelectedMonth)}
-                {renderWheelColumn(days, selectedDay, dayScrollRef, setSelectedDay, true)}
-                {renderWheelColumn(years, selectedYear, yearScrollRef, setSelectedYear)}
-              </div>
+      <div style={{ width: 260 }}>
+        <div className="bg-neutral-800 rounded-xl overflow-hidden shadow-2xl border border-neutral-700/40">
+          <div className="flex items-center justify-between px-4 pt-3 pb-1">
+            <span className="text-xs font-semibold text-foreground">Select Date</span>
+            <button onClick={handleDone} className="text-xs font-medium text-primary active:opacity-70 transition-opacity">Done</button>
+          </div>
+          <div className="relative px-3 pb-3">
+            <div className="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-[32px] bg-neutral-700/50 rounded-lg pointer-events-none z-0" />
+            <div className="flex relative z-10">
+              {renderWheelColumn(months, selectedMonth, monthScrollRef, setSelectedMonth)}
+              {renderWheelColumn(days, selectedDay, dayScrollRef, setSelectedDay, true)}
+              {renderWheelColumn(years, selectedYear, yearScrollRef, setSelectedYear)}
             </div>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 

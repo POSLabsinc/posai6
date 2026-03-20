@@ -46,6 +46,7 @@ const AddScheduleContent = ({ onBack }: AddScheduleContentProps) => {
   } | null>(null);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [datePickerPos, setDatePickerPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   const toggleDay = (day: string) => {
     setDaySchedules((prev) => ({
@@ -159,13 +160,26 @@ const AddScheduleContent = ({ onBack }: AddScheduleContentProps) => {
     const close = () => isStart ? setShowStartDatePicker(false) : setShowEndDatePicker(false);
 
     return (
-      <AppleWheelDatePicker
-        isOpen
-        mode="overlay"
-        onClose={close}
-        onConfirm={(d) => { setDate(d); close(); }}
-        selectedDate={current}
-      />
+      <>
+        <div className="fixed inset-0 z-40" onClick={close} />
+        <div
+          className="fixed z-50 animate-in zoom-in-95 fade-in duration-200"
+          style={{
+            top: datePickerPos.top,
+            left: datePickerPos.left,
+            transform: "translateX(-100%)",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <AppleWheelDatePicker
+            isOpen
+            mode="inline"
+            onClose={close}
+            onConfirm={(d) => { setDate(d); close(); }}
+            selectedDate={current}
+          />
+        </div>
+      </>
     );
   };
 
@@ -202,7 +216,12 @@ const AddScheduleContent = ({ onBack }: AddScheduleContentProps) => {
           <div className="relative flex items-center justify-between w-full py-3.5 px-4 border-b border-neutral-700/30">
             <span className="text-foreground text-[15px]">Start Date</span>
             <button
-              onClick={() => { setShowStartDatePicker(!showStartDatePicker); setShowEndDatePicker(false); }}
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                setDatePickerPos({ top: rect.bottom + 8, left: rect.right });
+                setShowStartDatePicker(!showStartDatePicker);
+                setShowEndDatePicker(false);
+              }}
               className="flex items-center gap-1 active:opacity-70 transition-opacity"
             >
               <span className="text-neutral-400 text-[15px]">{formatDate(startDate)}</span>
@@ -213,7 +232,12 @@ const AddScheduleContent = ({ onBack }: AddScheduleContentProps) => {
           <div className="relative flex items-center justify-between w-full py-3.5 px-4">
             <span className="text-foreground text-[15px]">End Date</span>
             <button
-              onClick={() => { setShowEndDatePicker(!showEndDatePicker); setShowStartDatePicker(false); }}
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                setDatePickerPos({ top: rect.bottom + 8, left: rect.right });
+                setShowEndDatePicker(!showEndDatePicker);
+                setShowStartDatePicker(false);
+              }}
               className="flex items-center gap-1 active:opacity-70 transition-opacity"
             >
               <span className="text-neutral-400 text-[15px]">{formatDate(endDate)}</span>

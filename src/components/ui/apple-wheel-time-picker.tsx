@@ -163,7 +163,7 @@ const AppleWheelTimePicker = ({
 
   const pickerContent = (
     <div
-      className={compact ? "w-[280px] bg-neutral-900 rounded-xl border border-neutral-700/50 shadow-2xl" : "w-full max-w-md bg-neutral-900 rounded-t-3xl animate-in slide-in-from-bottom duration-300"}
+      className={compact ? "w-[280px] bg-neutral-900 rounded-xl border border-neutral-700/50 shadow-2xl" : "w-full max-w-md bg-neutral-900 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200"}
       onClick={(e) => e.stopPropagation()}
     >
       <div className={compact ? "flex items-center justify-between px-3 py-2 border-b border-neutral-700/40" : "flex items-center justify-between px-4 py-4"}>

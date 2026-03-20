@@ -2106,7 +2106,6 @@ const Orders = () => {
             <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-grab" />
           </div>
           {!(showInlineCustomization && selectedItemForCustomization) && !isSearchMode && <div className="flex items-center gap-1">
-            <AnimatedAIIcon size={16} onClick={() => navigate('/settings/ai')} />
             <button className="w-6 h-6 p-0 border-0 bg-transparent z-10 touch-auto" onClick={(e) => {
               e.stopPropagation();
               setIsSearchMode(true);
@@ -2115,6 +2114,7 @@ const Orders = () => {
             }}>
               <img src={searchIcon} alt="Search" className="w-full h-full object-contain" />
             </button>
+            <AnimatedAIIcon size={16} onClick={() => navigate('/settings/ai')} />
           </div>}
           {showInlineCustomization && selectedItemForCustomization || isSearchMode ? <div className="w-8" /> : null}
         </div>

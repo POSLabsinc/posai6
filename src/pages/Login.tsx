@@ -32,7 +32,7 @@ import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import DeviceSetupAIChat from "@/components/DeviceSetupAIChat";
 
 
-import { revenueCenters, employeePinMapping, locationEmployees, getRoleIcon, getRoleBadgeStyle, getTimeOfDayInfo, PIN_LENGTH } from "@/data/loginData";
+import { revenueCenters, employeePinMapping, locationEmployees, getRoleIcon, getRoleBadgeStyle, getTimeOfDayInfo, PIN_LENGTH, DeviceType } from "@/data/loginData";
 
 const Login = () => {
   const navigate = useNavigate();

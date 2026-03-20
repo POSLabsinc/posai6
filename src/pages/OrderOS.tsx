@@ -2987,7 +2987,7 @@ const OrderOS = () => {
               </div>
             </div>
             <button 
-              onClick={() => setSelectedOrder(null)}
+              onClick={() => { setSelectedOrder(null); setReadyTimePickerOpen(false); }}
                className="p-2 rounded-full hover:bg-muted transition-colors"
              >
                <X className="w-5 h-5 text-muted-foreground" />

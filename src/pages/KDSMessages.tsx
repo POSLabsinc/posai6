@@ -272,28 +272,56 @@ const KDSMessages = () => {
               </div>
 
               {/* Card Footer */}
-              {msg.status === "pending" ? (
-                <div className="bg-neutral-900 px-4 pb-4 pt-1">
-                  <Button
-                    onClick={() => handleAcknowledge(msg.message_id)}
-                    className="w-full bg-white text-black hover:bg-neutral-200 font-bold text-sm py-5 rounded-xl"
-                  >
-                    <Check className="w-4 h-4 mr-2" />
-                    ACKNOWLEDGE
-                  </Button>
-                </div>
-              ) : (
-                <div className="bg-neutral-900 px-4 pb-3 pt-1">
-                  <div className="flex items-center gap-2 text-xs text-emerald-400">
-                    <Check className="w-3.5 h-3.5" />
-                    <span>Acknowledged {msg.acknowledged_at ? format(new Date(msg.acknowledged_at), "hh:mm a") : ""}</span>
+              {(() => {
+                const hasReplied = kdsReplies.some(r => r.message_id === msg.message_id);
+                return msg.status === "pending" ? (
+                  <div className="bg-neutral-900 px-4 pb-4 pt-1 space-y-2">
+                    <Button
+                      onClick={() => handleAcknowledge(msg.message_id)}
+                      className="w-full bg-white text-black hover:bg-neutral-200 font-bold text-sm py-5 rounded-xl"
+                    >
+                      <Check className="w-4 h-4 mr-2" />
+                      ACKNOWLEDGE
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleOpenReplyDialog(msg)}
+                      className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-sm py-4 rounded-xl"
+                    >
+                      <Reply className="w-4 h-4 mr-2" />
+                      {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                    </Button>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="bg-neutral-900 px-4 pb-3 pt-1 space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-emerald-400">
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Acknowledged {msg.acknowledged_at ? format(new Date(msg.acknowledged_at), "hh:mm a") : ""}</span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleOpenReplyDialog(msg)}
+                      className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-xs py-3 rounded-xl"
+                    >
+                      <Reply className="w-3.5 h-3.5 mr-1.5" />
+                      {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                    </Button>
+                  </div>
+                );
+              })()}
             </div>
           ))
         )}
       </div>
+
+      {/* Reply Dialog */}
+      <KDSReplyDialog
+        open={replyDialogOpen}
+        onOpenChange={setReplyDialogOpen}
+        message={replyDialogMessage}
+        onSendReply={handleSendReply}
+        hasReplied={replyDialogHasReplied}
+      />
     </div>
   );
 };

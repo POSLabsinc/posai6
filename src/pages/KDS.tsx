@@ -852,7 +852,7 @@ const KDS = () => {
           {showSummary && <ItemSummary tickets={activeTickets} />}
 
           {/* Messages Panel */}
-          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} sessionStart={sessionStartRef.current} />}
+          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} staleIds={staleMessageIdsRef.current || new Set()} />}
         </div>
 
         {/* Bottom Bar */}

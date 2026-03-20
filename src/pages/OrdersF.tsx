@@ -6397,7 +6397,7 @@ const OrdersF = () => {
                 No Tax
               </Button>
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
-                Register
+                No Sale
               </Button>
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
                 Gift

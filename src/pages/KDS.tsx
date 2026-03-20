@@ -951,6 +951,31 @@ const KDS = () => {
     } catch {}
   }, []);
 
+  // Reply state
+  const [kdsReplies, setKdsReplies] = useState<KDSReply[]>(() => readReplies());
+
+  const handleSendReply = useCallback((messageId: string, replyText: string) => {
+    const originalMsg = kdsMessages.find(m => m.message_id === messageId);
+    if (!originalMsg) return;
+
+    const reply: KDSReply = {
+      reply_id: `reply-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      message_id: messageId,
+      reply_text: replyText,
+      timestamp: new Date().toISOString(),
+      source: "kds",
+    };
+
+    try {
+      saveReply(reply);
+      pushPosNotification(reply, originalMsg);
+      setKdsReplies(readReplies());
+      toast.success("Reply sent \u2713", { duration: 3000 });
+    } catch {
+      toast.error("Failed to send reply. Try again.");
+    }
+  }, [kdsMessages]);
+
   const activeTickets = tickets.filter(t => t.status === "active");
   const totalInQueue = activeTickets.reduce((sum, t) => sum + t.products.filter(p => p.status === "pending" || p.status === "cooking").length, 0);
 

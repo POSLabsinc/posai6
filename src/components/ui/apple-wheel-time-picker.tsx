@@ -204,7 +204,7 @@ const AppleWheelTimePicker = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 animate-in fade-in duration-200"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 animate-in fade-in duration-200"
       onClick={onClose}
     >
       {pickerContent}

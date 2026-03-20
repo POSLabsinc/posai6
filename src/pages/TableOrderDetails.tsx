@@ -1888,7 +1888,7 @@ const TableOrderDetails = () => {
                               // Handle register action
                             }}
                           >
-                            <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
+                            <img src={registerIcon} alt="No Sale" className="w-4 h-4 object-contain" />
                           </button>
                         </div>
                       );

@@ -324,7 +324,7 @@ export function DiscountDialog({
                     <Zap className="w-2.5 h-2.5 ml-auto" style={{ color: 'rgba(245,166,35,0.4)' }} />
                   )}
                   {isSelected && (
-                    <Check className="w-3 h-3 ml-auto" style={{ color: '#7c6ee0' }} />
+                    <Check className="w-3 h-3 ml-auto" style={{ color: '#fff' }} />
                   )}
                 </button>
               );

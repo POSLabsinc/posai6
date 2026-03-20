@@ -674,26 +674,8 @@ const Orders = () => {
     setExpandedCartItems(new Set());
     setVoucherMode(false);
     setEditingVoucherData(null);
-    // Clear all guest-specific form data
-    setDineInGuestData(null);
-    setTakeOutGuestData(null);
-    setDeliveryGuestData(null);
-    setBanquetGuestData(null);
-    setDriveThruGuestData(null);
-    setCurbSideGuestData(null);
-    setScheduledGuestData(null);
-    setPhoneInGuestData(null);
-    setCustomOrderGuestData(null);
-    // Close all guest forms
-    setShowDineInForm(false);
-    setShowTakeOutForm(false);
-    setShowDeliveryForm(false);
-    setShowBanquetForm(false);
-    setShowDriveThruForm(false);
-    setShowCurbSideForm(false);
-    setShowScheduledForm(false);
-    setShowPhoneInForm(false);
-    setShowCustomOrderForm(false);
+    // Clear all guest-specific form data and close all forms
+    clearAllGuestData();
     // Reset panel state
     setIsOrderPanelExpanded(false);
     setSeatFilter([]);

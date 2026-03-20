@@ -2532,7 +2532,7 @@ export function executeIntent(intent: SettingsIntent): { success: boolean; messa
 
     // ===== CONTROL CENTER INTENTS =====
     case "toggle_control_setting": {
-      const settingLabels: Record<keyof ControlCenterSettings, string> = {
+      const settingLabels: Partial<Record<keyof ControlCenterSettings, string>> = {
         restartApp: "Restart App",
         restartTime: "Restart Time",
         lastRestartTime: "Last Restart Time",

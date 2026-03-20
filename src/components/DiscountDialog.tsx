@@ -348,6 +348,7 @@ export function DiscountDialog({
             <p className="text-[9px] text-right mt-0.5" style={{ color: '#555' }}>{commentText.length}/100</p>
           </div>
         </div>
+      ) : (
         <div className="flex-1 flex flex-col items-center justify-center px-4 pb-4">
           <PackageOpen className="w-10 h-10 mb-2" style={{ color: '#444' }} />
           <p className="text-[12px] text-center" style={{ color: '#555' }}>No reason required for this discount</p>

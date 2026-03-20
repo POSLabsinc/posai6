@@ -197,9 +197,11 @@ export function DiscountDialog({
     if (selectedDiscount?.id === discount.id) {
       setSelectedDiscount(null);
       setSelectedReason(null);
+      setCommentText("");
     } else {
       setSelectedDiscount(discount);
       setSelectedReason(null);
+      setCommentText("");
     }
   };
 

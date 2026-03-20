@@ -94,6 +94,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
         setHideEmployeeFeedback(settings.hideEmployeeFeedback);
         setHideSeatSelector(settings.hideSeatSelector);
         setResetTablesDaily(settings.resetTablesDaily);
+        setDashboardMetrics(settings.dashboardMetrics);
       }
     };
 

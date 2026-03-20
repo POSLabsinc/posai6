@@ -197,9 +197,25 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   };
 
   const handleDashboardMetricToggle = (metric: keyof DashboardMetricsVisibility, value: boolean) => {
-    const updated = { ...dashboardMetrics, [metric]: value };
-    setDashboardMetrics(updated);
-    updateSetting('dashboardMetrics', updated);
+    if (metricsUnlocked) {
+      const updated = { ...dashboardMetrics, [metric]: value };
+      setDashboardMetrics(updated);
+      updateSetting('dashboardMetrics', updated);
+    } else {
+      setPendingMetricToggle({ key: metric, value });
+      setShowMetricsPinModal(true);
+    }
+  };
+
+  const handleMetricsPinSuccess = () => {
+    setShowMetricsPinModal(false);
+    setMetricsUnlocked(true);
+    if (pendingMetricToggle) {
+      const updated = { ...dashboardMetrics, [pendingMetricToggle.key]: pendingMetricToggle.value };
+      setDashboardMetrics(updated);
+      updateSetting('dashboardMetrics', updated);
+      setPendingMetricToggle(null);
+    }
   };
 
   const autoLockDropdownRef = useRef<HTMLDivElement>(null);

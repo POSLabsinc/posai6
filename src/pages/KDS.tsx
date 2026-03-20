@@ -694,10 +694,6 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                 {(() => {
                   const msgReplies = allReplies.filter(r => r.message_id === msg.message_id);
                   const hasReplied = msgReplies.length > 0;
-                  const handleInlineReply = (text: string) => {
-                    if (onSendReply) onSendReply(msg.message_id, text);
-                    setInlineReplyingTo(null);
-                  };
                   return (
                     <>
                       {msg.status === "pending" && onAcknowledgeMessage ? (
@@ -705,7 +701,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                           <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
                             <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
                           </Button>
-                          <Button variant="outline" onClick={() => setInlineReplyingTo(inlineReplyingTo === msg.message_id ? null : msg.message_id)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
+                          <Button variant="outline" onClick={() => onOpenReplyDialog?.(msg)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
                             <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
                           </Button>
                         </div>
@@ -715,15 +711,12 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                             <Check className="w-3 h-3 text-emerald-500" />
                             <span className="text-[10px] text-emerald-500 font-medium">Acknowledged{msg.acknowledged_at ? ` ${format(new Date(msg.acknowledged_at), "hh:mm a")}` : ""}</span>
                           </div>
-                          <Button variant="outline" size="sm" onClick={() => setInlineReplyingTo(inlineReplyingTo === msg.message_id ? null : msg.message_id)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-1.5 rounded-lg">
+                          <Button variant="outline" size="sm" onClick={() => onOpenReplyDialog?.(msg)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-1.5 rounded-lg">
                             <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
                           </Button>
                         </div>
                       ) : null}
                       <RepliesThread replies={msgReplies} />
-                      {inlineReplyingTo === msg.message_id && (
-                        <KDSReplyPanel message={msg} onSend={handleInlineReply} onCancel={() => setInlineReplyingTo(null)} />
-                      )}
                     </>
                   );
                 })()}

@@ -1,5 +1,4 @@
 // Static menu data extracted from Orders.tsx
-// Food images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
 import steakSlicedImg from "@/assets/food/steak-sliced.png";
 import asparagusPlatedImg from "@/assets/food/asparagus-plated.png";
@@ -5488,7 +5487,8 @@ export const menuItemsData: MenuItemsStructure = {
 };
 
 // Helper function to get items based on menu, category, and subcategory
-const getMenuItems = (menu: string, category: string, subcategory: string, dynamicData?: MenuItemsStructure): MenuItem[] => {
+
+export const getMenuItems = (menu: string, category: string, subcategory: string, dynamicData?: MenuItemsStructure): MenuItem[] => {
   const items: MenuItem[] = [];
   // Check hardcoded data
   const menuData = menuItemsData[menu];
@@ -5503,7 +5503,7 @@ const getMenuItems = (menu: string, category: string, subcategory: string, dynam
 };
 
 // Get all items for a category (when no subcategory selected)
-const getAllCategoryItems = (menu: string, category: string, dynamicData?: MenuItemsStructure): MenuItem[] => {
+export const getAllCategoryItems = (menu: string, category: string, dynamicData?: MenuItemsStructure): MenuItem[] => {
   const items: MenuItem[] = [];
   const menuData = menuItemsData[menu];
   if (menuData?.[category]) {
@@ -5516,7 +5516,7 @@ const getAllCategoryItems = (menu: string, category: string, dynamicData?: MenuI
 };
 
 // Get all items for a menu (when no category selected)
-const getAllMenuItems = (menu: string, dynamicData?: MenuItemsStructure): MenuItem[] => {
+export const getAllMenuItems = (menu: string, dynamicData?: MenuItemsStructure): MenuItem[] => {
   const items: MenuItem[] = [];
   const menuData = menuItemsData[menu];
   if (menuData) {
@@ -5527,147 +5527,9 @@ const getAllMenuItems = (menu: string, dynamicData?: MenuItemsStructure): MenuIt
   }
   return items;
 };
-interface OrderItem {
-  id: number;
-  qty: number;
-  name: string;
-  price: number;
-  modifiers?: string[];
-  notes?: string;
-  itemOrderType?: string;
-  priceOverrideReason?: string;
-  priceOverrideNotes?: string;
-  assignedSeats?: number[];
-  discountName?: string;
-  discountAmount?: number;
-  noTax?: boolean;
-  isFired?: boolean;
-  isTransferred?: boolean;
-  isOpenPrice?: boolean;
-}
-const initialOrderItems: OrderItem[] = [];
-const orderTypes = [
-{ label: "DINE IN", icon: dineInIcon },
-{ label: "TAKE OUT", icon: takeOutIcon },
-{ label: "DELIVERY", icon: deliveryIcon },
-{ label: "BANQUET", icon: banquetIcon },
-{ label: "DRIVE THRU", icon: driveThruIcon },
-{ label: "CURB SIDE", icon: curbSideIcon },
-{ label: "SCHEDULED", icon: scheduledIcon },
-{ label: "PHONE-IN", icon: phoneInIcon },
-{ label: "CUSTOM", icon: customOrderIcon }];
-
-
-// Payment methods constants
-const initialPaymentMethods = [
-{ id: 'loyalty', name: 'Loyalty', icon: Tag },
-{ id: 'account', name: 'Account', icon: User },
-{ id: 'card', name: 'Card', icon: CreditCard },
-{ id: 'cash', name: 'Cash', icon: Banknote },
-{ id: 'gift-card', name: 'Gift Card', icon: Gift },
-{ id: 'pay-link', name: 'Pay by Link', icon: Link }];
-
-
-const initialOtherPaymentMethods = [
-{ id: 'qr-code', name: 'QR Code', icon: QrCode },
-{ id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
-{ id: 'external-cc', name: 'External CC', icon: ExternalLink },
-{ id: 'manual-card', name: 'Manual card', icon: Clipboard },
-{ id: 'blizzful', name: 'Blizzful', icon: Utensils },
-{ id: 'ubereats', name: 'UberEats', icon: ShoppingBag },
-{ id: 'doordash', name: 'DoorDash', icon: Truck },
-{ id: 'grubhub', name: 'Grubhub', icon: UtensilsCrossed }];
-
-
-type PaymentMethodType = {
-  id: string;
-  name: string;
-  icon: React.ComponentType<{className?: string;}>;
-};
-
-const quickAmounts = [1, 2, 5, 10, 20, 50, 100];
-
-interface GuestUser {
-  id: number;
-  name: string;
-  phone: string;
-  avatar?: string;
-  initials: string;
-}
-
-// Format phone number based on country code
-// USA-centric phone format: (XXX) XXX-XXXX
-const formatPhoneNumber = (digits: string): string => {
-  if (!digits) return '';
-
-  // Limit to 10 digits for USA format
-  const d = digits.slice(0, 10);
-
-  if (d.length <= 3) {
-    return `(${d}`;
-  }
-  if (d.length <= 6) {
-    return `(${d.slice(0, 3)}) ${d.slice(3)}`;
-  }
-  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}`;
-};
-const mockGuestUsers: GuestUser[] = [{
-  id: 1,
-  name: "John Doe",
-  phone: "+1 (212) 456-7890",
-  // USA
-  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
-  initials: "JD"
-}, {
-  id: 2,
-  name: "Nancy John",
-  phone: "+1 (415) 555-7890",
-  // USA
-  avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face",
-  initials: "NJ"
-}, {
-  id: 3,
-  name: "Jonathan Byers",
-  phone: "+44 20 7946 0958",
-  // UK
-  initials: "JB"
-}, {
-  id: 4,
-  name: "Jane Smith",
-  phone: "+971 50 123 4567",
-  // UAE
-  avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
-  initials: "JS"
-}, {
-  id: 5,
-  name: "Michael Brown",
-  phone: "+1 (310) 987-6543",
-  // USA
-  initials: "MB"
-}, {
-  id: 6,
-  name: "Sarah Johnson",
-  phone: "+44 7911 123456",
-  // UK Mobile
-  avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face",
-  initials: "SJ"
-}, {
-  id: 7,
-  name: "David Wilson",
-  phone: "+971 4 369 2580",
-  // UAE Dubai
-  initials: "DW"
-}, {
-  id: 8,
-  name: "Emily Davis",
-  phone: "+44 121 147 2583",
-  // UK Birmingham
-  avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=40&h=40&fit=crop&crop=face",
-  initials: "ED"
-}];
 
 // Category border colors based on reference design
-const categoryBorderColors: Record<string, string> = {
+export const categoryBorderColors: Record<string, string> = {
   // BAR MENU
   "Food": "border-pink-500",
   "Desserts": "border-yellow-400",
@@ -5751,6 +5613,7 @@ const categoryBorderColors: Record<string, string> = {
   "Caviar": "border-slate-500"
 };
 
+// Category background colors for active state (matching border colors)
 export const categoryBgColors: Record<string, string> = {
   // BAR MENU
   "Food": "bg-pink-500",
@@ -5835,8 +5698,8 @@ export const categoryBgColors: Record<string, string> = {
   "Caviar": "bg-slate-500"
 };
 
+// Category text colors for selected subcategory (matching border colors)
 export const categoryTextColors: Record<string, string> = {
-const categoryTextColors: Record<string, string> = {
   // BAR MENU
   "Food": "text-pink-500",
   "Desserts": "text-yellow-400",

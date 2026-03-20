@@ -342,7 +342,7 @@ export function DiscountDialog({
                 border: '1px solid rgba(255,255,255,0.06)',
                 minHeight: '80px',
               }}
-              onFocus={(e) => e.target.style.borderColor = 'rgba(124,110,224,0.4)'}
+              onFocus={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.25)'}
               onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
             />
             <p className="text-[9px] text-right mt-0.5" style={{ color: '#555' }}>{commentText.length}/100</p>

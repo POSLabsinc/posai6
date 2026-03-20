@@ -831,7 +831,7 @@ const KDS = () => {
           {showSummary && <ItemSummary tickets={activeTickets} />}
 
           {/* Messages Panel */}
-          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} />}
+          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} messages={kdsMessages} onAcknowledge={handleAcknowledgeMessage} />}
         </div>
 
         {/* Bottom Bar */}

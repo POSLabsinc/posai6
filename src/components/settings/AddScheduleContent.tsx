@@ -158,26 +158,13 @@ const AddScheduleContent = ({ onBack }: AddScheduleContentProps) => {
     const setDate = isStart ? setStartDate : setEndDate;
     const close = () => isStart ? setShowStartDatePicker(false) : setShowEndDatePicker(false);
 
-    if (isMobile) {
-      return (
-        <AppleWheelDatePicker
-          isOpen
-          onClose={close}
-          onConfirm={close}
-          selectedDate={current}
-          onDateChange={(d) => setDate(d)}
-        />
-      );
-    }
-
     return (
       <AppleWheelDatePicker
         isOpen
-        mode="inline"
+        mode="overlay"
         onClose={close}
-        onConfirm={close}
+        onConfirm={(d) => { setDate(d); close(); }}
         selectedDate={current}
-        onDateChange={(d) => setDate(d)}
       />
     );
   };

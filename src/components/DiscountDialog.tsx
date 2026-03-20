@@ -362,7 +362,7 @@ export function DiscountDialog({
     <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
       <div>
         <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#666' }}>Total savings</p>
-        <p className="text-[16px] font-medium" style={{ color: '#7c6ee0' }}>-${totalSavings.toFixed(2)}</p>
+        <p className="text-[16px] font-medium text-white">-${totalSavings.toFixed(2)}</p>
       </div>
       <button
         onClick={handleApply}

@@ -1362,6 +1362,9 @@ const OrderOS = () => {
   const prepTimeTriggerRef = useRef<HTMLDivElement>(null);
   const prepTimeInputRef = useRef<HTMLInputElement>(null);
 
+  // Ready Time Picker state (for adjusting Est. Ready By)
+  const [readyTimePickerOpen, setReadyTimePickerOpen] = useState(false);
+
   // Animation state for accepted/cancelled orders
   const [acceptedOrderId, setAcceptedOrderId] = useState<string | null>(null);
   const [cancelledOrderId, setCancelledOrderId] = useState<string | null>(null);

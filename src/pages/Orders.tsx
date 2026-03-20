@@ -509,7 +509,7 @@ const Orders = () => {
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const [isOrderPanelExpanded, setIsOrderPanelExpanded] = useState(false);
-  const [menuPosition, setMenuPosition] = useState<'minimized' | 'center' | 'full'>('center');
+  
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchStartTime, setTouchStartTime] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState(0);

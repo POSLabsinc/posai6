@@ -537,13 +537,11 @@ const KDS = () => {
   }
 
   const [tickets, setTickets] = useState<KDSTicket[]>(() => {
-    // Load real orders from KDS queue, fall back to mock data
     try {
       const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
-      const real = convertQueueToTickets(queue);
-      return real.length > 0 ? real : generateMockTickets();
+      return convertQueueToTickets(queue);
     } catch {
-      return generateMockTickets();
+      return [];
     }
   });
   const [showSummary, setShowSummary] = useState(true);

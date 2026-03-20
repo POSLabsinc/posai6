@@ -160,13 +160,26 @@ const AddScheduleContent = ({ onBack }: AddScheduleContentProps) => {
     const close = () => isStart ? setShowStartDatePicker(false) : setShowEndDatePicker(false);
 
     return (
-      <AppleWheelDatePicker
-        isOpen
-        mode="overlay"
-        onClose={close}
-        onConfirm={(d) => { setDate(d); close(); }}
-        selectedDate={current}
-      />
+      <>
+        <div className="fixed inset-0 z-40" onClick={close} />
+        <div
+          className="fixed z-50 animate-in zoom-in-95 fade-in duration-200"
+          style={{
+            top: datePickerPos.top,
+            left: datePickerPos.left,
+            transform: "translateX(-100%)",
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <AppleWheelDatePicker
+            isOpen
+            mode="inline"
+            onClose={close}
+            onConfirm={(d) => { setDate(d); close(); }}
+            selectedDate={current}
+          />
+        </div>
+      </>
     );
   };
 

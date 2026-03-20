@@ -1484,6 +1484,22 @@ const OrderOS = () => {
     });
   }, [orders, toast]);
 
+  // Handler to update estimated ready time for an order
+  const updateEstimatedReadyTime = useCallback((orderId: string, newTime: string) => {
+    setOrders(prevOrders =>
+      prevOrders.map(order =>
+        order.id === orderId ? { ...order, estimateReady: newTime } : order
+      )
+    );
+    setSelectedOrder(prev =>
+      prev?.id === orderId ? { ...prev, estimateReady: newTime } : prev
+    );
+    toast({
+      title: "Ready time updated",
+      description: `Estimated ready time changed to ${newTime}.`,
+    });
+  }, [toast]);
+
   // Sound feedback for accept order
   const playAcceptSound = useCallback(() => {
     try {

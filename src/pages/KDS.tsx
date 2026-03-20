@@ -634,9 +634,10 @@ const KDS = () => {
   const [tickets, setTickets] = useState<KDSTicket[]>(() => {
     try {
       const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
-      return convertQueueToTickets(queue);
+      const real = convertQueueToTickets(queue);
+      return real.length > 0 ? real : generateMockTickets();
     } catch {
-      return [];
+      return generateMockTickets();
     }
   });
   const [showSummary, setShowSummary] = useState(true);

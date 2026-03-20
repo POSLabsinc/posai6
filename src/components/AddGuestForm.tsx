@@ -16,6 +16,7 @@ interface AddGuestFormProps {
   onSave: (guestData: GuestFormData) => void;
   hideHeader?: boolean;
   onBack?: () => void;
+  compact?: boolean;
 }
 
 interface VehicleEntry {

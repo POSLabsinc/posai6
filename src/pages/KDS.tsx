@@ -694,7 +694,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                 </div>
                 <div className={`${isAcked ? "bg-neutral-800/60" : "bg-neutral-800"} px-3 py-2`}>
                   <p className={`text-xs leading-relaxed whitespace-pre-wrap break-words ${isAcked ? "text-neutral-400" : "text-white"}`}>{msg.message_text}</p>
-                  <p className="text-[10px] text-neutral-500 mt-1">From: <span className={isAcked ? "text-neutral-500" : "text-neutral-300"}>{msg.employee_name}</span></p>
+                  <p className="text-[10px] text-neutral-500 mt-1">From: <span className={isAcked ? "text-neutral-500" : "text-neutral-300"}>{msg.employee_name}{msg.employee_role ? ` | ${msg.employee_role}` : ""}</span></p>
                 </div>
                 {(() => {
                   const msgReplies = allReplies.filter(r => r.message_id === msg.message_id);

@@ -450,6 +450,9 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
 
     const terminalName = localStorage.getItem("pos_terminal_name") || "POS 1";
 
+    const matchedStaff = staffList.find(s => s.name === serverName);
+    const employeeRole = matchedStaff?.role || "Staff";
+
     const payload = {
       message_id: messageId,
       message_text: trimmedMessage,
@@ -458,6 +461,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       terminal_name: terminalName,
       employee_id: "default",
       employee_name: serverName,
+      employee_role: employeeRole,
       table_id: linkedTableId,
       table_number: linkedTableNumber,
       linked_order_id: linkedOrderId,

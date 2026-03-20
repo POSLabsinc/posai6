@@ -245,12 +245,12 @@ export function DiscountDialog({
                 onClick={() => handleSelectDiscount(discount)}
                 className="w-full flex items-center gap-2 px-2.5 py-2.5 rounded-[10px] transition-all"
                 style={{
-                  background: isSelected ? 'rgba(124,110,224,0.12)' : 'rgba(255,255,255,0.03)',
-                  border: isSelected ? '1px solid #7c6ee0' : '1px solid rgba(255,255,255,0.06)',
+                  background: isSelected ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
+                  border: isSelected ? '1px solid rgba(255,255,255,0.25)' : '1px solid rgba(255,255,255,0.06)',
                 }}
               >
-                <div className="w-6 h-6 rounded-md flex-shrink-0 flex items-center justify-center" style={{ background: isSelected ? 'rgba(124,110,224,0.25)' : 'rgba(255,255,255,0.06)' }}>
-                  <Icon className="w-3 h-3" style={{ color: isSelected ? '#7c6ee0' : '#888' }} />
+                <div className="w-6 h-6 rounded-md flex-shrink-0 flex items-center justify-center" style={{ background: isSelected ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)' }}>
+                  <Icon className="w-3 h-3" style={{ color: isSelected ? '#fff' : '#888' }} />
                 </div>
                 <div className="flex-1 min-w-0 text-left">
                   <div className="flex items-center gap-1">
@@ -269,11 +269,11 @@ export function DiscountDialog({
                   className="w-4.5 h-4.5 rounded-md flex-shrink-0 flex items-center justify-center transition-colors"
                   style={{
                     width: '18px', height: '18px',
-                    background: isSelected ? '#7c6ee0' : 'transparent',
-                    border: isSelected ? '1.5px solid #7c6ee0' : '1.5px solid #555',
+                    background: isSelected ? '#fff' : 'transparent',
+                    border: isSelected ? '1.5px solid #fff' : '1.5px solid #555',
                   }}
                 >
-                  {isSelected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+                  {isSelected && <Check className="w-2.5 h-2.5 text-black" strokeWidth={3} />}
                 </div>
               </button>
             );
@@ -308,23 +308,23 @@ export function DiscountDialog({
                   onClick={() => setSelectedReason(isSelected ? null : r.label)}
                   className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[10px] transition-all"
                   style={{
-                    background: isSelected ? 'rgba(124,110,224,0.12)' : 'transparent',
+                    background: isSelected ? 'rgba(255,255,255,0.08)' : 'transparent',
                     border: isSelected
-                      ? '1px solid #7c6ee0'
+                      ? '1px solid rgba(255,255,255,0.25)'
                       : r.isAI
                         ? '1px solid rgba(245,166,35,0.15)'
                         : '1px solid rgba(255,255,255,0.04)',
                   }}
                 >
                   <span className="text-base leading-none">{r.emoji}</span>
-                  <span className="text-[11px] font-medium" style={{ color: isSelected ? '#c4bcf0' : '#aaa' }}>
+                  <span className="text-[11px] font-medium" style={{ color: isSelected ? '#fff' : '#aaa' }}>
                     {r.label}
                   </span>
                   {r.isAI && !isSelected && (
                     <Zap className="w-2.5 h-2.5 ml-auto" style={{ color: 'rgba(245,166,35,0.4)' }} />
                   )}
                   {isSelected && (
-                    <Check className="w-3 h-3 ml-auto" style={{ color: '#7c6ee0' }} />
+                    <Check className="w-3 h-3 ml-auto" style={{ color: '#fff' }} />
                   )}
                 </button>
               );
@@ -342,7 +342,7 @@ export function DiscountDialog({
                 border: '1px solid rgba(255,255,255,0.06)',
                 minHeight: '80px',
               }}
-              onFocus={(e) => e.target.style.borderColor = 'rgba(124,110,224,0.4)'}
+              onFocus={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.25)'}
               onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
             />
             <p className="text-[9px] text-right mt-0.5" style={{ color: '#555' }}>{commentText.length}/100</p>
@@ -362,7 +362,7 @@ export function DiscountDialog({
     <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
       <div>
         <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#666' }}>Total savings</p>
-        <p className="text-[16px] font-medium" style={{ color: '#7c6ee0' }}>-${totalSavings.toFixed(2)}</p>
+        <p className="text-[16px] font-medium text-white">-${totalSavings.toFixed(2)}</p>
       </div>
       <button
         onClick={handleApply}

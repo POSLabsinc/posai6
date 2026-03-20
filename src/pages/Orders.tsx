@@ -1613,109 +1613,45 @@ const Orders = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px] p-1 z-50">
                     {orderTypes.map((type) => <DropdownMenuItem key={type.label} onClick={() => {
+                  const isSameType = orderType === type.label;
                   setOrderType(type.label);
+                  // Close all forms first
+                  setShowDineInForm(false);
+                  setShowTakeOutForm(false);
+                  setShowDeliveryForm(false);
+                  setShowBanquetForm(false);
+                  setShowDriveThruForm(false);
+                  setShowCurbSideForm(false);
+                  setShowScheduledForm(false);
+                  setShowPhoneInForm(false);
+                  setShowCustomOrderForm(false);
                   if (type.label === "DINE IN") {
                     setShowDineInForm(true);
-                    setDineInGuestData(null);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setDineInGuestData(null);
                   } else if (type.label === "TAKE OUT") {
                     setShowTakeOutForm(true);
-                    setTakeOutGuestData(null);
-                    setShowDineInForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setTakeOutGuestData(null);
                   } else if (type.label === "DELIVERY") {
                     setShowDeliveryForm(true);
-                    setDeliveryGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowBanquetForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setDeliveryGuestData(null);
                   } else if (type.label === "BANQUET") {
                     setShowBanquetForm(true);
-                    setBanquetGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setBanquetGuestData(null);
                   } else if (type.label === "DRIVE THRU") {
                     setShowDriveThruForm(true);
-                    setDriveThruGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowBanquetForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setDriveThruGuestData(null);
                   } else if (type.label === "CURB SIDE") {
                     setShowCurbSideForm(true);
-                    setCurbSideGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setCurbSideGuestData(null);
                   } else if (type.label === "SCHEDULED") {
                     setShowScheduledForm(true);
-                    setScheduledGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setScheduledGuestData(null);
                   } else if (type.label === "PHONE-IN") {
                     setShowPhoneInForm(true);
-                    setPhoneInGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setPhoneInGuestData(null);
                   } else if (type.label === "CUSTOM") {
                     setShowCustomOrderForm(true);
-                    setCustomOrderGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                  } else {
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setCustomOrderGuestData(null);
                   }
                 }} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2 flex items-center gap-2">
                         <img src={type.icon} alt="" className="w-4 h-4" />

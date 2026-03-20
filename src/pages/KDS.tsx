@@ -695,18 +695,42 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                   <p className={`text-xs leading-relaxed whitespace-pre-wrap break-words ${isAcked ? "text-neutral-400" : "text-white"}`}>{msg.message_text}</p>
                   <p className="text-[10px] text-neutral-500 mt-1">From: <span className={isAcked ? "text-neutral-500" : "text-neutral-300"}>{msg.employee_name}</span></p>
                 </div>
-                {msg.status === "pending" && onAcknowledgeMessage ? (
-                  <div className="bg-neutral-900 px-3 py-2">
-                    <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
-                      <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
-                    </Button>
-                  </div>
-                ) : isAcked ? (
-                  <div className="bg-neutral-900/60 px-3 py-1.5 flex items-center gap-1.5">
-                    <Check className="w-3 h-3 text-emerald-500" />
-                    <span className="text-[10px] text-emerald-500 font-medium">Acknowledged{msg.acknowledged_at ? ` ${format(new Date(msg.acknowledged_at), "hh:mm a")}` : ""}</span>
-                  </div>
-                ) : null}
+                {(() => {
+                  const msgReplies = allReplies.filter(r => r.message_id === msg.message_id);
+                  const hasReplied = msgReplies.length > 0;
+                  const handleInlineReply = (text: string) => {
+                    if (onSendReply) onSendReply(msg.message_id, text);
+                    setInlineReplyingTo(null);
+                  };
+                  return (
+                    <>
+                      {msg.status === "pending" && onAcknowledgeMessage ? (
+                        <div className="bg-neutral-900 px-3 py-2 flex gap-1.5">
+                          <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="flex-1 bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
+                            <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
+                          </Button>
+                          <Button variant="outline" onClick={() => setInlineReplyingTo(inlineReplyingTo === msg.message_id ? null : msg.message_id)} className="flex-1 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
+                            <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                          </Button>
+                        </div>
+                      ) : isAcked ? (
+                        <div className="bg-neutral-900/60 px-3 py-1.5 space-y-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <Check className="w-3 h-3 text-emerald-500" />
+                            <span className="text-[10px] text-emerald-500 font-medium">Acknowledged{msg.acknowledged_at ? ` ${format(new Date(msg.acknowledged_at), "hh:mm a")}` : ""}</span>
+                          </div>
+                          <Button variant="outline" size="sm" onClick={() => setInlineReplyingTo(inlineReplyingTo === msg.message_id ? null : msg.message_id)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-1.5 rounded-lg">
+                            <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                          </Button>
+                        </div>
+                      ) : null}
+                      <RepliesThread replies={msgReplies} />
+                      {inlineReplyingTo === msg.message_id && (
+                        <KDSReplyPanel message={msg} onSend={handleInlineReply} onCancel={() => setInlineReplyingTo(null)} />
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             );
           })}

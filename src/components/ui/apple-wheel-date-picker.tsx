@@ -4,10 +4,10 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface AppleWheelDatePickerProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: (date: Date) => void;
   selectedDate: Date;
-  onDateChange: (date: Date) => void;
-  mode?: "fullscreen" | "inline";
+  onDateChange?: (date: Date) => void;
+  mode?: "fullscreen" | "inline" | "overlay";
 }
 
 const AppleWheelDatePicker = ({
@@ -21,6 +21,7 @@ const AppleWheelDatePicker = ({
   const [selectedMonth, setSelectedMonth] = useState(selectedDate.getMonth());
   const [selectedDay, setSelectedDay] = useState(selectedDate.getDate());
   const [selectedYear, setSelectedYear] = useState(selectedDate.getFullYear());
+  const initializedRef = useRef(false);
 
   const monthScrollRef = useRef<HTMLDivElement>(null);
   const dayScrollRef = useRef<HTMLDivElement>(null);
@@ -41,6 +42,16 @@ const AppleWheelDatePicker = ({
   const daysInCurrentMonth = getDaysInMonth(selectedMonth, selectedYear);
   const days = Array.from({ length: daysInCurrentMonth }, (_, i) => i + 1);
 
+  // Sync internal state when picker opens
+  useEffect(() => {
+    if (isOpen) {
+      setSelectedMonth(selectedDate.getMonth());
+      setSelectedDay(selectedDate.getDate());
+      setSelectedYear(selectedDate.getFullYear());
+      initializedRef.current = false;
+    }
+  }, [isOpen]); // only re-sync on open, not on selectedDate changes
+
   // Adjust selected day if it exceeds days in new month
   useEffect(() => {
     if (selectedDay > daysInCurrentMonth) {
@@ -48,20 +59,14 @@ const AppleWheelDatePicker = ({
     }
   }, [selectedMonth, selectedYear, daysInCurrentMonth, selectedDay]);
 
-  // Update parent date when selections change
+  // Notify parent of changes (for inline/overlay auto-confirm modes)
   useEffect(() => {
-    const newDate = new Date(selectedYear, selectedMonth, Math.min(selectedDay, daysInCurrentMonth));
-    onDateChange(newDate);
-  }, [selectedMonth, selectedDay, selectedYear, daysInCurrentMonth, onDateChange]);
-
-  // Sync internal state when selectedDate prop changes
-  useEffect(() => {
-    if (isOpen) {
-      setSelectedMonth(selectedDate.getMonth());
-      setSelectedDay(selectedDate.getDate());
-      setSelectedYear(selectedDate.getFullYear());
+    if (!initializedRef.current) return;
+    if (onDateChange) {
+      const newDate = new Date(selectedYear, selectedMonth, Math.min(selectedDay, daysInCurrentMonth));
+      onDateChange(newDate);
     }
-  }, [isOpen, selectedDate]);
+  }, [selectedMonth, selectedDay, selectedYear, daysInCurrentMonth]);
 
   const ITEM_HEIGHT = 44;
 
@@ -81,9 +86,10 @@ const AppleWheelDatePicker = ({
             yearScrollRef.current.scrollTop = yearIndex * ITEM_HEIGHT;
           }
         }
+        initializedRef.current = true;
       }, 50);
     }
-  }, [isOpen, selectedMonth, selectedDay, selectedYear, years]);
+  }, [isOpen]);
 
   const handleScroll = (
     ref: React.RefObject<HTMLDivElement>,
@@ -122,11 +128,19 @@ const AppleWheelDatePicker = ({
     }
   };
 
+  const handleDone = () => {
+    const finalDate = new Date(selectedYear, selectedMonth, Math.min(selectedDay, daysInCurrentMonth));
+    onConfirm(finalDate);
+  };
+
   if (!isOpen) return null;
 
-  const WHEEL_HEIGHT = mode === "inline" ? 96 : 220;
-  const GRADIENT_HEIGHT = mode === "inline" ? 28 : 88;
-  const PADDING_ITEMS = mode === "inline" ? 1 : 2;
+  const isInline = mode === "inline";
+  const isOverlay = mode === "overlay";
+  const isCompact = isInline || isOverlay;
+  const WHEEL_HEIGHT = isCompact ? 96 : 220;
+  const GRADIENT_HEIGHT = isCompact ? 28 : 88;
+  const PADDING_ITEMS = isCompact ? 1 : 2;
 
   const renderWheelColumn = (
     items: (string | number)[],
@@ -134,12 +148,11 @@ const AppleWheelDatePicker = ({
     ref: React.RefObject<HTMLDivElement>,
     setter: (value: number) => void,
     isDay?: boolean,
-    align: "left" | "center" | "right" = "center"
   ) => {
     return (
       <div className="relative overflow-hidden flex-1" style={{ height: WHEEL_HEIGHT }}>
-        <div className={`absolute inset-x-0 top-0 z-10 pointer-events-none ${mode === "inline" ? "bg-gradient-to-b from-neutral-800 to-transparent" : "bg-gradient-to-b from-neutral-900 via-neutral-900/80 to-transparent"}`} style={{ height: GRADIENT_HEIGHT }} />
-        <div className={`absolute inset-x-0 bottom-0 z-10 pointer-events-none ${mode === "inline" ? "bg-gradient-to-t from-neutral-800 to-transparent" : "bg-gradient-to-t from-neutral-900 via-neutral-900/80 to-transparent"}`} style={{ height: GRADIENT_HEIGHT }} />
+        <div className={`absolute inset-x-0 top-0 z-10 pointer-events-none ${isCompact ? "bg-gradient-to-b from-neutral-800 to-transparent" : "bg-gradient-to-b from-neutral-900 via-neutral-900/80 to-transparent"}`} style={{ height: GRADIENT_HEIGHT }} />
+        <div className={`absolute inset-x-0 bottom-0 z-10 pointer-events-none ${isCompact ? "bg-gradient-to-t from-neutral-800 to-transparent" : "bg-gradient-to-t from-neutral-900 via-neutral-900/80 to-transparent"}`} style={{ height: GRADIENT_HEIGHT }} />
 
         <div
           ref={ref}
@@ -164,11 +177,11 @@ const AppleWheelDatePicker = ({
                 <span
                   className={`transition-all duration-150 ${
                     isSelected
-                      ? mode === "inline" ? "text-foreground text-xs font-semibold" : "text-foreground text-xl font-semibold"
-                      : mode === "inline" ? "text-neutral-500 text-xs font-normal" : "text-neutral-500 text-lg font-normal"
+                      ? isCompact ? "text-foreground text-xs font-semibold" : "text-foreground text-xl font-semibold"
+                      : isCompact ? "text-neutral-500 text-xs font-normal" : "text-neutral-500 text-lg font-normal"
                   }`}
                 >
-                  {typeof item === "string" && mode === "inline" ? item.slice(0, 3) : item}
+                  {typeof item === "string" && isCompact ? item.slice(0, 3) : item}
                 </span>
               </div>
             );
@@ -179,7 +192,8 @@ const AppleWheelDatePicker = ({
     );
   };
 
-  if (mode === "inline") {
+  // Inline mode: positioned relative to parent
+  if (isInline) {
     return (
       <>
         <div className="fixed inset-0 z-40" onClick={onClose} />
@@ -188,9 +202,9 @@ const AppleWheelDatePicker = ({
             <div className="relative px-3 py-1">
               <div className="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-[32px] bg-neutral-700/50 rounded-lg pointer-events-none z-0" />
               <div className="flex relative z-10">
-                {renderWheelColumn(months, selectedMonth, monthScrollRef, setSelectedMonth, false, "right")}
-                {renderWheelColumn(days, selectedDay, dayScrollRef, setSelectedDay, true, "center")}
-                {renderWheelColumn(years, selectedYear, yearScrollRef, setSelectedYear, false, "left")}
+                {renderWheelColumn(months, selectedMonth, monthScrollRef, setSelectedMonth)}
+                {renderWheelColumn(days, selectedDay, dayScrollRef, setSelectedDay, true)}
+                {renderWheelColumn(years, selectedYear, yearScrollRef, setSelectedYear)}
               </div>
             </div>
           </div>
@@ -199,6 +213,35 @@ const AppleWheelDatePicker = ({
     );
   }
 
+  // Overlay mode: centered on screen with backdrop
+  if (isOverlay) {
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 animate-in fade-in duration-200"
+        onClick={onClose}
+      >
+        <div
+          className="w-[280px] bg-neutral-800 rounded-2xl shadow-2xl animate-in zoom-in-95 duration-200"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="flex items-center justify-between px-4 pt-4 pb-2">
+            <span className="text-sm font-semibold text-foreground">Select Date</span>
+            <button onClick={handleDone} className="text-sm font-medium text-primary active:opacity-70 transition-opacity">Done</button>
+          </div>
+          <div className="relative px-3 pb-3">
+            <div className="absolute left-3 right-3 top-1/2 -translate-y-1/2 h-[32px] bg-neutral-700/50 rounded-lg pointer-events-none z-0" />
+            <div className="flex relative z-10">
+              {renderWheelColumn(months, selectedMonth, monthScrollRef, setSelectedMonth)}
+              {renderWheelColumn(days, selectedDay, dayScrollRef, setSelectedDay, true)}
+              {renderWheelColumn(years, selectedYear, yearScrollRef, setSelectedYear)}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Fullscreen mode: bottom sheet
   return (
     <div
       className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 animate-in fade-in duration-200"
@@ -217,15 +260,15 @@ const AppleWheelDatePicker = ({
               <ChevronRight className="w-5 h-5 text-neutral-400" />
             </button>
           </div>
-          <button onClick={onConfirm} className="text-foreground text-base font-medium">Done</button>
+          <button onClick={handleDone} className="text-foreground text-base font-medium">Done</button>
         </div>
 
         <div className="relative">
           <div className="absolute left-4 right-4 top-1/2 -translate-y-1/2 h-[44px] bg-neutral-800/50 rounded-xl pointer-events-none z-0" />
           <div className="grid grid-cols-3 px-4 relative z-10">
-            {renderWheelColumn(months, selectedMonth, monthScrollRef, setSelectedMonth, false, "right")}
-            {renderWheelColumn(days, selectedDay, dayScrollRef, setSelectedDay, true, "center")}
-            {renderWheelColumn(years, selectedYear, yearScrollRef, setSelectedYear, false, "left")}
+            {renderWheelColumn(months, selectedMonth, monthScrollRef, setSelectedMonth)}
+            {renderWheelColumn(days, selectedDay, dayScrollRef, setSelectedDay, true)}
+            {renderWheelColumn(years, selectedYear, yearScrollRef, setSelectedYear)}
           </div>
         </div>
         <div className="h-8" />

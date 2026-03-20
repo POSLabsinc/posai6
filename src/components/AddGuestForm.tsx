@@ -53,7 +53,7 @@ const vehicleBrands: Record<string, string[]> = {
   "Wagon": ["Volvo", "Audi", "BMW", "Mercedes", "Subaru"],
 };
 
-const AddGuestForm = ({ onClose, onSave, hideHeader, onBack }: AddGuestFormProps) => {
+const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuestFormProps) => {
   const [showVehicleDetails, setShowVehicleDetails] = useState(false);
   const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);

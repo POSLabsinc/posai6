@@ -1,3 +1,4 @@
+import { lazy, Suspense } from "react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -16,54 +17,63 @@ import { useAutoRestart } from "@/hooks/useAutoRestart";
 import { useEndOfDayScheduler } from "@/hooks/useEndOfDayScheduler";
 import { AutoLockProvider } from "@/contexts/AutoLockContext";
 import { VoucherModeProvider } from "@/contexts/VoucherModeContext";
-import Dashboard from "./pages/Dashboard";
-import Orders from "./pages/Orders";
-import OrdersDesign1 from "./pages/OrdersDesign1";
-import OrdersDesign2 from "./pages/OrdersDesign2";
-import OrdersDesign3 from "./pages/OrdersDesign3";
-import OrdersDesign4 from "./pages/OrdersDesign4";
-import OrdersA from "./pages/OrdersA";
-import OrdersD from "./pages/OrdersD";
-import OrdersF from "./pages/OrdersF";
-import LiquidGlassDashboard from "./pages/LiquidGlassDashboard";
-import LiquidGlassOrders from "./pages/LiquidGlassOrders";
-import LiquidGlassMenu from "./pages/LiquidGlassMenu";
-import LiquidGlassCheckout from "./pages/LiquidGlassCheckout";
-import LiquidGlassOrders1A from "./pages/LiquidGlassOrders1A";
-import LiquidGlassOrders1B from "./pages/LiquidGlassOrders1B";
-import LiquidGlassOrders2A from "./pages/LiquidGlassOrders2A";
-import LiquidGlassOrders2B from "./pages/LiquidGlassOrders2B";
-import LiquidGlassOrders3A from "./pages/LiquidGlassOrders3A";
-import LiquidGlassOrders3B from "./pages/LiquidGlassOrders3B";
-import LiquidGlassOrders4A from "./pages/LiquidGlassOrders4A";
-import LiquidGlassOrders4B from "./pages/LiquidGlassOrders4B";
-import LiquidGlassOrders5A from "./pages/LiquidGlassOrders5A";
-import LiquidGlassOrders5B from "./pages/LiquidGlassOrders5B";
-import TableOrder from "./pages/TableOrder";
-import TableOrderA from "./pages/TableOrderA";
-import TableOrderB from "./pages/TableOrderB";
-import TableOrderDetails from "./pages/TableOrderDetails";
-import MergeOrders from "./pages/MergeOrders";
-import TransferOrders from "./pages/TransferOrders";
-import Tickets from "./pages/Tickets";
-import Settings from "./pages/Settings";
-import DiscountsRoute from "./components/routes/DiscountsRoute";
-import Account from "./pages/Account";
-import Reports from "./pages/Reports";
-import NotFound from "./pages/NotFound";
-import FullReservationsView from "./pages/FullReservationsView";
-import Voucher from "./pages/Voucher";
-import OrderOS from "./pages/OrderOS";
-import ClosedTickets from "./pages/ClosedTickets";
-import Login from "./pages/Login";
-import KDSMessages from "./pages/KDSMessages";
-import KDS from "./pages/KDS";
 import { SettingsManager } from "@/lib/settingsManager";
+
+// Lazy-loaded route pages for code-splitting
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Orders = lazy(() => import("./pages/Orders"));
+const OrdersDesign1 = lazy(() => import("./pages/OrdersDesign1"));
+const OrdersDesign2 = lazy(() => import("./pages/OrdersDesign2"));
+const OrdersDesign3 = lazy(() => import("./pages/OrdersDesign3"));
+const OrdersDesign4 = lazy(() => import("./pages/OrdersDesign4"));
+const OrdersA = lazy(() => import("./pages/OrdersA"));
+const OrdersD = lazy(() => import("./pages/OrdersD"));
+const OrdersF = lazy(() => import("./pages/OrdersF"));
+const LiquidGlassDashboard = lazy(() => import("./pages/LiquidGlassDashboard"));
+const LiquidGlassOrders = lazy(() => import("./pages/LiquidGlassOrders"));
+const LiquidGlassMenu = lazy(() => import("./pages/LiquidGlassMenu"));
+const LiquidGlassCheckout = lazy(() => import("./pages/LiquidGlassCheckout"));
+const LiquidGlassOrders1A = lazy(() => import("./pages/LiquidGlassOrders1A"));
+const LiquidGlassOrders1B = lazy(() => import("./pages/LiquidGlassOrders1B"));
+const LiquidGlassOrders2A = lazy(() => import("./pages/LiquidGlassOrders2A"));
+const LiquidGlassOrders2B = lazy(() => import("./pages/LiquidGlassOrders2B"));
+const LiquidGlassOrders3A = lazy(() => import("./pages/LiquidGlassOrders3A"));
+const LiquidGlassOrders3B = lazy(() => import("./pages/LiquidGlassOrders3B"));
+const LiquidGlassOrders4A = lazy(() => import("./pages/LiquidGlassOrders4A"));
+const LiquidGlassOrders4B = lazy(() => import("./pages/LiquidGlassOrders4B"));
+const LiquidGlassOrders5A = lazy(() => import("./pages/LiquidGlassOrders5A"));
+const LiquidGlassOrders5B = lazy(() => import("./pages/LiquidGlassOrders5B"));
+const TableOrder = lazy(() => import("./pages/TableOrder"));
+const TableOrderA = lazy(() => import("./pages/TableOrderA"));
+const TableOrderB = lazy(() => import("./pages/TableOrderB"));
+const TableOrderDetails = lazy(() => import("./pages/TableOrderDetails"));
+const MergeOrders = lazy(() => import("./pages/MergeOrders"));
+const TransferOrders = lazy(() => import("./pages/TransferOrders"));
+const Tickets = lazy(() => import("./pages/Tickets"));
+const Settings = lazy(() => import("./pages/Settings"));
+const DiscountsRoute = lazy(() => import("./components/routes/DiscountsRoute"));
+const Account = lazy(() => import("./pages/Account"));
+const Reports = lazy(() => import("./pages/Reports"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const FullReservationsView = lazy(() => import("./pages/FullReservationsView"));
+const Voucher = lazy(() => import("./pages/Voucher"));
+const OrderOS = lazy(() => import("./pages/OrderOS"));
+const ClosedTickets = lazy(() => import("./pages/ClosedTickets"));
+const Login = lazy(() => import("./pages/Login"));
+const KDSMessages = lazy(() => import("./pages/KDSMessages"));
+const KDS = lazy(() => import("./pages/KDS"));
 
 const queryClient = new QueryClient();
 
 // Initialize settings from database on app load
 SettingsManager.initFromDatabase();
+
+// Minimal loading fallback
+const PageLoader = () => (
+  <div className="flex items-center justify-center h-full w-full bg-background">
+    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+  </div>
+);
 
 // Inner component that can use hooks
 const AppInner = () => {
@@ -73,6 +83,7 @@ const AppInner = () => {
     <BrowserRouter>
       <AutoLockProvider>
       <Layout>
+        <Suspense fallback={<PageLoader />}>
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/home" element={<Dashboard />} />
@@ -119,6 +130,7 @@ const AppInner = () => {
           <Route path="/kds/messages" element={<KDSMessages />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
+        </Suspense>
       </Layout>
       </AutoLockProvider>
     </BrowserRouter>

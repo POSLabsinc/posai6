@@ -277,7 +277,7 @@ const KDSMessages = () => {
 
               {/* Card Meta */}
               <div className="bg-neutral-800 px-4 py-2 flex items-center gap-4 text-xs text-neutral-400 border-b border-neutral-700">
-                <span>From: <span className="text-white font-medium">{msg.employee_name}{msg.employee_role ? ` | ${msg.employee_role}` : ""}</span></span>
+                <span>From <span className="text-white font-medium">{msg.employee_name}{msg.employee_role ? ` | ${msg.employee_role}` : ""}</span></span>
                 {msg.linked_order_number && (
                   <span>·  Order <span className="text-white font-medium">#{msg.linked_order_number}</span></span>
                 )}

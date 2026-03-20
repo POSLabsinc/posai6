@@ -508,7 +508,7 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
               <span className="text-[10px] text-white/70 font-mono">{format(new Date(msg.timestamp), "hh:mm a")}</span>
             </div>
             <div className="bg-neutral-800 px-3 py-1.5 flex items-center gap-3 text-[10px] text-neutral-400 border-b border-neutral-700">
-              <span>From: <span className="text-white font-medium">{msg.employee_name}{msg.employee_role ? ` | ${msg.employee_role}` : ""}</span></span>
+              <span>From <span className="text-white font-medium">{msg.employee_name}{msg.employee_role ? ` | ${msg.employee_role}` : ""}</span></span>
               {displayOrderNumbers.length > 0 && <span>·  Order <span className="text-white font-medium">{displayOrderNumbers.map(n => `#${n}`).join(", ")}</span></span>}
               {(msg.table_id || msg.table_number) && <span>·  <span className="text-white font-medium">{msg.table_number || `Table ${msg.table_id}`}</span></span>}
             </div>
@@ -690,7 +690,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                 </div>
                 <div className={`${isAcked ? "bg-neutral-800/60" : "bg-neutral-800"} px-3 py-2`}>
                   <p className={`text-xs leading-relaxed whitespace-pre-wrap break-words ${isAcked ? "text-neutral-400" : "text-white"}`}>{msg.message_text}</p>
-                  <p className="text-[10px] text-neutral-500 mt-1">From: <span className={isAcked ? "text-neutral-500" : "text-neutral-300"}>{msg.employee_name}{msg.employee_role ? ` | ${msg.employee_role}` : ""}</span></p>
+                  <p className="text-[10px] text-neutral-500 mt-1">From <span className={isAcked ? "text-neutral-500" : "text-neutral-300"}>{msg.employee_name}{msg.employee_role ? ` | ${msg.employee_role}` : ""}</span></p>
                 </div>
                 {(() => {
                   const msgReplies = allReplies.filter(r => r.message_id === msg.message_id);
@@ -732,7 +732,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
         {isMessage ? (
           <div className="py-3">
             <p className="text-sm text-white leading-relaxed">{ticket.products[0]?.name}</p>
-            <p className="text-[10px] text-neutral-500 mt-2">From: {ticket.serverName}{(() => { const s = staffList.find(st => st.name === ticket.serverName); return s ? ` | ${s.role}` : ""; })()}</p>
+            <p className="text-[10px] text-neutral-500 mt-2">From {ticket.serverName}{(() => { const s = staffList.find(st => st.name === ticket.serverName); return s ? ` | ${s.role}` : ""; })()}</p>
           </div>
         ) : (
           categoryOrder.map(cat => {

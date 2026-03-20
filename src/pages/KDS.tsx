@@ -259,6 +259,7 @@ const readSessionMessages = (): KDSMessageData[] => {
   }
 };
 
+const KDSMessagesPanel = ({ onClose, messages, onAcknowledge }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void }) => {
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
   const [flashId, setFlashId] = useState<string | null>(null);
   const prevCountRef = useRef(0);

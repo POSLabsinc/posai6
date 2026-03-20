@@ -175,6 +175,7 @@ export function DiscountDialog({
   const [dynamicDiscounts, setDynamicDiscounts] = useState<Discount[]>(fallbackDiscounts);
   const [selectedDiscount, setSelectedDiscount] = useState<Discount | null>(null);
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
+  const [commentText, setCommentText] = useState("");
   const [view, setView] = useState<'list' | 'reason'>('list');
   const isMobile = useIsMobile();
 
@@ -184,6 +185,7 @@ export function DiscountDialog({
       fetchDiscountsFromDB().then(setDynamicDiscounts);
       setSelectedDiscount(currentDiscounts.length > 0 ? currentDiscounts[0] : null);
       setSelectedReason(null);
+      setCommentText("");
       setView('list');
     }
     prevOpenRef.current = open;
@@ -195,9 +197,11 @@ export function DiscountDialog({
     if (selectedDiscount?.id === discount.id) {
       setSelectedDiscount(null);
       setSelectedReason(null);
+      setCommentText("");
     } else {
       setSelectedDiscount(discount);
       setSelectedReason(null);
+      setCommentText("");
     }
   };
 
@@ -207,7 +211,7 @@ export function DiscountDialog({
     const payload: AppliedDiscountPayload = {
       discount: selectedDiscount,
       reason: selectedReason,
-      notes: null,
+      notes: commentText.trim() || null,
     };
     onApplyDiscounts([selectedDiscount], [payload]);
     onOpenChange(false);
@@ -325,6 +329,23 @@ export function DiscountDialog({
                 </button>
               );
             })}
+          </div>
+          {/* Comment box */}
+          <div className="mt-2 px-1">
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value.slice(0, 100))}
+              placeholder="Add a comment (optional)"
+              className="w-full px-3 py-2 rounded-[10px] text-[11px] text-white placeholder:text-[#555] resize-none focus:outline-none transition-colors flex-1"
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                minHeight: '60px',
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'rgba(124,110,224,0.4)'}
+              onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
+            />
+            <p className="text-[9px] text-right mt-0.5" style={{ color: '#555' }}>{commentText.length}/100</p>
           </div>
         </div>
       ) : (

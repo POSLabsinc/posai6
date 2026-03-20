@@ -732,7 +732,8 @@ const KDS = () => {
       const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
       const updated = queue.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m);
       localStorage.setItem("kds_message_queue", JSON.stringify(updated));
-      setKdsMessages(updated.map((m: any) => ({ ...m, status: m.status || "pending" })));
+      // Re-read through shared helper to keep filtering/dedupe consistent
+      setKdsMessages(readSessionMessages());
     } catch {}
   }, []);
 

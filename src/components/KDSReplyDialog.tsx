@@ -146,7 +146,7 @@ const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied =
         <DialogHeader>
           <DialogTitle className="text-white text-lg">Reply to kitchen message</DialogTitle>
           <DialogDescription className="text-neutral-400 text-sm">
-            Replying to {message.employee_name}{subtitleParts.length > 0 ? ` · ${subtitleParts.join(" · ")}` : ""}
+            Replying to {message.employee_name}{message.employee_role ? ` | ${message.employee_role}` : ""}{subtitleParts.length > 0 ? ` · ${subtitleParts.join(" · ")}` : ""}
           </DialogDescription>
         </DialogHeader>
 

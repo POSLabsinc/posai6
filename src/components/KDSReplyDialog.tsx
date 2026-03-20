@@ -157,9 +157,6 @@ const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied =
             <div className="border-l-2 border-violet-500 bg-neutral-800/60 border-y border-r border-neutral-700/50 px-3 py-2.5">
               <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Original message</span>
               <p className="text-xs text-neutral-300 mt-1 line-clamp-2">{message.message_text}</p>
-              <p className="text-[11px] text-neutral-500 mt-1.5">
-                From: {message.employee_name} · {format(new Date(message.timestamp), "hh:mm a")}
-              </p>
             </div>
 
             {/* Reply Field */}

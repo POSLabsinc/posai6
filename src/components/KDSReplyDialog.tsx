@@ -193,18 +193,18 @@ const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied =
             </div>
 
             {/* Cancel + Send Reply */}
-            <div className="pt-2 space-y-2">
+            <div className="pt-2 flex gap-3">
               <button
                 onClick={() => onOpenChange(false)}
                 disabled={sending}
-                className="w-full text-center text-sm text-neutral-400 hover:text-white transition-colors disabled:opacity-50"
+                className="flex-1 h-10 rounded-md text-sm text-neutral-400 hover:text-white border border-neutral-600 hover:border-neutral-500 transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
               <Button
                 onClick={handleSend}
                 disabled={!canSend}
-                className="w-full bg-orange-600 hover:bg-orange-700 text-white font-bold disabled:opacity-50"
+                className="flex-1 bg-orange-600 hover:bg-orange-700 text-white font-bold disabled:opacity-50"
               >
                 {sending ? (
                   <span className="flex items-center gap-2">

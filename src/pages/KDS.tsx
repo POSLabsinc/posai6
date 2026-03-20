@@ -521,7 +521,7 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
                   <Check className="w-3 h-3 mr-1.5" /> ACKNOWLEDGE
                 </Button>
                 <Button variant="outline" onClick={() => onOpenReplyDialog(msg)} className="flex-1 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-xs py-3 rounded-lg">
-                  <Reply className="w-3 h-3 mr-1.5" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                  <Reply className="w-3 h-3 mr-1.5" /> {"REPLY"}
                 </Button>
               </div>
             ) : (
@@ -531,7 +531,7 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
                   <span>Acknowledged {msg.acknowledged_at ? format(new Date(msg.acknowledged_at), "hh:mm a") : ""}</span>
                 </div>
                 <Button variant="outline" size="sm" onClick={() => onOpenReplyDialog(msg)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
-                  <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                  <Reply className="w-3 h-3 mr-1" /> {"REPLY"}
                 </Button>
               </div>
             )}
@@ -703,7 +703,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                             <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
                           </Button>
                           <Button variant="outline" onClick={() => onOpenReplyDialog?.(msg)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
-                            <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                            <Reply className="w-3 h-3 mr-1" /> {"REPLY"}
                           </Button>
                         </div>
                       ) : isAcked ? (
@@ -713,7 +713,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                             <span className="text-[10px] text-emerald-500 font-medium">Acknowledged{msg.acknowledged_at ? ` ${format(new Date(msg.acknowledged_at), "hh:mm a")}` : ""}</span>
                           </div>
                           <Button variant="outline" size="sm" onClick={() => onOpenReplyDialog?.(msg)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-1.5 rounded-lg">
-                            <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                            <Reply className="w-3 h-3 mr-1" /> {"REPLY"}
                           </Button>
                         </div>
                       ) : null}

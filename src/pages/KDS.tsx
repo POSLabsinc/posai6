@@ -1092,6 +1092,15 @@ const KDS = () => {
           </div>
         </div>
       </div>
+
+      {/* Reply Dialog */}
+      <KDSReplyDialog
+        open={replyDialogOpen}
+        onOpenChange={setReplyDialogOpen}
+        message={replyDialogMessage}
+        onSendReply={handleReplyDialogSend}
+        hasReplied={replyDialogHasReplied}
+      />
     </div>
   );
 };

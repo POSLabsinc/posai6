@@ -1,10 +1,9 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback, KeyboardEvent } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Loader2, X } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
-import { format } from "date-fns";
 
 interface KDSMessageData {
   message_id: string;
@@ -34,26 +33,128 @@ interface KDSReplyDialogProps {
   hasReplied?: boolean;
 }
 
-const MAX_LENGTH = 150;
-const WARN_THRESHOLD = 120;
-const DANGER_THRESHOLD = 145;
+const MAX_LENGTH = 100;
+const WARN_THRESHOLD = 90;
+const DANGER_THRESHOLD = 95;
 
-const QUICK_REPLIES = ["Got it", "On its way", "5 mins", "Need more time", "Out of stock"];
+const SUGGESTION_STORAGE_KEY = "kds_reply_suggestions";
+
+const DEFAULT_SUGGESTIONS = [
+  "Got it",
+  "On its way",
+  "5 mins",
+  "Need more time",
+  "Out of stock",
+  "Cooking now",
+  "Ready in 5 minutes",
+  "Ready in 10 minutes",
+  "Remake needed",
+  "Rush this order",
+];
+
+const EXTENDED_SUGGESTIONS = [
+  "Hold this order",
+  "Fire when ready",
+  "Low stock warning",
+  "Special request",
+  "Extra sauce on the side",
+  "Check temperature",
+  "Plate presentation important",
+  "Send appetizers first",
+  "Hold dessert",
+  "Substitute needed",
+  "Delay on this order",
+  "Priority order",
+];
+
+const getSuggestionHistory = (): { text: string; count: number }[] => {
+  try {
+    return JSON.parse(localStorage.getItem(SUGGESTION_STORAGE_KEY) || "[]");
+  } catch {
+    return [];
+  }
+};
+
+const recordSuggestionUse = (text: string) => {
+  const history = getSuggestionHistory();
+  const existing = history.find(h => h.text.toLowerCase() === text.toLowerCase());
+  if (existing) {
+    existing.count += 1;
+    existing.text = text;
+  } else {
+    history.push({ text, count: 1 });
+  }
+  history.sort((a, b) => b.count - a.count);
+  localStorage.setItem(SUGGESTION_STORAGE_KEY, JSON.stringify(history.slice(0, 30)));
+};
+
+const SuggestionChips = ({ message, onSelect, activeChips = [] }: { message: string; onSelect: (text: string) => void; activeChips?: string[] }) => {
+  const history = useMemo(() => getSuggestionHistory(), []);
+
+  const allPool = useMemo(() => {
+    const pool: { text: string; count: number }[] = [];
+    const seen = new Set<string>();
+    for (const h of history) {
+      pool.push(h);
+      seen.add(h.text.toLowerCase());
+    }
+    for (const d of [...DEFAULT_SUGGESTIONS, ...EXTENDED_SUGGESTIONS]) {
+      const lower = d.toLowerCase();
+      if (!seen.has(lower)) {
+        pool.push({ text: d, count: 0 });
+        seen.add(lower);
+      }
+    }
+    pool.sort((a, b) => b.count - a.count);
+    return pool;
+  }, [history]);
+
+  const activeLower = useMemo(() => new Set(activeChips.map(c => c.toLowerCase())), [activeChips]);
+
+  const chips = useMemo(() => {
+    const trimmed = message.trim().toLowerCase();
+    const filtered = allPool.filter(s => !activeLower.has(s.text.toLowerCase()));
+    if (trimmed.length === 0) {
+      return filtered.slice(0, 8);
+    }
+    return filtered
+      .filter(s => s.text.toLowerCase().includes(trimmed) && s.text.toLowerCase() !== trimmed)
+      .slice(0, 8);
+  }, [message, allPool, activeLower]);
+
+  if (chips.length === 0) return null;
+
+  return (
+    <div className="flex flex-wrap gap-1.5 mt-1">
+      {chips.map((chip) => (
+        <button
+          key={chip.text}
+          type="button"
+          onClick={() => onSelect(chip.text)}
+          className="px-2.5 py-1 text-xs rounded-full bg-neutral-700/70 text-neutral-300 hover:bg-orange-500/20 hover:text-orange-400 border border-neutral-600/50 hover:border-orange-500/40 transition-colors truncate max-w-[200px]"
+        >
+          {chip.text}
+        </button>
+      ))}
+    </div>
+  );
+};
 
 const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied = false }: KDSReplyDialogProps) => {
-  const [text, setText] = useState("");
-  const [selectedChip, setSelectedChip] = useState<string | null>(null);
+  const [messageChips, setMessageChips] = useState<string[]>([]);
+  const [chipInput, setChipInput] = useState("");
   const [sending, setSending] = useState(false);
   const [qrExpiry, setQrExpiry] = useState(600);
   const [qrExpired, setQrExpired] = useState(false);
   const [qrKey, setQrKey] = useState(0);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Reset state on open
   useEffect(() => {
     if (open) {
-      setText("");
-      setSelectedChip(null);
+      setMessageChips([]);
+      setChipInput("");
       setSending(false);
       setQrExpiry(600);
       setQrExpired(false);
@@ -77,39 +178,50 @@ const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied =
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
   }, [open, qrKey]);
 
+  const composedMessage = messageChips.join(", ");
+  const charCount = composedMessage.length;
+  const canSend = messageChips.length > 0 && !sending;
+
+  const counterColorClass = useMemo(() => {
+    if (charCount >= DANGER_THRESHOLD) return "text-destructive";
+    if (charCount >= WARN_THRESHOLD) return "text-orange-400";
+    return "text-neutral-500";
+  }, [charCount]);
+
+  const addChip = useCallback((text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    if (messageChips.some(c => c.toLowerCase() === trimmed.toLowerCase())) return;
+    const newChips = [...messageChips, trimmed];
+    const newComposed = newChips.join(", ");
+    if (newComposed.length > MAX_LENGTH) return;
+    setMessageChips(newChips);
+    setChipInput("");
+    recordSuggestionUse(trimmed);
+  }, [messageChips]);
+
+  const removeChip = useCallback((index: number) => {
+    setMessageChips(prev => prev.filter((_, i) => i !== index));
+  }, []);
+
+  const handleChipInputKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      addChip(chipInput);
+    }
+    if (e.key === "Backspace" && chipInput === "" && messageChips.length > 0) {
+      removeChip(messageChips.length - 1);
+    }
+  };
+
   if (!message) return null;
-
-  const charCount = text.length;
-  const canSend = text.trim().length > 0 && !sending;
-
-  const counterColorClass = charCount >= DANGER_THRESHOLD
-    ? "text-destructive"
-    : charCount >= WARN_THRESHOLD
-      ? "text-orange-400"
-      : "text-neutral-500";
-
-  const handleChipClick = (chip: string) => {
-    if (selectedChip === chip) {
-      setSelectedChip(null);
-      setText("");
-    } else {
-      setSelectedChip(chip);
-      setText(chip);
-    }
-  };
-
-  const handleTextChange = (val: string) => {
-    if (val.length <= MAX_LENGTH) {
-      setText(val);
-      if (selectedChip) setSelectedChip(null);
-    }
-  };
 
   const handleSend = async () => {
     if (!canSend) return;
     setSending(true);
     try {
-      onSendReply(message.message_id, text.trim());
+      messageChips.forEach(c => recordSuggestionUse(c));
+      onSendReply(message.message_id, composedMessage);
       onOpenChange(false);
     } catch {
       setSending(false);
@@ -159,38 +271,46 @@ const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied =
               <p className="text-xs text-neutral-300 mt-1 line-clamp-2">{message.message_text}</p>
             </div>
 
-            {/* Reply Field */}
+            {/* Chip-based Message Input */}
             <div className="space-y-1">
               <label className="text-sm text-neutral-300">Reply <span className="text-red-400">*</span></label>
-              <Textarea
-                value={text}
-                onChange={e => handleTextChange(e.target.value)}
-                placeholder="Type your reply..."
-                maxLength={MAX_LENGTH}
-                className="min-h-[100px] bg-transparent border-neutral-600 text-white placeholder:text-neutral-500 text-sm focus-visible:ring-orange-500 resize-none"
-              />
+              <div
+                className="flex flex-wrap items-center gap-1.5 min-h-[44px] bg-transparent border border-neutral-600 rounded-md px-2 py-1.5 cursor-text focus-within:ring-2 focus-within:ring-orange-500 focus-within:border-orange-500 transition-colors"
+                onClick={() => inputRef.current?.focus()}
+              >
+                {messageChips.map((chip, i) => (
+                  <span key={i} className="inline-flex items-center gap-1 bg-orange-500/20 text-orange-400 border border-orange-500/40 rounded-full px-2.5 py-0.5 text-xs">
+                    {chip}
+                    <button
+                      type="button"
+                      onClick={(e) => { e.stopPropagation(); removeChip(i); }}
+                      className="hover:text-orange-200 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+                <input
+                  ref={inputRef}
+                  type="text"
+                  value={chipInput}
+                  onChange={e => setChipInput(e.target.value)}
+                  onKeyDown={handleChipInputKeyDown}
+                  placeholder={messageChips.length === 0 ? "Type a reply or select below..." : ""}
+                  className="flex-1 min-w-[120px] bg-transparent border-none outline-none text-sm text-white placeholder:text-neutral-500"
+                />
+              </div>
               <div className={`text-xs text-right ${counterColorClass}`}>
                 {charCount}/{MAX_LENGTH}
               </div>
             </div>
 
-            {/* Quick Reply Chips */}
-            <div className="flex flex-wrap gap-1.5">
-              {QUICK_REPLIES.map(chip => (
-                <button
-                  key={chip}
-                  type="button"
-                  onClick={() => handleChipClick(chip)}
-                  className={`px-2.5 py-1 text-xs rounded-full border transition-colors ${
-                    selectedChip === chip
-                      ? "bg-orange-500/20 text-orange-400 border-orange-500/40"
-                      : "bg-neutral-700/70 text-neutral-300 hover:bg-orange-500/20 hover:text-orange-400 border-neutral-600/50 hover:border-orange-500/40"
-                  }`}
-                >
-                  {chip}
-                </button>
-              ))}
-            </div>
+            {/* Suggestion Chips */}
+            <SuggestionChips
+              message={chipInput}
+              onSelect={addChip}
+              activeChips={messageChips}
+            />
 
             {/* Cancel + Send Reply */}
             <div className="pt-2 flex gap-3">
@@ -218,7 +338,7 @@ const KDSReplyDialog = ({ open, onOpenChange, message, onSendReply, hasReplied =
 
           {/* Right Column - QR Code */}
           <div className="w-[300px] pl-5 flex flex-col items-center justify-center space-y-4">
-            <span className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Reply from your phone</span>
+            <span className="text-[11px] text-white uppercase tracking-wider font-medium">Reply from your phone</span>
 
             <div className="bg-white rounded-xl p-4 border border-neutral-700/50">
               <QRCodeSVG key={qrKey} value={qrUrl} size={180} bgColor="#ffffff" fgColor="#000000" />

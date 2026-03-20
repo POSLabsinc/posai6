@@ -489,24 +489,20 @@ const Orders = () => {
   const showSaveButton = checkoutOptionsSettings.showSaveButton;
   const autoCloseTicket = checkoutOptionsSettings.autoCloseTicket;
   const [orderType, setOrderType] = useState(() => requireOrderType ? "" : "DINE IN");
-  const [showDineInForm, setShowDineInForm] = useState(false);
-  const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
-  const [showTakeOutForm, setShowTakeOutForm] = useState(false);
-  const [takeOutGuestData, setTakeOutGuestData] = useState<TakeOutGuestData | null>(null);
-  const [showDeliveryForm, setShowDeliveryForm] = useState(false);
-  const [deliveryGuestData, setDeliveryGuestData] = useState<DeliveryGuestData | null>(null);
-  const [showBanquetForm, setShowBanquetForm] = useState(false);
-  const [banquetGuestData, setBanquetGuestData] = useState<BanquetGuestData | null>(null);
-  const [showDriveThruForm, setShowDriveThruForm] = useState(false);
-  const [driveThruGuestData, setDriveThruGuestData] = useState<DriveThruGuestData | null>(null);
-  const [showCurbSideForm, setShowCurbSideForm] = useState(false);
-  const [curbSideGuestData, setCurbSideGuestData] = useState<CurbSideGuestData | null>(null);
-  const [showScheduledForm, setShowScheduledForm] = useState(false);
-  const [scheduledGuestData, setScheduledGuestData] = useState<ScheduledGuestData | null>(null);
-  const [showPhoneInForm, setShowPhoneInForm] = useState(false);
-  const [phoneInGuestData, setPhoneInGuestData] = useState<PhoneInGuestData | null>(null);
-  const [showCustomOrderForm, setShowCustomOrderForm] = useState(false);
-  const [customOrderGuestData, setCustomOrderGuestData] = useState<CustomOrderGuestData | null>(null);
+  // Guest form state hook - manages all 9 order type guest forms
+  const guestForms = useOrderTypeGuests();
+  const {
+    showDineInForm, setShowDineInForm, dineInGuestData, setDineInGuestData,
+    showTakeOutForm, setShowTakeOutForm, takeOutGuestData, setTakeOutGuestData,
+    showDeliveryForm, setShowDeliveryForm, deliveryGuestData, setDeliveryGuestData,
+    showBanquetForm, setShowBanquetForm, banquetGuestData, setBanquetGuestData,
+    showDriveThruForm, setShowDriveThruForm, driveThruGuestData, setDriveThruGuestData,
+    showCurbSideForm, setShowCurbSideForm, curbSideGuestData, setCurbSideGuestData,
+    showScheduledForm, setShowScheduledForm, scheduledGuestData, setScheduledGuestData,
+    showPhoneInForm, setShowPhoneInForm, phoneInGuestData, setPhoneInGuestData,
+    showCustomOrderForm, setShowCustomOrderForm, customOrderGuestData, setCustomOrderGuestData,
+    openFormForType, clearAllGuestData,
+  } = guestForms;
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");

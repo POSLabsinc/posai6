@@ -97,14 +97,36 @@ const Header = () => {
     return () => clearInterval(sessionTimer);
   }, []);
 
+  // Fetch recent notifications
   useEffect(() => {
-    // Update time every minute
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 60000);
-
-    return () => clearInterval(timer);
+    const fetchNotifs = async () => {
+      const { data } = await (supabase as any)
+        .from("notifications")
+        .select("id, title, preview, created_at, is_read, category")
+        .order("created_at", { ascending: false })
+        .limit(3);
+      if (data) {
+        setRecentNotifs(data);
+        setUnreadCount(data.filter((n: any) => !n.is_read).length);
+      }
+    };
+    fetchNotifs();
+    const interval = setInterval(fetchNotifs, 15000);
+    return () => clearInterval(interval);
   }, []);
+
+  // Close popover on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotifPopover(false);
+      }
+    };
+    if (showNotifPopover) document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showNotifPopover]);
+
+
 
   const handleClockOut = () => {
     // Just close the overlay - ClockOutOverlay resets to PIN screen internally

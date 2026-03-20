@@ -678,7 +678,9 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
               {String(Math.floor(elapsedSeconds / 3600)).padStart(2, '0')}:{String(Math.floor((elapsedSeconds % 3600) / 60)).padStart(2, '0')}:{String(elapsedSeconds % 60).padStart(2, '0')}
             </span>
             {ticket.serverName && (
-              <span className="text-[10px] text-neutral-400 font-semibold uppercase truncate max-w-[120px]">{ticket.serverName}</span>
+              <span className="text-[10px] text-neutral-400 font-semibold uppercase truncate max-w-[140px]">
+                {ticket.serverName}{ticket.serverJobType ? ` · ${ticket.serverJobType}` : ""}
+              </span>
             )}
           </div>
         </div>

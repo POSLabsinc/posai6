@@ -672,10 +672,8 @@ const KDS = () => {
   }, [knownIds, soundEnabled]);
 
 
-  // Clear message queue on mount (soft-delete on refresh)
-  useEffect(() => {
-    localStorage.removeItem("kds_message_queue");
-  }, []);
+  // Session start timestamp - messages before this are hidden (soft-delete on refresh)
+  const sessionStartRef = useRef(Date.now());
 
   // Poll pending messages for badge + attached messages
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);

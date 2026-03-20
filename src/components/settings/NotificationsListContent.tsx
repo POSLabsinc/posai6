@@ -400,46 +400,57 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
   const isWeather = notification.category === "weather";
 
   return (
-    <div className="p-0 px-6 pb-28 max-w-3xl mx-auto">
-      {/* Header */}
-      <div className="flex items-center gap-4 mb-4">
+    <div className="h-full flex flex-col px-8 pt-6 pb-10 max-w-3xl">
+      {/* Header card */}
+      <div className="flex items-start gap-4 mb-6">
         <NotificationAvatar notification={notification} size="lg" />
         <div className="flex-1 min-w-0">
-          <h1 className="text-lg font-bold text-foreground leading-tight">{notification.headline}</h1>
-          <p className="text-xs text-muted-foreground mt-0.5">{notification.version_date} · {notification.time}</p>
+          <h1 className="text-[1.15rem] font-bold text-foreground leading-snug tracking-tight">{notification.headline}</h1>
+          <p className="text-xs text-muted-foreground/70 mt-1 font-medium">{notification.version_date} · {notification.time}</p>
         </div>
       </div>
 
-      {/* Software Update Button - only for update notifications */}
+      {/* Software Update Button */}
       {notification.has_update && !isWeather && (
-        <div className="mb-5">
-          <button className="w-full bg-card border border-border rounded-2xl py-3.5 px-6 flex items-center justify-center gap-3 active:opacity-70 transition-opacity">
+        <div className="mb-6">
+          <button className="w-full bg-card border border-border rounded-2xl py-3.5 px-6 flex items-center justify-center gap-3 active:scale-[0.98] transition-transform">
             <span className="text-foreground font-semibold text-sm">Software Update</span>
             <Download className="w-4 h-4 text-foreground" />
           </button>
         </div>
       )}
 
-      {/* Body */}
-      <p className="text-foreground text-sm leading-relaxed mb-4">{notification.body}</p>
+      {/* Message body */}
+      <div
+        className="rounded-2xl p-5 mb-5"
+        style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+      >
+        <p className="text-foreground/90 text-[13px] leading-[1.7] whitespace-pre-wrap">{notification.body}</p>
+      </div>
 
       {/* Bullet Points */}
       {notification.bullets && notification.bullets.length > 0 && (
-        <ul className="space-y-2 mb-5">
-          {notification.bullets.map((bullet, i) => (
-            <li key={i} className="text-sm text-foreground leading-relaxed flex gap-2">
-              <span className="text-muted-foreground mt-1.5 shrink-0">•</span>
-              <span>
-                <strong>{bullet.label}</strong> {bullet.text}
-              </span>
-            </li>
-          ))}
-        </ul>
+        <div
+          className="rounded-2xl p-5 mb-5"
+          style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <ul className="space-y-3">
+            {notification.bullets.map((bullet, i) => (
+              <li key={i} className="text-[13px] text-foreground/90 leading-relaxed flex gap-2.5">
+                <span className="text-muted-foreground/50 mt-0.5 shrink-0 text-[10px]">●</span>
+                <span>
+                  <strong className="text-foreground font-semibold">{bullet.label}</strong>{" "}
+                  <span className="text-foreground/70">{bullet.text}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
 
       {/* Footer */}
       {notification.footer && (
-        <p className="text-muted-foreground text-xs leading-relaxed">{notification.footer}</p>
+        <p className="text-muted-foreground/60 text-xs leading-relaxed mt-auto pt-4">{notification.footer}</p>
       )}
     </div>
   );

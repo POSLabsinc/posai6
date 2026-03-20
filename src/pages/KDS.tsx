@@ -43,6 +43,7 @@ interface KDSTicket {
   orderType: "DINE IN" | "TAKEOUT" | "DELIVERY" | "BAR";
   tableNumber: string | null;
   serverName: string;
+  serverJobType?: string;
   createdAt: Date;
   products: KDSProduct[];
   status: "active" | "seen" | "bumped";

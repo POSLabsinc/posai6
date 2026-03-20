@@ -211,7 +211,7 @@ export function DiscountDialog({
     const payload: AppliedDiscountPayload = {
       discount: selectedDiscount,
       reason: selectedReason,
-      notes: null,
+      notes: commentText.trim() || null,
     };
     onApplyDiscounts([selectedDiscount], [payload]);
     onOpenChange(false);

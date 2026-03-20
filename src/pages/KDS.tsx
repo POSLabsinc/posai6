@@ -61,6 +61,7 @@ const generateMockTickets = (): KDSTicket[] => {
       orderType: "DINE IN",
       tableNumber: "T2",
       serverName: "Mia Jones",
+      serverJobType: "Manager",
       createdAt: new Date(now.getTime() - 38 * 60000),
       products: [
         { qty: 1, name: "Fried Calamari", category: "APPETIZER", modifiers: [], status: "pending" },

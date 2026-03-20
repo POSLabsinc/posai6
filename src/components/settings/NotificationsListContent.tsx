@@ -21,6 +21,13 @@ const getCategoryIcon = (notification: NotificationItem): { icon?: any; bg: stri
     return { icon: CloudSun, bg: "bg-sky-500/15", color: "text-sky-500" };
   }
   const t = notification.title.toLowerCase();
+  // Kitchen reply notifications
+  if (t.includes("kitchen reply")) {
+    return { icon: ChefHat, bg: "bg-orange-500/15", color: "text-orange-500" };
+  }
+  if (notification.category === "weather") {
+    return { icon: CloudSun, bg: "bg-sky-500/15", color: "text-sky-500" };
+  }
   if (t.includes("team")) {
     return { icon: Users, bg: "bg-violet-500/15", color: "text-violet-500" };
   }

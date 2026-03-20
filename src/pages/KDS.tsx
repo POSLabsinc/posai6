@@ -672,7 +672,12 @@ const KDS = () => {
   }, [knownIds, soundEnabled]);
 
 
-  // Poll pending messages for badge + attached messages (filtered by session boundary)
+  // Clear message queue on mount (soft-delete on refresh)
+  useEffect(() => {
+    localStorage.removeItem("kds_message_queue");
+  }, []);
+
+  // Poll pending messages for badge + attached messages
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
   const prevPendingCountRef = useRef(0);
   useEffect(() => {

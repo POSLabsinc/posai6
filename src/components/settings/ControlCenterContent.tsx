@@ -5,7 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { SettingsManager, ControlCenterSettings } from "@/lib/settingsManager";
+import { SettingsManager, ControlCenterSettings, DashboardMetricsVisibility } from "@/lib/settingsManager";
 import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
 import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
@@ -72,6 +72,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const [hideEmployeeFeedback, setHideEmployeeFeedback] = useState(() => loadSettings().hideEmployeeFeedback);
   const [hideSeatSelector, setHideSeatSelector] = useState(() => loadSettings().hideSeatSelector);
   const [resetTablesDaily, setResetTablesDaily] = useState(() => loadSettings().resetTablesDaily);
+  const [dashboardMetrics, setDashboardMetrics] = useState<DashboardMetricsVisibility>(() => loadSettings().dashboardMetrics);
 
   // Sync all settings when a settings-updated event is received
   useEffect(() => {
@@ -93,6 +94,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
         setHideEmployeeFeedback(settings.hideEmployeeFeedback);
         setHideSeatSelector(settings.hideSeatSelector);
         setResetTablesDaily(settings.resetTablesDaily);
+        setDashboardMetrics(settings.dashboardMetrics);
       }
     };
 
@@ -188,6 +190,12 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const handleResetTablesDailyChange = (value: boolean) => {
     setResetTablesDaily(value);
     updateSetting('resetTablesDaily', value);
+  };
+
+  const handleDashboardMetricToggle = (metric: keyof DashboardMetricsVisibility, value: boolean) => {
+    const updated = { ...dashboardMetrics, [metric]: value };
+    setDashboardMetrics(updated);
+    updateSetting('dashboardMetrics', updated);
   };
 
   const autoLockDropdownRef = useRef<HTMLDivElement>(null);
@@ -510,7 +518,33 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
             </div>
           </div>
 
-          {/* Customer Facing Display Section */}
+          {/* Dashboard Metrics Section */}
+          <p className="text-neutral-500 text-base mb-3 px-1">Dashboard</p>
+          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-2">
+            {([
+              { key: 'totalSale' as const, label: 'Total Sale' },
+              { key: 'totalTip' as const, label: 'Total Tip' },
+              { key: 'totalHours' as const, label: 'Total Hours' },
+              { key: 'ordering' as const, label: 'Ordering' },
+              { key: 'readyToServed' as const, label: 'Ready to Served' },
+              { key: 'completed' as const, label: 'Completed' },
+            ]).map((metric, idx, arr) => (
+              <div key={metric.key}>
+                <div className="py-3.5 px-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground text-lg font-medium">{metric.label}</span>
+                    <Switch checked={dashboardMetrics[metric.key]} onCheckedChange={(v) => handleDashboardMetricToggle(metric.key, v)} />
+                  </div>
+                </div>
+                {idx < arr.length - 1 && <div className="h-px bg-neutral-700/50 mx-4" />}
+              </div>
+            ))}
+          </div>
+          <p className="text-neutral-500 text-sm mb-6 px-1">
+            Choose which metric cards are visible on the dashboard summary bar.
+          </p>
+
+
            <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-2">
             <div className="flex items-center justify-between py-3 px-4">
                <div>

@@ -239,6 +239,15 @@ export interface AppearanceSettings {
   brightness: number;
 }
 
+export interface DashboardMetricsVisibility {
+  totalSale: boolean;
+  totalTip: boolean;
+  totalHours: boolean;
+  ordering: boolean;
+  readyToServed: boolean;
+  completed: boolean;
+}
+
 export interface ControlCenterSettings {
   restartApp: boolean;
   restartTime: string;
@@ -258,6 +267,7 @@ export interface ControlCenterSettings {
   resetTablesDaily: boolean;
   businessHoursStart: string;
   businessHoursEnd: string;
+  dashboardMetrics: DashboardMetricsVisibility;
 }
 
 export interface CheckoutOptionsSettings {
@@ -346,6 +356,14 @@ const defaultControlCenterSettings: ControlCenterSettings = {
   resetTablesDaily: false,
   businessHoursStart: "6:00 AM",
   businessHoursEnd: "1:00 AM",
+  dashboardMetrics: {
+    totalSale: true,
+    totalTip: true,
+    totalHours: true,
+    ordering: true,
+    readyToServed: true,
+    completed: true,
+  },
 };
 
 const defaultCheckoutOptionsSettings: CheckoutOptionsSettings = {
@@ -2514,7 +2532,7 @@ export function executeIntent(intent: SettingsIntent): { success: boolean; messa
 
     // ===== CONTROL CENTER INTENTS =====
     case "toggle_control_setting": {
-      const settingLabels: Record<keyof ControlCenterSettings, string> = {
+      const settingLabels: Partial<Record<keyof ControlCenterSettings, string>> = {
         restartApp: "Restart App",
         restartTime: "Restart Time",
         lastRestartTime: "Last Restart Time",

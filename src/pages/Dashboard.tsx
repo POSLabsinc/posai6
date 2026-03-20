@@ -1042,10 +1042,36 @@ const Dashboard = () => {
     return compareDate;
   };
 
-  // Get stats based on selected date filter
+  // Listen for control center settings changes to update metric visibility
+  const [metricsVersion, setMetricsVersion] = useState(0);
+  useEffect(() => {
+    const handler = (e: CustomEvent) => {
+      if (e.detail?.type === 'controlCenter' || e.detail?.type === 'all') {
+        setMetricsVersion(v => v + 1);
+      }
+    };
+    window.addEventListener('settings-updated', handler as EventListener);
+    return () => window.removeEventListener('settings-updated', handler as EventListener);
+  }, []);
+
+  // Get stats based on selected date filter, filtered by Control Center visibility settings
   const stats = useMemo(() => {
-    return statsData[dateFilter] || statsData["Today"];
-  }, [dateFilter]);
+    const allStats = statsData[dateFilter] || statsData["Today"];
+    const metrics = SettingsManager.getControlCenterSettings().dashboardMetrics;
+    const labelToKey: Record<string, keyof typeof metrics> = {
+      "Total Sale": "totalSale",
+      "Total Tip": "totalTip",
+      "Total Hours": "totalHours",
+      "Ordering": "ordering",
+      "Ready to Served": "readyToServed",
+      "Completed": "completed",
+    };
+    return allStats.filter(stat => {
+      const key = labelToKey[stat.label];
+      return key ? metrics[key] !== false : true;
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dateFilter, metricsVersion]);
 
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = subtotal;

@@ -568,11 +568,7 @@ const KDS = () => {
                 audio.play().catch(() => {});
               } catch {}
             }
-            setTickets(prev => {
-              const isMockOnly = prev.every(t => t.id.startsWith("kds-") && !t.id.startsWith("kds-live-"));
-              const base = isMockOnly ? [] : prev;
-              return [...newOnes, ...base];
-            });
+            setTickets(prev => [...newOnes, ...prev]);
             setKnownIds(prev => {
               const next = new Set(prev);
               newOnes.forEach(t => next.add(t.id));

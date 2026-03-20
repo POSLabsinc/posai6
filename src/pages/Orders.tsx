@@ -1642,53 +1642,16 @@ const Orders = () => {
                     if (!isSameType) setDriveThruGuestData(null);
                   } else if (type.label === "CURB SIDE") {
                     setShowCurbSideForm(true);
-                    setCurbSideGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setCurbSideGuestData(null);
                   } else if (type.label === "SCHEDULED") {
                     setShowScheduledForm(true);
-                    setScheduledGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setScheduledGuestData(null);
                   } else if (type.label === "PHONE-IN") {
                     setShowPhoneInForm(true);
-                    setPhoneInGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setPhoneInGuestData(null);
                   } else if (type.label === "CUSTOM") {
                     setShowCustomOrderForm(true);
-                    setCustomOrderGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                  } else {
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
+                    if (!isSameType) setCustomOrderGuestData(null);
                   }
                 }} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2 flex items-center gap-2">
                         <img src={type.icon} alt="" className="w-4 h-4" />

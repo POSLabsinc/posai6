@@ -228,6 +228,7 @@ interface KDSMessageData {
   terminal_name?: string;
   employee_id: string;
   employee_name: string;
+  employee_role?: string;
   table_id: string | null;
   table_number?: string | null;
   linked_order_id?: string | null;

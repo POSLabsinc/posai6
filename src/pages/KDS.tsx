@@ -440,9 +440,8 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
   const seen = new Set<string>();
   const deduplicated = filtered.filter(m => { if (seen.has(m.message_id)) return false; seen.add(m.message_id); return true; });
 
-  const handleSendReply = (messageId: string, text: string) => {
+  const handlePanelSendReply = (messageId: string, text: string) => {
     onSendReply(messageId, text);
-    setReplyingTo(null);
   };
 
   return (

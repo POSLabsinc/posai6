@@ -1,9 +1,12 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Clock, ChefHat, Settings, Eye, SlidersHorizontal, Volume2, VolumeX, Maximize, Minimize, Menu, X, ChevronRight, Megaphone, Check, Bell } from "lucide-react";
+import { Home, Clock, ChefHat, Settings, Eye, SlidersHorizontal, Volume2, VolumeX, Maximize, Minimize, Menu, X, ChevronRight, Megaphone, Check, Bell, Reply, CornerDownLeft } from "lucide-react";
 import messageKdsIcon from "@/assets/icons/message-kds.svg";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import { QRCodeSVG } from "qrcode.react";
 
 // ─── Table Number Normalization ───
 // Extracts just the numeric/alphanumeric table identifier from various formats
@@ -236,6 +239,165 @@ interface KDSMessageData {
   acknowledged_at?: string;
 }
 
+// ─── Reply types ───
+interface KDSReply {
+  reply_id: string;
+  message_id: string;
+  reply_text: string;
+  timestamp: string;
+  source: "kds";
+}
+
+const REPLY_STORAGE_KEY = "kds_message_replies";
+const POS_REPLY_NOTIFICATION_KEY = "pos_reply_notifications";
+
+const REPLY_PRESETS = ["Got it", "On its way", "5 mins", "Need more time", "Out of stock"];
+
+const readReplies = (): KDSReply[] => {
+  try { return JSON.parse(localStorage.getItem(REPLY_STORAGE_KEY) || "[]"); } catch { return []; }
+};
+
+const saveReply = (reply: KDSReply) => {
+  const replies = readReplies();
+  replies.push(reply);
+  localStorage.setItem(REPLY_STORAGE_KEY, JSON.stringify(replies));
+};
+
+const pushPosNotification = (reply: KDSReply, originalMessage: KDSMessageData) => {
+  try {
+    const queue = JSON.parse(localStorage.getItem(POS_REPLY_NOTIFICATION_KEY) || "[]");
+    queue.push({
+      id: reply.reply_id,
+      title: "Reply from Kitchen",
+      body: reply.reply_text,
+      meta: `Re: ${originalMessage.message_text.slice(0, 30)}${originalMessage.message_text.length > 30 ? "..." : ""}`,
+      timestamp: reply.timestamp,
+      message_id: originalMessage.message_id,
+      order_id: originalMessage.linked_order_id || null,
+      order_number: originalMessage.linked_order_number || null,
+      table_number: originalMessage.table_number || null,
+      is_read: false,
+    });
+    localStorage.setItem(POS_REPLY_NOTIFICATION_KEY, JSON.stringify(queue));
+  } catch {}
+};
+
+// ─── Inline Reply Panel ───
+const KDSReplyPanel = ({ message, onSend, onCancel }: { message: KDSMessageData; onSend: (text: string) => void; onCancel: () => void }) => {
+  const [selectedChip, setSelectedChip] = useState<string | null>(null);
+  const [text, setText] = useState("");
+  const [showQR, setShowQR] = useState(false);
+  const qrTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    if (showQR) {
+      qrTimerRef.current = setTimeout(() => setShowQR(false), 60000);
+      return () => { if (qrTimerRef.current) clearTimeout(qrTimerRef.current); };
+    }
+  }, [showQR]);
+
+  const handleChipClick = (chip: string) => {
+    if (selectedChip === chip) {
+      setSelectedChip(null);
+      setText("");
+    } else {
+      setSelectedChip(chip);
+      setText(chip);
+    }
+  };
+
+  const handleTextChange = (val: string) => {
+    if (val.length <= 150) {
+      setText(val);
+      if (selectedChip) setSelectedChip(null);
+    }
+  };
+
+  const canSend = text.trim().length > 0;
+
+  const qrUrl = `https://${window.location.host}/kds-reply?messageId=${message.message_id}&orderId=${message.linked_order_id || ""}&table=${message.table_number || message.table_id || ""}&session=${sessionStorage.getItem("kds_session_cleared") || ""}`;
+
+  return (
+    <div className="bg-neutral-800 border-t border-neutral-700 px-3 py-2 space-y-2">
+      {/* Preset chips */}
+      <div className="flex flex-wrap gap-1.5">
+        {REPLY_PRESETS.map(chip => (
+          <button
+            key={chip}
+            onClick={() => handleChipClick(chip)}
+            className={`px-2.5 py-1 rounded-full text-[10px] font-semibold border transition-colors ${
+              selectedChip === chip
+                ? "bg-orange-500 border-orange-500 text-white"
+                : "bg-neutral-700 border-neutral-600 text-neutral-300 hover:bg-neutral-600"
+            }`}
+          >
+            {chip}
+          </button>
+        ))}
+      </div>
+      {/* Text input */}
+      <Input
+        value={text}
+        onChange={e => handleTextChange(e.target.value)}
+        placeholder="Type a reply..."
+        maxLength={150}
+        className="h-8 text-xs bg-neutral-900 border-neutral-700 text-white placeholder:text-neutral-500"
+      />
+      {/* Action buttons */}
+      <div className="flex gap-2">
+        <Button variant="outline" size="sm" onClick={onCancel} className="flex-1 text-[10px] h-7 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent">
+          Cancel
+        </Button>
+        <Button
+          size="sm"
+          disabled={!canSend}
+          onClick={() => onSend(text.trim())}
+          className="flex-1 text-[10px] h-7 bg-orange-500 hover:bg-orange-600 text-white font-bold disabled:opacity-40"
+        >
+          Send Reply
+        </Button>
+      </div>
+      {/* QR option */}
+      <div className="pt-1">
+        <div className="flex items-center gap-2">
+          <div className="flex-1 h-px bg-neutral-700" />
+          <span className="text-[9px] text-neutral-500">or reply via mobile</span>
+          <div className="flex-1 h-px bg-neutral-700" />
+        </div>
+        <button onClick={() => setShowQR(true)} className="w-full text-center text-[10px] text-violet-400 hover:text-violet-300 font-medium mt-1 transition-colors">
+          Show QR Code
+        </button>
+      </div>
+      {/* QR overlay */}
+      {showQR && (
+        <div className="bg-neutral-900 border border-neutral-700 rounded-xl p-4 flex flex-col items-center gap-3">
+          <QRCodeSVG value={qrUrl} size={120} bgColor="transparent" fgColor="white" />
+          <span className="text-[10px] text-neutral-400 text-center">Scan to reply from your phone</span>
+          <button onClick={() => setShowQR(false)} className="text-[10px] text-neutral-500 hover:text-white transition-colors">Close</button>
+        </div>
+      )}
+    </div>
+  );
+};
+
+// ─── Threaded Replies Display ───
+const RepliesThread = ({ replies }: { replies: KDSReply[] }) => {
+  if (replies.length === 0) return null;
+  return (
+    <div className="bg-neutral-900 px-3 pb-2 space-y-1">
+      {replies.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()).map(r => (
+        <div key={r.reply_id} className="pl-3 border-l-2 border-neutral-700 py-1">
+          <p className="text-[10px] text-neutral-400">
+            <CornerDownLeft className="w-2.5 h-2.5 inline mr-1 opacity-60" />
+            You replied: <span className="text-neutral-300">{r.reply_text}</span>
+          </p>
+          <span className="text-[9px] text-neutral-600">{format(new Date(r.timestamp), "hh:mm a")}</span>
+        </div>
+      ))}
+    </div>
+  );
+};
+
 // ─── Shared message reader ───
 // Single source of truth for reading, normalizing, filtering, and deduping messages.
 const readSessionMessages = (): KDSMessageData[] => {
@@ -256,9 +418,10 @@ const readSessionMessages = (): KDSMessageData[] => {
   }
 };
 
-const KDSMessagesPanel = ({ onClose, messages, onAcknowledge }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void }) => {
+const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allReplies }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void; onSendReply: (messageId: string, text: string) => void; allReplies: KDSReply[] }) => {
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
   const [flashId, setFlashId] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const prevCountRef = useRef(0);
 
   // Flash animation on new pending messages
@@ -274,6 +437,11 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge }: { onClose: () =>
   const filtered = messages.filter(m => m.status === filter).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   const seen = new Set<string>();
   const deduplicated = filtered.filter(m => { if (seen.has(m.message_id)) return false; seen.add(m.message_id); return true; });
+
+  const handleSendReply = (messageId: string, text: string) => {
+    onSendReply(messageId, text);
+    setReplyingTo(null);
+  };
 
   return (
     <div className="w-80 bg-neutral-900 border-l border-neutral-800 flex flex-col h-full shrink-0 overflow-hidden">
@@ -325,6 +493,9 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge }: { onClose: () =>
             } catch {}
           }
 
+          const msgReplies = allReplies.filter(r => r.message_id === msg.message_id);
+          const hasReplied = msgReplies.length > 0;
+
           return (
           <div key={msg.message_id} className={`rounded-xl overflow-hidden border transition-all duration-300 ${flashId === msg.message_id ? "border-violet-400 ring-2 ring-violet-400/50 animate-pulse" : "border-neutral-700"}`}>
             <div className="bg-gradient-to-r from-violet-700 to-indigo-700 px-3 py-2 flex items-center justify-between">
@@ -343,18 +514,30 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge }: { onClose: () =>
               <p className="text-xs leading-relaxed whitespace-pre-wrap break-words">{msg.message_text}</p>
             </div>
             {msg.status === "pending" ? (
-              <div className="bg-neutral-900 px-3 pb-3 pt-1">
-                <Button onClick={() => onAcknowledge(msg.message_id)} className="w-full bg-white text-black hover:bg-neutral-200 font-bold text-xs py-3 rounded-lg">
+              <div className="bg-neutral-900 px-3 pb-3 pt-1 flex gap-2">
+                <Button onClick={() => onAcknowledge(msg.message_id)} className="flex-1 bg-white text-black hover:bg-neutral-200 font-bold text-xs py-3 rounded-lg">
                   <Check className="w-3 h-3 mr-1.5" /> ACKNOWLEDGE
+                </Button>
+                <Button variant="outline" onClick={() => setReplyingTo(replyingTo === msg.message_id ? null : msg.message_id)} className="flex-1 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-xs py-3 rounded-lg">
+                  <Reply className="w-3 h-3 mr-1.5" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
                 </Button>
               </div>
             ) : (
-              <div className="bg-neutral-900 px-3 pb-2 pt-1">
+              <div className="bg-neutral-900 px-3 pb-2 pt-1 space-y-2">
                 <div className="flex items-center gap-1.5 text-[10px] text-emerald-400">
                   <Check className="w-3 h-3" />
                   <span>Acknowledged {msg.acknowledged_at ? format(new Date(msg.acknowledged_at), "hh:mm a") : ""}</span>
                 </div>
+                <Button variant="outline" size="sm" onClick={() => setReplyingTo(replyingTo === msg.message_id ? null : msg.message_id)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
+                  <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                </Button>
               </div>
+            )}
+            {/* Threaded replies */}
+            <RepliesThread replies={msgReplies} />
+            {/* Reply panel */}
+            {replyingTo === msg.message_id && (
+              <KDSReplyPanel message={msg} onSend={(text) => handleSendReply(msg.message_id, text)} onCancel={() => setReplyingTo(null)} />
             )}
           </div>
           );
@@ -419,9 +602,10 @@ const ProductStatusIcon = ({ status }: { status: string }) => {
 };
 
 // ─── Ticket Card ───
-const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowledgeMessage }: { ticket: KDSTicket; onBump: (id: string) => void; onSeen: (id: string) => void; attachedMessages?: KDSMessageData[]; onAcknowledgeMessage?: (messageId: string) => void }) => {
+const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowledgeMessage, onSendReply, allReplies = [] }: { ticket: KDSTicket; onBump: (id: string) => void; onSeen: (id: string) => void; attachedMessages?: KDSMessageData[]; onAcknowledgeMessage?: (messageId: string) => void; onSendReply?: (messageId: string, text: string) => void; allReplies?: KDSReply[] }) => {
   const isMessage = (ticket as any).type === "MESSAGE";
   const [elapsedSeconds, setElapsedSeconds] = useState(() => Math.floor((Date.now() - ticket.createdAt.getTime()) / 1000));
+  const [inlineReplyingTo, setInlineReplyingTo] = useState<string | null>(null);
   const elapsed = Math.floor(elapsedSeconds / 60);
 
   useEffect(() => {
@@ -511,18 +695,42 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                   <p className={`text-xs leading-relaxed whitespace-pre-wrap break-words ${isAcked ? "text-neutral-400" : "text-white"}`}>{msg.message_text}</p>
                   <p className="text-[10px] text-neutral-500 mt-1">From: <span className={isAcked ? "text-neutral-500" : "text-neutral-300"}>{msg.employee_name}</span></p>
                 </div>
-                {msg.status === "pending" && onAcknowledgeMessage ? (
-                  <div className="bg-neutral-900 px-3 py-2">
-                    <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
-                      <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
-                    </Button>
-                  </div>
-                ) : isAcked ? (
-                  <div className="bg-neutral-900/60 px-3 py-1.5 flex items-center gap-1.5">
-                    <Check className="w-3 h-3 text-emerald-500" />
-                    <span className="text-[10px] text-emerald-500 font-medium">Acknowledged{msg.acknowledged_at ? ` ${format(new Date(msg.acknowledged_at), "hh:mm a")}` : ""}</span>
-                  </div>
-                ) : null}
+                {(() => {
+                  const msgReplies = allReplies.filter(r => r.message_id === msg.message_id);
+                  const hasReplied = msgReplies.length > 0;
+                  const handleInlineReply = (text: string) => {
+                    if (onSendReply) onSendReply(msg.message_id, text);
+                    setInlineReplyingTo(null);
+                  };
+                  return (
+                    <>
+                      {msg.status === "pending" && onAcknowledgeMessage ? (
+                        <div className="bg-neutral-900 px-3 py-2 flex gap-1.5">
+                          <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="flex-1 bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
+                            <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
+                          </Button>
+                          <Button variant="outline" onClick={() => setInlineReplyingTo(inlineReplyingTo === msg.message_id ? null : msg.message_id)} className="flex-1 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
+                            <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                          </Button>
+                        </div>
+                      ) : isAcked ? (
+                        <div className="bg-neutral-900/60 px-3 py-1.5 space-y-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <Check className="w-3 h-3 text-emerald-500" />
+                            <span className="text-[10px] text-emerald-500 font-medium">Acknowledged{msg.acknowledged_at ? ` ${format(new Date(msg.acknowledged_at), "hh:mm a")}` : ""}</span>
+                          </div>
+                          <Button variant="outline" size="sm" onClick={() => setInlineReplyingTo(inlineReplyingTo === msg.message_id ? null : msg.message_id)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-1.5 rounded-lg">
+                            <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                          </Button>
+                        </div>
+                      ) : null}
+                      <RepliesThread replies={msgReplies} />
+                      {inlineReplyingTo === msg.message_id && (
+                        <KDSReplyPanel message={msg} onSend={handleInlineReply} onCancel={() => setInlineReplyingTo(null)} />
+                      )}
+                    </>
+                  );
+                })()}
               </div>
             );
           })}
@@ -743,6 +951,31 @@ const KDS = () => {
     } catch {}
   }, []);
 
+  // Reply state
+  const [kdsReplies, setKdsReplies] = useState<KDSReply[]>(() => readReplies());
+
+  const handleSendReply = useCallback((messageId: string, replyText: string) => {
+    const originalMsg = kdsMessages.find(m => m.message_id === messageId);
+    if (!originalMsg) return;
+
+    const reply: KDSReply = {
+      reply_id: `reply-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      message_id: messageId,
+      reply_text: replyText,
+      timestamp: new Date().toISOString(),
+      source: "kds",
+    };
+
+    try {
+      saveReply(reply);
+      pushPosNotification(reply, originalMsg);
+      setKdsReplies(readReplies());
+      toast.success("Reply sent \u2713", { duration: 3000 });
+    } catch {
+      toast.error("Failed to send reply. Try again.");
+    }
+  }, [kdsMessages]);
+
   const activeTickets = tickets.filter(t => t.status === "active");
   const totalInQueue = activeTickets.reduce((sum, t) => sum + t.products.filter(p => p.status === "pending" || p.status === "cooking").length, 0);
 
@@ -821,7 +1054,7 @@ const KDS = () => {
                   ...(ticket.tableNumber ? (messagesByTable.get(normalizeTableNumber(ticket.tableNumber)) || []) : []),
                   ...(messagesByOrder.get(ticket.id) || []),
                   ...(messagesByOrder.get(`order-${ticket.orderNumber}`) || []),
-                ]} onAcknowledgeMessage={handleAcknowledgeMessage} />
+                ]} onAcknowledgeMessage={handleAcknowledgeMessage} onSendReply={handleSendReply} allReplies={kdsReplies} />
               ))}
               {activeTickets.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 gap-3">
@@ -837,7 +1070,7 @@ const KDS = () => {
           {showSummary && <ItemSummary tickets={activeTickets} />}
 
           {/* Messages Panel */}
-          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} messages={kdsMessages} onAcknowledge={handleAcknowledgeMessage} />}
+          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} messages={kdsMessages} onAcknowledge={handleAcknowledgeMessage} onSendReply={handleSendReply} allReplies={kdsReplies} />}
         </div>
 
         {/* Bottom Bar */}

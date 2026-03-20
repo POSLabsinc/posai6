@@ -539,7 +539,10 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
           </div>
 
           {/* Dashboard Metrics Section */}
-          <p className="text-neutral-500 text-base mb-3 px-1">Dashboard</p>
+          <div className="flex items-center gap-2 mb-3 px-1">
+            <p className="text-neutral-500 text-base">Dashboard</p>
+            {!metricsUnlocked && <Lock className="w-3.5 h-3.5 text-neutral-500" />}
+          </div>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-2">
             {([
               { key: 'totalSale' as const, label: 'Total Sale' },
@@ -561,7 +564,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
             ))}
           </div>
           <p className="text-neutral-500 text-sm mb-6 px-1">
-            Choose which metric cards are visible on the dashboard summary bar.
+            Choose which metric cards are visible on the dashboard summary bar. Manager PIN required.
           </p>
 
 

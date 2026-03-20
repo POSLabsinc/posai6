@@ -10,6 +10,7 @@ import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContex
 import SettingsIcon from "@/components/settings/SettingsIcon";
 import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 
 // Import custom icons
 import controlCenterIcon from "@/assets/icons/control-center.png";

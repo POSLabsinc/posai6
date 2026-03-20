@@ -1546,37 +1546,8 @@ const Orders = () => {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px] p-1 z-50">
                     {orderTypes.map((type) => <DropdownMenuItem key={type.label} onClick={() => {
-                  const isSameType = orderType === type.label;
                   setOrderType(type.label);
-                  // Close all forms first
-                  setShowDineInForm(false);
-                  setShowTakeOutForm(false);
-                  setShowDeliveryForm(false);
-                  setShowBanquetForm(false);
-                  setShowDriveThruForm(false);
-                  setShowCurbSideForm(false);
-                  setShowScheduledForm(false);
-                  setShowPhoneInForm(false);
-                  setShowCustomOrderForm(false);
-                  if (type.label === "DINE IN") {
-                    setShowDineInForm(true);
-                  } else if (type.label === "TAKE OUT") {
-                    setShowTakeOutForm(true);
-                  } else if (type.label === "DELIVERY") {
-                    setShowDeliveryForm(true);
-                  } else if (type.label === "BANQUET") {
-                    setShowBanquetForm(true);
-                  } else if (type.label === "DRIVE THRU") {
-                    setShowDriveThruForm(true);
-                  } else if (type.label === "CURB SIDE") {
-                    setShowCurbSideForm(true);
-                  } else if (type.label === "SCHEDULED") {
-                    setShowScheduledForm(true);
-                  } else if (type.label === "PHONE-IN") {
-                    setShowPhoneInForm(true);
-                  } else if (type.label === "CUSTOM") {
-                    setShowCustomOrderForm(true);
-                  }
+                  openFormForType(type.label);
                 }} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2 flex items-center gap-2">
                         <img src={type.icon} alt="" className="w-4 h-4" />
                         {type.label}

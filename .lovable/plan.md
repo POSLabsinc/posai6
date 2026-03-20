@@ -1,138 +1,81 @@
 
 
-# Full Project Audit — POS AI 6.0
+# Plan: Resolve Remaining Audit Items
 
-## Summary
-
-This is a large restaurant POS application with ~56 page files, ~100+ components, and a substantial database schema (~40+ tables). The app is a mix of **fully functional database-backed features**, **hardcoded demo/mock UI**, and **orphaned files with no route or import**.
+This plan covers three workstreams. Each is a standalone effort that can be tackled sequentially. Due to the size of these changes, each workstream should be implemented in a dedicated pass.
 
 ---
 
-## 1. WHAT IS 100% WORKING (Database-Backed)
+## Workstream 1: Dashboard DB Migration
 
-These features use real Supabase tables with CRUD operations:
+**Current state**: Dashboard merges hardcoded mock orders from `getDashboardOrders()` (src/data/orders.ts, ~670 lines of static data) with live session/DB orders. The static orders always appear alongside real ones.
 
-| Feature | DB Tables Used | Status |
-|---------|---------------|--------|
-| **Menu Management** (Settings) | `menus`, `menu_categories`, `categories`, `products`, `product_variants`, `product_add_ons`, `product_modifier_groups` | Fully functional — create, edit, reorder, archive |
-| **Modifiers & Add-Ons** | `modifiers`, `modifier_groups`, `add_ons`, `default_modifiers` | Fully functional |
-| **Groups** | `groups` | Fully functional |
-| **Employee Management** | `employees`, `employee_shifts`, `employee_stores` | Fully functional |
-| **Discounts** | `discounts` | Fully functional |
-| **Gratuity Settings** | `gratuity_settings` | Fully functional |
-| **Payment Methods** | `payment_methods` | Fully functional |
-| **Checkout Options** | `checkout_options` | Fully functional |
-| **Restaurant Tables & Floors** | `restaurant_tables`, `floor_areas`, `floor_dividers` | Fully functional |
-| **Cash Drawer** | `cash_drawer_sessions`, `cash_transactions` | Fully functional |
-| **Notifications** | `notifications` | Fully functional |
-| **Guest Book** | `guests`, `guest_feedback`, `loyalty_points` | Fully functional |
-| **Device Store Binding** | `device_stores` | Fully functional |
-| **Authentication** | `profiles`, Supabase Auth | Fully functional (login, session) |
-| **Settings Persistence** | `settings` table + `SettingsManager` | Fully functional |
-| **Inventory Tracking** | `products.track_inventory`, `products.current_stock` | Fully functional |
-| **Timed Pricing** | `timed_pricing_rules` | Fully functional |
-| **Scheduled Themes** | `scheduled_themes` | Fully functional |
-| **Activity Log** | `activity_log` | Fully functional |
-| **Open Shifts** | `open_shifts` | Fully functional |
+**What to do**:
+- Remove the `getStaticDashboardOrders()` call and the `enrichedStaticOrders` merge in the `allOrders` useMemo (Dashboard.tsx ~868-890)
+- Source orders exclusively from `dbTicketOrders` (already imported via `useTicketOrders`) and `sessionOrders`
+- Keep the `DashboardOrder` interface and conversion helpers — just stop feeding them mock data
+- Once Dashboard no longer imports `getDashboardOrders`, audit `src/data/orders.ts` — if no other file imports the mock data functions, delete the file. Keep the shared interfaces/types if referenced elsewhere (move them to a types file if needed)
+- The hardcoded `discountTypes` array (~line 391) should be replaced with a fetch from the `discounts` DB table (already exists and is used in Settings)
+
+**Risk**: Dashboard will show an empty order list until real orders exist. This is correct behavior.
+
+**Files changed**: `src/pages/Dashboard.tsx`, possibly delete `src/data/orders.ts` or extract shared types.
 
 ---
 
-## 2. WHAT IS PARTIALLY DONE
+## Workstream 2: KDS Mock Replacement
 
-| Feature | What Works | What's Missing |
-|---------|-----------|---------------|
-| **Orders Page** (~10,000 lines) | Full UI with menu browsing, cart, modifiers, guest forms, payment dialog | Menu items fall back to **massive hardcoded data** (~5,000 lines of categories, subcategories, items, colours) when DB products don't exist. Guest search uses mock data. Manager role check is a `TODO`. |
-| **Dashboard** (~2,000 lines) | Order list, receipt, tip, refund dialogs | Orders come from `getDashboardOrders()` — **hardcoded mock data** in `src/data/orders.ts` (~670 lines). Not reading from `orders` DB table. |
-| **Tickets / Closed Tickets** (~6,400 lines) | Full ticket list, filtering, payment, refund, transfer UI | Ticket data comes from `src/data/ticketOrders.ts` — **hardcoded mock data** (~490 lines). Not reading from DB. |
-| **Table Order** (~3,300 lines) | Table map, floor management, reservations, order detail | Table map is DB-backed, but order data per table is **hardcoded** (`tableOrdersMap` with mock names/amounts). |
-| **KDS** (~870 lines) | Full ticket card rendering, seen/bump, message banners | All ticket data is **hardcoded mock** (`generateMockTickets()`). Messages use localStorage only (no DB). |
-| **OrderOS** (~3,800 lines) | Full online order management UI with drag-drop | All order data is **hardcoded mock**. Platform integrations (UberEats, DoorDash, etc.) are UI-only. |
-| **Reservations** (~1,400 lines) | Full calendar, guest detail, status management | All reservation data is **hardcoded mock** (`mockReservations` in `ReservationsPanel.tsx`). |
-| **Voucher** | Dialog UI works | Has explicit `TODO` comments — not integrated with order context. |
-| **Reports** | Page exists | **Stub only** — renders a heading and paragraph. `useReportsData` hook exists but Reports page doesn't use it. |
-| **Scheduled Orders** (~525 lines) | Full UI with time-based grouping | All data is **hardcoded mock**. Accept/Cancel handlers are `TODO`. |
-| **Login** (~6,400 lines) | Full multi-step login flow (company/personal device, PIN, QR, biometric) | Employee PINs are **hardcoded** (`employeePinMapping`). Revenue centers are **hardcoded**. Face ID uses mock employee data. |
-| **Payment Dialog** | Full multi-step payment flow | Guest/loyalty search uses **hardcoded mock** data (`mockGuests`). |
-| **Delivery Guest Form** | Address autocomplete UI | Uses **hardcoded mock** address suggestions. |
+**Current state**: KDS uses `generateMockTickets()` (~130 lines of hardcoded tickets) as fallback when no real orders exist in `kds_ticket_queue` localStorage. Messages use localStorage polling instead of DB.
+
+**What to do**:
+- Remove `generateMockTickets()` entirely (lines 47-180)
+- Change the fallback to an empty array instead of mock data — when no fired orders exist, KDS shows an empty state
+- Update the initial state loader (line 640-648) to return `[]` instead of `generateMockTickets()` when the queue is empty
+- The localStorage-based `kds_ticket_queue` polling mechanism should remain for now (it's the bridge from POS Fire action to KDS) — migrating this to a DB table with realtime is a separate, larger effort
+- Add a simple empty-state UI when `tickets.length === 0` (e.g., "No active orders" centered message)
+
+**Files changed**: `src/pages/KDS.tsx`
 
 ---
 
-## 3. HARDCODED DATA INVENTORY
+## Workstream 3: Mega-File Decomposition
 
-Major hardcoded data blocks that should eventually be database-driven:
+These files are too large for maintainability. The goal is to extract logical sections into separate component files without changing any behavior.
 
-| Location | What | Approx Lines |
-|----------|------|-------------|
-| `src/data/orders.ts` | Dashboard order data, order items, payment methods | ~670 lines |
-| `src/data/ticketOrders.ts` | Ticket/closed ticket order data | ~490 lines |
-| `src/data/staff.ts` | Staff list (7 employees) | ~17 lines |
-| `src/data/menuData.ts` | Food images and menu items for POS home | ~122 lines |
-| `src/pages/Orders.tsx` lines 85-5950 | Menu categories, subcategories, items, colour maps, mock guests | ~5,000+ lines |
-| `src/pages/KDS.tsx` lines 47-180 | Mock KDS tickets | ~130 lines |
-| `src/pages/OrderOS.tsx` | Mock online orders, platform data | ~200+ lines |
-| `src/pages/TableOrder.tsx` lines 43-60 | Mock table orders map | ~20 lines |
-| `src/pages/Login.tsx` lines 35-80 | Revenue centers, PIN mappings | ~45 lines |
-| `src/pages/ScheduledOrders.tsx` | Mock scheduled orders | ~100+ lines |
-| `src/components/ReservationsPanel.tsx` | Mock reservations | ~100+ lines |
-| `src/components/PaymentDialog.tsx` | Mock guests for loyalty | ~20 lines |
-| `src/components/FaceIDAuthModal.tsx` | Mock Face ID employees | ~30 lines |
-| `src/components/DeliveryGuestForm.tsx` | Mock address suggestions | ~20 lines |
-| `src/components/CashDrawerDetailsContent.tsx` | Mock sales data | ~5 lines |
+### Orders.tsx (~9,954 lines)
+Extract into:
+- `src/components/orders/OrderMenuGrid.tsx` — menu category tabs and product grid
+- `src/components/orders/OrderCart.tsx` — cart/order summary panel
+- `src/components/orders/OrderGuestForm.tsx` — guest info and delivery forms
+- `src/components/orders/OrderActionBar.tsx` — bottom action buttons (Clear, Save, Fire, Charge)
+- `src/components/orders/OrderModifierPanel.tsx` — inline modifier/customization panel
+- Keep `Orders.tsx` as the orchestrator (~500-800 lines) with state and routing logic
 
----
+### Tickets.tsx (~6,440 lines)
+Extract into:
+- `src/components/tickets/TicketList.tsx` — ticket card list and filtering
+- `src/components/tickets/TicketDetail.tsx` — selected ticket detail panel
+- `src/components/tickets/TicketPaymentFlow.tsx` — payment, tip, refund dialogs
+- `src/components/tickets/TicketTransferView.tsx` — inline transfer UI
+- Keep `Tickets.tsx` as orchestrator (~400-600 lines)
 
-## 4. ORPHANED FILES (No Route, No Import)
+### Login.tsx (~6,481 lines)
+Extract into:
+- `src/components/login/CompanyDeviceFlow.tsx` — company device setup steps
+- `src/components/login/PersonalDeviceFlow.tsx` — personal device auth
+- `src/components/login/PinEntry.tsx` — PIN pad and employee selection
+- `src/components/login/BiometricAuth.tsx` — Face ID / QR scan flows
+- Keep `Login.tsx` as orchestrator (~300-500 lines)
 
-These page files exist but are **not imported anywhere** in the codebase:
-
-| File | Can Delete? |
-|------|------------|
-| `src/pages/ScheduledOrders.tsx` | Yes — no route, no import |
-| `src/pages/ClockIn.tsx` | Yes — no route, no import |
-| `src/pages/Auth.tsx` | Yes — no route, no import |
-| `src/pages/Index.tsx` | Yes — no route, no import |
-| `src/pages/Signup.tsx` | Yes — no route, no import |
-| `src/pages/ClosingGracePeriod.tsx` | Yes — no route, no import |
-
-Pages used only via Settings route wrappers (NOT orphaned):
-`Fonts.tsx`, `ThemePresets.tsx`, `AppearanceSettings.tsx`, `PaymentsSettings.tsx`, `PersonalInformation.tsx`, `RestaurantInformation.tsx`, `Security.tsx`, `SystemSettings.tsx`, `ControlCenter.tsx` — all referenced by route wrapper components.
+**Approach**: Pure refactor — extract JSX and local handlers into child components, pass state via props. No behavior changes. Each extraction is independently testable.
 
 ---
 
-## 5. PERFORMANCE & CODE QUALITY ISSUES
+## Execution Order
 
-| Issue | Severity |
-|-------|----------|
-| `Orders.tsx` is **~10,000 lines** in a single file | High — should be split into sub-components |
-| `Tickets.tsx` is **~6,400 lines** in a single file | High |
-| `Login.tsx` is **~6,400 lines** in a single file | High |
-| `OrderOS.tsx` is **~3,800 lines** in a single file | Medium |
-| `TableOrder.tsx` is **~3,300 lines** in a single file | Medium |
-| KDS messages use **localStorage polling** instead of DB/realtime | Medium — fragile, no cross-device sync |
-| `src/contexts/SidebarPositionContext.tsx` exists but may not be used in App.tsx providers | Low |
+1. **KDS Mock Replacement** — smallest, lowest risk, ~30 min
+2. **Dashboard DB Migration** — medium, removes mock data dependency, ~1 hr
+3. **Mega-File Decomposition** — largest effort, split across multiple passes (Orders first, then Tickets, then Login), ~2-3 hrs total
 
----
-
-## 6. WHAT'S NOT HARDCODED (Fully Dynamic)
-
-These are clean, database-driven with no mock fallbacks:
-- All Settings sub-modules (menu, employees, discounts, hardware, notifications, etc.)
-- Table/floor management
-- Cash drawer sessions
-- Guest book / loyalty
-- Auth flow (Supabase-backed)
-- Device store binding
-- Scheduled themes
-- Timed pricing rules
-
----
-
-## Recommendations (Priority Order)
-
-1. **Delete 6 orphaned page files** — immediate cleanup
-2. **Reports page** — wire up the existing `useReportsData` hook (it already queries the DB)
-3. **Dashboard & Tickets** — migrate from hardcoded `orders.ts`/`ticketOrders.ts` to the existing `orders` and `order_items` DB tables
-4. **KDS** — migrate mock tickets to use real orders from DB; migrate messages from localStorage to a DB table
-5. **Split mega-files** — Orders.tsx, Tickets.tsx, Login.tsx should be decomposed into smaller components
-6. **Orders menu fallback** — the hardcoded 5,000-line menu fallback in Orders.tsx can be removed once all restaurants have DB-seeded menus
+Each workstream should be implemented and verified independently before moving to the next.
 

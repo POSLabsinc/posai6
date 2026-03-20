@@ -623,6 +623,9 @@ const convertQueueToTickets = (queue: any[]): KDSTicket[] => {
 
 // ─── Main KDS Page ───
 const KDS = () => {
+  // Session boundary: only messages sent after this timestamp are shown on the KDS
+  const sessionStartRef = useRef<string>(new Date().toISOString());
+
   const [tickets, setTickets] = useState<KDSTicket[]>(() => {
     // Load real orders from KDS queue, fall back to mock data
     try {
@@ -674,15 +677,17 @@ const KDS = () => {
     return () => clearInterval(interval);
   }, [knownIds, soundEnabled]);
 
-  // Poll pending messages for badge + attached messages
+  // Poll pending messages for badge + attached messages (filtered by session boundary)
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
   const prevPendingCountRef = useRef(0);
   useEffect(() => {
     const load = () => {
       try {
-        const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]").map((m: any) => ({ ...m, status: m.status || "pending" }));
-        setKdsMessages(queue);
-        const count = queue.filter(m => m.status !== "acknowledged").length;
+        const allMessages: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]").map((m: any) => ({ ...m, status: m.status || "pending" }));
+        // Only include messages sent during or after this KDS session
+        const sessionMessages = allMessages.filter(m => m.timestamp >= sessionStartRef.current);
+        setKdsMessages(sessionMessages);
+        const count = sessionMessages.filter(m => m.status !== "acknowledged").length;
         // Auto-open messages panel when new messages arrive
         if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {
           setShowMessages(true);
@@ -695,7 +700,6 @@ const KDS = () => {
     const interval = setInterval(load, 2000);
     return () => clearInterval(interval);
   }, []);
-
   // Build maps: table number -> all messages (pending + acknowledged), order id -> all messages
   const messagesByTable = useMemo(() => {
     const map = new Map<string, KDSMessageData[]>();

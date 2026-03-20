@@ -53,7 +53,7 @@ const Tickets = lazy(() => import("./pages/Tickets"));
 const Settings = lazy(() => import("./pages/Settings"));
 const DiscountsRoute = lazy(() => import("./components/routes/DiscountsRoute"));
 const Account = lazy(() => import("./pages/Account"));
-const Reports = lazy(() => import("./pages/Reports"));
+const ReportsRoute = lazy(() => import("./components/routes/ReportsRoute"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const FullReservationsView = lazy(() => import("./pages/FullReservationsView"));
 const Voucher = lazy(() => import("./pages/Voucher"));

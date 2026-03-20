@@ -228,7 +228,7 @@ export function DiscountDialog({
 
   // -- Discount list column --
   const discountList = (
-    <div className="flex flex-col h-full" style={{ width: isMobile ? '100%' : needsReason ? '58%' : '100%' }}>
+    <div className="flex flex-col h-full" style={{ width: isMobile ? '100%' : needsReason ? '65%' : '100%' }}>
       <div className="px-4 pt-4 pb-3">
         <h3 className="text-[15px] font-medium text-white">Discounts</h3>
         <p className="text-[11px] text-[#888] mt-0.5">Select a discount below</p>
@@ -285,7 +285,7 @@ export function DiscountDialog({
 
   // -- Reason column --
   const reasonColumn = (
-    <div className="flex flex-col h-full" style={{ width: isMobile ? '100%' : '42%', borderLeft: isMobile ? 'none' : '0.5px solid rgba(255,255,255,0.08)' }}>
+    <div className="flex flex-col h-full" style={{ width: isMobile ? '100%' : '35%', borderLeft: isMobile ? 'none' : '0.5px solid rgba(255,255,255,0.08)' }}>
       <div className="px-4 pt-4 pb-3">
         <h3 className="text-[15px] font-medium text-white">Reason</h3>
         <p className="text-[11px] text-[#888] mt-0.5">Select a reason for the comp</p>

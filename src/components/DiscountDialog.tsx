@@ -330,7 +330,24 @@ export function DiscountDialog({
               );
             })}
           </div>
-        </div>
+          </div>
+          {/* Comment box */}
+          <div className="mt-2 px-1">
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value.slice(0, 100))}
+              placeholder="Add a comment (optional)"
+              className="w-full px-3 py-2 rounded-[10px] text-[11px] text-white placeholder:text-[#555] resize-none focus:outline-none transition-colors flex-1"
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                border: '1px solid rgba(255,255,255,0.06)',
+                minHeight: '60px',
+              }}
+              onFocus={(e) => e.target.style.borderColor = 'rgba(124,110,224,0.4)'}
+              onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
+            />
+            <p className="text-[9px] text-right mt-0.5" style={{ color: '#555' }}>{commentText.length}/100</p>
+          </div>
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center px-4 pb-4">
           <PackageOpen className="w-10 h-10 mb-2" style={{ color: '#444' }} />

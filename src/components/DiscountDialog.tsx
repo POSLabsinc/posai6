@@ -245,12 +245,12 @@ export function DiscountDialog({
                 onClick={() => handleSelectDiscount(discount)}
                 className="w-full flex items-center gap-2 px-2.5 py-2.5 rounded-[10px] transition-all"
                 style={{
-                  background: isSelected ? 'rgba(124,110,224,0.12)' : 'rgba(255,255,255,0.03)',
-                  border: isSelected ? '1px solid #7c6ee0' : '1px solid rgba(255,255,255,0.06)',
+                  background: isSelected ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
+                  border: isSelected ? '1px solid rgba(255,255,255,0.25)' : '1px solid rgba(255,255,255,0.06)',
                 }}
               >
-                <div className="w-6 h-6 rounded-md flex-shrink-0 flex items-center justify-center" style={{ background: isSelected ? 'rgba(124,110,224,0.25)' : 'rgba(255,255,255,0.06)' }}>
-                  <Icon className="w-3 h-3" style={{ color: isSelected ? '#7c6ee0' : '#888' }} />
+                <div className="w-6 h-6 rounded-md flex-shrink-0 flex items-center justify-center" style={{ background: isSelected ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.06)' }}>
+                  <Icon className="w-3 h-3" style={{ color: isSelected ? '#fff' : '#888' }} />
                 </div>
                 <div className="flex-1 min-w-0 text-left">
                   <div className="flex items-center gap-1">

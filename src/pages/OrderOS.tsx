@@ -18,7 +18,7 @@ import AppleAlertDialog from "@/components/AppleAlertDialog";
 import { ReportExceptionDialog, ReportedItem } from "@/components/ReportExceptionDialog";
 import { EightySixSheet, EightySixedItem } from "@/components/EightySixSheet";
 import { PrepTimeWheelPicker } from "@/components/PrepTimeWheelPicker";
-import AppleWheelTimePicker from "@/components/ui/apple-wheel-time-picker";
+import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
 import {
   DndContext,
   DragOverlay,

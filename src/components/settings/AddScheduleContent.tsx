@@ -46,6 +46,7 @@ const AddScheduleContent = ({ onBack }: AddScheduleContentProps) => {
   } | null>(null);
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const [datePickerPos, setDatePickerPos] = useState<{ top: number; left: number }>({ top: 0, left: 0 });
 
   const toggleDay = (day: string) => {
     setDaySchedules((prev) => ({

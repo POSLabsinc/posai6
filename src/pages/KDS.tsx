@@ -43,7 +43,102 @@ interface KDSTicket {
   priority: "normal" | "rush" | "vip";
 }
 
-// Mock data removed - KDS now sources exclusively from localStorage kds_ticket_queue
+// ─── Generate Mock Tickets (fallback when queue is empty) ───
+const generateMockTickets = (): KDSTicket[] => {
+  const now = new Date();
+  return [
+    {
+      id: "mock-1",
+      orderNumber: 1001,
+      orderType: "DINE IN",
+      tableNumber: "5",
+      serverName: "Sarah M.",
+      createdAt: new Date(now.getTime() - 12 * 60000),
+      products: [
+        { qty: 2, name: "Caesar Salad", category: "SALADS", modifiers: [{ name: "No Croutons", type: "remove" }], status: "pending" },
+        { qty: 1, name: "Grilled Salmon", category: "ENTREE", modifiers: [{ name: "Extra Lemon", type: "add" }], status: "pending" },
+        { qty: 1, name: "Truffle Fries", category: "APPETIZER", modifiers: [], status: "cooking" },
+      ],
+      status: "active",
+      priority: "normal",
+    },
+    {
+      id: "mock-2",
+      orderNumber: 1002,
+      orderType: "TAKEOUT",
+      tableNumber: null,
+      serverName: "James R.",
+      createdAt: new Date(now.getTime() - 25 * 60000),
+      products: [
+        { qty: 1, name: "Margherita Pizza", category: "ENTREE", modifiers: [{ name: "Gluten Free Crust", type: "add" }], status: "pending" },
+        { qty: 2, name: "Garlic Bread", category: "APPETIZER", modifiers: [], status: "ready" },
+        { qty: 1, name: "Tiramisu", category: "DESSERT", modifiers: [], status: "pending" },
+      ],
+      status: "active",
+      priority: "rush",
+    },
+    {
+      id: "mock-3",
+      orderNumber: 1003,
+      orderType: "DINE IN",
+      tableNumber: "12",
+      serverName: "Emily K.",
+      createdAt: new Date(now.getTime() - 5 * 60000),
+      products: [
+        { qty: 1, name: "Tomato Soup", category: "APPETIZER", modifiers: [{ name: "Nut Allergy", type: "allergy" }], status: "pending" },
+        { qty: 1, name: "Filet Mignon", category: "ENTREE", modifiers: [{ name: "Medium Rare", type: "note" }, { name: "No Sauce", type: "remove" }], status: "pending" },
+      ],
+      status: "active",
+      priority: "vip",
+    },
+    {
+      id: "mock-4",
+      orderNumber: 1004,
+      orderType: "BAR",
+      tableNumber: "B3",
+      serverName: "Mike D.",
+      createdAt: new Date(now.getTime() - 38 * 60000),
+      products: [
+        { qty: 3, name: "Fish Tacos", category: "ENTREE", modifiers: [], status: "cooking" },
+        { qty: 1, name: "Onion Rings", category: "APPETIZER", modifiers: [], status: "ready" },
+        { qty: 2, name: "Chocolate Lava Cake", category: "DESSERT", modifiers: [{ name: "Extra Ice Cream", type: "add" }], status: "pending" },
+      ],
+      status: "active",
+      priority: "normal",
+    },
+    {
+      id: "mock-5",
+      orderNumber: 1005,
+      orderType: "DELIVERY",
+      tableNumber: null,
+      serverName: "Anna L.",
+      createdAt: new Date(now.getTime() - 8 * 60000),
+      products: [
+        { qty: 1, name: "Chicken Alfredo", category: "ENTREE", modifiers: [{ name: "Extra Parmesan", type: "add" }], status: "pending" },
+        { qty: 1, name: "Garden Salad", category: "SALADS", modifiers: [{ name: "Dressing on Side", type: "note" }], status: "pending" },
+        { qty: 1, name: "Bruschetta", category: "APPETIZER", modifiers: [], status: "cooking" },
+      ],
+      status: "active",
+      priority: "normal",
+    },
+    {
+      id: "mock-6",
+      orderNumber: 1006,
+      orderType: "DINE IN",
+      tableNumber: "8",
+      serverName: "Carlos P.",
+      createdAt: new Date(now.getTime() - 18 * 60000),
+      products: [
+        { qty: 2, name: "Ribeye Steak", category: "ENTREE", modifiers: [{ name: "Well Done", type: "note" }], status: "cooking" },
+        { qty: 1, name: "Lobster Bisque", category: "APPETIZER", modifiers: [], status: "ready" },
+        { qty: 1, name: "Creme Brulee", category: "DESSERT", modifiers: [], status: "pending" },
+        { qty: 1, name: "Greek Salad", category: "SALADS", modifiers: [{ name: "No Olives", type: "remove" }], status: "pending" },
+      ],
+      status: "active",
+      priority: "normal",
+    },
+  ];
+};
 
 // ─── Time helpers ───
 const getElapsedMinutes = (createdAt: Date) => Math.floor((Date.now() - createdAt.getTime()) / 60000);

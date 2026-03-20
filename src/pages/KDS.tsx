@@ -672,10 +672,8 @@ const KDS = () => {
   }, [knownIds, soundEnabled]);
 
 
-  // Clear message queue on mount (soft-delete on refresh)
-  useEffect(() => {
-    localStorage.removeItem("kds_message_queue");
-  }, []);
+  // Session start timestamp - messages before this are hidden (soft-delete on refresh)
+  const sessionStartRef = useRef(Date.now());
 
   // Poll pending messages for badge + attached messages
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
@@ -683,7 +681,9 @@ const KDS = () => {
   useEffect(() => {
     const load = () => {
       try {
-        const allMessages: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]").map((m: any) => ({ ...m, status: m.status || "pending" }));
+        const allMessages: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]")
+          .map((m: any) => ({ ...m, status: m.status || "pending" }))
+          .filter((m: KDSMessageData) => new Date(m.timestamp || 0).getTime() > sessionStartRef.current);
         setKdsMessages(allMessages);
         const count = allMessages.filter(m => m.status !== "acknowledged").length;
         // Auto-open messages panel when new messages arrive

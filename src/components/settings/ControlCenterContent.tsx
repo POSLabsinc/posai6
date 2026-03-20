@@ -5,7 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useState, useRef, useEffect, useCallback } from "react";
 import { createPortal } from "react-dom";
-import { SettingsManager, ControlCenterSettings } from "@/lib/settingsManager";
+import { SettingsManager, ControlCenterSettings, DashboardMetricsVisibility } from "@/lib/settingsManager";
 import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
 import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";

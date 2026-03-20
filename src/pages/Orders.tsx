@@ -480,6 +480,8 @@ const Orders = () => {
     augmentedMenuCategories,
     mergedCategorySubcategories,
   });
+  const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
+  const [activeFoodCategory, setActiveFoodCategory] = useState("Appetizer");
   const [existingItems, setExistingItems] = useState<OrderItem[]>([]);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);

@@ -192,6 +192,12 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
     updateSetting('resetTablesDaily', value);
   };
 
+  const handleDashboardMetricToggle = (metric: keyof DashboardMetricsVisibility, value: boolean) => {
+    const updated = { ...dashboardMetrics, [metric]: value };
+    setDashboardMetrics(updated);
+    updateSetting('dashboardMetrics', updated);
+  };
+
   const autoLockDropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside

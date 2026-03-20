@@ -507,7 +507,7 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
               <span className="text-[10px] text-white/70 font-mono">{format(new Date(msg.timestamp), "hh:mm a")}</span>
             </div>
             <div className="bg-neutral-800 px-3 py-1.5 flex items-center gap-3 text-[10px] text-neutral-400 border-b border-neutral-700">
-              <span>From: <span className="text-white font-medium">{msg.employee_name}</span></span>
+              <span>From: <span className="text-white font-medium">{msg.employee_name}{msg.employee_role ? ` | ${msg.employee_role}` : ""}</span></span>
               {displayOrderNumbers.length > 0 && <span>·  Order <span className="text-white font-medium">{displayOrderNumbers.map(n => `#${n}`).join(", ")}</span></span>}
               {(msg.table_id || msg.table_number) && <span>·  <span className="text-white font-medium">{msg.table_number || `Table ${msg.table_id}`}</span></span>}
             </div>

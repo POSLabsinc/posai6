@@ -224,53 +224,57 @@ export function DiscountDialog({
 
   // -- Discount list column --
   const discountList = (
-    <div className="flex flex-col h-full" style={{ width: isMobile ? '100%' : '44%' }}>
+    <div className="flex flex-col h-full" style={{ width: isMobile ? '100%' : needsReason ? '44%' : '100%' }}>
       <div className="px-4 pt-4 pb-3">
         <h3 className="text-[15px] font-medium text-white">Discounts</h3>
         <p className="text-[11px] text-[#888] mt-0.5">Select a discount below</p>
       </div>
-      <div className="flex-1 overflow-y-auto scrollbar-hide px-3 pb-3 space-y-1.5">
-        {dynamicDiscounts.map((discount) => {
-          const isSelected = selectedDiscount?.id === discount.id;
-          const reqReason = isReasonRequired(discount);
-          const Icon = discount.icon;
-          return (
-            <button
-              key={discount.id}
-              onClick={() => handleSelectDiscount(discount)}
-              className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-[10px] transition-all"
-              style={{
-                background: isSelected ? 'rgba(124,110,224,0.12)' : 'transparent',
-                border: isSelected ? '1px solid #7c6ee0' : '1px solid transparent',
-              }}
-            >
-              <div className="w-7 h-7 rounded-lg flex-shrink-0 flex items-center justify-center" style={{ background: isSelected ? 'rgba(124,110,224,0.25)' : 'rgba(255,255,255,0.06)' }}>
-                <Icon className="w-3.5 h-3.5" style={{ color: isSelected ? '#7c6ee0' : '#888' }} />
-              </div>
-              <div className="flex-1 min-w-0 flex items-center gap-1.5">
-                <span className="text-xs font-medium text-white truncate">{discount.name}</span>
-                {reqReason && (
-                  <span className="text-[9px] font-medium px-1.5 py-0.5 rounded flex-shrink-0" style={{ background: 'rgba(245,166,35,0.15)', color: '#f5a623' }}>
-                    Reason required
-                  </span>
-                )}
-              </div>
-              <span className="text-[11px] font-medium whitespace-nowrap ml-1" style={{ color: '#aaa' }}>
-                {discount.type === "percentage" ? `${discount.value}% off` : `$${discount.value.toFixed(2)} off`}
-              </span>
-              {/* Checkbox */}
-              <div
-                className="w-5 h-5 rounded-md flex-shrink-0 flex items-center justify-center ml-1 transition-colors"
+      <div className="flex-1 overflow-y-auto scrollbar-hide px-3 pb-3">
+        <div className="grid grid-cols-2 gap-2">
+          {dynamicDiscounts.map((discount) => {
+            const isSelected = selectedDiscount?.id === discount.id;
+            const reqReason = isReasonRequired(discount);
+            const Icon = discount.icon;
+            return (
+              <button
+                key={discount.id}
+                onClick={() => handleSelectDiscount(discount)}
+                className="w-full flex items-center gap-2 px-2.5 py-2.5 rounded-[10px] transition-all"
                 style={{
-                  background: isSelected ? '#7c6ee0' : 'transparent',
-                  border: isSelected ? '1.5px solid #7c6ee0' : '1.5px solid #555',
+                  background: isSelected ? 'rgba(124,110,224,0.12)' : 'rgba(255,255,255,0.03)',
+                  border: isSelected ? '1px solid #7c6ee0' : '1px solid rgba(255,255,255,0.06)',
                 }}
               >
-                {isSelected && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
-              </div>
-            </button>
-          );
-        })}
+                <div className="w-6 h-6 rounded-md flex-shrink-0 flex items-center justify-center" style={{ background: isSelected ? 'rgba(124,110,224,0.25)' : 'rgba(255,255,255,0.06)' }}>
+                  <Icon className="w-3 h-3" style={{ color: isSelected ? '#7c6ee0' : '#888' }} />
+                </div>
+                <div className="flex-1 min-w-0 text-left">
+                  <div className="flex items-center gap-1">
+                    <span className="text-[11px] font-medium text-white truncate">{discount.name}</span>
+                    {reqReason && (
+                      <span className="text-[8px] font-medium px-1 py-0.5 rounded flex-shrink-0 whitespace-nowrap" style={{ background: 'rgba(245,166,35,0.15)', color: '#f5a623' }}>
+                        Reason required
+                      </span>
+                    )}
+                  </div>
+                </div>
+                <span className="text-[10px] font-medium whitespace-nowrap" style={{ color: '#aaa' }}>
+                  {discount.type === "percentage" ? `${discount.value}%` : `$${discount.value.toFixed(2)}`}
+                </span>
+                <div
+                  className="w-4.5 h-4.5 rounded-md flex-shrink-0 flex items-center justify-center transition-colors"
+                  style={{
+                    width: '18px', height: '18px',
+                    background: isSelected ? '#7c6ee0' : 'transparent',
+                    border: isSelected ? '1.5px solid #7c6ee0' : '1.5px solid #555',
+                  }}
+                >
+                  {isSelected && <Check className="w-2.5 h-2.5 text-white" strokeWidth={3} />}
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -385,12 +389,12 @@ export function DiscountDialog({
     );
   }
 
-  // -- Desktop: two-column side by side --
+  // -- Desktop: side-by-side, reason panel only when needed --
   const dialogContent = (
-    <div className="flex flex-col" style={{ background: '#1e1e32', borderRadius: '12px', overflow: 'hidden', maxHeight: '80vh' }}>
-      <div className="flex flex-1 min-h-0" style={{ minHeight: '360px' }}>
+    <div className="flex flex-col transition-all duration-200" style={{ background: '#1e1e32', borderRadius: '12px', overflow: 'hidden', maxHeight: '80vh' }}>
+      <div className="flex flex-1 min-h-0" style={{ minHeight: '340px' }}>
         {discountList}
-        {reasonColumn}
+        {needsReason && reasonColumn}
       </div>
       {footer}
     </div>
@@ -404,7 +408,7 @@ export function DiscountDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className="p-0 gap-0 border-0 overflow-hidden sm:max-w-[640px]"
+        className={`p-0 gap-0 border-0 overflow-hidden transition-all duration-200 ${needsReason ? 'sm:max-w-[700px]' : 'sm:max-w-[480px]'}`}
         style={{ background: '#1e1e32', borderRadius: '12px' }}
         hideCloseButton
       >

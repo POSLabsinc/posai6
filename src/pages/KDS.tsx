@@ -439,15 +439,18 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
   const categoryOrder = ["MESSAGE", "APPETIZER", "ENTREE", "DESSERT"];
   const timeStr = format(ticket.createdAt, "hh:mm:ss a");
 
+  const hasPendingMessage = !isMessage && attachedMessages.some(m => m.status === "pending");
+  const hasAnyMessage = !isMessage && attachedMessages.length > 0;
+
   return (
-    <div className={`bg-neutral-900 rounded-xl border overflow-hidden flex flex-col min-w-[240px] max-w-[280px] w-full ${isMessage ? "border-violet-600/60" : "border-neutral-700"}`}>
+    <div className={`bg-neutral-900 rounded-xl border overflow-hidden flex flex-col min-w-[240px] max-w-[280px] w-full ${isMessage ? "border-violet-600/60" : hasPendingMessage ? "border-violet-600/60" : "border-neutral-700"}`}>
       {/* Header */}
       <div className={`${isMessage ? "bg-gradient-to-r from-violet-700 to-indigo-600" : getHeaderColor(elapsed)} px-3 py-2 text-center`}>
         <div className="text-white font-black text-sm tracking-widest uppercase flex items-center justify-center gap-2">
           {isMessage && <img src={messageKdsIcon} alt="Message" className="w-4 h-4 invert" />}
           {isMessage ? "MESSAGE" : ticket.orderType}
-          {!isMessage && attachedMessages && attachedMessages.length > 0 && (
-            <img src={messageKdsIcon} alt="Has messages" className="w-4 h-4 invert opacity-80 animate-pulse" />
+          {hasAnyMessage && (
+            <img src={messageKdsIcon} alt="Has messages" className={`w-4 h-4 invert ${hasPendingMessage ? "opacity-80 animate-pulse" : "opacity-70"}`} />
           )}
         </div>
       </div>

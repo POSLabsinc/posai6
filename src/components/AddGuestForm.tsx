@@ -283,7 +283,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
         </div>
 
         {/* Name Fields */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className={compact ? "grid grid-cols-2 gap-3" : "grid grid-cols-3 gap-3"}>
           <div>
             <label className="text-sm text-white/70 mb-1 block">
               First Name <span className="text-primary">*</span>
@@ -304,33 +304,66 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
               className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
             />
           </div>
-          <div>
-            <label className="text-sm text-white/70 mb-1 block">
-              Last Name <span className="text-primary">*</span>
-            </label>
-            <Input
-              value={formData.lastName}
-              onChange={(e) => handleInputChange("lastName", e.target.value)}
-              placeholder="Enter last name"
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-            />
-          </div>
+          {!compact && (
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">
+                Last Name <span className="text-primary">*</span>
+              </label>
+              <Input
+                value={formData.lastName}
+                onChange={(e) => handleInputChange("lastName", e.target.value)}
+                placeholder="Enter last name"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              />
+            </div>
+          )}
         </div>
 
-        {/* Email & Phone & Customer Since */}
-        <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="text-sm text-white/70 mb-1 block">
-              Email <span className="text-primary">*</span>
-            </label>
-            <Input
-              type="email"
-              value={formData.email}
-              onChange={(e) => handleInputChange("email", e.target.value)}
-              placeholder="Enter email"
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-            />
+        {/* Compact: Last Name & Email row */}
+        {compact && (
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">
+                Last Name <span className="text-primary">*</span>
+              </label>
+              <Input
+                value={formData.lastName}
+                onChange={(e) => handleInputChange("lastName", e.target.value)}
+                placeholder="Enter last name"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              />
+            </div>
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">
+                Email <span className="text-primary">*</span>
+              </label>
+              <Input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                placeholder="Enter email"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              />
+            </div>
           </div>
+        )}
+
+        {/* Email & Phone & Customer Since */}
+        <div className={compact ? "grid grid-cols-2 gap-3" : "grid grid-cols-3 gap-3"}>
+          {!compact && (
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">
+                Email <span className="text-primary">*</span>
+              </label>
+              <Input
+                type="email"
+                value={formData.email}
+                onChange={(e) => handleInputChange("email", e.target.value)}
+                placeholder="Enter email"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              />
+            </div>
+          )}
 
           <div>
             <label className="text-sm text-white/70 mb-1 block">
@@ -376,7 +409,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
         </div>
 
         {/* Date of Birth, Anniversary & Address */}
-        <div className="grid grid-cols-3 gap-3">
+        <div className={compact ? "grid grid-cols-2 gap-3" : "grid grid-cols-3 gap-3"}>
           <div>
             <label className="text-sm text-white/70 mb-1 block">Date of Birth</label>
             <Popover>
@@ -436,6 +469,24 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
               </PopoverContent>
             </Popover>
           </div>
+          {!compact && (
+            <div>
+              <label className="text-sm text-white/70 mb-1 block">Address</label>
+              <div className="relative">
+                <Input
+                  value={formData.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
+                  placeholder="Search for an address..."
+                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pl-9"
+                />
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Compact: Address full width */}
+        {compact && (
           <div>
             <label className="text-sm text-white/70 mb-1 block">Address</label>
             <div className="relative">
@@ -448,7 +499,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
               <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
             </div>
           </div>
-        </div>
+        )}
 
 
         {/* Add Vehicle Details */}

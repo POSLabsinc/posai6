@@ -969,9 +969,13 @@ const KDS = () => {
       const orderRef = originalMsg.linked_order_number ? `Order #${originalMsg.linked_order_number}` : "";
       const tableRef = originalMsg.table_number || "";
       const contextParts = [orderRef, tableRef].filter(Boolean).join(" · ");
+      const previewParts = [
+        contextParts ? contextParts : "",
+        `Reply: "${replyText.length > 40 ? replyText.slice(0, 37) + "..." : replyText}"`,
+      ].filter(Boolean).join(" - ");
       (supabase as any).from("notifications").insert({
-        title: "Kitchen Reply Sent",
-        preview: replyText.length > 60 ? replyText.slice(0, 57) + "..." : replyText,
+        title: `Kitchen Reply${contextParts ? ` - ${contextParts}` : ""}`,
+        preview: previewParts,
         headline: `Reply to: ${originalMsg.employee_name}`,
         body: `Kitchen replied: "${replyText}"${contextParts ? ` (${contextParts})` : ""}. Original message: "${originalMsg.message_text}"`,
         bullets: [],

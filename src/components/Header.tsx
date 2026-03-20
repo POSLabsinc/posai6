@@ -298,10 +298,10 @@ const Header = () => {
                             {icon}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-xs font-medium truncate ${!n.is_read ? "text-white" : "text-neutral-300"}`}>
+                            <p className={`text-xs font-medium ${!n.is_read ? "text-white" : "text-neutral-300"}`} style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>
                               {n.title}
                             </p>
-                            <p className="text-[11px] text-neutral-500 truncate mt-0.5">{n.preview}</p>
+                            <p className="text-[11px] text-neutral-500 mt-0.5" style={{ display: "-webkit-box", WebkitLineClamp: 2, WebkitBoxOrient: "vertical", overflow: "hidden" }}>{n.preview}</p>
                           </div>
                           <span className="text-[10px] text-neutral-600 shrink-0 mt-0.5">{timeAgo}</span>
                         </button>

@@ -1,81 +1,150 @@
 
 
-# Plan: Resolve Remaining Audit Items
+# Workstream 3: Mega-File Decomposition Plan
 
-This plan covers three workstreams. Each is a standalone effort that can be tackled sequentially. Due to the size of these changes, each workstream should be implemented in a dedicated pass.
+This is a pure refactor — no behavior changes. Each file will be broken into focused sub-components and data modules. The orchestrator page files will shrink to ~500-800 lines of state management and composition.
 
----
-
-## Workstream 1: Dashboard DB Migration
-
-**Current state**: Dashboard merges hardcoded mock orders from `getDashboardOrders()` (src/data/orders.ts, ~670 lines of static data) with live session/DB orders. The static orders always appear alongside real ones.
-
-**What to do**:
-- Remove the `getStaticDashboardOrders()` call and the `enrichedStaticOrders` merge in the `allOrders` useMemo (Dashboard.tsx ~868-890)
-- Source orders exclusively from `dbTicketOrders` (already imported via `useTicketOrders`) and `sessionOrders`
-- Keep the `DashboardOrder` interface and conversion helpers — just stop feeding them mock data
-- Once Dashboard no longer imports `getDashboardOrders`, audit `src/data/orders.ts` — if no other file imports the mock data functions, delete the file. Keep the shared interfaces/types if referenced elsewhere (move them to a types file if needed)
-- The hardcoded `discountTypes` array (~line 391) should be replaced with a fetch from the `discounts` DB table (already exists and is used in Settings)
-
-**Risk**: Dashboard will show an empty order list until real orders exist. This is correct behavior.
-
-**Files changed**: `src/pages/Dashboard.tsx`, possibly delete `src/data/orders.ts` or extract shared types.
+Due to the sheer size (~23,000 lines across 3 files), this must be done **one file at a time across multiple implementation passes**.
 
 ---
 
-## Workstream 2: KDS Mock Replacement
+## Pass 1: Orders.tsx (9,954 lines → ~800 line orchestrator)
 
-**Current state**: KDS uses `generateMockTickets()` (~130 lines of hardcoded tickets) as fallback when no real orders exist in `kds_ticket_queue` localStorage. Messages use localStorage polling instead of DB.
+### Extract static data (lines 106-6043)
+**`src/data/orderMenuData.ts`** — All hardcoded constants:
+- `foodImages` array (line 127)
+- `categorySubcategories` record (lines 130-213)
+- `menuItemsData` structure (lines 227-5850)
+- `categoryBorderColors`, `categoryBgColors`, `categoryTextColors` records (lines 5851-6026)
+- Helper functions: `getCategoryBorderColor`, `getCategoryBgColor`, `getCategoryHoverBgColor`, `getCategoryTextColor`, `getCategoryHoverTextColor` (lines 6027-6043)
+- Type exports: `MenuItem`, `SubcategoryItems`, `CategoryItems`, `MenuItemsStructure`
 
-**What to do**:
-- Remove `generateMockTickets()` entirely (lines 47-180)
-- Change the fallback to an empty array instead of mock data — when no fired orders exist, KDS shows an empty state
-- Update the initial state loader (line 640-648) to return `[]` instead of `generateMockTickets()` when the queue is empty
-- The localStorage-based `kds_ticket_queue` polling mechanism should remain for now (it's the bridge from POS Fire action to KDS) — migrating this to a DB table with realtime is a separate, larger effort
-- Add a simple empty-state UI when `tickets.length === 0` (e.g., "No active orders" centered message)
+### Extract UI sections from the JSX return (lines 7227-9954)
+**`src/components/orders/OrderCartPanel.tsx`** — The right-side cart panel:
+- Order type selector dropdown
+- Guest info header (name, phone, table info)
+- Seat selector bar
+- Cart item list with SwipeableCartItem
+- Order summary row (subtotal, discount, service charge)
+- Action buttons (Clear, Save, Fire, Charge)
+- All guest form dialogs (DineIn, TakeOut, Delivery, etc.)
 
-**Files changed**: `src/pages/KDS.tsx`
+**`src/components/orders/OrderMenuPanel.tsx`** — The left-side menu browsing panel:
+- Menu selector dropdown
+- Category tabs (horizontal scroll)
+- Subcategory tabs
+- Product grid (thumbnail and list views)
+- Search overlay
+- Custom item panel with keyboard
+
+**`src/components/orders/OrderDialogs.tsx`** — All modal/dialog wrappers:
+- PaymentDialog
+- DiscountDialog + MPIN guard
+- GiftCardDialog, ServiceChargeDialog
+- VoucherDialog + VoucherOptionsPopup
+- PriceOverrideDialog, OpenPriceDialog
+- TransferCheckDialog
+- MessageKitchenDialog
+- Clear order confirmation
+- Split order alert
+- ItemCustomizationDialog
+- No Tax dialog
+
+### What stays in Orders.tsx (~800 lines)
+- All `useState` declarations
+- All handler functions (addItem, removeItem, fire, clear, etc.)
+- URL param parsing and session order logic
+- DB product fetching and menu merging logic
+- `useMemo` computations (dynamicMenuItems, subtotal, tax, etc.)
+- Composition: renders `OrderMenuPanel`, `OrderCartPanel`, `OrderDialogs`
 
 ---
 
-## Workstream 3: Mega-File Decomposition
+## Pass 2: Tickets.tsx (6,440 lines → ~500 line orchestrator)
 
-These files are too large for maintainability. The goal is to extract logical sections into separate component files without changing any behavior.
+### Extract helper components (lines 252-423)
+**`src/components/tickets/TicketModifierTree.tsx`** — The 3 modifier tree variants:
+- `ModifierTree` (desktop non-swipeable)
+- `SwipeableModifierTree` (swipeable for refund)
+- `SwipeableModifierTreeCart` (swipeable for cart)
 
-### Orders.tsx (~9,954 lines)
-Extract into:
-- `src/components/orders/OrderMenuGrid.tsx` — menu category tabs and product grid
-- `src/components/orders/OrderCart.tsx` — cart/order summary panel
-- `src/components/orders/OrderGuestForm.tsx` — guest info and delivery forms
-- `src/components/orders/OrderActionBar.tsx` — bottom action buttons (Clear, Save, Fire, Charge)
-- `src/components/orders/OrderModifierPanel.tsx` — inline modifier/customization panel
-- Keep `Orders.tsx` as the orchestrator (~500-800 lines) with state and routing logic
+### Extract from the JSX return (lines 5980-6440)
+**`src/components/tickets/TicketListPanel.tsx`** — Left panel:
+- Filter tabs (All, Open, Completed, Paid, Unpaid)
+- Search bar
+- Ticket card list (mobile and desktop variants)
+- Date picker, sort controls
 
-### Tickets.tsx (~6,440 lines)
-Extract into:
-- `src/components/tickets/TicketList.tsx` — ticket card list and filtering
-- `src/components/tickets/TicketDetail.tsx` — selected ticket detail panel
-- `src/components/tickets/TicketPaymentFlow.tsx` — payment, tip, refund dialogs
-- `src/components/tickets/TicketTransferView.tsx` — inline transfer UI
-- Keep `Tickets.tsx` as orchestrator (~400-600 lines)
+**`src/components/tickets/TicketDetailPanel.tsx`** — Right panel:
+- Selected ticket header (guest info, timer)
+- Item list with modifiers
+- Financial summary (subtotal, discount, tax, tip, total)
+- Action buttons (Pay, Refund, Transfer, etc.)
+- Inline transfer view
 
-### Login.tsx (~6,481 lines)
-Extract into:
-- `src/components/login/CompanyDeviceFlow.tsx` — company device setup steps
-- `src/components/login/PersonalDeviceFlow.tsx` — personal device auth
-- `src/components/login/PinEntry.tsx` — PIN pad and employee selection
-- `src/components/login/BiometricAuth.tsx` — Face ID / QR scan flows
-- Keep `Login.tsx` as orchestrator (~300-500 lines)
+**`src/components/tickets/TicketRefundFlow.tsx`** — Refund modal/sheet:
+- Refund step state machine
+- Type selection, item selection, confirmation, success
+- RefundModalLayout / RefundBottomSheet integration
+- Refund allocation logic
 
-**Approach**: Pure refactor — extract JSX and local handlers into child components, pass state via props. No behavior changes. Each extraction is independently testable.
+### What stays in Tickets.tsx (~500 lines)
+- All `useState` and order data conversion
+- Handler functions (pay, refund, transfer, tip, discount)
+- Filter/sort/search logic
+- Composition of sub-components
+
+---
+
+## Pass 3: Login.tsx (6,481 lines → ~400 line orchestrator)
+
+### Extract static data (lines 35-108)
+**`src/data/loginData.ts`** — Hardcoded mock data:
+- `revenueCenters` record
+- `employeePinMapping` record
+- `locationEmployees` array
+- `getRoleIcon`, `getRoleBadgeStyle`, `getTimeOfDayInfo` helpers
+
+### Extract from the JSX return (lines 6002-6481)
+**`src/components/login/CompanyDeviceFlow.tsx`** — Company device screens:
+- Device type selection (Company vs Personal)
+- Employee grid selection
+- PIN entry with NumericKeypad
+- Clock-in confirmation and success
+- Device activation/setup flow
+
+**`src/components/login/PersonalDeviceFlow.tsx`** — Personal device screens:
+- Email/password login form
+- 2FA OTP flow (SMS/Email)
+- Identity verification
+- Clock-in/clock-out for personal device
+- Request access flow
+
+**`src/components/login/LoginDemoMode.tsx`** — Demo mode:
+- Business type selection
+- Demo email verification
+- Demo OTP flow
+
+**`src/components/login/LoginForgotPassword.tsx`** — Forgot password:
+- Email/phone input
+- Reset OTP verification
+- New password form
+
+### What stays in Login.tsx (~400 lines)
+- All `useState` declarations
+- Flow control logic (which screen to show)
+- Session clearing on mount
+- Composition of sub-components
 
 ---
 
 ## Execution Order
 
-1. **KDS Mock Replacement** — smallest, lowest risk, ~30 min
-2. **Dashboard DB Migration** — medium, removes mock data dependency, ~1 hr
-3. **Mega-File Decomposition** — largest effort, split across multiple passes (Orders first, then Tickets, then Login), ~2-3 hrs total
+1. **Orders.tsx** — largest file, highest impact
+2. **Tickets.tsx** — second largest
+3. **Login.tsx** — third largest
 
-Each workstream should be implemented and verified independently before moving to the next.
+Each pass is independent. After each pass, the app should behave identically — this is a pure structural refactor with no logic changes.
+
+**Estimated new files**: 12-14 component/data files created, 3 page files significantly reduced.
 

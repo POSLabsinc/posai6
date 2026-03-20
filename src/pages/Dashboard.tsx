@@ -870,31 +870,45 @@ const Dashboard = () => {
     const dashboardSessionOrders = sessionOrders.map(convertSessionToDashboardOrder);
     
     // Convert DB ticket orders to dashboard format
-    const dashboardDbOrders: DashboardOrder[] = dbTicketOrders.map((order, idx) => ({
-      id: order.id,
-      table: order.tableNumber ? `Table ${order.tableNumber}` : '',
-      server: order.employeeName || 'Unknown',
-      guests: order.guestCount || 1,
-      time: new Date(order.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      amount: `$${(order.total || 0).toFixed(2)}`,
-      status: order.status === 'PAID' ? 'Paid' as const : order.status === 'VOIDED' ? 'Cancelled' as const : 'Unpaid' as const,
-      orderType: (order.orderType as 'Dine In' | 'Takeaway' | 'Delivery') || 'Dine In',
-      paymentType: order.paymentType || '--',
-      items: (order.items || []).map(item => ({
-        name: item.name,
-        qty: item.quantity,
-        price: `$${(item.unitPrice || 0).toFixed(2)}`,
-        modifiers: item.modifiers || [],
-        category: item.category || 'Uncategorized',
-        allergies: [],
-        notes: item.notes || '',
-        seat: item.seat,
-        noTax: false,
-        itemOrderType: (order.orderType as 'Dine In' | 'Takeaway' | 'Delivery') || 'Dine In',
-        isFired: true
-      })),
-      orderNumber: order.orderNumber || (idx + 1),
-    }));
+    const dashboardDbOrders: DashboardOrder[] = dbTicketOrders.map((order, idx) => {
+      const isPaid = order.status === 'PAID' || order.status === 'Completed';
+      return {
+        id: Number(order.id.replace(/\D/g, '').slice(0, 8)) || idx + 1,
+        orderNumber: order.orderNumber || (idx + 1),
+        status: order.status,
+        statusColor: getStatusColorHex(order.status),
+        filterCategory: getFilterCategory(order.status),
+        guest: order.name || 'Guest',
+        orderNo: `Order No ${order.orderNumber || idx + 1}`,
+        seats: order.partySize || 1,
+        date: order.createdAt ? new Date(order.createdAt).toLocaleDateString() : '',
+        arrivedAt: order.time || '',
+        timer: order.timer || '00:00',
+        type: order.orderType || 'Dine In',
+        check: order.check || '--',
+        revenueCenter: order.revenueCenter || 'Main',
+        tip: `$${(order.tip || 0).toFixed(2)}`,
+        paymentType: order.paymentType || '--',
+        isPaid,
+        server: order.server || 'Unknown',
+        total: order.total || 0,
+        phone: order.phone || '',
+        table: order.table || '',
+        notes: order.notes || '',
+        items: (order.items || []).map((item, itemIdx) => ({
+          id: itemIdx + 1,
+          qty: item.qty,
+          name: item.name,
+          price: item.price,
+          seats: item.seats || [],
+          noTax: item.noTax || false,
+          itemOrderType: order.orderType || 'Dine In',
+          isFired: item.isFired || false
+        })),
+        paymentMethods: order.paymentMethods,
+        splitConfiguration: order.splitConfiguration
+      };
+    });
     
     // Assign sequential order numbers
     const merged = [...dashboardSessionOrders, ...dashboardDbOrders];

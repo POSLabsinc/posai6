@@ -58,6 +58,7 @@ import serviceChargeIcon from "@/assets/icons/service-charge.svg";
 import addGuestIcon from "@/assets/icons/add-guest.svg";
 import openOrdersIcon from "@/assets/icons/open-orders.svg";
 import allergyIcon from "@/assets/icons/allergy.svg";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import splitCheckIcon from "@/assets/icons/split-check.svg";
 import reopenCheckIcon from "@/assets/icons/reopen-check.svg";
 import messageKdsIcon from "@/assets/icons/message-kds.svg";
@@ -2104,14 +2105,17 @@ const Orders = () => {
           <div className="touch-none" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
             <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-grab" />
           </div>
-          {!(showInlineCustomization && selectedItemForCustomization) && !isSearchMode && <button className="w-6 h-6 p-0 border-0 bg-transparent z-10 touch-auto" onClick={(e) => {
-          e.stopPropagation();
-          setIsSearchMode(true);
-          setMenuPosition('full');
-          setTimeout(() => searchInputRef.current?.focus(), 100);
-        }}>
-            <img src={searchIcon} alt="Search" className="w-full h-full object-contain" />
-          </button>}
+          {!(showInlineCustomization && selectedItemForCustomization) && !isSearchMode && <div className="flex items-center gap-1">
+            <AnimatedAIIcon size={16} onClick={() => navigate('/settings/ai')} />
+            <button className="w-6 h-6 p-0 border-0 bg-transparent z-10 touch-auto" onClick={(e) => {
+              e.stopPropagation();
+              setIsSearchMode(true);
+              setMenuPosition('full');
+              setTimeout(() => searchInputRef.current?.focus(), 100);
+            }}>
+              <img src={searchIcon} alt="Search" className="w-full h-full object-contain" />
+            </button>
+          </div>}
           {showInlineCustomization && selectedItemForCustomization || isSearchMode ? <div className="w-8" /> : null}
         </div>
         {/* Menu Content - Hidden when minimized */}
@@ -2372,11 +2376,11 @@ const Orders = () => {
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Desktop Search Button - Top Right Corner */}
-          <div className="hidden md:flex absolute top-1 right-0 z-10 items-center">
+          <div className="hidden md:flex absolute top-1 right-0 z-10 items-center gap-1">
+            <AnimatedAIIcon size={20} onClick={() => navigate('/settings/ai')} />
             <button
                 className="cursor-pointer"
                 onClick={() => setIsDesktopSearchOpen(true)}>
-
               <img src={searchIcon} alt="Search" className="w-8 h-8 lg:w-9 lg:h-9" />
             </button>
           </div>

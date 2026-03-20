@@ -629,6 +629,22 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Manager PIN Modal for Dashboard Metrics */}
+      {showMetricsPinModal && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            <AccessRestrictedModal
+              subtitle="Manager PIN required to change dashboard metrics."
+              onBack={() => {
+                setShowMetricsPinModal(false);
+                setPendingMetricToggle(null);
+              }}
+              onSuccess={handleMetricsPinSuccess}
+            />
+          </div>
+        </div>
+      )}
     </>
   );
 };

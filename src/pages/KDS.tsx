@@ -686,7 +686,7 @@ const KDS = () => {
     load();
     const interval = setInterval(load, 2000);
     return () => clearInterval(interval);
-  }, [filterSessionMessages]);
+  }, []);
   // Build maps: table number -> all messages (pending + acknowledged), order id -> all messages
   const messagesByTable = useMemo(() => {
     const map = new Map<string, KDSMessageData[]>();

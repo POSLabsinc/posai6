@@ -1,8 +1,10 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Megaphone, Check, ArrowLeft, Bell } from "lucide-react";
+import { Megaphone, Check, ArrowLeft, Bell, Reply } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { toast } from "sonner";
+import KDSReplyDialog from "@/components/KDSReplyDialog";
 
 interface KDSMessage {
   message_id: string;
@@ -23,6 +25,46 @@ interface KDSMessage {
 }
 
 const STORAGE_KEY = "kds_message_queue";
+
+const REPLY_STORAGE_KEY = "kds_message_replies";
+const POS_REPLY_NOTIFICATION_KEY = "pos_reply_notifications";
+
+interface KDSReply {
+  reply_id: string;
+  message_id: string;
+  reply_text: string;
+  timestamp: string;
+  source: "kds";
+}
+
+const readReplies = (): KDSReply[] => {
+  try { return JSON.parse(localStorage.getItem(REPLY_STORAGE_KEY) || "[]"); } catch { return []; }
+};
+
+const saveReplyToStorage = (reply: KDSReply) => {
+  const replies = readReplies();
+  replies.push(reply);
+  localStorage.setItem(REPLY_STORAGE_KEY, JSON.stringify(replies));
+};
+
+const pushPosNotification = (reply: KDSReply, originalMessage: KDSMessage) => {
+  try {
+    const queue = JSON.parse(localStorage.getItem(POS_REPLY_NOTIFICATION_KEY) || "[]");
+    queue.push({
+      id: reply.reply_id,
+      title: "Reply from Kitchen",
+      body: reply.reply_text,
+      meta: `Re: ${originalMessage.message_text.slice(0, 30)}${originalMessage.message_text.length > 30 ? "..." : ""}`,
+      timestamp: reply.timestamp,
+      message_id: originalMessage.message_id,
+      order_id: originalMessage.linked_order_id || null,
+      order_number: originalMessage.linked_order_number || null,
+      table_number: originalMessage.table_number || null,
+      is_read: false,
+    });
+    localStorage.setItem(POS_REPLY_NOTIFICATION_KEY, JSON.stringify(queue));
+  } catch {}
+};
 
 const loadMessages = (): KDSMessage[] => {
   try {
@@ -48,6 +90,36 @@ const KDSMessages = () => {
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
   const [flashId, setFlashId] = useState<string | null>(null);
   const prevCountRef = useRef(0);
+  const [kdsReplies, setKdsReplies] = useState<KDSReply[]>(() => readReplies());
+  const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [replyDialogMessage, setReplyDialogMessage] = useState<KDSMessage | null>(null);
+
+  const handleOpenReplyDialog = useCallback((msg: KDSMessage) => {
+    setReplyDialogMessage(msg);
+    setReplyDialogOpen(true);
+  }, []);
+
+  const handleSendReply = useCallback((messageId: string, replyText: string) => {
+    const originalMsg = messages.find(m => m.message_id === messageId);
+    if (!originalMsg) return;
+    const reply: KDSReply = {
+      reply_id: `reply-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      message_id: messageId,
+      reply_text: replyText,
+      timestamp: new Date().toISOString(),
+      source: "kds",
+    };
+    try {
+      saveReplyToStorage(reply);
+      pushPosNotification(reply, originalMsg);
+      setKdsReplies(readReplies());
+      toast.success("Reply sent \u2713", { duration: 3000 });
+    } catch {
+      toast.error("Failed to send reply. Try again.");
+    }
+  }, [messages]);
+
+  const replyDialogHasReplied = replyDialogMessage ? kdsReplies.some(r => r.message_id === replyDialogMessage.message_id) : false;
 
   const refreshMessages = useCallback(() => {
     const all = loadMessages();
@@ -200,28 +272,56 @@ const KDSMessages = () => {
               </div>
 
               {/* Card Footer */}
-              {msg.status === "pending" ? (
-                <div className="bg-neutral-900 px-4 pb-4 pt-1">
-                  <Button
-                    onClick={() => handleAcknowledge(msg.message_id)}
-                    className="w-full bg-white text-black hover:bg-neutral-200 font-bold text-sm py-5 rounded-xl"
-                  >
-                    <Check className="w-4 h-4 mr-2" />
-                    ACKNOWLEDGE
-                  </Button>
-                </div>
-              ) : (
-                <div className="bg-neutral-900 px-4 pb-3 pt-1">
-                  <div className="flex items-center gap-2 text-xs text-emerald-400">
-                    <Check className="w-3.5 h-3.5" />
-                    <span>Acknowledged {msg.acknowledged_at ? format(new Date(msg.acknowledged_at), "hh:mm a") : ""}</span>
+              {(() => {
+                const hasReplied = kdsReplies.some(r => r.message_id === msg.message_id);
+                return msg.status === "pending" ? (
+                  <div className="bg-neutral-900 px-4 pb-4 pt-1 space-y-2">
+                    <Button
+                      onClick={() => handleAcknowledge(msg.message_id)}
+                      className="w-full bg-white text-black hover:bg-neutral-200 font-bold text-sm py-5 rounded-xl"
+                    >
+                      <Check className="w-4 h-4 mr-2" />
+                      ACKNOWLEDGE
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleOpenReplyDialog(msg)}
+                      className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-sm py-4 rounded-xl"
+                    >
+                      <Reply className="w-4 h-4 mr-2" />
+                      {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                    </Button>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div className="bg-neutral-900 px-4 pb-3 pt-1 space-y-2">
+                    <div className="flex items-center gap-2 text-xs text-emerald-400">
+                      <Check className="w-3.5 h-3.5" />
+                      <span>Acknowledged {msg.acknowledged_at ? format(new Date(msg.acknowledged_at), "hh:mm a") : ""}</span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleOpenReplyDialog(msg)}
+                      className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-xs py-3 rounded-xl"
+                    >
+                      <Reply className="w-3.5 h-3.5 mr-1.5" />
+                      {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                    </Button>
+                  </div>
+                );
+              })()}
             </div>
           ))
         )}
       </div>
+
+      {/* Reply Dialog */}
+      <KDSReplyDialog
+        open={replyDialogOpen}
+        onOpenChange={setReplyDialogOpen}
+        message={replyDialogMessage}
+        onSendReply={handleSendReply}
+        hasReplied={replyDialogHasReplied}
+      />
     </div>
   );
 };

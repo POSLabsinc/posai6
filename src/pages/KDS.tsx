@@ -8,6 +8,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { QRCodeSVG } from "qrcode.react";
 import { staffList } from "@/data/staff";
+import KDSReplyDialog from "@/components/KDSReplyDialog";
 
 // ─── Table Number Normalization ───
 // Extracts just the numeric/alphanumeric table identifier from various formats
@@ -420,10 +421,9 @@ const readSessionMessages = (): KDSMessageData[] => {
   }
 };
 
-const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allReplies }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void; onSendReply: (messageId: string, text: string) => void; allReplies: KDSReply[] }) => {
+const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allReplies, onOpenReplyDialog }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void; onSendReply: (messageId: string, text: string) => void; allReplies: KDSReply[]; onOpenReplyDialog: (msg: KDSMessageData) => void }) => {
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
   const [flashId, setFlashId] = useState<string | null>(null);
-  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const prevCountRef = useRef(0);
 
   // Flash animation on new pending messages
@@ -440,9 +440,8 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
   const seen = new Set<string>();
   const deduplicated = filtered.filter(m => { if (seen.has(m.message_id)) return false; seen.add(m.message_id); return true; });
 
-  const handleSendReply = (messageId: string, text: string) => {
+  const handlePanelSendReply = (messageId: string, text: string) => {
     onSendReply(messageId, text);
-    setReplyingTo(null);
   };
 
   return (
@@ -520,7 +519,7 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
                 <Button onClick={() => onAcknowledge(msg.message_id)} className="flex-1 bg-white text-black hover:bg-neutral-200 font-bold text-xs py-3 rounded-lg">
                   <Check className="w-3 h-3 mr-1.5" /> ACKNOWLEDGE
                 </Button>
-                <Button variant="outline" onClick={() => setReplyingTo(replyingTo === msg.message_id ? null : msg.message_id)} className="flex-1 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-xs py-3 rounded-lg">
+                <Button variant="outline" onClick={() => onOpenReplyDialog(msg)} className="flex-1 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-xs py-3 rounded-lg">
                   <Reply className="w-3 h-3 mr-1.5" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
                 </Button>
               </div>
@@ -530,17 +529,13 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
                   <Check className="w-3 h-3" />
                   <span>Acknowledged {msg.acknowledged_at ? format(new Date(msg.acknowledged_at), "hh:mm a") : ""}</span>
                 </div>
-                <Button variant="outline" size="sm" onClick={() => setReplyingTo(replyingTo === msg.message_id ? null : msg.message_id)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
+                <Button variant="outline" size="sm" onClick={() => onOpenReplyDialog(msg)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
                   <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
                 </Button>
               </div>
             )}
             {/* Threaded replies */}
             <RepliesThread replies={msgReplies} />
-            {/* Reply panel */}
-            {replyingTo === msg.message_id && (
-              <KDSReplyPanel message={msg} onSend={(text) => handleSendReply(msg.message_id, text)} onCancel={() => setReplyingTo(null)} />
-            )}
           </div>
           );
         })}
@@ -604,10 +599,9 @@ const ProductStatusIcon = ({ status }: { status: string }) => {
 };
 
 // ─── Ticket Card ───
-const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowledgeMessage, onSendReply, allReplies = [] }: { ticket: KDSTicket; onBump: (id: string) => void; onSeen: (id: string) => void; attachedMessages?: KDSMessageData[]; onAcknowledgeMessage?: (messageId: string) => void; onSendReply?: (messageId: string, text: string) => void; allReplies?: KDSReply[] }) => {
+const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowledgeMessage, onSendReply, allReplies = [], onOpenReplyDialog }: { ticket: KDSTicket; onBump: (id: string) => void; onSeen: (id: string) => void; attachedMessages?: KDSMessageData[]; onAcknowledgeMessage?: (messageId: string) => void; onSendReply?: (messageId: string, text: string) => void; allReplies?: KDSReply[]; onOpenReplyDialog?: (msg: KDSMessageData) => void }) => {
   const isMessage = (ticket as any).type === "MESSAGE";
   const [elapsedSeconds, setElapsedSeconds] = useState(() => Math.floor((Date.now() - ticket.createdAt.getTime()) / 1000));
-  const [inlineReplyingTo, setInlineReplyingTo] = useState<string | null>(null);
   const elapsed = Math.floor(elapsedSeconds / 60);
 
   useEffect(() => {
@@ -700,10 +694,6 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                 {(() => {
                   const msgReplies = allReplies.filter(r => r.message_id === msg.message_id);
                   const hasReplied = msgReplies.length > 0;
-                  const handleInlineReply = (text: string) => {
-                    if (onSendReply) onSendReply(msg.message_id, text);
-                    setInlineReplyingTo(null);
-                  };
                   return (
                     <>
                       {msg.status === "pending" && onAcknowledgeMessage ? (
@@ -711,7 +701,7 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                           <Button onClick={() => onAcknowledgeMessage(msg.message_id)} className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-[10px] py-2 rounded-lg">
                             <Check className="w-3 h-3 mr-1" /> ACKNOWLEDGE
                           </Button>
-                          <Button variant="outline" onClick={() => setInlineReplyingTo(inlineReplyingTo === msg.message_id ? null : msg.message_id)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
+                          <Button variant="outline" onClick={() => onOpenReplyDialog?.(msg)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
                             <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
                           </Button>
                         </div>
@@ -721,15 +711,12 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
                             <Check className="w-3 h-3 text-emerald-500" />
                             <span className="text-[10px] text-emerald-500 font-medium">Acknowledged{msg.acknowledged_at ? ` ${format(new Date(msg.acknowledged_at), "hh:mm a")}` : ""}</span>
                           </div>
-                          <Button variant="outline" size="sm" onClick={() => setInlineReplyingTo(inlineReplyingTo === msg.message_id ? null : msg.message_id)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-1.5 rounded-lg">
+                          <Button variant="outline" size="sm" onClick={() => onOpenReplyDialog?.(msg)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-1.5 rounded-lg">
                             <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
                           </Button>
                         </div>
                       ) : null}
                       <RepliesThread replies={msgReplies} />
-                      {inlineReplyingTo === msg.message_id && (
-                        <KDSReplyPanel message={msg} onSend={handleInlineReply} onCancel={() => setInlineReplyingTo(null)} />
-                      )}
                     </>
                   );
                 })()}
@@ -998,6 +985,24 @@ const KDS = () => {
     setTickets(prev => prev.map(t => t.id === id ? { ...t, status: "seen" as const } : t));
   }, []);
 
+  // Reply dialog state
+  const [replyDialogOpen, setReplyDialogOpen] = useState(false);
+  const [replyDialogMessage, setReplyDialogMessage] = useState<KDSMessageData | null>(null);
+
+  const handleOpenReplyDialog = useCallback((msg: KDSMessageData) => {
+    setReplyDialogMessage(msg);
+    setReplyDialogOpen(true);
+  }, []);
+
+  const handleReplyDialogSend = useCallback((messageId: string, text: string) => {
+    handleSendReply(messageId, text);
+  }, [handleSendReply]);
+
+  const replyDialogHasReplied = useMemo(() => {
+    if (!replyDialogMessage) return false;
+    return kdsReplies.some(r => r.message_id === replyDialogMessage.message_id);
+  }, [replyDialogMessage, kdsReplies]);
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
@@ -1056,7 +1061,7 @@ const KDS = () => {
                   ...(ticket.tableNumber ? (messagesByTable.get(normalizeTableNumber(ticket.tableNumber)) || []) : []),
                   ...(messagesByOrder.get(ticket.id) || []),
                   ...(messagesByOrder.get(`order-${ticket.orderNumber}`) || []),
-                ]} onAcknowledgeMessage={handleAcknowledgeMessage} onSendReply={handleSendReply} allReplies={kdsReplies} />
+                ]} onAcknowledgeMessage={handleAcknowledgeMessage} onSendReply={handleSendReply} allReplies={kdsReplies} onOpenReplyDialog={handleOpenReplyDialog} />
               ))}
               {activeTickets.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 gap-3">
@@ -1072,7 +1077,7 @@ const KDS = () => {
           {showSummary && <ItemSummary tickets={activeTickets} />}
 
           {/* Messages Panel */}
-          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} messages={kdsMessages} onAcknowledge={handleAcknowledgeMessage} onSendReply={handleSendReply} allReplies={kdsReplies} />}
+          {showMessages && <KDSMessagesPanel onClose={() => setShowMessages(false)} messages={kdsMessages} onAcknowledge={handleAcknowledgeMessage} onSendReply={handleSendReply} allReplies={kdsReplies} onOpenReplyDialog={handleOpenReplyDialog} />}
         </div>
 
         {/* Bottom Bar */}
@@ -1087,6 +1092,15 @@ const KDS = () => {
           </div>
         </div>
       </div>
+
+      {/* Reply Dialog */}
+      <KDSReplyDialog
+        open={replyDialogOpen}
+        onOpenChange={setReplyDialogOpen}
+        message={replyDialogMessage}
+        onSendReply={handleReplyDialogSend}
+        hasReplied={replyDialogHasReplied}
+      />
     </div>
   );
 };

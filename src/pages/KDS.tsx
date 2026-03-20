@@ -247,7 +247,7 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
       }
       prevCountRef.current = pendingCount;
     } catch { setMessages([]); }
-  }, [staleIds]);
+  }, []);
 
   useEffect(() => {
     refreshMessages();

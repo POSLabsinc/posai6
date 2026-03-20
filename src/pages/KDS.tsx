@@ -233,7 +233,7 @@ interface KDSMessageData {
   acknowledged_at?: string;
 }
 
-const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
+const KDSMessagesPanel = ({ onClose, sessionStart }: { onClose: () => void; sessionStart: string }) => {
   const [messages, setMessages] = useState<KDSMessageData[]>([]);
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
   const [flashId, setFlashId] = useState<string | null>(null);
@@ -243,7 +243,9 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
     try {
       const raw = localStorage.getItem("kds_message_queue");
       if (!raw) { setMessages([]); return; }
-      const parsed: KDSMessageData[] = JSON.parse(raw).map((m: any) => ({ ...m, status: m.status || "pending" }));
+      const allParsed: KDSMessageData[] = JSON.parse(raw).map((m: any) => ({ ...m, status: m.status || "pending" }));
+      // Only show messages from the current KDS session
+      const parsed = allParsed.filter(m => m.timestamp >= sessionStart);
       setMessages(parsed);
       const pendingCount = parsed.filter(m => m.status === "pending").length;
       if (pendingCount > prevCountRef.current && prevCountRef.current > 0) {
@@ -252,7 +254,7 @@ const KDSMessagesPanel = ({ onClose }: { onClose: () => void }) => {
       }
       prevCountRef.current = pendingCount;
     } catch { setMessages([]); }
-  }, []);
+  }, [sessionStart]);
 
   useEffect(() => {
     refreshMessages();

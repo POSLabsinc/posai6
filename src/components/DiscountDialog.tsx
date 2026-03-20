@@ -255,7 +255,7 @@ export function DiscountDialog({
                 <div className="flex-1 min-w-0 text-left">
                   <div className="flex items-center gap-1">
                     <span className="text-[11px] font-medium text-white text-left" style={{ wordBreak: 'break-word' }}>{discount.name}</span>
-                    {reqReason && (
+                    {reqReason && discount.value !== 100 && (
                       <span className="text-[8px] font-medium px-1 py-0.5 rounded flex-shrink-0 whitespace-nowrap" style={{ background: 'rgba(245,166,35,0.15)', color: '#f5a623' }}>
                         Reason required
                       </span>

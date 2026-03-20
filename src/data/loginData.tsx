@@ -140,6 +140,6 @@ export const getTimeOfDayInfo = (date: Date) => {
 
 export const PIN_LENGTH = 4;
 
-type DeviceType = "company" | "personal" | null;
+export type DeviceType = "company" | "personal" | null;
 
 

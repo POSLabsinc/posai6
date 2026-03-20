@@ -418,9 +418,10 @@ const readSessionMessages = (): KDSMessageData[] => {
   }
 };
 
-const KDSMessagesPanel = ({ onClose, messages, onAcknowledge }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void }) => {
+const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allReplies }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void; onSendReply: (messageId: string, text: string) => void; allReplies: KDSReply[] }) => {
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
   const [flashId, setFlashId] = useState<string | null>(null);
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
   const prevCountRef = useRef(0);
 
   // Flash animation on new pending messages
@@ -436,6 +437,11 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge }: { onClose: () =>
   const filtered = messages.filter(m => m.status === filter).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
   const seen = new Set<string>();
   const deduplicated = filtered.filter(m => { if (seen.has(m.message_id)) return false; seen.add(m.message_id); return true; });
+
+  const handleSendReply = (messageId: string, text: string) => {
+    onSendReply(messageId, text);
+    setReplyingTo(null);
+  };
 
   return (
     <div className="w-80 bg-neutral-900 border-l border-neutral-800 flex flex-col h-full shrink-0 overflow-hidden">
@@ -487,6 +493,9 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge }: { onClose: () =>
             } catch {}
           }
 
+          const msgReplies = allReplies.filter(r => r.message_id === msg.message_id);
+          const hasReplied = msgReplies.length > 0;
+
           return (
           <div key={msg.message_id} className={`rounded-xl overflow-hidden border transition-all duration-300 ${flashId === msg.message_id ? "border-violet-400 ring-2 ring-violet-400/50 animate-pulse" : "border-neutral-700"}`}>
             <div className="bg-gradient-to-r from-violet-700 to-indigo-700 px-3 py-2 flex items-center justify-between">
@@ -505,18 +514,30 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge }: { onClose: () =>
               <p className="text-xs leading-relaxed whitespace-pre-wrap break-words">{msg.message_text}</p>
             </div>
             {msg.status === "pending" ? (
-              <div className="bg-neutral-900 px-3 pb-3 pt-1">
-                <Button onClick={() => onAcknowledge(msg.message_id)} className="w-full bg-white text-black hover:bg-neutral-200 font-bold text-xs py-3 rounded-lg">
+              <div className="bg-neutral-900 px-3 pb-3 pt-1 flex gap-2">
+                <Button onClick={() => onAcknowledge(msg.message_id)} className="flex-1 bg-white text-black hover:bg-neutral-200 font-bold text-xs py-3 rounded-lg">
                   <Check className="w-3 h-3 mr-1.5" /> ACKNOWLEDGE
+                </Button>
+                <Button variant="outline" onClick={() => setReplyingTo(replyingTo === msg.message_id ? null : msg.message_id)} className="flex-1 border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-xs py-3 rounded-lg">
+                  <Reply className="w-3 h-3 mr-1.5" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
                 </Button>
               </div>
             ) : (
-              <div className="bg-neutral-900 px-3 pb-2 pt-1">
+              <div className="bg-neutral-900 px-3 pb-2 pt-1 space-y-2">
                 <div className="flex items-center gap-1.5 text-[10px] text-emerald-400">
                   <Check className="w-3 h-3" />
                   <span>Acknowledged {msg.acknowledged_at ? format(new Date(msg.acknowledged_at), "hh:mm a") : ""}</span>
                 </div>
+                <Button variant="outline" size="sm" onClick={() => setReplyingTo(replyingTo === msg.message_id ? null : msg.message_id)} className="w-full border-neutral-600 text-neutral-300 hover:bg-neutral-700 bg-transparent font-bold text-[10px] py-2 rounded-lg">
+                  <Reply className="w-3 h-3 mr-1" /> {hasReplied ? "REPLY AGAIN" : "REPLY"}
+                </Button>
               </div>
+            )}
+            {/* Threaded replies */}
+            <RepliesThread replies={msgReplies} />
+            {/* Reply panel */}
+            {replyingTo === msg.message_id && (
+              <KDSReplyPanel message={msg} onSend={(text) => handleSendReply(msg.message_id, text)} onCancel={() => setReplyingTo(null)} />
             )}
           </div>
           );

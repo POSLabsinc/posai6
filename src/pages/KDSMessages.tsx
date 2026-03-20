@@ -26,6 +26,46 @@ interface KDSMessage {
 
 const STORAGE_KEY = "kds_message_queue";
 
+const REPLY_STORAGE_KEY = "kds_message_replies";
+const POS_REPLY_NOTIFICATION_KEY = "pos_reply_notifications";
+
+interface KDSReply {
+  reply_id: string;
+  message_id: string;
+  reply_text: string;
+  timestamp: string;
+  source: "kds";
+}
+
+const readReplies = (): KDSReply[] => {
+  try { return JSON.parse(localStorage.getItem(REPLY_STORAGE_KEY) || "[]"); } catch { return []; }
+};
+
+const saveReplyToStorage = (reply: KDSReply) => {
+  const replies = readReplies();
+  replies.push(reply);
+  localStorage.setItem(REPLY_STORAGE_KEY, JSON.stringify(replies));
+};
+
+const pushPosNotification = (reply: KDSReply, originalMessage: KDSMessage) => {
+  try {
+    const queue = JSON.parse(localStorage.getItem(POS_REPLY_NOTIFICATION_KEY) || "[]");
+    queue.push({
+      id: reply.reply_id,
+      title: "Reply from Kitchen",
+      body: reply.reply_text,
+      meta: `Re: ${originalMessage.message_text.slice(0, 30)}${originalMessage.message_text.length > 30 ? "..." : ""}`,
+      timestamp: reply.timestamp,
+      message_id: originalMessage.message_id,
+      order_id: originalMessage.linked_order_id || null,
+      order_number: originalMessage.linked_order_number || null,
+      table_number: originalMessage.table_number || null,
+      is_read: false,
+    });
+    localStorage.setItem(POS_REPLY_NOTIFICATION_KEY, JSON.stringify(queue));
+  } catch {}
+};
+
 const loadMessages = (): KDSMessage[] => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);

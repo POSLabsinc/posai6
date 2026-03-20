@@ -465,51 +465,21 @@ const Orders = () => {
   const existingOrderPaymentStatus = existingOrder?.paymentStatus || existingOrder?.status;
   const isExistingOrderPaid = existingOrderPaymentStatus === 'Paid' || existingOrderPaymentStatus === 'PAID';
 
-  // Helper to get first category and subcategory for a menu
-  const getFirstCategoryAndSubcategory = (menu: string) => {
-    const categories = augmentedMenuCategories[menu] || [];
-    const firstCategory = categories[0] || "";
-    const subcategories = mergedCategorySubcategories[firstCategory] || [];
-    const firstSubcategory = subcategories[0] || "";
-    return {
-      firstCategory,
-      firstSubcategory
-    };
-  };
-  const defaultMenu = "BAR MENU";
+  // Menu navigation hook - manages active category, subcategory, menu selection, and position
   const {
-    firstCategory: defaultCategory,
-    firstSubcategory: defaultSubcategory
-  } = getFirstCategoryAndSubcategory(defaultMenu);
-  const [activeCategory, setActiveCategory] = useState(defaultCategory);
-  const [activeSubcategory, setActiveSubcategory] = useState(defaultSubcategory);
-  const [activeFoodCategory, setActiveFoodCategory] = useState("Appetizer");
-  const [selectedMenu, setSelectedMenu] = useState(defaultMenu);
-  const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
-  const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
-
-  // Sync selected menu & category when menu list changes (e.g. toggle on/off in settings)
-  useEffect(() => {
-    if (menuList.length > 0) {
-      // If the currently selected menu is no longer in the list, select the first one
-      if (!menuList.includes(selectedMenu)) {
-        setSelectedMenu(menuList[0]);
-      }
-    }
-  }, [menuList]);
-
-  // Sync active category/subcategory when menu data loads from DB
-  useEffect(() => {
-    if (menuList.length > 0 && augmentedMenuCategories[selectedMenu]?.length) {
-      const cats = augmentedMenuCategories[selectedMenu];
-      if (!activeCategory || !cats.includes(activeCategory)) {
-        const firstCat = cats[0] || "";
-        setActiveCategory(firstCat);
-        const subs = mergedCategorySubcategories[firstCat] || [];
-        setActiveSubcategory(subs[0] || "");
-      }
-    }
-  }, [menuList, augmentedMenuCategories, selectedMenu]);
+    activeCategory, setActiveCategory,
+    activeSubcategory, setActiveSubcategory,
+    selectedMenu, setSelectedMenu,
+    isMenuSelectOpen, setIsMenuSelectOpen,
+    menuPosition, setMenuPosition,
+    handleMenuSelect,
+    handleCategoryChange,
+    getFirstCategoryAndSubcategory,
+  } = useMenuNavigation({
+    menuList,
+    augmentedMenuCategories,
+    mergedCategorySubcategories,
+  });
   const [existingItems, setExistingItems] = useState<OrderItem[]>([]);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);

@@ -324,7 +324,7 @@ export function DiscountDialog({
                   {r.isAI && !isSelected && (
                     <Zap className="w-2 h-2 absolute top-1.5 right-1.5" style={{ color: 'rgba(245,166,35,0.4)' }} />
                   )}
-                  <span className="text-lg leading-none">{r.emoji}</span>
+                  <r.icon className="w-5 h-5" style={{ color: isSelected ? '#fff' : '#888' }} />
                   <span className="text-[10px] font-medium text-center leading-tight" style={{ color: isSelected ? '#fff' : '#aaa' }}>
                     {r.label}
                   </span>

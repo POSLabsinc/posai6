@@ -8,7 +8,7 @@ import {
   Drawer,
   DrawerContent,
 } from "@/components/ui/drawer";
-import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, ChevronLeft, PackageOpen, UserX, XCircle, Thermometer, Timer, UserCog, UtensilsCrossed, FileText } from "lucide-react";
+import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, ChevronLeft, PackageOpen, UserX, XCircle, Thermometer, Timer, UserCog, UtensilsCrossed, FileText, Users, Percent, Gift, CalendarDays, Megaphone, Truck } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Discount {
@@ -98,7 +98,13 @@ const fallbackDiscounts: Discount[] = [
   { id: "manager-5", name: "Manager Comp $5", type: "amount", value: 5, icon: DollarSign },
   { id: "manager-10", name: "Manager Comp $10", type: "amount", value: 10, icon: BadgeDollarSign },
   { id: "manager-15", name: "Manager Comp $15", type: "amount", value: 15, icon: Wallet },
-  { id: "promo-code", name: "Promo Code Discount", type: "percentage", value: 20, icon: Tag },
+  { id: "promo-code", name: "Promo Code", type: "percentage", value: 20, icon: Tag },
+  { id: "group-dining", name: "Group Dining", type: "percentage", value: 10, icon: Users },
+  { id: "early-bird", name: "Early Bird", type: "percentage", value: 15, icon: CalendarDays },
+  { id: "seasonal", name: "Seasonal Offer", type: "percentage", value: 12, icon: Megaphone },
+  { id: "takeaway", name: "Takeaway Discount", type: "percentage", value: 8, icon: Truck },
+  { id: "referral", name: "Referral Reward", type: "percentage", value: 10, icon: Gift },
+  { id: "flat-20", name: "Flat $20 Off", type: "amount", value: 20, icon: Percent },
 ];
 
 const FULL_COMP_DEFAULT: Discount = {

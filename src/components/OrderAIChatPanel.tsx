@@ -337,8 +337,24 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions }: OrderAIChatPa
               key={action.label}
               onClick={() => {
                 if (action.label === "Summary" || action.label === "Clear") {
-                  setInput(action.prompt);
-                  setTimeout(() => handleSend(), 0);
+                  // Send directly for instant actions
+                  const fakeEvent = action.prompt;
+                  setMessages((prev) => [
+                    ...prev,
+                    { id: crypto.randomUUID(), role: "user", content: fakeEvent, timestamp: new Date() },
+                  ]);
+                  setIsTyping(true);
+                  streamChat(fakeEvent)
+                    .catch((e) => {
+                      console.error("Quick action error:", e);
+                      if (!(e instanceof Error && (e.message === "Rate limited" || e.message === "Payment required"))) {
+                        setMessages((prev) => [
+                          ...prev,
+                          { id: crypto.randomUUID(), role: "assistant", content: "Sorry, I encountered an error.", timestamp: new Date() },
+                        ]);
+                      }
+                    })
+                    .finally(() => setIsTyping(false));
                 } else {
                   setInput(action.prompt);
                   inputRef.current?.focus();

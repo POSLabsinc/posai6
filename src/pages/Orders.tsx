@@ -2625,7 +2625,7 @@ const Orders = () => {
       )}
 
       {/* Right Panel - Order (Desktop only) */}
-      <div className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} overflow-hidden flex-shrink-0 pb-2 pr-2 gap-0 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-1' : isAIChatOpen ? 'md:order-3' : 'md:order-2'}`}>
+      <div className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} overflow-hidden flex-shrink-0 pb-2 pr-2 gap-0 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
         {/* Order Panel Content */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Order Header - Outside background container */}

@@ -426,6 +426,48 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
     return extra;
   };
 
+  // Confirm a single expanded product with its customizations
+  const confirmSingleProduct = (product: AvailableProduct) => {
+    const p = pendingProducts.find(pp => pp.productId === product.id);
+    if (!p) return;
+
+    const cust = inlineCustomizations[p.productId];
+    if (cust) {
+      for (const group of cust.modifierGroups) {
+        if (group.required && !(cust.selectedModifiers[group.id]?.length > 0)) {
+          toast.error(`Please select a ${group.name}`);
+          return;
+        }
+      }
+    }
+
+    const modStrings = getModStringsForProduct(p.productId);
+    const extraPrice = getExtraPriceForProduct(p.productId);
+    const notes = inlineCustomizations[p.productId]?.productNotes || "";
+
+    if (modStrings.length > 0 || notes.trim()) {
+      orderActions?.addProductWithModifiers(p.name, p.price + extraPrice, p.qty, modStrings, notes);
+    } else {
+      orderActions?.addProduct(p.name, p.price, p.qty);
+    }
+
+    const modStr = modStrings.length > 0 ? ` (${modStrings.join(", ")})` : "";
+    const summary = `${p.qty}x ${p.name}${modStr}`;
+
+    setMessages(prev => [
+      ...prev,
+      { id: crypto.randomUUID(), role: "user", content: `Add ${summary}`, timestamp: new Date() },
+      { id: crypto.randomUUID(), role: "assistant", content: `Added ${summary} to the order.`, timestamp: new Date() },
+    ]);
+
+    // Clean up this product
+    setPendingProducts(prev => prev.filter(pp => pp.productId !== product.id));
+    setExpandedProductId(null);
+    const newCustomizations = { ...inlineCustomizations };
+    delete newCustomizations[product.id];
+    setInlineCustomizations(newCustomizations);
+  };
+
   // Confirm all selected products with their customizations
   const confirmAllProducts = () => {
     if (pendingProducts.length === 0) { toast.error("No products selected"); return; }

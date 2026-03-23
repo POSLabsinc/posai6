@@ -111,8 +111,15 @@ const FULL_COMP_DEFAULT: Discount = {
 };
 
 const ensureFullComp = (discounts: Discount[]): Discount[] => {
-  const has100 = discounts.some(d => d.value === 100 && d.type === "percentage");
-  return has100 ? discounts : [...discounts, FULL_COMP_DEFAULT];
+  const seen = new Set<string>();
+  const unique = discounts.filter(d => {
+    const key = `${d.name.toLowerCase()}-${d.value}-${d.type}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  const has100 = unique.some(d => d.value === 100 && d.type === "percentage");
+  return has100 ? unique : [...unique, FULL_COMP_DEFAULT];
 };
 
 const getDiscountsFromSettings = (): Discount[] => {

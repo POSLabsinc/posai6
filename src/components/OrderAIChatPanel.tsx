@@ -898,8 +898,8 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                           {/* Plus icon - quick add to cart */}
                           {!isExpanded && (
                             <button onClick={(e) => { e.stopPropagation(); handleQuickAdd(product); }}
-                              className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-primary/20 hover:border-primary/40 border border-neutral-600 flex items-center justify-center transition-colors flex-shrink-0">
-                              <Plus className="w-3.5 h-3.5 text-neutral-300" />
+                              className="w-7 h-7 rounded-lg bg-orange-500 hover:bg-orange-400 border border-orange-400 flex items-center justify-center transition-colors flex-shrink-0">
+                              <Plus className="w-3.5 h-3.5 text-white" />
                             </button>
                           )}
                           {/* Chevron toggle when expanded */}

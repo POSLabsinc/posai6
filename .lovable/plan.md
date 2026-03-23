@@ -1,15 +1,39 @@
 
 
-## Plan: Add Background Color to Reason Section
+## Plan: Split-Screen AI Chat on Orders Page
 
-**What**: Apply a slightly different (lighter) background to the Reason column so the Discount section stands out as the primary/prominent area.
+### What Changes
 
-**How**: Add a subtle background color to the reason column container (line 289) — something like `rgba(255,255,255,0.03)` or `rgba(255,255,255,0.025)` — to create visual separation from the main discount list area which stays at the base `#1a1a1e`.
+When the user clicks the AI icon on the New Order screen, instead of navigating to `/settings/ai`, the screen will split into two parts: the existing order content on the left and an AI chat panel on the right.
 
-**Technical Details**:
-- **File**: `src/components/DiscountDialog.tsx`
-- **Change**: On the reason column wrapper (line 289), add a `background` style of approximately `#1d1d22` or `rgba(255,255,255,0.03)` to give it a subtly different tone
-- This applies to both the "needs reason" and "no reason required" states
-- The left border separator already exists; adding the background will reinforce the visual hierarchy
-- Mobile view (reason as separate step) will also get the same background for consistency
+### Implementation
+
+**1. Create `src/components/OrderAIChatPanel.tsx`**
+- A new chat panel component styled to match the app's dark theme
+- Contains a header with title and close button, a message list, and an input area
+- Simple chat UI with message bubbles (user/assistant)
+- Placeholder AI responses for now (can be wired to a real AI backend later)
+
+**2. Modify `src/pages/Orders.tsx`**
+- Add state: `const [isAIChatOpen, setIsAIChatOpen] = useState(false)`
+- Change both AI icon `onClick` handlers (mobile line ~2117, desktop line ~2385) from `navigate('/settings/ai')` to `setIsAIChatOpen(true)`
+- Wrap the existing order content and the new chat panel in a flex container
+- When `isAIChatOpen` is true, the order area takes ~65% width and the chat panel takes ~35% on desktop
+- On mobile, the chat panel could overlay as a slide-in sheet from the right
+- Use `ResizablePanelGroup` from the existing resizable component for a draggable split
+
+**3. Layout Structure (Desktop)**
+```text
+┌─────────────────────────┬──────────────┐
+│                         │              │
+│   Orders Content        │  AI Chat     │
+│   (resizable ~65%)      │  Panel       │
+│                         │  (~35%)      │
+│                         │              │
+└─────────────────────────┴──────────────┘
+```
+
+### Files to Create/Modify
+- **Create**: `src/components/OrderAIChatPanel.tsx`
+- **Modify**: `src/pages/Orders.tsx` — state, onClick handlers, layout wrapping
 

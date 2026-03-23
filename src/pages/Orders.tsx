@@ -1381,7 +1381,7 @@ const Orders = () => {
   isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER' :
   '';
   return <div className="flex h-full overflow-hidden">
-    <div className={`relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden pt-2 transition-all duration-300 ${isAIChatOpen ? 'w-[65%]' : 'w-full'}`}>
+    <div className={`relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden pt-2 transition-all duration-300 ${isAIChatOpen ? 'lg:w-[65%]' : 'w-full'}`}>
       {/* Panel Drop Zones for drag and drop repositioning */}
       <PanelDropZones />
       {/* Right Panel - Order (Shows first on mobile) */}
@@ -3824,13 +3824,13 @@ const Orders = () => {
     />
     </div>
     {isAIChatOpen && (
-      <div className="w-[35%] h-full hidden md:block">
+      <div className="w-[35%] h-full hidden lg:block">
         <OrderAIChatPanel onClose={() => setIsAIChatOpen(false)} />
       </div>
     )}
-    {/* Mobile: Sheet overlay */}
+    {/* Mobile & Tablet: Sheet overlay */}
     {isAIChatOpen && (
-      <div className="md:hidden fixed inset-0 z-50 flex">
+      <div className="lg:hidden fixed inset-0 z-50 flex">
         <div className="flex-1 bg-black/50" onClick={() => setIsAIChatOpen(false)} />
         <div className="w-[85%] max-w-sm h-full">
           <OrderAIChatPanel onClose={() => setIsAIChatOpen(false)} />

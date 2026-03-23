@@ -283,20 +283,31 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
     return orderContext.availableProducts;
   };
 
-  // Toggle product selection AND expand inline customization
-  const handleProductClick = async (product: AvailableProduct) => {
-    const isSelected = pendingProducts.some(p => p.name === product.name);
+  // Quick add: directly add product to cart without customization
+  const handleQuickAdd = (product: AvailableProduct) => {
+    orderActions?.addProduct(product.name, product.price, 1);
+    toast.success(`Added ${product.name} to order`);
+    setMessages(prev => [
+      ...prev,
+      { id: crypto.randomUUID(), role: "user", content: `Add ${product.name}`, timestamp: new Date() },
+      { id: crypto.randomUUID(), role: "assistant", content: `Added 1x ${product.name} ($${product.price.toFixed(2)}) to the order.`, timestamp: new Date() },
+    ]);
+  };
 
-    if (isSelected) {
-      // Deselect: remove from pending, collapse
-      setPendingProducts(prev => prev.filter(p => p.name !== product.name));
-      if (expandedProductId === product.id) setExpandedProductId(null);
+  // Toggle inline expand to show modifiers/add-ons
+  const handleProductExpand = async (product: AvailableProduct) => {
+    // Toggle collapse if already expanded
+    if (expandedProductId === product.id) {
+      setExpandedProductId(null);
       return;
     }
 
-    // Select product
-    setPendingProducts(prev => [...prev, { name: product.name, price: product.price, qty: 1, productId: product.id }]);
     setExpandedProductId(product.id);
+
+    // Ensure product is in pending list for customization tracking
+    if (!pendingProducts.some(p => p.productId === product.id)) {
+      setPendingProducts(prev => [...prev, { name: product.name, price: product.price, qty: 1, productId: product.id }]);
+    }
 
     // Fetch customization if not cached
     if (!inlineCustomizations[product.id]) {
@@ -329,8 +340,6 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
           },
         };
       });
-    } else {
-      // Already cached, just expand
     }
   };
 

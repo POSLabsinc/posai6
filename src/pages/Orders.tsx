@@ -2575,7 +2575,7 @@ const Orders = () => {
 
       {/* AI Chat Panel - Left of Order Panel */}
       {isAIChatOpen && (
-        <div className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} flex-shrink-0 pb-2 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
+        <div className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} flex-shrink-0 pb-2 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-0 md:pl-2' : 'md:order-2'}`}>
           <div className="w-full h-full rounded-lg overflow-hidden">
             <OrderAIChatPanel
               onClose={() => setIsAIChatOpen(false)}

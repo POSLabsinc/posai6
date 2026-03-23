@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send } from "lucide-react";
+import { X, Send, ShoppingCart, Users, FileText, Trash2, UtensilsCrossed, StickyNote } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { toast } from "sonner";
@@ -322,8 +322,56 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions }: OrderAIChatPa
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Quick Actions */}
+      <div className="px-3 pt-2 flex-shrink-0 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-1.5 pb-2">
+          {[
+            { icon: ShoppingCart, label: "Add Product", prompt: "What products would you like to add?" },
+            { icon: UtensilsCrossed, label: "Order Type", prompt: "Change order type to " },
+            { icon: Users, label: "Guest Name", prompt: "Set guest name to " },
+            { icon: StickyNote, label: "Add Note", prompt: "Add order note: " },
+            { icon: FileText, label: "Summary", prompt: "Show me the current order summary" },
+            { icon: Trash2, label: "Clear", prompt: "Clear the entire order" },
+          ].map((action) => (
+            <button
+              key={action.label}
+              onClick={() => {
+                if (action.label === "Summary" || action.label === "Clear") {
+                  // Send directly for instant actions
+                  const fakeEvent = action.prompt;
+                  setMessages((prev) => [
+                    ...prev,
+                    { id: crypto.randomUUID(), role: "user", content: fakeEvent, timestamp: new Date() },
+                  ]);
+                  setIsTyping(true);
+                  streamChat(fakeEvent)
+                    .catch((e) => {
+                      console.error("Quick action error:", e);
+                      if (!(e instanceof Error && (e.message === "Rate limited" || e.message === "Payment required"))) {
+                        setMessages((prev) => [
+                          ...prev,
+                          { id: crypto.randomUUID(), role: "assistant", content: "Sorry, I encountered an error.", timestamp: new Date() },
+                        ]);
+                      }
+                    })
+                    .finally(() => setIsTyping(false));
+                } else {
+                  setInput(action.prompt);
+                  inputRef.current?.focus();
+                }
+              }}
+              disabled={isTyping}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#252525] hover:bg-[#303030] text-neutral-300 text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40"
+            >
+              <action.icon className="w-3 h-3" />
+              {action.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Input */}
-      <div className="px-3 pb-3 pt-2 border-t border-neutral-800 flex-shrink-0">
+      <div className="px-3 pb-3 pt-1 border-t border-neutral-800 flex-shrink-0">
         <div className="flex items-center gap-2 bg-[#252525] rounded-xl px-3 py-2">
           <input
             ref={inputRef}

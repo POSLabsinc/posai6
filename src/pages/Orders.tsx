@@ -2384,7 +2384,7 @@ const Orders = () => {
                 onClick={() => setIsDesktopSearchOpen(true)}>
               <img src={searchIcon} alt="Search" className="w-8 h-8 lg:w-9 lg:h-9" />
             </button>
-            <AnimatedAIIcon size={20} onClick={() => navigate('/settings/ai')} />
+            <AnimatedAIIcon size={20} onClick={() => setIsAIChatOpen(prev => !prev)} />
           </div>
           {/* Menu Controls Group */}
           {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-1.5 lg:gap-2 bg-sidebar-accent rounded-full pl-1 pr-0.5 md:pl-1.5 md:pr-0.5 lg:pl-2 lg:pr-0.5 h-7 md:h-8 lg:h-9">

@@ -2940,6 +2940,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 >
                   <Search className="w-4 h-4 text-white" />
                 </button>
+                <div className="overflow-visible flex items-center justify-center">
+                  <AnimatedAIIcon size={20} onClick={() => setIsAIChatOpen(prev => !prev)} />
+                </div>
               </div>
             </>
           )}

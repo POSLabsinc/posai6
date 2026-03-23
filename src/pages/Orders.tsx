@@ -3822,6 +3822,21 @@ const Orders = () => {
       tableId={tableIdFromParams}
       serverName={currentServerName}
     />
+    </div>
+    {isAIChatOpen && (
+      <div className="w-[35%] h-full hidden md:block">
+        <OrderAIChatPanel onClose={() => setIsAIChatOpen(false)} />
+      </div>
+    )}
+    {/* Mobile: Sheet overlay */}
+    {isAIChatOpen && (
+      <div className="md:hidden fixed inset-0 z-50 flex">
+        <div className="flex-1 bg-black/50" onClick={() => setIsAIChatOpen(false)} />
+        <div className="w-[85%] max-w-sm h-full">
+          <OrderAIChatPanel onClose={() => setIsAIChatOpen(false)} />
+        </div>
+      </div>
+    )}
     </div>;
 };
 export default Orders;

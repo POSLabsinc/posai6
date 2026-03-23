@@ -6266,6 +6266,32 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           </div>
         );
       })()}
+      {/* AI Chat Panel - Mobile Overlay */}
+      <AnimatePresence>
+        {isAIChatOpen && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed inset-0 z-[60] md:hidden flex"
+          >
+            <div className="absolute inset-0 bg-black/60" onClick={() => setIsAIChatOpen(false)} />
+            <div className="absolute right-0 top-0 bottom-0 w-[85%] bg-black">
+              <OrderAIChatPanel
+                onClose={() => setIsAIChatOpen(false)}
+                orderContext={{
+                  orderType: selectedGuest?.order_type || "",
+                  guestName: selectedGuest?.customer_name || "",
+                  orderItems: [],
+                  orderNotes: "",
+                  availableProducts: [],
+                }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </>
   );

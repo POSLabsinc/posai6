@@ -56,6 +56,8 @@ import SwipeableCartItem from "@/components/SwipeableCartItem";
 import MobileFiltersSheet, { MobileFiltersState } from "@/components/MobileFiltersSheet";
 import OrderTypeIcon from "@/components/OrderTypeIcon";
 import { SimpleModifierTree } from "@/components/ModifierWithConnector";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import OrderAIChatPanel from "@/components/OrderAIChatPanel";
 import { DiscountDialog, availableDiscounts, type Discount } from "@/components/DiscountDialog";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import NoteSuggestions from "@/components/NoteSuggestions";
@@ -774,6 +776,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [searchQuery, setSearchQuery] = useState(""); // Search query
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false); // Mobile filters bottom sheet
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false); // Receipt options dialog
+  const [isAIChatOpen, setIsAIChatOpen] = useState(false); // AI chat panel visibility
   const [isDiscountDialogOpen, setIsDiscountDialogOpen] = useState(false); // Discount dialog
   const [showDiscountMpin, setShowDiscountMpin] = useState(false); // MPIN gate for discount
   const [showRefundConfirmation, setShowRefundConfirmation] = useState(false); // Refund confirmation dialog
@@ -2578,6 +2581,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               >
                 <Search className="w-4 h-4 text-white" />
               </button>
+              <div className="overflow-visible flex items-center justify-center">
+                <AnimatedAIIcon size={16} onClick={() => setIsAIChatOpen(prev => !prev)} />
+              </div>
             </div>
           </>
         )}
@@ -2934,6 +2940,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 >
                   <Search className="w-4 h-4 text-white" />
                 </button>
+                <div className="overflow-visible flex items-center justify-center">
+                  <AnimatedAIIcon size={20} onClick={() => setIsAIChatOpen(prev => !prev)} />
+                </div>
               </div>
             </>
           )}
@@ -3857,6 +3866,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 >
                   <Search className="w-4 h-4 text-white" />
                 </button>
+                <div className="overflow-visible flex items-center justify-center">
+                  <AnimatedAIIcon size={20} onClick={() => setIsAIChatOpen(prev => !prev)} />
+                </div>
               </div>
             </>
           )}
@@ -6254,6 +6266,32 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           </div>
         );
       })()}
+      {/* AI Chat Panel - Mobile Overlay */}
+      <AnimatePresence>
+        {isAIChatOpen && (
+          <motion.div
+            initial={{ x: "100%" }}
+            animate={{ x: 0 }}
+            exit={{ x: "100%" }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            className="fixed inset-0 z-[60] md:hidden flex"
+          >
+            <div className="absolute inset-0 bg-black/60" onClick={() => setIsAIChatOpen(false)} />
+            <div className="absolute right-0 top-0 bottom-0 w-[85%] bg-black">
+              <OrderAIChatPanel
+                onClose={() => setIsAIChatOpen(false)}
+                orderContext={{
+                  orderType: selectedGuest?.orderType || "",
+                  guestName: selectedGuest?.name || "",
+                  orderItems: [],
+                  orderNotes: "",
+                  availableProducts: [],
+                }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </>
   );

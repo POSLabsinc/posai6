@@ -264,6 +264,7 @@ const Orders = () => {
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
   const { addOrder: addTicketOrder, updateOrder: updateTicketOrder } = useTicketOrders();
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
+  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
 
   // Dynamic arrived-at time based on when the order screen was opened
   const [arrivedAt] = useState(() => {

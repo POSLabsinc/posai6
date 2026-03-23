@@ -3905,7 +3905,17 @@ const Orders = () => {
               setGuestName: (name) => setGuestName(name),
               clearOrder: () => handleClearOrder(),
               setOrderNotes: (notes) => setOrderNotes(notes),
-              openPayment: () => setShowPaymentDialog(true),
+              openPayment: () => {
+                if (requireOrderType && !orderType) {
+                  toast.error("Please select an order type before charging");
+                  return;
+                }
+                if (requireGuestName && !guestName.trim()) {
+                  toast.error("Please enter a guest name before charging");
+                  return;
+                }
+                setShowPaymentDialog(true);
+              },
             }}
           />
         </div>

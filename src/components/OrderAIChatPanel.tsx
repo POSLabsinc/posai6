@@ -1,7 +1,8 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { X, Send } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import { toast } from "sonner";
 
 interface Message {
   id: string;
@@ -10,16 +11,85 @@ interface Message {
   timestamp: Date;
 }
 
-interface OrderAIChatPanelProps {
-  onClose: () => void;
+interface OrderItem {
+  id: number;
+  qty: number;
+  name: string;
+  price: number;
+  modifiers?: string[];
+  notes?: string;
 }
 
-const OrderAIChatPanel = ({ onClose }: OrderAIChatPanelProps) => {
+interface AvailableProduct {
+  id: string;
+  name: string;
+  price: number;
+}
+
+interface OrderContext {
+  orderType: string;
+  guestName: string;
+  orderItems: OrderItem[];
+  orderNotes: string;
+  availableProducts: AvailableProduct[];
+}
+
+interface OrderActions {
+  addProduct: (name: string, price: number, quantity: number) => void;
+  removeProduct: (name: string) => void;
+  updateQuantity: (name: string, quantity: number) => void;
+  setOrderType: (type: string) => void;
+  setGuestName: (name: string) => void;
+  clearOrder: () => void;
+  setOrderNotes: (notes: string) => void;
+}
+
+interface OrderAIChatPanelProps {
+  onClose: () => void;
+  orderContext?: OrderContext;
+  orderActions?: OrderActions;
+}
+
+type Msg = { role: "user" | "assistant"; content: string };
+
+const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/order-ai-chat`;
+
+function processToolCalls(toolCalls: any[], actions: OrderActions | undefined) {
+  if (!actions) return;
+  for (const tc of toolCalls) {
+    try {
+      const args = typeof tc.function.arguments === "string"
+        ? JSON.parse(tc.function.arguments)
+        : tc.function.arguments;
+      const fn = tc.function.name;
+
+      if (fn === "add_product") {
+        actions.addProduct(args.product_name, args.price, args.quantity || 1);
+      } else if (fn === "remove_product") {
+        actions.removeProduct(args.product_name);
+      } else if (fn === "update_quantity") {
+        actions.updateQuantity(args.product_name, args.quantity);
+      } else if (fn === "set_order_type") {
+        actions.setOrderType(args.order_type);
+      } else if (fn === "set_guest_name") {
+        actions.setGuestName(args.guest_name);
+      } else if (fn === "clear_order") {
+        actions.clearOrder();
+      } else if (fn === "set_order_notes") {
+        actions.setOrderNotes(args.notes);
+      }
+    } catch (e) {
+      console.error("Tool call processing error:", e);
+    }
+  }
+}
+
+const OrderAIChatPanel = ({ onClose, orderContext, orderActions }: OrderAIChatPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "welcome",
       role: "assistant",
-      content: "Hi! I'm your AI assistant. How can I help you with this order?",
+      content: "Hi! I can help you manage this order. Try saying things like:\n- \"Add 2 Margherita Pizza\"\n- \"Remove the Caesar Salad\"\n- \"Change order type to Take Out\"\n- \"Set guest name to John\"",
       timestamp: new Date(),
     },
   ]);
@@ -27,6 +97,7 @@ const OrderAIChatPanel = ({ onClose }: OrderAIChatPanelProps) => {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const conversationRef = useRef<Msg[]>([]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -36,9 +107,125 @@ const OrderAIChatPanel = ({ onClose }: OrderAIChatPanelProps) => {
     inputRef.current?.focus();
   }, []);
 
-  const handleSend = () => {
+  const streamChat = useCallback(async (userMessage: string) => {
+    const userMsg: Msg = { role: "user", content: userMessage };
+    conversationRef.current = [...conversationRef.current, userMsg];
+
+    const resp = await fetch(CHAT_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+      },
+      body: JSON.stringify({
+        messages: conversationRef.current,
+        orderContext,
+      }),
+    });
+
+    if (resp.status === 429) {
+      toast.error("Rate limit exceeded. Please try again in a moment.");
+      throw new Error("Rate limited");
+    }
+    if (resp.status === 402) {
+      toast.error("AI credits exhausted. Please add funds.");
+      throw new Error("Payment required");
+    }
+    if (!resp.ok || !resp.body) throw new Error("Failed to start stream");
+
+    const reader = resp.body.getReader();
+    const decoder = new TextDecoder();
+    let textBuffer = "";
+    let assistantContent = "";
+    let toolCalls: any[] = [];
+    let toolCallMap: Record<number, { id: string; function: { name: string; arguments: string } }> = {};
+    let streamDone = false;
+
+    while (!streamDone) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      textBuffer += decoder.decode(value, { stream: true });
+
+      let newlineIndex: number;
+      while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+        let line = textBuffer.slice(0, newlineIndex);
+        textBuffer = textBuffer.slice(newlineIndex + 1);
+
+        if (line.endsWith("\r")) line = line.slice(0, -1);
+        if (line.startsWith(":") || line.trim() === "") continue;
+        if (!line.startsWith("data: ")) continue;
+
+        const jsonStr = line.slice(6).trim();
+        if (jsonStr === "[DONE]") {
+          streamDone = true;
+          break;
+        }
+
+        try {
+          const parsed = JSON.parse(jsonStr);
+          const delta = parsed.choices?.[0]?.delta;
+          if (!delta) continue;
+
+          // Handle text content
+          if (delta.content) {
+            assistantContent += delta.content;
+            setMessages((prev) => {
+              const last = prev[prev.length - 1];
+              if (last?.role === "assistant" && last.id !== "welcome") {
+                return prev.map((m, i) =>
+                  i === prev.length - 1 ? { ...m, content: assistantContent } : m
+                );
+              }
+              return [
+                ...prev,
+                { id: crypto.randomUUID(), role: "assistant", content: assistantContent, timestamp: new Date() },
+              ];
+            });
+          }
+
+          // Handle tool calls
+          if (delta.tool_calls) {
+            for (const tc of delta.tool_calls) {
+              const idx = tc.index ?? 0;
+              if (!toolCallMap[idx]) {
+                toolCallMap[idx] = { id: tc.id || "", function: { name: tc.function?.name || "", arguments: "" } };
+              }
+              if (tc.function?.name) toolCallMap[idx].function.name = tc.function.name;
+              if (tc.function?.arguments) toolCallMap[idx].function.arguments += tc.function.arguments;
+            }
+          }
+        } catch {
+          textBuffer = line + "\n" + textBuffer;
+          break;
+        }
+      }
+    }
+
+    // Process accumulated tool calls
+    toolCalls = Object.values(toolCallMap);
+    if (toolCalls.length > 0) {
+      processToolCalls(toolCalls, orderActions);
+
+      // If no text content was generated alongside tool calls, add a confirmation
+      if (!assistantContent) {
+        const actionNames = toolCalls.map((tc) => tc.function.name.replace(/_/g, " ")).join(", ");
+        assistantContent = `Done! Executed: ${actionNames}`;
+        setMessages((prev) => [
+          ...prev,
+          { id: crypto.randomUUID(), role: "assistant", content: assistantContent, timestamp: new Date() },
+        ]);
+      }
+    }
+
+    // Store assistant response in conversation history
+    if (assistantContent) {
+      conversationRef.current = [...conversationRef.current, { role: "assistant", content: assistantContent }];
+    }
+  }, [orderContext, orderActions]);
+
+  const handleSend = async () => {
     const trimmed = input.trim();
-    if (!trimmed) return;
+    if (!trimmed || isTyping) return;
 
     const userMsg: Message = {
       id: crypto.randomUUID(),
@@ -51,18 +238,24 @@ const OrderAIChatPanel = ({ onClose }: OrderAIChatPanelProps) => {
     setInput("");
     setIsTyping(true);
 
-    // Placeholder AI response
-    setTimeout(() => {
-      const aiMsg: Message = {
-        id: crypto.randomUUID(),
-        role: "assistant",
-        content:
-          "I received your message. AI responses will be connected to the backend soon.",
-        timestamp: new Date(),
-      };
-      setMessages((prev) => [...prev, aiMsg]);
+    try {
+      await streamChat(trimmed);
+    } catch (e) {
+      console.error("Chat error:", e);
+      if (!(e instanceof Error && (e.message === "Rate limited" || e.message === "Payment required"))) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: crypto.randomUUID(),
+            role: "assistant",
+            content: "Sorry, I encountered an error. Please try again.",
+            timestamp: new Date(),
+          },
+        ]);
+      }
+    } finally {
       setIsTyping(false);
-    }, 1200);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -143,7 +336,7 @@ const OrderAIChatPanel = ({ onClose }: OrderAIChatPanelProps) => {
           />
           <button
             onClick={handleSend}
-            disabled={!input.trim()}
+            disabled={!input.trim() || isTyping}
             className="p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-30 transition-opacity"
           >
             <Send className="w-4 h-4" />

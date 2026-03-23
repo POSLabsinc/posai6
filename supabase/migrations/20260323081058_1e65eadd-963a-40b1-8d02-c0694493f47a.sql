@@ -1,0 +1,1 @@
+UPDATE discounts SET name = 'Flash Sale' WHERE id = 'f7118ca7-7f3b-45a1-b8d3-0127a31d3d65';

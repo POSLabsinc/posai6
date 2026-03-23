@@ -279,16 +279,6 @@ export function DiscountDialog({
                 <span className="text-[10px] font-medium whitespace-nowrap" style={{ color: '#aaa' }}>
                   {discount.type === "percentage" ? `${discount.value}%` : `$${discount.value.toFixed(2)}`}
                 </span>
-                <div
-                  className="w-4.5 h-4.5 rounded-md flex-shrink-0 flex items-center justify-center transition-colors"
-                  style={{
-                    width: '18px', height: '18px',
-                    background: isSelected ? '#fff' : 'transparent',
-                    border: isSelected ? '1.5px solid #fff' : '1.5px solid #555',
-                  }}
-                >
-                  {isSelected && <Check className="w-2.5 h-2.5 text-black" strokeWidth={3} />}
-                </div>
               </button>
             );
           })}

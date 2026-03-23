@@ -48,6 +48,7 @@ interface OrderActions {
   setGuestName: (name: string) => void;
   clearOrder: () => void;
   setOrderNotes: (notes: string) => void;
+  openPayment?: () => void;
 }
 
 interface OrderAIChatPanelProps {
@@ -56,6 +57,25 @@ interface OrderAIChatPanelProps {
   orderActions?: OrderActions;
   menuData?: MenuData;
 }
+
+// Predefined notes matching OrderNotesAutocomplete
+const PREDEFINED_ALLERGY_NOTES = [
+  "Allergic to nuts",
+  "Allergic to peanuts",
+  "Allergic to shellfish",
+  "Allergic to dairy",
+  "Allergic to gluten",
+  "Allergic to eggs",
+  "Allergic to soy",
+];
+
+const PREDEFINED_GENERAL_NOTES = [
+  "No cutlery needed",
+  "Extra napkins please",
+  "To-go containers needed",
+  "Birthday celebration",
+  "VIP customer",
+];
 
 type Msg = { role: "user" | "assistant"; content: string };
 

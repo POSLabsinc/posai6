@@ -204,12 +204,15 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
           if (!delta) continue;
           if (delta.content) {
             assistantContent += delta.content;
-            setMessages((prev) => {
-              const last = prev[prev.length - 1];
-              if (last?.role === "assistant" && last.id !== "welcome")
-                return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantContent } : m);
-              return [...prev, { id: crypto.randomUUID(), role: "assistant", content: assistantContent, timestamp: new Date() }];
-            });
+            const snapshot = assistantContent;
+            if (!streamDone) {
+              setMessages((prev) => {
+                const last = prev[prev.length - 1];
+                if (last?.role === "assistant" && last.id !== "welcome")
+                  return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: snapshot } : m);
+                return [...prev, { id: crypto.randomUUID(), role: "assistant", content: snapshot, timestamp: new Date() }];
+              });
+            }
           }
           if (delta.tool_calls) {
             for (const tc of delta.tool_calls) {

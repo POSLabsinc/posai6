@@ -370,7 +370,7 @@ export function DiscountDialog({
         className="px-8 py-2.5 rounded-[10px] text-sm font-medium transition-all"
         style={{
           background: canApply ? '#fff' : 'rgba(255,255,255,0.1)',
-          color: canApply ? '#1e1e32' : '#555',
+          color: canApply ? '#1a1a1e' : '#555',
           opacity: canApply ? 1 : 0.6,
           cursor: canApply ? 'pointer' : 'not-allowed',
         }}
@@ -384,7 +384,7 @@ export function DiscountDialog({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="p-0 gap-0 border-0" style={{ background: '#1e1e32' }}>
+        <DrawerContent className="p-0 gap-0 border-0" style={{ background: '#1a1a1e' }}>
           {view === 'reason' ? (
             <>
               <div className="flex items-center px-3 pt-3 pb-1">
@@ -418,7 +418,7 @@ export function DiscountDialog({
 
   // -- Desktop: side-by-side, reason panel only when needed --
   const dialogContent = (
-    <div className="flex flex-col transition-all duration-200" style={{ background: '#1e1e32', borderRadius: '12px', overflow: 'hidden', maxHeight: '80vh' }}>
+    <div className="flex flex-col transition-all duration-200" style={{ background: '#1a1a1e', borderRadius: '12px', overflow: 'hidden', maxHeight: '80vh' }}>
       <div className="flex flex-1 min-h-0" style={{ minHeight: '340px' }}>
         {discountList}
         {needsReason && reasonColumn}
@@ -436,7 +436,7 @@ export function DiscountDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className={`p-0 gap-0 border-0 overflow-hidden transition-all duration-200 ${needsReason ? 'sm:max-w-[700px]' : 'sm:max-w-[480px]'}`}
-        style={{ background: '#1e1e32', borderRadius: '12px' }}
+        style={{ background: '#1a1a1e', borderRadius: '12px' }}
         hideCloseButton
       >
         {dialogContent}

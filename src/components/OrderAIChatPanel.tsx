@@ -935,16 +935,8 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
             )}
           </div>
 
-          {/* Browse Footer */}
-          {pendingProducts.length > 0 && (
-            <div className="px-3 pb-3 pt-2 border-t border-neutral-800 flex-shrink-0">
-              <button onClick={confirmAllProducts}
-                className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold transition-colors hover:bg-primary/90 flex items-center justify-center gap-2">
-                <ShoppingCart className="w-4 h-4" />
-                Add {pendingProducts.reduce((s, p) => s + p.qty, 0)} Products - ${pendingTotal.toFixed(2)}
-              </button>
-            </div>
-          )}
+
+
         </div>
       ) : (
         <>

@@ -3832,8 +3832,9 @@ const Orders = () => {
             guestName,
             orderItems,
             orderNotes,
-            availableProducts: dbProducts.map(p => ({ id: p.id, name: p.name, price: p.price })),
+            availableProducts: dbProducts.map(p => ({ id: p.id, name: p.name, price: p.price, category_name: p.category_name })),
           }}
+          menuData={{ menuList, menuCategories }}
           orderActions={{
             addProduct: (name, price, quantity) => {
               setOrderItems(prev => {
@@ -3870,8 +3871,9 @@ const Orders = () => {
               guestName,
               orderItems,
               orderNotes,
-              availableProducts: dbProducts.map(p => ({ id: p.id, name: p.name, price: p.price })),
+              availableProducts: dbProducts.map(p => ({ id: p.id, name: p.name, price: p.price, category_name: p.category_name })),
             }}
+            menuData={{ menuList, menuCategories }}
             orderActions={{
               addProduct: (name, price, quantity) => {
                 setOrderItems(prev => {

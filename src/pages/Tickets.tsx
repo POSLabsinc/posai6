@@ -6281,8 +6281,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               <OrderAIChatPanel
                 onClose={() => setIsAIChatOpen(false)}
                 orderContext={{
-                  orderType: selectedGuest?.order_type || "",
-                  guestName: selectedGuest?.customer_name || "",
+                  orderType: selectedGuest?.orderType || "",
+                  guestName: selectedGuest?.name || "",
                   orderItems: [],
                   orderNotes: "",
                   availableProducts: [],

@@ -196,9 +196,18 @@ async function fetchSettingsContext(supabaseUrl: string, serviceRoleKey: string)
 
   // Taxes
   promises.push((async () => {
+    const { data } = await supabase.from("taxes").select("name, amount, type, applicable_to, archived").eq("device_id", sharedDeviceId).eq("archived", false);
+    if (data?.length) {
+      parts.push(`### Taxes (${data.length}):`);
+      data.forEach((t: any) => parts.push(`- ${t.name}: ${t.amount}${t.type === "Percentage" || t.type === "Exclusive" || t.type === "Inclusive" ? `% (${t.type})` : " flat"} on ${t.applicable_to || "All Products"}`));
+    } else {
+      parts.push("### Taxes: none configured");
+    }
+  })());
+
+  // Service Charges
+  promises.push((async () => {
     const { data } = await supabase.from("service_charges").select("name, amount, type, order_type, automatic_apply, min_seats, archived, is_active").eq("device_id", sharedDeviceId).eq("archived", false);
-    // Note: taxes are stored differently - check for tax-specific tables
-    // For now fetch service charges
     if (data?.length) {
       parts.push(`### Service Charges (${data.length}):`);
       data.forEach((sc: any) => parts.push(`- ${sc.name}: ${sc.amount}${sc.type === "Percentage" ? "%" : " flat"}${sc.automatic_apply ? " (auto)" : ""}${sc.order_type ? ` for ${sc.order_type}` : ""}${sc.min_seats > 0 ? ` min ${sc.min_seats} seats` : ""}`));

@@ -2597,6 +2597,16 @@ const Orders = () => {
                     return [...prev, { id: Date.now(), qty: quantity, name, price }];
                   });
                 },
+                addProductWithModifiers: (name, price, quantity, modifiers, notes) => {
+                  setOrderItems(prev => [...prev, {
+                    id: Date.now(),
+                    qty: quantity,
+                    name,
+                    price,
+                    modifiers: modifiers.length > 0 ? modifiers : undefined,
+                    notes: notes?.trim() ? notes.trim() : undefined,
+                  }]);
+                },
                 removeProduct: (name) => {
                   setOrderItems(prev => prev.filter(o => o.name.toLowerCase() !== name.toLowerCase()));
                 },

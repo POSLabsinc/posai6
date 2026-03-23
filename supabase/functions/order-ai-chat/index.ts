@@ -18,14 +18,22 @@ const SYSTEM_PROMPT = `You are an AI assistant integrated into a POS (Point of S
 8. After executing tool calls, confirm what was done in 1 line.
 9. For order type changes, only accept: DINE IN, TAKE OUT, DELIVERY, BANQUET, DRIVE THRU, CURB SIDE.
 10. When asked for a summary, list all products with quantities and prices, plus the order type and guest name.
-11. NEVER hallucinate a tool call result. If you cannot find a product or fulfill a request, say so.`;
+11. NEVER hallucinate a tool call result. If you cannot find a product or fulfill a request, say so.
+
+## MODIFIER & ADD-ON RULES:
+12. When the user specifies modifications (e.g., "no onions", "extra cheese", "with ranch"), use add_product_with_modifiers instead of add_product.
+13. Format modifiers as strings: "No Onions", "Extra Cheese", "Add: Ranch (+$0.50)".
+14. For removal modifiers, prefix with "No " (e.g., "No Onions", "No Tomato").
+15. For add-on modifiers, prefix with "Add: " (e.g., "Add: Extra Cheese (+$1.00)").
+16. If the user just says "add burger" without modifiers, use the regular add_product tool.
+17. Calculate modifier_price_total by summing prices of any paid modifiers/add-ons mentioned.`;
 
 const tools = [
   {
     type: "function",
     function: {
       name: "add_product",
-      description: "Add a product to the current order",
+      description: "Add a product to the current order WITHOUT any modifiers or customizations",
       parameters: {
         type: "object",
         properties: {
@@ -35,6 +43,29 @@ const tools = [
           price: { type: "number", description: "The product price" },
         },
         required: ["product_name", "quantity", "price"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "add_product_with_modifiers",
+      description: "Add a product WITH modifiers, customizations, or add-ons (e.g. 'burger with no onions and extra cheese')",
+      parameters: {
+        type: "object",
+        properties: {
+          product_name: { type: "string", description: "Exact name of the product to add" },
+          quantity: { type: "number", description: "Number of units to add", default: 1 },
+          price: { type: "number", description: "The base product price (before modifiers)" },
+          modifiers: {
+            type: "array",
+            items: { type: "string" },
+            description: "List of modifier strings like 'No Onions', 'Extra Cheese', 'Add: Ranch (+$0.50)'"
+          },
+          modifier_price_total: { type: "number", description: "Total additional cost from paid modifiers/add-ons", default: 0 },
+          notes: { type: "string", description: "Any special notes for this product", default: "" },
+        },
+        required: ["product_name", "quantity", "price", "modifiers"],
       },
     },
   },
@@ -137,13 +168,15 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    // Build context message with current order state and available products
     const contextMessage = `
 ## Current Order State:
 - Order Type: ${orderContext?.orderType || "DINE IN"}
 - Guest Name: ${orderContext?.guestName || "Not set"}
 - Products in cart: ${orderContext?.orderItems?.length > 0
-      ? orderContext.orderItems.map((i: any) => `${i.name} x${i.qty} ($${i.price.toFixed(2)})`).join(", ")
+      ? orderContext.orderItems.map((i: any) => {
+          const modStr = i.modifiers?.length > 0 ? ` [${i.modifiers.join(", ")}]` : "";
+          return `${i.name} x${i.qty} ($${i.price.toFixed(2)})${modStr}`;
+        }).join(", ")
       : "Empty"}
 - Order Notes: ${orderContext?.orderNotes || "None"}
 

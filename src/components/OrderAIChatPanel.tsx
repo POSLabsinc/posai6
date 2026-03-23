@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, ShoppingCart, Users, FileText, Trash2, UtensilsCrossed, StickyNote, ArrowLeft, Check, Plus, Minus, CreditCard, AlertTriangle, Clock, Pencil } from "lucide-react";
+import { X, Send, ShoppingCart, Users, FileText, Trash2, UtensilsCrossed, StickyNote, ArrowLeft, Check, Plus, Minus, CreditCard, AlertTriangle, Clock, Pencil, Settings2 } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { toast } from "sonner";
+import { fetchProductCustomization, DbModifierGroup, DbAddOn } from "@/services/productCustomizationService";
 
 interface Message {
   id: string;
@@ -42,6 +43,7 @@ interface MenuData {
 
 interface OrderActions {
   addProduct: (name: string, price: number, quantity: number) => void;
+  addProductWithModifiers: (name: string, price: number, quantity: number, modifiers: string[], notes: string) => void;
   removeProduct: (name: string) => void;
   updateQuantity: (name: string, quantity: number) => void;
   setOrderType: (type: string) => void;
@@ -94,6 +96,13 @@ function processToolCalls(toolCalls: any[], actions: OrderActions | undefined) {
 
       if (fn === "add_product") {
         actions.addProduct(args.product_name, args.price, args.quantity || 1);
+      } else if (fn === "add_product_with_modifiers") {
+        const modifiers: string[] = args.modifiers || [];
+        const notes: string = args.notes || "";
+        const basePrice = args.price || 0;
+        const modifierPriceTotal = args.modifier_price_total || 0;
+        const totalUnitPrice = basePrice + modifierPriceTotal;
+        actions.addProductWithModifiers(args.product_name, totalUnitPrice, args.quantity || 1, modifiers, notes);
       } else if (fn === "remove_product") {
         actions.removeProduct(args.product_name);
       } else if (fn === "update_quantity") {
@@ -116,12 +125,26 @@ function processToolCalls(toolCalls: any[], actions: OrderActions | undefined) {
 const ORDER_TYPES = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE"];
 
 // Browse mode types
-type BrowseStep = "menu" | "category" | "products";
+type BrowseStep = "menu" | "category" | "products" | "customize";
 
 interface PendingProduct {
   name: string;
   price: number;
   qty: number;
+  productId: string;
+}
+
+// Customization state per product
+interface ProductCustomizationState {
+  productName: string;
+  productId: string;
+  qty: number;
+  basePrice: number;
+  modifierGroups: DbModifierGroup[];
+  addOns: DbAddOn[];
+  selectedModifiers: Record<string, string[]>; // groupId -> selected modifier names
+  selectedAddOns: string[]; // add-on names
+  loading: boolean;
 }
 
 const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: OrderAIChatPanelProps) => {
@@ -129,7 +152,7 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
     {
       id: "welcome",
       role: "assistant",
-      content: "Hi! I can help you manage this order. Try saying things like:\n- \"Add 2 Margherita Pizza\"\n- \"Remove the Caesar Salad\"\n- \"Change order type to Take Out\"\n- \"Set guest name to John\"",
+      content: "Hi! I can help you manage this order. Try saying things like:\n- \"Add 2 Margherita Pizza\"\n- \"Add burger with no onions\"\n- \"Remove the Caesar Salad\"\n- \"Change order type to Take Out\"",
       timestamp: new Date(),
     },
   ]);
@@ -146,6 +169,10 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
   const [selectedMenu, setSelectedMenu] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("");
   const [pendingProducts, setPendingProducts] = useState<PendingProduct[]>([]);
+
+  // Customization state
+  const [customizationStates, setCustomizationStates] = useState<ProductCustomizationState[]>([]);
+  const [activeCustomizeIndex, setActiveCustomizeIndex] = useState(0);
 
   // Notes browse state
   const [notesActive, setNotesActive] = useState(false);
@@ -326,6 +353,8 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
     setSelectedMenu("");
     setSelectedCategory("");
     setPendingProducts([]);
+    setCustomizationStates([]);
+    setActiveCustomizeIndex(0);
     setShowOrderTypes(false);
   };
 
@@ -370,7 +399,7 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
       if (exists) {
         return prev.filter(p => p.name !== product.name);
       }
-      return [...prev, { name: product.name, price: product.price, qty: 1 }];
+      return [...prev, { name: product.name, price: product.price, qty: 1, productId: product.id }];
     });
   };
 
@@ -380,26 +409,202 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
     );
   };
 
-  const confirmBrowseSelection = () => {
+  // Enter customization step: fetch modifiers/add-ons for each selected product
+  const enterCustomizationStep = async () => {
     if (pendingProducts.length === 0) {
       toast.error("No products selected");
       return;
     }
-    for (const p of pendingProducts) {
-      orderActions?.addProduct(p.name, p.price, p.qty);
+
+    const states: ProductCustomizationState[] = pendingProducts.map(p => ({
+      productName: p.name,
+      productId: p.productId,
+      qty: p.qty,
+      basePrice: p.price,
+      modifierGroups: [],
+      addOns: [],
+      selectedModifiers: {},
+      selectedAddOns: [],
+      loading: true,
+    }));
+    setCustomizationStates(states);
+    setActiveCustomizeIndex(0);
+    setBrowseStep("customize");
+
+    // Fetch customization data for all products in parallel
+    const results = await Promise.all(
+      pendingProducts.map(p => fetchProductCustomization(p.productId))
+    );
+
+    setCustomizationStates(prev => prev.map((s, i) => {
+      const result = results[i];
+      if (!result) return { ...s, loading: false };
+
+      // Pre-select default modifiers
+      const selectedModifiers: Record<string, string[]> = {};
+      for (const group of result.modifierGroups) {
+        const defaults = group.options.filter(o => o.is_default).map(o => o.name);
+        if (defaults.length > 0) {
+          selectedModifiers[group.id] = defaults;
+        }
+      }
+
+      return {
+        ...s,
+        modifierGroups: result.modifierGroups,
+        addOns: result.addOns,
+        selectedModifiers,
+        loading: false,
+      };
+    }));
+  };
+
+  const toggleModifier = (groupId: string, modifierName: string, multiSelect: boolean) => {
+    setCustomizationStates(prev => prev.map((s, i) => {
+      if (i !== activeCustomizeIndex) return s;
+      const current = s.selectedModifiers[groupId] || [];
+      let updated: string[];
+      if (multiSelect) {
+        updated = current.includes(modifierName)
+          ? current.filter(m => m !== modifierName)
+          : [...current, modifierName];
+      } else {
+        updated = current.includes(modifierName) ? [] : [modifierName];
+      }
+      return {
+        ...s,
+        selectedModifiers: { ...s.selectedModifiers, [groupId]: updated },
+      };
+    }));
+  };
+
+  const toggleAddOn = (addOnName: string) => {
+    setCustomizationStates(prev => prev.map((s, i) => {
+      if (i !== activeCustomizeIndex) return s;
+      const updated = s.selectedAddOns.includes(addOnName)
+        ? s.selectedAddOns.filter(a => a !== addOnName)
+        : [...s.selectedAddOns, addOnName];
+      return { ...s, selectedAddOns: updated };
+    }));
+  };
+
+  const getModifierStrings = (state: ProductCustomizationState): string[] => {
+    const mods: string[] = [];
+    for (const group of state.modifierGroups) {
+      const selected = state.selectedModifiers[group.id] || [];
+      for (const modName of selected) {
+        const opt = group.options.find(o => o.name === modName);
+        if (opt && opt.price > 0) {
+          mods.push(`${modName} (+$${opt.price.toFixed(2)})`);
+        } else {
+          mods.push(modName);
+        }
+      }
     }
-    const summary = pendingProducts.map(p => `${p.qty}x ${p.name}`).join(", ");
+    for (const addOnName of state.selectedAddOns) {
+      const addOn = state.addOns.find(a => a.name === addOnName);
+      if (addOn && addOn.price > 0) {
+        mods.push(`Add: ${addOnName} (+$${addOn.price.toFixed(2)})`);
+      } else {
+        mods.push(`Add: ${addOnName}`);
+      }
+    }
+    return mods;
+  };
+
+  const getCustomizationExtraPrice = (state: ProductCustomizationState): number => {
+    let extra = 0;
+    for (const group of state.modifierGroups) {
+      const selected = state.selectedModifiers[group.id] || [];
+      for (const modName of selected) {
+        const opt = group.options.find(o => o.name === modName);
+        if (opt) extra += opt.price;
+      }
+    }
+    for (const addOnName of state.selectedAddOns) {
+      const addOn = state.addOns.find(a => a.name === addOnName);
+      if (addOn) extra += addOn.price;
+    }
+    return extra;
+  };
+
+  const confirmCustomization = () => {
+    // Check required modifier groups
+    const currentState = customizationStates[activeCustomizeIndex];
+    if (!currentState) return;
+
+    for (const group of currentState.modifierGroups) {
+      if (group.required && !(currentState.selectedModifiers[group.id]?.length > 0)) {
+        toast.error(`Please select a ${group.name}`);
+        return;
+      }
+    }
+
+    // If there are more products to customize, move to next
+    if (activeCustomizeIndex < customizationStates.length - 1) {
+      setActiveCustomizeIndex(prev => prev + 1);
+      return;
+    }
+
+    // All products customized, add them all to cart
+    for (const state of customizationStates) {
+      const modStrings = getModifierStrings(state);
+      const extraPrice = getCustomizationExtraPrice(state);
+      const totalUnitPrice = state.basePrice + extraPrice;
+
+      if (modStrings.length > 0) {
+        orderActions?.addProductWithModifiers(state.productName, totalUnitPrice, state.qty, modStrings, "");
+      } else {
+        orderActions?.addProduct(state.productName, state.basePrice, state.qty);
+      }
+    }
+
+    const summary = customizationStates.map(s => {
+      const mods = getModifierStrings(s);
+      const modStr = mods.length > 0 ? ` (${mods.join(", ")})` : "";
+      return `${s.qty}x ${s.productName}${modStr}`;
+    }).join(", ");
+
     setMessages(prev => [
       ...prev,
       { id: crypto.randomUUID(), role: "user", content: `Add ${summary}`, timestamp: new Date() },
       { id: crypto.randomUUID(), role: "assistant", content: `Added ${summary} to the order.`, timestamp: new Date() },
     ]);
+
     setBrowseActive(false);
     setPendingProducts([]);
+    setCustomizationStates([]);
+    setActiveCustomizeIndex(0);
+  };
+
+  const skipCustomization = () => {
+    // Skip modifiers for current product, use defaults or none
+    if (activeCustomizeIndex < customizationStates.length - 1) {
+      setActiveCustomizeIndex(prev => prev + 1);
+    } else {
+      confirmCustomization();
+    }
+  };
+
+  const confirmBrowseSelection = () => {
+    if (pendingProducts.length === 0) {
+      toast.error("No products selected");
+      return;
+    }
+    // Enter customization step
+    enterCustomizationStep();
   };
 
   const browseBack = () => {
-    if (browseStep === "products") {
+    if (browseStep === "customize") {
+      if (activeCustomizeIndex > 0) {
+        setActiveCustomizeIndex(prev => prev - 1);
+      } else {
+        setBrowseStep("products");
+        setCustomizationStates([]);
+        setActiveCustomizeIndex(0);
+      }
+    } else if (browseStep === "products") {
       const cats = menuData?.menuCategories[selectedMenu] || [];
       if (cats.length > 1) {
         setBrowseStep("category");
@@ -446,7 +651,6 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
       toast.error("No notes selected");
       return;
     }
-    // Merge with existing notes
     const allNotes = [...existingNotes, ...selectedNotes.filter(n => !existingNotes.includes(n))];
     const notesStr = allNotes.join(NOTE_DELIMITER);
     orderActions?.setOrderNotes(notesStr);
@@ -489,6 +693,9 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
     n => !existingNotes.some(e => e.toLowerCase() === n.toLowerCase())
   );
 
+  const currentCustomization = customizationStates[activeCustomizeIndex];
+  const hasCustomizationOptions = currentCustomization && (currentCustomization.modifierGroups.length > 0 || currentCustomization.addOns.length > 0);
+
   return (
     <div className="flex flex-col h-full bg-[#131316] border-l border-neutral-800">
       {/* Header */}
@@ -524,7 +731,6 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
           </div>
 
           <div className="flex-1 overflow-y-auto px-3 py-2 space-y-3">
-            {/* Allergy Notes */}
             {availableAllergyNotes.length > 0 && (
               <div>
                 <div className="flex items-center gap-1.5 mb-1.5">
@@ -556,7 +762,6 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
               </div>
             )}
 
-            {/* General Notes */}
             {availableGeneralNotes.length > 0 && (
               <div>
                 <div className="flex items-center gap-1.5 mb-1.5">
@@ -587,7 +792,6 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
               </div>
             )}
 
-            {/* Custom Note Input */}
             {showCustomInput ? (
               <div className="space-y-1.5">
                 <span className="text-xs font-medium text-neutral-400">Custom Note</span>
@@ -625,7 +829,6 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
               </button>
             )}
 
-            {/* Selected custom notes preview */}
             {selectedNotes.filter(n => !PREDEFINED_ALLERGY_NOTES.includes(n) && !PREDEFINED_GENERAL_NOTES.includes(n)).length > 0 && (
               <div>
                 <span className="text-xs font-medium text-neutral-400 mb-1.5 block">Custom</span>
@@ -649,7 +852,6 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
             )}
           </div>
 
-          {/* Notes Footer */}
           {selectedNotes.length > 0 && (
             <div className="px-3 pb-3 pt-2 border-t border-neutral-800 flex-shrink-0">
               <button
@@ -673,9 +875,12 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
               {browseStep === "menu" && "Select Menu"}
               {browseStep === "category" && selectedMenu}
               {browseStep === "products" && (selectedCategory || selectedMenu)}
+              {browseStep === "customize" && currentCustomization && (
+                <>Customize: {currentCustomization.productName} {customizationStates.length > 1 && `(${activeCustomizeIndex + 1}/${customizationStates.length})`}</>
+              )}
             </span>
             <button
-              onClick={() => { setBrowseActive(false); setPendingProducts([]); }}
+              onClick={() => { setBrowseActive(false); setPendingProducts([]); setCustomizationStates([]); }}
               className="ml-auto p-1 rounded-lg hover:bg-neutral-800 transition-colors"
             >
               <X className="w-3.5 h-3.5 text-neutral-500" />
@@ -755,18 +960,144 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                 <p className="text-xs text-neutral-500 text-center py-4">No products in this category</p>
               )
             )}
+
+            {/* Customization Step */}
+            {browseStep === "customize" && currentCustomization && (
+              currentCustomization.loading ? (
+                <div className="flex items-center justify-center py-8">
+                  <div className="flex gap-1.5">
+                    <span className="w-2 h-2 bg-neutral-500 rounded-full animate-bounce [animation-delay:0ms]" />
+                    <span className="w-2 h-2 bg-neutral-500 rounded-full animate-bounce [animation-delay:150ms]" />
+                    <span className="w-2 h-2 bg-neutral-500 rounded-full animate-bounce [animation-delay:300ms]" />
+                  </div>
+                </div>
+              ) : !hasCustomizationOptions ? (
+                <div className="text-center py-6 space-y-2">
+                  <Settings2 className="w-8 h-8 text-neutral-600 mx-auto" />
+                  <p className="text-sm text-neutral-400">No modifiers or add-ons available for this product.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {/* Product summary */}
+                  <div className="px-3 py-2.5 rounded-xl bg-[#1C1C1C] border border-neutral-800">
+                    <p className="text-sm font-medium text-neutral-200">{currentCustomization.productName}</p>
+                    <p className="text-xs text-neutral-500">${currentCustomization.basePrice.toFixed(2)} x {currentCustomization.qty}</p>
+                  </div>
+
+                  {/* Modifier Groups */}
+                  {currentCustomization.modifierGroups.map(group => (
+                    <div key={group.id}>
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <Settings2 className="w-3.5 h-3.5 text-neutral-400" />
+                        <span className="text-xs font-medium text-neutral-300">{group.name}</span>
+                        {group.required && <span className="text-[10px] text-amber-400 bg-amber-500/10 px-1.5 py-0.5 rounded">Required</span>}
+                        {group.multi_select && <span className="text-[10px] text-neutral-500">Multi</span>}
+                      </div>
+                      <div className="space-y-1">
+                        {group.options.map(opt => {
+                          const isSelected = (currentCustomization.selectedModifiers[group.id] || []).includes(opt.name);
+                          return (
+                            <button
+                              key={opt.name}
+                              onClick={() => toggleModifier(group.id, opt.name, group.multi_select)}
+                              className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors text-left ${
+                                isSelected ? "bg-primary/15 border border-primary/30" : "bg-[#252525] hover:bg-[#303030]"
+                              }`}
+                            >
+                              <div className={`w-4 h-4 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${
+                                isSelected ? "bg-primary border-primary" : "border-neutral-600"
+                              }`}>
+                                {isSelected && <Check className="w-2.5 h-2.5 text-primary-foreground" />}
+                              </div>
+                              <span className="text-sm text-neutral-200 flex-1">{opt.name}</span>
+                              {opt.price > 0 && (
+                                <span className="text-xs text-neutral-500">+${opt.price.toFixed(2)}</span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ))}
+
+                  {/* Add-Ons */}
+                  {currentCustomization.addOns.length > 0 && (
+                    <div>
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <Plus className="w-3.5 h-3.5 text-neutral-400" />
+                        <span className="text-xs font-medium text-neutral-300">Add-Ons</span>
+                      </div>
+                      <div className="space-y-1">
+                        {currentCustomization.addOns.map(addOn => {
+                          const isSelected = currentCustomization.selectedAddOns.includes(addOn.name);
+                          return (
+                            <button
+                              key={addOn.id}
+                              onClick={() => toggleAddOn(addOn.name)}
+                              className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors text-left ${
+                                isSelected ? "bg-primary/15 border border-primary/30" : "bg-[#252525] hover:bg-[#303030]"
+                              }`}
+                            >
+                              <div className={`w-4 h-4 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${
+                                isSelected ? "bg-primary border-primary" : "border-neutral-600"
+                              }`}>
+                                {isSelected && <Check className="w-2.5 h-2.5 text-primary-foreground" />}
+                              </div>
+                              <span className="text-sm text-neutral-200 flex-1">{addOn.name}</span>
+                              {addOn.price > 0 && (
+                                <span className="text-xs text-neutral-500">+${addOn.price.toFixed(2)}</span>
+                              )}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )
+            )}
           </div>
 
-          {/* Browse Footer */}
-          {pendingProducts.length > 0 && (
+          {/* Browse/Customize Footer */}
+          {browseStep === "products" && pendingProducts.length > 0 && (
             <div className="px-3 pb-3 pt-2 border-t border-neutral-800 flex-shrink-0">
               <button
                 onClick={confirmBrowseSelection}
                 className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold transition-colors hover:bg-primary/90 flex items-center justify-center gap-2"
               >
                 <ShoppingCart className="w-4 h-4" />
-                Add {pendingProducts.reduce((s, p) => s + p.qty, 0)} Products - ${pendingTotal.toFixed(2)}
+                Next: Customize - {pendingProducts.reduce((s, p) => s + p.qty, 0)} Products
               </button>
+            </div>
+          )}
+
+          {browseStep === "customize" && currentCustomization && !currentCustomization.loading && (
+            <div className="px-3 pb-3 pt-2 border-t border-neutral-800 flex-shrink-0 space-y-1.5">
+              {!hasCustomizationOptions ? (
+                <button
+                  onClick={skipCustomization}
+                  className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold transition-colors hover:bg-primary/90 flex items-center justify-center gap-2"
+                >
+                  <Check className="w-4 h-4" />
+                  {activeCustomizeIndex < customizationStates.length - 1 ? "Next Product" : "Add to Order"}
+                </button>
+              ) : (
+                <>
+                  <button
+                    onClick={confirmCustomization}
+                    className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold transition-colors hover:bg-primary/90 flex items-center justify-center gap-2"
+                  >
+                    <Check className="w-4 h-4" />
+                    {activeCustomizeIndex < customizationStates.length - 1 ? "Next Product" : "Add to Order"} - ${(currentCustomization.basePrice + getCustomizationExtraPrice(currentCustomization)).toFixed(2)}
+                  </button>
+                  <button
+                    onClick={skipCustomization}
+                    className="w-full py-2 rounded-xl bg-transparent text-neutral-500 text-xs font-medium transition-colors hover:text-neutral-300"
+                  >
+                    Skip Customization
+                  </button>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -887,7 +1218,7 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Type a product name, guest name, or command..."
+                placeholder="Type a command or 'add burger with no onions'..."
                 className="flex-1 bg-transparent text-sm text-foreground placeholder:text-neutral-500 outline-none"
               />
               <button

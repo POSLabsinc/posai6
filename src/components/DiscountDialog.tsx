@@ -367,7 +367,7 @@ export function DiscountDialog({
       <button
         onClick={handleApply}
         disabled={!canApply}
-        className="px-8 py-2.5 rounded-[10px] text-sm font-medium transition-all"
+        className="px-14 py-2.5 rounded-[10px] text-sm font-medium transition-all"
         style={{
           background: canApply ? '#fff' : 'rgba(255,255,255,0.1)',
           color: canApply ? '#1a1a1e' : '#555',

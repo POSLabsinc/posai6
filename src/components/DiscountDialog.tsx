@@ -370,7 +370,7 @@ export function DiscountDialog({
         className="px-8 py-2.5 rounded-[10px] text-sm font-medium transition-all"
         style={{
           background: canApply ? '#fff' : 'rgba(255,255,255,0.1)',
-          color: canApply ? '#1e1e32' : '#555',
+          color: canApply ? '#1a1a1e' : '#555',
           opacity: canApply ? 1 : 0.6,
           cursor: canApply ? 'pointer' : 'not-allowed',
         }}

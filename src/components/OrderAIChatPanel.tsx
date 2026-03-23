@@ -283,20 +283,31 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
     return orderContext.availableProducts;
   };
 
-  // Toggle product selection AND expand inline customization
-  const handleProductClick = async (product: AvailableProduct) => {
-    const isSelected = pendingProducts.some(p => p.name === product.name);
+  // Quick add: directly add product to cart without customization
+  const handleQuickAdd = (product: AvailableProduct) => {
+    orderActions?.addProduct(product.name, product.price, 1);
+    toast.success(`Added ${product.name} to order`);
+    setMessages(prev => [
+      ...prev,
+      { id: crypto.randomUUID(), role: "user", content: `Add ${product.name}`, timestamp: new Date() },
+      { id: crypto.randomUUID(), role: "assistant", content: `Added 1x ${product.name} ($${product.price.toFixed(2)}) to the order.`, timestamp: new Date() },
+    ]);
+  };
 
-    if (isSelected) {
-      // Deselect: remove from pending, collapse
-      setPendingProducts(prev => prev.filter(p => p.name !== product.name));
-      if (expandedProductId === product.id) setExpandedProductId(null);
+  // Toggle inline expand to show modifiers/add-ons
+  const handleProductExpand = async (product: AvailableProduct) => {
+    // Toggle collapse if already expanded
+    if (expandedProductId === product.id) {
+      setExpandedProductId(null);
       return;
     }
 
-    // Select product
-    setPendingProducts(prev => [...prev, { name: product.name, price: product.price, qty: 1, productId: product.id }]);
     setExpandedProductId(product.id);
+
+    // Ensure product is in pending list for customization tracking
+    if (!pendingProducts.some(p => p.productId === product.id)) {
+      setPendingProducts(prev => [...prev, { name: product.name, price: product.price, qty: 1, productId: product.id }]);
+    }
 
     // Fetch customization if not cached
     if (!inlineCustomizations[product.id]) {
@@ -329,8 +340,6 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
           },
         };
       });
-    } else {
-      // Already cached, just expand
     }
   };
 
@@ -415,6 +424,48 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
       if (addOn) extra += addOn.price;
     }
     return extra;
+  };
+
+  // Confirm a single expanded product with its customizations
+  const confirmSingleProduct = (product: AvailableProduct) => {
+    const p = pendingProducts.find(pp => pp.productId === product.id);
+    if (!p) return;
+
+    const cust = inlineCustomizations[p.productId];
+    if (cust) {
+      for (const group of cust.modifierGroups) {
+        if (group.required && !(cust.selectedModifiers[group.id]?.length > 0)) {
+          toast.error(`Please select a ${group.name}`);
+          return;
+        }
+      }
+    }
+
+    const modStrings = getModStringsForProduct(p.productId);
+    const extraPrice = getExtraPriceForProduct(p.productId);
+    const notes = inlineCustomizations[p.productId]?.productNotes || "";
+
+    if (modStrings.length > 0 || notes.trim()) {
+      orderActions?.addProductWithModifiers(p.name, p.price + extraPrice, p.qty, modStrings, notes);
+    } else {
+      orderActions?.addProduct(p.name, p.price, p.qty);
+    }
+
+    const modStr = modStrings.length > 0 ? ` (${modStrings.join(", ")})` : "";
+    const summary = `${p.qty}x ${p.name}${modStr}`;
+
+    setMessages(prev => [
+      ...prev,
+      { id: crypto.randomUUID(), role: "user", content: `Add ${summary}`, timestamp: new Date() },
+      { id: crypto.randomUUID(), role: "assistant", content: `Added ${summary} to the order.`, timestamp: new Date() },
+    ]);
+
+    // Clean up this product
+    setPendingProducts(prev => prev.filter(pp => pp.productId !== product.id));
+    setExpandedProductId(null);
+    const newCustomizations = { ...inlineCustomizations };
+    delete newCustomizations[product.id];
+    setInlineCustomizations(newCustomizations);
   };
 
   // Confirm all selected products with their customizations
@@ -815,28 +866,23 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                   return (
                     <div key={product.id} className="space-y-0">
                       <div
-                        className={`rounded-xl transition-colors cursor-pointer ${
-                          pending
-                            ? isExpanded
-                              ? "bg-primary/10 border border-primary/30 rounded-b-none"
-                              : "bg-primary/15 border border-primary/30"
+                        className={`rounded-xl transition-colors ${
+                          isExpanded
+                            ? "bg-[#1C1C1C] border border-neutral-700 rounded-b-none"
                             : "bg-[#252525] hover:bg-[#303030]"
                         }`}
                       >
-                        <div className="flex items-center gap-2 px-3 py-2.5" onClick={() => handleProductClick(product)}>
-                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${
-                            pending ? "bg-primary border-primary" : "border-neutral-600"
-                          }`}>
-                            {pending && <Check className="w-3 h-3 text-primary-foreground" />}
-                          </div>
-                          <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 px-3 py-2.5">
+                          {/* Product info - click to expand modifiers/add-ons */}
+                          <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleProductExpand(product)}>
                             <p className="text-sm text-neutral-200 truncate">{product.name}</p>
                             <p className="text-xs text-neutral-500">
                               ${product.price.toFixed(2)}
                               {extraPrice > 0 && <span className="text-primary"> +${extraPrice.toFixed(2)}</span>}
                             </p>
                           </div>
-                          {pending && (
+                          {/* Quantity controls when expanded */}
+                          {pending && isExpanded && (
                             <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
                               <button onClick={() => updatePendingQty(product.name, -1)}
                                 className="w-6 h-6 rounded-md bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors">
@@ -849,10 +895,18 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                               </button>
                             </div>
                           )}
-                          {pending && (
-                            <button onClick={(e) => { e.stopPropagation(); setExpandedProductId(isExpanded ? null : product.id); }}
+                          {/* Plus icon - quick add to cart */}
+                          {!isExpanded && (
+                            <button onClick={(e) => { e.stopPropagation(); handleQuickAdd(product); }}
+                              className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-primary/20 hover:border-primary/40 border border-neutral-600 flex items-center justify-center transition-colors flex-shrink-0">
+                              <Plus className="w-3.5 h-3.5 text-neutral-300" />
+                            </button>
+                          )}
+                          {/* Chevron toggle when expanded */}
+                          {isExpanded && (
+                            <button onClick={(e) => { e.stopPropagation(); setExpandedProductId(null); }}
                               className="p-1 rounded hover:bg-neutral-700 transition-colors">
-                              {isExpanded ? <ChevronUp className="w-3.5 h-3.5 text-neutral-400" /> : <ChevronDown className="w-3.5 h-3.5 text-neutral-400" />}
+                              <ChevronUp className="w-3.5 h-3.5 text-neutral-400" />
                             </button>
                           )}
                         </div>
@@ -861,6 +915,14 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                         {isExpanded && (
                           <div className="px-3 pb-3 border-t border-neutral-700/50">
                             {renderInlineCustomization(product)}
+                            {/* Add to cart button inside expanded panel */}
+                            <button
+                              onClick={(e) => { e.stopPropagation(); confirmSingleProduct(product); }}
+                              className="w-full mt-2 py-2 rounded-lg bg-primary text-primary-foreground text-xs font-semibold transition-colors hover:bg-primary/90 flex items-center justify-center gap-1.5"
+                            >
+                              <ShoppingCart className="w-3.5 h-3.5" />
+                              Add to Order - ${((pending?.qty || 1) * (product.price + extraPrice)).toFixed(2)}
+                            </button>
                           </div>
                         )}
                       </div>
@@ -873,16 +935,8 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
             )}
           </div>
 
-          {/* Browse Footer */}
-          {pendingProducts.length > 0 && (
-            <div className="px-3 pb-3 pt-2 border-t border-neutral-800 flex-shrink-0">
-              <button onClick={confirmAllProducts}
-                className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold transition-colors hover:bg-primary/90 flex items-center justify-center gap-2">
-                <ShoppingCart className="w-4 h-4" />
-                Add {pendingProducts.reduce((s, p) => s + p.qty, 0)} Products - ${pendingTotal.toFixed(2)}
-              </button>
-            </div>
-          )}
+
+
         </div>
       ) : (
         <>

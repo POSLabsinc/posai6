@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, ShoppingCart, Users, FileText, Trash2, UtensilsCrossed, StickyNote, ArrowLeft, Check, Plus, Minus } from "lucide-react";
+import { X, Send, ShoppingCart, Users, FileText, Trash2, UtensilsCrossed, StickyNote, ArrowLeft, Check, Plus, Minus, CreditCard, AlertTriangle, Clock, Pencil } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { toast } from "sonner";
@@ -48,6 +48,7 @@ interface OrderActions {
   setGuestName: (name: string) => void;
   clearOrder: () => void;
   setOrderNotes: (notes: string) => void;
+  openPayment?: () => void;
 }
 
 interface OrderAIChatPanelProps {
@@ -56,6 +57,27 @@ interface OrderAIChatPanelProps {
   orderActions?: OrderActions;
   menuData?: MenuData;
 }
+
+// Predefined notes matching OrderNotesAutocomplete
+const PREDEFINED_ALLERGY_NOTES = [
+  "Allergic to nuts",
+  "Allergic to peanuts",
+  "Allergic to shellfish",
+  "Allergic to dairy",
+  "Allergic to gluten",
+  "Allergic to eggs",
+  "Allergic to soy",
+];
+
+const PREDEFINED_GENERAL_NOTES = [
+  "No cutlery needed",
+  "Extra napkins please",
+  "To-go containers needed",
+  "Birthday celebration",
+  "VIP customer",
+];
+
+const NOTE_DELIMITER = " | ";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -125,6 +147,13 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
   const [selectedCategory, setSelectedCategory] = useState("");
   const [pendingProducts, setPendingProducts] = useState<PendingProduct[]>([]);
 
+  // Notes browse state
+  const [notesActive, setNotesActive] = useState(false);
+  const [selectedNotes, setSelectedNotes] = useState<string[]>([]);
+  const [customNoteInput, setCustomNoteInput] = useState("");
+  const [showCustomInput, setShowCustomInput] = useState(false);
+  const customNoteRef = useRef<HTMLInputElement>(null);
+
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
@@ -132,6 +161,17 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    if (showCustomInput) {
+      customNoteRef.current?.focus();
+    }
+  }, [showCustomInput]);
+
+  // Parse existing notes from order context
+  const existingNotes = orderContext?.orderNotes
+    ? orderContext.orderNotes.split(NOTE_DELIMITER).map(n => n.trim()).filter(Boolean)
+    : [];
 
   const streamChat = useCallback(async (userMessage: string) => {
     const userMsg: Msg = { role: "user", content: userMessage };
@@ -298,7 +338,6 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
     } else if (cats.length > 0) {
       setBrowseStep("category");
     } else {
-      // No categories, show all products
       setSelectedCategory("");
       setBrowseStep("products");
     }
@@ -316,7 +355,6 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
         p => p.category_name?.toLowerCase() === selectedCategory.toLowerCase()
       );
     }
-    // If no category selected, show all products from the menu's categories
     const cats = menuData?.menuCategories[selectedMenu] || [];
     if (cats.length > 0) {
       return orderContext.availableProducts.filter(
@@ -378,8 +416,78 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
     }
   };
 
+  // Notes mode handlers
+  const startNotes = () => {
+    setNotesActive(true);
+    setSelectedNotes([]);
+    setCustomNoteInput("");
+    setShowCustomInput(false);
+    setShowOrderTypes(false);
+  };
+
+  const toggleNote = (note: string) => {
+    setSelectedNotes(prev =>
+      prev.includes(note) ? prev.filter(n => n !== note) : [...prev, note]
+    );
+  };
+
+  const addCustomNote = () => {
+    const trimmed = customNoteInput.trim();
+    if (!trimmed) return;
+    if (!selectedNotes.includes(trimmed)) {
+      setSelectedNotes(prev => [...prev, trimmed]);
+    }
+    setCustomNoteInput("");
+    setShowCustomInput(false);
+  };
+
+  const confirmNotesSelection = () => {
+    if (selectedNotes.length === 0) {
+      toast.error("No notes selected");
+      return;
+    }
+    // Merge with existing notes
+    const allNotes = [...existingNotes, ...selectedNotes.filter(n => !existingNotes.includes(n))];
+    const notesStr = allNotes.join(NOTE_DELIMITER);
+    orderActions?.setOrderNotes(notesStr);
+
+    const summary = selectedNotes.join(", ");
+    setMessages(prev => [
+      ...prev,
+      { id: crypto.randomUUID(), role: "user", content: `Add notes: ${summary}`, timestamp: new Date() },
+      { id: crypto.randomUUID(), role: "assistant", content: `Added notes: ${summary}`, timestamp: new Date() },
+    ]);
+    setNotesActive(false);
+    setSelectedNotes([]);
+  };
+
+  // Payment handler
+  const handlePayAction = () => {
+    if (!orderContext?.orderItems || orderContext.orderItems.length === 0) {
+      toast.error("Add products before proceeding to payment");
+      return;
+    }
+    if (orderActions?.openPayment) {
+      orderActions.openPayment();
+      setMessages(prev => [
+        ...prev,
+        { id: crypto.randomUUID(), role: "assistant", content: "Opening payment screen...", timestamp: new Date() },
+      ]);
+    } else {
+      toast.error("Payment is not available");
+    }
+  };
+
   const browseProducts = getBrowseProducts();
   const pendingTotal = pendingProducts.reduce((s, p) => s + p.price * p.qty, 0);
+
+  // Get all predefined notes, filtering out already-existing ones
+  const availableAllergyNotes = PREDEFINED_ALLERGY_NOTES.filter(
+    n => !existingNotes.some(e => e.toLowerCase() === n.toLowerCase())
+  );
+  const availableGeneralNotes = PREDEFINED_GENERAL_NOTES.filter(
+    n => !existingNotes.some(e => e.toLowerCase() === n.toLowerCase())
+  );
 
   return (
     <div className="flex flex-col h-full bg-[#131316] border-l border-neutral-800">
@@ -399,8 +507,162 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
         </button>
       </div>
 
-      {/* Browse Mode */}
-      {browseActive ? (
+      {/* Notes Browse Mode */}
+      {notesActive ? (
+        <div className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-neutral-800 flex-shrink-0">
+            <button onClick={() => { setNotesActive(false); setSelectedNotes([]); }} className="p-1 rounded-lg hover:bg-neutral-800 transition-colors">
+              <ArrowLeft className="w-4 h-4 text-neutral-400" />
+            </button>
+            <span className="text-xs font-medium text-neutral-300">Add Notes</span>
+            <button
+              onClick={() => { setNotesActive(false); setSelectedNotes([]); }}
+              className="ml-auto p-1 rounded-lg hover:bg-neutral-800 transition-colors"
+            >
+              <X className="w-3.5 h-3.5 text-neutral-500" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto px-3 py-2 space-y-3">
+            {/* Allergy Notes */}
+            {availableAllergyNotes.length > 0 && (
+              <div>
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
+                  <span className="text-xs font-medium text-amber-400">Allergies</span>
+                </div>
+                <div className="space-y-1">
+                  {availableAllergyNotes.map(note => {
+                    const isSelected = selectedNotes.includes(note);
+                    return (
+                      <button
+                        key={note}
+                        onClick={() => toggleNote(note)}
+                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors text-left ${
+                          isSelected ? "bg-amber-500/15 border border-amber-500/30" : "bg-[#252525] hover:bg-[#303030]"
+                        }`}
+                      >
+                        <div className={`w-4.5 h-4.5 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${
+                          isSelected ? "bg-amber-500 border-amber-500" : "border-neutral-600"
+                        }`}>
+                          {isSelected && <Check className="w-3 h-3 text-black" />}
+                        </div>
+                        <AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
+                        <span className="text-sm text-neutral-200">{note}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* General Notes */}
+            {availableGeneralNotes.length > 0 && (
+              <div>
+                <div className="flex items-center gap-1.5 mb-1.5">
+                  <FileText className="w-3.5 h-3.5 text-neutral-400" />
+                  <span className="text-xs font-medium text-neutral-400">General</span>
+                </div>
+                <div className="space-y-1">
+                  {availableGeneralNotes.map(note => {
+                    const isSelected = selectedNotes.includes(note);
+                    return (
+                      <button
+                        key={note}
+                        onClick={() => toggleNote(note)}
+                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors text-left ${
+                          isSelected ? "bg-primary/15 border border-primary/30" : "bg-[#252525] hover:bg-[#303030]"
+                        }`}
+                      >
+                        <div className={`w-4.5 h-4.5 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${
+                          isSelected ? "bg-primary border-primary" : "border-neutral-600"
+                        }`}>
+                          {isSelected && <Check className="w-3 h-3 text-primary-foreground" />}
+                        </div>
+                        <span className="text-sm text-neutral-200">{note}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Custom Note Input */}
+            {showCustomInput ? (
+              <div className="space-y-1.5">
+                <span className="text-xs font-medium text-neutral-400">Custom Note</span>
+                <div className="flex items-center gap-2 bg-[#252525] rounded-xl px-3 py-2">
+                  <input
+                    ref={customNoteRef}
+                    type="text"
+                    value={customNoteInput}
+                    onChange={(e) => setCustomNoteInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addCustomNote();
+                      }
+                    }}
+                    placeholder="Type your custom note..."
+                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-neutral-500 outline-none"
+                  />
+                  <button
+                    onClick={addCustomNote}
+                    disabled={!customNoteInput.trim()}
+                    className="p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-30 transition-opacity"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowCustomInput(true)}
+                className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl bg-[#1C1C1C] hover:bg-[#252525] border border-dashed border-neutral-700 text-neutral-400 text-sm transition-colors"
+              >
+                <Pencil className="w-3.5 h-3.5" />
+                Add Custom Note
+              </button>
+            )}
+
+            {/* Selected custom notes preview */}
+            {selectedNotes.filter(n => !PREDEFINED_ALLERGY_NOTES.includes(n) && !PREDEFINED_GENERAL_NOTES.includes(n)).length > 0 && (
+              <div>
+                <span className="text-xs font-medium text-neutral-400 mb-1.5 block">Custom</span>
+                <div className="space-y-1">
+                  {selectedNotes.filter(n => !PREDEFINED_ALLERGY_NOTES.includes(n) && !PREDEFINED_GENERAL_NOTES.includes(n)).map(note => (
+                    <div
+                      key={note}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/15 border border-primary/30"
+                    >
+                      <div className="w-4.5 h-4.5 rounded-md bg-primary border-primary flex items-center justify-center flex-shrink-0">
+                        <Check className="w-3 h-3 text-primary-foreground" />
+                      </div>
+                      <span className="text-sm text-neutral-200 flex-1">{note}</span>
+                      <button onClick={() => toggleNote(note)} className="p-0.5 hover:bg-neutral-700 rounded transition-colors">
+                        <X className="w-3 h-3 text-neutral-400" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Notes Footer */}
+          {selectedNotes.length > 0 && (
+            <div className="px-3 pb-3 pt-2 border-t border-neutral-800 flex-shrink-0">
+              <button
+                onClick={confirmNotesSelection}
+                className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold transition-colors hover:bg-primary/90 flex items-center justify-center gap-2"
+              >
+                <StickyNote className="w-4 h-4" />
+                Add {selectedNotes.length} Note{selectedNotes.length > 1 ? "s" : ""}
+              </button>
+            </div>
+          )}
+        </div>
+      ) : browseActive ? (
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* Browse Header */}
           <div className="flex items-center gap-2 px-3 py-2.5 border-b border-neutral-800 flex-shrink-0">
@@ -503,7 +765,7 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                 className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold transition-colors hover:bg-primary/90 flex items-center justify-center gap-2"
               >
                 <ShoppingCart className="w-4 h-4" />
-                Add {pendingProducts.reduce((s, p) => s + p.qty, 0)} Products — ${pendingTotal.toFixed(2)}
+                Add {pendingProducts.reduce((s, p) => s + p.qty, 0)} Products - ${pendingTotal.toFixed(2)}
               </button>
             </div>
           )}
@@ -582,8 +844,9 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                 { icon: ShoppingCart, label: "Add Product", action: "browse" as const },
                 { icon: UtensilsCrossed, label: "Order Type", action: "toggle_types" as const },
                 { icon: Users, label: "Guest", action: "input" as const, prompt: "Set guest name to " },
-                { icon: StickyNote, label: "Note", action: "input" as const, prompt: "Add order note: " },
+                { icon: StickyNote, label: "Note", action: "notes" as const },
                 { icon: FileText, label: "Summary", action: "send" as const, prompt: "Show me the current order summary" },
+                { icon: CreditCard, label: "Pay", action: "pay" as const },
                 { icon: Trash2, label: "Clear", action: "send" as const, prompt: "Clear the entire order" },
               ].map((btn) => (
                 <button
@@ -596,6 +859,10 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                       setShowOrderTypes((prev) => !prev);
                     } else if (btn.action === "browse") {
                       startBrowse();
+                    } else if (btn.action === "notes") {
+                      startNotes();
+                    } else if (btn.action === "pay") {
+                      handlePayAction();
                     } else {
                       setInput(btn.prompt!);
                       inputRef.current?.focus();

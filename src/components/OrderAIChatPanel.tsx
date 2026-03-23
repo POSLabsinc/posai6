@@ -115,6 +115,7 @@ const ORDER_TYPES = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU",
 
 // Browse mode types
 type BrowseStep = "menu" | "category" | "products";
+type NotesMode = "predefined" | "custom";
 
 interface PendingProduct {
   name: string;

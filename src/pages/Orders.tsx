@@ -2573,10 +2573,10 @@ const Orders = () => {
       </div>
       </div>
 
-      {/* AI Chat Panel - Overlay */}
+      {/* AI Chat Panel - Left of Order Panel */}
       {isAIChatOpen && (
-        <div className={`hidden md:block fixed z-[60] top-0 bottom-0 ${panelLayout === 'menu-right' ? 'left-0' : 'right-0'} ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} pt-[60px] pb-2 ${panelLayout === 'menu-right' ? 'pl-2' : 'pr-2'}`}>
-          <div className="w-full h-full rounded-lg overflow-hidden shadow-2xl">
+        <div className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} flex-shrink-0 pb-2 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-0 md:pl-2' : 'md:order-2'}`}>
+          <div className="w-full h-full rounded-lg overflow-hidden">
             <OrderAIChatPanel
               onClose={() => setIsAIChatOpen(false)}
               orderContext={{
@@ -2625,7 +2625,7 @@ const Orders = () => {
       )}
 
       {/* Right Panel - Order (Desktop only) */}
-      <div className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} overflow-hidden flex-shrink-0 pb-2 pr-2 gap-0 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
+      <div className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} overflow-hidden flex-shrink-0 pb-2 pr-2 gap-0 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-1' : isAIChatOpen ? 'md:order-3' : 'md:order-2'}`}>
         {/* Order Panel Content */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Order Header - Outside background container */}

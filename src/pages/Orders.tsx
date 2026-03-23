@@ -3895,6 +3895,7 @@ const Orders = () => {
               setGuestName: (name) => setGuestName(name),
               clearOrder: () => handleClearOrder(),
               setOrderNotes: (notes) => setOrderNotes(notes),
+              openPayment: () => setShowPaymentDialog(true),
             }}
           />
         </div>

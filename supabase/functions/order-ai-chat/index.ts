@@ -420,10 +420,10 @@ ${orderContext?.availableProducts?.map((p: any) => `- ${p.name}: $${p.price.toFi
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash-lite",
+        model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: fullSystemPrompt },
-          ...(messages || []).slice(-6),
+          ...(messages || []).slice(-10),
         ],
         tools,
         stream: true,

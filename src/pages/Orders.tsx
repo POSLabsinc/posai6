@@ -2091,7 +2091,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto ${panelLayout === 'menu-right' ? 'md:order-2 md:pr-2' : 'md:order-1'}`} style={isDragging && dragOffset !== 0 ? {
+      <div className={`relative md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto ${panelLayout === 'menu-right' ? 'md:order-2 md:pr-2' : 'md:order-1'}`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`,
       flexGrow: 0,
       flexShrink: 0,

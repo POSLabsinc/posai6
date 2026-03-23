@@ -8,7 +8,7 @@ import {
   Drawer,
   DrawerContent,
 } from "@/components/ui/drawer";
-import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, ChevronLeft, PackageOpen, UserX, XCircle, Thermometer, Timer, UserCog, UtensilsCrossed, FileText } from "lucide-react";
+import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, ChevronLeft, PackageOpen, UserX, XCircle, Thermometer, Timer, UserCog, UtensilsCrossed, FileText, Users, Percent, Gift, CalendarDays, Megaphone, Truck } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Discount {

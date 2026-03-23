@@ -300,17 +300,17 @@ export function DiscountDialog({
               <Zap className="w-2.5 h-2.5" /> AI suggested
             </span>
           </div>
-          {/* Vertical list of reasons */}
-          <div className="space-y-1">
+          {/* 2-column icon grid of reasons */}
+          <div className="grid grid-cols-2 gap-2">
             {REASON_OPTIONS.map((r) => {
               const isSelected = selectedReason === r.label;
               return (
                 <button
                   key={r.label}
                   onClick={() => setSelectedReason(isSelected ? null : r.label)}
-                  className="w-full flex items-center gap-2.5 px-3 py-2 rounded-[10px] transition-all"
+                  className="flex flex-col items-center justify-center gap-1.5 px-2 py-3 rounded-[10px] transition-all relative"
                   style={{
-                    background: isSelected ? 'rgba(255,255,255,0.08)' : 'transparent',
+                    background: isSelected ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)',
                     border: isSelected
                       ? '1px solid rgba(255,255,255,0.25)'
                       : r.isAI
@@ -318,16 +318,16 @@ export function DiscountDialog({
                         : '1px solid rgba(255,255,255,0.04)',
                   }}
                 >
-                  <span className="text-base leading-none">{r.emoji}</span>
-                  <span className="text-[11px] font-medium" style={{ color: isSelected ? '#fff' : '#aaa' }}>
+                  {isSelected && (
+                    <Check className="w-2.5 h-2.5 absolute top-1.5 right-1.5" style={{ color: '#fff' }} />
+                  )}
+                  {r.isAI && !isSelected && (
+                    <Zap className="w-2 h-2 absolute top-1.5 right-1.5" style={{ color: 'rgba(245,166,35,0.4)' }} />
+                  )}
+                  <span className="text-lg leading-none">{r.emoji}</span>
+                  <span className="text-[10px] font-medium text-center leading-tight" style={{ color: isSelected ? '#fff' : '#aaa' }}>
                     {r.label}
                   </span>
-                  {r.isAI && !isSelected && (
-                    <Zap className="w-2.5 h-2.5 ml-auto" style={{ color: 'rgba(245,166,35,0.4)' }} />
-                  )}
-                  {isSelected && (
-                    <Check className="w-3 h-3 ml-auto" style={{ color: '#fff' }} />
-                  )}
                 </button>
               );
             })}

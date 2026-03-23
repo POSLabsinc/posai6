@@ -384,7 +384,7 @@ export function DiscountDialog({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="p-0 gap-0 border-0" style={{ background: '#1e1e32' }}>
+        <DrawerContent className="p-0 gap-0 border-0" style={{ background: '#1a1a1e' }}>
           {view === 'reason' ? (
             <>
               <div className="flex items-center px-3 pt-3 pb-1">

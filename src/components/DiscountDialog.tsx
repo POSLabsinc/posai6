@@ -41,15 +41,15 @@ interface DiscountDialogProps {
   portalContainer?: HTMLElement | null;
 }
 
-const REASON_OPTIONS = [
-  { emoji: "😤", label: "Guest complaint", isAI: true },
-  { emoji: "❌", label: "Wrong item", isAI: true },
-  { emoji: "🥶", label: "Food cold", isAI: true },
-  { emoji: "⏳", label: "Long wait", isAI: true },
-  { emoji: "👔", label: "Manager comp", isAI: false },
-  { emoji: "🎂", label: "Birthday", isAI: false },
-  { emoji: "🍽️", label: "Employee meal", isAI: false },
-  { emoji: "📝", label: "Other", isAI: false },
+const REASON_OPTIONS: { icon: LucideIcon; label: string; isAI: boolean }[] = [
+  { icon: UserX, label: "Guest complaint", isAI: true },
+  { icon: XCircle, label: "Wrong item", isAI: true },
+  { icon: Thermometer, label: "Food cold", isAI: true },
+  { icon: Timer, label: "Long wait", isAI: true },
+  { icon: UserCog, label: "Manager comp", isAI: false },
+  { icon: Cake, label: "Birthday", isAI: false },
+  { icon: UtensilsCrossed, label: "Employee meal", isAI: false },
+  { icon: FileText, label: "Other", isAI: false },
 ];
 
 const REASON_TO_CATEGORY: Record<string, string> = {

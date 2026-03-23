@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, ShoppingCart, Users, FileText, Trash2, UtensilsCrossed, StickyNote, ArrowLeft, Check, Plus, Minus } from "lucide-react";
+import { X, Send, ShoppingCart, Users, FileText, Trash2, UtensilsCrossed, StickyNote, ArrowLeft, Check, Plus, Minus, CreditCard, AlertTriangle, Clock, Pencil } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { toast } from "sonner";

@@ -776,6 +776,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [searchQuery, setSearchQuery] = useState(""); // Search query
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false); // Mobile filters bottom sheet
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false); // Receipt options dialog
+  const [isAIChatOpen, setIsAIChatOpen] = useState(false); // AI chat panel visibility
   const [isDiscountDialogOpen, setIsDiscountDialogOpen] = useState(false); // Discount dialog
   const [showDiscountMpin, setShowDiscountMpin] = useState(false); // MPIN gate for discount
   const [showRefundConfirmation, setShowRefundConfirmation] = useState(false); // Refund confirmation dialog

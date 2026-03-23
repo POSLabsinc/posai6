@@ -8,7 +8,7 @@ import {
   Drawer,
   DrawerContent,
 } from "@/components/ui/drawer";
-import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, ChevronLeft, PackageOpen } from "lucide-react";
+import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, ChevronLeft, PackageOpen, UserX, XCircle, Thermometer, Timer, UserCog, UtensilsCrossed, FileText } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Discount {
@@ -41,15 +41,15 @@ interface DiscountDialogProps {
   portalContainer?: HTMLElement | null;
 }
 
-const REASON_OPTIONS = [
-  { emoji: "😤", label: "Guest complaint", isAI: true },
-  { emoji: "❌", label: "Wrong item", isAI: true },
-  { emoji: "🥶", label: "Food cold", isAI: true },
-  { emoji: "⏳", label: "Long wait", isAI: true },
-  { emoji: "👔", label: "Manager comp", isAI: false },
-  { emoji: "🎂", label: "Birthday", isAI: false },
-  { emoji: "🍽️", label: "Employee meal", isAI: false },
-  { emoji: "📝", label: "Other", isAI: false },
+const REASON_OPTIONS: { icon: LucideIcon; label: string; isAI: boolean }[] = [
+  { icon: UserX, label: "Guest complaint", isAI: true },
+  { icon: XCircle, label: "Wrong item", isAI: true },
+  { icon: Thermometer, label: "Food cold", isAI: true },
+  { icon: Timer, label: "Long wait", isAI: true },
+  { icon: UserCog, label: "Manager comp", isAI: false },
+  { icon: Cake, label: "Birthday", isAI: false },
+  { icon: UtensilsCrossed, label: "Employee meal", isAI: false },
+  { icon: FileText, label: "Other", isAI: false },
 ];
 
 const REASON_TO_CATEGORY: Record<string, string> = {
@@ -324,7 +324,7 @@ export function DiscountDialog({
                   {r.isAI && !isSelected && (
                     <Zap className="w-2 h-2 absolute top-1.5 right-1.5" style={{ color: 'rgba(245,166,35,0.4)' }} />
                   )}
-                  <span className="text-lg leading-none">{r.emoji}</span>
+                  <r.icon className="w-5 h-5" style={{ color: isSelected ? '#fff' : '#888' }} />
                   <span className="text-[10px] font-medium text-center leading-tight" style={{ color: isSelected ? '#fff' : '#aaa' }}>
                     {r.label}
                   </span>

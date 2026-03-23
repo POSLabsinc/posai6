@@ -418,7 +418,7 @@ export function DiscountDialog({
 
   // -- Desktop: side-by-side, reason panel only when needed --
   const dialogContent = (
-    <div className="flex flex-col transition-all duration-200" style={{ background: '#1e1e32', borderRadius: '12px', overflow: 'hidden', maxHeight: '80vh' }}>
+    <div className="flex flex-col transition-all duration-200" style={{ background: '#1a1a1e', borderRadius: '12px', overflow: 'hidden', maxHeight: '80vh' }}>
       <div className="flex flex-1 min-h-0" style={{ minHeight: '340px' }}>
         {discountList}
         {needsReason && reasonColumn}

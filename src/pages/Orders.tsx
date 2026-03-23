@@ -1380,8 +1380,8 @@ const Orders = () => {
   const chargeLabel = addItemMode ?
   isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER' :
   '';
-  return <div className="flex h-full overflow-hidden">
-    <div className={`relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden pt-2 transition-all duration-300 ${isAIChatOpen ? 'lg:w-[65%]' : 'w-full'}`}>
+  return <div className="relative flex h-full overflow-hidden">
+    <div className={`relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden pt-2 transition-all duration-300 w-full`}>
       {/* Panel Drop Zones for drag and drop repositioning */}
       <PanelDropZones />
       {/* Right Panel - Order (Shows first on mobile) */}
@@ -3823,58 +3823,10 @@ const Orders = () => {
       serverName={currentServerName}
     />
     </div>
+    {/* AI Chat Overlay - same size as order screen, overlays on the left */}
     {isAIChatOpen && (
-      <div className="w-[35%] h-full hidden lg:block">
-        <OrderAIChatPanel
-          onClose={() => setIsAIChatOpen(false)}
-          orderContext={{
-            orderType,
-            guestName,
-            orderItems,
-            orderNotes,
-            availableProducts: dbProducts.map(p => ({ id: p.id, name: p.name, price: p.price, category_name: p.category_name })),
-          }}
-          menuData={{ menuList, menuCategories }}
-          orderActions={{
-            addProduct: (name, price, quantity) => {
-              setOrderItems(prev => {
-                const existing = prev.find(o => o.name.toLowerCase() === name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
-                if (existing) {
-                  return prev.map(o => o.name.toLowerCase() === name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0) ? { ...o, qty: o.qty + quantity } : o);
-                }
-                return [...prev, { id: Date.now(), qty: quantity, name, price }];
-              });
-            },
-            removeProduct: (name) => {
-              setOrderItems(prev => prev.filter(o => o.name.toLowerCase() !== name.toLowerCase()));
-            },
-            updateQuantity: (name, quantity) => {
-              setOrderItems(prev => prev.map(o => o.name.toLowerCase() === name.toLowerCase() ? { ...o, qty: quantity } : o));
-            },
-            setOrderType: (type) => setOrderType(type),
-            setGuestName: (name) => setGuestName(name),
-            clearOrder: () => handleClearOrder(),
-            setOrderNotes: (notes) => setOrderNotes(notes),
-            openPayment: () => {
-              if (requireOrderType && !orderType) {
-                toast.error("Please select an order type before charging");
-                return;
-              }
-              if (requireGuestName && !guestName.trim()) {
-                toast.error("Please enter a guest name before charging");
-                return;
-              }
-              setShowPaymentDialog(true);
-            },
-          }}
-        />
-      </div>
-    )}
-    {/* Mobile & Tablet: Sheet overlay */}
-    {isAIChatOpen && (
-      <div className="lg:hidden fixed inset-0 z-50 flex">
-        <div className="flex-1 bg-black/50" onClick={() => setIsAIChatOpen(false)} />
-        <div className="w-[85%] max-w-sm h-full">
+      <div className="absolute inset-0 z-50 flex">
+        <div className="w-full h-full">
           <OrderAIChatPanel
             onClose={() => setIsAIChatOpen(false)}
             orderContext={{

@@ -244,7 +244,7 @@ export function DiscountDialog({
               <button
                 key={discount.id}
                 onClick={() => handleSelectDiscount(discount)}
-                className="w-full flex items-center gap-2 px-2.5 py-2.5 rounded-[10px] transition-all"
+                className="w-full flex items-center gap-1.5 px-2.5 py-2.5 rounded-[10px] transition-all"
                 style={{
                   background: isSelected ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.03)',
                   border: isSelected ? '1px solid rgba(255,255,255,0.25)' : '1px solid rgba(255,255,255,0.06)',

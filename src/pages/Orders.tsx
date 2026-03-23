@@ -105,6 +105,7 @@ import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import MessageKitchenDialog from "@/components/MessageKitchenDialog";
 import { useVoucherMode } from "@/contexts/VoucherModeContext";
+import OrderAIChatPanel from "@/components/OrderAIChatPanel";
 
 
 import {
@@ -263,6 +264,7 @@ const Orders = () => {
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
   const { addOrder: addTicketOrder, updateOrder: updateTicketOrder } = useTicketOrders();
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
+  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
 
   // Dynamic arrived-at time based on when the order screen was opened
   const [arrivedAt] = useState(() => {
@@ -1378,7 +1380,8 @@ const Orders = () => {
   const chargeLabel = addItemMode ?
   isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER' :
   '';
-  return <div className="relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden pt-2">
+  return <div className="flex h-full overflow-hidden">
+    <div className={`relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden pt-2 transition-all duration-300 ${isAIChatOpen ? 'w-[65%]' : 'w-full'}`}>
       {/* Panel Drop Zones for drag and drop repositioning */}
       <PanelDropZones />
       {/* Right Panel - Order (Shows first on mobile) */}
@@ -2114,7 +2117,7 @@ const Orders = () => {
             }}>
               <img src={searchIcon} alt="Search" className="w-full h-full object-contain" />
             </button>
-            <AnimatedAIIcon size={16} onClick={() => navigate('/settings/ai')} />
+            <AnimatedAIIcon size={16} onClick={() => setIsAIChatOpen(prev => !prev)} />
           </div>}
           {showInlineCustomization && selectedItemForCustomization || isSearchMode ? <div className="w-8" /> : null}
         </div>
@@ -2382,7 +2385,7 @@ const Orders = () => {
                 onClick={() => setIsDesktopSearchOpen(true)}>
               <img src={searchIcon} alt="Search" className="w-8 h-8 lg:w-9 lg:h-9" />
             </button>
-            <AnimatedAIIcon size={20} onClick={() => navigate('/settings/ai')} />
+            <AnimatedAIIcon size={20} onClick={() => setIsAIChatOpen(prev => !prev)} />
           </div>
           {/* Menu Controls Group */}
           {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-1.5 lg:gap-2 bg-sidebar-accent rounded-full pl-1 pr-0.5 md:pl-1.5 md:pr-0.5 lg:pl-2 lg:pr-0.5 h-7 md:h-8 lg:h-9">
@@ -3819,6 +3822,21 @@ const Orders = () => {
       tableId={tableIdFromParams}
       serverName={currentServerName}
     />
+    </div>
+    {isAIChatOpen && (
+      <div className="w-[35%] h-full hidden md:block">
+        <OrderAIChatPanel onClose={() => setIsAIChatOpen(false)} />
+      </div>
+    )}
+    {/* Mobile: Sheet overlay */}
+    {isAIChatOpen && (
+      <div className="md:hidden fixed inset-0 z-50 flex">
+        <div className="flex-1 bg-black/50" onClick={() => setIsAIChatOpen(false)} />
+        <div className="w-[85%] max-w-sm h-full">
+          <OrderAIChatPanel onClose={() => setIsAIChatOpen(false)} />
+        </div>
+      </div>
+    )}
     </div>;
 };
 export default Orders;

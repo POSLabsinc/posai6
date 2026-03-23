@@ -320,49 +320,61 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions }: OrderAIChatPa
         <div ref={messagesEndRef} />
       </div>
 
+      {/* Order Type Sub-options */}
+      {showOrderTypes && (
+        <div className="px-3 pt-2 flex-shrink-0">
+          <p className="text-xs text-neutral-400 mb-1.5">Select order type:</p>
+          <div className="flex flex-wrap gap-1.5 pb-2">
+            {ORDER_TYPES.map((type) => (
+              <button
+                key={type}
+                onClick={() => {
+                  setShowOrderTypes(false);
+                  sendDirect(`Change order type to ${type}`);
+                }}
+                disabled={isTyping}
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40 ${
+                  orderContext?.orderType === type
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-[#252525] hover:bg-[#303030] text-neutral-300"
+                }`}
+              >
+                {type}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Quick Actions */}
       <div className="px-3 pt-2 flex-shrink-0 overflow-x-auto scrollbar-hide">
         <div className="flex gap-1.5 pb-2">
           {[
-            { icon: ShoppingCart, label: "Add Product", prompt: "What products would you like to add?" },
-            { icon: UtensilsCrossed, label: "Order Type", prompt: "Change order type to " },
-            { icon: Users, label: "Guest Name", prompt: "Set guest name to " },
-            { icon: StickyNote, label: "Add Note", prompt: "Add order note: " },
-            { icon: FileText, label: "Summary", prompt: "Show me the current order summary" },
-            { icon: Trash2, label: "Clear", prompt: "Clear the entire order" },
-          ].map((action) => (
+            { icon: ShoppingCart, label: "Add Product", action: "input" as const, prompt: "Add " },
+            { icon: UtensilsCrossed, label: "Order Type", action: "toggle_types" as const },
+            { icon: Users, label: "Guest", action: "input" as const, prompt: "Set guest name to " },
+            { icon: StickyNote, label: "Note", action: "input" as const, prompt: "Add order note: " },
+            { icon: FileText, label: "Summary", action: "send" as const, prompt: "Show me the current order summary" },
+            { icon: Trash2, label: "Clear", action: "send" as const, prompt: "Clear the entire order" },
+          ].map((btn) => (
             <button
-              key={action.label}
+              key={btn.label}
               onClick={() => {
-                if (action.label === "Summary" || action.label === "Clear") {
-                  // Send directly for instant actions
-                  const fakeEvent = action.prompt;
-                  setMessages((prev) => [
-                    ...prev,
-                    { id: crypto.randomUUID(), role: "user", content: fakeEvent, timestamp: new Date() },
-                  ]);
-                  setIsTyping(true);
-                  streamChat(fakeEvent)
-                    .catch((e) => {
-                      console.error("Quick action error:", e);
-                      if (!(e instanceof Error && (e.message === "Rate limited" || e.message === "Payment required"))) {
-                        setMessages((prev) => [
-                          ...prev,
-                          { id: crypto.randomUUID(), role: "assistant", content: "Sorry, I encountered an error.", timestamp: new Date() },
-                        ]);
-                      }
-                    })
-                    .finally(() => setIsTyping(false));
+                setShowOrderTypes(false);
+                if (btn.action === "send") {
+                  sendDirect(btn.prompt!);
+                } else if (btn.action === "toggle_types") {
+                  setShowOrderTypes((prev) => !prev);
                 } else {
-                  setInput(action.prompt);
+                  setInput(btn.prompt!);
                   inputRef.current?.focus();
                 }
               }}
               disabled={isTyping}
               className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#252525] hover:bg-[#303030] text-neutral-300 text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40"
             >
-              <action.icon className="w-3 h-3" />
-              {action.label}
+              <btn.icon className="w-3 h-3" />
+              {btn.label}
             </button>
           ))}
         </div>
@@ -377,7 +389,7 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions }: OrderAIChatPa
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask anything..."
+            placeholder="Type a product name, guest name, or command..."
             className="flex-1 bg-transparent text-sm text-foreground placeholder:text-neutral-500 outline-none"
           />
           <button

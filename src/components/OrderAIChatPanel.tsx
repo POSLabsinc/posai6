@@ -84,6 +84,8 @@ function processToolCalls(toolCalls: any[], actions: OrderActions | undefined) {
   }
 }
 
+const ORDER_TYPES = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE"];
+
 const OrderAIChatPanel = ({ onClose, orderContext, orderActions }: OrderAIChatPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -95,6 +97,7 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions }: OrderAIChatPa
   ]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [showOrderTypes, setShowOrderTypes] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const conversationRef = useRef<Msg[]>([]);

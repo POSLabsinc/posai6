@@ -2091,7 +2091,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`relative md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto ${panelLayout === 'menu-right' ? 'md:order-2 md:pr-2' : 'md:order-1'}`} style={isDragging && dragOffset !== 0 ? {
+      <div className={`md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto ${panelLayout === 'menu-right' ? 'md:order-2 md:pr-2' : 'md:order-1'}`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`,
       flexGrow: 0,
       flexShrink: 0,
@@ -2570,10 +2570,13 @@ const Orders = () => {
             <X className="w-4 h-4 text-white" />
           </Button>
         </div>}
-      {/* AI Chat Overlay on Menu */}
+      </div>
+      </div>
+
+      {/* AI Chat Panel - Overlay */}
       {isAIChatOpen && (
-        <div className="hidden md:flex absolute inset-0 z-50 rounded-lg overflow-hidden bg-black/60">
-          <div className="w-full h-full">
+        <div className={`hidden md:block fixed z-[60] top-0 bottom-0 ${panelLayout === 'menu-right' ? 'left-0' : 'right-0'} ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} pt-[60px] pb-2 ${panelLayout === 'menu-right' ? 'pl-2' : 'pr-2'}`}>
+          <div className="w-full h-full rounded-lg overflow-hidden shadow-2xl">
             <OrderAIChatPanel
               onClose={() => setIsAIChatOpen(false)}
               orderContext={{
@@ -2620,8 +2623,6 @@ const Orders = () => {
           </div>
         </div>
       )}
-      </div>
-      </div>
 
       {/* Right Panel - Order (Desktop only) */}
       <div className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} overflow-hidden flex-shrink-0 pb-2 pr-2 gap-0 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>

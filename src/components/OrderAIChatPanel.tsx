@@ -226,39 +226,34 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions }: OrderAIChatPa
     }
   }, [orderContext, orderActions]);
 
-  const handleSend = async () => {
-    const trimmed = input.trim();
-    if (!trimmed || isTyping) return;
-
-    const userMsg: Message = {
-      id: crypto.randomUUID(),
-      role: "user",
-      content: trimmed,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setInput("");
+  const sendDirect = useCallback(async (text: string) => {
+    if (isTyping) return;
+    setMessages((prev) => [
+      ...prev,
+      { id: crypto.randomUUID(), role: "user", content: text, timestamp: new Date() },
+    ]);
     setIsTyping(true);
-
     try {
-      await streamChat(trimmed);
+      await streamChat(text);
     } catch (e) {
       console.error("Chat error:", e);
       if (!(e instanceof Error && (e.message === "Rate limited" || e.message === "Payment required"))) {
         setMessages((prev) => [
           ...prev,
-          {
-            id: crypto.randomUUID(),
-            role: "assistant",
-            content: "Sorry, I encountered an error. Please try again.",
-            timestamp: new Date(),
-          },
+          { id: crypto.randomUUID(), role: "assistant", content: "Sorry, I encountered an error. Please try again.", timestamp: new Date() },
         ]);
       }
     } finally {
       setIsTyping(false);
     }
+  }, [isTyping, streamChat]);
+
+  const handleSend = async () => {
+    const trimmed = input.trim();
+    if (!trimmed || isTyping) return;
+    setInput("");
+    setShowOrderTypes(false);
+    await sendDirect(trimmed);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

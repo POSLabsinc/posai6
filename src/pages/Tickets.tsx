@@ -56,6 +56,8 @@ import SwipeableCartItem from "@/components/SwipeableCartItem";
 import MobileFiltersSheet, { MobileFiltersState } from "@/components/MobileFiltersSheet";
 import OrderTypeIcon from "@/components/OrderTypeIcon";
 import { SimpleModifierTree } from "@/components/ModifierWithConnector";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import OrderAIChatPanel from "@/components/OrderAIChatPanel";
 import { DiscountDialog, availableDiscounts, type Discount } from "@/components/DiscountDialog";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import NoteSuggestions from "@/components/NoteSuggestions";

@@ -3823,9 +3823,9 @@ const Orders = () => {
       serverName={currentServerName}
     />
     </div>
-    {/* AI Chat Overlay - same size as order screen, overlays on the left */}
+    {/* AI Chat Overlay - matches order panel width */}
     {isAIChatOpen && (
-      <div className="absolute inset-0 z-50 flex">
+      <div className={`absolute top-0 bottom-0 z-50 ${panelLayout === 'menu-right' ? 'left-0' : 'right-0'} ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} pb-2 ${panelLayout === 'menu-right' ? 'pl-2' : 'pr-2'}`}>
         <div className="w-full h-full">
           <OrderAIChatPanel
             onClose={() => setIsAIChatOpen(false)}

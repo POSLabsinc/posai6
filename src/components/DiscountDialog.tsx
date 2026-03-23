@@ -233,6 +233,7 @@ export function DiscountDialog({
         <h3 className="text-[15px] font-medium text-white">Discounts</h3>
         <p className="text-[11px] text-[#888] mt-0.5">Select a discount below</p>
       </div>
+      <div className="mx-3 mb-2" style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
       <div className="flex-1 overflow-y-auto scrollbar-hide px-3 pb-3">
         <div className="grid grid-cols-2 gap-2">
           {dynamicDiscounts.map((discount) => {

@@ -105,6 +105,7 @@ import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import MessageKitchenDialog from "@/components/MessageKitchenDialog";
 import { useVoucherMode } from "@/contexts/VoucherModeContext";
+import OrderAIChatPanel from "@/components/OrderAIChatPanel";
 
 
 import {

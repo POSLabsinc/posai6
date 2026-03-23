@@ -3239,54 +3239,6 @@ const Orders = () => {
               }
                 </>
             }
-              {/* AI Chat Overlay - inside order content container */}
-              {isAIChatOpen && (
-                <div className="absolute inset-0 z-50 rounded-lg overflow-hidden">
-                  <OrderAIChatPanel
-                    onClose={() => setIsAIChatOpen(false)}
-                    orderContext={{
-                      orderType,
-                      guestName,
-                      orderItems,
-                      orderNotes,
-                      availableProducts: dbProducts.map(p => ({ id: p.id, name: p.name, price: p.price, category_name: p.category_name })),
-                    }}
-                    menuData={{ menuList, menuCategories }}
-                    orderActions={{
-                      addProduct: (name, price, quantity) => {
-                        setOrderItems(prev => {
-                          const existing = prev.find(o => o.name.toLowerCase() === name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
-                          if (existing) {
-                            return prev.map(o => o.name.toLowerCase() === name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0) ? { ...o, qty: o.qty + quantity } : o);
-                          }
-                          return [...prev, { id: Date.now(), qty: quantity, name, price }];
-                        });
-                      },
-                      removeProduct: (name) => {
-                        setOrderItems(prev => prev.filter(o => o.name.toLowerCase() !== name.toLowerCase()));
-                      },
-                      updateQuantity: (name, quantity) => {
-                        setOrderItems(prev => prev.map(o => o.name.toLowerCase() === name.toLowerCase() ? { ...o, qty: quantity } : o));
-                      },
-                      setOrderType: (type) => setOrderType(type),
-                      setGuestName: (name) => setGuestName(name),
-                      clearOrder: () => handleClearOrder(),
-                      setOrderNotes: (notes) => setOrderNotes(notes),
-                      openPayment: () => {
-                        if (requireOrderType && !orderType) {
-                          toast.error("Please select an order type before charging");
-                          return;
-                        }
-                        if (requireGuestName && !guestName.trim()) {
-                          toast.error("Please enter a guest name before charging");
-                          return;
-                        }
-                        setShowPaymentDialog(true);
-                      },
-                    }}
-                  />
-                </div>
-              )}
             </div>
 
             {/* Right Side Actions Sidebar */}

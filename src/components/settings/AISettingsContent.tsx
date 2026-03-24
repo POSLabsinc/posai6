@@ -242,10 +242,10 @@ const notificationsSuggestionChips: SuggestionChip[] = [
 ];
 
 const reportsSuggestionChips: SuggestionChip[] = [
-  { label: "Sales reports", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show sales report settings" },
-  { label: "Report schedule", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Configure report scheduling" },
-  { label: "Export data", icon: <ExternalLink className="w-3.5 h-3.5" />, prompt: "How do I export report data?" },
-  { label: "Analytics", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show analytics settings" },
+  { label: "Today's sales", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me today's sales report" },
+  { label: "Yesterday's report", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Generate yesterday's sales report" },
+  { label: "This week", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show me this week's sales report" },
+  { label: "This month", icon: <ExternalLink className="w-3.5 h-3.5" />, prompt: "Generate this month's sales report" },
 ];
 
 const contextChipsMap: Record<string, SuggestionChip[]> = {

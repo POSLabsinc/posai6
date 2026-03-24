@@ -2675,65 +2675,68 @@ const Orders = () => {
       </div>
       </div>
 
-      {/* AI Chat Panel - Left of Order Panel */}
+      {/* AI Chat Panel - Overlay on Menu Panel */}
       {isAIChatOpen && (
-        <div className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} flex-shrink-0 pb-2 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-0 md:pl-2' : 'md:order-2'}`}>
-          <div className="w-full h-full rounded-lg overflow-hidden">
-            <OrderAIChatPanel
-              onClose={() => setIsAIChatOpen(false)}
-              orderContext={{
-                orderType,
-                guestName,
-                orderItems,
-                orderNotes,
-                availableProducts: dbProducts.map(p => ({ id: p.id, name: p.name, price: p.price, category_name: p.category_name })),
-              }}
-              menuData={{ menuList, menuCategories }}
-              orderActions={{
-                addProduct: (name, price, quantity) => {
-                  setOrderItems(prev => {
-                    const existing = prev.find(o => o.name.toLowerCase() === name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
-                    if (existing) {
-                      return prev.map(o => o.name.toLowerCase() === name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0) ? { ...o, qty: o.qty + quantity } : o);
+        <>
+          <div className="hidden md:block absolute inset-0 bg-black/40 z-30 rounded-lg" onClick={() => setIsAIChatOpen(false)} />
+          <div className={`hidden md:flex absolute top-0 ${panelLayout === 'menu-right' ? 'left-0' : 'right-0'} z-40 h-full ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} pb-2 transition-all duration-300`}>
+            <div className="w-full h-full rounded-lg overflow-hidden shadow-2xl border-l border-neutral-700">
+              <OrderAIChatPanel
+                onClose={() => setIsAIChatOpen(false)}
+                orderContext={{
+                  orderType,
+                  guestName,
+                  orderItems,
+                  orderNotes,
+                  availableProducts: dbProducts.map(p => ({ id: p.id, name: p.name, price: p.price, category_name: p.category_name })),
+                }}
+                menuData={{ menuList, menuCategories }}
+                orderActions={{
+                  addProduct: (name, price, quantity) => {
+                    setOrderItems(prev => {
+                      const existing = prev.find(o => o.name.toLowerCase() === name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
+                      if (existing) {
+                        return prev.map(o => o.name.toLowerCase() === name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0) ? { ...o, qty: o.qty + quantity } : o);
+                      }
+                      return [...prev, { id: Date.now(), qty: quantity, name, price }];
+                    });
+                  },
+                  addProductWithModifiers: (name, price, quantity, modifiers, notes) => {
+                    setOrderItems(prev => [...prev, {
+                      id: Date.now(),
+                      qty: quantity,
+                      name,
+                      price,
+                      modifiers: modifiers.length > 0 ? modifiers : undefined,
+                      notes: notes?.trim() ? notes.trim() : undefined,
+                    }]);
+                  },
+                  removeProduct: (name) => {
+                    setOrderItems(prev => prev.filter(o => o.name.toLowerCase() !== name.toLowerCase()));
+                  },
+                  updateQuantity: (name, quantity) => {
+                    setOrderItems(prev => prev.map(o => o.name.toLowerCase() === name.toLowerCase() ? { ...o, qty: quantity } : o));
+                  },
+                  setOrderType: (type) => setOrderType(type),
+                  setGuestName: (name) => setGuestName(name),
+                  clearOrder: () => handleClearOrder(),
+                  setOrderNotes: (notes) => setOrderNotes(notes),
+                  openPayment: () => {
+                    if (requireOrderType && !orderType) {
+                      toast.error("Please select an order type before charging");
+                      return;
                     }
-                    return [...prev, { id: Date.now(), qty: quantity, name, price }];
-                  });
-                },
-                addProductWithModifiers: (name, price, quantity, modifiers, notes) => {
-                  setOrderItems(prev => [...prev, {
-                    id: Date.now(),
-                    qty: quantity,
-                    name,
-                    price,
-                    modifiers: modifiers.length > 0 ? modifiers : undefined,
-                    notes: notes?.trim() ? notes.trim() : undefined,
-                  }]);
-                },
-                removeProduct: (name) => {
-                  setOrderItems(prev => prev.filter(o => o.name.toLowerCase() !== name.toLowerCase()));
-                },
-                updateQuantity: (name, quantity) => {
-                  setOrderItems(prev => prev.map(o => o.name.toLowerCase() === name.toLowerCase() ? { ...o, qty: quantity } : o));
-                },
-                setOrderType: (type) => setOrderType(type),
-                setGuestName: (name) => setGuestName(name),
-                clearOrder: () => handleClearOrder(),
-                setOrderNotes: (notes) => setOrderNotes(notes),
-                openPayment: () => {
-                  if (requireOrderType && !orderType) {
-                    toast.error("Please select an order type before charging");
-                    return;
-                  }
-                  if (requireGuestName && !guestName.trim()) {
-                    toast.error("Please enter a guest name before charging");
-                    return;
-                  }
-                  setShowPaymentDialog(true);
-                },
-              }}
-            />
+                    if (requireGuestName && !guestName.trim()) {
+                      toast.error("Please enter a guest name before charging");
+                      return;
+                    }
+                    setShowPaymentDialog(true);
+                  },
+                }}
+              />
+            </div>
           </div>
-        </div>
+        </>
       )}
 
       {/* Right Panel - Order (Desktop only) */}

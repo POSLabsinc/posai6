@@ -2700,8 +2700,8 @@ const Orders = () => {
       {/* AI Chat Panel - Overlay on Menu Panel */}
       {isAIChatOpen && (
         <>
-          <div className="hidden md:block absolute inset-0 bg-black/40 z-30 rounded-lg" onClick={() => setIsAIChatOpen(false)} />
-          <div className={`hidden md:flex absolute top-0 bottom-0 ${panelLayout === 'menu-right' ? 'left-0' : 'right-0'} z-40 ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} pb-2 transition-all duration-300`}>
+          <div className="hidden md:block absolute inset-0 bg-black/40 z-30 rounded-lg" style={{ top: aiOverlayTop }} onClick={() => setIsAIChatOpen(false)} />
+          <div className={`hidden md:flex absolute bottom-0 ${panelLayout === 'menu-right' ? 'left-0' : 'right-0'} z-40 ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} pb-2 transition-all duration-300`} style={{ top: aiOverlayTop }}>
             <div className="w-full h-full rounded-lg overflow-hidden shadow-2xl border-l border-neutral-700">
               <OrderAIChatPanel
                 onClose={() => setIsAIChatOpen(false)}

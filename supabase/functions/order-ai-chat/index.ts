@@ -229,6 +229,34 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "lookup_customer",
+      description: "Look up a customer/guest by name or phone number to find their profile and order history",
+      parameters: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Customer name to search for" },
+          phone: { type: "string", description: "Customer phone number to search for" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "get_past_orders",
+      description: "Get past order history for a customer to repeat/reorder their previous products",
+      parameters: {
+        type: "object",
+        properties: {
+          guest_id: { type: "string", description: "The guest ID from a previous lookup_customer call" },
+        },
+        required: ["guest_id"],
+      },
+    },
+  },
 ];
 
 // Detect if user is asking about settings vs order operations

@@ -248,7 +248,7 @@ const GuestPastOrderPopup = ({
                       className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-all"
                       style={{
                         border: selected && !unavailable ? "none" : "1px solid #3a3a3a",
-                        background: selected && !unavailable ? "#f97316" : unavailable ? "#2a2a2a" : "transparent",
+                        background: selected && !unavailable ? "#fff" : unavailable ? "#2a2a2a" : "transparent",
                       }}
                     >
                       {selected && !unavailable && <Check className="w-3.5 h-3.5 text-white" />}

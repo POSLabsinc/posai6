@@ -484,7 +484,7 @@ export function DiscountDialog({
 
   // -- Desktop: wide, side-by-side, no scroll --
   const dialogContent = (
-    <div className="flex flex-col" style={{ background: '#1a1a1e', borderRadius: '12px', overflow: 'hidden' }}>
+    <div className="flex flex-col" style={{ background: '#1a1a1e', borderRadius: '16px', overflow: 'hidden' }}>
       <div className="flex min-h-0">
         {discountGrid}
         {needsReason && reasonColumn}

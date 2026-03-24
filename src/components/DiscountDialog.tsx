@@ -425,15 +425,15 @@ export function DiscountDialog({
 
   // -- Footer --
   const footer = (
-    <div className="flex items-center justify-between px-4 py-2.5" style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
+    <div className="flex items-center justify-between px-5 py-3.5" style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
       <div>
-        <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#666' }}>Total savings</p>
-        <p className="text-[15px] font-medium text-white">-${totalSavings.toFixed(2)}</p>
+        <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#666' }}>Total savings</p>
+        <p className="text-lg font-semibold text-white">-${totalSavings.toFixed(2)}</p>
       </div>
       <button
         onClick={handleApply}
         disabled={!canApply}
-        className="px-8 py-2 rounded-lg text-sm font-medium transition-all"
+        className="px-10 py-2.5 rounded-xl text-sm font-semibold transition-all"
         style={{
           background: canApply ? '#fff' : 'rgba(255,255,255,0.1)',
           color: canApply ? '#1a1a1e' : '#555',

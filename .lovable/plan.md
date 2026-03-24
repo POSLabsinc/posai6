@@ -1,48 +1,22 @@
 
 
-## Plan: Reposition AI Chat Panel as Overlay on Menu Panel
+## Plan: Adjust AI Panel Top Position
 
-### Current Behavior
-The AI chat panel renders as a **separate flex column** between the menu panel and order panel, pushing content and taking up additional horizontal space.
+The AI panel currently starts at `top-0` (very top of the menu container). It should start lower — aligned with the "Order Type" box area in the order panel, which sits below the header/action buttons row.
 
-### Desired Behavior
-The AI chat panel should **overlay on top of the menu panel** from the right side, matching the order panel's width. It should not take extra space — it slides over the menu.
+### Change
 
-### Changes
+**File: `src/pages/Orders.tsx` (line 2681)**
 
-**File: `src/pages/Orders.tsx`**
+Update the AI overlay div from `top-0 h-full` to a top offset that skips the header area. The order panel header (with Order #, action buttons like No Tax/No Sale/Gift) is roughly 90-100px tall. Setting `top-[100px]` and changing height to `bottom-0` will align the AI panel's top edge with the Order Type field area.
 
-1. **Change the AI panel container** (lines ~2678-2737) from a flex sibling to an **absolute-positioned overlay** anchored to the right edge of the menu panel area:
-   - Remove it from the flex flow (no `md:order-*`, no `flex-shrink-0`)
-   - Position it absolutely within the menu panel's container, aligned to the right
-   - Match the order panel's width: `w-[280px] lg:w-[345px]` (or `w-[350px] lg:w-[415px]` when sidebar is open)
-   - Full height, with a solid background so it covers the menu beneath it
-   - Add a subtle left border or shadow for visual separation
+```
+// Before
+absolute top-0 ... z-40 h-full
 
-2. **Wrap the menu panel** in a `relative` container so the AI overlay positions correctly within it
-
-3. **Remove the order-shifting logic** — the order panel no longer needs `md:order-3` when AI is open since the AI panel doesn't affect flex ordering
-
-4. **Add backdrop** — a semi-transparent overlay on the menu panel behind the AI chat for visual depth
-
-### Technical Details
-
-```text
-Before:
-┌──────────┐ ┌──────────┐ ┌──────────┐
-│   Menu   │ │ AI Chat  │ │  Order   │
-│  Panel   │ │  Panel   │ │  Panel   │
-└──────────┘ └──────────┘ └──────────┘
-
-After:
-┌──────────────────┐ ┌──────────┐
-│   Menu Panel     │ │  Order   │
-│        ┌─────────┤ │  Panel   │
-│        │AI Chat  │ │          │
-│        │(overlay)│ │          │
-│        └─────────┤ │          │
-└──────────────────┘ └──────────┘
+// After  
+absolute top-[100px] bottom-0 ... z-40
 ```
 
-The AI panel width will match the order panel width dynamically (280-415px depending on sidebar state).
+This single line change positions the AI panel to start at the same vertical level as the Order Type section in the order panel.
 

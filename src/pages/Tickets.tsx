@@ -5897,7 +5897,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         subtotal={selectedGuest.subtotal}
       />
 
-      {showCancelDialog && (() => {
+      {isClearDialogOpen && (() => {
         const hasFired = selectedGuest?.items?.some((i: any) => i.isFired) || false;
         const commonReasons = [
           'Customer changed mind',

@@ -280,9 +280,12 @@ export function DiscountDialog({
 
   // -- Header --
   const header = (
-    <div className="px-5 pt-5 pb-1">
-      <h3 className="text-lg font-semibold text-white">Discounts</h3>
-      <p className="text-xs mt-0.5" style={{ color: '#777' }}>Select a discount below</p>
+    <div>
+      <div className="px-5 pt-5 pb-3">
+        <h3 className="text-lg font-semibold text-white">Discounts</h3>
+        <p className="text-xs mt-0.5" style={{ color: '#777' }}>Select a discount below</p>
+      </div>
+      <div className="mx-3 mb-2" style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
     </div>
   );
 

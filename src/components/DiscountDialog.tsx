@@ -299,7 +299,7 @@ export function DiscountDialog({
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search discounts..."
+            placeholder="Search discounts."
             className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none"
             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
           />

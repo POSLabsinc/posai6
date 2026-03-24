@@ -93,6 +93,23 @@ interface Message {
   quickReplies?: string[];
   multiSelect?: boolean;
   imageUrl?: string;
+  reportData?: ReportData;
+}
+
+interface ReportData {
+  orderSummary: {
+    numberOfOrders: number;
+    numberOfRefunds: number;
+    refundAmount: number;
+    netSales: number;
+    discounts: number;
+    tips: number;
+    tax: number;
+    total: number;
+  };
+  paymentTypes: { type: string; transactions: number; amount: number }[];
+  categories: { name: string; products: number; sales: number }[];
+  dateRange: string;
 }
 
 

@@ -622,8 +622,8 @@ ${orderContext?.availableProducts?.map((p: any) => `- ${p.name}: $${p.price.toFi
     const firstChoice = firstResult.choices?.[0];
     const toolCalls = firstChoice?.message?.tool_calls;
 
-    // Check if any server-side tools (lookup_customer, get_past_orders) need execution
-    const serverToolNames = ["lookup_customer", "get_past_orders"];
+    // Check if any server-side tools need execution
+    const serverToolNames = ["lookup_customer", "get_past_orders", "create_guest"];
     const hasServerTools = toolCalls?.some((tc: any) => serverToolNames.includes(tc.function?.name));
 
     if (hasServerTools && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
@@ -638,6 +638,9 @@ ${orderContext?.availableProducts?.map((p: any) => `- ${p.name}: $${p.price.toFi
           toolResults.push({ tool_call_id: tc.id, role: "tool", content: JSON.stringify(result) });
         } else if (fnName === "get_past_orders") {
           const result = await getPastOrders(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, args.guest_id);
+          toolResults.push({ tool_call_id: tc.id, role: "tool", content: JSON.stringify(result) });
+        } else if (fnName === "create_guest") {
+          const result = await createGuest(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, args.name, args.phone, args.email);
           toolResults.push({ tool_call_id: tc.id, role: "tool", content: JSON.stringify(result) });
         }
       }

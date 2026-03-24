@@ -251,7 +251,7 @@ const GuestPastOrderPopup = ({
                         background: selected && !unavailable ? "#fff" : unavailable ? "#2a2a2a" : "transparent",
                       }}
                     >
-                      {selected && !unavailable && <Check className="w-3.5 h-3.5 text-white" />}
+                      {selected && !unavailable && <Check className="w-3.5 h-3.5 text-black" />}
                       {unavailable && <X className="w-3 h-3" style={{ color: "#666" }} />}
                     </div>
 

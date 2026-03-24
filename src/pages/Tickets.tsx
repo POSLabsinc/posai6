@@ -915,6 +915,13 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const handleClearOrder = () => {
     const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
     console.log('[Tickets CancelOrder] order:', selectedGuest.id, 'reason:', reason);
+    
+    // Persist cancellation to database
+    if (selectedGuest.id) {
+      updateTicketOrder(selectedGuest.id, { status: 'CANCELLED' }).catch(console.error);
+      updateOrder(selectedGuest.id, { status: 'CANCELLED' as any }).catch(console.error);
+    }
+    
     // Mark all items as removed for the current order
     const newRemovedItems = new Set(removedItems);
     selectedGuest.items.forEach((item, index) => {
@@ -929,6 +936,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       newNoTaxItems.delete(itemKey);
     });
     setNoTaxItems(newNoTaxItems);
+    
+    // Reset selected guest to next available order
+    const remainingOrders = allOrders.filter(o => o.id !== selectedGuest.id);
+    setSelectedGuest(remainingOrders[0] ?? FALLBACK_SELECTED_GUEST);
+    
     setIsClearDialogOpen(false);
     toast.success('Order cancelled');
   };

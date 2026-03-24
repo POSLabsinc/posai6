@@ -912,8 +912,9 @@ const Dashboard = () => {
       };
     });
     
-    // Assign sequential order numbers
-    const merged = [...dashboardSessionOrders, ...dashboardDbOrders];
+    // Assign sequential order numbers, filter out cancelled
+    const merged = [...dashboardSessionOrders, ...dashboardDbOrders]
+      .filter(order => order.status !== 'CANCELLED');
     return merged.map((order, idx) => ({
       ...order,
       orderNumber: order.orderNumber || (idx + 1),

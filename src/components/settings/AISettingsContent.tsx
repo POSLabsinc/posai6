@@ -1368,6 +1368,70 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   {/* Navigate Button */}
                   {message.navigateTo && renderNavigateButton(message.navigateTo)}
 
+                  {/* Sales Report Data */}
+                  {message.reportData && (
+                    <div className="mt-3 space-y-3">
+                      <div className="bg-card border border-border rounded-xl overflow-hidden">
+                        <div className="px-3 py-2 border-b border-border">
+                          <span className="text-xs font-semibold text-foreground">Order Summary</span>
+                          <span className="text-xs text-muted-foreground ml-2">({message.reportData.dateRange})</span>
+                        </div>
+                        {[
+                          { label: "Orders", value: String(message.reportData.orderSummary.numberOfOrders) },
+                          { label: "Refunds", value: String(message.reportData.orderSummary.numberOfRefunds) },
+                          { label: "Refund Amount", value: `£${message.reportData.orderSummary.refundAmount.toFixed(2)}` },
+                          { label: "Net Sales", value: `£${message.reportData.orderSummary.netSales.toFixed(2)}` },
+                          { label: "Discounts", value: `£${message.reportData.orderSummary.discounts.toFixed(2)}` },
+                          { label: "Tips", value: `£${message.reportData.orderSummary.tips.toFixed(2)}` },
+                          { label: "Tax", value: `£${message.reportData.orderSummary.tax.toFixed(2)}` },
+                          { label: "Total", value: `£${message.reportData.orderSummary.total.toFixed(2)}`, bold: true },
+                        ].map((row, i) => (
+                          <div key={row.label}>
+                            {i > 0 && <div className="h-px bg-border mx-3" />}
+                            <div className="flex items-center justify-between py-2 px-3">
+                              <span className="text-xs text-muted-foreground">{row.label}</span>
+                              <span className={cn("text-xs", (row as any).bold ? "font-semibold text-foreground" : "text-muted-foreground")}>{row.value}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {message.reportData.paymentTypes.length > 0 && (
+                        <div className="bg-card border border-border rounded-xl overflow-hidden">
+                          <div className="px-3 py-2 border-b border-border">
+                            <span className="text-xs font-semibold text-foreground">By Payment Type</span>
+                          </div>
+                          {message.reportData.paymentTypes.map((pt, i) => (
+                            <div key={pt.type}>
+                              {i > 0 && <div className="h-px bg-border mx-3" />}
+                              <div className="flex items-center justify-between py-2 px-3">
+                                <span className="text-xs text-muted-foreground">{pt.type}</span>
+                                <span className="text-xs text-muted-foreground">{pt.transactions} txn · £{pt.amount.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {message.reportData.categories.length > 0 && (
+                        <div className="bg-card border border-border rounded-xl overflow-hidden">
+                          <div className="px-3 py-2 border-b border-border">
+                            <span className="text-xs font-semibold text-foreground">By Category</span>
+                          </div>
+                          {message.reportData.categories.map((cat, i) => (
+                            <div key={cat.name}>
+                              {i > 0 && <div className="h-px bg-border mx-3" />}
+                              <div className="flex items-center justify-between py-2 px-3">
+                                <span className="text-xs text-muted-foreground">{cat.name}</span>
+                                <span className="text-xs text-muted-foreground">{cat.products} products · £{cat.sales.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Quick Reply Buttons */}
                   {message.quickReplies && message.quickReplies.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-2">

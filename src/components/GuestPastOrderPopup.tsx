@@ -112,8 +112,8 @@ const GuestPastOrderPopup = ({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: "1px solid #2a2a2a" }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(249,115,22,0.15)" }}>
-              <User className="w-5 h-5" style={{ color: "#f97316" }} />
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)" }}>
+              <User className="w-5 h-5" style={{ color: "#fff" }} />
             </div>
             <div>
               <h2 className="text-base font-semibold leading-tight text-white">{guest.name}</h2>
@@ -190,7 +190,7 @@ const GuestPastOrderPopup = ({
             {pastItems.length} products from last order
           </span>
           {selectedCount > 0 && (
-            <span className="text-xs font-medium" style={{ color: "#f97316" }}>
+            <span className="text-xs font-medium" style={{ color: "#fff" }}>
               {selectedCount} selected
             </span>
           )}
@@ -232,15 +232,15 @@ const GuestPastOrderPopup = ({
                     style={{
                       opacity: unavailable ? 0.4 : 1,
                       cursor: unavailable ? "not-allowed" : "pointer",
-                      background: selected && !unavailable ? "rgba(249,115,22,0.08)" : "transparent",
-                      boxShadow: selected && !unavailable ? "inset 0 0 0 1px rgba(249,115,22,0.25)" : "none",
+                      background: selected && !unavailable ? "rgba(255,255,255,0.06)" : "transparent",
+                      boxShadow: selected && !unavailable ? "inset 0 0 0 1px rgba(255,255,255,0.15)" : "none",
                     }}
                     onMouseEnter={e => {
                       if (!unavailable && !selected) e.currentTarget.style.background = "#222";
                     }}
                     onMouseLeave={e => {
                       if (!unavailable && !selected) e.currentTarget.style.background = "transparent";
-                      if (selected) e.currentTarget.style.background = "rgba(249,115,22,0.08)";
+                      if (selected) e.currentTarget.style.background = "rgba(255,255,255,0.06)";
                     }}
                   >
                     {/* Checkbox */}
@@ -248,10 +248,10 @@ const GuestPastOrderPopup = ({
                       className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-all"
                       style={{
                         border: selected && !unavailable ? "none" : "1px solid #3a3a3a",
-                        background: selected && !unavailable ? "#f97316" : unavailable ? "#2a2a2a" : "transparent",
+                        background: selected && !unavailable ? "#fff" : unavailable ? "#2a2a2a" : "transparent",
                       }}
                     >
-                      {selected && !unavailable && <Check className="w-3.5 h-3.5 text-white" />}
+                      {selected && !unavailable && <Check className="w-3.5 h-3.5 text-black" />}
                       {unavailable && <X className="w-3 h-3" style={{ color: "#666" }} />}
                     </div>
 
@@ -287,7 +287,7 @@ const GuestPastOrderPopup = ({
                           <span className="text-[10px] line-through" style={{ color: "#555" }}>
                             ${item.originalPrice?.toFixed(2)}
                           </span>
-                          <span className="text-xs font-semibold" style={{ color: "#f97316" }}>
+                          <span className="text-xs font-semibold" style={{ color: "#fff" }}>
                             ${item.price.toFixed(2)}
                           </span>
                         </div>
@@ -304,9 +304,9 @@ const GuestPastOrderPopup = ({
                           onAddItems([item]);
                         }}
                         className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all active:scale-90"
-                        style={{ background: "#f97316", color: "#fff" }}
-                        onMouseEnter={e => (e.currentTarget.style.background = "#ea580c")}
-                        onMouseLeave={e => (e.currentTarget.style.background = "#f97316")}
+                        style={{ background: "#fff", color: "#000" }}
+                        onMouseEnter={e => (e.currentTarget.style.background = "#e0e0e0")}
+                        onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>
@@ -324,9 +324,9 @@ const GuestPastOrderPopup = ({
             onClick={handleRepeatFull}
             disabled={repeating || availableItems.length === 0}
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: "#f97316", color: "#fff" }}
-            onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.background = "#ea580c"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "#f97316"; }}
+            style={{ background: "#fff", color: "#000" }}
+            onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.background = "#e0e0e0"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "#fff"; }}
           >
             <RotateCcw className="w-4 h-4" />
             Repeat Order
@@ -336,12 +336,12 @@ const GuestPastOrderPopup = ({
             disabled={selectedCount === 0}
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
             style={{
-              background: selectedCount > 0 ? "#f97316" : "transparent",
-              color: selectedCount > 0 ? "#fff" : "#888",
+              background: selectedCount > 0 ? "#fff" : "transparent",
+              color: selectedCount > 0 ? "#000" : "#888",
               border: selectedCount > 0 ? "none" : "1px solid #3a3a3a",
             }}
-            onMouseEnter={e => { if (selectedCount > 0) e.currentTarget.style.background = "#ea580c"; }}
-            onMouseLeave={e => { if (selectedCount > 0) e.currentTarget.style.background = "#f97316"; }}
+            onMouseEnter={e => { if (selectedCount > 0) e.currentTarget.style.background = "#e0e0e0"; }}
+            onMouseLeave={e => { if (selectedCount > 0) e.currentTarget.style.background = "#fff"; }}
           >
             <Plus className="w-4 h-4" />
             {selectedCount > 0 ? `Add Selected (${selectedCount})` : "Add Selected"}

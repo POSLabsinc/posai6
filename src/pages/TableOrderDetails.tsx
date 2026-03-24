@@ -305,8 +305,48 @@ const TableOrderDetails = () => {
   const transferDestArea = getOrderArea(transferredToOrderId);
   
   // Get session orders for this table
-  const { getOrdersByTable: getSessionOrdersByTable, saveSplitConfiguration } = useSessionOrders();
+  const { getOrdersByTable: getSessionOrdersByTable, saveSplitConfiguration, deleteOrder: deleteSessionOrder } = useSessionOrders();
   const sessionOrdersForTable = tableId ? getSessionOrdersByTable(tableId) : [];
+
+  // Cancel order state
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [customCancelReason, setCustomCancelReason] = useState('');
+  const [cancelTargetOrderId, setCancelTargetOrderId] = useState<string | null>(null);
+
+  const handleCancelOrderAttempt = (orderId: string) => {
+    setCancelReason('');
+    setCustomCancelReason('');
+    setCancelTargetOrderId(orderId);
+    setShowCancelConfirm(true);
+  };
+
+  const handleCancelOrderConfirm = () => {
+    if (!cancelTargetOrderId) return;
+    const selectedReason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
+    console.log('[TableOrder CancelOrder] orderId:', cancelTargetOrderId, 'reason:', selectedReason);
+    
+    // Try session order first
+    const sessionOrder = sessionOrdersForTable.find(so => so.id === cancelTargetOrderId);
+    if (sessionOrder) {
+      deleteSessionOrder(sessionOrder.sessionId);
+    }
+    
+    // Also try unified order (update status to CANCELLED)
+    const unifiedOrder = unifiedOrders.find(o => o.id === cancelTargetOrderId);
+    if (unifiedOrder) {
+      updateOrder(cancelTargetOrderId, { status: 'CANCELLED' as any });
+    }
+    
+    // Clear selection if cancelled order was selected
+    if (currentSelectedGuest?.id === cancelTargetOrderId) {
+      setSelectedGuest(null);
+    }
+    
+    setShowCancelConfirm(false);
+    setCancelTargetOrderId(null);
+    toast.success('Order cancelled');
+  };
 
   // Get session ID for the current order (for persisting split config)
   const getSessionIdForOrder = (orderId: string): string | undefined => {
@@ -1302,7 +1342,7 @@ const TableOrderDetails = () => {
               (localTransferResult?.sourceOrderId === currentSelectedGuest?.id && localTransferResult?.transferType === 'full');
             return (
             <>
-              <button disabled={isFullyTransferredOut} className={`w-10 h-10 rounded-full bg-red-600 flex items-center justify-center ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : 'hover:bg-red-500'} transition-colors`}>
+              <button disabled={isFullyTransferredOut} onClick={() => !isFullyTransferredOut && currentSelectedGuest && handleCancelOrderAttempt(currentSelectedGuest.id)} className={`w-10 h-10 rounded-full bg-red-600 flex items-center justify-center ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : 'hover:bg-red-500'} transition-colors`}>
                 <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
               </button>
               <button disabled={isFullyTransferredOut} className={`px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : ''}`} style={{
@@ -2482,7 +2522,7 @@ const TableOrderDetails = () => {
                 (localTransferResult?.sourceOrderId === currentSelectedGuest?.id && localTransferResult?.transferType === 'full');
               return (
               <>
-                <button disabled={isFullyTransferredOut} className={`w-8 h-8 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : 'hover:bg-red-600'}`}>
+                <button disabled={isFullyTransferredOut} onClick={() => !isFullyTransferredOut && currentSelectedGuest && handleCancelOrderAttempt(currentSelectedGuest.id)} className={`w-8 h-8 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : 'hover:bg-red-600'}`}>
                   <img src={clearIcon} alt="Clear" className="w-3 h-3" />
                 </button>
                 <button disabled={isFullyTransferredOut} className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : ''}`} style={{
@@ -3128,7 +3168,7 @@ const TableOrderDetails = () => {
             </>
           ) : (
             <>
-              <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+              <button onClick={() => currentSelectedGuest && handleCancelOrderAttempt(currentSelectedGuest.id)} className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
                 <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
               </button>
               <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{
@@ -3723,6 +3763,98 @@ const TableOrderDetails = () => {
               </div>
             </DialogContent>
           </Dialog>
+        );
+      })()}
+
+      {/* Cancel Order Confirmation Dialog */}
+      {showCancelConfirm && (() => {
+        const targetOrder = [...(sessionOrdersForTable.map(convertSessionToGuestOrder)), ...staticGuestOrders].find(o => o.id === cancelTargetOrderId);
+        const hasFired = targetOrder?.items?.some((i: any) => i.isFired) || false;
+        const commonReasons = [
+          'Customer changed mind',
+          'Out of stock',
+          'Wrong order placed',
+          'Customer left',
+          'Duplicate order',
+          'Kitchen issue',
+        ];
+        const selectedReason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
+        const canConfirm = selectedReason.length > 0;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 p-5 space-y-4 animate-scale-in">
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                </div>
+                <h3 className="text-white font-semibold text-lg">
+                  {hasFired ? 'Cancel Fired Order?' : 'Cancel Order?'}
+                </h3>
+                <p className="text-white/60 text-sm">
+                  {hasFired
+                    ? 'This order has been fired to the kitchen. Please select a reason for cancellation.'
+                    : 'Please select a reason for cancellation.'}
+                </p>
+              </div>
+
+              <div className="flex flex-wrap gap-2">
+                {commonReasons.map((reason) => (
+                  <button
+                    key={reason}
+                    onClick={() => { setCancelReason(reason); setCustomCancelReason(''); }}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      cancelReason === reason
+                        ? 'bg-red-500 text-white'
+                        : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+                    }`}
+                  >
+                    {reason}
+                  </button>
+                ))}
+                <button
+                  onClick={() => setCancelReason('__custom__')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    cancelReason === '__custom__'
+                      ? 'bg-red-500 text-white'
+                      : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+                  }`}
+                >
+                  Other
+                </button>
+              </div>
+
+              {cancelReason === '__custom__' && (
+                <textarea
+                  value={customCancelReason}
+                  onChange={(e) => setCustomCancelReason(e.target.value)}
+                  placeholder="Enter cancel reason..."
+                  className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-red-500 resize-none"
+                  rows={2}
+                  autoFocus
+                />
+              )}
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setShowCancelConfirm(false)}
+                  className="flex-1 h-10 rounded-full border border-neutral-600 text-white text-sm font-medium hover:bg-neutral-800 transition-colors">
+                  Go Back
+                </button>
+                <button
+                  disabled={!canConfirm}
+                  onClick={handleCancelOrderConfirm}
+                  className={`flex-1 h-10 rounded-full text-white text-sm font-medium transition-colors ${
+                    canConfirm ? 'bg-red-500 hover:bg-red-600' : 'bg-neutral-700 cursor-not-allowed opacity-50'
+                  }`}>
+                  Cancel Order
+                </button>
+              </div>
+            </div>
+          </div>
         );
       })()}
     </>;

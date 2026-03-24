@@ -276,6 +276,22 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "create_guest",
+      description: "Create a new guest in the guest book when no existing guest is found. Use after a failed lookup_customer when the user wants to add a new guest.",
+      parameters: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Guest name" },
+          phone: { type: "string", description: "Guest phone number" },
+          email: { type: "string", description: "Guest email (optional)" },
+        },
+        required: ["name", "phone"],
+      },
+    },
+  },
 ];
 
 // Detect if user is asking about settings vs order operations

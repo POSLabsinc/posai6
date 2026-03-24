@@ -336,12 +336,12 @@ const GuestPastOrderPopup = ({
             disabled={selectedCount === 0}
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
             style={{
-              background: selectedCount > 0 ? "#f97316" : "transparent",
-              color: selectedCount > 0 ? "#fff" : "#888",
+              background: selectedCount > 0 ? "#fff" : "transparent",
+              color: selectedCount > 0 ? "#000" : "#888",
               border: selectedCount > 0 ? "none" : "1px solid #3a3a3a",
             }}
-            onMouseEnter={e => { if (selectedCount > 0) e.currentTarget.style.background = "#ea580c"; }}
-            onMouseLeave={e => { if (selectedCount > 0) e.currentTarget.style.background = "#f97316"; }}
+            onMouseEnter={e => { if (selectedCount > 0) e.currentTarget.style.background = "#e0e0e0"; }}
+            onMouseLeave={e => { if (selectedCount > 0) e.currentTarget.style.background = "#fff"; }}
           >
             <Plus className="w-4 h-4" />
             {selectedCount > 0 ? `Add Selected (${selectedCount})` : "Add Selected"}

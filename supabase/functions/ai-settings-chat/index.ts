@@ -75,7 +75,7 @@ interface ChatMessage {
 }
 
 // ── Intent detection: only fetch relevant DB tables ─────────────────────────
-type Intent = "menus" | "categories" | "products" | "modifiers" | "addons" | "general";
+type Intent = "menus" | "categories" | "products" | "modifiers" | "addons" | "reports" | "general";
 
 function detectIntent(messages: any[]): Set<Intent> {
   const intents = new Set<Intent>();
@@ -102,6 +102,7 @@ function detectIntent(messages: any[]): Set<Intent> {
   if (/product|price|sku|stock/.test(combined)) intents.add("products");
   if (/modifier|mod group/.test(combined)) intents.add("modifiers");
   if (/add.?on/.test(combined)) intents.add("addons");
+  if (/report|sales|revenue|analytics|total.*sales|daily.*sales|weekly|monthly|order.*summary/.test(combined)) intents.add("reports");
 
   // If creating a menu, we need categories too
   if (intents.has("menus")) intents.add("categories");

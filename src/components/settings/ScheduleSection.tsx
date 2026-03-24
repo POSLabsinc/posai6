@@ -415,173 +415,82 @@
          </>
        )}
  
-       {/* Quick Date Menu - Bottom sheet on mobile, centered popup on desktop */}
-       {showQuickDateMenu && (
-         isMobile ? (
-           <div
-             className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 animate-in fade-in duration-200"
-             onClick={() => setShowQuickDateMenu(false)}
-           >
-             <div
-               className="w-full max-w-md bg-neutral-900 rounded-t-3xl animate-in slide-in-from-bottom duration-300"
-               onClick={(e) => e.stopPropagation()}
-             >
-               <div className="flex justify-center pt-3 pb-2">
-                 <div className="w-10 h-1 bg-neutral-600 rounded-full" />
-               </div>
-               <div className="px-4 pb-2">
-                 <p className="text-neutral-400 text-base text-center">Quick Date Presets</p>
-               </div>
-               <div className="bg-neutral-800/60 rounded-2xl mx-4 mb-8 overflow-hidden">
-                 {QUICK_DATE_PRESETS.map((preset, index) => (
-                   <div key={preset.label}>
-                     {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
-                     <button
-                       className="w-full text-left px-4 py-4 text-base text-foreground font-medium active:opacity-70 transition-opacity"
-                       onClick={() => applyQuickDatePreset(preset)}
-                     >
-                       {preset.label}
-                     </button>
-                   </div>
-                 ))}
-               </div>
-             </div>
-           </div>
-         ) : (
-           <div
-             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 animate-in fade-in duration-200"
-             onClick={() => setShowQuickDateMenu(false)}
-           >
-             <div
-               className="w-full max-w-sm bg-neutral-900 rounded-2xl animate-in zoom-in-95 duration-200 shadow-2xl"
-               onClick={(e) => e.stopPropagation()}
-             >
-               <div className="flex justify-center pt-3 pb-2">
-                 <div className="w-10 h-1 bg-neutral-600 rounded-full" />
-               </div>
-               <div className="px-4 pb-2">
-                 <p className="text-neutral-400 text-base text-center">Quick Date Presets</p>
-               </div>
-               <div className="bg-neutral-800/60 rounded-2xl mx-4 mb-6 overflow-hidden">
-                 {QUICK_DATE_PRESETS.map((preset, index) => (
-                   <div key={preset.label}>
-                     {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
-                     <button
-                       className="w-full text-left px-4 py-4 text-base text-foreground font-medium hover:bg-neutral-700/30 active:opacity-70 transition-colors"
-                       onClick={() => applyQuickDatePreset(preset)}
-                     >
-                       {preset.label}
-                     </button>
-                   </div>
-                 ))}
-               </div>
-             </div>
-           </div>
-         )
-       )}
- 
-       {/* Quick Time Menu - Bottom sheet on mobile, centered popup on desktop */}
-       {showQuickTimeMenu && (
-         isMobile ? (
-           <div
-             className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 animate-in fade-in duration-200"
-             onClick={() => setShowQuickTimeMenu(false)}
-           >
-             <div
-               className="w-full max-w-md bg-neutral-900 rounded-t-3xl animate-in slide-in-from-bottom duration-300 max-h-[80vh] overflow-y-auto"
-               onClick={(e) => e.stopPropagation()}
-             >
-               <div className="flex justify-center pt-3 pb-2">
-                 <div className="w-10 h-1 bg-neutral-600 rounded-full" />
-               </div>
-               <div className="px-4 pb-2">
-                 <p className="text-neutral-400 text-base text-center">Quick Time Presets</p>
-               </div>
-               <div className="bg-neutral-800/60 rounded-2xl mx-4 mb-4 overflow-hidden">
-                 {QUICK_TIME_PRESETS.map((preset, index) => (
-                   <div key={preset.label}>
-                     {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
-                     <button
-                       className="w-full text-left px-4 py-4 text-base text-foreground font-medium active:opacity-70 transition-opacity"
-                       onClick={() => applyQuickTimePreset(preset)}
-                     >
-                       <span>{preset.label}</span>
-                       <span className="text-neutral-500 text-sm ml-2">{preset.startTime} - {preset.endTime}</span>
-                     </button>
-                   </div>
-                 ))}
-               </div>
-               <div className="px-4 pb-2">
-                 <p className="text-neutral-400 text-sm">Quick Actions</p>
-               </div>
-               <div className="bg-neutral-800/60 rounded-2xl mx-4 mb-8 overflow-hidden">
-                 <button
-                   className="w-full text-left px-4 py-4 text-base text-primary font-medium active:opacity-70 transition-opacity"
-                   onClick={applyToWeekdays}
-                 >
-                   Apply to Weekdays
-                 </button>
-                 <div className="h-px bg-neutral-700/50 mx-4" />
-                 <button
-                   className="w-full text-left px-4 py-4 text-base text-primary font-medium active:opacity-70 transition-opacity"
-                   onClick={applyToAllDays}
-                 >
-                   Apply to All Days
-                 </button>
-               </div>
-             </div>
-           </div>
-         ) : (
-           <div
-             className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 animate-in fade-in duration-200"
-             onClick={() => setShowQuickTimeMenu(false)}
-           >
-             <div
-               className="w-full max-w-sm bg-neutral-900 rounded-2xl animate-in zoom-in-95 duration-200 shadow-2xl max-h-[80vh] overflow-y-auto"
-               onClick={(e) => e.stopPropagation()}
-             >
-               <div className="flex justify-center pt-3 pb-2">
-                 <div className="w-10 h-1 bg-neutral-600 rounded-full" />
-               </div>
-               <div className="px-4 pb-2">
-                 <p className="text-neutral-400 text-base text-center">Quick Time Presets</p>
-               </div>
-               <div className="bg-neutral-800/60 rounded-2xl mx-4 mb-4 overflow-hidden">
-                 {QUICK_TIME_PRESETS.map((preset, index) => (
-                   <div key={preset.label}>
-                     {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
-                     <button
-                       className="w-full text-left px-4 py-4 text-base text-foreground font-medium hover:bg-neutral-700/30 active:opacity-70 transition-colors"
-                       onClick={() => applyQuickTimePreset(preset)}
-                     >
-                       <span>{preset.label}</span>
-                       <span className="text-neutral-500 text-sm ml-2">{preset.startTime} - {preset.endTime}</span>
-                     </button>
-                   </div>
-                 ))}
-               </div>
-               <div className="px-4 pb-2">
-                 <p className="text-neutral-400 text-sm">Quick Actions</p>
-               </div>
-               <div className="bg-neutral-800/60 rounded-2xl mx-4 mb-6 overflow-hidden">
-                 <button
-                   className="w-full text-left px-4 py-4 text-base text-primary font-medium hover:bg-neutral-700/30 active:opacity-70 transition-colors"
-                   onClick={applyToWeekdays}
-                 >
-                   Apply to Weekdays
-                 </button>
-                 <div className="h-px bg-neutral-700/50 mx-4" />
-                 <button
-                   className="w-full text-left px-4 py-4 text-base text-primary font-medium hover:bg-neutral-700/30 active:opacity-70 transition-colors"
-                   onClick={applyToAllDays}
-                 >
-                   Apply to All Days
-                 </button>
-               </div>
-             </div>
-           </div>
-         )
-       )}
+        {/* Combined Quick Set Menu */}
+        {showQuickSetMenu && (
+          <div
+            className={`fixed inset-0 z-50 flex ${isMobile ? "items-end" : "items-center"} justify-center bg-black/60 animate-in fade-in duration-200`}
+            onClick={() => setShowQuickSetMenu(false)}
+          >
+            <div
+              className={`${isMobile ? "w-full max-w-md rounded-t-3xl" : "w-full max-w-sm rounded-2xl"} bg-neutral-900 ${isMobile ? "animate-in slide-in-from-bottom duration-300" : "animate-in zoom-in-95 duration-200"} shadow-2xl max-h-[80vh] overflow-y-auto`}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex justify-center pt-3 pb-2">
+                <div className="w-10 h-1 bg-neutral-600 rounded-full" />
+              </div>
+              <div className="px-4 pb-2">
+                <p className="text-foreground text-base font-medium text-center">Quick Set</p>
+              </div>
+
+              {/* Date Presets */}
+              <div className="px-4 pb-1">
+                <p className="text-neutral-400 text-xs font-medium">Date Range</p>
+              </div>
+              <div className="bg-neutral-800/60 rounded-2xl mx-4 mb-4 overflow-hidden">
+                {QUICK_DATE_PRESETS.map((preset, index) => (
+                  <div key={preset.label}>
+                    {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
+                    <button
+                      onClick={() => applyQuickDatePreset(preset)}
+                      className="w-full text-left px-4 py-3.5 text-sm font-medium text-foreground active:opacity-70 transition-colors"
+                    >
+                      {preset.label}
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Time Presets */}
+              <div className="px-4 pb-1">
+                <p className="text-neutral-400 text-xs font-medium">Time Schedule</p>
+              </div>
+              <div className="bg-neutral-800/60 rounded-2xl mx-4 mb-4 overflow-hidden">
+                {QUICK_TIME_PRESETS.map((preset, index) => (
+                  <div key={preset.label}>
+                    {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
+                    <button
+                      onClick={() => applyQuickTimePreset(preset)}
+                      className="w-full text-left px-4 py-3.5 text-sm font-medium text-foreground active:opacity-70 transition-colors"
+                    >
+                      <span>{preset.label}</span>
+                      <span className="text-neutral-500 text-xs ml-2">{preset.startTime} - {preset.endTime}</span>
+                    </button>
+                  </div>
+                ))}
+              </div>
+
+              {/* Quick Actions */}
+              <div className="px-4 pb-1">
+                <p className="text-neutral-400 text-xs font-medium">Quick Actions</p>
+              </div>
+              <div className="bg-neutral-800/60 rounded-2xl mx-4 mb-6 overflow-hidden">
+                <button
+                  onClick={applyToWeekdays}
+                  className="w-full text-left px-4 py-3.5 text-sm font-medium text-primary active:opacity-70 transition-colors"
+                >
+                  Apply to Weekdays
+                </button>
+                <div className="h-px bg-neutral-700/50 mx-4" />
+                <button
+                  onClick={applyToAllDays}
+                  className="w-full text-left px-4 py-3.5 text-sm font-medium text-primary active:opacity-70 transition-colors"
+                >
+                  Apply to All Days
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
  
        {/* Copy Menu - Bottom sheet on mobile, centered popup on desktop */}
        {showCopyMenu && copySourceIndex !== null && (

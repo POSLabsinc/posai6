@@ -297,7 +297,7 @@ const GuestPastOrderPopup = ({
                     </div>
 
                     {/* Quick add */}
-                    {!unavailable && !selected && (
+                    {!unavailable && (
                       <button
                         onClick={e => {
                           e.stopPropagation();

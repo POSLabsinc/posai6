@@ -14,7 +14,7 @@ export interface PastOrderItem {
   modifiers?: string[];
 }
 
-interface GuestInfo {
+export interface GuestInfo {
   id: string;
   name: string;
   phone?: string;

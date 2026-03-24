@@ -93,6 +93,23 @@ interface Message {
   quickReplies?: string[];
   multiSelect?: boolean;
   imageUrl?: string;
+  reportData?: ReportData;
+}
+
+interface ReportData {
+  orderSummary: {
+    numberOfOrders: number;
+    numberOfRefunds: number;
+    refundAmount: number;
+    netSales: number;
+    discounts: number;
+    tips: number;
+    tax: number;
+    total: number;
+  };
+  paymentTypes: { type: string; transactions: number; amount: number }[];
+  categories: { name: string; products: number; sales: number }[];
+  dateRange: string;
 }
 
 
@@ -129,7 +146,7 @@ interface SuggestionChip {
 }
 
 interface AIAction {
-  type: "view" | "update_setting" | "navigate" | "info" | "ai_rules_updated";
+  type: "view" | "update_setting" | "navigate" | "info" | "ai_rules_updated" | "generate_report";
   category?: string;
   path?: string;
   setting?: string;
@@ -143,6 +160,10 @@ interface AIAction {
   value?: any;
   success?: boolean;
   error?: string;
+  startDate?: string;
+  endDate?: string;
+  startTime?: string;
+  endTime?: string;
 }
 
 const defaultSuggestionChips: SuggestionChip[] = [
@@ -221,10 +242,10 @@ const notificationsSuggestionChips: SuggestionChip[] = [
 ];
 
 const reportsSuggestionChips: SuggestionChip[] = [
-  { label: "Sales reports", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show sales report settings" },
-  { label: "Report schedule", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Configure report scheduling" },
-  { label: "Export data", icon: <ExternalLink className="w-3.5 h-3.5" />, prompt: "How do I export report data?" },
-  { label: "Analytics", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show analytics settings" },
+  { label: "Today's sales", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me today's sales report" },
+  { label: "Yesterday's report", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Generate yesterday's sales report" },
+  { label: "This week", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show me this week's sales report" },
+  { label: "This month", icon: <ExternalLink className="w-3.5 h-3.5" />, prompt: "Generate this month's sales report" },
 ];
 
 const contextChipsMap: Record<string, SuggestionChip[]> = {
@@ -727,6 +748,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       let pendingChange: PendingChange | undefined;
       let navigateTo: string | undefined;
       let appliedChange: AppliedChange | undefined;
+      let reportData: ReportData | undefined;
 
       // Process the AI action
       const action = data.action as AIAction;
@@ -776,6 +798,60 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         } else {
           toast({ title: "Update Failed", description: action.error || `Failed to update ${label}.`, variant: "destructive" });
         }
+      } else if (action?.type === "generate_report") {
+        // Fetch report data from database
+        try {
+          const startDate = action.startDate || new Date().toISOString().split("T")[0];
+          const endDate = action.endDate || new Date().toISOString().split("T")[0];
+          const startTime = action.startTime || "00:00";
+          const endTime = action.endTime || "23:59";
+          
+          const startISO = new Date(`${startDate}T${startTime}:00`).toISOString();
+          const endISO = new Date(`${endDate}T${endTime}:59.999`).toISOString();
+          
+          const [ordersRes, itemsRes] = await Promise.all([
+            (supabase as any).from("orders").select("*").gte("created_at", startISO).lte("created_at", endISO).order("created_at", { ascending: false }),
+            (supabase as any).from("order_items").select("*, orders!inner(created_at)").gte("orders.created_at", startISO).lte("orders.created_at", endISO),
+          ]);
+
+          const orders = ordersRes.data || [];
+          const orderItems = itemsRes.data || [];
+          const completed = orders.filter((o: any) => o.status === "completed");
+          const refunded = orders.filter((o: any) => o.status === "refunded");
+          
+          const orderSummary = {
+            numberOfOrders: completed.length,
+            numberOfRefunds: refunded.length,
+            refundAmount: refunded.reduce((s: number, o: any) => s + Number(o.refund_amount), 0),
+            netSales: completed.reduce((s: number, o: any) => s + Number(o.subtotal) - Number(o.discount_amount), 0),
+            discounts: orders.reduce((s: number, o: any) => s + Number(o.discount_amount), 0),
+            tips: orders.reduce((s: number, o: any) => s + Number(o.tip_amount), 0),
+            tax: completed.reduce((s: number, o: any) => s + Number(o.tax_amount), 0),
+            total: completed.reduce((s: number, o: any) => s + Number(o.total), 0),
+          };
+
+          const paymentMap = new Map<string, { transactions: number; amount: number }>();
+          completed.forEach((o: any) => {
+            const existing = paymentMap.get(o.payment_type) || { transactions: 0, amount: 0 };
+            paymentMap.set(o.payment_type, { transactions: existing.transactions + 1, amount: existing.amount + Number(o.total) });
+          });
+          const paymentTypes = Array.from(paymentMap.entries()).map(([type, d]) => ({ type, ...d }));
+
+          const completedIds = new Set(completed.map((o: any) => o.id));
+          const catMap = new Map<string, { products: number; sales: number }>();
+          orderItems.filter((i: any) => completedIds.has(i.order_id)).forEach((i: any) => {
+            const existing = catMap.get(i.category) || { products: 0, sales: 0 };
+            catMap.set(i.category, { products: existing.products + Number(i.quantity), sales: existing.sales + Number(i.total_price) });
+          });
+          const categories = Array.from(catMap.entries()).map(([name, d]) => ({ name, ...d })).sort((a, b) => b.sales - a.sales);
+
+          const formatDate = (d: string) => { const dt = new Date(d + "T00:00:00"); return dt.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }); };
+          const dateRange = startDate === endDate ? formatDate(startDate) : `${formatDate(startDate)} – ${formatDate(endDate)}`;
+
+          reportData = { orderSummary, paymentTypes, categories, dateRange };
+        } catch (e) {
+          console.error("Report generation error:", e);
+        }
       } else if (action?.type === "navigate" && action.path) {
         navigateTo = action.path;
       }
@@ -810,6 +886,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         navigateTo,
         quickReplies: data.quickReplies || undefined,
         multiSelect: data.multiSelect === true,
+        reportData,
       };
 
       // Clear quickReplies from previous assistant messages
@@ -1290,6 +1367,70 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   
                   {/* Navigate Button */}
                   {message.navigateTo && renderNavigateButton(message.navigateTo)}
+
+                  {/* Sales Report Data */}
+                  {message.reportData && (
+                    <div className="mt-3 space-y-3">
+                      <div className="bg-card border border-border rounded-xl overflow-hidden">
+                        <div className="px-3 py-2 border-b border-border">
+                          <span className="text-xs font-semibold text-foreground">Order Summary</span>
+                          <span className="text-xs text-muted-foreground ml-2">({message.reportData.dateRange})</span>
+                        </div>
+                        {[
+                          { label: "Orders", value: String(message.reportData.orderSummary.numberOfOrders) },
+                          { label: "Refunds", value: String(message.reportData.orderSummary.numberOfRefunds) },
+                          { label: "Refund Amount", value: `£${message.reportData.orderSummary.refundAmount.toFixed(2)}` },
+                          { label: "Net Sales", value: `£${message.reportData.orderSummary.netSales.toFixed(2)}` },
+                          { label: "Discounts", value: `£${message.reportData.orderSummary.discounts.toFixed(2)}` },
+                          { label: "Tips", value: `£${message.reportData.orderSummary.tips.toFixed(2)}` },
+                          { label: "Tax", value: `£${message.reportData.orderSummary.tax.toFixed(2)}` },
+                          { label: "Total", value: `£${message.reportData.orderSummary.total.toFixed(2)}`, bold: true },
+                        ].map((row, i) => (
+                          <div key={row.label}>
+                            {i > 0 && <div className="h-px bg-border mx-3" />}
+                            <div className="flex items-center justify-between py-2 px-3">
+                              <span className="text-xs text-muted-foreground">{row.label}</span>
+                              <span className={cn("text-xs", (row as any).bold ? "font-semibold text-foreground" : "text-muted-foreground")}>{row.value}</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {message.reportData.paymentTypes.length > 0 && (
+                        <div className="bg-card border border-border rounded-xl overflow-hidden">
+                          <div className="px-3 py-2 border-b border-border">
+                            <span className="text-xs font-semibold text-foreground">By Payment Type</span>
+                          </div>
+                          {message.reportData.paymentTypes.map((pt, i) => (
+                            <div key={pt.type}>
+                              {i > 0 && <div className="h-px bg-border mx-3" />}
+                              <div className="flex items-center justify-between py-2 px-3">
+                                <span className="text-xs text-muted-foreground">{pt.type}</span>
+                                <span className="text-xs text-muted-foreground">{pt.transactions} txn · £{pt.amount.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {message.reportData.categories.length > 0 && (
+                        <div className="bg-card border border-border rounded-xl overflow-hidden">
+                          <div className="px-3 py-2 border-b border-border">
+                            <span className="text-xs font-semibold text-foreground">By Category</span>
+                          </div>
+                          {message.reportData.categories.map((cat, i) => (
+                            <div key={cat.name}>
+                              {i > 0 && <div className="h-px bg-border mx-3" />}
+                              <div className="flex items-center justify-between py-2 px-3">
+                                <span className="text-xs text-muted-foreground">{cat.name}</span>
+                                <span className="text-xs text-muted-foreground">{cat.products} products · £{cat.sales.toFixed(2)}</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Quick Reply Buttons */}
                   {message.quickReplies && message.quickReplies.length > 0 && (

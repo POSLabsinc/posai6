@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap } from "lucide-react";
+import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useTheme } from "next-themes";
@@ -1429,6 +1429,51 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                           ))}
                         </div>
                       )}
+
+                      {/* Print Report Button */}
+                      <button
+                        onClick={() => {
+                          const rd = message.reportData!;
+                          const printWindow = window.open('', '_blank');
+                          if (!printWindow) return;
+                          printWindow.document.write(`
+                            <html><head><title>Sales Report - ${rd.dateRange}</title>
+                            <style>
+                              body { font-family: 'Montserrat', Arial, sans-serif; padding: 32px; color: #1a1a1a; }
+                              h1 { font-size: 20px; margin-bottom: 4px; }
+                              h2 { font-size: 14px; margin: 20px 0 8px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+                              .sub { color: #666; font-size: 12px; margin-bottom: 20px; }
+                              table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
+                              td { padding: 6px 0; border-bottom: 1px solid #eee; }
+                              td:last-child { text-align: right; }
+                              .bold td { font-weight: 600; border-top: 2px solid #333; }
+                              @media print { body { padding: 16px; } }
+                            </style></head><body>
+                            <h1>Sales Report</h1>
+                            <p class="sub">${rd.dateRange} | Generated ${new Date().toLocaleString()}</p>
+                            <h2>Order Summary</h2>
+                            <table>
+                              <tr><td>Orders</td><td>${rd.orderSummary.numberOfOrders}</td></tr>
+                              <tr><td>Refunds</td><td>${rd.orderSummary.numberOfRefunds}</td></tr>
+                              <tr><td>Refund Amount</td><td>£${rd.orderSummary.refundAmount.toFixed(2)}</td></tr>
+                              <tr><td>Net Sales</td><td>£${rd.orderSummary.netSales.toFixed(2)}</td></tr>
+                              <tr><td>Discounts</td><td>£${rd.orderSummary.discounts.toFixed(2)}</td></tr>
+                              <tr><td>Tips</td><td>£${rd.orderSummary.tips.toFixed(2)}</td></tr>
+                              <tr><td>Tax</td><td>£${rd.orderSummary.tax.toFixed(2)}</td></tr>
+                              <tr class="bold"><td>Total</td><td>£${rd.orderSummary.total.toFixed(2)}</td></tr>
+                            </table>
+                            ${rd.paymentTypes.length > 0 ? `<h2>By Payment Type</h2><table>${rd.paymentTypes.map(pt => `<tr><td>${pt.type}</td><td>${pt.transactions} txn - £${pt.amount.toFixed(2)}</td></tr>`).join('')}</table>` : ''}
+                            ${rd.categories.length > 0 ? `<h2>By Category</h2><table>${rd.categories.map(cat => `<tr><td>${cat.name}</td><td>${cat.products} products - £${cat.sales.toFixed(2)}</td></tr>`).join('')}</table>` : ''}
+                            </body></html>
+                          `);
+                          printWindow.document.close();
+                          printWindow.print();
+                        }}
+                        className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-neutral-800/60 text-sm text-foreground hover:bg-neutral-700/60 active:opacity-70 transition-all border border-neutral-700/50"
+                      >
+                        <Printer className="w-4 h-4" />
+                        Print Report
+                      </button>
                     </div>
                   )}
 

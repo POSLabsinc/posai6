@@ -158,22 +158,17 @@ const GuestPastOrderPopup = ({
               <Heart className="w-3 h-3" /> ${guest.totalTips.toFixed(2)} tips
             </span>
           )}
-          {guest.loyaltyTier && (
-            <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "rgba(249,115,22,0.15)", color: "#f97316" }}>
-              {guest.loyaltyTier}
-            </span>
-          )}
         </div>
 
         {/* Allergies & Notes */}
         {(hasAllergies || hasNotes) && (
-          <div className="flex flex-wrap items-start gap-x-6 gap-y-2 px-6 py-2.5" style={{ borderBottom: "1px solid #2a2a2a", background: "rgba(239,68,68,0.05)" }}>
+          <div className="flex flex-wrap items-start gap-x-6 gap-y-2 px-6 py-2.5" style={{ borderBottom: "1px solid #2a2a2a", background: "#1f1f1f" }}>
             {hasAllergies && (
               <div className="flex items-start gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: "#ef4444" }} />
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: "#fff" }} />
                 <div>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "#ef4444" }}>Allergies</span>
-                  <p className="text-xs" style={{ color: "#999" }}>{guest.allergies!.join(", ")}</p>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "#fff" }}>Allergies</span>
+                  <p className="text-xs" style={{ color: "#ccc" }}>{guest.allergies!.join(", ")}</p>
                 </div>
               </div>
             )}
@@ -302,7 +297,7 @@ const GuestPastOrderPopup = ({
                     </div>
 
                     {/* Quick add */}
-                    {!unavailable && !selected && (
+                    {!unavailable && (
                       <button
                         onClick={e => {
                           e.stopPropagation();

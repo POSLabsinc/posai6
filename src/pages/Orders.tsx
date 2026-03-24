@@ -882,12 +882,84 @@ const Orders = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-  const selectGuest = (guest: GuestUser) => {
+  const selectGuest = async (guest: GuestUser) => {
     setIsGuestSelected(true);
     setGuestName(guest.name);
     setGuestPhone(guest.phone.replace(/\D/g, ''));
     setShowGuestDropdown(false);
     setShowPhoneDropdown(false);
+
+    // Fetch past orders for this guest and show popup
+    try {
+      setPastOrderLoading(true);
+      // Look up the guest in DB by name to get their id
+      const { data: guestRows } = await supabase
+        .from('guests')
+        .select('id,name,phone,email,order_count,last_order_date,loyalty')
+        .ilike('name', guest.name)
+        .limit(1);
+      
+      const dbGuest = guestRows?.[0];
+      if (dbGuest && dbGuest.order_count > 0) {
+        setPastOrderGuest({
+          id: dbGuest.id,
+          name: dbGuest.name,
+          phone: dbGuest.phone || undefined,
+          email: dbGuest.email || undefined,
+          orderCount: dbGuest.order_count,
+          lastOrderDate: dbGuest.last_order_date || undefined,
+          loyaltyTier: dbGuest.loyalty || undefined,
+        });
+
+        // Fetch past order items from orders + order_items
+        const { data: orders } = await supabase
+          .from('orders')
+          .select('id')
+          .eq('guest_id', dbGuest.id)
+          .order('created_at', { ascending: false })
+          .limit(3);
+
+        if (orders && orders.length > 0) {
+          const orderIds = orders.map(o => o.id);
+          const { data: items } = await supabase
+            .from('order_items')
+            .select('id,item_name,quantity,unit_price,total_price,category')
+            .in('order_id', orderIds);
+
+          if (items && items.length > 0) {
+            // Cross-reference with current products for availability
+            const pastItems: GuestPastItem[] = items.map(item => {
+              const currentProduct = dbProducts.find(
+                p => p.name.toLowerCase() === item.item_name.toLowerCase()
+              );
+              return {
+                id: item.id,
+                name: item.item_name,
+                quantity: item.quantity,
+                price: currentProduct ? currentProduct.price : item.unit_price,
+                originalPrice: currentProduct && currentProduct.price !== item.unit_price ? item.unit_price : undefined,
+                category: item.category || undefined,
+                isAvailable: currentProduct ? currentProduct.is_available : false,
+                isComped: item.unit_price === 0,
+              };
+            });
+            // Deduplicate by name, keep latest
+            const seen = new Map<string, GuestPastItem>();
+            for (const pi of pastItems) {
+              if (!seen.has(pi.name.toLowerCase())) {
+                seen.set(pi.name.toLowerCase(), pi);
+              }
+            }
+            setPastOrderItems(Array.from(seen.values()));
+            setShowPastOrderPopup(true);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Failed to fetch past orders:', err);
+    } finally {
+      setPastOrderLoading(false);
+    }
   };
 
   // Get base height in pixels for each menu position

@@ -312,54 +312,52 @@
              turn on to run this discount automatically.
            </p>
  
-           {/* Select Date Section */}
-           <div className="flex items-center justify-between mt-6 mb-2 px-1">
-             <h3 className="text-neutral-500 text-base font-medium">Select Date</h3>
-             <button
-               onClick={() => setShowQuickDateMenu(true)}
-               className="flex items-center gap-1.5 text-sm text-primary active:opacity-70 transition-opacity"
-             >
-               <img src={aiColorfulIcon} alt="" className="w-4 h-4" />
-               <span>Quick Set</span>
-             </button>
-           </div>
-           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-             <button
-               ref={startDateRef}
-               onClick={openStartDatePicker}
-               className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
-             >
-               <span className="text-foreground text-base font-medium">Start Date</span>
-               <div className="flex items-center gap-1">
-                 <span className="text-neutral-400 text-base">{formatDateDisplay(startDate)}</span>
-                 <ChevronRight className="w-4 h-4 text-neutral-500" />
-               </div>
-             </button>
-             <div className="h-px bg-neutral-700/50 mx-4" />
-             <button
-               ref={endDateRef}
-               onClick={openEndDatePicker}
-               className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
-             >
-               <span className="text-foreground text-base font-medium">End Date</span>
-               <div className="flex items-center gap-1">
-                 <span className="text-neutral-400 text-base">{formatDateDisplay(endDate, "No End Date")}</span>
-                 <ChevronRight className="w-4 h-4 text-neutral-500" />
-               </div>
-             </button>
-           </div>
- 
-           {/* Select Time Section */}
-           <div className="flex items-center justify-between mt-6 mb-2 px-1">
-             <h3 className="text-neutral-500 text-base font-medium">Select Time</h3>
-             <button
-               onClick={() => setShowQuickTimeMenu(true)}
-               className="flex items-center gap-1.5 text-sm text-primary active:opacity-70 transition-opacity"
-             >
-               <img src={aiColorfulIcon} alt="" className="w-4 h-4" />
-               <span>Quick Set</span>
-             </button>
-           </div>
+            {/* Single Quick Set button */}
+            <div className="flex items-center justify-between mt-6 mb-2 px-1">
+              <h3 className="text-neutral-500 text-base font-medium">Schedule</h3>
+              <button
+                onClick={() => setShowQuickSetMenu(true)}
+                className="flex items-center gap-1.5 text-sm text-primary active:opacity-70 transition-opacity"
+              >
+                <img src={aiColorfulIcon} alt="" className="w-4 h-4" />
+                <span>Quick Set</span>
+              </button>
+            </div>
+
+            {/* Select Date Section */}
+            <div className="mb-1 px-1">
+              <span className="text-neutral-500 text-sm font-medium">Select Date</span>
+            </div>
+            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+              <button
+                ref={startDateRef}
+                onClick={openStartDatePicker}
+                className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
+              >
+                <span className="text-foreground text-base font-medium">Start Date</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-neutral-400 text-base">{formatDateDisplay(startDate)}</span>
+                  <ChevronRight className="w-4 h-4 text-neutral-500" />
+                </div>
+              </button>
+              <div className="h-px bg-neutral-700/50 mx-4" />
+              <button
+                ref={endDateRef}
+                onClick={openEndDatePicker}
+                className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
+              >
+                <span className="text-foreground text-base font-medium">End Date</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-neutral-400 text-base">{formatDateDisplay(endDate, "No End Date")}</span>
+                  <ChevronRight className="w-4 h-4 text-neutral-500" />
+                </div>
+              </button>
+            </div>
+
+            {/* Select Time Section */}
+            <div className="mt-4 mb-1 px-1">
+              <span className="text-neutral-500 text-sm font-medium">Select Time</span>
+            </div>
            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
              <div className="grid grid-cols-[1fr_90px_90px_28px] py-3 px-4">
                <span className="text-foreground text-sm font-medium">Days</span>

@@ -291,7 +291,7 @@ export function DiscountDialog({
 
   // -- Search + filter bar --
   const searchAndFilter = (
-    <div className="px-5 pt-2 pb-2">
+    <div className="px-5 py-4">
       <div className="flex items-center gap-3">
         <div className="flex-1 relative">
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#666' }} />

@@ -168,28 +168,6 @@ const initialOtherPaymentMethods = [
 { id: 'blizzful', name: 'Blizzful', icon: Utensils },
 { id: 'ubereats', name: 'UberEats', icon: ShoppingBag },
 { id: 'doordash', name: 'DoorDash', icon: Truck },
-{ id: 'grubhub', name: 'Grubhub', icon: UtensilsCrossed }];
-
-  // Dynamic AI overlay top offset: align with order content area
-  useLayoutEffect(() => {
-    const recalc = () => {
-      if (menuPanelRef.current && orderContentStartRef.current) {
-        const menuRect = menuPanelRef.current.getBoundingClientRect();
-        const orderContentRect = orderContentStartRef.current.getBoundingClientRect();
-        const offset = Math.max(0, Math.round(orderContentRect.top - menuRect.top));
-        setAiOverlayTop(offset);
-      }
-    };
-    recalc();
-    window.addEventListener('resize', recalc);
-    const observer = new ResizeObserver(recalc);
-    if (menuPanelRef.current) observer.observe(menuPanelRef.current);
-    if (orderContentStartRef.current) observer.observe(orderContentStartRef.current);
-    return () => {
-      window.removeEventListener('resize', recalc);
-      observer.disconnect();
-    };
-  }, [isAIChatOpen, isOrderActionsSidebarOpen, panelLayout]);
 
 
 type PaymentMethodType = {

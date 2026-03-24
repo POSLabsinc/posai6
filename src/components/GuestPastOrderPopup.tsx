@@ -287,7 +287,7 @@ const GuestPastOrderPopup = ({
                           <span className="text-[10px] line-through" style={{ color: "#555" }}>
                             ${item.originalPrice?.toFixed(2)}
                           </span>
-                          <span className="text-xs font-semibold" style={{ color: "#f97316" }}>
+                          <span className="text-xs font-semibold" style={{ color: "#fff" }}>
                             ${item.price.toFixed(2)}
                           </span>
                         </div>

@@ -2799,6 +2799,10 @@ const Orders = () => {
                       } catch (err) { console.error('AI guest past order lookup failed:', err); }
                     })();
                   },
+                  setGuestPhone: (phone) => {
+                    const clean = phone.replace(/\D/g, '');
+                    setGuestPhone(clean);
+                  },
                   clearOrder: () => handleClearOrder(),
                   setOrderNotes: (notes) => setOrderNotes(notes),
                   openPayment: () => {

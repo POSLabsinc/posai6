@@ -96,10 +96,12 @@ You MUST interpret natural, informal, and colloquial human language. Staff speak
 
 ## CUSTOMER RULES:
 22. When looking up a customer, use lookup_customer with either name or phone.
-23. After a successful lookup, set the guest name automatically using set_guest_name.
+23. After a successful lookup, ALWAYS call set_guest_name with the found customer's name AND set_guest_phone with their phone number. This triggers the past order popup automatically.
 24. When asked to repeat a past order, first ensure the customer is looked up, then call get_past_orders.
 25. After receiving past order data, add each product to the cart using add_product calls.
-26. If no customer is found, inform the staff and ask for correct details.`;
+26. If no customer is found, inform the staff and ask for correct details.
+27. Phone numbers can be in any format (with or without country code, dashes, spaces). Always pass the raw digits to lookup_customer.
+28. When user says "add guest" or "find guest" with a phone number, use lookup_customer with the phone parameter.`;
 
 const tools = [
   {

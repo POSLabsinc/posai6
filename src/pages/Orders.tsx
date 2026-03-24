@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback } from "react";
 import { searchCustomers, Customer } from "@/services/customerService";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";

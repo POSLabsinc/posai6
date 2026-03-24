@@ -19,7 +19,18 @@ const OrderTypeSheet = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedTypes, setSelectedTypes] = useState<string[]>(initialSelected);
 
-  const allOrderTypes = ["All Orders", "Dine-In Only", "Delivery Only", "Takeout Only"];
+  const allOrderTypes = [
+    "All Orders",
+    "Dine-In",
+    "Take Out",
+    "Delivery",
+    "Banquet",
+    "Drive Thru",
+    "Curb Side",
+    "Scheduled",
+    "Phone-In",
+    "Custom"
+  ];
   
   // Apply search filter
   const filteredTypes = allOrderTypes.filter(type => 

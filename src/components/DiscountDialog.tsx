@@ -8,7 +8,7 @@ import {
   Drawer,
   DrawerContent,
 } from "@/components/ui/drawer";
-import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, ChevronLeft, PackageOpen, UserX, XCircle, Thermometer, Timer, UserCog, UtensilsCrossed, FileText, Users, Percent, Gift, CalendarDays, Megaphone, Truck } from "lucide-react";
+import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle, Zap, ChevronLeft, PackageOpen, UserX, XCircle, Thermometer, Timer, UserCog, UtensilsCrossed, FileText, Users, Percent, Gift, CalendarDays, Megaphone, Truck, Search } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Discount {
@@ -84,6 +84,20 @@ const getIconForDiscount = (name: string): LucideIcon => {
     if (lower.includes(key)) return icon;
   }
   return Tag;
+};
+
+const GROUP_KEYWORDS: Record<string, string[]> = {
+  "Staff": ["employee", "military", "senior", "student"],
+  "Promo": ["promo", "happy", "early", "seasonal", "first", "referral", "loyalty", "group", "takeaway", "flat"],
+  "Manager": ["manager", "comp", "birthday", "full"],
+};
+
+const getGroup = (name: string): string => {
+  const lower = name.toLowerCase();
+  for (const [group, keywords] of Object.entries(GROUP_KEYWORDS)) {
+    if (keywords.some(k => lower.includes(k))) return group;
+  }
+  return "Other";
 };
 
 const fallbackDiscounts: Discount[] = [
@@ -177,6 +191,8 @@ export const availableDiscounts = fallbackDiscounts;
 const isReasonRequired = (discount: Discount) =>
   discount.reasonRequired || (discount.type === "percentage" && discount.value === 100);
 
+const FILTER_TABS = ["All", "Staff", "Promo", "Manager", "Other"] as const;
+
 export function DiscountDialog({
   open,
   onOpenChange,
@@ -190,6 +206,8 @@ export function DiscountDialog({
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
   const [commentText, setCommentText] = useState("");
   const [view, setView] = useState<'list' | 'reason'>('list');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState<string>("All");
   const isMobile = useIsMobile();
 
   const prevOpenRef = useRef(false);
@@ -200,9 +218,23 @@ export function DiscountDialog({
       setSelectedReason(null);
       setCommentText("");
       setView('list');
+      setSearchQuery("");
+      setActiveFilter("All");
     }
     prevOpenRef.current = open;
   }, [open, currentDiscounts]);
+
+  const filteredDiscounts = useMemo(() => {
+    let list = dynamicDiscounts;
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      list = list.filter(d => d.name.toLowerCase().includes(q));
+    }
+    if (activeFilter !== "All") {
+      list = list.filter(d => getGroup(d.name) === activeFilter);
+    }
+    return list;
+  }, [dynamicDiscounts, searchQuery, activeFilter]);
 
   const needsReason = selectedDiscount ? isReasonRequired(selectedDiscount) : false;
 
@@ -236,45 +268,75 @@ export function DiscountDialog({
   };
 
   const totalSavings = selectedDiscount ? calculateDiscountAmount(selectedDiscount) : 0;
-
   const canApply = selectedDiscount && (!needsReason || !!selectedReason);
 
-  // -- Discount list column --
-  const discountList = (
-    <div className="flex flex-col h-full" style={{ width: isMobile ? '100%' : needsReason ? '65%' : '100%' }}>
-      <div className="px-4 pt-4 pb-3">
-        <h3 className="text-[15px] font-medium text-white">Discounts</h3>
-        <p className="text-[11px] text-[#888] mt-0.5">Select a discount below</p>
+  // -- Search + filter bar --
+  const searchAndFilter = (
+    <div className="px-4 pt-4 pb-2 flex flex-col gap-2">
+      <div className="flex items-center gap-2">
+        <div className="flex-1 relative">
+          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#666' }} />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search discounts..."
+            className="w-full pl-8 pr-3 py-2 rounded-lg text-xs text-white placeholder:text-neutral-600 focus:outline-none"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+          />
+        </div>
+        <div className="flex items-center gap-1">
+          {FILTER_TABS.map(tab => (
+            <button
+              key={tab}
+              onClick={() => setActiveFilter(tab)}
+              className="px-2.5 py-1.5 rounded-md text-[10px] font-medium transition-all"
+              style={{
+                background: activeFilter === tab ? 'rgba(255,255,255,0.12)' : 'transparent',
+                color: activeFilter === tab ? '#fff' : '#666',
+              }}
+            >
+              {tab}
+            </button>
+          ))}
+        </div>
       </div>
+    </div>
+  );
+
+  // -- Discount grid (no scroll) --
+  const discountGrid = (
+    <div className="flex flex-col" style={{ width: isMobile ? '100%' : needsReason ? '65%' : '100%' }}>
+      {searchAndFilter}
       <div className="mx-3 mb-2" style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
-      <div className="flex-1 overflow-y-auto scrollbar-hide px-3 pb-3">
-        <div className="grid grid-cols-2 gap-2">
-          {dynamicDiscounts.map((discount) => {
+      <div className="px-3 pb-3">
+        <div className={`grid gap-1.5 ${isMobile ? 'grid-cols-3' : needsReason ? 'grid-cols-3' : 'grid-cols-4'}`}>
+          {filteredDiscounts.map((discount) => {
             const isSelected = selectedDiscount?.id === discount.id;
-            const reqReason = isReasonRequired(discount);
-            const Icon = discount.icon;
-              return (
+            return (
               <button
                 key={discount.id}
                 onClick={() => handleSelectDiscount(discount)}
-                className="w-full flex flex-col items-center justify-center px-2.5 py-3 rounded-[10px] transition-all text-center"
+                className="flex flex-col items-center justify-center px-1.5 py-2.5 rounded-lg transition-all text-center"
                 style={{
-                  background: isSelected ? 'rgba(255,255,255,0.15)' : 'rgba(255,255,255,0.03)',
+                  background: isSelected ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.025)',
                   border: isSelected ? '1.5px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.06)',
                 }}
               >
-                <span className="text-[11px] font-medium text-white" style={{ wordBreak: 'break-word' }}>{discount.name}</span>
-                <span className="text-[10px] font-medium mt-1" style={{ color: '#aaa' }}>
+                <span className="text-[10px] font-medium text-white leading-tight" style={{ wordBreak: 'break-word' }}>
+                  {discount.name}
+                </span>
+                <span className="text-[10px] font-semibold mt-0.5" style={{ color: isSelected ? '#fff' : '#888' }}>
                   {discount.type === "percentage" ? `${discount.value}%` : `$${discount.value.toFixed(2)}`}
                 </span>
-                {reqReason && discount.value !== 100 && (
-                  <span className="text-[8px] font-medium px-1 py-0.5 rounded mt-1 whitespace-nowrap" style={{ background: 'rgba(245,166,35,0.15)', color: '#f5a623' }}>
-                    Reason required
-                  </span>
-                )}
               </button>
             );
           })}
+          {filteredDiscounts.length === 0 && (
+            <div className="col-span-full py-6 text-center">
+              <p className="text-xs" style={{ color: '#555' }}>No discounts found</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -282,29 +344,27 @@ export function DiscountDialog({
 
   // -- Reason column --
   const reasonColumn = (
-    <div className="flex flex-col h-full" style={{ width: isMobile ? '100%' : '35%', borderLeft: isMobile ? 'none' : '0.5px solid rgba(255,255,255,0.08)', background: '#1d1d22' }}>
+    <div className="flex flex-col" style={{ width: isMobile ? '100%' : '35%', borderLeft: isMobile ? 'none' : '0.5px solid rgba(255,255,255,0.08)', background: '#1d1d22' }}>
       <div className="px-4 pt-4 pb-3">
         <h3 className="text-[15px] font-medium text-white">Reason</h3>
-        <p className="text-[11px] text-[#888] mt-0.5">Select a reason for the comp</p>
+        <p className="text-[11px] mt-0.5" style={{ color: '#888' }}>Select a reason for the comp</p>
       </div>
       <div className="mx-3 mb-2" style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
       {needsReason ? (
-        <div className="flex-1 flex flex-col overflow-hidden px-3 pb-3">
-          {/* AI suggested pill */}
+        <div className="flex flex-col px-3 pb-3">
           <div className="flex items-center gap-1.5 mb-2.5 px-1">
             <span className="text-[10px] font-medium px-2 py-0.5 rounded-full flex items-center gap-1" style={{ background: 'rgba(245,166,35,0.12)', color: '#f5a623' }}>
               <Zap className="w-2.5 h-2.5" /> AI suggested
             </span>
           </div>
-          {/* 2-column icon grid of reasons */}
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 gap-1.5">
             {REASON_OPTIONS.map((r) => {
               const isSelected = selectedReason === r.label;
               return (
                 <button
                   key={r.label}
                   onClick={() => setSelectedReason(isSelected ? null : r.label)}
-                  className="flex flex-col items-center justify-center gap-1.5 px-2 py-3 rounded-[10px] transition-all relative"
+                  className="flex flex-col items-center justify-center gap-1 px-1.5 py-2.5 rounded-lg transition-all relative"
                   style={{
                     background: isSelected ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.02)',
                     border: isSelected
@@ -315,30 +375,29 @@ export function DiscountDialog({
                   }}
                 >
                   {isSelected && (
-                    <Check className="w-2.5 h-2.5 absolute top-1.5 right-1.5" style={{ color: '#fff' }} />
+                    <Check className="w-2.5 h-2.5 absolute top-1 right-1" style={{ color: '#fff' }} />
                   )}
                   {r.isAI && !isSelected && (
-                    <Zap className="w-2 h-2 absolute top-1.5 right-1.5" style={{ color: 'rgba(245,166,35,0.4)' }} />
+                    <Zap className="w-2 h-2 absolute top-1 right-1" style={{ color: 'rgba(245,166,35,0.4)' }} />
                   )}
-                  <r.icon className="w-5 h-5" style={{ color: isSelected ? '#fff' : '#888' }} />
-                  <span className="text-[10px] font-medium text-center leading-tight" style={{ color: isSelected ? '#fff' : '#aaa' }}>
+                  <r.icon className="w-4 h-4" style={{ color: isSelected ? '#fff' : '#888' }} />
+                  <span className="text-[9px] font-medium text-center leading-tight" style={{ color: isSelected ? '#fff' : '#aaa' }}>
                     {r.label}
                   </span>
                 </button>
               );
             })}
           </div>
-          {/* Comment box - fills remaining space */}
-          <div className="mt-2 px-1 flex-1 flex flex-col min-h-0">
+          <div className="mt-2 px-1">
             <textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value.slice(0, 100))}
               placeholder="Add a comment (optional)"
-              className="w-full px-3 py-2 rounded-[10px] text-[11px] text-white placeholder:text-[#555] resize-none focus:outline-none transition-colors flex-1"
+              className="w-full px-3 py-2 rounded-lg text-[11px] text-white placeholder:text-neutral-600 resize-none focus:outline-none transition-colors"
               style={{
                 background: 'rgba(255,255,255,0.03)',
                 border: '1px solid rgba(255,255,255,0.06)',
-                minHeight: '80px',
+                height: '60px',
               }}
               onFocus={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.25)'}
               onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.06)'}
@@ -357,15 +416,15 @@ export function DiscountDialog({
 
   // -- Footer --
   const footer = (
-    <div className="flex items-center justify-between px-4 py-3" style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
+    <div className="flex items-center justify-between px-4 py-2.5" style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
       <div>
         <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#666' }}>Total savings</p>
-        <p className="text-[16px] font-medium text-white">-${totalSavings.toFixed(2)}</p>
+        <p className="text-[15px] font-medium text-white">-${totalSavings.toFixed(2)}</p>
       </div>
       <button
         onClick={handleApply}
         disabled={!canApply}
-        className="px-8 py-2.5 rounded-[10px] text-sm font-medium transition-all"
+        className="px-8 py-2 rounded-lg text-sm font-medium transition-all"
         style={{
           background: canApply ? '#fff' : 'rgba(255,255,255,0.1)',
           color: canApply ? '#1a1a1e' : '#555',
@@ -382,7 +441,7 @@ export function DiscountDialog({
   if (isMobile) {
     return (
       <Drawer open={open} onOpenChange={onOpenChange}>
-        <DrawerContent className="p-0 gap-0 border-0" style={{ background: '#1a1a1e' }}>
+        <DrawerContent className="p-0 gap-0 border-0" style={{ background: '#1a1a1e', maxHeight: '85vh' }}>
           {view === 'reason' ? (
             <>
               <div className="flex items-center px-3 pt-3 pb-1">
@@ -394,7 +453,7 @@ export function DiscountDialog({
             </>
           ) : (
             <>
-              {discountList}
+              {discountGrid}
               {needsReason && selectedDiscount && (
                 <div className="px-4 pb-2">
                   <button
@@ -414,11 +473,11 @@ export function DiscountDialog({
     );
   }
 
-  // -- Desktop: side-by-side, reason panel only when needed --
+  // -- Desktop: wide, side-by-side, no scroll --
   const dialogContent = (
-    <div className="flex flex-col transition-all duration-200" style={{ background: '#1a1a1e', borderRadius: '12px', overflow: 'hidden', maxHeight: '80vh' }}>
-      <div className="flex flex-1 min-h-0" style={{ minHeight: '340px' }}>
-        {discountList}
+    <div className="flex flex-col" style={{ background: '#1a1a1e', borderRadius: '12px', overflow: 'hidden' }}>
+      <div className="flex min-h-0">
+        {discountGrid}
         {needsReason && reasonColumn}
       </div>
       {footer}
@@ -433,7 +492,7 @@ export function DiscountDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`p-0 gap-0 border-0 overflow-hidden transition-all duration-200 ${needsReason ? 'sm:max-w-[580px]' : 'sm:max-w-[380px]'}`}
+        className={`p-0 gap-0 border-0 overflow-hidden transition-all duration-200 ${needsReason ? 'sm:max-w-[780px]' : 'sm:max-w-[620px]'}`}
         style={{ background: '#1a1a1e', borderRadius: '12px' }}
         hideCloseButton
       >

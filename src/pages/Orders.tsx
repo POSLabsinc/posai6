@@ -2740,7 +2740,65 @@ const Orders = () => {
                     setOrderItems(prev => prev.map(o => o.name.toLowerCase() === name.toLowerCase() ? { ...o, qty: quantity } : o));
                   },
                   setOrderType: (type) => setOrderType(type),
-                  setGuestName: (name) => setGuestName(name),
+                  setGuestName: (name) => {
+                    setGuestName(name);
+                    // Auto-trigger past order popup when AI sets a guest name
+                    (async () => {
+                      try {
+                        const { data: guestRows } = await supabase
+                          .from('guests')
+                          .select('id,name,phone,email,order_count,last_order_date,loyalty,allergies,notes_general,notes_allergies')
+                          .ilike('name', name)
+                          .limit(1);
+                        const dbGuest = guestRows?.[0];
+                        if (dbGuest) {
+                          if (dbGuest.phone) setGuestPhone(dbGuest.phone.replace(/\D/g, ''));
+                          setIsGuestSelected(true);
+                          if (dbGuest.order_count > 0) {
+                            setPastOrderLoading(true);
+                            const { data: orders } = await supabase
+                              .from('orders')
+                              .select('id,total,tip_amount')
+                              .eq('guest_id', dbGuest.id)
+                              .order('created_at', { ascending: false })
+                              .limit(10);
+                            const totalSpent = orders?.reduce((s, o) => s + (o.total || 0), 0) || 0;
+                            const totalTips = orders?.reduce((s, o) => s + (o.tip_amount || 0), 0) || 0;
+                            const allergies: string[] = [];
+                            if (dbGuest.allergies && Array.isArray(dbGuest.allergies) && dbGuest.allergies.length > 0) allergies.push(...dbGuest.allergies);
+                            const notesAllergies = dbGuest.notes_allergies?.trim();
+                            if (notesAllergies && !allergies.includes(notesAllergies)) allergies.push(notesAllergies);
+                            setPastOrderGuest({
+                              id: dbGuest.id, name: dbGuest.name,
+                              phone: dbGuest.phone || undefined, email: dbGuest.email || undefined,
+                              orderCount: dbGuest.order_count, lastOrderDate: dbGuest.last_order_date || undefined,
+                              loyaltyTier: dbGuest.loyalty || undefined, totalSpent, totalTips,
+                              allergies: allergies.length > 0 ? allergies : undefined,
+                              notes: dbGuest.notes_general?.trim() || undefined,
+                            });
+                            const recentOrderIds = (orders || []).slice(0, 3).map(o => o.id);
+                            if (recentOrderIds.length > 0) {
+                              const { data: items } = await supabase
+                                .from('order_items')
+                                .select('id,item_name,quantity,unit_price,total_price,category')
+                                .in('order_id', recentOrderIds);
+                              if (items && items.length > 0) {
+                                const pastItems: GuestPastItem[] = items.map(item => {
+                                  const currentProduct = dbProducts.find(p => p.name.toLowerCase() === item.item_name.toLowerCase());
+                                  return { id: item.id, name: item.item_name, quantity: item.quantity, price: currentProduct ? currentProduct.price : item.unit_price, originalPrice: currentProduct && currentProduct.price !== item.unit_price ? item.unit_price : undefined, category: item.category || undefined, isAvailable: currentProduct ? currentProduct.is_available : false, isComped: item.unit_price === 0 };
+                                });
+                                const seen = new Map<string, GuestPastItem>();
+                                for (const pi of pastItems) { if (!seen.has(pi.name.toLowerCase())) seen.set(pi.name.toLowerCase(), pi); }
+                                setPastOrderItems(Array.from(seen.values()));
+                              } else { setPastOrderItems([]); }
+                            } else { setPastOrderItems([]); }
+                            setShowPastOrderPopup(true);
+                            setPastOrderLoading(false);
+                          }
+                        }
+                      } catch (err) { console.error('AI guest past order lookup failed:', err); }
+                    })();
+                  },
                   clearOrder: () => handleClearOrder(),
                   setOrderNotes: (notes) => setOrderNotes(notes),
                   openPayment: () => {

@@ -112,8 +112,8 @@ const GuestPastOrderPopup = ({
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4" style={{ borderBottom: "1px solid #2a2a2a" }}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(249,115,22,0.15)" }}>
-              <User className="w-5 h-5" style={{ color: "#f97316" }} />
+            <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: "rgba(255,255,255,0.1)" }}>
+              <User className="w-5 h-5" style={{ color: "#fff" }} />
             </div>
             <div>
               <h2 className="text-base font-semibold leading-tight text-white">{guest.name}</h2>

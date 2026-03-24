@@ -74,8 +74,7 @@
    const [showTimePicker, setShowTimePicker] = useState(false);
    const [editingTimeIndex, setEditingTimeIndex] = useState<number | null>(null);
    const [editingTimeType, setEditingTimeType] = useState<"start" | "end" | null>(null);
-   const [showQuickDateMenu, setShowQuickDateMenu] = useState(false);
-   const [showQuickTimeMenu, setShowQuickTimeMenu] = useState(false);
+    const [showQuickSetMenu, setShowQuickSetMenu] = useState(false);
    const [showCopyMenu, setShowCopyMenu] = useState(false);
    const [copySourceIndex, setCopySourceIndex] = useState<number | null>(null);
  

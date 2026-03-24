@@ -3961,6 +3961,40 @@ const Orders = () => {
       tableId={tableIdFromParams}
       serverName={currentServerName}
     />
+    {pastOrderGuest && (
+      <GuestPastOrderPopup
+        open={showPastOrderPopup}
+        onClose={() => setShowPastOrderPopup(false)}
+        guest={pastOrderGuest}
+        pastItems={pastOrderItems}
+        isLoading={pastOrderLoading}
+        onAddItems={(items) => {
+          for (const item of items) {
+            setOrderItems(prev => {
+              const existing = prev.find(o => o.name.toLowerCase() === item.name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
+              if (existing) {
+                return prev.map(o => o.id === existing.id ? { ...o, qty: o.qty + item.quantity } : o);
+              }
+              return [...prev, { id: Date.now() + Math.random(), qty: item.quantity, name: item.name, price: item.price }];
+            });
+          }
+          toast.success(`${items.length} product${items.length > 1 ? 's' : ''} added to cart`);
+        }}
+        onRepeatFullOrder={(items) => {
+          for (const item of items) {
+            setOrderItems(prev => {
+              const existing = prev.find(o => o.name.toLowerCase() === item.name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
+              if (existing) {
+                return prev.map(o => o.id === existing.id ? { ...o, qty: o.qty + item.quantity } : o);
+              }
+              return [...prev, { id: Date.now() + Math.random(), qty: item.quantity, name: item.name, price: item.price }];
+            });
+          }
+          toast.success(`Full order repeated: ${items.length} products added`);
+          setShowPastOrderPopup(false);
+        }}
+      />
+    )}
     </div>
     </div>;
 };

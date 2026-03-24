@@ -328,7 +328,7 @@ export function DiscountDialog({
     <div className="flex flex-col" style={{ width: isMobile ? '100%' : '740px', minWidth: isMobile ? undefined : '740px' }}>
       {header}
       {searchAndFilter}
-      <div className="mx-4 mb-3" style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
+      
       <div className="px-4 pb-4">
         <div className={`grid gap-2.5 ${isMobile ? 'grid-cols-3' : 'grid-cols-4'}`}>
           {filteredDiscounts.map((discount) => {

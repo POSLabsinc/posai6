@@ -847,6 +847,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [noTaxItems, setNoTaxItems] = useState<Set<string>>(new Set()); // Items with no tax applied
   const [removedItems, setRemovedItems] = useState<Set<string>>(new Set()); // Items removed from order
   const [isClearDialogOpen, setIsClearDialogOpen] = useState(false); // Clear order confirmation dialog
+  const [cancelReason, setCancelReason] = useState('');
+  const [customCancelReason, setCustomCancelReason] = useState('');
   const [taxExemptTickets, setTaxExemptTickets] = useState<Set<string>>(new Set()); // Whole-ticket tax exemption
   const [showNoTaxDialog, setShowNoTaxDialog] = useState(false); // No Tax confirmation dialog
   
@@ -911,6 +913,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   
   // Handle clearing/voiding the current order
   const handleClearOrder = () => {
+    const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
+    console.log('[Tickets CancelOrder] order:', selectedGuest.id, 'reason:', reason);
     // Mark all items as removed for the current order
     const newRemovedItems = new Set(removedItems);
     selectedGuest.items.forEach((item, index) => {
@@ -926,6 +930,13 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     });
     setNoTaxItems(newNoTaxItems);
     setIsClearDialogOpen(false);
+    toast.success('Order cancelled');
+  };
+  
+  const handleClearOrderAttempt = () => {
+    setCancelReason('');
+    setCustomCancelReason('');
+    setIsClearDialogOpen(true);
   };
   
   // Order notes state - stores updated notes by order ID
@@ -2508,7 +2519,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         ) : (
           <>
             <button 
-              onClick={() => setIsClearDialogOpen(true)}
+              onClick={handleClearOrderAttempt}
               className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
             >
               <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
@@ -3694,7 +3705,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 return (
                   <>
                     <button 
-                      onClick={() => setIsClearDialogOpen(true)}
+                      onClick={handleClearOrderAttempt}
                       className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
                     >
                       <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
@@ -4528,7 +4539,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             ) : (
               <>
                 <button 
-                  onClick={() => setIsClearDialogOpen(true)}
+                  onClick={handleClearOrderAttempt}
                   className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
                 >
                   <img src={clearIcon} alt="Clear" className="w-3 h-3 brightness-0 invert" />
@@ -5886,38 +5897,87 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         subtotal={selectedGuest.subtotal}
       />
 
-      {/* Clear Order Confirmation Dialog */}
-      <Dialog open={isClearDialogOpen} onOpenChange={setIsClearDialogOpen}>
-        <DialogContent className="sm:max-w-md bg-neutral-900 border-neutral-700 p-0 overflow-hidden">
-          <div className="p-6">
-            <div className="flex flex-col items-center text-center">
-              <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mb-4">
-                <img src={clearIcon} alt="Clear" className="w-8 h-8" />
+      {isClearDialogOpen && (() => {
+        const hasFired = selectedGuest?.items?.some((i: any) => i.isFired) || false;
+        const commonReasons = [
+          'Customer changed mind',
+          'Out of stock',
+          'Wrong order placed',
+          'Customer left',
+          'Duplicate order',
+          'Kitchen issue',
+        ];
+        const selectedReason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
+        const canConfirm = selectedReason.length > 0;
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 p-5 space-y-4 animate-scale-in">
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center mx-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-red-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                </div>
+                <h3 className="text-white font-semibold text-lg">
+                  {hasFired ? 'Cancel Fired Order?' : 'Cancel Order?'}
+                </h3>
+                <p className="text-white/60 text-sm">
+                  {hasFired
+                    ? 'This order has been fired to the kitchen. Please select a reason for cancellation.'
+                    : 'Please select a reason for cancellation.'}
+                </p>
               </div>
-              <h2 className="text-white text-xl font-semibold mb-2">Clear Order?</h2>
-              <p className="text-white/60 text-sm mb-6">
-                This will remove all items from order #{selectedGuest.id}. This action cannot be undone.
-              </p>
-              <div className="flex gap-3 w-full">
+              <div className="flex flex-wrap gap-2">
+                {commonReasons.map((reason) => (
+                  <button
+                    key={reason}
+                    onClick={() => { setCancelReason(reason); setCustomCancelReason(''); }}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                      cancelReason === reason ? 'bg-red-500 text-white' : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+                    }`}
+                  >
+                    {reason}
+                  </button>
+                ))}
                 <button
-                  onClick={() => setIsClearDialogOpen(false)}
-                  className="flex-1 py-3 rounded-full text-white text-sm font-bold transition-colors hover:bg-neutral-700"
-                  style={{ background: "#1B1C20" }}
+                  onClick={() => setCancelReason('__custom__')}
+                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                    cancelReason === '__custom__' ? 'bg-red-500 text-white' : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+                  }`}
                 >
-                  CANCEL
+                  Other
+                </button>
+              </div>
+              {cancelReason === '__custom__' && (
+                <textarea
+                  value={customCancelReason}
+                  onChange={(e) => setCustomCancelReason(e.target.value)}
+                  placeholder="Enter cancel reason..."
+                  className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-1 focus:ring-red-500 resize-none"
+                  rows={2}
+                  autoFocus
+                />
+              )}
+              <div className="flex gap-3">
+                <button onClick={() => setIsClearDialogOpen(false)} className="flex-1 h-10 rounded-full border border-neutral-600 text-white text-sm font-medium hover:bg-neutral-800 transition-colors">
+                  Go Back
                 </button>
                 <button
+                  disabled={!canConfirm}
                   onClick={handleClearOrder}
-                  className="flex-1 py-3 rounded-full text-white text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
-                  style={{ background: "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)" }}
+                  className={`flex-1 h-10 rounded-full text-white text-sm font-medium transition-colors ${
+                    canConfirm ? 'bg-red-500 hover:bg-red-600' : 'bg-neutral-700 cursor-not-allowed opacity-50'
+                  }`}
                 >
-                  CLEAR ORDER
+                  Cancel Order
                 </button>
               </div>
             </div>
           </div>
-        </DialogContent>
-      </Dialog>
+        );
+      })()}
 
       {/* Refund Confirmation Dialog */}
       <AppleAlertDialog

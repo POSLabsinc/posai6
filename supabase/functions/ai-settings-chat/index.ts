@@ -23,6 +23,8 @@ const SYSTEM_PROMPT = `You are an AI assistant for a POS system. Help users mana
 - update_ai_rules: {"type":"update_ai_rules","ruleType":"dos|donts|custom_instructions|restaurant_type|knowledge_base","operation":"add|remove|replace","value":"string or array of strings","autoApply":true}
   Use this when user wants to add/edit/remove AI behavior rules, do's, don'ts, custom instructions, restaurant type, or knowledge base.
   For dos/donts: value is a single rule string for add/remove, or array for replace. For others: value is the full string to set.
+- generate_report: {"type":"generate_report","startDate":"YYYY-MM-DD","endDate":"YYYY-MM-DD","startTime":"HH:mm","endTime":"HH:mm"}
+  Use when user asks for sales report, revenue report, order summary, analytics data. Ask user for start date/time and end date/time first. Common shortcuts: "today"=today's date 00:00-23:59, "yesterday"=yesterday, "this week"=Monday to today, "this month"=1st to today, "last month"=previous month full. When user provides dates, emit this action to generate the report.
 - navigate: {"type":"navigate","path":"/settings/path"}
 - info: {"type":"info"}
 

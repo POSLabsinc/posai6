@@ -49,6 +49,10 @@ const REASON_OPTIONS: { icon: LucideIcon; label: string; isAI: boolean }[] = [
   { icon: UserCog, label: "Manager comp", isAI: false },
   { icon: Cake, label: "Birthday", isAI: false },
   { icon: UtensilsCrossed, label: "Employee meal", isAI: false },
+  { icon: AlertCircle, label: "Food allergy", isAI: true },
+  { icon: Users, label: "VIP guest", isAI: false },
+  { icon: Heart, label: "Bereavement", isAI: false },
+  { icon: Star, label: "Influencer", isAI: false },
   { icon: FileText, label: "Other", isAI: false },
 ];
 
@@ -60,6 +64,10 @@ const REASON_TO_CATEGORY: Record<string, string> = {
   "Manager comp": "Promotion / Internal",
   "Birthday": "Promotion / Internal",
   "Employee meal": "Promotion / Internal",
+  "Food allergy": "Food Quality",
+  "VIP guest": "Promotion / Internal",
+  "Bereavement": "Promotion / Internal",
+  "Influencer": "Promotion / Internal",
   "Other": "Other",
 };
 

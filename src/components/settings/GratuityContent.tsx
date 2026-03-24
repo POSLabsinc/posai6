@@ -212,23 +212,6 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
           </div>
         </div>
 
-        {/* Auto-Close Orders By Payment Method */}
-        <div 
-            className="bg-neutral-800/60 rounded-full mb-1 cursor-pointer active:opacity-70"
-          onClick={handleRestricted}
-        >
-           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-base font-medium">Auto-Close Orders By Payment Method</span>
-            <div className="flex items-center gap-1">
-              <span className="text-neutral-400 text-base">{getSelectedPaymentMethodsText()}</span>
-              <ChevronRight className="w-5 h-5 text-neutral-500" />
-            </div>
-          </div>
-        </div>
-        <p className="text-neutral-500 text-sm px-1 mb-6">
-          Automatically closes the ticket after payment is completed using selected payment methods. This reduces manual steps and speeds up checkout.
-        </p>
-
         {/* Gratuity Presets */}
         <div 
             className="bg-neutral-800/60 rounded-full mb-6 cursor-pointer active:opacity-70"

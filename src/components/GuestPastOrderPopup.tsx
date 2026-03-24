@@ -190,7 +190,7 @@ const GuestPastOrderPopup = ({
             {pastItems.length} products from last order
           </span>
           {selectedCount > 0 && (
-            <span className="text-xs font-medium" style={{ color: "#f97316" }}>
+            <span className="text-xs font-medium" style={{ color: "#fff" }}>
               {selectedCount} selected
             </span>
           )}

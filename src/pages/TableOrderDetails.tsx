@@ -340,7 +340,7 @@ const TableOrderDetails = () => {
     
     // Clear selection if cancelled order was selected
     if (currentSelectedGuest?.id === cancelTargetOrderId) {
-      setCurrentSelectedGuest(null as any);
+      setSelectedGuest(null);
     }
     
     setShowCancelConfirm(false);

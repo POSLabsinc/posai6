@@ -3888,11 +3888,14 @@ const Orders = () => {
         if (checkoutSettings.smsReceipt) {
           toast.success("Receipt sent via SMS");
         }
+        // Always reset the order screen after payment
+        handleClearOrder();
+        setShowPaymentDialog(false);
         if (checkoutSettings.autoCloseTicket) {
-          setOrderItems([]);
-          setShowPaymentDialog(false);
           toast.success("Ticket closed automatically");
           navigate('/');
+        } else {
+          toast.success("Order completed successfully");
         }
       }}
       onSaveSplit={(config) => {

@@ -425,8 +425,8 @@ const TableOrderDetails = () => {
     } catch { return []; }
   }, [tableId]);
 
-  // Get orders for this table from DB (unified context)
-  const tableOrders = useMemo(() => allDbOrders.filter(o => o.table === (tableId || "T2")), [allDbOrders, tableId]);
+  // Get orders for this table from DB (unified context), exclude cancelled
+  const tableOrders = useMemo(() => allDbOrders.filter(o => o.table === (tableId || "T2") && o.status !== 'CANCELLED'), [allDbOrders, tableId]);
   
   // Get persisted transfers that target specific existing orders
   const persistedTransfersForExistingOrders = persistedTransfers.filter(t => t.targetOrderId);

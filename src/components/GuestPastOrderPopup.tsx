@@ -304,9 +304,9 @@ const GuestPastOrderPopup = ({
                           onAddItems([item]);
                         }}
                         className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 transition-all active:scale-90"
-                        style={{ background: "#f97316", color: "#fff" }}
-                        onMouseEnter={e => (e.currentTarget.style.background = "#ea580c")}
-                        onMouseLeave={e => (e.currentTarget.style.background = "#f97316")}
+                        style={{ background: "#fff", color: "#000" }}
+                        onMouseEnter={e => (e.currentTarget.style.background = "#e0e0e0")}
+                        onMouseLeave={e => (e.currentTarget.style.background = "#fff")}
                       >
                         <Plus className="w-3.5 h-3.5" />
                       </button>

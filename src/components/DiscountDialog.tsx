@@ -315,34 +315,35 @@ export function DiscountDialog({
   // -- Discount grid (no scroll) --
   const discountGrid = (
     <div className="flex flex-col" style={{ width: isMobile ? '100%' : needsReason ? '65%' : '100%' }}>
+      {header}
       {searchAndFilter}
-      <div className="mx-3 mb-2" style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
-      <div className="px-3 pb-3">
-        <div className={`grid gap-1.5 ${isMobile ? 'grid-cols-3' : needsReason ? 'grid-cols-3' : 'grid-cols-4'}`}>
+      <div className="mx-4 mb-3" style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
+      <div className="px-4 pb-4">
+        <div className={`grid gap-2.5 ${isMobile ? 'grid-cols-3' : needsReason ? 'grid-cols-3' : 'grid-cols-4'}`}>
           {filteredDiscounts.map((discount) => {
             const isSelected = selectedDiscount?.id === discount.id;
             return (
               <button
                 key={discount.id}
                 onClick={() => handleSelectDiscount(discount)}
-                className="flex flex-col items-center justify-center px-1.5 py-2.5 rounded-lg transition-all text-center"
+                className="flex flex-col items-center justify-center px-2 py-4 rounded-xl transition-all text-center"
                 style={{
                   background: isSelected ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.025)',
                   border: isSelected ? '1.5px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.06)',
                 }}
               >
-                <span className="text-[10px] font-medium text-white leading-tight" style={{ wordBreak: 'break-word' }}>
+                <span className="text-[13px] font-medium text-white leading-snug" style={{ wordBreak: 'break-word' }}>
                   {discount.name}
                 </span>
-                <span className="text-[10px] font-semibold mt-0.5" style={{ color: isSelected ? '#fff' : '#888' }}>
+                <span className="text-xs font-semibold mt-1" style={{ color: isSelected ? '#fff' : '#999' }}>
                   {discount.type === "percentage" ? `${discount.value}%` : `$${discount.value.toFixed(2)}`}
                 </span>
               </button>
             );
           })}
           {filteredDiscounts.length === 0 && (
-            <div className="col-span-full py-6 text-center">
-              <p className="text-xs" style={{ color: '#555' }}>No discounts found</p>
+            <div className="col-span-full py-8 text-center">
+              <p className="text-sm" style={{ color: '#555' }}>No discounts found</p>
             </div>
           )}
         </div>

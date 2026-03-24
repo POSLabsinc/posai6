@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback } from "react";
 import { searchCustomers, Customer } from "@/services/customerService";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
@@ -169,7 +169,6 @@ const initialOtherPaymentMethods = [
 { id: 'ubereats', name: 'UberEats', icon: ShoppingBag },
 { id: 'doordash', name: 'DoorDash', icon: Truck },
 { id: 'grubhub', name: 'Grubhub', icon: UtensilsCrossed }];
-
 
 type PaymentMethodType = {
   id: string;
@@ -564,6 +563,9 @@ const Orders = () => {
   const phoneDropdownRef = useRef<HTMLDivElement>(null);
   const mobilePhoneInputRef = useRef<HTMLInputElement>(null);
   const mobilePhoneDropdownRef = useRef<HTMLDivElement>(null);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
+  const orderContentStartRef = useRef<HTMLDivElement>(null);
+  const [aiOverlayTop, setAiOverlayTop] = useState(0);
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<number | null>(null);
   const [expandedCartItems, setExpandedCartItems] = useState<Set<number>>(new Set());
   const [isOrderActionsSidebarOpen, setIsOrderActionsSidebarOpen] = useState(false);
@@ -640,7 +642,28 @@ const Orders = () => {
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>([]);
   const [clearCounter, setClearCounter] = useState(0);
 
-  // Toggle seat selection for table orders
+  // Dynamic AI overlay top offset: align with order content area
+  useLayoutEffect(() => {
+    const recalc = () => {
+      if (menuPanelRef.current && orderContentStartRef.current) {
+        const menuRect = menuPanelRef.current.getBoundingClientRect();
+        const orderContentRect = orderContentStartRef.current.getBoundingClientRect();
+        const offset = Math.max(0, Math.round(orderContentRect.top - menuRect.top));
+        setAiOverlayTop(offset);
+      }
+    };
+    recalc();
+    window.addEventListener('resize', recalc);
+    const observer = new ResizeObserver(recalc);
+    if (menuPanelRef.current) observer.observe(menuPanelRef.current);
+    if (orderContentStartRef.current) observer.observe(orderContentStartRef.current);
+    return () => {
+      window.removeEventListener('resize', recalc);
+      observer.disconnect();
+    };
+  }, [isAIChatOpen, isOrderActionsSidebarOpen, panelLayout]);
+
+
   const toggleSeatSelection = (seatNumber: number) => {
     setSelectedSeats((prev) => {
       if (prev.includes(seatNumber)) {
@@ -2193,7 +2216,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`relative md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto ${panelLayout === 'menu-right' ? 'md:order-2 md:pr-2' : 'md:order-1'}`} style={isDragging && dragOffset !== 0 ? {
+      <div ref={menuPanelRef} className={`relative md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto ${panelLayout === 'menu-right' ? 'md:order-2 md:pr-2' : 'md:order-1'}`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`,
       flexGrow: 0,
       flexShrink: 0,
@@ -2677,8 +2700,8 @@ const Orders = () => {
       {/* AI Chat Panel - Overlay on Menu Panel */}
       {isAIChatOpen && (
         <>
-          <div className="hidden md:block absolute inset-0 bg-black/40 z-30 rounded-lg" onClick={() => setIsAIChatOpen(false)} />
-          <div className={`hidden md:flex absolute top-0 bottom-0 ${panelLayout === 'menu-right' ? 'left-0' : 'right-0'} z-40 ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} pb-2 transition-all duration-300`}>
+          <div className="hidden md:block absolute inset-0 bg-black/40 z-30 rounded-lg" style={{ top: aiOverlayTop }} onClick={() => setIsAIChatOpen(false)} />
+          <div className={`hidden md:flex absolute bottom-0 ${panelLayout === 'menu-right' ? 'left-0' : 'right-0'} z-40 ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} pb-2 transition-all duration-300`} style={{ top: aiOverlayTop }}>
             <div className="w-full h-full rounded-lg overflow-hidden shadow-2xl border-l border-neutral-700">
               <OrderAIChatPanel
                 onClose={() => setIsAIChatOpen(false)}
@@ -2828,7 +2851,7 @@ const Orders = () => {
           </div>
 
           {/* Order Content Area with Sidebar */}
-          <div className="flex-1 flex gap-2 min-h-0">
+          <div ref={orderContentStartRef} className="flex-1 flex gap-2 min-h-0">
             {/* Background Container for Order Content */}
             <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0 relative" style={{
             background: '#7575754D',

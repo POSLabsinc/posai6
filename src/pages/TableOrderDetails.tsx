@@ -2522,7 +2522,7 @@ const TableOrderDetails = () => {
                 (localTransferResult?.sourceOrderId === currentSelectedGuest?.id && localTransferResult?.transferType === 'full');
               return (
               <>
-                <button disabled={isFullyTransferredOut} className={`w-8 h-8 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : 'hover:bg-red-600'}`}>
+                <button disabled={isFullyTransferredOut} onClick={() => !isFullyTransferredOut && currentSelectedGuest && handleCancelOrderAttempt(currentSelectedGuest.id)} className={`w-8 h-8 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : 'hover:bg-red-600'}`}>
                   <img src={clearIcon} alt="Clear" className="w-3 h-3" />
                 </button>
                 <button disabled={isFullyTransferredOut} className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : ''}`} style={{

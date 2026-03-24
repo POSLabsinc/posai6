@@ -942,6 +942,28 @@ const Dashboard = () => {
   // Split check selection state
   const [selectedSplitCheck, setSelectedSplitCheck] = useState<{ orderId: number; checkId: string } | null>(null);
   
+  // Cancel order state
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [customCancelReason, setCustomCancelReason] = useState('');
+
+  const handleCancelOrderAttempt = () => {
+    setCancelReason('');
+    setCustomCancelReason('');
+    setShowCancelDialog(true);
+  };
+
+  const handleCancelOrderConfirm = () => {
+    const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
+    console.log('[Dashboard CancelOrder] order:', selectedOrder?.id, 'reason:', reason);
+    if (selectedOrder) {
+      // Remove items from this order
+      setOrderItems([]);
+    }
+    setShowCancelDialog(false);
+    toast.success('Order cancelled');
+  };
+
   // Payment Dialog state (using shared component)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   

@@ -324,9 +324,9 @@ const GuestPastOrderPopup = ({
             onClick={handleRepeatFull}
             disabled={repeating || availableItems.length === 0}
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold transition-all active:scale-[0.98] disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ background: "#f97316", color: "#fff" }}
-            onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.background = "#ea580c"; }}
-            onMouseLeave={e => { e.currentTarget.style.background = "#f97316"; }}
+            style={{ background: "#fff", color: "#000" }}
+            onMouseEnter={e => { if (!e.currentTarget.disabled) e.currentTarget.style.background = "#e0e0e0"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "#fff"; }}
           >
             <RotateCcw className="w-4 h-4" />
             Repeat Order

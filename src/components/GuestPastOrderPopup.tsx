@@ -162,13 +162,13 @@ const GuestPastOrderPopup = ({
 
         {/* Allergies & Notes */}
         {(hasAllergies || hasNotes) && (
-          <div className="flex flex-wrap items-start gap-x-6 gap-y-2 px-6 py-2.5" style={{ borderBottom: "1px solid #2a2a2a", background: "rgba(239,68,68,0.05)" }}>
+          <div className="flex flex-wrap items-start gap-x-6 gap-y-2 px-6 py-2.5" style={{ borderBottom: "1px solid #2a2a2a", background: "#1f1f1f" }}>
             {hasAllergies && (
               <div className="flex items-start gap-1.5">
-                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: "#ef4444" }} />
+                <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" style={{ color: "#fff" }} />
                 <div>
-                  <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "#ef4444" }}>Allergies</span>
-                  <p className="text-xs" style={{ color: "#999" }}>{guest.allergies!.join(", ")}</p>
+                  <span className="text-[10px] font-semibold uppercase tracking-wider" style={{ color: "#fff" }}>Allergies</span>
+                  <p className="text-xs" style={{ color: "#ccc" }}>{guest.allergies!.join(", ")}</p>
                 </div>
               </div>
             )}

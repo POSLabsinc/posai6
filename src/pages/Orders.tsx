@@ -892,15 +892,36 @@ const Orders = () => {
     // Fetch past orders for this guest and show popup
     try {
       setPastOrderLoading(true);
-      // Look up the guest in DB by name to get their id
+      // Look up the guest in DB by name to get their id + extra fields
       const { data: guestRows } = await supabase
         .from('guests')
-        .select('id,name,phone,email,order_count,last_order_date,loyalty')
+        .select('id,name,phone,email,order_count,last_order_date,loyalty,allergies,notes_general,notes_allergies')
         .ilike('name', guest.name)
         .limit(1);
       
       const dbGuest = guestRows?.[0];
       if (dbGuest && dbGuest.order_count > 0) {
+        // Fetch past orders with totals
+        const { data: orders } = await supabase
+          .from('orders')
+          .select('id,total,tip_amount')
+          .eq('guest_id', dbGuest.id)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        const totalSpent = orders?.reduce((s, o) => s + (o.total || 0), 0) || 0;
+        const totalTips = orders?.reduce((s, o) => s + (o.tip_amount || 0), 0) || 0;
+
+        // Combine allergy fields
+        const allergies: string[] = [];
+        if (dbGuest.allergies && Array.isArray(dbGuest.allergies) && dbGuest.allergies.length > 0) {
+          allergies.push(...dbGuest.allergies);
+        }
+        const notesAllergies = dbGuest.notes_allergies?.trim();
+        if (notesAllergies && !allergies.includes(notesAllergies)) {
+          allergies.push(notesAllergies);
+        }
+
         setPastOrderGuest({
           id: dbGuest.id,
           name: dbGuest.name,
@@ -909,22 +930,19 @@ const Orders = () => {
           orderCount: dbGuest.order_count,
           lastOrderDate: dbGuest.last_order_date || undefined,
           loyaltyTier: dbGuest.loyalty || undefined,
+          totalSpent,
+          totalTips,
+          allergies: allergies.length > 0 ? allergies : undefined,
+          notes: dbGuest.notes_general?.trim() || undefined,
         });
 
-        // Fetch past order items from orders + order_items
-        const { data: orders } = await supabase
-          .from('orders')
-          .select('id')
-          .eq('guest_id', dbGuest.id)
-          .order('created_at', { ascending: false })
-          .limit(3);
-
-        if (orders && orders.length > 0) {
-          const orderIds = orders.map(o => o.id);
+        // Fetch past order items from the last 3 orders
+        const recentOrderIds = (orders || []).slice(0, 3).map(o => o.id);
+        if (recentOrderIds.length > 0) {
           const { data: items } = await supabase
             .from('order_items')
             .select('id,item_name,quantity,unit_price,total_price,category')
-            .in('order_id', orderIds);
+            .in('order_id', recentOrderIds);
 
           if (items && items.length > 0) {
             // Cross-reference with current products for availability
@@ -952,7 +970,13 @@ const Orders = () => {
             }
             setPastOrderItems(Array.from(seen.values()));
             setShowPastOrderPopup(true);
+          } else {
+            setShowPastOrderPopup(true);
+            setPastOrderItems([]);
           }
+        } else {
+          setShowPastOrderPopup(true);
+          setPastOrderItems([]);
         }
       }
     } catch (err) {

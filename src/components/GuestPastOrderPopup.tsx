@@ -158,11 +158,6 @@ const GuestPastOrderPopup = ({
               <Heart className="w-3 h-3" /> ${guest.totalTips.toFixed(2)} tips
             </span>
           )}
-          {guest.loyaltyTier && (
-            <span className="ml-auto text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full" style={{ background: "rgba(249,115,22,0.15)", color: "#f97316" }}>
-              {guest.loyaltyTier}
-            </span>
-          )}
         </div>
 
         {/* Allergies & Notes */}

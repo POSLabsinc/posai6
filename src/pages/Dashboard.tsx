@@ -813,8 +813,8 @@ const Dashboard = () => {
   const mockTables = dbTables.map(t => ({ id: t.id, seats: t.seats, status: t.status }));
   
   // Get session orders context
-  const { sessionOrders } = useSessionOrders();
-  const { orders: dbTicketOrders, updateOrder: updateDashboardTicketOrder } = useTicketOrders();
+  const { sessionOrders, deleteOrder: deleteSessionOrder } = useSessionOrders();
+  const { orders: dbTicketOrders, updateOrder: updateDashboardTicketOrder, removeOrder: removeDashboardTicketOrder } = useTicketOrders();
   
   // Static split configs for non-session orders (persisted in localStorage)
   const [staticSplitConfigs, setStaticSplitConfigs] = useState<Record<string, SplitConfiguration>>(() => {

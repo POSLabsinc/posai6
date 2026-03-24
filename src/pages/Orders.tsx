@@ -564,6 +564,9 @@ const Orders = () => {
   const phoneDropdownRef = useRef<HTMLDivElement>(null);
   const mobilePhoneInputRef = useRef<HTMLInputElement>(null);
   const mobilePhoneDropdownRef = useRef<HTMLDivElement>(null);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
+  const orderContentStartRef = useRef<HTMLDivElement>(null);
+  const [aiOverlayTop, setAiOverlayTop] = useState(0);
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<number | null>(null);
   const [expandedCartItems, setExpandedCartItems] = useState<Set<number>>(new Set());
   const [isOrderActionsSidebarOpen, setIsOrderActionsSidebarOpen] = useState(false);

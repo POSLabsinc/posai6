@@ -314,12 +314,12 @@ export function DiscountDialog({
 
   // -- Discount grid (no scroll) --
   const discountGrid = (
-    <div className="flex flex-col" style={{ width: isMobile ? '100%' : needsReason ? '65%' : '100%' }}>
+    <div className="flex flex-col" style={{ width: isMobile ? '100%' : '740px', minWidth: isMobile ? undefined : '740px' }}>
       {header}
       {searchAndFilter}
       <div className="mx-4 mb-3" style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
       <div className="px-4 pb-4">
-        <div className={`grid gap-2.5 ${isMobile ? 'grid-cols-3' : needsReason ? 'grid-cols-3' : 'grid-cols-4'}`}>
+        <div className={`grid gap-2.5 ${isMobile ? 'grid-cols-3' : 'grid-cols-4'}`}>
           {filteredDiscounts.map((discount) => {
             const isSelected = selectedDiscount?.id === discount.id;
             return (
@@ -353,7 +353,7 @@ export function DiscountDialog({
 
   // -- Reason column --
   const reasonColumn = (
-    <div className="flex flex-col" style={{ width: isMobile ? '100%' : '35%', borderLeft: isMobile ? 'none' : '0.5px solid rgba(255,255,255,0.08)', background: '#1d1d22' }}>
+    <div className="flex flex-col" style={{ width: isMobile ? '100%' : '300px', minWidth: isMobile ? undefined : '300px', borderLeft: isMobile ? 'none' : '0.5px solid rgba(255,255,255,0.08)', background: '#1d1d22' }}>
       <div className="px-5 pt-5 pb-3">
         <h3 className="text-base font-semibold text-white">Reason</h3>
         <p className="text-xs mt-0.5" style={{ color: '#777' }}>Select a reason for the comp</p>
@@ -501,7 +501,7 @@ export function DiscountDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`p-0 gap-0 border-0 overflow-hidden transition-all duration-200 ${needsReason ? 'sm:max-w-[880px]' : 'sm:max-w-[740px]'}`}
+        className={`p-0 gap-0 border-0 overflow-hidden transition-all duration-300 ${needsReason ? 'sm:max-w-[1060px]' : 'sm:max-w-[740px]'}`}
         style={{ background: '#1a1a1e', borderRadius: '16px' }}
         hideCloseButton
       >

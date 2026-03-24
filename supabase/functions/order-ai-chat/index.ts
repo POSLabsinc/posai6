@@ -501,7 +501,31 @@ ${orderContext?.availableProducts?.map((p: any) => `- ${p.name}: $${p.price.toFi
       await Promise.all(fetchPromises);
     }
 
-    const fullSystemPrompt = SYSTEM_PROMPT + "\n\n" + contextMessage + settingsContext + aiRulesContext;
+    // Fetch authoritative product list from DB to ensure AI is always in sync
+    let dbProductsContext = "";
+    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        const { data: products } = await supabase
+          .from("products")
+          .select("id, name, price, category_id, active, archived, is_available, stock_count, categories(name)")
+          .eq("active", true)
+          .eq("archived", false)
+          .order("sort_order");
+        if (products?.length) {
+          dbProductsContext = "\n## Authoritative Product Catalog (from database, use this over client list):\n" +
+            products.map((p: any) => {
+              const catName = (p as any).categories?.name || "Uncategorized";
+              const stock = p.is_available === false ? " [OUT OF STOCK]" : (p.stock_count !== null ? ` [Stock: ${p.stock_count}]` : "");
+              return `- ${p.name}: $${Number(p.price).toFixed(2)} | Category: ${catName} | ID: ${p.id}${stock}`;
+            }).join("\n");
+        }
+      } catch (e) {
+        console.error("Failed to fetch products from DB:", e);
+      }
+    }
+
+    const fullSystemPrompt = SYSTEM_PROMPT + "\n\n" + contextMessage + dbProductsContext + settingsContext + aiRulesContext;
     const conversationMessages = (messages || []).slice(-12);
 
     // First AI call (non-streaming) to check for server-side tool calls

@@ -48,6 +48,7 @@ interface OrderActions {
   updateQuantity: (name: string, quantity: number) => void;
   setOrderType: (type: string) => void;
   setGuestName: (name: string) => void;
+  setGuestPhone: (phone: string) => void;
   clearOrder: () => void;
   setOrderNotes: (notes: string) => void;
   openPayment?: () => void;
@@ -95,6 +96,8 @@ function processToolCalls(toolCalls: any[], actions: OrderActions | undefined) {
         actions.setOrderType(args.order_type);
       } else if (fn === "set_guest_name") {
         actions.setGuestName(args.guest_name);
+      } else if (fn === "set_guest_phone") {
+        actions.setGuestPhone(args.phone);
       } else if (fn === "clear_order") {
         actions.clearOrder();
       } else if (fn === "set_order_notes") {

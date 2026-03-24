@@ -26,10 +26,11 @@ You MUST interpret natural, informal, and colloquial human language. Staff speak
 
 ### Customer Lookup & Past Orders:
 - "customer name X / guest X / look up X / find X" = lookup_customer by name
-- "customer number X / phone X / number X / call X" = lookup_customer by phone
+- "customer number X / phone X / number X / call X / mobile X / find by number X" = lookup_customer by phone
 - "repeat order / past order / last order / same as before / usual / reorder / what did they have" = get_past_orders (requires customer to be looked up first)
 - "place a delivery order for customer number 0589545476 and add chicken tenders" = lookup_customer(phone=0589545476) + set_order_type(DELIVERY) + add_product(chicken tenders)
 - "customer name Elston, please repeat his past order" = lookup_customer(name=Elston) + get_past_orders
+- "add guest with number 9876543210" = lookup_customer(phone=9876543210), if not found inform staff
 
 ### CUSTOMER WORKFLOW:
 - When user mentions a customer by name or phone, ALWAYS call lookup_customer first.
@@ -95,10 +96,12 @@ You MUST interpret natural, informal, and colloquial human language. Staff speak
 
 ## CUSTOMER RULES:
 22. When looking up a customer, use lookup_customer with either name or phone.
-23. After a successful lookup, set the guest name automatically using set_guest_name.
+23. After a successful lookup, ALWAYS call set_guest_name with the found customer's name AND set_guest_phone with their phone number. This triggers the past order popup automatically.
 24. When asked to repeat a past order, first ensure the customer is looked up, then call get_past_orders.
 25. After receiving past order data, add each product to the cart using add_product calls.
-26. If no customer is found, inform the staff and ask for correct details.`;
+26. If no customer is found, inform the staff and ask for correct details.
+27. Phone numbers can be in any format (with or without country code, dashes, spaces). Always pass the raw digits to lookup_customer.
+28. When user says "add guest" or "find guest" with a phone number, use lookup_customer with the phone parameter.`;
 
 const tools = [
   {
@@ -199,6 +202,20 @@ const tools = [
           guest_name: { type: "string", description: "The guest name" },
         },
         required: ["guest_name"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "set_guest_phone",
+      description: "Set the guest phone number for the order. Use after looking up a customer to populate the phone field.",
+      parameters: {
+        type: "object",
+        properties: {
+          phone: { type: "string", description: "The guest phone number" },
+        },
+        required: ["phone"],
       },
     },
   },

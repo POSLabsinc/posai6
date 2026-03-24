@@ -64,6 +64,10 @@ const REASON_TO_CATEGORY: Record<string, string> = {
   "Manager comp": "Promotion / Internal",
   "Birthday": "Promotion / Internal",
   "Employee meal": "Promotion / Internal",
+  "Food allergy": "Food Quality",
+  "VIP guest": "Promotion / Internal",
+  "Bereavement": "Promotion / Internal",
+  "Influencer": "Promotion / Internal",
   "Other": "Other",
 };
 

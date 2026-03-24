@@ -99,9 +99,10 @@ You MUST interpret natural, informal, and colloquial human language. Staff speak
 23. After a successful lookup, ALWAYS call set_guest_name with the found customer's name AND set_guest_phone with their phone number. This triggers the past order popup automatically.
 24. When asked to repeat a past order, first ensure the customer is looked up, then call get_past_orders.
 25. After receiving past order data, add each product to the cart using add_product calls.
-26. If no customer is found, inform the staff and ask for correct details.
+26. If no customer is found by phone, ask the staff if they want to create a new guest. If they confirm (or if the original request implies adding), call create_guest with the phone number and name.
 27. Phone numbers can be in any format (with or without country code, dashes, spaces). Always pass the raw digits to lookup_customer.
-28. When user says "add guest" or "find guest" with a phone number, use lookup_customer with the phone parameter.`;
+28. When user says "add guest" or "find guest" with a phone number, use lookup_customer with the phone parameter. If not found, offer to create.
+29. After creating a new guest, call set_guest_name and set_guest_phone to link them to the current order.`;
 
 const tools = [
   {

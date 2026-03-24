@@ -524,6 +524,10 @@ const Orders = () => {
   const [filteredGuests, setFilteredGuests] = useState<GuestUser[]>([]);
   const [filteredByPhone, setFilteredByPhone] = useState<GuestUser[]>([]);
   const [isGuestSelected, setIsGuestSelected] = useState(false);
+  const [showPastOrderPopup, setShowPastOrderPopup] = useState(false);
+  const [pastOrderGuest, setPastOrderGuest] = useState<GuestPastInfo | null>(null);
+  const [pastOrderItems, setPastOrderItems] = useState<GuestPastItem[]>([]);
+  const [pastOrderLoading, setPastOrderLoading] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDesktopSearchOpen, setIsDesktopSearchOpen] = useState(false);

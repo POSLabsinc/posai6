@@ -70,13 +70,14 @@ You MUST interpret natural, informal, and colloquial human language. Staff speak
 2. Be concise, staff use touch screens. Keep responses under 3 sentences unless listing products.
 3. ALWAYS use tool calls to execute ORDER actions. NEVER just say you did something without calling the tool.
 4. If the user's request is missing required info, ASK for the missing info. Do NOT guess or make up values.
-5. When adding products, ALWAYS match against the Available Products list. Use the exact name and price from the list.
+5. When adding products, ALWAYS match against the Authoritative Product Catalog first, then Available Products. Use the EXACT name and price from the catalog. NEVER invent product names or prices.
 6. If a product name is ambiguous, show the closest matches and ask which one.
 7. You can handle multiple operations in one message.
 8. After executing tool calls, confirm what was done in 1 line.
 9. For order type changes, only accept: DINE IN, TAKE OUT, DELIVERY, BANQUET, DRIVE THRU, CURB SIDE.
 10. When asked for a summary, list all products with quantities and prices, plus the order type and guest name.
 11. NEVER hallucinate a tool call result. If you cannot find a product or fulfill a request, say so.
+12. Products marked [OUT OF STOCK] must NOT be added. Inform the staff the product is unavailable.
 
 ## MODIFIER & ADD-ON RULES:
 12. When the user specifies modifications, use add_product_with_modifiers instead of add_product.
@@ -501,7 +502,31 @@ ${orderContext?.availableProducts?.map((p: any) => `- ${p.name}: $${p.price.toFi
       await Promise.all(fetchPromises);
     }
 
-    const fullSystemPrompt = SYSTEM_PROMPT + "\n\n" + contextMessage + settingsContext + aiRulesContext;
+    // Fetch authoritative product list from DB to ensure AI is always in sync
+    let dbProductsContext = "";
+    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+      try {
+        const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+        const { data: products } = await supabase
+          .from("products")
+          .select("id, name, price, category_id, active, archived, is_available, stock_count, categories(name)")
+          .eq("active", true)
+          .eq("archived", false)
+          .order("sort_order");
+        if (products?.length) {
+          dbProductsContext = "\n## Authoritative Product Catalog (from database, use this over client list):\n" +
+            products.map((p: any) => {
+              const catName = (p as any).categories?.name || "Uncategorized";
+              const stock = p.is_available === false ? " [OUT OF STOCK]" : (p.stock_count !== null ? ` [Stock: ${p.stock_count}]` : "");
+              return `- ${p.name}: $${Number(p.price).toFixed(2)} | Category: ${catName} | ID: ${p.id}${stock}`;
+            }).join("\n");
+        }
+      } catch (e) {
+        console.error("Failed to fetch products from DB:", e);
+      }
+    }
+
+    const fullSystemPrompt = SYSTEM_PROMPT + "\n\n" + contextMessage + dbProductsContext + settingsContext + aiRulesContext;
     const conversationMessages = (messages || []).slice(-12);
 
     // First AI call (non-streaming) to check for server-side tool calls

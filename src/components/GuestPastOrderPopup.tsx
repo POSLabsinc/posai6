@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from "react";
 import { X, Plus, RotateCcw, Check, AlertTriangle, Clock, User, Phone, Mail, ShoppingBag } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 
-interface PastOrderItem {
+export interface PastOrderItem {
   id: string;
   name: string;
   quantity: number;

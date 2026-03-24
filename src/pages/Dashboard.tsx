@@ -957,8 +957,27 @@ const Dashboard = () => {
     const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
     console.log('[Dashboard CancelOrder] order:', selectedOrder?.id, 'reason:', reason);
     if (selectedOrder) {
-      // Remove items from this order
+      // Try to find and cancel as session order
+      const sessionOrder = sessionOrders.find(so => so.id === selectedOrder.id);
+      if (sessionOrder) {
+        deleteSessionOrder(sessionOrder.sessionId);
+      }
+      
+      // Also update DB ticket order status to CANCELLED
+      const dbOrder = dbTicketOrders.find(o => o.id === selectedOrder.id);
+      if (dbOrder) {
+        updateDashboardTicketOrder(dbOrder.id, { status: 'CANCELLED' }).catch(console.error);
+      }
+      
+      // Clear local state
       setOrderItems([]);
+      
+      // Select next available order
+      const remainingOrders = allOrders.filter(o => o.id !== selectedOrder.id);
+      setSelectedOrder(remainingOrders[0] || null);
+      if (remainingOrders[0]) {
+        setOrderItems(remainingOrders[0].items || []);
+      }
     }
     setShowCancelDialog(false);
     toast.success('Order cancelled');

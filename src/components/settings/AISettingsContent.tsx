@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap } from "lucide-react";
+import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap, Printer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useTheme } from "next-themes";

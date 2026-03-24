@@ -232,8 +232,8 @@ const GuestPastOrderPopup = ({
                     style={{
                       opacity: unavailable ? 0.4 : 1,
                       cursor: unavailable ? "not-allowed" : "pointer",
-                      background: selected && !unavailable ? "rgba(249,115,22,0.08)" : "transparent",
-                      boxShadow: selected && !unavailable ? "inset 0 0 0 1px rgba(249,115,22,0.25)" : "none",
+                      background: selected && !unavailable ? "rgba(255,255,255,0.06)" : "transparent",
+                      boxShadow: selected && !unavailable ? "inset 0 0 0 1px rgba(255,255,255,0.15)" : "none",
                     }}
                     onMouseEnter={e => {
                       if (!unavailable && !selected) e.currentTarget.style.background = "#222";

@@ -146,7 +146,7 @@ interface SuggestionChip {
 }
 
 interface AIAction {
-  type: "view" | "update_setting" | "navigate" | "info" | "ai_rules_updated";
+  type: "view" | "update_setting" | "navigate" | "info" | "ai_rules_updated" | "generate_report";
   category?: string;
   path?: string;
   setting?: string;
@@ -160,6 +160,10 @@ interface AIAction {
   value?: any;
   success?: boolean;
   error?: string;
+  startDate?: string;
+  endDate?: string;
+  startTime?: string;
+  endTime?: string;
 }
 
 const defaultSuggestionChips: SuggestionChip[] = [

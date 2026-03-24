@@ -270,18 +270,26 @@ export function DiscountDialog({
   const totalSavings = selectedDiscount ? calculateDiscountAmount(selectedDiscount) : 0;
   const canApply = selectedDiscount && (!needsReason || !!selectedReason);
 
+  // -- Header --
+  const header = (
+    <div className="px-5 pt-5 pb-1">
+      <h3 className="text-lg font-semibold text-white">Discounts</h3>
+      <p className="text-xs mt-0.5" style={{ color: '#777' }}>Select a discount below</p>
+    </div>
+  );
+
   // -- Search + filter bar --
   const searchAndFilter = (
-    <div className="px-4 pt-4 pb-2 flex flex-col gap-2">
-      <div className="flex items-center gap-2">
+    <div className="px-5 pt-2 pb-2">
+      <div className="flex items-center gap-3">
         <div className="flex-1 relative">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#666' }} />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#666' }} />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search discounts..."
-            className="w-full pl-8 pr-3 py-2 rounded-lg text-xs text-white placeholder:text-neutral-600 focus:outline-none"
+            className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none"
             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
           />
         </div>
@@ -290,7 +298,7 @@ export function DiscountDialog({
             <button
               key={tab}
               onClick={() => setActiveFilter(tab)}
-              className="px-2.5 py-1.5 rounded-md text-[10px] font-medium transition-all"
+              className="px-3 py-2 rounded-lg text-xs font-medium transition-all"
               style={{
                 background: activeFilter === tab ? 'rgba(255,255,255,0.12)' : 'transparent',
                 color: activeFilter === tab ? '#fff' : '#666',

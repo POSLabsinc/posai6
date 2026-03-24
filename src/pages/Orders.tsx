@@ -168,7 +168,7 @@ const initialOtherPaymentMethods = [
 { id: 'blizzful', name: 'Blizzful', icon: Utensils },
 { id: 'ubereats', name: 'UberEats', icon: ShoppingBag },
 { id: 'doordash', name: 'DoorDash', icon: Truck },
-
+{ id: 'grubhub', name: 'Grubhub', icon: UtensilsCrossed }];
 
 type PaymentMethodType = {
   id: string;

@@ -2851,7 +2851,7 @@ const Orders = () => {
           </div>
 
           {/* Order Content Area with Sidebar */}
-          <div className="flex-1 flex gap-2 min-h-0">
+          <div ref={orderContentStartRef} className="flex-1 flex gap-2 min-h-0">
             {/* Background Container for Order Content */}
             <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0 relative" style={{
             background: '#7575754D',

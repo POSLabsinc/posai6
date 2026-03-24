@@ -99,9 +99,10 @@ You MUST interpret natural, informal, and colloquial human language. Staff speak
 23. After a successful lookup, ALWAYS call set_guest_name with the found customer's name AND set_guest_phone with their phone number. This triggers the past order popup automatically.
 24. When asked to repeat a past order, first ensure the customer is looked up, then call get_past_orders.
 25. After receiving past order data, add each product to the cart using add_product calls.
-26. If no customer is found, inform the staff and ask for correct details.
+26. If no customer is found by phone, ask the staff if they want to create a new guest. If they confirm (or if the original request implies adding), call create_guest with the phone number and name.
 27. Phone numbers can be in any format (with or without country code, dashes, spaces). Always pass the raw digits to lookup_customer.
-28. When user says "add guest" or "find guest" with a phone number, use lookup_customer with the phone parameter.`;
+28. When user says "add guest" or "find guest" with a phone number, use lookup_customer with the phone parameter. If not found, offer to create.
+29. After creating a new guest, call set_guest_name and set_guest_phone to link them to the current order.`;
 
 const tools = [
   {
@@ -275,6 +276,22 @@ const tools = [
       },
     },
   },
+  {
+    type: "function",
+    function: {
+      name: "create_guest",
+      description: "Create a new guest in the guest book when no existing guest is found. Use after a failed lookup_customer when the user wants to add a new guest.",
+      parameters: {
+        type: "object",
+        properties: {
+          name: { type: "string", description: "Guest name" },
+          phone: { type: "string", description: "Guest phone number" },
+          email: { type: "string", description: "Guest email (optional)" },
+        },
+        required: ["name", "phone"],
+      },
+    },
+  },
 ];
 
 // Detect if user is asking about settings vs order operations
@@ -435,8 +452,12 @@ async function lookupCustomer(supabaseUrl: string, serviceRoleKey: string, name?
 
   if (phone) {
     const cleanDigits = phone.replace(/\D/g, "");
-    if (cleanDigits.length >= 7) {
-      query = query.ilike("phone", `%${cleanDigits.slice(-10)}%`);
+    if (cleanDigits.length >= 4) {
+      // Try matching last 10 digits, or fewer if phone is short
+      const matchDigits = cleanDigits.length >= 10 ? cleanDigits.slice(-10) : cleanDigits;
+      query = query.ilike("phone", `%${matchDigits}%`);
+    } else {
+      return { found: false, message: `Phone number "${phone}" is too short. Please provide at least 4 digits.` };
     }
   } else if (name) {
     query = query.ilike("name", `%${name.trim()}%`);
@@ -445,13 +466,43 @@ async function lookupCustomer(supabaseUrl: string, serviceRoleKey: string, name?
   }
 
   const { data, error } = await query.limit(5);
-  if (error || !data?.length) return { found: false, message: `No customer found${name ? ` named "${name}"` : ""}${phone ? ` with phone "${phone}"` : ""}.` };
+  if (error || !data?.length) return { found: false, message: `No customer found${name ? ` named "${name}"` : ""}${phone ? ` with phone "${phone}"` : ""}. You can create a new guest using create_guest.` };
 
   if (data.length === 1) {
     const g = data[0];
     return { found: true, guest_id: g.id, name: g.name, phone: g.phone || "", email: g.email || "", loyalty: g.loyalty || "None", order_count: g.order_count || 0, last_order_date: g.last_order_date || "Never", points: g.loyalty_points_balance || 0 };
   }
   return { found: true, multiple: true, customers: data.map((g: any) => ({ guest_id: g.id, name: g.name, phone: g.phone || "", order_count: g.order_count || 0 })) };
+}
+
+// Create a new guest in the database
+async function createGuest(supabaseUrl: string, serviceRoleKey: string, name: string, phone: string, email?: string): Promise<any> {
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  const cleanPhone = phone.replace(/\D/g, "");
+  
+  // Check for existing guest with same phone to avoid duplicates
+  if (cleanPhone.length >= 4) {
+    const { data: existing } = await supabase.from("guests").select("id, name, phone").eq("is_archived", false).ilike("phone", `%${cleanPhone.slice(-10)}%`).limit(1);
+    if (existing?.length) {
+      return { created: false, existing: true, guest_id: existing[0].id, name: existing[0].name, phone: existing[0].phone, message: `A guest with phone ${phone} already exists: ${existing[0].name}. Using existing guest.` };
+    }
+  }
+
+  const initials = name.split(" ").map((w: string) => w[0]?.toUpperCase()).join("").slice(0, 2);
+  const bgColors = ["#6B7280", "#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6", "#EC4899"];
+  const avatarBg = bgColors[Math.floor(Math.random() * bgColors.length)];
+
+  const { data, error } = await supabase.from("guests").insert({
+    name,
+    phone: cleanPhone,
+    email: email || "",
+    initials,
+    avatar_bg: avatarBg,
+    since: new Date().toISOString().split("T")[0],
+  }).select("id, name, phone, email").single();
+
+  if (error) return { created: false, message: `Failed to create guest: ${error.message}` };
+  return { created: true, guest_id: data.id, name: data.name, phone: data.phone, email: data.email || "", message: `New guest "${name}" created successfully.` };
 }
 
 // Get past orders for a guest
@@ -571,8 +622,8 @@ ${orderContext?.availableProducts?.map((p: any) => `- ${p.name}: $${p.price.toFi
     const firstChoice = firstResult.choices?.[0];
     const toolCalls = firstChoice?.message?.tool_calls;
 
-    // Check if any server-side tools (lookup_customer, get_past_orders) need execution
-    const serverToolNames = ["lookup_customer", "get_past_orders"];
+    // Check if any server-side tools need execution
+    const serverToolNames = ["lookup_customer", "get_past_orders", "create_guest"];
     const hasServerTools = toolCalls?.some((tc: any) => serverToolNames.includes(tc.function?.name));
 
     if (hasServerTools && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
@@ -587,6 +638,9 @@ ${orderContext?.availableProducts?.map((p: any) => `- ${p.name}: $${p.price.toFi
           toolResults.push({ tool_call_id: tc.id, role: "tool", content: JSON.stringify(result) });
         } else if (fnName === "get_past_orders") {
           const result = await getPastOrders(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, args.guest_id);
+          toolResults.push({ tool_call_id: tc.id, role: "tool", content: JSON.stringify(result) });
+        } else if (fnName === "create_guest") {
+          const result = await createGuest(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, args.name, args.phone, args.email);
           toolResults.push({ tool_call_id: tc.id, role: "tool", content: JSON.stringify(result) });
         }
       }

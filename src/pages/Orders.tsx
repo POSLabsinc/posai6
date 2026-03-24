@@ -4005,17 +4005,22 @@ const Orders = () => {
           toast.success(`${items.length} product${items.length > 1 ? 's' : ''} added to cart`);
         }}
         onRepeatFullOrder={(items) => {
-          for (const item of items) {
-            setOrderItems(prev => {
-              const existing = prev.find(o => o.name.toLowerCase() === item.name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
+          const availableItems = items.filter(i => i.isAvailable !== false);
+          setOrderItems(prev => {
+            let updated = [...prev];
+            for (const item of availableItems) {
+              const existing = updated.find(o => o.name.toLowerCase() === item.name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
               if (existing) {
-                return prev.map(o => o.id === existing.id ? { ...o, qty: o.qty + item.quantity } : o);
+                updated = updated.map(o => o.id === existing.id ? { ...o, qty: o.qty + item.quantity } : o);
+              } else {
+                updated = [...updated, { id: Date.now() + Math.random(), qty: item.quantity, name: item.name, price: item.price }];
               }
-              return [...prev, { id: Date.now() + Math.random(), qty: item.quantity, name: item.name, price: item.price }];
-            });
-          }
-          toast.success(`Full order repeated: ${items.length} products added`);
+            }
+            return updated;
+          });
+          toast.success(`Full order repeated: ${availableItems.length} products added`);
           setShowPastOrderPopup(false);
+          setTimeout(() => setShowPaymentDialog(true), 300);
         }}
       />
     )}

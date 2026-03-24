@@ -512,7 +512,7 @@ export function DiscountDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`p-0 gap-0 border-0 overflow-hidden transition-all duration-300 ${needsReason ? 'sm:max-w-[1060px]' : 'sm:max-w-[740px]'}`}
+        className={`p-0 gap-0 border-0 overflow-hidden transition-all duration-300 ${needsReason ? 'sm:max-w-[1040px]' : 'sm:max-w-[740px]'}`}
         style={{ background: '#1a1a1e', borderRadius: '16px' }}
         hideCloseButton
       >

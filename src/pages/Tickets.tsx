@@ -2519,7 +2519,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         ) : (
           <>
             <button 
-              onClick={() => setIsClearDialogOpen(true)}
+              onClick={handleClearOrderAttempt}
               className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
             >
               <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />

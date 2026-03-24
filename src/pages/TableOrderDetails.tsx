@@ -305,8 +305,48 @@ const TableOrderDetails = () => {
   const transferDestArea = getOrderArea(transferredToOrderId);
   
   // Get session orders for this table
-  const { getOrdersByTable: getSessionOrdersByTable, saveSplitConfiguration } = useSessionOrders();
+  const { getOrdersByTable: getSessionOrdersByTable, saveSplitConfiguration, deleteOrder: deleteSessionOrder } = useSessionOrders();
   const sessionOrdersForTable = tableId ? getSessionOrdersByTable(tableId) : [];
+
+  // Cancel order state
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false);
+  const [cancelReason, setCancelReason] = useState('');
+  const [customCancelReason, setCustomCancelReason] = useState('');
+  const [cancelTargetOrderId, setCancelTargetOrderId] = useState<string | null>(null);
+
+  const handleCancelOrderAttempt = (orderId: string) => {
+    setCancelReason('');
+    setCustomCancelReason('');
+    setCancelTargetOrderId(orderId);
+    setShowCancelConfirm(true);
+  };
+
+  const handleCancelOrderConfirm = () => {
+    if (!cancelTargetOrderId) return;
+    const selectedReason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
+    console.log('[TableOrder CancelOrder] orderId:', cancelTargetOrderId, 'reason:', selectedReason);
+    
+    // Try session order first
+    const sessionOrder = sessionOrdersForTable.find(so => so.id === cancelTargetOrderId);
+    if (sessionOrder) {
+      deleteSessionOrder(sessionOrder.sessionId);
+    }
+    
+    // Also try unified order (update status to CANCELLED)
+    const unifiedOrder = unifiedOrders.find(o => o.id === cancelTargetOrderId);
+    if (unifiedOrder) {
+      updateOrder(cancelTargetOrderId, { status: 'CANCELLED' as any });
+    }
+    
+    // Clear selection if cancelled order was selected
+    if (currentSelectedGuest?.id === cancelTargetOrderId) {
+      setCurrentSelectedGuest(null as any);
+    }
+    
+    setShowCancelConfirm(false);
+    setCancelTargetOrderId(null);
+    toast.success('Order cancelled');
+  };
 
   // Get session ID for the current order (for persisting split config)
   const getSessionIdForOrder = (orderId: string): string | undefined => {

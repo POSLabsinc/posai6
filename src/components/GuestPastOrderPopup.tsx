@@ -240,7 +240,7 @@ const GuestPastOrderPopup = ({
                     }}
                     onMouseLeave={e => {
                       if (!unavailable && !selected) e.currentTarget.style.background = "transparent";
-                      if (selected) e.currentTarget.style.background = "rgba(249,115,22,0.08)";
+                      if (selected) e.currentTarget.style.background = "rgba(255,255,255,0.06)";
                     }}
                   >
                     {/* Checkbox */}

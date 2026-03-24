@@ -1852,6 +1852,7 @@ const Dashboard = () => {
             isSplitCheckSelected={!!selectedSplitCheck}
             hasSplitConfiguration={!!(selectedOrder?.splitConfiguration && selectedOrder.splitConfiguration.checks.length > 0)}
             onMergeClick={handleMergeClick}
+            onCancelOrder={handleCancelOrderAttempt}
           />
         </div>
       </div>

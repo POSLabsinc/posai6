@@ -364,7 +364,7 @@ export function DiscountDialog({
 
   // -- Reason column --
   const reasonColumn = (
-    <div className="flex flex-col" style={{ width: isMobile ? '100%' : '300px', minWidth: isMobile ? undefined : '300px', borderLeft: isMobile ? 'none' : '0.5px solid rgba(255,255,255,0.08)', background: '#1d1d22' }}>
+    <div className="flex flex-col" style={{ width: isMobile ? '100%' : '300px', minWidth: isMobile ? undefined : '300px', borderLeft: isMobile ? 'none' : '0.5px solid rgba(255,255,255,0.08)', background: '#1a1a1e' }}>
       <div className="px-5 pt-5 pb-3">
         <h3 className="text-base font-semibold text-white">Reason</h3>
         <p className="text-xs mt-0.5" style={{ color: '#777' }}>Select a reason for the comp</p>

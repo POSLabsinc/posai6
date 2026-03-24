@@ -957,14 +957,15 @@ const Dashboard = () => {
     const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
     console.log('[Dashboard CancelOrder] order:', selectedOrder?.id, 'reason:', reason);
     if (selectedOrder) {
+      const orderId = String(selectedOrder.id);
       // Try to find and cancel as session order
-      const sessionOrder = sessionOrders.find(so => so.id === selectedOrder.id);
+      const sessionOrder = sessionOrders.find(so => so.id === orderId);
       if (sessionOrder) {
         deleteSessionOrder(sessionOrder.sessionId);
       }
       
       // Also update DB ticket order status to CANCELLED
-      const dbOrder = dbTicketOrders.find(o => o.id === selectedOrder.id);
+      const dbOrder = dbTicketOrders.find(o => o.id === orderId);
       if (dbOrder) {
         updateDashboardTicketOrder(dbOrder.id, { status: 'CANCELLED' }).catch(console.error);
       }

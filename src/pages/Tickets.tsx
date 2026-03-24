@@ -913,6 +913,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   
   // Handle clearing/voiding the current order
   const handleClearOrder = () => {
+    const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
+    console.log('[Tickets CancelOrder] order:', selectedGuest.id, 'reason:', reason);
     // Mark all items as removed for the current order
     const newRemovedItems = new Set(removedItems);
     selectedGuest.items.forEach((item, index) => {
@@ -928,6 +930,13 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     });
     setNoTaxItems(newNoTaxItems);
     setIsClearDialogOpen(false);
+    toast.success('Order cancelled');
+  };
+  
+  const handleClearOrderAttempt = () => {
+    setCancelReason('');
+    setCustomCancelReason('');
+    setIsClearDialogOpen(true);
   };
   
   // Order notes state - stores updated notes by order ID

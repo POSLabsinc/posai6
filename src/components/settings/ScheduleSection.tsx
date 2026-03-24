@@ -186,37 +186,36 @@
  
    const applyQuickDatePreset = (preset: typeof QUICK_DATE_PRESETS[0]) => {
      const { start, end } = preset.getValue();
-     onStartDateChange(start);
-     onEndDateChange(end);
-     setShowQuickDateMenu(false);
-   };
- 
-   const applyQuickTimePreset = (preset: typeof QUICK_TIME_PRESETS[0]) => {
-     onDaySchedulesChange(daySchedules.map(schedule => ({
-       ...schedule,
-       startTime: preset.startTime,
-       endTime: preset.endTime,
-       enabled: true,
-     })));
-     setShowQuickTimeMenu(false);
-   };
- 
-   const applyToWeekdays = () => {
-     const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
-     onDaySchedulesChange(daySchedules.map(schedule => ({
-       ...schedule,
-       enabled: weekdays.includes(schedule.day),
-     })));
-     setShowQuickTimeMenu(false);
-   };
- 
-   const applyToAllDays = () => {
-     onDaySchedulesChange(daySchedules.map(schedule => ({
-       ...schedule,
-       enabled: true,
-     })));
-     setShowQuickTimeMenu(false);
-   };
+      onStartDateChange(start);
+      onEndDateChange(end);
+    };
+
+    const applyQuickTimePreset = (preset: typeof QUICK_TIME_PRESETS[0]) => {
+      onDaySchedulesChange(daySchedules.map(schedule => ({
+        ...schedule,
+        startTime: preset.startTime,
+        endTime: preset.endTime,
+        enabled: true,
+      })));
+      setShowQuickSetMenu(false);
+    };
+
+    const applyToWeekdays = () => {
+      const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+      onDaySchedulesChange(daySchedules.map(schedule => ({
+        ...schedule,
+        enabled: weekdays.includes(schedule.day),
+      })));
+      setShowQuickSetMenu(false);
+    };
+
+    const applyToAllDays = () => {
+      onDaySchedulesChange(daySchedules.map(schedule => ({
+        ...schedule,
+        enabled: true,
+      })));
+      setShowQuickSetMenu(false);
+    };
  
    const openCopyMenu = (index: number) => {
      setCopySourceIndex(index);

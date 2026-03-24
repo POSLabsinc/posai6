@@ -918,8 +918,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     
     // Persist cancellation to database
     if (selectedGuest.id) {
-      updateTicketOrder(selectedGuest.id, { status: 'CANCELLED' }).catch(console.error);
-      updateOrder(selectedGuest.id, { status: 'CANCELLED' as any }).catch(console.error);
+      updateTicketOrder(selectedGuest.id, { status: 'CANCELLED' })?.catch?.(console.error);
+      try { updateOrder(selectedGuest.id, { status: 'CANCELLED' as any }); } catch(e) { console.error(e); }
     }
     
     // Mark all items as removed for the current order

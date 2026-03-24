@@ -642,7 +642,28 @@ const Orders = () => {
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>([]);
   const [clearCounter, setClearCounter] = useState(0);
 
-  // Toggle seat selection for table orders
+  // Dynamic AI overlay top offset: align with order content area
+  useLayoutEffect(() => {
+    const recalc = () => {
+      if (menuPanelRef.current && orderContentStartRef.current) {
+        const menuRect = menuPanelRef.current.getBoundingClientRect();
+        const orderContentRect = orderContentStartRef.current.getBoundingClientRect();
+        const offset = Math.max(0, Math.round(orderContentRect.top - menuRect.top));
+        setAiOverlayTop(offset);
+      }
+    };
+    recalc();
+    window.addEventListener('resize', recalc);
+    const observer = new ResizeObserver(recalc);
+    if (menuPanelRef.current) observer.observe(menuPanelRef.current);
+    if (orderContentStartRef.current) observer.observe(orderContentStartRef.current);
+    return () => {
+      window.removeEventListener('resize', recalc);
+      observer.disconnect();
+    };
+  }, [isAIChatOpen, isOrderActionsSidebarOpen, panelLayout]);
+
+
   const toggleSeatSelection = (seatNumber: number) => {
     setSelectedSeats((prev) => {
       if (prev.includes(seatNumber)) {

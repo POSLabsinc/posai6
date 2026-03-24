@@ -270,18 +270,26 @@ export function DiscountDialog({
   const totalSavings = selectedDiscount ? calculateDiscountAmount(selectedDiscount) : 0;
   const canApply = selectedDiscount && (!needsReason || !!selectedReason);
 
+  // -- Header --
+  const header = (
+    <div className="px-5 pt-5 pb-1">
+      <h3 className="text-lg font-semibold text-white">Discounts</h3>
+      <p className="text-xs mt-0.5" style={{ color: '#777' }}>Select a discount below</p>
+    </div>
+  );
+
   // -- Search + filter bar --
   const searchAndFilter = (
-    <div className="px-4 pt-4 pb-2 flex flex-col gap-2">
-      <div className="flex items-center gap-2">
+    <div className="px-5 pt-2 pb-2">
+      <div className="flex items-center gap-3">
         <div className="flex-1 relative">
-          <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#666' }} />
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#666' }} />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search discounts..."
-            className="w-full pl-8 pr-3 py-2 rounded-lg text-xs text-white placeholder:text-neutral-600 focus:outline-none"
+            className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none"
             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
           />
         </div>
@@ -290,7 +298,7 @@ export function DiscountDialog({
             <button
               key={tab}
               onClick={() => setActiveFilter(tab)}
-              className="px-2.5 py-1.5 rounded-md text-[10px] font-medium transition-all"
+              className="px-3 py-2 rounded-lg text-xs font-medium transition-all"
               style={{
                 background: activeFilter === tab ? 'rgba(255,255,255,0.12)' : 'transparent',
                 color: activeFilter === tab ? '#fff' : '#666',
@@ -307,34 +315,35 @@ export function DiscountDialog({
   // -- Discount grid (no scroll) --
   const discountGrid = (
     <div className="flex flex-col" style={{ width: isMobile ? '100%' : needsReason ? '65%' : '100%' }}>
+      {header}
       {searchAndFilter}
-      <div className="mx-3 mb-2" style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
-      <div className="px-3 pb-3">
-        <div className={`grid gap-1.5 ${isMobile ? 'grid-cols-3' : needsReason ? 'grid-cols-3' : 'grid-cols-4'}`}>
+      <div className="mx-4 mb-3" style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
+      <div className="px-4 pb-4">
+        <div className={`grid gap-2.5 ${isMobile ? 'grid-cols-3' : needsReason ? 'grid-cols-3' : 'grid-cols-4'}`}>
           {filteredDiscounts.map((discount) => {
             const isSelected = selectedDiscount?.id === discount.id;
             return (
               <button
                 key={discount.id}
                 onClick={() => handleSelectDiscount(discount)}
-                className="flex flex-col items-center justify-center px-1.5 py-2.5 rounded-lg transition-all text-center"
+                className="flex flex-col items-center justify-center px-2 py-4 rounded-xl transition-all text-center"
                 style={{
                   background: isSelected ? 'rgba(255,255,255,0.12)' : 'rgba(255,255,255,0.025)',
                   border: isSelected ? '1.5px solid rgba(255,255,255,0.5)' : '1px solid rgba(255,255,255,0.06)',
                 }}
               >
-                <span className="text-[10px] font-medium text-white leading-tight" style={{ wordBreak: 'break-word' }}>
+                <span className="text-[13px] font-medium text-white leading-snug" style={{ wordBreak: 'break-word' }}>
                   {discount.name}
                 </span>
-                <span className="text-[10px] font-semibold mt-0.5" style={{ color: isSelected ? '#fff' : '#888' }}>
+                <span className="text-xs font-semibold mt-1" style={{ color: isSelected ? '#fff' : '#999' }}>
                   {discount.type === "percentage" ? `${discount.value}%` : `$${discount.value.toFixed(2)}`}
                 </span>
               </button>
             );
           })}
           {filteredDiscounts.length === 0 && (
-            <div className="col-span-full py-6 text-center">
-              <p className="text-xs" style={{ color: '#555' }}>No discounts found</p>
+            <div className="col-span-full py-8 text-center">
+              <p className="text-sm" style={{ color: '#555' }}>No discounts found</p>
             </div>
           )}
         </div>
@@ -345,9 +354,9 @@ export function DiscountDialog({
   // -- Reason column --
   const reasonColumn = (
     <div className="flex flex-col" style={{ width: isMobile ? '100%' : '35%', borderLeft: isMobile ? 'none' : '0.5px solid rgba(255,255,255,0.08)', background: '#1d1d22' }}>
-      <div className="px-4 pt-4 pb-3">
-        <h3 className="text-[15px] font-medium text-white">Reason</h3>
-        <p className="text-[11px] mt-0.5" style={{ color: '#888' }}>Select a reason for the comp</p>
+      <div className="px-5 pt-5 pb-3">
+        <h3 className="text-base font-semibold text-white">Reason</h3>
+        <p className="text-xs mt-0.5" style={{ color: '#777' }}>Select a reason for the comp</p>
       </div>
       <div className="mx-3 mb-2" style={{ height: '0.5px', background: 'rgba(255,255,255,0.08)' }} />
       {needsReason ? (
@@ -380,8 +389,8 @@ export function DiscountDialog({
                   {r.isAI && !isSelected && (
                     <Zap className="w-2 h-2 absolute top-1 right-1" style={{ color: 'rgba(245,166,35,0.4)' }} />
                   )}
-                  <r.icon className="w-4 h-4" style={{ color: isSelected ? '#fff' : '#888' }} />
-                  <span className="text-[9px] font-medium text-center leading-tight" style={{ color: isSelected ? '#fff' : '#aaa' }}>
+                  <r.icon className="w-5 h-5" style={{ color: isSelected ? '#fff' : '#888' }} />
+                  <span className="text-[11px] font-medium text-center leading-tight" style={{ color: isSelected ? '#fff' : '#aaa' }}>
                     {r.label}
                   </span>
                 </button>
@@ -416,15 +425,15 @@ export function DiscountDialog({
 
   // -- Footer --
   const footer = (
-    <div className="flex items-center justify-between px-4 py-2.5" style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
+    <div className="flex items-center justify-between px-5 py-3.5" style={{ borderTop: '0.5px solid rgba(255,255,255,0.08)' }}>
       <div>
-        <p className="text-[10px] font-medium uppercase tracking-wider" style={{ color: '#666' }}>Total savings</p>
-        <p className="text-[15px] font-medium text-white">-${totalSavings.toFixed(2)}</p>
+        <p className="text-[11px] font-medium uppercase tracking-wider" style={{ color: '#666' }}>Total savings</p>
+        <p className="text-lg font-semibold text-white">-${totalSavings.toFixed(2)}</p>
       </div>
       <button
         onClick={handleApply}
         disabled={!canApply}
-        className="px-8 py-2 rounded-lg text-sm font-medium transition-all"
+        className="px-10 py-2.5 rounded-xl text-sm font-semibold transition-all"
         style={{
           background: canApply ? '#fff' : 'rgba(255,255,255,0.1)',
           color: canApply ? '#1a1a1e' : '#555',
@@ -475,7 +484,7 @@ export function DiscountDialog({
 
   // -- Desktop: wide, side-by-side, no scroll --
   const dialogContent = (
-    <div className="flex flex-col" style={{ background: '#1a1a1e', borderRadius: '12px', overflow: 'hidden' }}>
+    <div className="flex flex-col" style={{ background: '#1a1a1e', borderRadius: '16px', overflow: 'hidden' }}>
       <div className="flex min-h-0">
         {discountGrid}
         {needsReason && reasonColumn}
@@ -492,8 +501,8 @@ export function DiscountDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
-        className={`p-0 gap-0 border-0 overflow-hidden transition-all duration-200 ${needsReason ? 'sm:max-w-[780px]' : 'sm:max-w-[620px]'}`}
-        style={{ background: '#1a1a1e', borderRadius: '12px' }}
+        className={`p-0 gap-0 border-0 overflow-hidden transition-all duration-200 ${needsReason ? 'sm:max-w-[880px]' : 'sm:max-w-[740px]'}`}
+        style={{ background: '#1a1a1e', borderRadius: '16px' }}
         hideCloseButton
       >
         {dialogContent}

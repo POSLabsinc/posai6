@@ -797,6 +797,60 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         } else {
           toast({ title: "Update Failed", description: action.error || `Failed to update ${label}.`, variant: "destructive" });
         }
+      } else if (action?.type === "generate_report") {
+        // Fetch report data from database
+        try {
+          const startDate = action.startDate || new Date().toISOString().split("T")[0];
+          const endDate = action.endDate || new Date().toISOString().split("T")[0];
+          const startTime = action.startTime || "00:00";
+          const endTime = action.endTime || "23:59";
+          
+          const startISO = new Date(`${startDate}T${startTime}:00`).toISOString();
+          const endISO = new Date(`${endDate}T${endTime}:59.999`).toISOString();
+          
+          const [ordersRes, itemsRes] = await Promise.all([
+            (supabase as any).from("orders").select("*").gte("created_at", startISO).lte("created_at", endISO).order("created_at", { ascending: false }),
+            (supabase as any).from("order_items").select("*, orders!inner(created_at)").gte("orders.created_at", startISO).lte("orders.created_at", endISO),
+          ]);
+
+          const orders = ordersRes.data || [];
+          const orderItems = itemsRes.data || [];
+          const completed = orders.filter((o: any) => o.status === "completed");
+          const refunded = orders.filter((o: any) => o.status === "refunded");
+          
+          const orderSummary = {
+            numberOfOrders: completed.length,
+            numberOfRefunds: refunded.length,
+            refundAmount: refunded.reduce((s: number, o: any) => s + Number(o.refund_amount), 0),
+            netSales: completed.reduce((s: number, o: any) => s + Number(o.subtotal) - Number(o.discount_amount), 0),
+            discounts: orders.reduce((s: number, o: any) => s + Number(o.discount_amount), 0),
+            tips: orders.reduce((s: number, o: any) => s + Number(o.tip_amount), 0),
+            tax: completed.reduce((s: number, o: any) => s + Number(o.tax_amount), 0),
+            total: completed.reduce((s: number, o: any) => s + Number(o.total), 0),
+          };
+
+          const paymentMap = new Map<string, { transactions: number; amount: number }>();
+          completed.forEach((o: any) => {
+            const existing = paymentMap.get(o.payment_type) || { transactions: 0, amount: 0 };
+            paymentMap.set(o.payment_type, { transactions: existing.transactions + 1, amount: existing.amount + Number(o.total) });
+          });
+          const paymentTypes = Array.from(paymentMap.entries()).map(([type, d]) => ({ type, ...d }));
+
+          const completedIds = new Set(completed.map((o: any) => o.id));
+          const catMap = new Map<string, { products: number; sales: number }>();
+          orderItems.filter((i: any) => completedIds.has(i.order_id)).forEach((i: any) => {
+            const existing = catMap.get(i.category) || { products: 0, sales: 0 };
+            catMap.set(i.category, { products: existing.products + Number(i.quantity), sales: existing.sales + Number(i.total_price) });
+          });
+          const categories = Array.from(catMap.entries()).map(([name, d]) => ({ name, ...d })).sort((a, b) => b.sales - a.sales);
+
+          const formatDate = (d: string) => { const dt = new Date(d + "T00:00:00"); return dt.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }); };
+          const dateRange = startDate === endDate ? formatDate(startDate) : `${formatDate(startDate)} – ${formatDate(endDate)}`;
+
+          reportData = { orderSummary, paymentTypes, categories, dateRange };
+        } catch (e) {
+          console.error("Report generation error:", e);
+        }
       } else if (action?.type === "navigate" && action.path) {
         navigateTo = action.path;
       }
@@ -831,6 +885,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         navigateTo,
         quickReplies: data.quickReplies || undefined,
         multiSelect: data.multiSelect === true,
+        reportData,
       };
 
       // Clear quickReplies from previous assistant messages

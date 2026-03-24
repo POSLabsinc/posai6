@@ -293,18 +293,18 @@ export function DiscountDialog({
   const searchAndFilter = (
     <div className="px-5 pt-1 pb-3">
       <div className="flex items-center gap-3">
-        <div className="flex-1 relative">
+        <div className="relative" style={{ width: '260px', minWidth: '260px' }}>
           <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: '#666' }} />
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search discounts..."
+            placeholder="Search discounts"
             className="w-full pl-9 pr-3 py-2.5 rounded-xl text-sm text-white placeholder:text-neutral-600 focus:outline-none"
             style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
           />
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 flex-1 justify-end">
           {FILTER_TABS.map(tab => (
             <button
               key={tab}

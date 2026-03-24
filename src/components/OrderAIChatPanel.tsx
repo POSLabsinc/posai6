@@ -48,6 +48,7 @@ interface OrderActions {
   updateQuantity: (name: string, quantity: number) => void;
   setOrderType: (type: string) => void;
   setGuestName: (name: string) => void;
+  setGuestPhone: (phone: string) => void;
   clearOrder: () => void;
   setOrderNotes: (notes: string) => void;
   openPayment?: () => void;

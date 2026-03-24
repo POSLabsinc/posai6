@@ -748,6 +748,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       let pendingChange: PendingChange | undefined;
       let navigateTo: string | undefined;
       let appliedChange: AppliedChange | undefined;
+      let reportData: ReportData | undefined;
 
       // Process the AI action
       const action = data.action as AIAction;

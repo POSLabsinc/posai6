@@ -208,6 +208,20 @@ const tools = [
   {
     type: "function",
     function: {
+      name: "set_guest_phone",
+      description: "Set the guest phone number for the order. Use after looking up a customer to populate the phone field.",
+      parameters: {
+        type: "object",
+        properties: {
+          phone: { type: "string", description: "The guest phone number" },
+        },
+        required: ["phone"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
       name: "clear_order",
       description: "Clear all products from the current order",
       parameters: {

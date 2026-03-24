@@ -452,8 +452,12 @@ async function lookupCustomer(supabaseUrl: string, serviceRoleKey: string, name?
 
   if (phone) {
     const cleanDigits = phone.replace(/\D/g, "");
-    if (cleanDigits.length >= 7) {
-      query = query.ilike("phone", `%${cleanDigits.slice(-10)}%`);
+    if (cleanDigits.length >= 4) {
+      // Try matching last 10 digits, or fewer if phone is short
+      const matchDigits = cleanDigits.length >= 10 ? cleanDigits.slice(-10) : cleanDigits;
+      query = query.ilike("phone", `%${matchDigits}%`);
+    } else {
+      return { found: false, message: `Phone number "${phone}" is too short. Please provide at least 4 digits.` };
     }
   } else if (name) {
     query = query.ilike("name", `%${name.trim()}%`);
@@ -462,13 +466,43 @@ async function lookupCustomer(supabaseUrl: string, serviceRoleKey: string, name?
   }
 
   const { data, error } = await query.limit(5);
-  if (error || !data?.length) return { found: false, message: `No customer found${name ? ` named "${name}"` : ""}${phone ? ` with phone "${phone}"` : ""}.` };
+  if (error || !data?.length) return { found: false, message: `No customer found${name ? ` named "${name}"` : ""}${phone ? ` with phone "${phone}"` : ""}. You can create a new guest using create_guest.` };
 
   if (data.length === 1) {
     const g = data[0];
     return { found: true, guest_id: g.id, name: g.name, phone: g.phone || "", email: g.email || "", loyalty: g.loyalty || "None", order_count: g.order_count || 0, last_order_date: g.last_order_date || "Never", points: g.loyalty_points_balance || 0 };
   }
   return { found: true, multiple: true, customers: data.map((g: any) => ({ guest_id: g.id, name: g.name, phone: g.phone || "", order_count: g.order_count || 0 })) };
+}
+
+// Create a new guest in the database
+async function createGuest(supabaseUrl: string, serviceRoleKey: string, name: string, phone: string, email?: string): Promise<any> {
+  const supabase = createClient(supabaseUrl, serviceRoleKey);
+  const cleanPhone = phone.replace(/\D/g, "");
+  
+  // Check for existing guest with same phone to avoid duplicates
+  if (cleanPhone.length >= 4) {
+    const { data: existing } = await supabase.from("guests").select("id, name, phone").eq("is_archived", false).ilike("phone", `%${cleanPhone.slice(-10)}%`).limit(1);
+    if (existing?.length) {
+      return { created: false, existing: true, guest_id: existing[0].id, name: existing[0].name, phone: existing[0].phone, message: `A guest with phone ${phone} already exists: ${existing[0].name}. Using existing guest.` };
+    }
+  }
+
+  const initials = name.split(" ").map((w: string) => w[0]?.toUpperCase()).join("").slice(0, 2);
+  const bgColors = ["#6B7280", "#EF4444", "#F59E0B", "#10B981", "#3B82F6", "#8B5CF6", "#EC4899"];
+  const avatarBg = bgColors[Math.floor(Math.random() * bgColors.length)];
+
+  const { data, error } = await supabase.from("guests").insert({
+    name,
+    phone: cleanPhone,
+    email: email || "",
+    initials,
+    avatar_bg: avatarBg,
+    since: new Date().toISOString().split("T")[0],
+  }).select("id, name, phone, email").single();
+
+  if (error) return { created: false, message: `Failed to create guest: ${error.message}` };
+  return { created: true, guest_id: data.id, name: data.name, phone: data.phone, email: data.email || "", message: `New guest "${name}" created successfully.` };
 }
 
 // Get past orders for a guest

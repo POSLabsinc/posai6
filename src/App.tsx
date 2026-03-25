@@ -15,6 +15,7 @@ import { UnifiedOrderProvider } from "@/contexts/UnifiedOrderContext";
 import { ThemePresetsProvider } from "@/contexts/ThemePresetsContext";
 import { useAutoRestart } from "@/hooks/useAutoRestart";
 import { useEndOfDayScheduler } from "@/hooks/useEndOfDayScheduler";
+import ClosingGracePeriodModal from "@/components/ClosingGracePeriodModal";
 import { AutoLockProvider } from "@/contexts/AutoLockContext";
 import { VoucherModeProvider } from "@/contexts/VoucherModeContext";
 import { SettingsManager } from "@/lib/settingsManager";

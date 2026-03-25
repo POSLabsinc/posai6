@@ -517,6 +517,45 @@ export type Database = {
         }
         Relationships: []
       }
+      closing_time_extensions: {
+        Row: {
+          created_at: string
+          device_id: string
+          extended_by: string | null
+          extension_date: string
+          extension_minutes: number
+          id: string
+          new_closing_time: string
+          original_closing_time: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          device_id?: string
+          extended_by?: string | null
+          extension_date?: string
+          extension_minutes?: number
+          id?: string
+          new_closing_time?: string
+          original_closing_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          device_id?: string
+          extended_by?: string | null
+          extension_date?: string
+          extension_minutes?: number
+          id?: string
+          new_closing_time?: string
+          original_closing_time?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       default_modifiers: {
         Row: {
           archived: boolean

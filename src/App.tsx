@@ -62,6 +62,7 @@ const ClosedTickets = lazy(() => import("./pages/ClosedTickets"));
 const Login = lazy(() => import("./pages/Login"));
 const KDSMessages = lazy(() => import("./pages/KDSMessages"));
 const KDS = lazy(() => import("./pages/KDS"));
+const ClosingGracePeriod = lazy(() => import("./pages/ClosingGracePeriod"));
 
 const queryClient = new QueryClient();
 
@@ -127,6 +128,7 @@ const AppInner = () => {
           <Route path="/orderos" element={<OrderOS />} />
           <Route path="/login" element={<Login />} />
           <Route path="/kds" element={<KDS />} />
+          <Route path="/closing-grace-period" element={<ClosingGracePeriod />} />
           <Route path="/kds/messages" element={<KDSMessages />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

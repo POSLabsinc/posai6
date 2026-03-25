@@ -87,6 +87,27 @@ async function fetchEodPrefs(): Promise<EodPrefs> {
   };
 }
 
+/** Check if today's closing time has been extended */
+async function fetchClosingExtension(): Promise<{ extended: boolean; newClosingTime: string; extensionMinutes: number } | null> {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data } = await (supabase as any)
+    .from("closing_time_extensions")
+    .select("extension_minutes, new_closing_time, status")
+    .eq("device_id", SHARED_DEVICE_ID)
+    .eq("extension_date", today)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (data && data.extension_minutes > 0) {
+    return {
+      extended: true,
+      newClosingTime: data.new_closing_time,
+      extensionMinutes: data.extension_minutes,
+    };
+  }
+  return null;
+}
+
 /**
  * Global hook — mount once at app root inside UnifiedOrderProvider.
  * Reads End of Day preferences from database and:
@@ -225,14 +246,25 @@ export function useEndOfDayScheduler() {
         }
       }
 
-      // ── Auto-run ──
+      // ── Auto-run (respect closing time extensions) ──
       if (prefs.autoRun && !autoRunDoneRef.current && !alreadyRanToday) {
-        const autoRunTarget = todayAt(to24(prefs.autoRunTime));
+        // Check if closing time was extended
+        let effectiveAutoRunTime = prefs.autoRunTime;
+        try {
+          const ext = await fetchClosingExtension();
+          if (ext?.extended) {
+            effectiveAutoRunTime = ext.newClosingTime;
+          }
+        } catch {
+          // Use default time if extension check fails
+        }
+
+        const autoRunTarget = todayAt(to24(effectiveAutoRunTime));
         const diffMs = now.getTime() - autoRunTarget.getTime();
-        // Trigger if within 0–60 seconds after target, or if we missed it (up to 5 min)
+        // Trigger if within 0-60 seconds after target, or if we missed it (up to 5 min)
         if (diffMs >= 0 && diffMs < 5 * 60_000) {
           autoRunDoneRef.current = true;
-          toast.info("Running End of Day automatically…", { duration: 3000 });
+          toast.info("Running End of Day automatically...", { duration: 3000 });
           setTimeout(() => runEndOfDay(prefs), 2000);
         }
       }

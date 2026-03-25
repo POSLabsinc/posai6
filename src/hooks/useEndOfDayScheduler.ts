@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from "react";
+import { useEffect, useRef, useCallback, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUnifiedOrdersSafe } from "@/contexts/UnifiedOrderContext";
 import { toast } from "sonner";
@@ -7,7 +7,9 @@ import { printEndOfDayReport } from "@/utils/eodReportPrinter";
 const CHECK_INTERVAL_MS = 15_000; // 15 seconds
 const EOD_LAST_RUN_KEY = "pos_eod_last_run";
 const EOD_REMINDER_SHOWN_KEY = "pos_eod_reminder_shown";
+const GRACE_PERIOD_SHOWN_KEY = "pos_grace_period_shown";
 const SHARED_DEVICE_ID = "shared";
+const GRACE_PERIOD_LEAD_MINUTES = 30; // Show modal 30 min before closing
 
 function getSharedDeviceId(): string {
   return SHARED_DEVICE_ID;
@@ -95,17 +97,37 @@ async function fetchClosingExtension(): Promise<{ extended: boolean; newClosingT
     .select("extension_minutes, new_closing_time, status")
     .eq("device_id", SHARED_DEVICE_ID)
     .eq("extension_date", today)
-    .eq("status", "active")
     .maybeSingle();
 
-  if (data && data.extension_minutes > 0) {
+  if (!data) return null;
+
+  // Any record (active or declined) means user already decided today
+  if (data.status === "active" && data.extension_minutes > 0) {
     return {
       extended: true,
       newClosingTime: data.new_closing_time,
       extensionMinutes: data.extension_minutes,
     };
   }
-  return null;
+  // Declined or 0-minute extension means no extension but decision was made
+  return { extended: false, newClosingTime: "10:00 PM", extensionMinutes: 0 };
+}
+
+/** Check if user has already made a closing decision today */
+async function hasClosingDecisionToday(): Promise<boolean> {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data } = await (supabase as any)
+    .from("closing_time_extensions")
+    .select("id")
+    .eq("device_id", SHARED_DEVICE_ID)
+    .eq("extension_date", today)
+    .maybeSingle();
+  return !!data;
+}
+
+export interface EndOfDaySchedulerState {
+  showGracePeriodModal: boolean;
+  setShowGracePeriodModal: (show: boolean) => void;
 }
 
 /**
@@ -114,12 +136,14 @@ async function fetchClosingExtension(): Promise<{ extended: boolean; newClosingT
  * 1. Shows a reminder toast at the configured reminder time
  * 2. Auto-runs the EOD process at the configured auto-run time
  */
-export function useEndOfDayScheduler() {
+export function useEndOfDayScheduler(): EndOfDaySchedulerState {
   const ctx = useUnifiedOrdersSafe();
   const orders = ctx?.orders ?? [];
   const updateOrders = ctx?.updateOrders ?? (() => {});
   const reminderShownRef = useRef(false);
   const autoRunDoneRef = useRef(false);
+  const graceShownRef = useRef(false);
+  const [showGracePeriodModal, setShowGracePeriodModal] = useState(false);
 
   // Reset flags at midnight or when day changes
   const lastDayRef = useRef(todayKey());
@@ -203,7 +227,9 @@ export function useEndOfDayScheduler() {
         lastDayRef.current = today;
         reminderShownRef.current = false;
         autoRunDoneRef.current = false;
+        graceShownRef.current = false;
         localStorage.removeItem(EOD_REMINDER_SHOWN_KEY);
+        localStorage.removeItem(GRACE_PERIOD_SHOWN_KEY);
       }
 
       // Skip if already shown reminder AND already ran today
@@ -268,8 +294,32 @@ export function useEndOfDayScheduler() {
           setTimeout(() => runEndOfDay(prefs), 2000);
         }
       }
+
+      // ── Grace Period Modal (30 min before closing) ──
+      const graceAlreadyShown = localStorage.getItem(GRACE_PERIOD_SHOWN_KEY) === today;
+      if (!graceShownRef.current && !graceAlreadyShown) {
+        try {
+          const alreadyDecided = await hasClosingDecisionToday();
+          if (!alreadyDecided) {
+            // Default closing time is 10:00 PM (22:00), check 30 min before
+            const closingTarget = todayAt(to24("10:00 PM"));
+            const graceTarget = new Date(closingTarget.getTime() - GRACE_PERIOD_LEAD_MINUTES * 60_000);
+            const diffMs = now.getTime() - graceTarget.getTime();
+            // Show if within 0-5 min window after the grace trigger time
+            if (diffMs >= 0 && diffMs < 5 * 60_000) {
+              graceShownRef.current = true;
+              localStorage.setItem(GRACE_PERIOD_SHOWN_KEY, today);
+              setShowGracePeriodModal(true);
+            }
+          }
+        } catch {
+          // Skip grace period check on error
+        }
+      }
     }, CHECK_INTERVAL_MS);
 
     return () => clearInterval(interval);
   }, [runEndOfDay]);
+
+  return { showGracePeriodModal, setShowGracePeriodModal };
 }

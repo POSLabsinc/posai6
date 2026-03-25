@@ -687,6 +687,7 @@ const TableOrderDetails = () => {
   const orderNotesTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>(['all']);
+  const [tableCapacity, setTableCapacity] = useState<number>(20);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
   const [receiptGuest, setReceiptGuest] = useState<GuestOrder | null>(null);
@@ -740,7 +741,35 @@ const TableOrderDetails = () => {
     setSelectedSeats(Array.from({ length: size }, (_, i) => i + 1));
   }, [currentSelectedGuest?.id]);
 
-  // Debounced persist of order notes to DB
+  // Fetch table capacity from DB
+  useEffect(() => {
+    if (!tableId) return;
+    const fetchCapacity = async () => {
+      const { data } = await supabase
+        .from('restaurant_tables')
+        .select('seats')
+        .eq('table_number', tableId)
+        .maybeSingle();
+      if (data?.seats) setTableCapacity(data.seats);
+    };
+    fetchCapacity();
+  }, [tableId]);
+
+  // Add seat handler
+  const handleAddSeat = () => {
+    if (!currentSelectedGuest) return;
+    const currentSize = currentSelectedGuest.partySize || 4;
+    if (currentSize >= tableCapacity) {
+      toast.error("Table is full");
+      return;
+    }
+    const newSize = currentSize + 1;
+    updateOrder(currentSelectedGuest.id, { partySize: newSize } as any);
+    setSelectedSeats(Array.from({ length: newSize }, (_, i) => i + 1));
+  };
+
+  const isTableFull = (currentSelectedGuest?.partySize || 4) >= tableCapacity;
+
   const handleOrderNotesChange = (value: string) => {
     setOrderNotes(value);
     if (orderNotesTimerRef.current) clearTimeout(orderNotesTimerRef.current);
@@ -1190,6 +1219,14 @@ const TableOrderDetails = () => {
             {Array.from({ length: currentSelectedGuest?.partySize || 4 }, (_, i) => i + 1).map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {seat}
               </button>)}
+            <button
+              onClick={handleAddSeat}
+              disabled={isTableFull}
+              title={isTableFull ? "Table is full" : "Add guest"}
+              className={`w-7 h-7 rounded text-sm font-bold transition-colors ${isTableFull ? "bg-white/5 text-white/20 cursor-not-allowed" : "bg-white/10 text-white hover:bg-white/20"}`}
+            >
+              +
+            </button>
           </div>
         </div>
 
@@ -2232,6 +2269,14 @@ const TableOrderDetails = () => {
               {seat}
             </button>
           ))}
+          <button
+            onClick={handleAddSeat}
+            disabled={isTableFull}
+            title={isTableFull ? "Table is full" : "Add guest"}
+            className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold transition-colors ${isTableFull ? "bg-neutral-800 text-neutral-600 cursor-not-allowed" : "bg-neutral-600 text-white hover:bg-neutral-500"}`}
+          >
+            +
+          </button>
         </div>
 
         {/* Order Notes */}
@@ -2850,6 +2895,14 @@ const TableOrderDetails = () => {
             {Array.from({ length: currentSelectedGuest?.partySize || 4 }, (_, i) => i + 1).map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {seat}
               </button>)}
+            <button
+              onClick={handleAddSeat}
+              disabled={isTableFull}
+              title={isTableFull ? "Table is full" : "Add guest"}
+              className={`w-7 h-7 rounded text-sm font-bold transition-colors ${isTableFull ? "bg-white/5 text-white/20 cursor-not-allowed" : "bg-white/10 text-white hover:bg-white/20"}`}
+            >
+              +
+            </button>
           </div>
         </div>
 

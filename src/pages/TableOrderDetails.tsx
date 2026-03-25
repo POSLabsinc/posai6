@@ -334,12 +334,12 @@ const TableOrderDetails = () => {
     const cancelUnifiedOrder = unifiedOrders.find(o => o.id === cancelTargetOrderId);
     const cancelUnifiedItems = (cancelUnifiedOrder as any)?.items || [];
     const allCancelItems = cancelSessionItems.length > 0 ? cancelSessionItems : cancelUnifiedItems;
-    const firedItems = allCancelItems.filter((item: any) => item.isFired || item.is_fired);
-    if (firedItems.length > 0) {
+    // Process write-off or inventory restoration for cancelled items
+    if (allCancelItems.length > 0) {
       processCancelledItems(
-        firedItems.map((item: any) => ({ name: item.name, price: item.price, quantity: item.quantity || 1, isFired: true })),
+        allCancelItems.map((item: any) => ({ name: item.name, price: item.price, quantity: item.quantity || 1, isFired: !!(item.isFired || item.is_fired) })),
         cancelTargetOrderId,
-        selectedReason || 'Cancelled after fire'
+        selectedReason || 'Order cancelled'
       );
     }
     

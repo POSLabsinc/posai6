@@ -695,13 +695,12 @@ const Orders = () => {
   const handleClearOrder = (cancelReason?: string) => {
     console.log('[handleClearOrder] clearing all order state');
     
-    // Process write-offs for fired items before clearing
-    const firedItems = orderItems.filter(item => item.isFired);
-    if (firedItems.length > 0) {
+    // Process write-off or inventory restoration for cancelled items
+    if (orderItems.length > 0) {
       processCancelledItems(
-        firedItems.map(item => ({ name: item.name, price: item.price, quantity: 1, isFired: true })),
+        orderItems.map(item => ({ name: item.name, price: item.price, quantity: 1, isFired: !!item.isFired })),
         undefined,
-        cancelReason || 'Cancelled after fire'
+        cancelReason || 'Order cancelled'
       );
     }
     

@@ -918,13 +918,13 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
     console.log('[Tickets CancelOrder] order:', selectedGuest.id, 'reason:', reason);
     
-    // Process write-offs for fired items
-    const firedItems = (selectedGuest.items || []).filter((item: any) => item.isFired);
-    if (firedItems.length > 0) {
+    // Process write-off or inventory restoration for cancelled items
+    const cancelItems = selectedGuest.items || [];
+    if (cancelItems.length > 0) {
       processCancelledItems(
-        firedItems.map((item: any) => ({ name: item.name, price: item.price, quantity: item.quantity || 1, isFired: true })),
+        cancelItems.map((item: any) => ({ name: item.name, price: item.price, quantity: item.quantity || 1, isFired: !!item.isFired })),
         selectedGuest.id,
-        reason || 'Cancelled after fire'
+        reason || 'Order cancelled'
       );
     }
     

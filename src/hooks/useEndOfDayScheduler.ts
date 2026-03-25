@@ -7,7 +7,9 @@ import { printEndOfDayReport } from "@/utils/eodReportPrinter";
 const CHECK_INTERVAL_MS = 15_000; // 15 seconds
 const EOD_LAST_RUN_KEY = "pos_eod_last_run";
 const EOD_REMINDER_SHOWN_KEY = "pos_eod_reminder_shown";
+const GRACE_PERIOD_SHOWN_KEY = "pos_grace_period_shown";
 const SHARED_DEVICE_ID = "shared";
+const GRACE_PERIOD_LEAD_MINUTES = 30; // Show modal 30 min before closing
 
 function getSharedDeviceId(): string {
   return SHARED_DEVICE_ID;

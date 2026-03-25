@@ -25,14 +25,10 @@ export function useWriteOffProcessor() {
 
   const processCancelledItems = useCallback(
     async (items: CancelledItem[], orderId?: string, reason?: string) => {
-      const relevantItems = isEnabled
-        ? items.filter((item) => item.isFired)
-        : items;
-
-      if (relevantItems.length === 0) return;
+      if (items.length === 0) return;
 
       // Resolve product IDs by name
-      const names = [...new Set(relevantItems.map((i) => i.name))];
+      const names = [...new Set(items.map((i) => i.name))];
       const { data: products } = await (supabase as any)
         .from("products")
         .select("id, name, stock_count, inventory_tracking")
@@ -42,21 +38,17 @@ export function useWriteOffProcessor() {
       (products || []).forEach((p: any) => productMap.set(p.name, p));
 
       if (isEnabled) {
-        // --- Write-Off ON: deduct inventory + record loss ---
-        const writeOffRows: any[] = [];
+        // --- Write-Off ON ---
+        const firedItems = items.filter((item) => item.isFired);
+        const nonFiredItems = items.filter((item) => !item.isFired);
 
-        for (const item of relevantItems) {
+        // Fired items: treat as waste, do NOT restore stock, record loss
+        const writeOffRows: any[] = [];
+        for (const item of firedItems) {
           const qty = item.quantity ?? 1;
           const product = productMap.get(item.name);
 
-          if (product && product.inventory_tracking && product.stock_count !== null) {
-            const newCount = Math.max(0, (product.stock_count || 0) - qty);
-            await (supabase as any)
-              .from("products")
-              .update({ stock_count: newCount, is_available: newCount > 0 })
-              .eq("id", product.id);
-          }
-
+          // Stock already deducted at fire time, so no further deduction needed
           writeOffRows.push({
             product_id: product?.id || null,
             product_name: item.name,
@@ -71,9 +63,23 @@ export function useWriteOffProcessor() {
         if (writeOffRows.length > 0) {
           await (supabase as any).from("write_offs").insert(writeOffRows);
         }
+
+        // Non-fired items: still in good condition, restore stock
+        for (const item of nonFiredItems) {
+          const qty = item.quantity ?? 1;
+          const product = productMap.get(item.name);
+
+          if (product && product.inventory_tracking && product.stock_count !== null) {
+            const newCount = (product.stock_count || 0) + qty;
+            await (supabase as any)
+              .from("products")
+              .update({ stock_count: newCount, is_available: true })
+              .eq("id", product.id);
+          }
+        }
       } else {
-        // --- Write-Off OFF: restore inventory (items in good condition) ---
-        for (const item of relevantItems) {
+        // --- Write-Off OFF: all cancelled items in good condition, restore stock ---
+        for (const item of items) {
           const qty = item.quantity ?? 1;
           const product = productMap.get(item.name);
 

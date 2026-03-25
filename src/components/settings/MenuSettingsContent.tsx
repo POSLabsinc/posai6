@@ -116,7 +116,8 @@ const MenuSettingsContent = ({
     iconSize
   } = useAppearance();
   const isMobile = useIsMobile();
-  const { menuSort, modifierStyle } = useMenuPreferences();
+  const { menuSort, modifierStyle, writeOff } = useMenuPreferences();
+  const writeOffEnabled = writeOff.value === "true";
   const iconSizeClass = getIconSizeClass();
   const containerSize = iconContainerSizeMap[iconSize];
   const handleItemClick = (itemId: string) => {

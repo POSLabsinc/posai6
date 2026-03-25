@@ -14,8 +14,16 @@ export function useModifierStyle() {
 /**
  * Combined hook for settings screen
  */
+export function useWriteOff() {
+  return usePreference("menu_write_off", "false");
+}
+
+/**
+ * Combined hook for settings screen
+ */
 export function useMenuPreferences() {
   const menuSort = useMenuSort();
   const modifierStyle = useModifierStyle();
-  return { menuSort, modifierStyle };
+  const writeOff = useWriteOff();
+  return { menuSort, modifierStyle, writeOff };
 }

@@ -208,9 +208,9 @@ const CashManagementContent = ({
           </div>
         </div>
 
-        {/* Start Drawer Button */}
+        {/* Open Drawer Button */}
         <button onClick={handleStartDrawer} disabled={!hasAmount} className={`w-full py-4 rounded-full text-base font-semibold tracking-wide transition-all ${hasAmount ? 'bg-neutral-600 text-white active:opacity-70' : 'border border-neutral-600 text-foreground opacity-50'}`}>
-          START DRAWER
+          OPEN DRAWER
         </button>
 
         {/* History Section - Collapsible */}

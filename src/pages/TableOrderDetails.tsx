@@ -3056,7 +3056,7 @@ const TableOrderDetails = () => {
                 ) : (
                   // Display regular items (no merge)
                   (() => {
-                    const allSeatsSelected = selectedSeats.length === 4;
+                    const allSeatsSelected = selectedSeats.length === (currentSelectedGuest?.partySize || 4);
                     const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
                     return filteredItems.map((item, index) => (
                       <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">

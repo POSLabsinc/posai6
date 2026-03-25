@@ -62,6 +62,7 @@ const ClosedTickets = lazy(() => import("./pages/ClosedTickets"));
 const Login = lazy(() => import("./pages/Login"));
 const KDSMessages = lazy(() => import("./pages/KDSMessages"));
 const KDS = lazy(() => import("./pages/KDS"));
+const ClosingGracePeriod = lazy(() => import("./pages/ClosingGracePeriod"));
 
 const queryClient = new QueryClient();
 

@@ -741,7 +741,35 @@ const TableOrderDetails = () => {
     setSelectedSeats(Array.from({ length: size }, (_, i) => i + 1));
   }, [currentSelectedGuest?.id]);
 
-  // Debounced persist of order notes to DB
+  // Fetch table capacity from DB
+  useEffect(() => {
+    if (!tableId) return;
+    const fetchCapacity = async () => {
+      const { data } = await supabase
+        .from('restaurant_tables')
+        .select('seats')
+        .eq('table_number', tableId)
+        .maybeSingle();
+      if (data?.seats) setTableCapacity(data.seats);
+    };
+    fetchCapacity();
+  }, [tableId]);
+
+  // Add seat handler
+  const handleAddSeat = () => {
+    if (!currentSelectedGuest) return;
+    const currentSize = currentSelectedGuest.partySize || 4;
+    if (currentSize >= tableCapacity) {
+      toast.error("Table is full");
+      return;
+    }
+    const newSize = currentSize + 1;
+    updateOrder(currentSelectedGuest.id, { partySize: newSize } as any);
+    setSelectedSeats(Array.from({ length: newSize }, (_, i) => i + 1));
+  };
+
+  const isTableFull = (currentSelectedGuest?.partySize || 4) >= tableCapacity;
+
   const handleOrderNotesChange = (value: string) => {
     setOrderNotes(value);
     if (orderNotesTimerRef.current) clearTimeout(orderNotesTimerRef.current);

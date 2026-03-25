@@ -339,7 +339,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     }
   }, [allOrders, selectedGuest.id]);
   
-  const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);

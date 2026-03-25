@@ -128,6 +128,7 @@ const AppInner = () => {
           <Route path="/orderos" element={<OrderOS />} />
           <Route path="/login" element={<Login />} />
           <Route path="/kds" element={<KDS />} />
+          <Route path="/closing-grace-period" element={<ClosingGracePeriod />} />
           <Route path="/kds/messages" element={<KDSMessages />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

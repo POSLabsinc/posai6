@@ -2959,6 +2959,60 @@ export type Database = {
         }
         Relationships: []
       }
+      write_offs: {
+        Row: {
+          created_at: string
+          id: string
+          merchant_id: string | null
+          order_id: string | null
+          product_id: string | null
+          product_name: string
+          quantity: number
+          reason: string
+          total_loss: number
+          unit_price: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          merchant_id?: string | null
+          order_id?: string | null
+          product_id?: string | null
+          product_name: string
+          quantity?: number
+          reason?: string
+          total_loss?: number
+          unit_price?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          merchant_id?: string | null
+          order_id?: string | null
+          product_id?: string | null
+          product_name?: string
+          quantity?: number
+          reason?: string
+          total_loss?: number
+          unit_price?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "write_offs_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "write_offs_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

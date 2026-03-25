@@ -2152,7 +2152,7 @@ const TableOrderDetails = () => {
                   // Show Add Item button for regular orders
                   <button 
                     className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
-                    onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
+                    onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem&seats=${currentSelectedGuest?.partySize || 4}&guests=${currentSelectedGuest?.partySize || 4}`)}
                   >
                     <img src={receiptIcon} alt="" className="w-3 h-3" />
                     Add Item
@@ -2807,7 +2807,7 @@ const TableOrderDetails = () => {
           <div className="flex gap-2 flex-wrap">
             <button 
               className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors"
-              onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
+              onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem&seats=${currentSelectedGuest?.partySize || 4}&guests=${currentSelectedGuest?.partySize || 4}`)}
             >
               Add Item
             </button>

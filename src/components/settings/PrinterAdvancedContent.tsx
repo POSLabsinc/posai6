@@ -43,6 +43,9 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
   const { value: kotCopiesStr, update: setKotCopiesStr } = usePreference("printer_kot_copies", "1");
   const { value: secondBillCopiesStr, update: setSecondBillCopiesStr } = usePreference("printer_2nd_bill_copies", "0");
 
+  const kotCopies = Math.max(0, parseInt(kotCopiesStr) || 1);
+  const secondBillCopies = Math.max(0, parseInt(secondBillCopiesStr) || 0);
+
   const selectedOrderTypes = selectedOrderTypesStr ? selectedOrderTypesStr.split(",") : [];
 
   const toBool = (v: string) => v === "true";

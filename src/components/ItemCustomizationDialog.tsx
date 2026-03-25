@@ -1336,6 +1336,34 @@ export const ItemCustomizationDialog = ({
         </div>
       )}
 
+      {/* Course Tab - Table orders only */}
+      {activeTab === 'course' && isTableOrder && (
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="px-4 pb-2">
+            <span className="text-white text-sm font-medium">Select Course</span>
+          </div>
+          <ScrollArea className="max-h-[220px]">
+            <div className="px-4 py-2">
+              <div className="flex flex-wrap gap-2">
+                {courseOptions.map(course => (
+                  <button
+                    key={course}
+                    onClick={() => setSelectedCourse(course)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      selectedCourse === course
+                        ? 'bg-white text-black'
+                        : 'bg-neutral-800 text-neutral-300'
+                    }`}
+                  >
+                    {course}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </ScrollArea>
+        </div>
+      )}
+
       {/* Action Buttons */}
       <div className="px-4 py-3 border-t border-neutral-700 mt-auto flex items-center gap-2">
         <Button 

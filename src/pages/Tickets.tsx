@@ -1,6 +1,7 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useWriteOffProcessor } from "@/hooks/useWriteOffProcessor";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { SettingsManager } from "@/lib/settingsManager";
 import { getActiveTaxRate } from "@/lib/orderUtils";
@@ -260,6 +261,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
 
   // Fetch all orders from database
   const { orders: dbTicketOrders, isLoading: isLoadingOrders, updateOrder: updateTicketOrder } = useTicketOrders();
+  const { processCancelledItems } = useWriteOffProcessor();
 
   // Convert DB orders to GuestOrder shape for this component (exclude cancelled)
   const allOrders: GuestOrder[] = dbTicketOrders.filter(o => o.status !== 'CANCELLED').map(o => ({
@@ -915,6 +917,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const handleClearOrder = () => {
     const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
     console.log('[Tickets CancelOrder] order:', selectedGuest.id, 'reason:', reason);
+    
+    // Process write-offs for fired items
+    const firedItems = (selectedGuest.items || []).filter((item: any) => item.isFired);
+    if (firedItems.length > 0) {
+      processCancelledItems(
+        firedItems.map((item: any) => ({ name: item.name, price: item.price, quantity: item.quantity || 1, isFired: true })),
+        selectedGuest.id,
+        reason || 'Cancelled after fire'
+      );
+    }
     
     // Persist cancellation to database
     if (selectedGuest.id) {

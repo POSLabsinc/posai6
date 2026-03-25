@@ -1,6 +1,7 @@
 import { useState, useRef, useMemo, useEffect } from "react";
 import { SettingsManager } from "@/lib/settingsManager";
 import { toast } from "sonner";
+import { useWriteOffProcessor } from "@/hooks/useWriteOffProcessor";
 import { useOrderTimers } from "@/hooks/use-order-timer";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
@@ -227,6 +228,7 @@ const TableOrderDetails = () => {
   const navigate = useNavigate();
   const { orders: unifiedOrders, updateOrders: updateUnifiedOrders, updateOrder, getOrdersByTable: getUnifiedOrdersByTable, getOrderById: getUnifiedOrderById } = useUnifiedOrders();
   const { orders: dbTicketOrders, updateOrder: updateTicketOrder } = useTicketOrders();
+  const { processCancelledItems } = useWriteOffProcessor();
   
   // All DB orders as Order-compatible shape for lookups
   const allDbOrders: Order[] = useMemo(() => unifiedOrders.map(o => ({
@@ -325,6 +327,21 @@ const TableOrderDetails = () => {
     if (!cancelTargetOrderId) return;
     const selectedReason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
     console.log('[TableOrder CancelOrder] orderId:', cancelTargetOrderId, 'reason:', selectedReason);
+    
+    // Process write-offs for fired items
+    const cancelSessionOrder = sessionOrdersForTable.find(so => so.id === cancelTargetOrderId);
+    const cancelSessionItems = cancelSessionOrder?.items || [];
+    const cancelUnifiedOrder = unifiedOrders.find(o => o.id === cancelTargetOrderId);
+    const cancelUnifiedItems = (cancelUnifiedOrder as any)?.items || [];
+    const allCancelItems = cancelSessionItems.length > 0 ? cancelSessionItems : cancelUnifiedItems;
+    const firedItems = allCancelItems.filter((item: any) => item.isFired || item.is_fired);
+    if (firedItems.length > 0) {
+      processCancelledItems(
+        firedItems.map((item: any) => ({ name: item.name, price: item.price, quantity: item.quantity || 1, isFired: true })),
+        cancelTargetOrderId,
+        selectedReason || 'Cancelled after fire'
+      );
+    }
     
     // Try session order first
     const sessionOrder = sessionOrdersForTable.find(so => so.id === cancelTargetOrderId);

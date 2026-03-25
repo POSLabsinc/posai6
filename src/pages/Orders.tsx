@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useLayoutEffect, useMemo, useCallback } from "react";
+import { useWriteOffProcessor } from "@/hooks/useWriteOffProcessor";
 import { searchCustomers, Customer } from "@/services/customerService";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
@@ -264,6 +265,7 @@ const Orders = () => {
   const { panelLayout } = usePanelPosition();
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
   const { addOrder: addTicketOrder, updateOrder: updateTicketOrder } = useTicketOrders();
+  const { processCancelledItems } = useWriteOffProcessor();
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
 
@@ -690,8 +692,19 @@ const Orders = () => {
     setShowClearConfirm(true);
   };
 
-  const handleClearOrder = () => {
+  const handleClearOrder = (cancelReason?: string) => {
     console.log('[handleClearOrder] clearing all order state');
+    
+    // Process write-offs for fired items before clearing
+    const firedItems = orderItems.filter(item => item.isFired);
+    if (firedItems.length > 0) {
+      processCancelledItems(
+        firedItems.map(item => ({ name: item.name, price: item.price, quantity: 1, isFired: true })),
+        undefined,
+        cancelReason || 'Cancelled after fire'
+      );
+    }
+    
     setOrderItems(() => []);
     setSelectedDiscounts([]);
     setAppliedServiceCharge(0);
@@ -3739,7 +3752,7 @@ const Orders = () => {
                   onClick={() => {
                     console.log('[CancelOrder] reason:', selectedReason);
                     setShowClearConfirm(false);
-                    handleClearOrder();
+                    handleClearOrder(selectedReason);
                   }}
                   className={`flex-1 h-10 rounded-full text-white text-sm font-medium transition-colors ${
                     canConfirm ? 'bg-red-500 hover:bg-red-600' : 'bg-neutral-700 cursor-not-allowed opacity-50'

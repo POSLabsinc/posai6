@@ -40,6 +40,8 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
   const { value: salesOverAmount, update: setSalesOverAmount } = usePreference("printer_sales_over_amount", "0.00");
   const { value: modifierTextSize, update: setModifierTextSize } = usePreference("printer_modifier_text_size", "Tall");
   const { value: selectedOrderTypesStr, update: setSelectedOrderTypesStr } = usePreference("printer_kitchen_order_types", "");
+  const { value: kotCopiesStr, update: setKotCopiesStr } = usePreference("printer_kot_copies", "1");
+  const { value: secondBillCopiesStr, update: setSecondBillCopiesStr } = usePreference("printer_2nd_bill_copies", "0");
 
   const selectedOrderTypes = selectedOrderTypesStr ? selectedOrderTypesStr.split(",") : [];
 

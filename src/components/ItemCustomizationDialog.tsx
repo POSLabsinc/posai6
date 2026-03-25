@@ -219,7 +219,7 @@ export const ItemCustomizationDialog = ({
   const [quantity, setQuantity] = useState(1);
   const [selectedModifiers, setSelectedModifiers] = useState<string[]>([]);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<'item' | 'addons'>('item');
+  const [activeTab, setActiveTab] = useState<'item' | 'addons' | 'course'>('item');
   const [itemNotes, setItemNotes] = useState("");
   const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
   

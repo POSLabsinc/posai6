@@ -80,7 +80,51 @@ const PageLoader = () => (
 // Inner component that can use hooks
 const AppInner = () => {
   useAutoRestart();
-  useEndOfDayScheduler();
+  const { showGracePeriodModal, setShowGracePeriodModal } = useEndOfDayScheduler();
+
+  const handleGraceExtension = useCallback(async (minutes: number) => {
+    const { supabase: sb } = await import("@/integrations/supabase/client");
+    const today = new Date().toISOString().slice(0, 10);
+    const totalMin = 22 * 60 + minutes;
+    const h = Math.floor(totalMin / 60) % 24;
+    const m = totalMin % 60;
+    const period = h >= 12 ? "PM" : "AM";
+    const dh = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    const newClosing = `${dh}:${m.toString().padStart(2, "0")} ${period}`;
+
+    await (sb as any).from("closing_time_extensions").upsert(
+      {
+        device_id: "shared",
+        extension_date: today,
+        original_closing_time: "10:00 PM",
+        extension_minutes: minutes,
+        new_closing_time: newClosing,
+        status: "active",
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "device_id,extension_date" }
+    );
+    setShowGracePeriodModal(false);
+  }, [setShowGracePeriodModal]);
+
+  const handleGraceNoExtension = useCallback(async () => {
+    const { supabase: sb } = await import("@/integrations/supabase/client");
+    const today = new Date().toISOString().slice(0, 10);
+    await (sb as any).from("closing_time_extensions").upsert(
+      {
+        device_id: "shared",
+        extension_date: today,
+        original_closing_time: "10:00 PM",
+        extension_minutes: 0,
+        new_closing_time: "10:00 PM",
+        status: "declined",
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: "device_id,extension_date" }
+    );
+    setShowGracePeriodModal(false);
+  }, [setShowGracePeriodModal]);
+
   return (
     <BrowserRouter>
       <AutoLockProvider>
@@ -135,6 +179,12 @@ const AppInner = () => {
         </Routes>
         </Suspense>
       </Layout>
+      <ClosingGracePeriodModal
+        isOpen={showGracePeriodModal}
+        onClose={() => setShowGracePeriodModal(false)}
+        onConfirmExtension={handleGraceExtension}
+        onConfirmNoExtension={handleGraceNoExtension}
+      />
       </AutoLockProvider>
     </BrowserRouter>
   );

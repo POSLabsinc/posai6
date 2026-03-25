@@ -97,17 +97,37 @@ async function fetchClosingExtension(): Promise<{ extended: boolean; newClosingT
     .select("extension_minutes, new_closing_time, status")
     .eq("device_id", SHARED_DEVICE_ID)
     .eq("extension_date", today)
-    .eq("status", "active")
     .maybeSingle();
 
-  if (data && data.extension_minutes > 0) {
+  if (!data) return null;
+
+  // Any record (active or declined) means user already decided today
+  if (data.status === "active" && data.extension_minutes > 0) {
     return {
       extended: true,
       newClosingTime: data.new_closing_time,
       extensionMinutes: data.extension_minutes,
     };
   }
-  return null;
+  // Declined or 0-minute extension means no extension but decision was made
+  return { extended: false, newClosingTime: "10:00 PM", extensionMinutes: 0 };
+}
+
+/** Check if user has already made a closing decision today */
+async function hasClosingDecisionToday(): Promise<boolean> {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data } = await (supabase as any)
+    .from("closing_time_extensions")
+    .select("id")
+    .eq("device_id", SHARED_DEVICE_ID)
+    .eq("extension_date", today)
+    .maybeSingle();
+  return !!data;
+}
+
+export interface EndOfDaySchedulerState {
+  showGracePeriodModal: boolean;
+  setShowGracePeriodModal: (show: boolean) => void;
 }
 
 /**

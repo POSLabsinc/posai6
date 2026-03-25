@@ -246,14 +246,25 @@ export function useEndOfDayScheduler() {
         }
       }
 
-      // ── Auto-run ──
+      // ── Auto-run (respect closing time extensions) ──
       if (prefs.autoRun && !autoRunDoneRef.current && !alreadyRanToday) {
-        const autoRunTarget = todayAt(to24(prefs.autoRunTime));
+        // Check if closing time was extended
+        let effectiveAutoRunTime = prefs.autoRunTime;
+        try {
+          const ext = await fetchClosingExtension();
+          if (ext?.extended) {
+            effectiveAutoRunTime = ext.newClosingTime;
+          }
+        } catch {
+          // Use default time if extension check fails
+        }
+
+        const autoRunTarget = todayAt(to24(effectiveAutoRunTime));
         const diffMs = now.getTime() - autoRunTarget.getTime();
-        // Trigger if within 0–60 seconds after target, or if we missed it (up to 5 min)
+        // Trigger if within 0-60 seconds after target, or if we missed it (up to 5 min)
         if (diffMs >= 0 && diffMs < 5 * 60_000) {
           autoRunDoneRef.current = true;
-          toast.info("Running End of Day automatically…", { duration: 3000 });
+          toast.info("Running End of Day automatically...", { duration: 3000 });
           setTimeout(() => runEndOfDay(prefs), 2000);
         }
       }

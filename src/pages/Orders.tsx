@@ -277,6 +277,33 @@ const Orders = () => {
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
 
+  // Helper: adjust stock_count in the DB for a list of items
+  const adjustStock = useCallback(async (items: Array<{ name: string; qty: number }>, direction: 'deduct' | 'restore') => {
+    if (items.length === 0) return;
+    const names = [...new Set(items.map(i => i.name))];
+    const { data: products } = await (supabase as any)
+      .from('products')
+      .select('id, name, stock_count, inventory_tracking')
+      .in('name', names);
+    if (!products) return;
+    const productMap = new Map<string, any>();
+    (products as any[]).forEach((p: any) => productMap.set(p.name, p));
+    for (const item of items) {
+      const product = productMap.get(item.name);
+      if (!product || !product.inventory_tracking || product.stock_count === null) continue;
+      const current = product.stock_count ?? 0;
+      const newCount = direction === 'deduct'
+        ? Math.max(0, current - item.qty)
+        : current + item.qty;
+      await (supabase as any)
+        .from('products')
+        .update({ stock_count: newCount, is_available: newCount > 0 })
+        .eq('id', product.id);
+    }
+    fetchDbProducts();
+    window.dispatchEvent(new CustomEvent('products-updated'));
+  }, [fetchDbProducts]);
+
   // Dynamic arrived-at time based on when the order screen was opened
   const [arrivedAt] = useState(() => {
     const now = new Date();
@@ -1296,7 +1323,13 @@ const Orders = () => {
     setIsProductInfoFullScreen(view === 'productInfo');
   };
   const removeFromCart = (itemId: number) => {
-    setOrderItems((prev) => prev.filter((item) => item.id !== itemId));
+    setOrderItems((prev) => {
+      const target = prev.find(i => i.id === itemId);
+      if (target && target.isFired) {
+        adjustStock([{ name: target.name, qty: target.qty }], 'restore');
+      }
+      return prev.filter((item) => item.id !== itemId);
+    });
   };
   const updateItemOrderType = (itemId: number, newOrderType: string) => {
     setOrderItems((prev) => prev.map((item) =>
@@ -1425,11 +1458,18 @@ const Orders = () => {
 
   // Handler to toggle fired state for individual items
   const handleToggleItemFire = (itemId: number) => {
-    setOrderItems((prev) => prev.map((item) =>
-    item.id === itemId ?
-    { ...item, isFired: !item.isFired } :
-    item
-    ));
+    setOrderItems((prev) => {
+      const target = prev.find(i => i.id === itemId);
+      if (target) {
+        adjustStock(
+          [{ name: target.name, qty: target.qty }],
+          target.isFired ? 'restore' : 'deduct'
+        );
+      }
+      return prev.map((item) =>
+        item.id === itemId ? { ...item, isFired: !item.isFired } : item
+      );
+    });
   };
 
   // Handler to fire the entire order (session orders)
@@ -1444,7 +1484,16 @@ const Orders = () => {
     }
     if (!isSessionOrderMode || !sessionIdFromParams) {
       // Not a session order - create DB record and mark items as fired
-      setOrderItems((prev) => prev.map((item) => ({ ...item, isFired: true })));
+      setOrderItems((prev) => {
+        const unfiredItems = prev.filter(item => !item.isFired);
+        if (unfiredItems.length > 0) {
+          adjustStock(
+            unfiredItems.map(item => ({ name: item.name, qty: item.qty })),
+            'deduct'
+          );
+        }
+        return prev.map((item) => ({ ...item, isFired: true }));
+      });
 
       const quickTotal = subtotal - discount + serviceCharge + tax;
       addTicketOrder({

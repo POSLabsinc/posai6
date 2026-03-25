@@ -3752,7 +3752,7 @@ const Orders = () => {
                   onClick={() => {
                     console.log('[CancelOrder] reason:', selectedReason);
                     setShowClearConfirm(false);
-                    handleClearOrder();
+                    handleClearOrder(selectedReason);
                   }}
                   className={`flex-1 h-10 rounded-full text-white text-sm font-medium transition-colors ${
                     canConfirm ? 'bg-red-500 hover:bg-red-600' : 'bg-neutral-700 cursor-not-allowed opacity-50'

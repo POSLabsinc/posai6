@@ -328,6 +328,17 @@ const TableOrderDetails = () => {
     const selectedReason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
     console.log('[TableOrder CancelOrder] orderId:', cancelTargetOrderId, 'reason:', selectedReason);
     
+    // Process write-offs for fired items
+    const targetOrder = [...(sessionOrdersForTable.map(convertSessionToGuestOrder)), ...staticGuestOrders].find(o => o.id === cancelTargetOrderId);
+    const firedItems = (targetOrder?.items || []).filter((item: any) => item.isFired);
+    if (firedItems.length > 0) {
+      processCancelledItems(
+        firedItems.map((item: any) => ({ name: item.name, price: item.price, quantity: item.quantity || 1, isFired: true })),
+        cancelTargetOrderId,
+        selectedReason || 'Cancelled after fire'
+      );
+    }
+    
     // Try session order first
     const sessionOrder = sessionOrdersForTable.find(so => so.id === cancelTargetOrderId);
     if (sessionOrder) {

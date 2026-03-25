@@ -261,6 +261,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
 
   // Fetch all orders from database
   const { orders: dbTicketOrders, isLoading: isLoadingOrders, updateOrder: updateTicketOrder } = useTicketOrders();
+  const { processCancelledItems } = useWriteOffProcessor();
 
   // Convert DB orders to GuestOrder shape for this component (exclude cancelled)
   const allOrders: GuestOrder[] = dbTicketOrders.filter(o => o.status !== 'CANCELLED').map(o => ({

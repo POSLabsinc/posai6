@@ -228,6 +228,7 @@ const TableOrderDetails = () => {
   const navigate = useNavigate();
   const { orders: unifiedOrders, updateOrders: updateUnifiedOrders, updateOrder, getOrdersByTable: getUnifiedOrdersByTable, getOrderById: getUnifiedOrderById } = useUnifiedOrders();
   const { orders: dbTicketOrders, updateOrder: updateTicketOrder } = useTicketOrders();
+  const { processCancelledItems } = useWriteOffProcessor();
   
   // All DB orders as Order-compatible shape for lookups
   const allDbOrders: Order[] = useMemo(() => unifiedOrders.map(o => ({

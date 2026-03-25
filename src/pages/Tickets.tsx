@@ -1948,7 +1948,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     const items = getOrderItems(order);
     
     // Only filter if it's a table order and not all seats are selected
-    if (order.orderType !== "Table" || selectedSeats.length === 4) {
+    if (order.orderType !== "Table" || selectedSeats.length === (order.partySize || 4)) {
       return items;
     }
     

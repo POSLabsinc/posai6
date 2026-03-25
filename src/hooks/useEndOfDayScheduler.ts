@@ -87,6 +87,27 @@ async function fetchEodPrefs(): Promise<EodPrefs> {
   };
 }
 
+/** Check if today's closing time has been extended */
+async function fetchClosingExtension(): Promise<{ extended: boolean; newClosingTime: string; extensionMinutes: number } | null> {
+  const today = new Date().toISOString().slice(0, 10);
+  const { data } = await (supabase as any)
+    .from("closing_time_extensions")
+    .select("extension_minutes, new_closing_time, status")
+    .eq("device_id", SHARED_DEVICE_ID)
+    .eq("extension_date", today)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (data && data.extension_minutes > 0) {
+    return {
+      extended: true,
+      newClosingTime: data.new_closing_time,
+      extensionMinutes: data.extension_minutes,
+    };
+  }
+  return null;
+}
+
 /**
  * Global hook — mount once at app root inside UnifiedOrderProvider.
  * Reads End of Day preferences from database and:

@@ -219,7 +219,7 @@ export const ItemCustomizationDialog = ({
   const [quantity, setQuantity] = useState(1);
   const [selectedModifiers, setSelectedModifiers] = useState<string[]>([]);
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<'item' | 'addons'>('item');
+  const [activeTab, setActiveTab] = useState<'item' | 'addons' | 'course'>('item');
   const [itemNotes, setItemNotes] = useState("");
   const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
   
@@ -246,6 +246,10 @@ export const ItemCustomizationDialog = ({
 
   // Seat selection state for table orders
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+  
+  // Course selection state (table orders only)
+  const courseOptions = ['Starter', 'Appetizer', 'Main Course', 'Side', 'Dessert', 'Beverage'];
+  const [selectedCourse, setSelectedCourse] = useState<string>('Main Course');
   
   // Default modifiers - tracks which ones are deselected (excluded from item)
   const [deselectedDefaults, setDeselectedDefaults] = useState<string[]>([]);
@@ -539,7 +543,8 @@ export const ItemCustomizationDialog = ({
       ...selectedAddOns.map(addOn => {
         const addOnItem = currentItemAddOns.find(a => a.name === addOn);
         return addOnItem?.price ? `Add: ${addOn} +$${addOnItem.price.toFixed(2)}` : `Add: ${addOn}`;
-      })
+      }),
+      ...(isTableOrder && selectedCourse ? [`Course: ${selectedCourse}`] : [])
     ];
     
     // Calculate modifier prices
@@ -586,6 +591,7 @@ export const ItemCustomizationDialog = ({
     setActiveTab('item');
     setSelectedSeats([]);
     setSelectedDiscountId(null);
+    setSelectedCourse('Main Course');
     onOpenChange(false);
   };
 
@@ -1121,6 +1127,18 @@ export const ItemCustomizationDialog = ({
           >
             Add-Ons
           </button>
+          {isTableOrder && (
+            <button
+              onClick={() => setActiveTab('course')}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === 'course' 
+                  ? 'bg-neutral-700 text-white' 
+                  : 'bg-transparent text-neutral-400'
+              }`}
+            >
+              Course
+            </button>
+          )}
         </div>
       </div>
 
@@ -1313,6 +1331,34 @@ export const ItemCustomizationDialog = ({
                     No add-ons found
                   </div>
                 )}
+              </div>
+            </div>
+          </ScrollArea>
+        </div>
+      )}
+
+      {/* Course Tab - Table orders only */}
+      {activeTab === 'course' && isTableOrder && (
+        <div className="flex-1 flex flex-col min-h-0">
+          <div className="px-4 pb-2">
+            <span className="text-white text-sm font-medium">Select Course</span>
+          </div>
+          <ScrollArea className="max-h-[220px]">
+            <div className="px-4 py-2">
+              <div className="flex flex-wrap gap-2">
+                {courseOptions.map(course => (
+                  <button
+                    key={course}
+                    onClick={() => setSelectedCourse(course)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      selectedCourse === course
+                        ? 'bg-white text-black'
+                        : 'bg-neutral-800 text-neutral-300'
+                    }`}
+                  >
+                    {course}
+                  </button>
+                ))}
               </div>
             </div>
           </ScrollArea>

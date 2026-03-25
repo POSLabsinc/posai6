@@ -247,6 +247,10 @@ export const ItemCustomizationDialog = ({
   // Seat selection state for table orders
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
   
+  // Course selection state (table orders only)
+  const courseOptions = ['Starter', 'Appetizer', 'Main Course', 'Side', 'Dessert', 'Beverage'];
+  const [selectedCourse, setSelectedCourse] = useState<string>('Main Course');
+  
   // Default modifiers - tracks which ones are deselected (excluded from item)
   const [deselectedDefaults, setDeselectedDefaults] = useState<string[]>([]);
 

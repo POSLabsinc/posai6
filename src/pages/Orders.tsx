@@ -1326,6 +1326,19 @@ const Orders = () => {
     setOrderItems((prev) => {
       const target = prev.find(i => i.id === itemId);
       if (target && target.isFired) {
+        if (isWriteOffEnabled) {
+          // Write-Off ON: fired item is waste, record loss, do NOT restore stock
+          processCancelledItems(
+            [{ name: target.name, price: target.price, quantity: target.qty, isFired: true }],
+            undefined,
+            'Cancelled after fire'
+          );
+        } else {
+          // Write-Off OFF: item in good condition, restore stock
+          adjustStock([{ name: target.name, qty: target.qty }], 'restore');
+        }
+      } else if (target && !target.isFired) {
+        // Not fired yet: always restore stock
         adjustStock([{ name: target.name, qty: target.qty }], 'restore');
       }
       return prev.filter((item) => item.id !== itemId);

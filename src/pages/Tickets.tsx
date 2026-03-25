@@ -4332,7 +4332,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {selectedGuest.orderType === "Table" && (
                       <div className="flex items-center gap-1 mt-2">
                         <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
-                        {item.seats.length === 0 || item.seats.length === 4 ? (
+                        {item.seats.length === 0 || item.seats.length === (selectedGuest.partySize || 4) ? (
                           <span className="w-4 h-4 bg-white/10 rounded flex items-center justify-center">
                             <Share2 className="w-2.5 h-2.5 text-white opacity-70" />
                           </span>

@@ -590,6 +590,7 @@ export const ItemCustomizationDialog = ({
     setActiveTab('item');
     setSelectedSeats([]);
     setSelectedDiscountId(null);
+    setSelectedCourse('Main Course');
     onOpenChange(false);
   };
 

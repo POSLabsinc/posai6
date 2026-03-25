@@ -2269,6 +2269,14 @@ const TableOrderDetails = () => {
               {seat}
             </button>
           ))}
+          <button
+            onClick={handleAddSeat}
+            disabled={isTableFull}
+            title={isTableFull ? "Table is full" : "Add guest"}
+            className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold transition-colors ${isTableFull ? "bg-neutral-800 text-neutral-600 cursor-not-allowed" : "bg-neutral-600 text-white hover:bg-neutral-500"}`}
+          >
+            +
+          </button>
         </div>
 
         {/* Order Notes */}

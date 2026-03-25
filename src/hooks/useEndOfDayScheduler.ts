@@ -136,12 +136,14 @@ export interface EndOfDaySchedulerState {
  * 1. Shows a reminder toast at the configured reminder time
  * 2. Auto-runs the EOD process at the configured auto-run time
  */
-export function useEndOfDayScheduler() {
+export function useEndOfDayScheduler(): EndOfDaySchedulerState {
   const ctx = useUnifiedOrdersSafe();
   const orders = ctx?.orders ?? [];
   const updateOrders = ctx?.updateOrders ?? (() => {});
   const reminderShownRef = useRef(false);
   const autoRunDoneRef = useRef(false);
+  const graceShownRef = useRef(false);
+  const [showGracePeriodModal, setShowGracePeriodModal] = useState(false);
 
   // Reset flags at midnight or when day changes
   const lastDayRef = useRef(todayKey());

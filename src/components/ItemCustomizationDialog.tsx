@@ -543,7 +543,8 @@ export const ItemCustomizationDialog = ({
       ...selectedAddOns.map(addOn => {
         const addOnItem = currentItemAddOns.find(a => a.name === addOn);
         return addOnItem?.price ? `Add: ${addOn} +$${addOnItem.price.toFixed(2)}` : `Add: ${addOn}`;
-      })
+      }),
+      ...(isTableOrder && selectedCourse ? [`Course: ${selectedCourse}`] : [])
     ];
     
     // Calculate modifier prices

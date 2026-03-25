@@ -294,8 +294,32 @@ export function useEndOfDayScheduler(): EndOfDaySchedulerState {
           setTimeout(() => runEndOfDay(prefs), 2000);
         }
       }
+
+      // ── Grace Period Modal (30 min before closing) ──
+      const graceAlreadyShown = localStorage.getItem(GRACE_PERIOD_SHOWN_KEY) === today;
+      if (!graceShownRef.current && !graceAlreadyShown) {
+        try {
+          const alreadyDecided = await hasClosingDecisionToday();
+          if (!alreadyDecided) {
+            // Default closing time is 10:00 PM (22:00), check 30 min before
+            const closingTarget = todayAt(to24("10:00 PM"));
+            const graceTarget = new Date(closingTarget.getTime() - GRACE_PERIOD_LEAD_MINUTES * 60_000);
+            const diffMs = now.getTime() - graceTarget.getTime();
+            // Show if within 0-5 min window after the grace trigger time
+            if (diffMs >= 0 && diffMs < 5 * 60_000) {
+              graceShownRef.current = true;
+              localStorage.setItem(GRACE_PERIOD_SHOWN_KEY, today);
+              setShowGracePeriodModal(true);
+            }
+          }
+        } catch {
+          // Skip grace period check on error
+        }
+      }
     }, CHECK_INTERVAL_MS);
 
     return () => clearInterval(interval);
   }, [runEndOfDay]);
+
+  return { showGracePeriodModal, setShowGracePeriodModal };
 }

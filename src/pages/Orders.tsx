@@ -187,6 +187,14 @@ interface GuestUser {
   initials: string;
 }
 
+const normalizeProductKey = (value: string): string => value
+  .toLowerCase()
+  .normalize("NFD")
+  .replace(/[\u0300-\u036f]/g, "")
+  .replace(/&/g, " and ")
+  .replace(/[^a-z0-9]+/g, " ")
+  .trim();
+
 // Format phone number based on country code
 // USA-centric phone format: (XXX) XXX-XXXX
 const formatPhoneNumber = (digits: string): string => {
@@ -280,6 +288,10 @@ const Orders = () => {
 
   // Fetch products from the database so newly added products show on the Orders screen
   const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; price: number; category_name: string; price_type: string; active: boolean; archived: boolean; stock_count: number | null; is_available: boolean }>>([]);
+  const dbProductsByNormalizedName = useMemo(
+    () => new Map(dbProducts.map((product) => [normalizeProductKey(product.name), product])),
+    [dbProducts]
+  );
   
   const fetchDbProducts = useCallback(async () => {
     const { data } = await (supabase as any)
@@ -346,7 +358,7 @@ const Orders = () => {
           (p) => p.category_name.toLowerCase() === cat.toLowerCase()
         );
         const dbProductsByName = new Map(
-          dbCatProducts.map((product) => [product.name.toLowerCase(), product])
+          dbCatProducts.map((product) => [normalizeProductKey(product.name), product])
         );
 
         for (const sub of subs) {
@@ -354,7 +366,8 @@ const Orders = () => {
           const productNames = getCategoryProducts(sub);
           if (productNames.length > 0) {
             subItems[sub] = productNames.map((name, idx) => {
-              const matchedDbProduct = dbProductsByName.get(name.toLowerCase());
+              const normalizedName = normalizeProductKey(name);
+              const matchedDbProduct = dbProductsByName.get(normalizedName) ?? dbProductsByNormalizedName.get(normalizedName);
               return {
                 id: idx + 10000,
                 name,
@@ -371,7 +384,8 @@ const Orders = () => {
         const parentProducts = getCategoryProducts(cat);
         if (parentProducts.length > 0 && Object.keys(subItems).length === 0) {
           subItems[cat] = parentProducts.map((name, idx) => {
-            const matchedDbProduct = dbProductsByName.get(name.toLowerCase());
+            const normalizedName = normalizeProductKey(name);
+            const matchedDbProduct = dbProductsByName.get(normalizedName) ?? dbProductsByNormalizedName.get(normalizedName);
             return {
               id: idx + 20000,
               name,
@@ -388,11 +402,11 @@ const Orders = () => {
           const existingNames = new Set<string>();
           // Collect names already in subItems
           for (const items of Object.values(subItems)) {
-            for (const item of items) existingNames.add(item.name.toLowerCase());
+            for (const item of items) existingNames.add(normalizeProductKey(item.name));
           }
 
           const newDbItems = dbCatProducts
-            .filter((p) => !existingNames.has(p.name.toLowerCase()))
+            .filter((p) => !existingNames.has(normalizeProductKey(p.name)))
             .map((p, idx) => ({
               id: idx + 30000 + Math.round(Math.random() * 10000),
               name: p.name,
@@ -444,7 +458,7 @@ const Orders = () => {
       }
     }
     return result;
-  }, [menuList, augmentedMenuCategories, dynamicSubcategories, dbProducts]);
+  }, [menuList, augmentedMenuCategories, dynamicSubcategories, dbProducts, dbProductsByNormalizedName]);
 
   const addItemMode = searchParams.get('mode') === 'addItem';
   const transferNewMode = searchParams.get('mode') === 'transferNew';
@@ -2584,8 +2598,27 @@ const Orders = () => {
                 currentItems = getAllMenuItems(selectedMenu, dynamicMenuItems);
               }
 
+              const hydratedItems = currentItems.map((item) => {
+                const matchedDbProduct = dbProductsByNormalizedName.get(normalizeProductKey(item.name));
+                if (!matchedDbProduct) return item;
+
+                return {
+                  ...item,
+                  price: matchedDbProduct.price,
+                  isOpenPrice: matchedDbProduct.price_type === 'open',
+                  stock_count: matchedDbProduct.stock_count,
+                  is_available: matchedDbProduct.is_available,
+                };
+              });
+
+              const dedupedItems = Array.from(
+                new Map(hydratedItems.map((item) => [normalizeProductKey(item.name), item])).values()
+              );
+
               // Filter items based on search query
-              const filteredItems = searchQuery.trim() ? currentItems.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : currentItems;
+              const filteredItems = searchQuery.trim()
+                ? dedupedItems.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                : dedupedItems;
               return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2 pb-4 md:pb-0">
                 {filteredItems.map((item, index) => {
                   const menuItem = item as MenuItem;
@@ -2601,9 +2634,7 @@ const Orders = () => {
                     }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
                         <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
                       </button>
-                      {showStockBadge && (
-                        <span className="absolute top-0.5 md:top-1 right-0.5 md:right-1 min-w-[18px] h-[18px] rounded-full bg-accent text-accent-foreground text-[9px] font-bold flex items-center justify-center px-1 z-20">{menuItem.stock_count}</span>
-                      )}
+                      {showStockBadge && <span className="absolute top-0.5 md:top-1 right-0.5 md:right-1 min-w-[20px] h-[20px] rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1 z-20">{menuItem.stock_count}</span>}
                       {isOutOfStock && (
                         <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
                           <span className="text-[9px] md:text-[10px] font-bold text-destructive uppercase tracking-wider">Out of Stock</span>
@@ -2621,9 +2652,6 @@ const Orders = () => {
                           <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold">${item.price.toFixed(2)}</span>
                         )}
                       </div>
-                      {hasStockCount && (
-                        <span className="text-[9px] md:text-[10px] text-muted-foreground font-semibold">Stock: {menuItem.stock_count}</span>
-                      )}
                     </div>
                   </div>;
                 })}
@@ -2640,9 +2668,7 @@ const Orders = () => {
                           {item.name}
                         </span>
                         <div className="flex items-center gap-1 shrink-0">
-                          {showStockBadge && (
-                            <span className="min-w-[16px] h-[16px] rounded-full bg-accent text-accent-foreground text-[8px] font-bold flex items-center justify-center px-1">{menuItem.stock_count}</span>
-                          )}
+                          {showStockBadge && <span className="min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1">{menuItem.stock_count}</span>}
                           <span className="text-[10px] md:text-[11px] text-foreground font-semibold whitespace-nowrap">
                             {(item as MenuItem).isOpenPrice && item.price === 0 ? "" : `$${item.price.toFixed(2)}`}
                           </span>
@@ -2650,9 +2676,6 @@ const Orders = () => {
                       </div>
                       {(item as MenuItem).isOpenPrice && (
                         <span className="self-start px-1.5 py-0 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 leading-relaxed">Open Price</span>
-                      )}
-                      {hasStockCount && (
-                        <span className="text-[8px] font-semibold text-muted-foreground uppercase">Stock: {menuItem.stock_count}</span>
                       )}
                       {isOutOfStock && (
                         <span className="text-[8px] font-bold text-destructive uppercase">Out of Stock</span>

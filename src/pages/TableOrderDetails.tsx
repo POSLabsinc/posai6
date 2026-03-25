@@ -2807,7 +2807,7 @@ const TableOrderDetails = () => {
           <div className="flex gap-2 flex-wrap">
             <button 
               className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors"
-              onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
+              onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem&seats=${currentSelectedGuest?.partySize || 4}&guests=${currentSelectedGuest?.partySize || 4}`)}
             >
               Add Item
             </button>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Check } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Minus, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -40,6 +40,11 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
   const { value: salesOverAmount, update: setSalesOverAmount } = usePreference("printer_sales_over_amount", "0.00");
   const { value: modifierTextSize, update: setModifierTextSize } = usePreference("printer_modifier_text_size", "Tall");
   const { value: selectedOrderTypesStr, update: setSelectedOrderTypesStr } = usePreference("printer_kitchen_order_types", "");
+  const { value: kotCopiesStr, update: setKotCopiesStr } = usePreference("printer_kot_copies", "1");
+  const { value: secondBillCopiesStr, update: setSecondBillCopiesStr } = usePreference("printer_2nd_bill_copies", "0");
+
+  const kotCopies = Math.max(0, parseInt(kotCopiesStr) || 1);
+  const secondBillCopies = Math.max(0, parseInt(secondBillCopiesStr) || 0);
 
   const selectedOrderTypes = selectedOrderTypesStr ? selectedOrderTypesStr.split(",") : [];
 
@@ -79,6 +84,28 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
       </div>
       <p className="text-neutral-500 text-xs mt-1.5 px-1 leading-relaxed">{description}</p>
     </div>
+  );
+
+  const CounterOption = ({ label, description, value, onChange, min = 0, max = 99 }: { label: string; description: string; value: number; onChange: (v: number) => void; min?: number; max?: number }) => (
+    <SettingOption label={label} description={description}>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+          className="w-8 h-8 rounded-full bg-neutral-700/60 flex items-center justify-center active:opacity-70 transition-opacity disabled:opacity-30"
+        >
+          <Minus className="w-4 h-4 text-foreground" />
+        </button>
+        <span className="text-foreground text-base font-medium w-6 text-center">{value}</span>
+        <button
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+          className="w-8 h-8 rounded-full bg-neutral-700/60 flex items-center justify-center active:opacity-70 transition-opacity disabled:opacity-30"
+        >
+          <Plus className="w-4 h-4 text-foreground" />
+        </button>
+      </div>
+    </SettingOption>
   );
 
   const ToggleOption = ({ label, description, checked, onChange }: { label: string; description: string; checked: boolean; onChange: (v: boolean) => void }) => (
@@ -135,6 +162,8 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
         <ToggleOption label="Large Order Number" description="Enlarge the order number for quick identification." checked={toBool(largeOrderNumber)} onChange={(v) => setLargeOrderNumber(String(v))} />
         <ToggleOption label="Print Products Separately" description="Print each product on its own individual ticket." checked={toBool(printItemsSeparately)} onChange={(v) => setPrintItemsSeparately(String(v))} />
         <ToggleOption label="Reverse Text Style" description="Swap text and background colours for improved readability." checked={toBool(reverseTextStyle)} onChange={(v) => setReverseTextStyle(String(v))} />
+        <CounterOption label="KOT Copies" description="Number of duplicate kitchen order tickets to print for each order." value={kotCopies} onChange={(v) => setKotCopiesStr(String(v))} min={1} max={10} />
+        <CounterOption label="2nd Bill Copies" description="Number of additional customer bill copies to print alongside the original." value={secondBillCopies} onChange={(v) => setSecondBillCopiesStr(String(v))} min={0} max={10} />
 
         {/* Modifiers */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Modifiers</p>

@@ -340,6 +340,13 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   }, [allOrders, selectedGuest.id]);
   
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+  
+  // Sync selectedSeats when selectedGuest changes
+  useEffect(() => {
+    const size = selectedGuest.partySize || 4;
+    setSelectedSeats(Array.from({ length: size }, (_, i) => i + 1));
+  }, [selectedGuest.id, selectedGuest.partySize]);
+
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);

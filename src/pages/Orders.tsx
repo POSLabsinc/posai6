@@ -692,8 +692,19 @@ const Orders = () => {
     setShowClearConfirm(true);
   };
 
-  const handleClearOrder = () => {
+  const handleClearOrder = (cancelReason?: string) => {
     console.log('[handleClearOrder] clearing all order state');
+    
+    // Process write-offs for fired items before clearing
+    const firedItems = orderItems.filter(item => item.isFired);
+    if (firedItems.length > 0) {
+      processCancelledItems(
+        firedItems.map(item => ({ name: item.name, price: item.price, quantity: 1, isFired: true })),
+        undefined,
+        cancelReason || 'Cancelled after fire'
+      );
+    }
+    
     setOrderItems(() => []);
     setSelectedDiscounts([]);
     setAppliedServiceCharge(0);

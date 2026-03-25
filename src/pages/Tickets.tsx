@@ -3269,7 +3269,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
                   <img src={splitIcon} alt="Split" className="w-4 h-4" />
                 </button>
-                {[1, 2, 3, 4].map(seat => (
+                {Array.from({ length: selectedGuest.partySize || 4 }, (_, i) => i + 1).map(seat => (
                   <button 
                     key={seat} 
                     onClick={() => toggleSeat(seat)} 

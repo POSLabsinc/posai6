@@ -1126,6 +1126,18 @@ export const ItemCustomizationDialog = ({
           >
             Add-Ons
           </button>
+          {isTableOrder && (
+            <button
+              onClick={() => setActiveTab('course')}
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                activeTab === 'course' 
+                  ? 'bg-neutral-700 text-white' 
+                  : 'bg-transparent text-neutral-400'
+              }`}
+            >
+              Course
+            </button>
+          )}
         </div>
       </div>
 

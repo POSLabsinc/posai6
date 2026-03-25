@@ -687,6 +687,7 @@ const TableOrderDetails = () => {
   const orderNotesTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>(['all']);
+  const [tableCapacity, setTableCapacity] = useState<number>(20);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
   const [receiptGuest, setReceiptGuest] = useState<GuestOrder | null>(null);

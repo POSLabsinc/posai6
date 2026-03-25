@@ -227,7 +227,9 @@ export function useEndOfDayScheduler(): EndOfDaySchedulerState {
         lastDayRef.current = today;
         reminderShownRef.current = false;
         autoRunDoneRef.current = false;
+        graceShownRef.current = false;
         localStorage.removeItem(EOD_REMINDER_SHOWN_KEY);
+        localStorage.removeItem(GRACE_PERIOD_SHOWN_KEY);
       }
 
       // Skip if already shown reminder AND already ran today

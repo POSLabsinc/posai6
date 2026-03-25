@@ -339,7 +339,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     }
   }, [allOrders, selectedGuest.id]);
   
-  const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+  
+  // Sync selectedSeats when selectedGuest changes
+  useEffect(() => {
+    const size = selectedGuest.partySize || 4;
+    setSelectedSeats(Array.from({ length: size }, (_, i) => i + 1));
+  }, [selectedGuest.id, selectedGuest.partySize]);
+
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -1941,7 +1948,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     const items = getOrderItems(order);
     
     // Only filter if it's a table order and not all seats are selected
-    if (order.orderType !== "Table" || selectedSeats.length === 4) {
+    if (order.orderType !== "Table" || selectedSeats.length === (order.partySize || 4)) {
       return items;
     }
     
@@ -2103,7 +2110,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
               <img src={seatIcon} alt="Seat" className="w-4 h-4" />
             </button>
-            {[1, 2, 3, 4].map(seat => (
+            {Array.from({ length: selectedGuest.partySize || 4 }, (_, i) => i + 1).map(seat => (
               <button 
                 key={seat} 
                 onClick={() => toggleSeat(seat)} 
@@ -2298,7 +2305,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 {selectedGuest.orderType === "Table" && (
                   <div className="flex items-center gap-1 mt-2">
                     <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                    {item.seats.length === 0 || item.seats.length === 4 ? (
+                    {item.seats.length === 0 || item.seats.length === (selectedGuest.partySize || 4) ? (
                       <span className="w-5 h-5 bg-white/10 rounded flex items-center justify-center">
                         <Share2 className="w-3 h-3 text-white opacity-70" />
                       </span>
@@ -3262,7 +3269,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
                   <img src={splitIcon} alt="Split" className="w-4 h-4" />
                 </button>
-                {[1, 2, 3, 4].map(seat => (
+                {Array.from({ length: selectedGuest.partySize || 4 }, (_, i) => i + 1).map(seat => (
                   <button 
                     key={seat} 
                     onClick={() => toggleSeat(seat)} 
@@ -3470,7 +3477,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {selectedGuest.orderType === "Table" && (
                       <div className="flex items-center gap-1 mt-2">
                         <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                        {item.seats.length === 0 || item.seats.length === 4 ? (
+                        {item.seats.length === 0 || item.seats.length === (selectedGuest.partySize || 4) ? (
                           <span className="w-5 h-5 bg-white/10 rounded flex items-center justify-center">
                             <Share2 className="w-3 h-3 text-white opacity-70" />
                           </span>
@@ -4138,7 +4145,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
                   <img src={seatIcon} alt="Seat" className="w-3 h-3" />
                 </button>
-                {[1, 2, 3, 4].map(seat => (
+                {Array.from({ length: selectedGuest.partySize || 4 }, (_, i) => i + 1).map(seat => (
                   <button 
                     key={seat} 
                     onClick={() => toggleSeat(seat)}
@@ -4325,7 +4332,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     {selectedGuest.orderType === "Table" && (
                       <div className="flex items-center gap-1 mt-2">
                         <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
-                        {item.seats.length === 0 || item.seats.length === 4 ? (
+                        {item.seats.length === 0 || item.seats.length === (selectedGuest.partySize || 4) ? (
                           <span className="w-4 h-4 bg-white/10 rounded flex items-center justify-center">
                             <Share2 className="w-2.5 h-2.5 text-white opacity-70" />
                           </span>

@@ -1242,7 +1242,7 @@ const TableOrderDetails = () => {
         <ScrollArea className="flex-1 px-3">
           <div className="py-2 space-y-2">
             {(() => {
-              const allSeatsSelected = selectedSeats.length === 4;
+              const allSeatsSelected = selectedSeats.length === (currentSelectedGuest?.partySize || 4);
               const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
               return filteredItems.map((item, index) => (
                 <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
@@ -1762,7 +1762,7 @@ const TableOrderDetails = () => {
       {/* Add Order Button */}
       <div className="px-3 py-2">
         <button 
-          onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
+          onClick={() => navigate(`/orders?tableId=${tableId}&seats=${tableCapacity}&guests=1`)}
           className="w-full py-2 text-black text-sm font-medium rounded-full hover:opacity-90 transition-opacity" 
           style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
         >
@@ -2097,7 +2097,7 @@ const TableOrderDetails = () => {
         {/* Add Order Button */}
         <div className="p-3 border-t border-neutral-700/50">
           <button 
-            onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
+            onClick={() => navigate(`/orders?tableId=${tableId}&seats=${tableCapacity}&guests=1`)}
             className="w-full py-2 text-sm text-black font-medium rounded-full hover:opacity-90 transition-opacity" 
             style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
           >
@@ -2806,7 +2806,7 @@ const TableOrderDetails = () => {
         {/* Add Order Button */}
         <div className="p-3 border-t border-neutral-700/50">
           <button 
-            onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
+            onClick={() => navigate(`/orders?tableId=${tableId}&seats=${tableCapacity}&guests=1`)}
             className="w-full py-3 text-black font-medium rounded-full hover:opacity-90 transition-opacity" 
             style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
           >
@@ -2935,7 +2935,7 @@ const TableOrderDetails = () => {
                 {hasMergedOrTransferredItems(currentSelectedGuest) ? (
                   // Display items grouped by source
                   getMergedOrderDisplay(currentSelectedGuest).map((section, sectionIndex) => {
-                    const allSeatsSelected = selectedSeats.length === 4;
+                    const allSeatsSelected = selectedSeats.length === (currentSelectedGuest?.partySize || 4);
                     const filteredSectionItems = filterItemsBySeats(section.items, selectedSeats, allSeatsSelected);
                     if (filteredSectionItems.length === 0) return null;
                     return (
@@ -3056,7 +3056,7 @@ const TableOrderDetails = () => {
                 ) : (
                   // Display regular items (no merge)
                   (() => {
-                    const allSeatsSelected = selectedSeats.length === 4;
+                    const allSeatsSelected = selectedSeats.length === (currentSelectedGuest?.partySize || 4);
                     const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
                     return filteredItems.map((item, index) => (
                       <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">

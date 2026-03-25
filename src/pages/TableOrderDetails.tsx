@@ -329,12 +329,12 @@ const TableOrderDetails = () => {
     console.log('[TableOrder CancelOrder] orderId:', cancelTargetOrderId, 'reason:', selectedReason);
     
     // Process write-offs for fired items
-    const sessionOrder = sessionOrdersForTable.find(so => so.id === cancelTargetOrderId);
-    const sessionItems = sessionOrder?.items || [];
-    const unifiedOrder = unifiedOrders.find(o => o.id === cancelTargetOrderId);
-    const unifiedItems = (unifiedOrder as any)?.items || [];
-    const allItems = sessionItems.length > 0 ? sessionItems : unifiedItems;
-    const firedItems = allItems.filter((item: any) => item.isFired || item.is_fired);
+    const cancelSessionOrder = sessionOrdersForTable.find(so => so.id === cancelTargetOrderId);
+    const cancelSessionItems = cancelSessionOrder?.items || [];
+    const cancelUnifiedOrder = unifiedOrders.find(o => o.id === cancelTargetOrderId);
+    const cancelUnifiedItems = (cancelUnifiedOrder as any)?.items || [];
+    const allCancelItems = cancelSessionItems.length > 0 ? cancelSessionItems : cancelUnifiedItems;
+    const firedItems = allCancelItems.filter((item: any) => item.isFired || item.is_fired);
     if (firedItems.length > 0) {
       processCancelledItems(
         firedItems.map((item: any) => ({ name: item.name, price: item.price, quantity: item.quantity || 1, isFired: true })),

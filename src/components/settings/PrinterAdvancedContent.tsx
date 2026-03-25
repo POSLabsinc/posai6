@@ -162,6 +162,8 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
         <ToggleOption label="Large Order Number" description="Enlarge the order number for quick identification." checked={toBool(largeOrderNumber)} onChange={(v) => setLargeOrderNumber(String(v))} />
         <ToggleOption label="Print Products Separately" description="Print each product on its own individual ticket." checked={toBool(printItemsSeparately)} onChange={(v) => setPrintItemsSeparately(String(v))} />
         <ToggleOption label="Reverse Text Style" description="Swap text and background colours for improved readability." checked={toBool(reverseTextStyle)} onChange={(v) => setReverseTextStyle(String(v))} />
+        <CounterOption label="KOT Copies" description="Number of duplicate kitchen order tickets to print for each order." value={kotCopies} onChange={(v) => setKotCopiesStr(String(v))} min={1} max={10} />
+        <CounterOption label="2nd Bill Copies" description="Number of additional customer bill copies to print alongside the original." value={secondBillCopies} onChange={(v) => setSecondBillCopiesStr(String(v))} min={0} max={10} />
 
         {/* Modifiers */}
         <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Modifiers</p>

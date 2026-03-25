@@ -1762,7 +1762,7 @@ const TableOrderDetails = () => {
       {/* Add Order Button */}
       <div className="px-3 py-2">
         <button 
-          onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
+          onClick={() => navigate(`/orders?tableId=${tableId}&seats=${tableCapacity}&guests=1`)}
           className="w-full py-2 text-black text-sm font-medium rounded-full hover:opacity-90 transition-opacity" 
           style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
         >

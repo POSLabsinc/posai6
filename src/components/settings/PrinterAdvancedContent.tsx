@@ -86,6 +86,28 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
     </div>
   );
 
+  const CounterOption = ({ label, description, value, onChange, min = 0, max = 99 }: { label: string; description: string; value: number; onChange: (v: number) => void; min?: number; max?: number }) => (
+    <SettingOption label={label} description={description}>
+      <div className="flex items-center gap-3">
+        <button
+          onClick={() => onChange(Math.max(min, value - 1))}
+          disabled={value <= min}
+          className="w-8 h-8 rounded-full bg-neutral-700/60 flex items-center justify-center active:opacity-70 transition-opacity disabled:opacity-30"
+        >
+          <Minus className="w-4 h-4 text-foreground" />
+        </button>
+        <span className="text-foreground text-base font-medium w-6 text-center">{value}</span>
+        <button
+          onClick={() => onChange(Math.min(max, value + 1))}
+          disabled={value >= max}
+          className="w-8 h-8 rounded-full bg-neutral-700/60 flex items-center justify-center active:opacity-70 transition-opacity disabled:opacity-30"
+        >
+          <Plus className="w-4 h-4 text-foreground" />
+        </button>
+      </div>
+    </SettingOption>
+  );
+
   const ToggleOption = ({ label, description, checked, onChange }: { label: string; description: string; checked: boolean; onChange: (v: boolean) => void }) => (
     <SettingOption label={label} description={description}>
       <Switch checked={checked} onCheckedChange={onChange} />

@@ -2935,7 +2935,7 @@ const TableOrderDetails = () => {
                 {hasMergedOrTransferredItems(currentSelectedGuest) ? (
                   // Display items grouped by source
                   getMergedOrderDisplay(currentSelectedGuest).map((section, sectionIndex) => {
-                    const allSeatsSelected = selectedSeats.length === 4;
+                    const allSeatsSelected = selectedSeats.length === (currentSelectedGuest?.partySize || 4);
                     const filteredSectionItems = filterItemsBySeats(section.items, selectedSeats, allSeatsSelected);
                     if (filteredSectionItems.length === 0) return null;
                     return (

@@ -273,7 +273,7 @@ const Orders = () => {
   const { panelLayout } = usePanelPosition();
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
   const { addOrder: addTicketOrder, updateOrder: updateTicketOrder } = useTicketOrders();
-  const { processCancelledItems } = useWriteOffProcessor();
+  const { processCancelledItems, isEnabled: isWriteOffEnabled } = useWriteOffProcessor();
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
 

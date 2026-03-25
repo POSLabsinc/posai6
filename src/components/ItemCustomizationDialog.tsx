@@ -1142,7 +1142,7 @@ export const ItemCustomizationDialog = ({
         </div>
       </div>
 
-      {activeTab === 'item' ? (
+      {activeTab === 'item' && (
         <div className="flex-1 flex flex-col min-h-0">
           {/* Required Modifiers Label */}
           <div className="px-4 pb-2">
@@ -1218,7 +1218,9 @@ export const ItemCustomizationDialog = ({
             </>
           )}
         </div>
-      ) : (
+      )}
+
+      {activeTab === 'addons' && (
         <div className="flex-1 flex flex-col min-h-0">
           {/* Search Bar with Sort */}
           <div className="px-4 pb-2">

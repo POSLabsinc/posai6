@@ -107,7 +107,7 @@ const PaymentsSettingsContent = ({
 
         <div className="space-y-4">
           <SettingsOption icon={taxesIcon} iconBgColor="#AF1DFF" label="Taxes" description="Manage tax rates for different categories, set up tax exemptions, and configure tax-inclusive or exclusive pricing." onClick={() => onNavigate?.('/settings/payments/taxes')} />
-          <SettingsOption icon={voucherIcon} iconBgColor="#FF9500" label="Voucher" description="Sell and redeem vouchers, manage voucher types, expiry, and redemption limits at checkout." onClick={() => onNavigate?.('/voucher')} />
+          
           <SettingsOption icon={gratuityIcon} iconBgColor="#F80063" label="Gratuity" description="Set up tip presets, auto-gratuity rules for large parties, and configure tip pooling and distribution among staff." onClick={() => onNavigate?.('/settings/payments/gratuity')} />
           <SettingsOption icon={discountsIcon} iconBgColor="#00B6FA" label="Discounts" description="Create and manage percentage-based or fixed-amount discounts, set eligibility rules, and track discount usage." onClick={() => onNavigate?.('/settings/payments/discounts')} />
           <SettingsOption icon={serviceChargeIcon} iconBgColor="#FF3F7D" label="Service Charge" description="Configure automatic service charges, surcharges, and fees that apply to orders based on party size or order type." onClick={() => onNavigate?.('/settings/payments/service-charge')} />

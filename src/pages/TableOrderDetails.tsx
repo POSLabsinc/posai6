@@ -1219,6 +1219,14 @@ const TableOrderDetails = () => {
             {Array.from({ length: currentSelectedGuest?.partySize || 4 }, (_, i) => i + 1).map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {seat}
               </button>)}
+            <button
+              onClick={handleAddSeat}
+              disabled={isTableFull}
+              title={isTableFull ? "Table is full" : "Add guest"}
+              className={`w-7 h-7 rounded text-sm font-bold transition-colors ${isTableFull ? "bg-white/5 text-white/20 cursor-not-allowed" : "bg-white/10 text-white hover:bg-white/20"}`}
+            >
+              +
+            </button>
           </div>
         </div>
 

@@ -3008,9 +3008,39 @@ const Orders = () => {
                   No Tax
                 </Button>
                 <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
-                  <img src={registerBtnIcon} alt="" className="w-3 h-3" />
-                  No Sale
-                </Button>
+                   <img src={registerBtnIcon} alt="" className="w-3 h-3" />
+                   No Sale
+                 </Button>
+                {pastOrderItems.length > 0 && isGuestSelected && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="text-[10px] rounded-[10px] bg-blue-600/30 border-blue-500 hover:bg-blue-600/40 border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
+                    onClick={() => {
+                      const availableItems = pastOrderItems.filter(i => i.isAvailable !== false);
+                      if (availableItems.length === 0) {
+                        toast.error("No available products from past order");
+                        return;
+                      }
+                      setOrderItems(prev => {
+                        let updated = [...prev];
+                        for (const item of availableItems) {
+                          const existing = updated.find(o => o.name.toLowerCase() === item.name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
+                          if (existing) {
+                            updated = updated.map(o => o.id === existing.id ? { ...o, qty: o.qty + item.quantity } : o);
+                          } else {
+                            updated = [...updated, { id: Date.now() + Math.random(), qty: item.quantity, name: item.name, price: item.price }];
+                          }
+                        }
+                        return updated;
+                      });
+                      toast.success(`Past order: ${availableItems.length} product${availableItems.length > 1 ? 's' : ''} added`);
+                    }}
+                  >
+                    <RotateCcw className="w-3 h-3" />
+                    Past Order
+                  </Button>
+                )}
               </div>
               <Button
               variant="secondary"

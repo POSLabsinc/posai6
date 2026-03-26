@@ -1933,6 +1933,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowDineInForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowDineInForm(false)}
             onClose={() => setShowDineInForm(false)}

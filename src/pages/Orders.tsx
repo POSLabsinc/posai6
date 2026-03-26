@@ -1758,9 +1758,199 @@ const Orders = () => {
               )}
             </> :
             <>
-        <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
-...
-            </div>
+              <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
+                <div className="flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
+                        background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+                      }}>
+                        {orderType ? (
+                          <>
+                            <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
+                            {orderType}
+                          </>
+                        ) : (
+                          <span className="text-neutral-600">Select Type</span>
+                        )}
+                        <ChevronDown className="w-3 h-3" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px] p-1 z-50">
+                      {orderTypes.map((type) => <DropdownMenuItem key={type.label} onClick={() => {
+                        setOrderType(type.label);
+                        openFormForType(type.label);
+                      }} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2 flex items-center gap-2">
+                          <img src={type.icon} alt="" className="w-4 h-4" />
+                          {type.label}
+                        </DropdownMenuItem>)}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  {orderItems.length > 0 && <span className="bg-sidebar-accent px-2 py-0.5 rounded text-xs font-bold">20</span>}
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <img src={runnerIcon} alt="User" className="w-4 h-4" />
+                  <span>{currentServerName}</span>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="w-5 h-5 bg-white rounded-full flex items-center justify-center ml-2">
+                        <MoreVertical className="w-3 h-3 text-black" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="bg-neutral-800 border-neutral-700 min-w-[160px] p-1 z-50">
+                      <DropdownMenuItem
+                        onClick={toggleCustomItemPanel}
+                        className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                        <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />
+                        Custom Item
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setShowDiscountMpin(true)}
+                        className={`${selectedDiscounts.length > 0 ? 'text-primary' : 'text-white'} hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2`}>
+                        <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
+                        Discount {selectedDiscounts.length > 0 && `(${selectedDiscounts.length})`}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
+                        className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                        <img src={noTaxBtnIcon} alt="" className="w-3.5 h-3.5" />
+                        No Tax
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                        <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
+                        No Sale
+                      </DropdownMenuItem>
+                      {pastOrderItems.length > 0 && (
+                        <DropdownMenuItem
+                          onClick={() => {
+                            const availableItems = pastOrderItems.filter(i => i.isAvailable !== false);
+                            if (availableItems.length === 0) { toast.error("No available products from past order"); return; }
+                            setOrderItems(prev => {
+                              let updated = [...prev];
+                              for (const item of availableItems) {
+                                const existing = updated.find(o => o.name.toLowerCase() === item.name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
+                                if (existing) { updated = updated.map(o => o.id === existing.id ? { ...o, qty: o.qty + item.quantity } : o); }
+                                else { updated = [...updated, { id: Date.now() + Math.random(), qty: item.quantity, name: item.name, price: item.price }]; }
+                              }
+                              return updated;
+                            });
+                            toast.success(`Past order: ${availableItems.length} product${availableItems.length > 1 ? 's' : ''} added`);
+                          }}
+                          className="text-blue-400 hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          Past Order
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem
+                        onClick={() => setShowTransferCheckDialog(true)}
+                        className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                        <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
+                        Transfer Check
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setShowGiftCardDialog(true)}
+                        className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                        <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />
+                        Gift Card
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setShowServiceChargeDialog(true)}
+                        className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                        <img src={serviceChargeIcon} alt="" className="w-3.5 h-3.5" />
+                        Service Charge
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setShowAddGuestForm(true)}
+                        className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                        <img src={addGuestIcon} alt="" className="w-3.5 h-3.5" />
+                        Add Guest
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => { setVoucherMode(true); setEditingVoucherData(null); }}
+                        className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                        <Ticket className="w-3.5 h-3.5" />
+                        Voucher
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setShowMessageKitchen(true)}
+                        className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                        <img src={messageKdsIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
+                        Message Kitchen
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1.5 mb-2">
+                <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide gap-1.5">
+                  {pastOrderItems.length > 0 && (
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="text-[10px] rounded-[10px] bg-blue-600/30 border-blue-500 hover:bg-blue-600/40 border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
+                      onClick={() => {
+                        const availableItems = pastOrderItems.filter(i => i.isAvailable !== false);
+                        if (availableItems.length === 0) {
+                          toast.error("No available products from past order");
+                          return;
+                        }
+                        setOrderItems(prev => {
+                          let updated = [...prev];
+                          for (const item of availableItems) {
+                            const existing = updated.find(o => o.name.toLowerCase() === item.name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
+                            if (existing) {
+                              updated = updated.map(o => o.id === existing.id ? { ...o, qty: o.qty + item.quantity } : o);
+                            } else {
+                              updated = [...updated, { id: Date.now() + Math.random(), qty: item.quantity, name: item.name, price: item.price }];
+                            }
+                          }
+                          return updated;
+                        });
+                        toast.success(`Past order: ${availableItems.length} product${availableItems.length > 1 ? 's' : ''} added`);
+                      }}
+                    >
+                      <RotateCcw className="w-3 h-3" />
+                      Past Order ({pastOrderItems.filter(i => i.isAvailable !== false).length})
+                    </Button>
+                  )}
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
+                    onClick={toggleCustomItemPanel}>
+                    <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-3 h-3" />
+                    {showCustomItemPanel ? "Menu" : "Custom Item"}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className={`text-[10px] rounded-[10px] ${selectedDiscounts.length > 0 ? 'bg-primary/30 border-primary text-primary' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
+                    onClick={() => setShowDiscountMpin(true)}>
+                    <img src={discountBtnIcon} alt="" className="w-3 h-3" />
+                    Discount {selectedDiscounts.length > 0 && `(${selectedDiscounts.length})`}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className={`text-[10px] rounded-[10px] ${isTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
+                    onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}>
+                    <img src={noTaxBtnIcon} alt="" className="w-3 h-3" />
+                    No Tax
+                  </Button>
+                  <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
+                    <img src={registerBtnIcon} alt="" className="w-3 h-3" />
+                    No Sale
+                  </Button>
+                </div>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border flex-shrink-0"
+                  onClick={() => setIsOrderActionsSidebarOpen(!isOrderActionsSidebarOpen)}>
+                  {isOrderActionsSidebarOpen ? <X className="w-3 h-3" /> : <MoreVertical className="w-3 h-3" />}
+                </Button>
+              </div>
             </>
 
           {/* Order Content Area with Sidebar */}

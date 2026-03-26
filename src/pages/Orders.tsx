@@ -1965,6 +1965,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowDeliveryForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowDeliveryForm(false)}
             onClose={() => setShowDeliveryForm(false)}

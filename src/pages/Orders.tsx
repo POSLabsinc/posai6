@@ -569,6 +569,7 @@ const Orders = () => {
   const [showPastOrderPopup, setShowPastOrderPopup] = useState(false);
   const [pastOrderGuest, setPastOrderGuest] = useState<GuestPastInfo | null>(null);
   const [pastOrderItems, setPastOrderItems] = useState<GuestPastItem[]>([]);
+  const [pastOrderNotes, setPastOrderNotes] = useState<string>('');
   const [pastOrderLoading, setPastOrderLoading] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');

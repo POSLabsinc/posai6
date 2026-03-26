@@ -141,14 +141,15 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
         </div>
 
         {/* Bills */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Bills</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">Bills</p>
         <ToggleOption label="Auto-Print Bills" description="Automatically print bills when an order is completed." checked={toBool(autoPrintBills)} onChange={(v) => setAutoPrintBills(String(v))} />
         <ToggleOption label="Show Single Products" description="Display individual products on printed bills." checked={toBool(showSingleItems)} onChange={(v) => setShowSingleItems(String(v))} />
         <ToggleOption label="Show Free Products" description="Include complimentary products on the bill." checked={toBool(showFreeItems)} onChange={(v) => setShowFreeItems(String(v))} />
         <ToggleOption label="Show Free Modifiers" description="Include free modifiers on the bill for each product." checked={toBool(showFreeModifiers)} onChange={(v) => setShowFreeModifiers(String(v))} />
+        <CounterOption label="Bill Copies" description="Number of additional customer bill copies to print alongside the original." value={secondBillCopies} onChange={(v) => setSecondBillCopiesStr(String(v))} min={0} max={10} />
 
         {/* Receipts */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Receipts</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 mt-2">Receipts</p>
         <ToggleOption label="Auto-Print Receipt" description="Automatically print a receipt after every sale." checked={toBool(autoPrintReceipt)} onChange={(v) => setAutoPrintReceipt(String(v))} />
         <ToggleOption label="Auto-Print Refund" description="Automatically print a receipt when a refund is processed." checked={toBool(autoPrintRefund)} onChange={(v) => setAutoPrintRefund(String(v))} />
         <ToggleOption label="Itemized Receipt" description="Show a detailed breakdown of each product on the receipt." checked={toBool(itemizedReceipt)} onChange={(v) => setItemizedReceipt(String(v))} />
@@ -157,16 +158,15 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
         <ToggleOption label="Print Time Clock Report" description="Allow printing of employee time clock reports." checked={toBool(printTimeClockReport)} onChange={(v) => setPrintTimeClockReport(String(v))} />
 
         {/* Kitchen Tickets */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Kitchen Tickets</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 mt-2">Kitchen Tickets</p>
         <ToggleOption label="Large Product Text" description="Increase the font size for product names on kitchen tickets." checked={toBool(largeItemText)} onChange={(v) => setLargeItemText(String(v))} />
         <ToggleOption label="Large Order Number" description="Enlarge the order number for quick identification." checked={toBool(largeOrderNumber)} onChange={(v) => setLargeOrderNumber(String(v))} />
         <ToggleOption label="Print Products Separately" description="Print each product on its own individual ticket." checked={toBool(printItemsSeparately)} onChange={(v) => setPrintItemsSeparately(String(v))} />
         <ToggleOption label="Reverse Text Style" description="Swap text and background colours for improved readability." checked={toBool(reverseTextStyle)} onChange={(v) => setReverseTextStyle(String(v))} />
         <CounterOption label="KOT Copies" description="Number of duplicate kitchen order tickets to print for each order." value={kotCopies} onChange={(v) => setKotCopiesStr(String(v))} min={1} max={10} />
-        <CounterOption label="Bill Copies" description="Number of additional customer bill copies to print alongside the original." value={secondBillCopies} onChange={(v) => setSecondBillCopiesStr(String(v))} min={0} max={10} />
 
         {/* Modifiers */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Modifiers</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 mt-2">Modifiers</p>
         <SettingOption label="Modifier Text Size" description="Set the text size for modifiers on kitchen tickets.">
           <button
             ref={triggerRef}
@@ -227,7 +227,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
         />
 
         {/* Signatures & Tips */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Signatures & Tips</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 mt-2">Signatures & Tips</p>
         <ToggleOption label="Signature & Tip Line" description="Include a signature and tip line on printed receipts." checked={toBool(signatureTipLine)} onChange={(v) => setSignatureTipLine(String(v))} />
         <ToggleOption label="Require for Sales Over" description="Require a signature for transactions above a set amount." checked={toBool(requireForSalesOver)} onChange={(v) => setRequireForSalesOver(String(v))} />
         {toBool(requireForSalesOver) && (

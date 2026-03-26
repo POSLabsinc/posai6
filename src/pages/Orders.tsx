@@ -2045,6 +2045,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowPhoneInForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onClose={() => setShowPhoneInForm(false)}
             initialData={phoneInGuestData || undefined} />

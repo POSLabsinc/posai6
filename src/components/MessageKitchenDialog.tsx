@@ -677,7 +677,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                 ) : (
                   <div className="max-h-[220px] overflow-y-auto space-y-0.5 scrollbar-hide">
                     {filteredOrders.map(order => {
-                      const tableDisplay = formatTableDisplay(order.tableNumber);
+                      const contextLabel = formatTableOrType(order);
                       const timeStr = formatOrderTime(order.createdAt);
                       const isSelected = selectedOrderId === order.id;
                       return (
@@ -688,7 +688,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                         >
                           <div className="flex items-center gap-2 text-sm">
                             <span className="text-white font-semibold">#{order.orderNumber}</span>
-                            <span className="text-neutral-400">{tableDisplay}</span>
+                            <span className="text-neutral-400">{contextLabel}</span>
                             <span className="text-neutral-500">·</span>
                             <span className="text-neutral-400">{order.serverName}</span>
                             <span className="text-neutral-500 ml-auto">{timeStr}</span>

@@ -193,9 +193,10 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
               {/* Product Row */}
               <button
                 onClick={() => toggleExpand(product.id)}
-                className="grid grid-cols-[1.2fr_0.8fr_0.6fr_100px_24px] items-center px-6 py-4 w-full hover:bg-neutral-700/30 transition-colors text-left"
+                className="grid grid-cols-[1.2fr_0.8fr_0.7fr_0.6fr_100px_24px] items-center px-6 py-4 w-full hover:bg-neutral-700/30 transition-colors text-left"
               >
                 <span className="text-[15px] text-foreground">{product.name}</span>
+                <span className="text-[13px] text-muted-foreground text-center font-mono">{product.product_code}</span>
                 <span className="text-[15px] text-muted-foreground text-center">{product.sku || "—"}</span>
                 <span className="text-[15px] text-muted-foreground text-center">{product.variants.length}</span>
                 <span className="text-[15px] text-foreground text-right">£{product.price.toFixed(2)}</span>

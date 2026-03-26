@@ -3224,6 +3224,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowTakeOutForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowTakeOutForm(false)}
               initialData={takeOutGuestData} /> :

@@ -1844,10 +1844,51 @@ const Orders = () => {
                         Past Order
                       </DropdownMenuItem>
                     )}
-              <div className="flex items-center gap-1.5 mb-2">
-               <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide gap-1.5">
-                 {pastOrderItems.length > 0 && (
-                   <Button
+                    <DropdownMenuItem
+                      onClick={() => setShowTransferCheckDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
+                      Transfer Check
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setShowGiftCardDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />
+                      Gift Card
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setShowServiceChargeDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={serviceChargeIcon} alt="" className="w-3.5 h-3.5" />
+                      Service Charge
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setShowAddGuestForm(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={addGuestIcon} alt="" className="w-3.5 h-3.5" />
+                      Add Guest
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => { setVoucherMode(true); setEditingVoucherData(null); }}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <Ticket className="w-3.5 h-3.5" />
+                      Voucher
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => setShowMessageKitchen(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={messageKdsIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
+                      Message Kitchen
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide gap-1.5">
+                {pastOrderItems.length > 0 && (
+                  <Button
                     variant="secondary"
                     size="sm"
                     className="text-[10px] rounded-[10px] bg-blue-600/30 border-blue-500 hover:bg-blue-600/40 border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
@@ -1877,47 +1918,42 @@ const Orders = () => {
                   </Button>
                 )}
                 <Button
-                variant="secondary"
-                size="sm"
-                className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
-                onClick={toggleCustomItemPanel}>
-
+                  variant="secondary"
+                  size="sm"
+                  className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
+                  onClick={toggleCustomItemPanel}>
                   <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-3 h-3" />
                   {showCustomItemPanel ? "Menu" : "Custom Item"}
                 </Button>
                 <Button
-                 variant="secondary"
-                 size="sm"
-                 className={`text-[10px] rounded-[10px] ${selectedDiscounts.length > 0 ? 'bg-primary/30 border-primary text-primary' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
-                 onClick={() => setShowDiscountMpin(true)}>
-
-                   <img src={discountBtnIcon} alt="" className="w-3 h-3" />
-                   Discount {selectedDiscounts.length > 0 && `(${selectedDiscounts.length})`}
-                 </Button>
+                  variant="secondary"
+                  size="sm"
+                  className={`text-[10px] rounded-[10px] ${selectedDiscounts.length > 0 ? 'bg-primary/30 border-primary text-primary' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
+                  onClick={() => setShowDiscountMpin(true)}>
+                  <img src={discountBtnIcon} alt="" className="w-3 h-3" />
+                  Discount {selectedDiscounts.length > 0 && `(${selectedDiscounts.length})`}
+                </Button>
                 <Button
-                variant="secondary"
-                size="sm"
-                className={`text-[10px] rounded-[10px] ${isTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
-                onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}>
-
+                  variant="secondary"
+                  size="sm"
+                  className={`text-[10px] rounded-[10px] ${isTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
+                  onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}>
                   <img src={noTaxBtnIcon} alt="" className="w-3 h-3" />
                   No Tax
                 </Button>
                 <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
-                   <img src={registerBtnIcon} alt="" className="w-3 h-3" />
-                   No Sale
-                 </Button>
+                  <img src={registerBtnIcon} alt="" className="w-3 h-3" />
+                  No Sale
+                </Button>
               </div>
               <Button
-              variant="secondary"
-              size="icon"
-              className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border flex-shrink-0"
-              onClick={() => setIsOrderActionsSidebarOpen(!isOrderActionsSidebarOpen)}>
-
+                variant="secondary"
+                size="icon"
+                className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border flex-shrink-0"
+                onClick={() => setIsOrderActionsSidebarOpen(!isOrderActionsSidebarOpen)}>
                 {isOrderActionsSidebarOpen ? <X className="w-3 h-3" /> : <MoreVertical className="w-3 h-3" />}
               </Button>
             </div>
-          </div>
 
           {/* Order Content Area with Sidebar */}
           <div ref={orderContentStartRef} className="flex-1 flex gap-2 min-h-0">

@@ -1050,13 +1050,10 @@ const Orders = () => {
               }
             }
             setPastOrderItems(Array.from(seen.values()));
-            setShowPastOrderPopup(true);
           } else {
-            setShowPastOrderPopup(true);
             setPastOrderItems([]);
           }
         } else {
-          setShowPastOrderPopup(true);
           setPastOrderItems([]);
         }
       }

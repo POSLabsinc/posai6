@@ -2904,7 +2904,6 @@ const Orders = () => {
                                 setPastOrderItems(Array.from(seen.values()));
                               } else { setPastOrderItems([]); }
                             } else { setPastOrderItems([]); }
-                            setShowPastOrderPopup(true);
                             setPastOrderLoading(false);
                           }
                         }

@@ -3248,6 +3248,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowBanquetForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowBanquetForm(false)}
               initialData={banquetGuestData} /> :

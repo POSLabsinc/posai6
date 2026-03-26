@@ -221,19 +221,6 @@ const MenuSettingsContent = ({
           These settings control how menu items are sorted and how modifiers appear on the Point of Sale, helping staff navigate and take orders more efficiently.
         </p>
 
-        {/* Write-Off Option */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
-          <div className="flex items-center justify-between w-full py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Write-Off</span>
-            <Switch
-              checked={writeOffEnabled}
-              onCheckedChange={(checked) => writeOff.update(checked ? "true" : "false")}
-            />
-          </div>
-        </div>
-        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">
-          Enable write-off to allow staff to mark products as wasted, damaged, or used internally without recording a sale, helping track inventory loss and shrinkage.
-        </p>
       </div>
     </div>;
 };

@@ -550,9 +550,9 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     return new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true });
   }
 
-  const formatTableDisplay = (tableNumber: string | null) => {
-    if (!tableNumber) return "No Table";
-    return `Table ${normalizeTableNumber(tableNumber)}`;
+  const formatTableOrType = (order: KDSTicketData) => {
+    if (order.tableNumber) return `Table ${normalizeTableNumber(order.tableNumber)}`;
+    return order.orderType || "DINE IN";
   };
 
   const sectionTitle = linkTab === "orders"

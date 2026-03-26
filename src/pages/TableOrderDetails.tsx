@@ -1236,17 +1236,6 @@ const TableOrderDetails = () => {
             <span>📝</span>
             <span>{currentSelectedGuest.notes?.replace(/\s*\|\s*🔥[^|]*/g, '').trim() || "No notes"}</span>
           </div>
-          {/* Kitchen Notes */}
-          {currentSelectedGuest.notes?.includes('🔥') && (
-            <div className="mt-1 space-y-1">
-              {currentSelectedGuest.notes.split(' | ').filter((n: string) => n.startsWith('🔥')).map((note: string, i: number) => (
-                <div key={i} className="flex items-center gap-2 text-sm bg-violet-500/10 border border-violet-500/30 text-violet-300 p-2 rounded-lg">
-                  <span>🔥</span>
-                  <span className="flex-1">{note.replace(/^🔥\s*/, '')}</span>
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Order Items */}

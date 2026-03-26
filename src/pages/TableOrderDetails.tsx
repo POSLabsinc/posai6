@@ -314,6 +314,7 @@ const TableOrderDetails = () => {
   const [showCancelConfirm, setShowCancelConfirm] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [customCancelReason, setCustomCancelReason] = useState('');
+  const [cancelWriteOffChoice, setCancelWriteOffChoice] = useState<'write_off' | 'without' | null>(null);
   const [cancelTargetOrderId, setCancelTargetOrderId] = useState<string | null>(null);
 
   const handleCancelOrderAttempt = (orderId: string) => {

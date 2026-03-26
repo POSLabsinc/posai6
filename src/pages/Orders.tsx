@@ -3272,6 +3272,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowCurbSideForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowCurbSideForm(false)}
               initialData={curbSideGuestData} /> :

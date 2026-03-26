@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useCallback, useMemo, ReactNode } from 'react';
 import { useTicketOrders, UnifiedTicketOrder } from '@/hooks/use-ticket-orders';
 import { TicketOrder, TicketOrderItem } from '@/data/ticketOrders';
 

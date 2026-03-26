@@ -1829,7 +1829,21 @@ const Orders = () => {
                           const availableItems = pastOrderItems.filter(i => i.isAvailable !== false);
                           if (availableItems.length === 0) { toast.error("No available products from past order"); return; }
                           setOrderItems(prev => {
-...
+                            let updated = [...prev];
+                            for (const item of availableItems) {
+                              const existing = updated.find(o => o.name.toLowerCase() === item.name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
+                              if (existing) { updated = updated.map(o => o.id === existing.id ? { ...o, qty: o.qty + item.quantity } : o); }
+                              else { updated = [...updated, { id: Date.now() + Math.random(), qty: item.quantity, name: item.name, price: item.price }]; }
+                            }
+                            return updated;
+                          });
+                          toast.success(`Past order: ${availableItems.length} product${availableItems.length > 1 ? 's' : ''} added`);
+                        }}
+                        className="text-blue-400 hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                        <RotateCcw className="w-3.5 h-3.5" />
+                        Past Order
+                      </DropdownMenuItem>
+                    )}
               <div className="flex items-center gap-1.5 mb-2">
                <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide gap-1.5">
                  {pastOrderItems.length > 0 && (

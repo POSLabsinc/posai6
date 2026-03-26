@@ -963,26 +963,17 @@ const Orders = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-  const selectGuest = async (guest: GuestUser) => {
-    setIsGuestSelected(true);
-    setGuestName(guest.name);
-    setGuestPhone(guest.phone.replace(/\D/g, ''));
-    setShowGuestDropdown(false);
-    setShowPhoneDropdown(false);
-
-    // Fetch past orders for this guest and show popup
+  const fetchPastOrdersForGuest = useCallback(async (name: string) => {
     try {
       setPastOrderLoading(true);
-      // Look up the guest in DB by name to get their id + extra fields
       const { data: guestRows } = await supabase
         .from('guests')
         .select('id,name,phone,email,order_count,last_order_date,loyalty,allergies,notes_general,notes_allergies')
-        .ilike('name', guest.name)
+        .ilike('name', name)
         .limit(1);
       
       const dbGuest = guestRows?.[0];
       if (dbGuest && dbGuest.order_count > 0) {
-        // Fetch past orders with totals
         const { data: orders } = await supabase
           .from('orders')
           .select('id,total,tip_amount')
@@ -993,7 +984,6 @@ const Orders = () => {
         const totalSpent = orders?.reduce((s, o) => s + (o.total || 0), 0) || 0;
         const totalTips = orders?.reduce((s, o) => s + (o.tip_amount || 0), 0) || 0;
 
-        // Combine allergy fields
         const allergies: string[] = [];
         if (dbGuest.allergies && Array.isArray(dbGuest.allergies) && dbGuest.allergies.length > 0) {
           allergies.push(...dbGuest.allergies);
@@ -1017,7 +1007,6 @@ const Orders = () => {
           notes: dbGuest.notes_general?.trim() || undefined,
         });
 
-        // Fetch past order items from the last 3 orders
         const recentOrderIds = (orders || []).slice(0, 3).map(o => o.id);
         if (recentOrderIds.length > 0) {
           const { data: items } = await supabase
@@ -1026,7 +1015,6 @@ const Orders = () => {
             .in('order_id', recentOrderIds);
 
           if (items && items.length > 0) {
-            // Cross-reference with current products for availability
             const pastItems: GuestPastItem[] = items.map(item => {
               const currentProduct = dbProducts.find(
                 p => p.name.toLowerCase() === item.item_name.toLowerCase()
@@ -1042,7 +1030,6 @@ const Orders = () => {
                 isComped: item.unit_price === 0,
               };
             });
-            // Deduplicate by name, keep latest
             const seen = new Map<string, GuestPastItem>();
             for (const pi of pastItems) {
               if (!seen.has(pi.name.toLowerCase())) {
@@ -1056,13 +1043,27 @@ const Orders = () => {
         } else {
           setPastOrderItems([]);
         }
+      } else {
+        setPastOrderItems([]);
       }
     } catch (err) {
       console.error('Failed to fetch past orders:', err);
     } finally {
       setPastOrderLoading(false);
     }
+  }, [dbProducts]);
+
+  const selectGuest = async (guest: GuestUser) => {
+    setIsGuestSelected(true);
+    setGuestName(guest.name);
+    setGuestPhone(guest.phone.replace(/\D/g, ''));
+    setShowGuestDropdown(false);
+    setShowPhoneDropdown(false);
+
+    await fetchPastOrdersForGuest(guest.name);
   };
+
+
 
   // Get base height in pixels for each menu position
   const getMenuHeight = (position: 'minimized' | 'center' | 'full') => {
@@ -1823,7 +1824,7 @@ const Orders = () => {
                       <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
                       No Sale
                     </DropdownMenuItem>
-                    {pastOrderItems.length > 0 && isGuestSelected && (
+                   {pastOrderItems.length > 0 && guestName.trim() && (
                       <DropdownMenuItem
                         onClick={() => {
                           const availableItems = pastOrderItems.filter(i => i.isAvailable !== false);
@@ -1932,6 +1933,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowDineInForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowDineInForm(false)}
             onClose={() => setShowDineInForm(false)}
@@ -1947,6 +1949,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowTakeOutForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowTakeOutForm(false)}
             onClose={() => setShowTakeOutForm(false)}
@@ -1962,6 +1965,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowDeliveryForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowDeliveryForm(false)}
             onClose={() => setShowDeliveryForm(false)}
@@ -1977,6 +1981,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowBanquetForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowBanquetForm(false)}
             onClose={() => setShowBanquetForm(false)}
@@ -1992,6 +1997,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowDriveThruForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowDriveThruForm(false)}
             onClose={() => setShowDriveThruForm(false)}
@@ -2007,6 +2013,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowCurbSideForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowCurbSideForm(false)}
             onClose={() => setShowCurbSideForm(false)}
@@ -2022,6 +2029,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowScheduledForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowScheduledForm(false)}
             onClose={() => setShowScheduledForm(false)}
@@ -2037,6 +2045,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowPhoneInForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onClose={() => setShowPhoneInForm(false)}
             initialData={phoneInGuestData || undefined} />
@@ -2051,6 +2060,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowCustomOrderForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onClose={() => setShowCustomOrderForm(false)}
             initialData={customOrderGuestData || undefined} />
@@ -2065,9 +2075,11 @@ const Orders = () => {
                 <AddGuestForm
               onClose={() => setShowAddGuestForm(false)}
               onSave={(guestData) => {
-                setGuestName(`${guestData.firstName} ${guestData.lastName}`);
+                const fullName = `${guestData.firstName} ${guestData.lastName}`;
+                setGuestName(fullName);
                 setGuestPhone(guestData.phoneNumber);
                 setShowAddGuestForm(false);
+                fetchPastOrdersForGuest(fullName);
               }}
               compact />
 
@@ -3001,7 +3013,7 @@ const Orders = () => {
             
             <div className="flex items-center gap-1.5 mb-2">
               <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide gap-1.5">
-                {pastOrderItems.length > 0 && isGuestSelected && (
+                {pastOrderItems.length > 0 && guestName.trim() && (
                   <Button
                     variant="secondary"
                     size="sm"
@@ -3087,9 +3099,11 @@ const Orders = () => {
                   <AddGuestForm
                 onClose={() => setShowAddGuestForm(false)}
                 onSave={(guestData) => {
-                  setGuestName(`${guestData.firstName} ${guestData.lastName}`);
+                  const fullName = `${guestData.firstName} ${guestData.lastName}`;
+                  setGuestName(fullName);
                   setGuestPhone(guestData.phoneNumber);
                   setShowAddGuestForm(false);
+                  fetchPastOrdersForGuest(fullName);
                 }}
                 compact />
 
@@ -3202,6 +3216,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowDineInForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowDineInForm(false)}
               initialData={dineInGuestData} /> :
@@ -3213,6 +3228,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowTakeOutForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowTakeOutForm(false)}
               initialData={takeOutGuestData} /> :
@@ -3224,6 +3240,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowDeliveryForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowDeliveryForm(false)}
               initialData={deliveryGuestData} /> :
@@ -3235,6 +3252,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowBanquetForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowBanquetForm(false)}
               initialData={banquetGuestData} /> :
@@ -3246,6 +3264,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowDriveThruForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowDriveThruForm(false)}
               initialData={driveThruGuestData} /> :
@@ -3257,6 +3276,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowCurbSideForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowCurbSideForm(false)}
               initialData={curbSideGuestData} /> :
@@ -3268,6 +3288,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowScheduledForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowScheduledForm(false)}
               initialData={scheduledGuestData} /> :
@@ -3279,6 +3300,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowPhoneInForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowPhoneInForm(false)}
               initialData={phoneInGuestData} /> :
@@ -3290,6 +3312,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowCustomOrderForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowCustomOrderForm(false)}
               initialData={customOrderGuestData} /> :

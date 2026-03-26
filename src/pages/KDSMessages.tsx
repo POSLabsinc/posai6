@@ -25,8 +25,6 @@ interface KDSMessage {
   acknowledged_at?: string;
 }
 
-const STORAGE_KEY = "kds_message_queue";
-
 const REPLY_STORAGE_KEY = "kds_message_replies";
 const POS_REPLY_NOTIFICATION_KEY = "pos_reply_notifications";
 
@@ -67,22 +65,22 @@ const pushPosNotification = (reply: KDSReply, originalMessage: KDSMessage) => {
   } catch {}
 };
 
-const loadMessages = (): KDSMessage[] => {
+// Fetch messages from database
+const loadMessages = async (): Promise<KDSMessage[]> => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return parsed.map((m: any) => ({
+    const { data, error } = await (supabase as any)
+      .from('kds_messages')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error || !data) return [];
+    return data.map((m: any) => ({
       ...m,
+      timestamp: m.created_at,
       status: m.status || "pending",
     }));
   } catch {
     return [];
   }
-};
-
-const saveMessages = (messages: KDSMessage[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
 };
 
 const KDSMessages = () => {
@@ -143,21 +141,19 @@ const KDSMessages = () => {
 
   const replyDialogHasReplied = replyDialogMessage ? kdsReplies.some(r => r.message_id === replyDialogMessage.message_id) : false;
 
-  const refreshMessages = useCallback(() => {
-    const all = loadMessages();
+  const refreshMessages = useCallback(async () => {
+    const all = await loadMessages();
     setMessages(all);
     
     // Check for new messages
     const pendingCount = all.filter(m => m.status === "pending").length;
     if (pendingCount > prevCountRef.current && prevCountRef.current > 0) {
-      // New message arrived - flash it
       const newest = all
         .filter(m => m.status === "pending")
         .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
       if (newest) {
         setFlashId(newest.message_id);
         setTimeout(() => setFlashId(null), 2000);
-        // Play notification sound
         try {
           const audio = new Audio("data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbsGczJjiR0teleEQveli41NpzQSk0ep3M2o1YMCtqm8nbm2Q3LGmWyNudZzorZ5TG2p9qPi1omsbZo2s+LWiaxdqja0AuaJrF2aNrQC5o");
           audio.volume = 0.3;
@@ -168,21 +164,36 @@ const KDSMessages = () => {
     prevCountRef.current = pendingCount;
   }, []);
 
-  // Poll localStorage for new messages (simulating realtime)
+  // Poll database for new messages
   useEffect(() => {
     refreshMessages();
-    const interval = setInterval(refreshMessages, 2000);
+    const interval = setInterval(refreshMessages, 3000);
     return () => clearInterval(interval);
   }, [refreshMessages]);
 
-  const handleAcknowledge = (messageId: string) => {
-    const updated = messages.map(m =>
+  // Realtime subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel('kds-messages-page-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'kds_messages' }, () => {
+        refreshMessages();
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [refreshMessages]);
+
+  const handleAcknowledge = async (messageId: string) => {
+    // Optimistic update
+    setMessages(prev => prev.map(m =>
       m.message_id === messageId
         ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() }
         : m
-    );
-    saveMessages(updated);
-    setMessages(updated);
+    ));
+    // Persist to DB
+    await (supabase as any)
+      .from('kds_messages')
+      .update({ status: 'acknowledged', acknowledged_at: new Date().toISOString() })
+      .eq('message_id', messageId);
   };
 
   const filtered = messages

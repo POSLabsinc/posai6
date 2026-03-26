@@ -1254,6 +1254,69 @@ export type Database = {
         }
         Relationships: []
       }
+      kds_messages: {
+        Row: {
+          acknowledged_at: string | null
+          created_at: string
+          employee_id: string
+          employee_name: string
+          employee_role: string | null
+          id: string
+          link_type: string | null
+          linked_order_id: string | null
+          linked_order_ids: Json | null
+          linked_order_number: number | null
+          message_id: string
+          message_text: string
+          status: string
+          store_id: string
+          table_id: string | null
+          table_number: string | null
+          terminal_id: string
+          terminal_name: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          created_at?: string
+          employee_id?: string
+          employee_name: string
+          employee_role?: string | null
+          id?: string
+          link_type?: string | null
+          linked_order_id?: string | null
+          linked_order_ids?: Json | null
+          linked_order_number?: number | null
+          message_id: string
+          message_text: string
+          status?: string
+          store_id?: string
+          table_id?: string | null
+          table_number?: string | null
+          terminal_id?: string
+          terminal_name?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          created_at?: string
+          employee_id?: string
+          employee_name?: string
+          employee_role?: string | null
+          id?: string
+          link_type?: string | null
+          linked_order_id?: string | null
+          linked_order_ids?: Json | null
+          linked_order_number?: number | null
+          message_id?: string
+          message_text?: string
+          status?: string
+          store_id?: string
+          table_id?: string | null
+          table_number?: string | null
+          terminal_id?: string
+          terminal_name?: string | null
+        }
+        Relationships: []
+      }
       loyalty_points: {
         Row: {
           balance_after: number

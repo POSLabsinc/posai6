@@ -171,32 +171,8 @@ export function SessionOrderProvider({ children }: { children: ReactNode }) {
     const check = checkNumber || `${Date.now() % 100000}`;
     updateOrder(order.id, { status: 'ORDERED', check }).catch(console.error);
 
-    // Push fired order into KDS ticket queue
-    if (order.items.length > 0) {
-      try {
-        const existing: any[] = JSON.parse(localStorage.getItem('kds_ticket_queue') || '[]');
-        if (!existing.some((t: any) => t.sessionId === sessionId)) {
-          existing.push({
-            sessionId: order.sessionId,
-            orderNumber: parseInt(order.id.replace(/\D/g, '')) || Date.now() % 10000,
-            orderType: (order.orderType || 'Dine-In').toUpperCase().replace('-', ' '),
-            tableNumber: order.table || null,
-            serverName: order.server || 'Staff',
-            guestName: order.name || 'Guest',
-            createdAt: new Date().toISOString(),
-            items: order.items.map(item => ({
-              qty: item.qty,
-              name: item.name,
-              modifiers: item.modifiers || [],
-            })),
-            status: 'active',
-          });
-          localStorage.setItem('kds_ticket_queue', JSON.stringify(existing));
-        }
-      } catch (e) {
-        console.error('Failed to push KDS ticket:', e);
-      }
-    }
+    // KDS now reads directly from ticket_orders in the database
+    // No need to push to localStorage kds_ticket_queue
   };
 
   const getOrdersByTable = (tableId: string): SessionOrder[] => {

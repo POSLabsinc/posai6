@@ -402,25 +402,7 @@ const RepliesThread = ({ replies }: { replies: KDSReply[] }) => {
   );
 };
 
-// ─── Shared message reader ───
-// Single source of truth for reading, normalizing, filtering, and deduping messages.
-const readSessionMessages = (): KDSMessageData[] => {
-  try {
-    const raw = localStorage.getItem("kds_message_queue");
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as any[];
-    const seen = new Set<string>();
-    return parsed
-      .map((m: any) => ({ ...m, status: m.status || "pending" } as KDSMessageData))
-      .filter((m) => {
-        if (seen.has(m.message_id)) return false;
-        seen.add(m.message_id);
-        return true;
-      });
-  } catch {
-    return [];
-  }
-};
+// readSessionMessages removed - KDS now reads from kds_messages DB table
 
 const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allReplies, onOpenReplyDialog }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void; onSendReply: (messageId: string, text: string) => void; allReplies: KDSReply[]; onOpenReplyDialog: (msg: KDSMessageData) => void }) => {
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");
@@ -484,15 +466,8 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
           if (msg.linked_order_number) {
             displayOrderNumbers = [msg.linked_order_number];
           } else if (msg.linked_order_ids && msg.linked_order_ids.length > 0) {
-            try {
-              const ticketQueue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
-              displayOrderNumbers = msg.linked_order_ids
-                .map((id: string) => {
-                  const ticket = ticketQueue.find((t: any) => t.sessionId === id || t.id === id);
-                  return ticket?.orderNumber;
-                })
-                .filter((n: number | undefined): n is number => typeof n === "number");
-            } catch {}
+            // linked_order_ids without linked_order_number - show IDs shortened
+            displayOrderNumbers = [];
           }
 
           const msgReplies = allReplies.filter(r => r.message_id === msg.message_id);
@@ -797,111 +772,150 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
   );
 };
 
-// ─── Convert localStorage KDS queue entries to KDSTicket ───
-const convertQueueToTickets = (queue: any[]): KDSTicket[] => {
-  return queue
-    .filter((entry: any) => entry.status === "active")
-    .map((entry: any) => ({
-      id: entry.sessionId || `kds-live-${entry.orderNumber}`,
-      orderNumber: entry.orderNumber || 0,
-      orderType: (entry.orderType || "DINE IN") as KDSTicket["orderType"],
-      tableNumber: entry.tableNumber || null,
-      serverName: entry.serverName || "Staff",
-      createdAt: new Date(entry.createdAt),
-      products: (entry.items || []).map((item: any) => ({
-        qty: item.qty || 1,
-        name: item.name,
-        category: "ENTREE" as const,
-        modifiers: (item.modifiers || []).map((m: string) => ({
-          name: m,
-          type: "note" as const,
-        })),
-        status: "pending" as const,
-      })),
-      status: "active" as const,
-      priority: "normal" as const,
-    }));
-};
+// ─── Convert DB ticket_orders to KDSTicket ───
+const convertOrderToTicket = (order: any, items: any[]): KDSTicket => ({
+  id: order.id,
+  orderNumber: order.order_number || 0,
+  orderType: (order.order_type || "DINE IN").toUpperCase().replace('-', ' ') as KDSTicket["orderType"],
+  tableNumber: order.table_id || null,
+  serverName: order.server || "Staff",
+  createdAt: new Date(order.created_at),
+  products: items.map((item: any) => ({
+    qty: item.qty || 1,
+    name: item.name,
+    category: "ENTREE" as const,
+    modifiers: (item.modifiers || []).map((m: string) => ({
+      name: m,
+      type: "note" as const,
+    })),
+    status: "pending" as const,
+  })),
+  status: order.status === "bumped" ? "bumped" as const : "active" as const,
+  priority: "normal" as const,
+});
 
 // ─── Main KDS Page ───
 const KDS = () => {
 
-  const [tickets, setTickets] = useState<KDSTicket[]>(() => {
-    try {
-      const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
-      const real = convertQueueToTickets(queue);
-      return real.length > 0 ? real : generateMockTickets();
-    } catch {
-      return generateMockTickets();
-    }
-  });
+  const [tickets, setTickets] = useState<KDSTicket[]>(() => generateMockTickets());
   const [showSummary, setShowSummary] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
-  const [knownIds, setKnownIds] = useState<Set<string>>(() => new Set(tickets.map(t => t.id)));
+  const [knownIds, setKnownIds] = useState<Set<string>>(new Set());
   const [pendingMessageCount, setPendingMessageCount] = useState(0);
 
-  // Poll localStorage for new fired orders every 2 seconds
+  // Fetch tickets from database (same source as Tickets module)
   useEffect(() => {
-    const interval = setInterval(() => {
+    const fetchTickets = async () => {
       try {
-        const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
-        const realTickets = convertQueueToTickets(queue);
-        if (realTickets.length > 0) {
-          const newOnes = realTickets.filter(t => !knownIds.has(t.id));
-          if (newOnes.length > 0) {
-            if (soundEnabled) {
-              try {
-                const audio = new Audio("/notification.mp3");
-                audio.volume = 0.5;
-                audio.play().catch(() => {});
-              } catch {}
-            }
-            setTickets(prev => [...newOnes, ...prev]);
-            setKnownIds(prev => {
-              const next = new Set(prev);
-              newOnes.forEach(t => next.add(t.id));
-              return next;
-            });
+        const { data: orders, error: ordersErr } = await supabase
+          .from('ticket_orders')
+          .select('*')
+          .in('status', ['ORDERED', 'IN_PROGRESS', 'active'])
+          .order('created_at', { ascending: false });
+
+        if (ordersErr || !orders || orders.length === 0) return;
+
+        const { data: items } = await supabase
+          .from('ticket_order_items')
+          .select('*')
+          .in('order_id', orders.map((o: any) => o.id))
+          .order('sort_order', { ascending: true });
+
+        const itemsByOrder = new Map<string, any[]>();
+        (items || []).forEach((item: any) => {
+          const list = itemsByOrder.get(item.order_id) || [];
+          list.push(item);
+          itemsByOrder.set(item.order_id, list);
+        });
+
+        const dbTickets = orders.map((order: any) =>
+          convertOrderToTicket(order, itemsByOrder.get(order.id) || [])
+        );
+
+        if (dbTickets.length > 0) {
+          const newOnes = dbTickets.filter((t: KDSTicket) => !knownIds.has(t.id));
+          if (newOnes.length > 0 && knownIds.size > 0 && soundEnabled) {
+            try {
+              const audio = new Audio("/notification.mp3");
+              audio.volume = 0.5;
+              audio.play().catch(() => {});
+            } catch {}
           }
+          setTickets(dbTickets);
+          setKnownIds(new Set(dbTickets.map((t: KDSTicket) => t.id)));
         }
       } catch {}
-    }, 2000);
+    };
+
+    fetchTickets();
+    const interval = setInterval(fetchTickets, 3000);
     return () => clearInterval(interval);
   }, [knownIds, soundEnabled]);
 
 
-  // Poll pending messages for badge + attached messages using shared helper
+  // Poll messages from database using kds_messages table
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
   const prevPendingCountRef = useRef(0);
-  // One-time session cleanup: clear old messages on hard refresh/new tab only
-  useEffect(() => {
-    const alreadyCleared = sessionStorage.getItem("kds_session_cleared");
-    if (!alreadyCleared) {
-      localStorage.removeItem("kds_message_queue");
-      sessionStorage.setItem("kds_session_cleared", "true");
-    }
-  }, []);
 
   useEffect(() => {
-    const load = () => {
-      const allMessages = readSessionMessages();
-      setKdsMessages(allMessages);
-      const count = allMessages.filter(m => m.status !== "acknowledged").length;
-      // Auto-open messages panel when new messages arrive
-      if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {
-        setShowMessages(true);
-      }
-      prevPendingCountRef.current = count;
-      setPendingMessageCount(count);
+    const load = async () => {
+      try {
+        const { data, error } = await (supabase as any)
+          .from('kds_messages')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error || !data) return;
+        const msgs: KDSMessageData[] = data.map((m: any) => ({
+          ...m,
+          timestamp: m.created_at,
+          linked_order_ids: Array.isArray(m.linked_order_ids) ? m.linked_order_ids : [],
+          status: m.status || 'pending',
+        }));
+        setKdsMessages(msgs);
+        const count = msgs.filter(m => m.status !== "acknowledged").length;
+        if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {
+          setShowMessages(true);
+        }
+        prevPendingCountRef.current = count;
+        setPendingMessageCount(count);
+      } catch {}
     };
     load();
-    const interval = setInterval(load, 2000);
+    const interval = setInterval(load, 3000);
     return () => clearInterval(interval);
   }, []);
-  // Build maps: table number -> all messages (pending + acknowledged), order id -> all messages
+
+  // Realtime subscription for kds_messages
+  useEffect(() => {
+    const channel = supabase
+      .channel('kds-messages-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'kds_messages' }, async () => {
+        try {
+          const { data } = await (supabase as any)
+            .from('kds_messages')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (data) {
+            const msgs: KDSMessageData[] = data.map((m: any) => ({
+              ...m,
+              timestamp: m.created_at,
+              linked_order_ids: Array.isArray(m.linked_order_ids) ? m.linked_order_ids : [],
+              status: m.status || 'pending',
+            }));
+            setKdsMessages(msgs);
+            const count = msgs.filter(m => m.status !== "acknowledged").length;
+            setPendingMessageCount(count);
+          }
+        } catch {}
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  // Build maps: table number -> all messages, order id -> all messages
   const messagesByTable = useMemo(() => {
     const map = new Map<string, KDSMessageData[]>();
     kdsMessages.filter(m => (m.status === "pending" || m.status === "acknowledged") && (m.table_number || m.table_id) && !m.linked_order_id).forEach(msg => {
@@ -921,7 +935,6 @@ const KDS = () => {
       arr.push(msg);
       map.set(msg.linked_order_id!, arr);
     });
-    // Also map by order number for mock tickets
     kdsMessages.filter(m => (m.status === "pending" || m.status === "acknowledged") && m.linked_order_number && !m.linked_order_id).forEach(msg => {
       const key = `order-${msg.linked_order_number}`;
       const arr = map.get(key) || [];
@@ -931,13 +944,13 @@ const KDS = () => {
     return map;
   }, [kdsMessages]);
 
-  const handleAcknowledgeMessage = useCallback((messageId: string) => {
+  const handleAcknowledgeMessage = useCallback(async (messageId: string) => {
     try {
-      const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
-      const updated = queue.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m);
-      localStorage.setItem("kds_message_queue", JSON.stringify(updated));
-      // Re-read through shared helper to keep filtering/dedupe consistent
-      setKdsMessages(readSessionMessages());
+      await (supabase as any)
+        .from('kds_messages')
+        .update({ status: 'acknowledged', acknowledged_at: new Date().toISOString() })
+        .eq('message_id', messageId);
+      setKdsMessages(prev => prev.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m));
     } catch {}
   }, []);
 
@@ -1007,16 +1020,10 @@ const KDS = () => {
   const activeTickets = tickets.filter(t => t.status === "active");
   const totalInQueue = activeTickets.reduce((sum, t) => sum + t.products.filter(p => p.status === "pending" || p.status === "cooking").length, 0);
 
-  const handleBump = useCallback((id: string) => {
+  const handleBump = useCallback(async (id: string) => {
     setTickets(prev => prev.map(t => t.id === id ? { ...t, status: "bumped" as const } : t));
     try {
-      const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
-      const updated = queue.map((entry: any) =>
-        (entry.sessionId === id || `kds-live-${entry.orderNumber}` === id)
-          ? { ...entry, status: "bumped" }
-          : entry
-      );
-      localStorage.setItem("kds_ticket_queue", JSON.stringify(updated));
+      await supabase.from('ticket_orders').update({ status: 'bumped' }).eq('id', id);
     } catch {}
   }, []);
 

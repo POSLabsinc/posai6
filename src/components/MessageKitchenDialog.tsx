@@ -484,9 +484,24 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     };
 
     try {
-      const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
-      queue.push(payload);
-      localStorage.setItem("kds_message_queue", JSON.stringify(queue));
+      // Persist message to kds_messages database table
+      await (supabase as any).from('kds_messages').insert({
+        message_id: payload.message_id,
+        message_text: payload.message_text,
+        store_id: payload.store_id,
+        terminal_id: payload.terminal_id,
+        terminal_name: payload.terminal_name,
+        employee_id: payload.employee_id,
+        employee_name: payload.employee_name,
+        employee_role: payload.employee_role,
+        table_id: payload.table_id,
+        table_number: payload.table_number,
+        linked_order_id: payload.linked_order_id,
+        linked_order_number: payload.linked_order_number,
+        linked_order_ids: payload.linked_order_ids || [],
+        link_type: payload.link_type,
+        status: 'pending',
+      });
 
       messageChips.forEach(chip => recordSuggestionUse(chip));
 

@@ -3338,6 +3338,15 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               />
             )}
           </div>
+          {/* Kitchen Note */}
+          {kitchenNote && (
+            <div className="px-4 pb-3">
+              <div className="flex items-center gap-2 text-sm bg-violet-500/10 border border-violet-500/30 text-violet-300 p-2 rounded-lg">
+                <span>🔥</span>
+                <span className="flex-1">{kitchenNote}</span>
+              </div>
+            </div>
+          )}
 
           {/* Order Items */}
           <ScrollArea className="flex-1 px-4">

@@ -47,6 +47,7 @@ function toTicketOrder(u: UnifiedTicketOrder): TicketOrder {
     tax: u.tax,
     tip: u.tip,
     total: u.total,
+    orderNumber: u.orderNumber,
     transferInfo: u.transferInfo,
   };
 }

@@ -3853,6 +3853,7 @@ const TableOrderDetails = () => {
         ];
         const selectedReason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
         const canConfirm = selectedReason.length > 0;
+        const canFinalConfirm = canConfirm && (!hasFired || cancelWriteOffChoice !== null);
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 p-5 space-y-4 animate-scale-in">
@@ -3878,7 +3879,7 @@ const TableOrderDetails = () => {
                 {commonReasons.map((reason) => (
                   <button
                     key={reason}
-                    onClick={() => { setCancelReason(reason); setCustomCancelReason(''); }}
+                    onClick={() => { setCancelReason(reason); setCustomCancelReason(''); setCancelWriteOffChoice(null); }}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                       cancelReason === reason
                         ? 'bg-red-500 text-white'
@@ -3889,7 +3890,7 @@ const TableOrderDetails = () => {
                   </button>
                 ))}
                 <button
-                  onClick={() => setCancelReason('__custom__')}
+                  onClick={() => { setCancelReason('__custom__'); setCancelWriteOffChoice(null); }}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                     cancelReason === '__custom__'
                       ? 'bg-red-500 text-white'
@@ -3911,17 +3912,48 @@ const TableOrderDetails = () => {
                 />
               )}
 
+              {/* Write-Off choice for fired items */}
+              {hasFired && canConfirm && (
+                <div className="space-y-2">
+                  <p className="text-neutral-400 text-xs font-medium">Inventory handling for fired products:</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setCancelWriteOffChoice('write_off')}
+                      className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors border ${
+                        cancelWriteOffChoice === 'write_off'
+                          ? 'bg-amber-500/20 border-amber-500 text-amber-400'
+                          : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:bg-neutral-700'
+                      }`}
+                    >
+                      Write-Off
+                      <span className="block text-[10px] mt-0.5 opacity-70">Deduct as waste</span>
+                    </button>
+                    <button
+                      onClick={() => setCancelWriteOffChoice('without')}
+                      className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors border ${
+                        cancelWriteOffChoice === 'without'
+                          ? 'bg-green-500/20 border-green-500 text-green-400'
+                          : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:bg-neutral-700'
+                      }`}
+                    >
+                      Without Write-Off
+                      <span className="block text-[10px] mt-0.5 opacity-70">Return to stock</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-3">
                 <button
-                  onClick={() => setShowCancelConfirm(false)}
+                  onClick={() => { setShowCancelConfirm(false); setCancelWriteOffChoice(null); }}
                   className="flex-1 h-10 rounded-full border border-neutral-600 text-white text-sm font-medium hover:bg-neutral-800 transition-colors">
                   Go Back
                 </button>
                 <button
-                  disabled={!canConfirm}
-                  onClick={handleCancelOrderConfirm}
+                  disabled={!canFinalConfirm}
+                  onClick={() => { handleCancelOrderConfirm(); setCancelWriteOffChoice(null); }}
                   className={`flex-1 h-10 rounded-full text-white text-sm font-medium transition-colors ${
-                    canConfirm ? 'bg-red-500 hover:bg-red-600' : 'bg-neutral-700 cursor-not-allowed opacity-50'
+                    canFinalConfirm ? 'bg-red-500 hover:bg-red-600' : 'bg-neutral-700 cursor-not-allowed opacity-50'
                   }`}>
                   Cancel Order
                 </button>

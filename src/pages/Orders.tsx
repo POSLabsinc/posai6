@@ -2029,6 +2029,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowScheduledForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowScheduledForm(false)}
             onClose={() => setShowScheduledForm(false)}

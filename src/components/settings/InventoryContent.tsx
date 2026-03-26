@@ -175,8 +175,9 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
       {/* Table */}
       <section className="rounded-2xl bg-neutral-800/60 overflow-hidden">
         {/* Header */}
-        <div className="grid grid-cols-[1.2fr_0.8fr_0.6fr_100px_24px] items-center px-6 py-4 border-b border-neutral-700/50">
+        <div className="grid grid-cols-[1.2fr_0.8fr_0.7fr_0.6fr_100px_24px] items-center px-6 py-4 border-b border-neutral-700/50">
           <span className="text-sm font-semibold text-foreground">Product Name</span>
+          <span className="text-sm font-semibold text-foreground text-center">Product Code</span>
           <span className="text-sm font-semibold text-foreground text-center">SKU</span>
           <span className="text-sm font-semibold text-foreground text-center">Variant</span>
           <span className="text-sm font-semibold text-foreground text-right">Price</span>

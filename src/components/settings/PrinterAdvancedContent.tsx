@@ -227,7 +227,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
         />
 
         {/* Signatures & Tips */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Signatures & Tips</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 mt-2">Signatures & Tips</p>
         <ToggleOption label="Signature & Tip Line" description="Include a signature and tip line on printed receipts." checked={toBool(signatureTipLine)} onChange={(v) => setSignatureTipLine(String(v))} />
         <ToggleOption label="Require for Sales Over" description="Require a signature for transactions above a set amount." checked={toBool(requireForSalesOver)} onChange={(v) => setRequireForSalesOver(String(v))} />
         {toBool(requireForSalesOver) && (

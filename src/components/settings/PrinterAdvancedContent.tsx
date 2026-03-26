@@ -146,9 +146,10 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
         <ToggleOption label="Show Single Products" description="Display individual products on printed bills." checked={toBool(showSingleItems)} onChange={(v) => setShowSingleItems(String(v))} />
         <ToggleOption label="Show Free Products" description="Include complimentary products on the bill." checked={toBool(showFreeItems)} onChange={(v) => setShowFreeItems(String(v))} />
         <ToggleOption label="Show Free Modifiers" description="Include free modifiers on the bill for each product." checked={toBool(showFreeModifiers)} onChange={(v) => setShowFreeModifiers(String(v))} />
+        <CounterOption label="Bill Copies" description="Number of additional customer bill copies to print alongside the original." value={secondBillCopies} onChange={(v) => setSecondBillCopiesStr(String(v))} min={0} max={10} />
 
         {/* Receipts */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Receipts</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 mt-2">Receipts</p>
         <ToggleOption label="Auto-Print Receipt" description="Automatically print a receipt after every sale." checked={toBool(autoPrintReceipt)} onChange={(v) => setAutoPrintReceipt(String(v))} />
         <ToggleOption label="Auto-Print Refund" description="Automatically print a receipt when a refund is processed." checked={toBool(autoPrintRefund)} onChange={(v) => setAutoPrintRefund(String(v))} />
         <ToggleOption label="Itemized Receipt" description="Show a detailed breakdown of each product on the receipt." checked={toBool(itemizedReceipt)} onChange={(v) => setItemizedReceipt(String(v))} />

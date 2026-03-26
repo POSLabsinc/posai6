@@ -29,7 +29,15 @@ interface ProductInventory {
   stock_count: number | null;
   is_available: boolean;
   variants: VariantInventory[];
+  product_code: string;
 }
+
+const generateProductCode = (categoryName: string, productName: string, index: number): string => {
+  const catPrefix = categoryName.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase() || 'GEN';
+  const prodPrefix = productName.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase() || 'PRD';
+  const numPart = String(index + 1).padStart(4, '0');
+  return `${catPrefix}-${prodPrefix}-${numPart}`;
+};
 
 interface VariantInventory {
   id: string;
@@ -68,13 +76,16 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
         variantMap[v.product_id].push({ id: v.id, variant_name: v.variant_name, price: v.price, sku: v.sku });
       });
 
-      setProducts(
-        (prods || []).map((p) => ({
+      const mappedProducts = (prods || []).map((p, idx) => {
+        const catName = catMap[p.category_id] || "Uncategorized";
+        return {
           ...p,
-          category_name: catMap[p.category_id] || "Uncategorized",
+          category_name: catName,
           variants: variantMap[p.id] || [],
-        }))
-      );
+          product_code: generateProductCode(catName, p.name, idx),
+        };
+      });
+      setProducts(mappedProducts);
       setLoading(false);
     };
     fetchData();
@@ -164,8 +175,9 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
       {/* Table */}
       <section className="rounded-2xl bg-neutral-800/60 overflow-hidden">
         {/* Header */}
-        <div className="grid grid-cols-[1.2fr_0.8fr_0.6fr_100px_24px] items-center px-6 py-4 border-b border-neutral-700/50">
+        <div className="grid grid-cols-[1.2fr_0.8fr_0.7fr_0.6fr_100px_24px] items-center px-6 py-4 border-b border-neutral-700/50">
           <span className="text-sm font-semibold text-foreground">Product Name</span>
+          <span className="text-sm font-semibold text-foreground text-center">Product Code</span>
           <span className="text-sm font-semibold text-foreground text-center">SKU</span>
           <span className="text-sm font-semibold text-foreground text-center">Variant</span>
           <span className="text-sm font-semibold text-foreground text-right">Price</span>
@@ -181,9 +193,10 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
               {/* Product Row */}
               <button
                 onClick={() => toggleExpand(product.id)}
-                className="grid grid-cols-[1.2fr_0.8fr_0.6fr_100px_24px] items-center px-6 py-4 w-full hover:bg-neutral-700/30 transition-colors text-left"
+                className="grid grid-cols-[1.2fr_0.8fr_0.7fr_0.6fr_100px_24px] items-center px-6 py-4 w-full hover:bg-neutral-700/30 transition-colors text-left"
               >
                 <span className="text-[15px] text-foreground">{product.name}</span>
+                <span className="text-[13px] text-muted-foreground text-center font-mono">{product.product_code}</span>
                 <span className="text-[15px] text-muted-foreground text-center">{product.sku || "—"}</span>
                 <span className="text-[15px] text-muted-foreground text-center">{product.variants.length}</span>
                 <span className="text-[15px] text-foreground text-right">£{product.price.toFixed(2)}</span>

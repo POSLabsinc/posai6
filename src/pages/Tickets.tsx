@@ -347,6 +347,26 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     setSelectedSeats(Array.from({ length: size }, (_, i) => i + 1));
   }, [selectedGuest.id, selectedGuest.partySize]);
 
+  // Kitchen note from KDS messages linked to the selected order
+  const [kitchenNote, setKitchenNote] = useState<string | null>(null);
+  
+  useEffect(() => {
+    const getKitchenNote = () => {
+      try {
+        const raw = localStorage.getItem("kds_message_queue");
+        if (!raw) return null;
+        const messages = JSON.parse(raw) as any[];
+        const linked = messages
+          .filter((m: any) => m.linked_order_id === selectedGuest.id && m.status !== "acknowledged")
+          .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+        return linked.length > 0 ? linked[0].message_text : null;
+      } catch { return null; }
+    };
+    setKitchenNote(getKitchenNote());
+    const interval = setInterval(() => setKitchenNote(getKitchenNote()), 3000);
+    return () => clearInterval(interval);
+  }, [selectedGuest.id]);
+
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -2150,6 +2170,15 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           />
         )}
       </div>
+      {/* Kitchen Note */}
+      {kitchenNote && (
+        <div className="px-3 pb-2">
+          <div className="flex items-center gap-2 text-sm bg-violet-500/10 border border-violet-500/30 text-violet-300 p-2 rounded-lg">
+            <span>🔥</span>
+            <span className="flex-1">{kitchenNote}</span>
+          </div>
+        </div>
+      )}
 
       {/* Order Items */}
       <ScrollArea className="flex-1 px-3">
@@ -3309,6 +3338,15 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               />
             )}
           </div>
+          {/* Kitchen Note */}
+          {kitchenNote && (
+            <div className="px-4 pb-3">
+              <div className="flex items-center gap-2 text-sm bg-violet-500/10 border border-violet-500/30 text-violet-300 p-2 rounded-lg">
+                <span>🔥</span>
+                <span className="flex-1">{kitchenNote}</span>
+              </div>
+            </div>
+          )}
 
           {/* Order Items */}
           <ScrollArea className="flex-1 px-4">
@@ -4185,6 +4223,15 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               />
             )}
           </div>
+          {/* Kitchen Note */}
+          {kitchenNote && (
+            <div className="px-3 pb-2">
+              <div className="flex items-center gap-2 text-xs bg-violet-500/10 border border-violet-500/30 text-violet-300 p-1.5 rounded-lg">
+                <span>🔥</span>
+                <span className="flex-1 truncate">{kitchenNote}</span>
+              </div>
+            </div>
+          )}
 
           {/* Order Items */}
           <ScrollArea className="flex-1 px-3">

@@ -881,35 +881,66 @@ const KDS = () => {
   }, [knownIds, soundEnabled]);
 
 
-  // Poll pending messages for badge + attached messages using shared helper
+  // Poll messages from database using kds_messages table
   const [kdsMessages, setKdsMessages] = useState<KDSMessageData[]>([]);
   const prevPendingCountRef = useRef(0);
-  // One-time session cleanup: clear old messages on hard refresh/new tab only
-  useEffect(() => {
-    const alreadyCleared = sessionStorage.getItem("kds_session_cleared");
-    if (!alreadyCleared) {
-      localStorage.removeItem("kds_message_queue");
-      sessionStorage.setItem("kds_session_cleared", "true");
-    }
-  }, []);
 
   useEffect(() => {
-    const load = () => {
-      const allMessages = readSessionMessages();
-      setKdsMessages(allMessages);
-      const count = allMessages.filter(m => m.status !== "acknowledged").length;
-      // Auto-open messages panel when new messages arrive
-      if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {
-        setShowMessages(true);
-      }
-      prevPendingCountRef.current = count;
-      setPendingMessageCount(count);
+    const load = async () => {
+      try {
+        const { data, error } = await (supabase as any)
+          .from('kds_messages')
+          .select('*')
+          .order('created_at', { ascending: false });
+        if (error || !data) return;
+        const msgs: KDSMessageData[] = data.map((m: any) => ({
+          ...m,
+          timestamp: m.created_at,
+          linked_order_ids: Array.isArray(m.linked_order_ids) ? m.linked_order_ids : [],
+          status: m.status || 'pending',
+        }));
+        setKdsMessages(msgs);
+        const count = msgs.filter(m => m.status !== "acknowledged").length;
+        if (count > prevPendingCountRef.current && prevPendingCountRef.current >= 0) {
+          setShowMessages(true);
+        }
+        prevPendingCountRef.current = count;
+        setPendingMessageCount(count);
+      } catch {}
     };
     load();
-    const interval = setInterval(load, 2000);
+    const interval = setInterval(load, 3000);
     return () => clearInterval(interval);
   }, []);
-  // Build maps: table number -> all messages (pending + acknowledged), order id -> all messages
+
+  // Realtime subscription for kds_messages
+  useEffect(() => {
+    const channel = supabase
+      .channel('kds-messages-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'kds_messages' }, async () => {
+        try {
+          const { data } = await (supabase as any)
+            .from('kds_messages')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (data) {
+            const msgs: KDSMessageData[] = data.map((m: any) => ({
+              ...m,
+              timestamp: m.created_at,
+              linked_order_ids: Array.isArray(m.linked_order_ids) ? m.linked_order_ids : [],
+              status: m.status || 'pending',
+            }));
+            setKdsMessages(msgs);
+            const count = msgs.filter(m => m.status !== "acknowledged").length;
+            setPendingMessageCount(count);
+          }
+        } catch {}
+      })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, []);
+
+  // Build maps: table number -> all messages, order id -> all messages
   const messagesByTable = useMemo(() => {
     const map = new Map<string, KDSMessageData[]>();
     kdsMessages.filter(m => (m.status === "pending" || m.status === "acknowledged") && (m.table_number || m.table_id) && !m.linked_order_id).forEach(msg => {
@@ -929,7 +960,6 @@ const KDS = () => {
       arr.push(msg);
       map.set(msg.linked_order_id!, arr);
     });
-    // Also map by order number for mock tickets
     kdsMessages.filter(m => (m.status === "pending" || m.status === "acknowledged") && m.linked_order_number && !m.linked_order_id).forEach(msg => {
       const key = `order-${msg.linked_order_number}`;
       const arr = map.get(key) || [];
@@ -939,13 +969,13 @@ const KDS = () => {
     return map;
   }, [kdsMessages]);
 
-  const handleAcknowledgeMessage = useCallback((messageId: string) => {
+  const handleAcknowledgeMessage = useCallback(async (messageId: string) => {
     try {
-      const queue: KDSMessageData[] = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
-      const updated = queue.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m);
-      localStorage.setItem("kds_message_queue", JSON.stringify(updated));
-      // Re-read through shared helper to keep filtering/dedupe consistent
-      setKdsMessages(readSessionMessages());
+      await (supabase as any)
+        .from('kds_messages')
+        .update({ status: 'acknowledged', acknowledged_at: new Date().toISOString() })
+        .eq('message_id', messageId);
+      setKdsMessages(prev => prev.map(m => m.message_id === messageId ? { ...m, status: "acknowledged" as const, acknowledged_at: new Date().toISOString() } : m));
     } catch {}
   }, []);
 

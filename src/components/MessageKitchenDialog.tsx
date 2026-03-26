@@ -740,10 +740,10 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                             className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors bg-neutral-800 hover:bg-neutral-700 border ${isSelected ? "border-orange-500" : "border-transparent"}`}
                           >
                             <div className="flex items-center gap-2 text-sm">
+                              {hasOrders && tableOrders[0] && (
+                                <span className="text-white font-semibold">#{tableOrders[0].orderNumber}</span>
+                              )}
                               <span className="text-white font-semibold">{table.displayName}</span>
-                              <span className={`text-xs font-semibold ${getStatusColor(table.orderStatus)}`}>
-                                {table.orderStatus}
-                              </span>
                               {hasOrders && (
                                 <>
                                   <span className="text-neutral-500">·</span>
@@ -752,11 +752,16 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                               )}
                               {table.time && <span className="text-neutral-500 ml-auto">{table.time}</span>}
                             </div>
-                            <p className="text-xs text-neutral-500 mt-0.5">
-                              {hasOrders
-                                ? `Party of ${table.partySize} · ${table.itemCount} ${table.itemCount === 1 ? "product" : "products"} · ${tableOrders.length} ${tableOrders.length === 1 ? "order" : "orders"}`
-                                : "Available"}
-                            </p>
+                            <div className="flex items-center justify-between mt-0.5">
+                              <p className="text-xs text-neutral-500">
+                                {hasOrders
+                                  ? `Party of ${table.partySize} · ${table.itemCount} ${table.itemCount === 1 ? "product" : "products"} · ${tableOrders.length} ${tableOrders.length === 1 ? "order" : "orders"}`
+                                  : "Available"}
+                              </p>
+                              <span className={`text-xs font-semibold ${getStatusColor(table.orderStatus)}`}>
+                                {table.orderStatus}
+                              </span>
+                            </div>
                           </button>
                           {isSelected && hasOrders && (
                             <div className="ml-3 mt-0.5 space-y-0.5">
@@ -772,7 +777,12 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                                       <span className="text-neutral-400">{order.serverName}</span>
                                       <span className="text-neutral-500 ml-auto">{timeStr}</span>
                                     </div>
-                                    <p className="text-xs text-neutral-500 mt-0.5">{getOrderItemPreview(order)}</p>
+                                    <div className="flex items-center justify-between mt-0.5">
+                                      <p className="text-xs text-neutral-500">{getOrderItemPreview(order)}</p>
+                                      <span className={`text-xs font-semibold ${getStatusColor(order.orderStatus || 'ORDERING')}`}>
+                                        {(order.orderStatus || 'ORDERING').toUpperCase()}
+                                      </span>
+                                    </div>
                                   </div>
                                 );
                               })}

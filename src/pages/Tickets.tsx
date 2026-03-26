@@ -978,6 +978,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const handleClearOrderAttempt = () => {
     setCancelReason('');
     setCustomCancelReason('');
+    setCancelWriteOffChoice(null);
     setIsClearDialogOpen(true);
   };
   

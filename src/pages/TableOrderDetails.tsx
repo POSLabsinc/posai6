@@ -320,6 +320,7 @@ const TableOrderDetails = () => {
   const handleCancelOrderAttempt = (orderId: string) => {
     setCancelReason('');
     setCustomCancelReason('');
+    setCancelWriteOffChoice(null);
     setCancelTargetOrderId(orderId);
     setShowCancelConfirm(true);
   };

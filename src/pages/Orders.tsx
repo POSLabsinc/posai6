@@ -733,6 +733,7 @@ const Orders = () => {
   const handleClearOrderAttempt = () => {
     setCancelReason('');
     setCustomCancelReason('');
+    setCancelWriteOffChoice(null);
     setShowClearConfirm(true);
   };
 

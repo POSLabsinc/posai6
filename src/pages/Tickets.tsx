@@ -2158,13 +2158,15 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           />
         )}
       </div>
-      {/* Kitchen Note */}
-      {kitchenNote && (
-        <div className="px-3 pb-2">
-          <div className="flex items-center gap-2 text-sm bg-violet-500/10 border border-violet-500/30 text-violet-300 p-2 rounded-lg">
-            <span>🔥</span>
-            <span className="flex-1">{kitchenNote}</span>
-          </div>
+      {/* Kitchen Notes */}
+      {kitchenNotes.length > 0 && (
+        <div className="px-3 pb-2 space-y-1">
+          {kitchenNotes.map((note, i) => (
+            <div key={i} className="flex items-center gap-2 text-sm bg-violet-500/10 border border-violet-500/30 text-violet-300 p-2 rounded-lg">
+              <span>🔥</span>
+              <span className="flex-1">{note}</span>
+            </div>
+          ))}
         </div>
       )}
 

@@ -797,78 +797,86 @@ const TicketCard = ({ ticket, onBump, onSeen, attachedMessages = [], onAcknowled
   );
 };
 
-// ─── Convert localStorage KDS queue entries to KDSTicket ───
-const convertQueueToTickets = (queue: any[]): KDSTicket[] => {
-  return queue
-    .filter((entry: any) => entry.status === "active")
-    .map((entry: any) => ({
-      id: entry.sessionId || `kds-live-${entry.orderNumber}`,
-      orderNumber: entry.orderNumber || 0,
-      orderType: (entry.orderType || "DINE IN") as KDSTicket["orderType"],
-      tableNumber: entry.tableNumber || null,
-      serverName: entry.serverName || "Staff",
-      createdAt: new Date(entry.createdAt),
-      products: (entry.items || []).map((item: any) => ({
-        qty: item.qty || 1,
-        name: item.name,
-        category: "ENTREE" as const,
-        modifiers: (item.modifiers || []).map((m: string) => ({
-          name: m,
-          type: "note" as const,
-        })),
-        status: "pending" as const,
-      })),
-      status: "active" as const,
-      priority: "normal" as const,
-    }));
-};
+// ─── Convert DB ticket_orders to KDSTicket ───
+const convertOrderToTicket = (order: any, items: any[]): KDSTicket => ({
+  id: order.id,
+  orderNumber: order.order_number || 0,
+  orderType: (order.order_type || "DINE IN").toUpperCase().replace('-', ' ') as KDSTicket["orderType"],
+  tableNumber: order.table_id || null,
+  serverName: order.server || "Staff",
+  createdAt: new Date(order.created_at),
+  products: items.map((item: any) => ({
+    qty: item.qty || 1,
+    name: item.name,
+    category: "ENTREE" as const,
+    modifiers: (item.modifiers || []).map((m: string) => ({
+      name: m,
+      type: "note" as const,
+    })),
+    status: "pending" as const,
+  })),
+  status: order.status === "bumped" ? "bumped" as const : "active" as const,
+  priority: "normal" as const,
+});
 
 // ─── Main KDS Page ───
 const KDS = () => {
 
-  const [tickets, setTickets] = useState<KDSTicket[]>(() => {
-    try {
-      const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
-      const real = convertQueueToTickets(queue);
-      return real.length > 0 ? real : generateMockTickets();
-    } catch {
-      return generateMockTickets();
-    }
-  });
+  const [tickets, setTickets] = useState<KDSTicket[]>(() => generateMockTickets());
   const [showSummary, setShowSummary] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showMessages, setShowMessages] = useState(false);
-  const [knownIds, setKnownIds] = useState<Set<string>>(() => new Set(tickets.map(t => t.id)));
+  const [knownIds, setKnownIds] = useState<Set<string>>(new Set());
   const [pendingMessageCount, setPendingMessageCount] = useState(0);
 
-  // Poll localStorage for new fired orders every 2 seconds
+  // Fetch tickets from database (same source as Tickets module)
   useEffect(() => {
-    const interval = setInterval(() => {
+    const fetchTickets = async () => {
       try {
-        const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
-        const realTickets = convertQueueToTickets(queue);
-        if (realTickets.length > 0) {
-          const newOnes = realTickets.filter(t => !knownIds.has(t.id));
-          if (newOnes.length > 0) {
-            if (soundEnabled) {
-              try {
-                const audio = new Audio("/notification.mp3");
-                audio.volume = 0.5;
-                audio.play().catch(() => {});
-              } catch {}
-            }
-            setTickets(prev => [...newOnes, ...prev]);
-            setKnownIds(prev => {
-              const next = new Set(prev);
-              newOnes.forEach(t => next.add(t.id));
-              return next;
-            });
+        const { data: orders, error: ordersErr } = await supabase
+          .from('ticket_orders')
+          .select('*')
+          .in('status', ['ORDERED', 'IN_PROGRESS', 'active'])
+          .order('created_at', { ascending: false });
+
+        if (ordersErr || !orders || orders.length === 0) return;
+
+        const { data: items } = await supabase
+          .from('ticket_order_items')
+          .select('*')
+          .in('order_id', orders.map((o: any) => o.id))
+          .order('sort_order', { ascending: true });
+
+        const itemsByOrder = new Map<string, any[]>();
+        (items || []).forEach((item: any) => {
+          const list = itemsByOrder.get(item.order_id) || [];
+          list.push(item);
+          itemsByOrder.set(item.order_id, list);
+        });
+
+        const dbTickets = orders.map((order: any) =>
+          convertOrderToTicket(order, itemsByOrder.get(order.id) || [])
+        );
+
+        if (dbTickets.length > 0) {
+          const newOnes = dbTickets.filter((t: KDSTicket) => !knownIds.has(t.id));
+          if (newOnes.length > 0 && knownIds.size > 0 && soundEnabled) {
+            try {
+              const audio = new Audio("/notification.mp3");
+              audio.volume = 0.5;
+              audio.play().catch(() => {});
+            } catch {}
           }
+          setTickets(dbTickets);
+          setKnownIds(new Set(dbTickets.map((t: KDSTicket) => t.id)));
         }
       } catch {}
-    }, 2000);
+    };
+
+    fetchTickets();
+    const interval = setInterval(fetchTickets, 3000);
     return () => clearInterval(interval);
   }, [knownIds, soundEnabled]);
 

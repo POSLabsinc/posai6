@@ -1852,6 +1852,7 @@ const Orders = () => {
                             return updated;
                           });
                           toast.success(`Past order: ${availableItems.length} product${availableItems.length > 1 ? 's' : ''} added`);
+                          if (pastOrderNotes) { toast.info(`Order notes: ${pastOrderNotes}`, { duration: 6000 }); }
                         }}
                         className="text-blue-400 hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                         <RotateCcw className="w-3.5 h-3.5" />

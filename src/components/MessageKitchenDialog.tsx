@@ -693,7 +693,12 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                             <span className="text-neutral-400">{order.serverName}</span>
                             <span className="text-neutral-500 ml-auto">{timeStr}</span>
                           </div>
-                          <p className="text-xs text-neutral-500 mt-0.5">{getOrderItemPreview(order)}</p>
+                          <div className="flex items-center justify-between mt-0.5">
+                            <p className="text-xs text-neutral-500">{getOrderItemPreview(order)}</p>
+                            <span className={`text-xs font-semibold ${getStatusColor(order.orderStatus || 'ORDERING')}`}>
+                              {(order.orderStatus || 'ORDERING').toUpperCase()}
+                            </span>
+                          </div>
                         </button>
                       );
                     })}

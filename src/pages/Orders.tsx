@@ -3079,6 +3079,7 @@ const Orders = () => {
                         return updated;
                       });
                       toast.success(`Past order: ${availableItems.length} product${availableItems.length > 1 ? 's' : ''} added`);
+                      if (pastOrderNotes) { toast.info(`Order notes: ${pastOrderNotes}`, { duration: 6000 }); }
                     }}
                   >
                     <RotateCcw className="w-3 h-3" />

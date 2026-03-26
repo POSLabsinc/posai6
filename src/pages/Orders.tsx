@@ -1824,7 +1824,7 @@ const Orders = () => {
                       <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
                       No Sale
                     </DropdownMenuItem>
-                    {pastOrderItems.length > 0 && isGuestSelected && (
+                   {pastOrderItems.length > 0 && guestName.trim() && (
                       <DropdownMenuItem
                         onClick={() => {
                           const availableItems = pastOrderItems.filter(i => i.isAvailable !== false);

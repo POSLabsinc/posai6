@@ -2075,9 +2075,11 @@ const Orders = () => {
                 <AddGuestForm
               onClose={() => setShowAddGuestForm(false)}
               onSave={(guestData) => {
-                setGuestName(`${guestData.firstName} ${guestData.lastName}`);
+                const fullName = `${guestData.firstName} ${guestData.lastName}`;
+                setGuestName(fullName);
                 setGuestPhone(guestData.phoneNumber);
                 setShowAddGuestForm(false);
+                fetchPastOrdersForGuest(fullName);
               }}
               compact />
 

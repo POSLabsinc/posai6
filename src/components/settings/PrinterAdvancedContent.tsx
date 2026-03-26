@@ -158,7 +158,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
         <ToggleOption label="Print Time Clock Report" description="Allow printing of employee time clock reports." checked={toBool(printTimeClockReport)} onChange={(v) => setPrintTimeClockReport(String(v))} />
 
         {/* Kitchen Tickets */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3 mt-2">Kitchen Tickets</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 mt-2">Kitchen Tickets</p>
         <ToggleOption label="Large Product Text" description="Increase the font size for product names on kitchen tickets." checked={toBool(largeItemText)} onChange={(v) => setLargeItemText(String(v))} />
         <ToggleOption label="Large Order Number" description="Enlarge the order number for quick identification." checked={toBool(largeOrderNumber)} onChange={(v) => setLargeOrderNumber(String(v))} />
         <ToggleOption label="Print Products Separately" description="Print each product on its own individual ticket." checked={toBool(printItemsSeparately)} onChange={(v) => setPrintItemsSeparately(String(v))} />

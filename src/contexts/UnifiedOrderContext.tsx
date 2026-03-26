@@ -62,7 +62,7 @@ export function UnifiedOrderProvider({ children }: { children: ReactNode }) {
     addOrder: dbAdd,
   } = useTicketOrders();
 
-  const orders = dbOrders.map(toTicketOrder);
+  const orders = useMemo(() => dbOrders.map(toTicketOrder), [dbOrders]);
 
   const getAllOrders = useCallback(() => orders, [orders]);
 

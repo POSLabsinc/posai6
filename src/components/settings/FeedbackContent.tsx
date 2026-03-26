@@ -52,7 +52,7 @@ const FeedbackContent = ({ showHeader = true, onBack, onAIClick }: FeedbackConte
 
 
         <div className="mb-4">
-          <h2 className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
+          <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
             User Feedback
           </h2>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

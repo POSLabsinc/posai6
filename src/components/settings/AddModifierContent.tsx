@@ -108,7 +108,7 @@ const AddModifierContent = ({ onBack, onSave }: AddModifierContentProps) => {
       <div className="flex-1 overflow-y-auto scrollbar-hide pt-0 px-6 pb-28">
         {/* APPLIES TO */}
         <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">
+          <span className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 block">
             Applies To
           </span>
           <div className="bg-neutral-800/60 rounded-full overflow-hidden">
@@ -142,7 +142,7 @@ const AddModifierContent = ({ onBack, onSave }: AddModifierContentProps) => {
 
         {/* MODIFIER DETAILS */}
         <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">
+          <span className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 block">
             Modifier Details
           </span>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

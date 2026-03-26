@@ -271,7 +271,7 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
         <div className="w-full">
           {/* Password Section - Read Only Notice */}
           <div className="mb-6">
-            <h2 className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
+            <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
               Password
             </h2>
             <div className="bg-neutral-800/40 rounded-full overflow-hidden">
@@ -286,7 +286,7 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
 
           {/* Two Factor Authentication Section */}
           <div className="mb-6">
-            <h2 className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
+            <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
               Two Factor Authentication
             </h2>
             <div className="bg-neutral-800/40 rounded-full overflow-hidden">
@@ -305,7 +305,7 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
 
           {/* PIN Settings Section */}
           <div className="mb-6">
-            <h2 className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
+            <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
               PIN Settings
             </h2>
             <div className="bg-neutral-800/40 rounded-full overflow-hidden">

@@ -3002,7 +3002,7 @@ const Orders = () => {
             
             <div className="flex items-center gap-1.5 mb-2">
               <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide gap-1.5">
-                {pastOrderItems.length > 0 && isGuestSelected && (
+                {pastOrderItems.length > 0 && guestName.trim() && (
                   <Button
                     variant="secondary"
                     size="sm"

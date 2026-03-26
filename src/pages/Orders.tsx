@@ -963,6 +963,96 @@ const Orders = () => {
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+  const fetchPastOrdersForGuest = useCallback(async (name: string) => {
+    try {
+      setPastOrderLoading(true);
+      const { data: guestRows } = await supabase
+        .from('guests')
+        .select('id,name,phone,email,order_count,last_order_date,loyalty,allergies,notes_general,notes_allergies')
+        .ilike('name', name)
+        .limit(1);
+      
+      const dbGuest = guestRows?.[0];
+      if (dbGuest && dbGuest.order_count > 0) {
+        const { data: orders } = await supabase
+          .from('orders')
+          .select('id,total,tip_amount')
+          .eq('guest_id', dbGuest.id)
+          .order('created_at', { ascending: false })
+          .limit(10);
+
+        const totalSpent = orders?.reduce((s, o) => s + (o.total || 0), 0) || 0;
+        const totalTips = orders?.reduce((s, o) => s + (o.tip_amount || 0), 0) || 0;
+
+        const allergies: string[] = [];
+        if (dbGuest.allergies && Array.isArray(dbGuest.allergies) && dbGuest.allergies.length > 0) {
+          allergies.push(...dbGuest.allergies);
+        }
+        const notesAllergies = dbGuest.notes_allergies?.trim();
+        if (notesAllergies && !allergies.includes(notesAllergies)) {
+          allergies.push(notesAllergies);
+        }
+
+        setPastOrderGuest({
+          id: dbGuest.id,
+          name: dbGuest.name,
+          phone: dbGuest.phone || undefined,
+          email: dbGuest.email || undefined,
+          orderCount: dbGuest.order_count,
+          lastOrderDate: dbGuest.last_order_date || undefined,
+          loyaltyTier: dbGuest.loyalty || undefined,
+          totalSpent,
+          totalTips,
+          allergies: allergies.length > 0 ? allergies : undefined,
+          notes: dbGuest.notes_general?.trim() || undefined,
+        });
+
+        const recentOrderIds = (orders || []).slice(0, 3).map(o => o.id);
+        if (recentOrderIds.length > 0) {
+          const { data: items } = await supabase
+            .from('order_items')
+            .select('id,item_name,quantity,unit_price,total_price,category')
+            .in('order_id', recentOrderIds);
+
+          if (items && items.length > 0) {
+            const pastItems: GuestPastItem[] = items.map(item => {
+              const currentProduct = dbProducts.find(
+                p => p.name.toLowerCase() === item.item_name.toLowerCase()
+              );
+              return {
+                id: item.id,
+                name: item.item_name,
+                quantity: item.quantity,
+                price: currentProduct ? currentProduct.price : item.unit_price,
+                originalPrice: currentProduct && currentProduct.price !== item.unit_price ? item.unit_price : undefined,
+                category: item.category || undefined,
+                isAvailable: currentProduct ? currentProduct.is_available : false,
+                isComped: item.unit_price === 0,
+              };
+            });
+            const seen = new Map<string, GuestPastItem>();
+            for (const pi of pastItems) {
+              if (!seen.has(pi.name.toLowerCase())) {
+                seen.set(pi.name.toLowerCase(), pi);
+              }
+            }
+            setPastOrderItems(Array.from(seen.values()));
+          } else {
+            setPastOrderItems([]);
+          }
+        } else {
+          setPastOrderItems([]);
+        }
+      } else {
+        setPastOrderItems([]);
+      }
+    } catch (err) {
+      console.error('Failed to fetch past orders:', err);
+    } finally {
+      setPastOrderLoading(false);
+    }
+  }, [dbProducts]);
+
   const selectGuest = async (guest: GuestUser) => {
     setIsGuestSelected(true);
     setGuestName(guest.name);
@@ -970,8 +1060,8 @@ const Orders = () => {
     setShowGuestDropdown(false);
     setShowPhoneDropdown(false);
 
-    // Fetch past orders for this guest and show popup
-    try {
+    await fetchPastOrdersForGuest(guest.name);
+  };
       setPastOrderLoading(true);
       // Look up the guest in DB by name to get their id + extra fields
       const { data: guestRows } = await supabase

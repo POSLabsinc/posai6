@@ -220,38 +220,49 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
     }
   }, [open]);
 
-  const loadActiveOrders = () => {
+  const loadActiveOrders = async () => {
     setLoadingOrders(true);
     try {
-      const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
-      const realOrders: KDSTicketData[] = queue
-        .filter((e: any) => e.status === "active")
-        .map((e: any) => ({
-          id: e.sessionId || `kds-live-${e.orderNumber}`,
-          orderNumber: e.orderNumber || 0,
-          orderType: e.orderType || "DINE IN",
-          tableNumber: e.tableNumber || null,
-          serverName: e.serverName || "Staff",
-          createdAt: e.createdAt || new Date().toISOString(),
-          products: (e.items || []).map((i: any) => ({ name: i.name, qty: i.qty || 1 })),
+      // Fetch from ticket_orders table - same source as Tickets module
+      const { data: orders, error: ordersErr } = await supabase
+        .from('ticket_orders')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (ordersErr) throw ordersErr;
+
+      if (orders && orders.length > 0) {
+        // Fetch items for these orders
+        const orderIds = orders.map((o: any) => o.id);
+        const { data: items } = await supabase
+          .from('ticket_order_items')
+          .select('*')
+          .in('order_id', orderIds)
+          .order('sort_order', { ascending: true });
+
+        const itemsByOrder = new Map<string, { name: string; qty: number }[]>();
+        (items || []).forEach((item: any) => {
+          const list = itemsByOrder.get(item.order_id) || [];
+          list.push({ name: item.name, qty: item.qty || 1 });
+          itemsByOrder.set(item.order_id, list);
+        });
+
+        const mapped: KDSTicketData[] = orders.map((o: any) => ({
+          id: o.id,
+          orderNumber: o.order_number || 0,
+          orderType: o.order_type || "DINE IN",
+          tableNumber: o.table_id || null,
+          serverName: o.server || "Staff",
+          createdAt: o.created_at || new Date().toISOString(),
+          products: itemsByOrder.get(o.id) || [],
           status: "active",
-          partySize: e.partySize || 1,
-          orderStatus: e.orderStatus || "ORDERING",
+          partySize: o.party_size || 1,
+          orderStatus: (o.status || "ORDERING").toUpperCase(),
         }));
 
-      if (realOrders.length === 0) {
-        const now = new Date();
-        const mockOrders: KDSTicketData[] = [
-          { id: "kds-1", orderNumber: 23, orderType: "DINE IN", tableNumber: "T2", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 38 * 60000).toISOString(), products: [{ name: "Fried Calamari", qty: 1 }, { name: "Filet Mignon", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }, { name: "Grassfed Sirloin Steak", qty: 1 }, { name: "Tres Leches", qty: 1 }], status: "active", partySize: 4, orderStatus: "ORDERING" },
-          { id: "kds-2", orderNumber: 24, orderType: "DINE IN", tableNumber: "T4", serverName: "Dustin H", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }], status: "active", partySize: 2, orderStatus: "ORDERED" },
-          { id: "kds-3", orderNumber: 25, orderType: "DINE IN", tableNumber: "T5", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 2 }], status: "active", partySize: 3, orderStatus: "PREPARING" },
-          { id: "kds-4", orderNumber: 26, orderType: "DINE IN", tableNumber: "T6", serverName: "Sarah K", createdAt: new Date(now.getTime() - 38 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Meatballs", qty: 2 }, { name: "Meatballs", qty: 1 }], status: "active", partySize: 2, orderStatus: "ORDERING" },
-          { id: "kds-5", orderNumber: 27, orderType: "DINE IN", tableNumber: "T8", serverName: "Dustin H", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Meatballs", qty: 2 }, { name: "Cheese Selection", qty: 1 }], status: "active", partySize: 4, orderStatus: "ORDERED" },
-          { id: "kds-6", orderNumber: 28, orderType: "DINE IN", tableNumber: "T3", serverName: "Mia Jones", createdAt: new Date(now.getTime() - 23 * 60000).toISOString(), products: [{ name: "Cheese Selection", qty: 1 }, { name: "Filet Mignon", qty: 1 }, { name: "Meatballs", qty: 4 }, { name: "Grassfed Sirloin Steak", qty: 2 }, { name: "Tres Leches", qty: 3 }, { name: "Meatballs", qty: 1 }, { name: "Grassfed Sirloin Steak", qty: 2 }, { name: "Grassfed Sirloin Steak", qty: 1 }], status: "active", partySize: 6, orderStatus: "PREPARING" },
-        ];
-        setActiveOrders(mockOrders);
+        setActiveOrders(mapped);
       } else {
-        setActiveOrders(realOrders);
+        setActiveOrders([]);
       }
     } catch {
       setActiveOrders([]);

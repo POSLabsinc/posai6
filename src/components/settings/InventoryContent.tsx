@@ -29,7 +29,15 @@ interface ProductInventory {
   stock_count: number | null;
   is_available: boolean;
   variants: VariantInventory[];
+  product_code: string;
 }
+
+const generateProductCode = (categoryName: string, productName: string, index: number): string => {
+  const catPrefix = categoryName.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase() || 'GEN';
+  const prodPrefix = productName.replace(/[^a-zA-Z]/g, '').substring(0, 3).toUpperCase() || 'PRD';
+  const numPart = String(index + 1).padStart(4, '0');
+  return `${catPrefix}-${prodPrefix}-${numPart}`;
+};
 
 interface VariantInventory {
   id: string;

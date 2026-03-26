@@ -1027,8 +1027,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   };
   
   // Get current notes for selected guest (use updated notes if available, otherwise original)
+  // Strip any legacy fire emoji prefixes from notes
   const getCurrentNotes = (orderId: string, originalNotes: string) => {
-    return orderNotes[orderId] !== undefined ? orderNotes[orderId] : originalNotes;
+    const raw = orderNotes[orderId] !== undefined ? orderNotes[orderId] : originalNotes;
+    return raw ? raw.replace(/🔥\s*/g, '').trim() : raw;
   };
   
   // Check if order can have notes edited (ORDERING or UNPAID status)

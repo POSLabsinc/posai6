@@ -347,25 +347,13 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     setSelectedSeats(Array.from({ length: size }, (_, i) => i + 1));
   }, [selectedGuest.id, selectedGuest.partySize]);
 
-  // Kitchen note from KDS messages linked to the selected order
-  const [kitchenNote, setKitchenNote] = useState<string | null>(null);
-  
-  useEffect(() => {
-    const getKitchenNote = () => {
-      try {
-        const raw = localStorage.getItem("kds_message_queue");
-        if (!raw) return null;
-        const messages = JSON.parse(raw) as any[];
-        const linked = messages
-          .filter((m: any) => m.linked_order_id === selectedGuest.id && m.status !== "acknowledged")
-          .sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
-        return linked.length > 0 ? linked[0].message_text : null;
-      } catch { return null; }
-    };
-    setKitchenNote(getKitchenNote());
-    const interval = setInterval(() => setKitchenNote(getKitchenNote()), 3000);
-    return () => clearInterval(interval);
-  }, [selectedGuest.id]);
+  // Extract kitchen notes (🔥 prefixed) from order notes (DB-synced via realtime)
+  const extractKitchenNotes = useCallback((notes: string | undefined): string[] => {
+    if (!notes) return [];
+    return notes.split(' | ').filter(n => n.startsWith('🔥')).map(n => n.replace(/^🔥\s*/, ''));
+  }, []);
+
+  const kitchenNotes = useMemo(() => extractKitchenNotes(selectedGuest.notes), [selectedGuest.notes, extractKitchenNotes]);
 
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);

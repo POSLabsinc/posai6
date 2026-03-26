@@ -715,7 +715,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                   />
                 </div>
 
-                {loadingTables ? (
+                {(loadingTables || loadingOrders) ? (
                   <div className="flex items-center gap-2 py-3 justify-center text-neutral-400 text-xs">
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
                     Loading tables...
@@ -726,24 +726,54 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
                   <div className="max-h-[220px] overflow-y-auto space-y-0.5 scrollbar-hide">
                     {filteredTables.map(table => {
                       const isSelected = selectedTableKey === table.tableNumber;
+                      const tableOrders = activeOrders.filter(o => normalizeTableNumber(o.tableNumber) === table.tableNumber);
+                      const hasOrders = tableOrders.length > 0;
                       return (
-                        <button
-                          key={table.tableNumber}
-                          onClick={() => setSelectedTableKey(isSelected ? null : table.tableNumber)}
-                          className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors bg-neutral-800 hover:bg-neutral-700 border ${isSelected ? "border-orange-500" : "border-transparent"}`}
-                        >
-                          <div className="flex items-center justify-between text-sm">
-                            <span className="text-white font-semibold">{table.displayName}</span>
-                            <span className={`text-xs font-semibold ${getStatusColor(table.orderStatus)}`}>
-                              {table.orderStatus}
-                            </span>
-                          </div>
-                          <p className="text-xs text-neutral-500 mt-0.5">
-                            {table.orderIds.length > 0
-                              ? `${table.serverName} · Party of ${table.partySize} · ${table.time} · ${table.itemCount} ${table.itemCount === 1 ? "product" : "products"}`
-                              : `${table.orderStatus === "AVAILABLE" ? "Available" : table.orderStatus}`}
-                          </p>
-                        </button>
+                        <div key={table.tableNumber}>
+                          <button
+                            onClick={() => setSelectedTableKey(isSelected ? null : table.tableNumber)}
+                            className={`w-full text-left px-2.5 py-2 rounded-lg transition-colors bg-neutral-800 hover:bg-neutral-700 border ${isSelected ? "border-orange-500" : "border-transparent"}`}
+                          >
+                            <div className="flex items-center gap-2 text-sm">
+                              <span className="text-white font-semibold">{table.displayName}</span>
+                              <span className={`text-xs font-semibold ${getStatusColor(table.orderStatus)}`}>
+                                {table.orderStatus}
+                              </span>
+                              {hasOrders && (
+                                <>
+                                  <span className="text-neutral-500">·</span>
+                                  <span className="text-neutral-400">{table.serverName}</span>
+                                </>
+                              )}
+                              {table.time && <span className="text-neutral-500 ml-auto">{table.time}</span>}
+                            </div>
+                            <p className="text-xs text-neutral-500 mt-0.5">
+                              {hasOrders
+                                ? `Party of ${table.partySize} · ${table.itemCount} ${table.itemCount === 1 ? "product" : "products"} · ${tableOrders.length} ${tableOrders.length === 1 ? "order" : "orders"}`
+                                : "Available"}
+                            </p>
+                          </button>
+                          {isSelected && hasOrders && (
+                            <div className="ml-3 mt-0.5 space-y-0.5">
+                              {tableOrders.map(order => {
+                                const timeStr = formatOrderTime(order.createdAt);
+                                return (
+                                  <div
+                                    key={order.id}
+                                    className="w-full text-left px-2.5 py-1.5 rounded-lg bg-neutral-800/60 border border-neutral-700/50"
+                                  >
+                                    <div className="flex items-center gap-2 text-sm">
+                                      <span className="text-white font-semibold">#{order.orderNumber}</span>
+                                      <span className="text-neutral-400">{order.serverName}</span>
+                                      <span className="text-neutral-500 ml-auto">{timeStr}</span>
+                                    </div>
+                                    <p className="text-xs text-neutral-500 mt-0.5">{getOrderItemPreview(order)}</p>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
                       );
                     })}
                   </div>

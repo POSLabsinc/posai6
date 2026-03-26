@@ -736,15 +736,16 @@ const Orders = () => {
     setShowClearConfirm(true);
   };
 
-  const handleClearOrder = (cancelReason?: string) => {
-    console.log('[handleClearOrder] clearing all order state');
+  const handleClearOrder = (cancelReason?: string, writeOff: boolean = false) => {
+    console.log('[handleClearOrder] clearing all order state, writeOff:', writeOff);
     
     // Process write-off or inventory restoration for cancelled items
     if (orderItems.length > 0) {
       processCancelledItems(
         orderItems.map(item => ({ name: item.name, price: item.price, quantity: 1, isFired: !!item.isFired })),
         undefined,
-        cancelReason || 'Order cancelled'
+        cancelReason || 'Order cancelled',
+        writeOff
       );
     }
     

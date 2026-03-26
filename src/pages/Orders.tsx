@@ -1949,6 +1949,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowTakeOutForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowTakeOutForm(false)}
             onClose={() => setShowTakeOutForm(false)}

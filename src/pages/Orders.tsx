@@ -1008,6 +1008,18 @@ const Orders = () => {
           notes: dbGuest.notes_general?.trim() || undefined,
         });
 
+        // Fetch notes from ticket_orders for this guest
+        const { data: ticketOrders } = await (supabase as any)
+          .from('ticket_orders')
+          .select('notes')
+          .ilike('name', name)
+          .order('created_at', { ascending: false })
+          .limit(3);
+        const combinedNotes = (ticketOrders || [])
+          .map((t: any) => (t.notes || '').replace(/🔥/g, '').trim())
+          .filter((n: string) => n.length > 0);
+        setPastOrderNotes(combinedNotes.length > 0 ? combinedNotes[0] : '');
+
         const recentOrderIds = (orders || []).slice(0, 3).map(o => o.id);
         if (recentOrderIds.length > 0) {
           const { data: items } = await supabase

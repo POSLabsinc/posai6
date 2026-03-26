@@ -569,6 +569,7 @@ const Orders = () => {
   const [showPastOrderPopup, setShowPastOrderPopup] = useState(false);
   const [pastOrderGuest, setPastOrderGuest] = useState<GuestPastInfo | null>(null);
   const [pastOrderItems, setPastOrderItems] = useState<GuestPastItem[]>([]);
+  const [pastOrderNotes, setPastOrderNotes] = useState<string>('');
   const [pastOrderLoading, setPastOrderLoading] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -1006,6 +1007,18 @@ const Orders = () => {
           allergies: allergies.length > 0 ? allergies : undefined,
           notes: dbGuest.notes_general?.trim() || undefined,
         });
+
+        // Fetch notes from ticket_orders for this guest
+        const { data: ticketOrders } = await (supabase as any)
+          .from('ticket_orders')
+          .select('notes')
+          .ilike('name', name)
+          .order('created_at', { ascending: false })
+          .limit(3);
+        const combinedNotes = (ticketOrders || [])
+          .map((t: any) => (t.notes || '').replace(/🔥/g, '').trim())
+          .filter((n: string) => n.length > 0);
+        setPastOrderNotes(combinedNotes.length > 0 ? combinedNotes[0] : '');
 
         const recentOrderIds = (orders || []).slice(0, 3).map(o => o.id);
         if (recentOrderIds.length > 0) {
@@ -1839,6 +1852,7 @@ const Orders = () => {
                             return updated;
                           });
                           toast.success(`Past order: ${availableItems.length} product${availableItems.length > 1 ? 's' : ''} added`);
+                          if (pastOrderNotes) { toast.info(`Order notes: ${pastOrderNotes}`, { duration: 6000 }); }
                         }}
                         className="text-blue-400 hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                         <RotateCcw className="w-3.5 h-3.5" />
@@ -3065,6 +3079,7 @@ const Orders = () => {
                         return updated;
                       });
                       toast.success(`Past order: ${availableItems.length} product${availableItems.length > 1 ? 's' : ''} added`);
+                      if (pastOrderNotes) { toast.info(`Order notes: ${pastOrderNotes}`, { duration: 6000 }); }
                     }}
                   >
                     <RotateCcw className="w-3 h-3" />

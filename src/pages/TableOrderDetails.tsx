@@ -327,7 +327,8 @@ const TableOrderDetails = () => {
   const handleCancelOrderConfirm = () => {
     if (!cancelTargetOrderId) return;
     const selectedReason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
-    console.log('[TableOrder CancelOrder] orderId:', cancelTargetOrderId, 'reason:', selectedReason);
+    const writeOff = cancelWriteOffChoice === 'write_off';
+    console.log('[TableOrder CancelOrder] orderId:', cancelTargetOrderId, 'reason:', selectedReason, 'writeOff:', writeOff);
     
     // Process write-offs for fired items
     const cancelSessionOrder = sessionOrdersForTable.find(so => so.id === cancelTargetOrderId);
@@ -340,7 +341,8 @@ const TableOrderDetails = () => {
       processCancelledItems(
         allCancelItems.map((item: any) => ({ name: item.name, price: item.price, quantity: item.quantity || 1, isFired: !!(item.isFired || item.is_fired) })),
         cancelTargetOrderId,
-        selectedReason || 'Order cancelled'
+        selectedReason || 'Order cancelled',
+        writeOff
       );
     }
     

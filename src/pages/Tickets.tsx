@@ -932,7 +932,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   // Handle clearing/voiding the current order
   const handleClearOrder = () => {
     const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
-    console.log('[Tickets CancelOrder] order:', selectedGuest.id, 'reason:', reason);
+    const writeOff = cancelWriteOffChoice === 'write_off';
+    console.log('[Tickets CancelOrder] order:', selectedGuest.id, 'reason:', reason, 'writeOff:', writeOff);
     
     // Process write-off or inventory restoration for cancelled items
     const cancelItems = selectedGuest.items || [];
@@ -940,7 +941,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       processCancelledItems(
         cancelItems.map((item: any) => ({ name: item.name, price: item.price, quantity: item.quantity || 1, isFired: !!item.isFired })),
         selectedGuest.id,
-        reason || 'Order cancelled'
+        reason || 'Order cancelled',
+        writeOff
       );
     }
     

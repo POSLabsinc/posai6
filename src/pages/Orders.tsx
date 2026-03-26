@@ -1326,26 +1326,39 @@ const Orders = () => {
     setIsProductInfoFullScreen(view === 'productInfo');
   };
   const removeFromCart = (itemId: number) => {
-    setOrderItems((prev) => {
-      const target = prev.find(i => i.id === itemId);
-      if (target && target.isFired) {
-        if (isWriteOffEnabled) {
-          // Write-Off ON: fired item is waste, record loss, do NOT restore stock
+    const target = orderItems.find(i => i.id === itemId);
+    if (target && target.isFired) {
+      // Show write-off choice popup for fired items
+      setWriteOffPendingItemId(itemId);
+      setShowWriteOffPopup(true);
+      return;
+    }
+    // Not fired: always restore stock
+    if (target) {
+      adjustStock([{ name: target.name, qty: target.qty }], 'restore');
+    }
+    setOrderItems((prev) => prev.filter((item) => item.id !== itemId));
+  };
+
+  const handleWriteOffChoice = (choice: 'write_off' | 'without') => {
+    if (writeOffPendingItemId !== null) {
+      const target = orderItems.find(i => i.id === writeOffPendingItemId);
+      if (target) {
+        if (choice === 'write_off') {
           processCancelledItems(
             [{ name: target.name, price: target.price, quantity: target.qty, isFired: true }],
             undefined,
-            'Cancelled after fire'
+            'Cancelled after fire',
+            true
           );
         } else {
-          // Write-Off OFF: item in good condition, restore stock
           adjustStock([{ name: target.name, qty: target.qty }], 'restore');
         }
-      } else if (target && !target.isFired) {
-        // Not fired yet: always restore stock
-        adjustStock([{ name: target.name, qty: target.qty }], 'restore');
       }
-      return prev.filter((item) => item.id !== itemId);
-    });
+      setOrderItems((prev) => prev.filter((item) => item.id !== writeOffPendingItemId));
+    }
+    setShowWriteOffPopup(false);
+    setWriteOffPendingItemId(null);
   };
   const updateItemOrderType = (itemId: number, newOrderType: string) => {
     setOrderItems((prev) => prev.map((item) =>

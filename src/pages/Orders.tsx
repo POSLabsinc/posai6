@@ -1951,7 +1951,7 @@ const Orders = () => {
                   {isOrderActionsSidebarOpen ? <X className="w-3 h-3" /> : <MoreVertical className="w-3 h-3" />}
                 </Button>
               </div>
-            </>
+            </>}
 
           {/* Order Content Area with Sidebar */}
           <div ref={orderContentStartRef} className="flex-1 flex gap-2 min-h-0">

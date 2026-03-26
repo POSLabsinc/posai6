@@ -1997,6 +1997,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowDriveThruForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowDriveThruForm(false)}
             onClose={() => setShowDriveThruForm(false)}

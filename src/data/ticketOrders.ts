@@ -49,7 +49,6 @@ export interface TicketOrder {
   total: number;
   table: string;
   orderType: string;
-  orderNumber?: number;
   transferInfo?: TicketTransferInfo;
 }
 
@@ -455,112 +454,6 @@ export const ticketOrders: TicketOrder[] = [
     tax: 9.06,
     tip: 0,
     total: 138.21
-  },
-  {
-    id: "16",
-    name: "Kevin Brooks",
-    phone: "(415) 555-4444",
-    partySize: 2,
-    time: "8:15 PM",
-    timer: "00:20",
-    server: "Dustin H",
-    check: "--",
-    paymentType: "--",
-    revenueCenter: "Main Dining",
-    status: "ORDERED",
-    notes: "",
-    table: "T2",
-    orderType: "Table Order",
-    items: [
-      { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [1], modifiers: ["Lemon Butter"] },
-      { qty: 1, name: "Caesar Salad", price: 12.00, seats: [2], modifiers: [] }
-    ],
-    subtotal: 36.00,
-    discount: 0,
-    serviceCharge: 1.80,
-    tax: 2.65,
-    tip: 0,
-    total: 40.45
-  },
-  {
-    id: "17",
-    name: "Nancy Patel",
-    phone: "(415) 555-5555",
-    partySize: 3,
-    time: "7:55 PM",
-    timer: "0:35 Hrs",
-    server: "Mia Jone",
-    check: "123520",
-    paymentType: "Credit Card",
-    revenueCenter: "Main Dining",
-    status: "PAID",
-    notes: "Enjoyed the meal",
-    table: "T3",
-    orderType: "Table Order",
-    items: [
-      { qty: 1, name: "Filet Mignon", price: 42.00, seats: [1], modifiers: ["Medium"] },
-      { qty: 1, name: "Lobster Bisque", price: 16.00, seats: [2], modifiers: [] },
-      { qty: 1, name: "Tiramisu", price: 10.00, seats: [3], modifiers: [] }
-    ],
-    subtotal: 68.00,
-    discount: 0,
-    serviceCharge: 3.40,
-    tax: 5.01,
-    tip: 12.00,
-    total: 88.41
-  },
-  {
-    id: "18",
-    name: "Oscar Reyes",
-    phone: "(415) 555-6666",
-    partySize: 2,
-    time: "8:35 PM",
-    timer: "00:05",
-    server: "Alex M",
-    check: "--",
-    paymentType: "--",
-    revenueCenter: "Main Dining",
-    status: "ORDERING",
-    notes: "Vegetarian preferences",
-    table: "T3",
-    orderType: "Table Order",
-    items: [
-      { qty: 1, name: "Mushroom Risotto", price: 18.00, seats: [1], modifiers: ["Extra Truffle"] },
-      { qty: 1, name: "Garden Salad", price: 10.00, seats: [2], modifiers: ["No Croutons"] }
-    ],
-    subtotal: 28.00,
-    discount: 0,
-    serviceCharge: 1.40,
-    tax: 2.06,
-    tip: 0,
-    total: 31.46
-  },
-  {
-    id: "19",
-    name: "Diana Foster",
-    phone: "(415) 555-7777",
-    partySize: 4,
-    time: "7:45 PM",
-    timer: "0:45 Hrs",
-    server: "Dustin H",
-    check: "123525",
-    paymentType: "--",
-    revenueCenter: "Main Dining",
-    status: "ORDERED",
-    notes: "Large group, split appetizers",
-    table: "T3",
-    orderType: "Table Order",
-    items: [
-      { qty: 2, name: "Bruschetta", price: 10.00, seats: [1, 2], modifiers: [] },
-      { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [3, 4], modifiers: [] },
-      { qty: 1, name: "Calamari", price: 14.00, seats: [], modifiers: ["Spicy Aioli"] }
-    ],
-    subtotal: 66.00,
-    discount: 0,
-    serviceCharge: 3.30,
-    tax: 4.86,
-    tip: 0,
-    total: 74.16
   }
 ];
 

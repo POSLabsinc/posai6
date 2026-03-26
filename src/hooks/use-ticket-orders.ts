@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useEffect, useCallback, useRef } from 'react';
+import { useEffect, useCallback } from 'react';
 
 // ─── Types ───────────────────────────────────────────────────
 export interface TicketOrderItemRow {
@@ -244,16 +244,10 @@ async function fetchTicketOrders(): Promise<UnifiedTicketOrder[]> {
   });
 }
 
-// ─── Singleton Realtime Channel ──────────────────────────────
-let channelConsumerCount = 0;
-let globalChannel: ReturnType<typeof supabase.channel> | null = null;
-let lastMutationTime = 0;
-
 // ─── Hook ────────────────────────────────────────────────────
 
 export function useTicketOrders() {
   const queryClient = useQueryClient();
-  const channelSetupRef = useRef(false);
 
   const { data: orders = [], isLoading, error } = useQuery({
     queryKey: ['ticket-orders'],
@@ -261,48 +255,22 @@ export function useTicketOrders() {
     staleTime: 30_000,
   });
 
-  // Singleton realtime subscription with debounced invalidation
+  // Realtime subscription
   useEffect(() => {
-    channelConsumerCount++;
+    const channel = supabase
+      .channel('ticket-orders-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ticket_orders' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['ticket-orders'] });
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ticket_order_items' }, () => {
+        queryClient.invalidateQueries({ queryKey: ['ticket-orders'] });
+      })
+      .subscribe();
 
-    if (!globalChannel) {
-      let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
-      const debouncedInvalidate = () => {
-        // Skip if a mutation just fired (within 500ms)
-        if (Date.now() - lastMutationTime < 500) return;
-        if (debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-          queryClient.invalidateQueries({ queryKey: ['ticket-orders'] });
-        }, 300);
-      };
-
-      globalChannel = supabase
-        .channel('ticket-orders-global-realtime')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'ticket_orders' }, debouncedInvalidate)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'ticket_order_items' }, debouncedInvalidate)
-        .subscribe();
-    }
-
-    channelSetupRef.current = true;
-
-    return () => {
-      channelConsumerCount--;
-      if (channelConsumerCount <= 0 && globalChannel) {
-        supabase.removeChannel(globalChannel);
-        globalChannel = null;
-        channelConsumerCount = 0;
-      }
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [queryClient]);
 
-  // Helper to mark mutation time and invalidate
-  const onMutationSuccess = () => {
-    lastMutationTime = Date.now();
-    queryClient.invalidateQueries({ queryKey: ['ticket-orders'] });
-  };
-
-  // ─── Mutations with optimistic updates ─────────────────────
+  // ─── Mutations ──────────────────────────────────────────────
 
   const addOrderMutation = useMutation({
     mutationFn: async (order: Partial<UnifiedTicketOrder> & { items?: UnifiedTicketOrder['items'] }) => {
@@ -329,7 +297,7 @@ export function useTicketOrders() {
       }
       return data;
     },
-    onSuccess: onMutationSuccess,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ticket-orders'] }),
   });
 
   const updateOrderMutation = useMutation({
@@ -338,28 +306,12 @@ export function useTicketOrders() {
       const { error } = await supabase.from('ticket_orders').update(row).eq('id', id);
       if (error) throw error;
     },
-    onMutate: async ({ id, changes }) => {
-      // Optimistic update
-      await queryClient.cancelQueries({ queryKey: ['ticket-orders'] });
-      const previous = queryClient.getQueryData<UnifiedTicketOrder[]>(['ticket-orders']);
-      queryClient.setQueryData<UnifiedTicketOrder[]>(['ticket-orders'], (old) =>
-        (old || []).map(o => o.id === id ? { ...o, ...changes } : o)
-      );
-      return { previous };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(['ticket-orders'], context.previous);
-      }
-    },
-    onSettled: () => {
-      lastMutationTime = Date.now();
-      queryClient.invalidateQueries({ queryKey: ['ticket-orders'] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ticket-orders'] }),
   });
 
   const updateOrderItemsMutation = useMutation({
     mutationFn: async ({ orderId, items }: { orderId: string; items: UnifiedTicketOrder['items'] }) => {
+      // Delete existing items and re-insert
       await supabase.from('ticket_order_items').delete().eq('order_id', orderId);
       if (items.length > 0) {
         const itemRows = items.map((item, i) => ({
@@ -378,23 +330,7 @@ export function useTicketOrders() {
         if (error) throw error;
       }
     },
-    onMutate: async ({ orderId, items }) => {
-      await queryClient.cancelQueries({ queryKey: ['ticket-orders'] });
-      const previous = queryClient.getQueryData<UnifiedTicketOrder[]>(['ticket-orders']);
-      queryClient.setQueryData<UnifiedTicketOrder[]>(['ticket-orders'], (old) =>
-        (old || []).map(o => o.id === orderId ? { ...o, items } : o)
-      );
-      return { previous };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(['ticket-orders'], context.previous);
-      }
-    },
-    onSettled: () => {
-      lastMutationTime = Date.now();
-      queryClient.invalidateQueries({ queryKey: ['ticket-orders'] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ticket-orders'] }),
   });
 
   const removeOrderMutation = useMutation({
@@ -402,23 +338,7 @@ export function useTicketOrders() {
       const { error } = await supabase.from('ticket_orders').delete().eq('id', id);
       if (error) throw error;
     },
-    onMutate: async (id) => {
-      await queryClient.cancelQueries({ queryKey: ['ticket-orders'] });
-      const previous = queryClient.getQueryData<UnifiedTicketOrder[]>(['ticket-orders']);
-      queryClient.setQueryData<UnifiedTicketOrder[]>(['ticket-orders'], (old) =>
-        (old || []).filter(o => o.id !== id)
-      );
-      return { previous };
-    },
-    onError: (_err, _vars, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(['ticket-orders'], context.previous);
-      }
-    },
-    onSettled: () => {
-      lastMutationTime = Date.now();
-      queryClient.invalidateQueries({ queryKey: ['ticket-orders'] });
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['ticket-orders'] }),
   });
 
   // ─── Helpers ────────────────────────────────────────────────
@@ -451,6 +371,7 @@ export function useTicketOrders() {
     getOrdersByTable,
     getOrderById,
     getOrdersByStatus,
+    // expose for batch operations
     invalidate: () => queryClient.invalidateQueries({ queryKey: ['ticket-orders'] }),
   };
 }

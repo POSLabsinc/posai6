@@ -1,4 +1,4 @@
-import { createContext, useContext, useCallback, useMemo, ReactNode } from 'react';
+import { createContext, useContext, useCallback, ReactNode } from 'react';
 import { useTicketOrders, UnifiedTicketOrder } from '@/hooks/use-ticket-orders';
 import { TicketOrder, TicketOrderItem } from '@/data/ticketOrders';
 
@@ -47,7 +47,6 @@ function toTicketOrder(u: UnifiedTicketOrder): TicketOrder {
     tax: u.tax,
     tip: u.tip,
     total: u.total,
-    orderNumber: u.orderNumber,
     transferInfo: u.transferInfo,
   };
 }
@@ -62,7 +61,7 @@ export function UnifiedOrderProvider({ children }: { children: ReactNode }) {
     addOrder: dbAdd,
   } = useTicketOrders();
 
-  const orders = useMemo(() => dbOrders.map(toTicketOrder), [dbOrders]);
+  const orders = dbOrders.map(toTicketOrder);
 
   const getAllOrders = useCallback(() => orders, [orders]);
 

@@ -586,6 +586,9 @@ const Orders = () => {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
   const [customCancelReason, setCustomCancelReason] = useState('');
+  const [cancelWriteOffChoice, setCancelWriteOffChoice] = useState<'write_off' | 'without' | null>(null);
+  const [showWriteOffPopup, setShowWriteOffPopup] = useState(false);
+  const [writeOffPendingItemId, setWriteOffPendingItemId] = useState<number | null>(null);
   const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>([]);
   const [isManager, setIsManager] = useState(false); // TODO: Connect to actual user role system
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{

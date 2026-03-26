@@ -1234,7 +1234,7 @@ const TableOrderDetails = () => {
         <div className="px-3 py-2 border-b border-neutral-700/50">
           <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
             <span>📝</span>
-            <span>{currentSelectedGuest.notes?.replace(/\s*\|\s*🔥[^|]*/g, '').trim() || "No notes"}</span>
+            <span>{currentSelectedGuest.notes?.replace(/🔥\s*/g, '').trim() || "No notes"}</span>
           </div>
         </div>
 
@@ -2910,7 +2910,7 @@ const TableOrderDetails = () => {
         <div className="px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
             <span>📝</span>
-            <span>{currentSelectedGuest?.notes?.replace(/\s*\|\s*🔥[^|]*/g, '').trim() || "No notes"}</span>
+            <span>{currentSelectedGuest?.notes?.replace(/🔥\s*/g, '').trim() || "No notes"}</span>
           </div>
         </div>
 

@@ -347,10 +347,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     setSelectedSeats(Array.from({ length: size }, (_, i) => i + 1));
   }, [selectedGuest.id, selectedGuest.partySize]);
 
-  // Extract kitchen notes (🔥 prefixed) from order notes (DB-synced via realtime)
+  // Extract kitchen notes from order notes (DB-synced via realtime)
   const extractKitchenNotes = useCallback((notes: string | undefined): string[] => {
     if (!notes) return [];
-    return notes.split(' | ').filter(n => n.startsWith('🔥')).map(n => n.replace(/^🔥\s*/, ''));
+    return notes.split(' | ').map(n => n.replace(/^🔥\s*/, ''));
   }, []);
 
   const kitchenNotes = useMemo(() => extractKitchenNotes(selectedGuest.notes), [selectedGuest.notes, extractKitchenNotes]);

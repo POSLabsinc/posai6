@@ -524,8 +524,8 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
 
             const currentNotes = existing?.notes || '';
             const newNote = currentNotes
-              ? `${currentNotes} | 🔥 ${trimmedMessage}`
-              : `🔥 ${trimmedMessage}`;
+              ? `${currentNotes} | ${trimmedMessage}`
+              : trimmedMessage;
 
             await (supabase as any)
               .from('ticket_orders')

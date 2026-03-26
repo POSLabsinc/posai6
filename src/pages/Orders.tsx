@@ -1981,6 +1981,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowBanquetForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowBanquetForm(false)}
             onClose={() => setShowBanquetForm(false)}

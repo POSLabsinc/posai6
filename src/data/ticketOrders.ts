@@ -49,6 +49,7 @@ export interface TicketOrder {
   total: number;
   table: string;
   orderType: string;
+  orderNumber?: number;
   transferInfo?: TicketTransferInfo;
 }
 

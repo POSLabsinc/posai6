@@ -141,7 +141,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
         </div>
 
         {/* Bills */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Bills</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">Bills</p>
         <ToggleOption label="Auto-Print Bills" description="Automatically print bills when an order is completed." checked={toBool(autoPrintBills)} onChange={(v) => setAutoPrintBills(String(v))} />
         <ToggleOption label="Show Single Products" description="Display individual products on printed bills." checked={toBool(showSingleItems)} onChange={(v) => setShowSingleItems(String(v))} />
         <ToggleOption label="Show Free Products" description="Include complimentary products on the bill." checked={toBool(showFreeItems)} onChange={(v) => setShowFreeItems(String(v))} />

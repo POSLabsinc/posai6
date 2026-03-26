@@ -3236,6 +3236,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowDeliveryForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowDeliveryForm(false)}
               initialData={deliveryGuestData} /> :

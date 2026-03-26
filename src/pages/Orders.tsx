@@ -2013,6 +2013,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowCurbSideForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onCancel={() => setShowCurbSideForm(false)}
             onClose={() => setShowCurbSideForm(false)}

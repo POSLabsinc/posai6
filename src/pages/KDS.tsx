@@ -1045,16 +1045,10 @@ const KDS = () => {
   const activeTickets = tickets.filter(t => t.status === "active");
   const totalInQueue = activeTickets.reduce((sum, t) => sum + t.products.filter(p => p.status === "pending" || p.status === "cooking").length, 0);
 
-  const handleBump = useCallback((id: string) => {
+  const handleBump = useCallback(async (id: string) => {
     setTickets(prev => prev.map(t => t.id === id ? { ...t, status: "bumped" as const } : t));
     try {
-      const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
-      const updated = queue.map((entry: any) =>
-        (entry.sessionId === id || `kds-live-${entry.orderNumber}` === id)
-          ? { ...entry, status: "bumped" }
-          : entry
-      );
-      localStorage.setItem("kds_ticket_queue", JSON.stringify(updated));
+      await supabase.from('ticket_orders').update({ status: 'bumped' }).eq('id', id);
     } catch {}
   }, []);
 

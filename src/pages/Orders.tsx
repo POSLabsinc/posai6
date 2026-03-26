@@ -3260,6 +3260,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowDriveThruForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowDriveThruForm(false)}
               initialData={driveThruGuestData} /> :

@@ -2060,6 +2060,7 @@ const Orders = () => {
               setGuestName(data.guestName);
               setGuestPhone(data.phoneNumber || '');
               setShowCustomOrderForm(false);
+              fetchPastOrdersForGuest(data.guestName);
             }}
             onClose={() => setShowCustomOrderForm(false)}
             initialData={customOrderGuestData || undefined} />

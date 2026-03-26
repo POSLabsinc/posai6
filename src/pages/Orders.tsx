@@ -1613,7 +1613,7 @@ const Orders = () => {
       {/* Panel Drop Zones for drag and drop repositioning */}
       <PanelDropZones />
       {/* Right Panel - Order (Shows first on mobile) */}
-      <div className={`flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1' : 'flex-shrink-0'}`}>
+      <div className={`flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1' : 'flex-shrink-0'} ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'} md:w-[280px] lg:w-[345px] md:flex-shrink-0 md:pb-2 md:pr-2`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
@@ -2609,6 +2609,625 @@ const Orders = () => {
           </div>
         </div>
       </div>
+
+      {/* Left Panel - Menu */}
+      <div ref={menuPanelRef} className={`relative md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto ${panelLayout === 'menu-right' ? 'md:order-2 md:pr-2' : 'md:order-1'}`} style={isDragging && dragOffset !== 0 ? {
+      height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`,
+      flexGrow: 0,
+      flexShrink: 0,
+      marginTop: 'auto'
+    } : isDragging ? {
+      height: `${getMenuHeight(menuPosition)}px`,
+      flexGrow: 0,
+      flexShrink: 0,
+      marginTop: 'auto'
+    } : undefined}>
+        {/* Grabber for minimize/maximize */}
+        <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden bg-neutral-900 rounded-t-[20px]">
+          <div className="w-8" /> {/* Spacer for balance */}
+          <div className="touch-none" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
+            <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-grab" />
+          </div>
+          {!(showInlineCustomization && selectedItemForCustomization) && !isSearchMode && <div className="flex items-center gap-1">
+            <button className="w-6 h-6 p-0 border-0 bg-transparent z-10 touch-auto" onClick={(e) => {
+              e.stopPropagation();
+              setIsSearchMode(true);
+              setMenuPosition('full');
+              setTimeout(() => searchInputRef.current?.focus(), 100);
+            }}>
+              <img src={searchIcon} alt="Search" className="w-full h-full object-contain" />
+            </button>
+            <AnimatedAIIcon size={16} onClick={() => setIsAIChatOpen(prev => !prev)} />
+          </div>}
+          {showInlineCustomization && selectedItemForCustomization || isSearchMode ? <div className="w-8" /> : null}
+        </div>
+        {/* Menu Content - Hidden when minimized */}
+      <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-[12px] md:rounded-[16px] ${voucherMode ? 'p-0' : showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
+        {voucherMode ? (
+          <SellVoucherScreen
+            onBack={() => { setVoucherMode(false); setEditingVoucherData(null); }}
+            initialData={editingVoucherData}
+            guestData={(guestName || guestPhone) ? { name: guestName, phone: guestPhone } : null}
+            onGuestIdentified={(guest) => {
+              setGuestName(guest.name);
+              setGuestPhone(guest.phone.replace(/\D/g, ''));
+            }}
+            onAddVoucher={(amount, voucherData) => {
+              const price = voucherData.sellingPrice || amount;
+              const voucherLabel = voucherData.voucherName?.trim() || 'Voucher';
+              const label = `${voucherLabel} - $${voucherData.value.toFixed(2)}`;
+              const meta = { type: voucherData.type, value: voucherData.value, expiryDate: voucherData.expiryDate, voucherName: voucherData.voucherName?.trim() };
+              if (voucherData.customerName && !guestName) setGuestName(voucherData.customerName);
+              if (voucherData.customerPhone && !guestPhone) setGuestPhone(voucherData.customerPhone.replace(/\D/g, ''));
+              if (editingVoucherData?.editingItemId) {
+                setOrderItems((prev) => prev.map(item =>
+                  item.id === editingVoucherData.editingItemId
+                    ? { ...item, qty: voucherData.quantity || 1, name: label, price, voucherMeta: meta } as any
+                    : item
+                ));
+              } else {
+                setOrderItems((prev) => [...prev, {
+                  id: Date.now(),
+                  qty: voucherData.quantity || 1,
+                  name: label,
+                  price: price,
+                  itemOrderType: 'VOUCHER',
+                  noTax: true,
+                  voucherMeta: meta,
+                } as any]);
+              }
+              setVoucherMode(false);
+              setEditingVoucherData(null);
+            }}
+          />
+        ) : showCustomItemPanel ? (
+        /* Custom Item Panel */
+        <div className="flex-1 flex flex-col p-3 md:p-4 overflow-y-auto scrollbar-hide min-h-0">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
+              <h2 className="text-white text-lg font-semibold">Custom Item</h2>
+              <button
+              onClick={toggleCustomItemPanel}
+              className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors">
+
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+
+            {/* Name Input */}
+            <div className="mb-3 flex-shrink-0">
+              <div
+              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'name' ? 'border-orange-500' : 'border-neutral-700'}`}
+              onClick={() => setActiveCustomItemField('name')}>
+
+                <span className="text-neutral-500 text-sm uppercase">NAME</span>
+                <input
+                type="text"
+                value={customItemName}
+                onChange={(e) => {
+                  // Auto-capitalize first letter of each word
+                  const value = e.target.value;
+                  const capitalizedValue = value.replace(/\b\w/g, (char) => char.toUpperCase());
+                  setCustomItemName(capitalizedValue);
+                }}
+                onFocus={() => setActiveCustomItemField('name')}
+                placeholder="Enter item name"
+                className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500" />
+
+              </div>
+            </div>
+
+            {/* Price Input */}
+            <div className="mb-3 flex-shrink-0">
+              <div
+              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'price' ? 'border-orange-500' : 'border-neutral-700'}`}
+              onClick={() => setActiveCustomItemField('price')}>
+
+                <span className="text-neutral-500 text-sm uppercase">PRICE</span>
+                <div className="flex-1 flex items-center">
+                  <span className="text-white text-sm mr-1">$</span>
+                  <input
+                  type="text"
+                  value={customItemPrice}
+                  readOnly
+                  onFocus={() => setActiveCustomItemField('price')}
+                  placeholder="0.00"
+                  className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500" />
+
+                </div>
+              </div>
+            </div>
+
+            {/* Add to Order Button */}
+            <button
+            onClick={addCustomItemToOrder}
+            disabled={!customItemName.trim() || !customItemPrice}
+            className="w-full py-3 rounded-lg font-semibold text-white mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            style={{
+              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+            }}>
+
+              <Plus className="w-4 h-4" />
+              Add to Order
+              {customItemPrice && <span className="ml-2">${parseFloat(customItemPrice).toFixed(2)}</span>}
+            </button>
+
+            {/* Keyboard / Numpad */}
+            {activeCustomItemField === 'name' ? (
+          /* QWERTY Keyboard for Name */
+          <div className="flex flex-col gap-1.5 min-h-0">
+                {/* Row 1: q-p */}
+                <div className="grid grid-cols-10 gap-1">
+                  {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map((key) =>
+              <button
+                key={key}
+                onClick={() => handleCustomItemKeyboardClick(key)}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
+
+                      {isShiftActive ? key.toUpperCase() : key}
+                    </button>
+              )}
+                </div>
+                {/* Row 2: a-l */}
+                <div className="grid grid-cols-10 gap-1">
+                  {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map((key) =>
+              <button
+                key={key}
+                onClick={() => handleCustomItemKeyboardClick(key)}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
+
+                      {isShiftActive ? key.toUpperCase() : key}
+                    </button>
+              )}
+                  <div /> {/* Empty space to align */}
+                </div>
+                {/* Row 3: shift, z-m, backspace */}
+                <div className="grid grid-cols-10 gap-1">
+                  <button
+                onClick={() => handleCustomItemKeyboardClick('shift')}
+                className={`bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors ${isShiftActive ? 'bg-blue-600 hover:bg-blue-500' : ''}`}>
+
+                    ⇧
+                  </button>
+                  {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map((key) =>
+              <button
+                key={key}
+                onClick={() => handleCustomItemKeyboardClick(key)}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
+
+                      {isShiftActive ? key.toUpperCase() : key}
+                    </button>
+              )}
+                  <button
+                onClick={() => handleCustomItemKeyboardClick('backspace')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-2 flex items-center justify-center">
+
+                    <Delete className="w-5 h-5" />
+                  </button>
+                </div>
+                {/* Row 4: 123, Space, Clear */}
+                <div className="grid grid-cols-6 gap-1">
+                  <button
+                onClick={() => handleCustomItemKeyboardClick('123')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors">
+
+                    123
+                  </button>
+                  <button
+                onClick={() => handleCustomItemKeyboardClick('space')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-4">
+
+                    Space
+                  </button>
+                  <button
+                onClick={() => handleCustomItemKeyboardClick('clear')}
+                className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-sm font-medium py-3 transition-colors">
+
+                    Clear
+                  </button>
+                </div>
+              </div>) : (
+
+          /* Numpad for Price */
+          <div className="flex flex-col gap-2 min-h-0">
+                <div className="grid grid-cols-3 gap-2">
+                  {['7', '8', '9', '4', '5', '6', '1', '2', '3'].map((num) =>
+              <button
+                key={num}
+                onClick={() => handleCustomItemNumpadClick(num)}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
+
+                      {num}
+                    </button>
+              )}
+                  <button
+                onClick={() => handleCustomItemNumpadClick('clear')}
+                className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-lg font-medium py-4 transition-colors">
+
+                    Clear
+                  </button>
+                  <button
+                onClick={() => handleCustomItemNumpadClick('0')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
+
+                    0
+                  </button>
+                  <button
+                onClick={() => handleCustomItemNumpadClick('.')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
+
+                    .
+                  </button>
+                </div>
+                
+                {/* Backspace Button */}
+                <button
+              onClick={() => handleCustomItemNumpadClick('backspace')}
+              className="w-full bg-neutral-800 hover:bg-neutral-700 rounded-lg py-4 flex items-center justify-center transition-colors">
+
+                  <Delete className="w-5 h-5 text-white" />
+                </button>
+              </div>)
+          }
+          </div> ) :
+        showInlineCustomization && selectedItemForCustomization ?
+        isProductInfoFullScreen ?
+        // Full-screen product info overlay on mobile
+        <div className="fixed inset-0 z-50 bg-neutral-900 md:hidden flex flex-col" style={{ bottom: '56px' }}>
+              <InlineItemCustomization
+            item={selectedItemForCustomization}
+            itemImage={selectedItemImage}
+            onAddToCart={handleInlineAddToCart}
+            onCancel={handleInlineCancel}
+            onViewChange={handleInlineViewChange}
+            className="h-full" />
+
+            </div> :
+
+        <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
+              <InlineItemCustomization
+            item={selectedItemForCustomization}
+            itemImage={selectedItemImage}
+            onAddToCart={handleInlineAddToCart}
+            onCancel={handleInlineCancel}
+            onViewChange={handleInlineViewChange}
+            className="h-full" />
+
+            </div> :
+
+        <>
+        {/* Main Categories - Hidden in search mode on mobile */}
+        <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
+          {/* Desktop Search Button - Top Right Corner */}
+          <div className="hidden md:flex absolute top-1 right-0 z-10 flex-col items-center gap-1">
+            <button
+                className="cursor-pointer"
+                onClick={() => setIsDesktopSearchOpen(true)}>
+              <img src={searchIcon} alt="Search" className="w-8 h-8 lg:w-9 lg:h-9" />
+            </button>
+            <AnimatedAIIcon size={20} onClick={() => setIsAIChatOpen(prev => !prev)} />
+          </div>
+          {/* Menu Controls Group */}
+          {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-1.5 lg:gap-2 bg-sidebar-accent rounded-full pl-1 pr-0.5 md:pl-1.5 md:pr-0.5 lg:pl-2 lg:pr-0.5 h-7 md:h-8 lg:h-9">
+              <Button variant="ghost" size="icon" className="h-5 md:h-6 lg:h-7 w-5 md:w-6 lg:w-7 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
+                <img src={burgerCloseIcon} alt="Close menu" className="w-4 md:w-5 lg:w-6 h-4 md:h-5 lg:h-6" />
+              </Button>
+              <Button variant="ghost" size="icon" className="h-5 md:h-6 lg:h-7 w-5 md:w-6 lg:w-7 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setHorizontalScrollMode(!horizontalScrollMode)} title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}>
+                {horizontalScrollMode ? <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={verticalScrollIcon} alt="All view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}
+              </Button>
+              <Button variant="ghost" size="icon" className="h-5 md:h-6 lg:h-7 w-5 md:w-6 lg:w-7 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setThumbnailViewMode(!thumbnailViewMode)} title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}>
+                {thumbnailViewMode ? <img src={listViewIcon} alt="List view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}
+              </Button>
+              <Select value={selectedMenu} onValueChange={handleMenuSelect}>
+                <SelectTrigger className="w-[100px] md:w-[110px] lg:w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-6 md:h-7 lg:h-8 text-[11px] md:text-xs lg:text-sm">
+                  <SelectValue placeholder="Select Menu" />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-800 border-neutral-700">
+                  {menuList.map((menu) => <SelectItem key={menu} value={menu} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
+                      {menu}
+                    </SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div> : <Button variant="ghost" size="icon" className="h-7 md:h-8 lg:h-9 w-7 md:w-8 lg:w-9 p-0 hover:bg-transparent" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
+              <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-8 lg:w-9 h-6 md:h-8 lg:h-9" />
+            </Button>}
+          {/* Categories */}
+          {(augmentedMenuCategories[selectedMenu] || []).map((cat) => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2.5 md:px-4 lg:px-6 h-7 md:h-8 lg:h-9 text-[11px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
+              {cat}
+            </Button>)}
+        </div>
+
+        <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />
+
+        {/* Subcategories based on selected category - Hidden in search mode on mobile */}
+        <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[7rem] lg:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
+          <div className={`flex gap-1 md:gap-1.5 lg:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
+            {(mergedCategorySubcategories[activeCategory] || []).map((sub) => <Button key={sub} variant="outline" className={`rounded-md px-3 md:px-4 lg:px-6 h-7 md:h-7 lg:h-8 text-[11px] md:text-[10px] lg:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`}`} onClick={() => setActiveSubcategory(sub)}>
+                {sub}
+              </Button>)}
+          </div>
+        </div>
+
+        <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />
+
+        {/* Menu Items Grid */}
+        <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
+          {(() => {
+              // Get items based on selected menu, category, and subcategory
+              let currentItems: MenuItem[] = [];
+
+              // When there's a search query, always search across ALL menu items
+              if (searchQuery.trim()) {
+                currentItems = getAllMenuItems(selectedMenu, dynamicMenuItems);
+              } else if (activeSubcategory) {
+                currentItems = getMenuItems(selectedMenu, activeCategory, activeSubcategory, dynamicMenuItems);
+              } else if (activeCategory) {
+                currentItems = getAllCategoryItems(selectedMenu, activeCategory, dynamicMenuItems);
+              } else {
+                currentItems = getAllMenuItems(selectedMenu, dynamicMenuItems);
+              }
+
+              const hydratedItems = currentItems.map((item) => {
+                const matchedDbProduct = dbProductsByNormalizedName.get(normalizeProductKey(item.name));
+                if (!matchedDbProduct) return item;
+
+                return {
+                  ...item,
+                  price: matchedDbProduct.price,
+                  isOpenPrice: matchedDbProduct.price_type === 'open',
+                  stock_count: matchedDbProduct.stock_count,
+                  is_available: matchedDbProduct.is_available,
+                };
+              });
+
+              const dedupedItems = Array.from(
+                new Map(hydratedItems.map((item) => [normalizeProductKey(item.name), item])).values()
+              );
+
+              // Filter items based on search query
+              const filteredItems = searchQuery.trim()
+                ? dedupedItems.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                : dedupedItems;
+              return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2 pb-4 md:pb-0">
+                {filteredItems.map((item, index) => {
+                  const menuItem = item as MenuItem;
+                  const hasStockCount = menuItem.stock_count !== null && menuItem.stock_count !== undefined;
+                  const isOutOfStock = menuItem.is_available === false || (hasStockCount && menuItem.stock_count <= 0);
+                  const showStockBadge = hasStockCount;
+                  return <div key={item.id} className={`flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700 relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <div className="relative aspect-[2/1] md:aspect-square bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
+                      <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
+                      <button onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(item);
+                    }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
+                        <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
+                      </button>
+                      {showStockBadge && <span className="absolute top-0.5 md:top-1 right-0.5 md:right-1 min-w-[20px] h-[20px] rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1 z-20">{menuItem.stock_count}</span>}
+                      {isOutOfStock && (
+                        <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
+                          <span className="text-[9px] md:text-[10px] font-bold text-destructive uppercase tracking-wider">Out of Stock</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="p-0.5 md:p-1 bg-neutral-900 flex flex-col gap-0.5" onClick={() => openCustomizationDialog(item, index)}>
+                      <span className="text-[11px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-1">
+                        {item.name}
+                      </span>
+                      <div className="flex items-center justify-between gap-1">
+                        {(item as MenuItem).isOpenPrice ? (
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">Open Price</span>
+                        ) : (
+                          <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold">${item.price.toFixed(2)}</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>;
+                })}
+              </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5 pb-4 md:pb-0">
+                {filteredItems.map((item, index) => {
+                  const menuItem = item as MenuItem;
+                  const hasStockCount = menuItem.stock_count !== null && menuItem.stock_count !== undefined;
+                  const isOutOfStock = menuItem.is_available === false || (hasStockCount && menuItem.stock_count <= 0);
+                  const showStockBadge = hasStockCount;
+                  return <div key={item.id} onClick={() => !isOutOfStock && openCustomizationDialog(item, index)} className={`flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border h-[48px] md:h-[54px] relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
+                    <div className="flex-1 p-1.5 md:p-2 bg-muted flex flex-col justify-center gap-0.5 min-w-0">
+                      <div className="flex items-start justify-between gap-1.5">
+                        <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2 min-w-0">
+                          {item.name}
+                        </span>
+                        <div className="flex items-center gap-1 shrink-0">
+                          {showStockBadge && <span className="min-w-[18px] h-[18px] rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1">{menuItem.stock_count}</span>}
+                          <span className="text-[10px] md:text-[11px] text-foreground font-semibold whitespace-nowrap">
+                            {(item as MenuItem).isOpenPrice && item.price === 0 ? "" : `$${item.price.toFixed(2)}`}
+                          </span>
+                        </div>
+                      </div>
+                      {(item as MenuItem).isOpenPrice && (
+                        <span className="self-start px-1.5 py-0 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 leading-relaxed">Open Price</span>
+                      )}
+                      {isOutOfStock && (
+                        <span className="text-[8px] font-bold text-destructive uppercase">Out of Stock</span>
+                      )}
+                    </div>
+                    <button onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(item);
+                  }} className="w-7 md:w-9 text-white flex-shrink-0 flex items-center justify-center" style={{
+                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                  }}>
+                      <Plus className="w-3 md:w-3.5 h-3 md:h-3.5" strokeWidth={3.5} />
+                    </button>
+                  </div>;
+                })}
+              </div>;
+            })()}
+        </ScrollArea>
+        </>}
+        
+        {/* Desktop/Tablet Search Bar - At Bottom */}
+        {isDesktopSearchOpen && <div className="hidden md:flex items-center gap-2 px-3 py-2.5 bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
+          <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
+            <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
+            <input type="text" placeholder="Search items..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
+            {searchQuery && <button onClick={() => setSearchQuery('')} className="p-0.5">
+              <X className="w-4 h-4 text-neutral-400" />
+            </button>}
+          </div>
+          <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 p-0 flex-shrink-0" onClick={() => {
+            setIsDesktopSearchOpen(false);
+            setSearchQuery('');
+          }}>
+            <X className="w-4 h-4 text-white" />
+          </Button>
+        </div>}
+        
+        {/* Mobile Search Bar - At Bottom */}
+        {isSearchMode && <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
+          <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
+            <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
+            <input ref={searchInputRef} type="text" placeholder="Search items..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
+            {searchQuery && <button onClick={() => setSearchQuery('')} className="p-0.5">
+              <X className="w-4 h-4 text-neutral-400" />
+            </button>}
+          </div>
+          <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 p-0 flex-shrink-0" onClick={() => {
+            setIsSearchMode(false);
+            setSearchQuery('');
+            setMenuPosition('center');
+          }}>
+            <X className="w-4 h-4 text-white" />
+          </Button>
+        </div>}
+      </div>
+
+      {/* AI Chat Panel - Overlay on Menu Panel */}
+      {isAIChatOpen && (
+        <>
+          
+          <div className={`hidden md:flex absolute bottom-0 ${panelLayout === 'menu-right' ? 'left-0' : 'right-0'} z-40 ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} pb-2 transition-all duration-300`} style={{ top: aiOverlayTop }}>
+            <div className="w-full h-full rounded-lg overflow-hidden shadow-2xl border-l border-neutral-700">
+              <OrderAIChatPanel
+                onClose={() => setIsAIChatOpen(false)}
+                orderContext={{
+                  orderType,
+                  guestName,
+                  orderItems,
+                  orderNotes,
+                  availableProducts: dbProducts.map(p => ({ id: p.id, name: p.name, price: p.price, category_name: p.category_name })),
+                }}
+                menuData={{ menuList, menuCategories }}
+                orderActions={{
+                  addProduct: (name, price, quantity) => {
+                    setOrderItems(prev => {
+                      const existing = prev.find(o => o.name.toLowerCase() === name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
+                      if (existing) {
+                        return prev.map(o => o.name.toLowerCase() === name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0) ? { ...o, qty: o.qty + quantity } : o);
+                      }
+                      return [...prev, { id: Date.now(), qty: quantity, name, price }];
+                    });
+                  },
+                  addProductWithModifiers: (name, price, quantity, modifiers, notes) => {
+                    setOrderItems(prev => [...prev, {
+                      id: Date.now(),
+                      qty: quantity,
+                      name,
+                      price,
+                      modifiers: modifiers.length > 0 ? modifiers : undefined,
+                      notes: notes?.trim() ? notes.trim() : undefined,
+                    }]);
+                  },
+                  removeProduct: (name) => {
+                    setOrderItems(prev => prev.filter(o => o.name.toLowerCase() !== name.toLowerCase()));
+                  },
+                  updateQuantity: (name, quantity) => {
+                    setOrderItems(prev => prev.map(o => o.name.toLowerCase() === name.toLowerCase() ? { ...o, qty: quantity } : o));
+                  },
+                  setOrderType: (type) => setOrderType(type),
+                  setGuestName: (name) => {
+                    setGuestName(name);
+                    // Auto-trigger past order popup when AI sets a guest name
+                    (async () => {
+                      try {
+                        const { data: guestRows } = await supabase
+                          .from('guests')
+                          .select('id,name,phone,email,order_count,last_order_date,loyalty,allergies,notes_general,notes_allergies')
+                          .ilike('name', name)
+                          .limit(1);
+                        const dbGuest = guestRows?.[0];
+                        if (dbGuest) {
+                          if (dbGuest.phone) setGuestPhone(dbGuest.phone.replace(/\D/g, ''));
+                          setIsGuestSelected(true);
+                          if (dbGuest.order_count > 0) {
+                            setPastOrderLoading(true);
+                            const { data: orders } = await supabase
+                              .from('orders')
+                              .select('id,total,tip_amount')
+                              .eq('guest_id', dbGuest.id)
+                              .order('created_at', { ascending: false })
+                              .limit(10);
+                            const totalSpent = orders?.reduce((s, o) => s + (o.total || 0), 0) || 0;
+                            const totalTips = orders?.reduce((s, o) => s + (o.tip_amount || 0), 0) || 0;
+                            const allergies: string[] = [];
+                            if (dbGuest.allergies && Array.isArray(dbGuest.allergies) && dbGuest.allergies.length > 0) allergies.push(...dbGuest.allergies);
+                            const notesAllergies = dbGuest.notes_allergies?.trim();
+                            if (notesAllergies && !allergies.includes(notesAllergies)) allergies.push(notesAllergies);
+                            setPastOrderGuest({
+                              id: dbGuest.id, name: dbGuest.name,
+                              phone: dbGuest.phone || undefined, email: dbGuest.email || undefined,
+                              orderCount: dbGuest.order_count, lastOrderDate: dbGuest.last_order_date || undefined,
+                              loyaltyTier: dbGuest.loyalty || undefined, totalSpent, totalTips,
+                              allergies: allergies.length > 0 ? allergies : undefined,
+                              notes: dbGuest.notes_general?.trim() || undefined,
+                            });
+                            const recentOrderIds = (orders || []).slice(0, 3).map(o => o.id);
+                            if (recentOrderIds.length > 0) {
+                              const { data: items } = await supabase
+                                .from('order_items')
+                                .select('id,item_name,quantity,unit_price,total_price,category')
+                                .in('order_id', recentOrderIds);
+                              if (items && items.length > 0) {
+                                const pastItems: GuestPastItem[] = items.map(item => {
+                                  const currentProduct = dbProducts.find(p => p.name.toLowerCase() === item.item_name.toLowerCase());
+                                  return { id: item.id, name: item.item_name, quantity: item.quantity, price: currentProduct ? currentProduct.price : item.unit_price, originalPrice: currentProduct && currentProduct.price !== item.unit_price ? item.unit_price : undefined, category: item.category || undefined, isAvailable: currentProduct ? currentProduct.is_available : false, isComped: item.unit_price === 0 };
+                                });
+                                const seen = new Map<string, GuestPastItem>();
+                                for (const pi of pastItems) { if (!seen.has(pi.name.toLowerCase())) seen.set(pi.name.toLowerCase(), pi); }
+                                setPastOrderItems(Array.from(seen.values()));
+                              } else { setPastOrderItems([]); }
+                            } else { setPastOrderItems([]); }
+                            setPastOrderLoading(false);
+                          }
+                        }
+                      } catch (err) { console.error('AI guest past order lookup failed:', err); }
+                    })();
+                  },
+                  setGuestPhone: (phone) => {
+                    const clean = phone.replace(/\D/g, '');
+                    setGuestPhone(clean);
+                  },
+                  clearOrder: () => handleClearOrder(),
+                  setOrderNotes: (notes) => setOrderNotes(notes),
+                  openPayment: () => {
+                    if (requireOrderType && !orderType) {
+                      toast.error("Please select an order type before charging");
+                      return;
+                    }
+                    if (requireGuestName && !guestName.trim()) {
+                      toast.error("Please enter a guest name before charging");
+                      return;
+                    }
+                    setShowPaymentDialog(true);
+                  },
+                }}
+              />
+            </div>
+          </div>
+        </>
+      )}
+      </div>
+
+
 
       {/* Open Price Dialog */}
       <OpenPriceDialog

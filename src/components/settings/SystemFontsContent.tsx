@@ -66,12 +66,12 @@ const SystemFontsContent = ({ showHeader = true, onBack, onAIClick }: SystemFont
           </p>
         </div>
 
-        <h2 className="text-xs font-medium text-neutral-500 tracking-wider mb-3 px-1">Sans Serif</h2>
+        <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 px-1">Sans Serif</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           {sansSerif.map((font, i) => renderFontRow(font, i === sansSerif.length - 1))}
         </div>
 
-        <h2 className="text-xs font-medium text-neutral-500 tracking-wider mb-3 px-1">Serif</h2>
+        <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 px-1">Serif</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           {serif.map((font, i) => renderFontRow(font, i === serif.length - 1))}
         </div>

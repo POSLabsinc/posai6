@@ -162,7 +162,7 @@ const AIRulesContent = () => {
     <div className="space-y-4">
       {/* Section Header */}
       <div className="pt-2">
-        <span className="text-xs font-medium text-neutral-500 tracking-wider">
+        <span className="text-sm font-semibold text-neutral-400 tracking-wider">
           AI Rules & Instructions
         </span>
       </div>

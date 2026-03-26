@@ -94,7 +94,7 @@ const CashRegisterContent = ({ showHeader = true, onBack, onAIClick }: CashRegis
         {showAddForm && (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-medium text-neutral-500 tracking-wider">
+              <p className="text-sm font-semibold text-neutral-400 tracking-wider">
                 Add New Cash Drawer
               </p>
               <button
@@ -192,7 +192,7 @@ const CashRegisterContent = ({ showHeader = true, onBack, onAIClick }: CashRegis
         {/* Selected Device */}
         {selectedDevice && (
           <div className="mb-6">
-            <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
+            <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
               Active Cash Drawer
             </p>
             <div className="bg-neutral-800/60 rounded-2xl py-3.5 px-4 flex items-center justify-between">
@@ -203,7 +203,7 @@ const CashRegisterContent = ({ showHeader = true, onBack, onAIClick }: CashRegis
         )}
 
         {/* Devices List */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
           Available Devices
         </p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

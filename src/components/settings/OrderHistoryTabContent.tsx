@@ -164,7 +164,7 @@ const OrderHistoryTabContent = ({ guest }: OrderHistoryTabContentProps) => {
       {/* Summary */}
       <div>
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs font-medium text-neutral-500 tracking-wider">Summary</p>
+          <p className="text-sm font-semibold text-neutral-400 tracking-wider">Summary</p>
           <div className="relative" ref={filterRef}>
             <button
               onClick={() => setShowFilter(v => !v)}

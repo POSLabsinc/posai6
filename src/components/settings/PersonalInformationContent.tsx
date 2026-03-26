@@ -148,7 +148,7 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
 
           {/* Address Section */}
           <div className="space-y-3">
-            <h2 className="text-xs font-medium text-neutral-500 tracking-wider">Address</h2>
+            <h2 className="text-sm font-semibold text-neutral-400 tracking-wider">Address</h2>
             
             {/* Search Address Input */}
             <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">

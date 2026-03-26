@@ -74,7 +74,7 @@ const HardwareContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: H
 
         {/* Hardware Shortcuts Section */}
         <div className="mb-3">
-          <span className="text-xs font-medium text-neutral-500 tracking-wider">Hardware Shortcuts</span>
+          <span className="text-sm font-semibold text-neutral-400 tracking-wider">Hardware Shortcuts</span>
         </div>
 
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

@@ -3784,6 +3784,8 @@ const Orders = () => {
         ];
         const selectedReason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
         const canConfirm = selectedReason.length > 0;
+        const needsWriteOffChoice = hasFired && canConfirm && cancelWriteOffChoice === null;
+        const canFinalConfirm = canConfirm && (!hasFired || cancelWriteOffChoice !== null);
         return (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 p-5 space-y-4 animate-scale-in">
@@ -3808,7 +3810,7 @@ const Orders = () => {
                 {commonReasons.map((reason) => (
                   <button
                     key={reason}
-                    onClick={() => { setCancelReason(reason); setCustomCancelReason(''); }}
+                    onClick={() => { setCancelReason(reason); setCustomCancelReason(''); setCancelWriteOffChoice(null); }}
                     className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                       cancelReason === reason
                         ? 'bg-red-500 text-white'
@@ -3819,7 +3821,7 @@ const Orders = () => {
                   </button>
                 ))}
                 <button
-                  onClick={() => setCancelReason('__custom__')}
+                  onClick={() => { setCancelReason('__custom__'); setCancelWriteOffChoice(null); }}
                   className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                     cancelReason === '__custom__'
                       ? 'bg-red-500 text-white'
@@ -3842,25 +3844,101 @@ const Orders = () => {
                 />
               )}
 
+              {/* Write-Off choice for fired items */}
+              {hasFired && canConfirm && (
+                <div className="space-y-2">
+                  <p className="text-neutral-400 text-xs font-medium">Inventory handling for fired products:</p>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => setCancelWriteOffChoice('write_off')}
+                      className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors border ${
+                        cancelWriteOffChoice === 'write_off'
+                          ? 'bg-amber-500/20 border-amber-500 text-amber-400'
+                          : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:bg-neutral-700'
+                      }`}
+                    >
+                      Write-Off
+                      <span className="block text-[10px] mt-0.5 opacity-70">Deduct as waste</span>
+                    </button>
+                    <button
+                      onClick={() => setCancelWriteOffChoice('without')}
+                      className={`flex-1 py-2 px-3 rounded-lg text-xs font-medium transition-colors border ${
+                        cancelWriteOffChoice === 'without'
+                          ? 'bg-green-500/20 border-green-500 text-green-400'
+                          : 'bg-neutral-800 border-neutral-700 text-neutral-300 hover:bg-neutral-700'
+                      }`}
+                    >
+                      Without Write-Off
+                      <span className="block text-[10px] mt-0.5 opacity-70">Return to stock</span>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               <div className="flex gap-3">
                 <button
-                  onClick={() => setShowClearConfirm(false)}
+                  onClick={() => { setShowClearConfirm(false); setCancelWriteOffChoice(null); }}
                   className="flex-1 h-10 rounded-full border border-neutral-600 text-white text-sm font-medium hover:bg-neutral-800 transition-colors">
                   Go Back
                 </button>
                 <button
-                  disabled={!canConfirm}
+                  disabled={!canFinalConfirm}
                   onClick={() => {
-                    console.log('[CancelOrder] reason:', selectedReason);
+                    console.log('[CancelOrder] reason:', selectedReason, 'writeOff:', cancelWriteOffChoice === 'write_off');
                     setShowClearConfirm(false);
-                    handleClearOrder(selectedReason);
+                    handleClearOrder(selectedReason, cancelWriteOffChoice === 'write_off');
+                    setCancelWriteOffChoice(null);
                   }}
                   className={`flex-1 h-10 rounded-full text-white text-sm font-medium transition-colors ${
-                    canConfirm ? 'bg-red-500 hover:bg-red-600' : 'bg-neutral-700 cursor-not-allowed opacity-50'
+                    canFinalConfirm ? 'bg-red-500 hover:bg-red-600' : 'bg-neutral-700 cursor-not-allowed opacity-50'
                   }`}>
                   Cancel Order
                 </button>
               </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* Write-Off Choice Popup for individual fired item removal */}
+      {showWriteOffPopup && (() => {
+        const target = orderItems.find(i => i.id === writeOffPendingItemId);
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-xs mx-4 p-5 space-y-4 animate-scale-in">
+              <div className="text-center space-y-2">
+                <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 6h18"/><path d="M8 6V4h8v2"/><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6"/>
+                  </svg>
+                </div>
+                <h3 className="text-white font-semibold text-base">Remove Fired Product</h3>
+                <p className="text-white/60 text-xs">
+                  "{target?.name}" has been fired. How should inventory be handled?
+                </p>
+              </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleWriteOffChoice('write_off')}
+                  className="flex-1 py-2.5 px-3 rounded-lg text-xs font-medium bg-amber-500/20 border border-amber-500/50 text-amber-400 hover:bg-amber-500/30 transition-colors"
+                >
+                  Write-Off
+                  <span className="block text-[10px] mt-0.5 opacity-70">Deduct as waste</span>
+                </button>
+                <button
+                  onClick={() => handleWriteOffChoice('without')}
+                  className="flex-1 py-2.5 px-3 rounded-lg text-xs font-medium bg-green-500/20 border border-green-500/50 text-green-400 hover:bg-green-500/30 transition-colors"
+                >
+                  Without Write-Off
+                  <span className="block text-[10px] mt-0.5 opacity-70">Return to stock</span>
+                </button>
+              </div>
+              <button
+                onClick={() => { setShowWriteOffPopup(false); setWriteOffPendingItemId(null); }}
+                className="w-full h-9 rounded-full border border-neutral-600 text-neutral-400 text-xs font-medium hover:bg-neutral-800 transition-colors"
+              >
+                Keep Product
+              </button>
             </div>
           </div>
         );

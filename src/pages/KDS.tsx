@@ -484,13 +484,8 @@ const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allRe
           if (msg.linked_order_number) {
             displayOrderNumbers = [msg.linked_order_number];
           } else if (msg.linked_order_ids && msg.linked_order_ids.length > 0) {
-            // Resolve order numbers from current tickets state (DB-backed)
-            displayOrderNumbers = msg.linked_order_ids
-              .map((id: string) => {
-                const ticket = tickets.find((t: KDSTicket) => t.id === id);
-                return ticket?.orderNumber;
-              })
-              .filter((n: number | undefined): n is number => typeof n === "number");
+            // linked_order_ids without linked_order_number - show IDs shortened
+            displayOrderNumbers = [];
           }
 
           const msgReplies = allReplies.filter(r => r.message_id === msg.message_id);

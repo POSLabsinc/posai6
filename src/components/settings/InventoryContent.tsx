@@ -76,13 +76,16 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
         variantMap[v.product_id].push({ id: v.id, variant_name: v.variant_name, price: v.price, sku: v.sku });
       });
 
-      setProducts(
-        (prods || []).map((p) => ({
+      const mappedProducts = (prods || []).map((p, idx) => {
+        const catName = catMap[p.category_id] || "Uncategorized";
+        return {
           ...p,
-          category_name: catMap[p.category_id] || "Uncategorized",
+          category_name: catName,
           variants: variantMap[p.id] || [],
-        }))
-      );
+          product_code: generateProductCode(catName, p.name, idx),
+        };
+      });
+      setProducts(mappedProducts);
       setLoading(false);
     };
     fetchData();

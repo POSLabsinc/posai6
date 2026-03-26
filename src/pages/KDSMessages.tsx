@@ -25,8 +25,6 @@ interface KDSMessage {
   acknowledged_at?: string;
 }
 
-const STORAGE_KEY = "kds_message_queue";
-
 const REPLY_STORAGE_KEY = "kds_message_replies";
 const POS_REPLY_NOTIFICATION_KEY = "pos_reply_notifications";
 
@@ -67,22 +65,22 @@ const pushPosNotification = (reply: KDSReply, originalMessage: KDSMessage) => {
   } catch {}
 };
 
-const loadMessages = (): KDSMessage[] => {
+// Fetch messages from database
+const loadMessages = async (): Promise<KDSMessage[]> => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return parsed.map((m: any) => ({
+    const { data, error } = await (supabase as any)
+      .from('kds_messages')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (error || !data) return [];
+    return data.map((m: any) => ({
       ...m,
+      timestamp: m.created_at,
       status: m.status || "pending",
     }));
   } catch {
     return [];
   }
-};
-
-const saveMessages = (messages: KDSMessage[]) => {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
 };
 
 const KDSMessages = () => {

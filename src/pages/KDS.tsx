@@ -402,25 +402,7 @@ const RepliesThread = ({ replies }: { replies: KDSReply[] }) => {
   );
 };
 
-// ─── Shared message reader ───
-// Single source of truth for reading, normalizing, filtering, and deduping messages.
-const readSessionMessages = (): KDSMessageData[] => {
-  try {
-    const raw = localStorage.getItem("kds_message_queue");
-    if (!raw) return [];
-    const parsed = JSON.parse(raw) as any[];
-    const seen = new Set<string>();
-    return parsed
-      .map((m: any) => ({ ...m, status: m.status || "pending" } as KDSMessageData))
-      .filter((m) => {
-        if (seen.has(m.message_id)) return false;
-        seen.add(m.message_id);
-        return true;
-      });
-  } catch {
-    return [];
-  }
-};
+// readSessionMessages removed - KDS now reads from kds_messages DB table
 
 const KDSMessagesPanel = ({ onClose, messages, onAcknowledge, onSendReply, allReplies, onOpenReplyDialog }: { onClose: () => void; messages: KDSMessageData[]; onAcknowledge: (id: string) => void; onSendReply: (messageId: string, text: string) => void; allReplies: KDSReply[]; onOpenReplyDialog: (msg: KDSMessageData) => void }) => {
   const [filter, setFilter] = useState<"pending" | "acknowledged">("pending");

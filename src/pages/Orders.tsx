@@ -3212,6 +3212,7 @@ const Orders = () => {
                 setGuestName(data.guestName);
                 setGuestPhone(data.phoneNumber);
                 setShowDineInForm(false);
+                fetchPastOrdersForGuest(data.guestName);
               }}
               onClose={() => setShowDineInForm(false)}
               initialData={dineInGuestData} /> :

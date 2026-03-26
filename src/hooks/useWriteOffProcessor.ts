@@ -1,6 +1,5 @@
 import { useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useWriteOff } from "@/hooks/useMenuPreferences";
 
 interface CancelledItem {
   name: string;
@@ -10,21 +9,19 @@ interface CancelledItem {
 }
 
 /**
- * Processes cancelled items based on the Write-Off setting.
+ * Processes cancelled items based on an explicit write-off choice.
  *
- * Write-Off ENABLED:  Fired items are treated as waste, inventory is deducted,
- *                     and a loss record is created in the write_offs table.
+ * writeOff = true:  Fired items are treated as waste, inventory is deducted,
+ *                   and a loss record is created in the write_offs table.
+ *                   Non-fired items restore stock.
  *
- * Write-Off DISABLED: All cancelled items are considered in good condition,
- *                     inventory is restored (stock_count incremented), and
- *                     no loss or expense is recorded.
+ * writeOff = false: All cancelled items are considered in good condition,
+ *                   inventory is restored (stock_count incremented), and
+ *                   no loss or expense is recorded.
  */
 export function useWriteOffProcessor() {
-  const writeOff = useWriteOff();
-  const isEnabled = writeOff.value === "true";
-
   const processCancelledItems = useCallback(
-    async (items: CancelledItem[], orderId?: string, reason?: string) => {
+    async (items: CancelledItem[], orderId?: string, reason?: string, writeOff: boolean = false) => {
       if (items.length === 0) return;
 
       // Resolve product IDs by name
@@ -37,7 +34,7 @@ export function useWriteOffProcessor() {
       const productMap = new Map<string, any>();
       (products || []).forEach((p: any) => productMap.set(p.name, p));
 
-      if (isEnabled) {
+      if (writeOff) {
         // --- Write-Off ON ---
         const firedItems = items.filter((item) => item.isFired);
         const nonFiredItems = items.filter((item) => !item.isFired);
@@ -48,7 +45,6 @@ export function useWriteOffProcessor() {
           const qty = item.quantity ?? 1;
           const product = productMap.get(item.name);
 
-          // Stock already deducted at fire time, so no further deduction needed
           writeOffRows.push({
             product_id: product?.id || null,
             product_name: item.name,
@@ -96,8 +92,8 @@ export function useWriteOffProcessor() {
       // Trigger product refresh across the app
       window.dispatchEvent(new CustomEvent("products-updated"));
     },
-    [isEnabled]
+    []
   );
 
-  return { processCancelledItems, isEnabled };
+  return { processCancelledItems };
 }

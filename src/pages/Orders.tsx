@@ -3054,7 +3054,103 @@ const Orders = () => {
             </div>
           </div>
 
-          {/* Order Content Area with Sidebar */}
+          {/* Past Orders Expandable Card */}
+          {pastOrderItems.length > 0 && guestName.trim() && (
+            <div className="px-0 mt-1">
+              <div
+                className="rounded-xl border border-sidebar-border overflow-hidden transition-all"
+                style={{ background: '#1E1E24' }}
+              >
+                {/* Card Header - always visible */}
+                <button
+                  className="w-full flex items-center justify-between px-3 py-2 hover:bg-white/5 transition-colors"
+                  onClick={() => setPastOrderCardExpanded(prev => !prev)}
+                >
+                  <div className="flex items-center gap-2">
+                    <RotateCcw className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-xs font-medium text-white">Past Orders</span>
+                    <span className="text-[10px] text-neutral-400 bg-neutral-700 rounded-full px-1.5 py-0.5">
+                      {pastOrderItems.length} product{pastOrderItems.length !== 1 ? 's' : ''}
+                    </span>
+                  </div>
+                  <ChevronDown className={`w-3.5 h-3.5 text-neutral-400 transition-transform ${pastOrderCardExpanded ? 'rotate-180' : ''}`} />
+                </button>
+
+                {/* Expanded Content */}
+                {pastOrderCardExpanded && (
+                  <div className="border-t border-sidebar-border">
+                    <div className="max-h-[180px] overflow-y-auto">
+                      {pastOrderItems.map((item, idx) => {
+                        const isAvailable = item.isAvailable !== false;
+                        return (
+                          <div
+                            key={item.id || idx}
+                            className={`flex items-center justify-between px-3 py-1.5 ${idx > 0 ? 'border-t border-white/5' : ''} ${!isAvailable ? 'opacity-40' : 'hover:bg-white/5 cursor-pointer'}`}
+                            onClick={() => {
+                              if (!isAvailable) return;
+                              setOrderItems(prev => {
+                                const existing = prev.find(o => o.name.toLowerCase() === item.name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
+                                if (existing) {
+                                  return prev.map(o => o.id === existing.id ? { ...o, qty: o.qty + 1 } : o);
+                                }
+                                return [...prev, { id: Date.now() + Math.random(), qty: item.quantity, name: item.name, price: item.price }];
+                              });
+                              toast.success(`${item.name} added`);
+                            }}
+                          >
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <span className="text-xs text-neutral-300 w-4 text-center flex-shrink-0">{item.quantity}x</span>
+                              <span className={`text-xs truncate ${isAvailable ? 'text-white' : 'text-neutral-500 line-through'}`}>
+                                {item.name}
+                              </span>
+                              {!isAvailable && (
+                                <span className="text-[9px] text-red-400 flex-shrink-0">Unavailable</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2 flex-shrink-0">
+                              <span className="text-xs text-neutral-400">${item.price.toFixed(2)}</span>
+                              {isAvailable && <Plus className="w-3 h-3 text-primary" />}
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {/* Add All button */}
+                    <div className="border-t border-sidebar-border px-3 py-2">
+                      <button
+                        className="w-full flex items-center justify-center gap-1.5 text-[10px] font-medium text-primary hover:text-primary/80 transition-colors py-1"
+                        onClick={() => {
+                          const availableItems = pastOrderItems.filter(i => i.isAvailable !== false);
+                          if (availableItems.length === 0) {
+                            toast.error("No available products from past order");
+                            return;
+                          }
+                          setOrderItems(prev => {
+                            let updated = [...prev];
+                            for (const item of availableItems) {
+                              const existing = updated.find(o => o.name.toLowerCase() === item.name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
+                              if (existing) {
+                                updated = updated.map(o => o.id === existing.id ? { ...o, qty: o.qty + item.quantity } : o);
+                              } else {
+                                updated = [...updated, { id: Date.now() + Math.random(), qty: item.quantity, name: item.name, price: item.price }];
+                              }
+                            }
+                            return updated;
+                          });
+                          toast.success(`${availableItems.length} product${availableItems.length > 1 ? 's' : ''} added from past order`);
+                          if (pastOrderNotes) { toast.info(`Order notes: ${pastOrderNotes}`, { duration: 6000 }); }
+                        }}
+                      >
+                        <RotateCcw className="w-3 h-3" />
+                        Add All Available ({pastOrderItems.filter(i => i.isAvailable !== false).length})
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           <div ref={orderContentStartRef} className="flex-1 flex gap-2 min-h-0">
             {/* Background Container for Order Content */}
             <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0 relative" style={{

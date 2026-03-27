@@ -72,8 +72,8 @@ export function DeviceSetupLayout({ children, title, subtitle, variant = "setup"
       case "admin":
         return {
           icon: <ShieldCheck className="w-6 h-6 text-primary" />,
-          title: "Admin Access",
-          description: "Sign in with your administrator credentials to activate and manage this device.",
+          title: "Account Access",
+          description: "Sign in with your credentials to activate and manage this device.",
           features: [
             "Full device management",
             "Configure business settings",

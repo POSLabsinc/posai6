@@ -1622,7 +1622,7 @@ const TableOrderDetails = () => {
                            <span className="text-white font-medium text-sm">{guest.name} · {tableId}</span>
                            <div className="flex items-center gap-2">
                              <span className="text-sm" style={{ color: '#B5B6BB' }}>{guest.server}</span>
-                             <span className={`text-sm font-medium ${getStatusColor(guest.status)}`}>{guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}</span>
+                             <span className={`text-sm font-medium ${guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}`}>{guest.id === mergedOrderId && destOrderId ? 'MERGED' : (guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status)}</span>
                            </div>
                          </div>
                         

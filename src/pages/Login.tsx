@@ -5359,7 +5359,28 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </p>
                 </div>
               </button>
-            </motion.div>
+
+              {/* Sign in with Link */}
+              <button
+                onClick={() => {
+                  setPersonalActivationApproach("manual");
+                  setActivationMethod("link");
+                }}
+                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
+              >
+                <div className="w-12 h-12 rounded-xl bg-violet-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-violet-500/15 transition-colors">
+                  <Mail className="w-6 h-6 text-violet-500" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-[15px] font-semibold text-foreground mb-0.5">
+                    Sign in with Link
+                  </p>
+                  <p className="text-sm text-foreground/50">
+                    Get a secure link sent to your email
+                  </p>
+                </div>
+              </button>
+
 
             {/* Help Link */}
             <motion.div

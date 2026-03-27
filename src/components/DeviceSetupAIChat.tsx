@@ -491,6 +491,33 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setCurrentStep("new-contact");
       setSignInInput("");
       setSentAddress("");
+    } else if (currentStep === "create-fullname") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("new-not-found");
+      setCreateFullName("");
+    } else if (currentStep === "create-email") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-fullname");
+      setCreateEmail("");
+    } else if (currentStep === "create-phone") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-email");
+      setCreatePhone("");
+    } else if (currentStep === "create-otp") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-phone");
+      setCreateOtp("");
+      setCreateOtpError("");
+    } else if (currentStep === "create-country") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-otp");
+      setCreateCountry("");
+    } else if (currentStep === "create-business") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-country");
+      setCreateBusiness("");
+    } else if (currentStep === "license-request") {
+      // Can't go back from here
     } else if (currentStep === "chat") {
       setMessages([]);
       setCurrentStep("initial");

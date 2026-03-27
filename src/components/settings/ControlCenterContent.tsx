@@ -198,6 +198,11 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
     updateSetting('resetTablesDaily', value);
   };
 
+  const handleEnableWriteOffChange = (value: boolean) => {
+    setEnableWriteOff(value);
+    updateSetting('enableWriteOff', value);
+  };
+
   const handleDashboardMetricToggle = (metric: keyof DashboardMetricsVisibility, value: boolean) => {
     if (metricsUnlocked) {
       const updated = { ...dashboardMetrics, [metric]: value };

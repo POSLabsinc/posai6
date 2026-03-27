@@ -3864,7 +3864,8 @@ const Orders = () => {
 
       {/* Cancel Order Confirmation Dialog */}
       {showClearConfirm && (() => {
-        const hasFired = orderItems.some(i => i.isFired);
+        const writeOffEnabled = SettingsManager.getControlCenterSettings().enableWriteOff;
+        const hasFired = writeOffEnabled && orderItems.some(i => i.isFired);
         const commonReasons = [
           'Customer changed mind',
           'Out of stock',

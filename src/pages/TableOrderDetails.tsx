@@ -2682,6 +2682,12 @@ const TableOrderDetails = () => {
                       <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
                     </span>
                   </div>}
+                {/* Merged Order Indicator - Source (disabled look) */}
+                {guest.id === mergedOrderId && destOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-neutral-700/80">
+                    <span className="text-xs font-medium">
+                      <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to Order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">{formatTableName(tableId || "")}{destOrderArea ? ` (${destOrderArea})` : ''}</span>
+                    </span>
+                  </div>}
                 {/* Transferred Items Indicator (Destination - receiving items) */}
                 {(((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
                   (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0)))) ||
@@ -2714,7 +2720,7 @@ const TableOrderDetails = () => {
                     </span>
                   </div>
                 ) : null}
-                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (guest.transferredFrom && guest.transferredFrom.length > 0 && (virtualTransferOrder.some(v => v.id === guest.id) || (guest as any)?._persistedTransferType)) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
+                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (guest.transferredFrom && guest.transferredFrom.length > 0 && (virtualTransferOrder.some(v => v.id === guest.id) || (guest as any)?._persistedTransferType)) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
                 <div className="flex items-stretch w-full bg-neutral-900">
                   {/* Left Content with padding */}
                   <div className="flex-1 flex items-stretch gap-2 p-2">

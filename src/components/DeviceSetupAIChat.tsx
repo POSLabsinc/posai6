@@ -468,6 +468,20 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setCurrentStep("sign-in-phone");
       setSignInInput(sentAddress);
       setSentAddress("");
+    } else if (currentStep === "new-email" || currentStep === "new-phone") {
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, I'm new" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Great, let's get started. What's your email or mobile number?" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("new-contact");
+      setSignInInput("");
+      setSentAddress("");
+    } else if (currentStep === "new-not-found") {
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, I'm new" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Great, let's get started. What's your email or mobile number?" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("new-contact");
+      setSignInInput("");
+      setSentAddress("");
     } else if (currentStep === "chat") {
       setMessages([]);
       setCurrentStep("initial");

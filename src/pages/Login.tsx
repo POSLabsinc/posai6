@@ -111,6 +111,10 @@ const Login = () => {
   const [activationCode, setActivationCode] = useState("");
   const [activationError, setActivationError] = useState("");
   const [isActivating, setIsActivating] = useState(false);
+  const [activationContactValue, setActivationContactValue] = useState("");
+  const [activationContactType, setActivationContactType] = useState<"email" | "phone">("email");
+  const [activationCodeSent, setActivationCodeSent] = useState(false);
+  const [activationSendingCode, setActivationSendingCode] = useState(false);
   
   // Demo mode states
   const [showDemoMode, setShowDemoMode] = useState(false);

@@ -219,40 +219,6 @@ export const PersonalDeviceAuthPanel = ({ currentScreen, invitedUser }: Personal
           </motion.div>
         </AnimatePresence>
 
-        {/* Restaurant Info */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.35 }}
-          className="space-y-4"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl overflow-hidden">
-              <img 
-                src={restaurantLogo} 
-                alt="Restaurant" 
-                className="w-full h-full object-cover"
-              />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground/80">The Rustic Table</p>
-              <p className="text-xs text-foreground/40">Downtown - Main Street</p>
-            </div>
-          </div>
-
-          {/* Invited By - only show on link-device screen */}
-          {currentScreen === "link-device" && (
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-                <User className="w-5 h-5 text-amber-600" />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground/80">Invited by Mia Jones</p>
-                <p className="text-xs text-foreground/40">Manager</p>
-              </div>
-            </div>
-          )}
-        </motion.div>
 
         {/* Current Time */}
         <motion.div

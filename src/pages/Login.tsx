@@ -1636,6 +1636,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       setAdminEmail("");
       setAdminPassword("");
       setShowAdminEmailKeyboard(false);
+      setActivationContactValue("");
+      setActivationContactType("email");
+      setActivationCodeSent(false);
+      setActivationSendingCode(false);
     };
 
     // Sub-screen: Activate with Code (using NumericKeypad)

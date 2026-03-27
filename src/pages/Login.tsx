@@ -5838,7 +5838,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       </div>
     );
   }
-            </motion.div>
 
 
   // Mock device/location info for context panel

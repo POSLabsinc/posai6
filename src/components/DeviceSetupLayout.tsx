@@ -168,27 +168,6 @@ export function DeviceSetupLayout({ children, title, subtitle, variant = "setup"
             </div>
           </motion.div>
 
-          {/* Restaurant Info (subtle) */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.35 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl overflow-hidden">
-                <img 
-                  src={restaurantLogo} 
-                  alt="Restaurant" 
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <p className="text-sm font-medium text-foreground/80">The Rustic Table</p>
-                <p className="text-xs text-foreground/40">Downtown - Main Street</p>
-              </div>
-            </div>
-          </motion.div>
 
           {/* Current Time */}
           <motion.div

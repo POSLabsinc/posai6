@@ -443,6 +443,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setCurrentStep("demo-email");
       setDemoOtp("");
       setDemoOtpError("");
+    } else if (currentStep === "returning-email" || currentStep === "returning-phone") {
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Welcome back! To send you an activation code, how would you like to be reached?" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("returning-contact");
+      setSignInInput("");
+      setSentAddress("");
     } else if (currentStep === "sign-in-email" || currentStep === "sign-in-phone") {
       const msgs = messages.slice(0, -2);
       setMessages(msgs);

@@ -5380,7 +5380,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </p>
                 </div>
               </button>
-
+            </motion.div>
 
             {/* Help Link */}
             <motion.div

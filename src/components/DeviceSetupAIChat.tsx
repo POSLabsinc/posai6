@@ -1218,6 +1218,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
 
                     <p className="text-xs text-foreground/35 pl-0.5">{selectedCountry.hint}</p>
                   </motion.div>
+                )}
 
                 {/* Personal device link methods: Enter Code or Scan QR */}
                 {currentStep === "personal-link-methods" && !isLoading && (

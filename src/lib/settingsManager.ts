@@ -355,6 +355,7 @@ const defaultControlCenterSettings: ControlCenterSettings = {
   hideEmployeeFeedback: false,
   hideSeatSelector: false,
   resetTablesDaily: false,
+  enableWriteOff: true,
   businessHoursStart: "6:00 AM",
   businessHoursEnd: "1:00 AM",
   dashboardMetrics: {

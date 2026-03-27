@@ -523,16 +523,6 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
               </div>
               <p className="text-neutral-500 text-sm mt-1">Hide employee feedback options.</p>
             </div>
-            <div className="h-px bg-neutral-700/50 mx-4" />
-
-            {/* Write-Off Prompt */}
-            <div className="py-3.5 px-4">
-              <div className="flex items-center justify-between">
-                <span className="text-foreground text-lg font-medium">Write-Off Prompt</span>
-                <Switch checked={enableWriteOff} onCheckedChange={handleEnableWriteOffChange} />
-              </div>
-              <p className="text-neutral-500 text-sm mt-1">Show write-off / return to stock options when cancelling fired products.</p>
-            </div>
           </div>
 
           {/* Table Section */}

@@ -226,6 +226,19 @@ const MenuSettingsContent = ({
           These settings control how menu items are sorted and how modifiers appear on the Point of Sale, helping staff navigate and take orders more efficiently.
         </p>
 
+        {/* Write-Off Prompt */}
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+          <div className="py-3.5 px-4">
+            <div className="flex items-center justify-between">
+              <span className="text-foreground text-lg font-medium">Write-Off Prompt</span>
+              <Switch checked={enableWriteOff} onCheckedChange={handleEnableWriteOffChange} />
+            </div>
+          </div>
+        </div>
+        <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-4">
+          Show write-off / return to stock options when cancelling fired products.
+        </p>
+
       </div>
     </div>;
 };

@@ -3108,7 +3108,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               transition={{ delay: 0.1 }}
               className="text-xl font-semibold text-foreground mb-2 text-center"
             >
-              Admin Sign In
+              Sign In
             </motion.h1>
             
             <motion.p

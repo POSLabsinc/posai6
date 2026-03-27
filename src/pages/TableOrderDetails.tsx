@@ -3843,7 +3843,8 @@ const TableOrderDetails = () => {
       {/* Cancel Order Confirmation Dialog */}
       {showCancelConfirm && (() => {
         const targetOrder = [...(sessionOrdersForTable.map(convertSessionToGuestOrder)), ...staticGuestOrders].find(o => o.id === cancelTargetOrderId);
-        const hasFired = targetOrder?.items?.some((i: any) => i.isFired) || false;
+        const writeOffEnabled = SettingsManager.getControlCenterSettings().enableWriteOff;
+        const hasFired = writeOffEnabled && (targetOrder?.items?.some((i: any) => i.isFired) || false);
         const commonReasons = [
           'Customer changed mind',
           'Out of stock',

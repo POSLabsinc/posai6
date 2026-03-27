@@ -1586,6 +1586,135 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                   </motion.div>
                 )}
 
+                {/* Account creation - OTP verification */}
+                {currentStep === "create-otp" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="px-0 pt-3 pb-2 space-y-4"
+                  >
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        value={createOtp}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                          setCreateOtp(val);
+                          setCreateOtpError("");
+                        }}
+                        placeholder="Enter 6-digit code"
+                        className="flex-1 px-4 py-3 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.04] text-base text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all tracking-[0.3em] text-center font-mono"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => {
+                          if (createOtp.length !== 6) {
+                            setCreateOtpError("Please enter the 6-digit code");
+                            return;
+                          }
+                          setCurrentStep("create-otp-verifying");
+                          // Simulate OTP verification
+                          setTimeout(() => {
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: `Code: ${createOtp}` };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "✅ Verified! Now, which country are you located in?" };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("create-country");
+                          }, 1500);
+                        }}
+                        disabled={createOtp.length !== 6}
+                        className="px-5 py-3 rounded-2xl bg-primary text-primary-foreground text-base font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        Verify
+                      </button>
+                    </div>
+                    {createOtpError && (
+                      <p className="text-xs text-destructive pl-1">{createOtpError}</p>
+                    )}
+                    <p className="text-xs text-foreground/35 pl-0.5">We sent a verification code to your email and phone.</p>
+                  </motion.div>
+                )}
+
+                {/* Account creation - OTP verifying loader */}
+                {currentStep === "create-otp-verifying" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2"
+                  >
+                    <div className="flex items-center gap-2 text-foreground/50">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <span className="text-sm font-medium">Verifying code...</span>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Account creation - Creating account loader */}
+                {currentStep === "create-creating" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2"
+                  >
+                    <div className="flex items-center gap-2 text-foreground/50">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <span className="text-sm font-medium">Creating your account...</span>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Account creation - Success + License request */}
+                {currentStep === "license-request" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2"
+                  >
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Request License Key" };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "✅ Your request has been submitted. Our team will get back to you with the license key within 24 hours." };
+                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("license-submitted");
+                      }}
+                      className="flex items-center gap-3 w-full px-3 py-3 rounded-xl border border-primary/30 bg-primary/[0.06] hover:bg-primary/[0.12] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Key className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-medium text-foreground leading-tight">Request License Key</p>
+                        <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Get your license key to activate your device</p>
+                      </div>
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* License submitted - final state */}
+                {currentStep === "license-submitted" && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-3"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <CheckCircle2 className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">Request Submitted!</p>
+                        <p className="text-xs text-foreground/50">You'll receive your license key within 24 hours.</p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* Personal device link methods: Enter Code or Scan QR */}
                 {currentStep === "personal-link-methods" && !isLoading && (
                   <motion.div

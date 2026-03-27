@@ -1695,6 +1695,24 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                         <p className="text-xs text-foreground/50">You'll receive your license key within 24 hours.</p>
                       </div>
                     </div>
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Try Demo Mode" };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "While you wait for your license key, you can explore eatOS in Demo Mode with sample data. Please enter your email to get started." };
+                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("demo-email");
+                      }}
+                      className="flex items-center gap-3 w-full px-3 py-3 rounded-xl border border-primary/30 bg-primary/[0.06] hover:bg-primary/[0.12] transition-all hover:scale-[1.01] active:scale-[0.99] text-left mt-2"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+                        <Play className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-foreground">Try Demo Mode</p>
+                        <p className="text-[11px] text-foreground/50">Explore eatOS with sample data while you wait</p>
+                      </div>
+                      <ChevronRight className="w-4 h-4 text-foreground/30 flex-shrink-0" />
+                    </button>
                   </motion.div>
                 )}
 

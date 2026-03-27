@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContext";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMenuPreferences } from "@/hooks/useMenuPreferences";
+import { SettingsManager } from "@/lib/settingsManager";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import {
   Select,

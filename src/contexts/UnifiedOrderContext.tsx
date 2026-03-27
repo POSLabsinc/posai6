@@ -20,6 +20,7 @@ const UnifiedOrderContext = createContext<UnifiedOrderContextType | undefined>(u
 function toTicketOrder(u: UnifiedTicketOrder): TicketOrder {
   return {
     id: u.id,
+    orderNumber: u.orderNumber,
     name: u.name,
     phone: u.phone,
     partySize: u.partySize,

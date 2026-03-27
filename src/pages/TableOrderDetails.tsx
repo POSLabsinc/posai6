@@ -1532,15 +1532,16 @@ const TableOrderDetails = () => {
                )}
               <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (localTransferResult && localTransferResult.sourceOrderId === guest.id) || (guest.transferredFrom && guest.transferredFrom.length > 0 && virtualTransferOrder.some(v => v.id === guest.id)) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
               {/* Swipe Action Buttons (revealed on swipe left) */}
-              {(guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed') ? (
-                /* Receipt and Register buttons for paid orders */
+              {(guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' || (guest.id === mergedOrderId && destOrderId)) ? (
+                /* Receipt and Register buttons for paid/merged orders */
                 <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 z-10 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                   <button 
                     onMouseDown={e => e.stopPropagation()}
                     onTouchStart={e => e.stopPropagation()}
                     onClick={e => {
                       e.stopPropagation();
-                      setReceiptGuest(guest);
+                      const receiptTarget = (guest.id === mergedOrderId && destOrderId) ? guestOrders.find(g => g.id === destOrderId) || guest : guest;
+                      setReceiptGuest(receiptTarget);
                       setShowReceiptDialog(true);
                     }} 
                     className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-neutral-700 hover:bg-neutral-600"
@@ -1553,7 +1554,6 @@ const TableOrderDetails = () => {
                     onTouchStart={e => e.stopPropagation()}
                     onClick={e => {
                       e.stopPropagation();
-                      // Handle register action
                     }} 
                     className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-neutral-600 hover:bg-neutral-500"
                   >
@@ -1622,7 +1622,7 @@ const TableOrderDetails = () => {
                            <span className="text-white font-medium text-sm">{guest.name} · {tableId}</span>
                            <div className="flex items-center gap-2">
                              <span className="text-sm" style={{ color: '#B5B6BB' }}>{guest.server}</span>
-                             <span className={`text-sm font-medium ${getStatusColor(guest.status)}`}>{guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}</span>
+                             <span className={`text-sm font-medium ${guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}`}>{guest.id === mergedOrderId && destOrderId ? 'MERGED' : (guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status)}</span>
                            </div>
                          </div>
                         
@@ -2682,6 +2682,12 @@ const TableOrderDetails = () => {
                       <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
                     </span>
                   </div>}
+                {/* Merged Order Indicator - Source (disabled look) */}
+                {guest.id === mergedOrderId && destOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-neutral-700/80">
+                    <span className="text-xs font-medium">
+                      <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to Order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">{formatTableName(tableId || "")}{destOrderArea ? ` (${destOrderArea})` : ''}</span>
+                    </span>
+                  </div>}
                 {/* Transferred Items Indicator (Destination - receiving items) */}
                 {(((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
                   (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0)))) ||
@@ -2714,7 +2720,7 @@ const TableOrderDetails = () => {
                     </span>
                   </div>
                 ) : null}
-                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (guest.transferredFrom && guest.transferredFrom.length > 0 && (virtualTransferOrder.some(v => v.id === guest.id) || (guest as any)?._persistedTransferType)) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
+                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (guest.transferredFrom && guest.transferredFrom.length > 0 && (virtualTransferOrder.some(v => v.id === guest.id) || (guest as any)?._persistedTransferType)) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
                 <div className="flex items-stretch w-full bg-neutral-900">
                   {/* Left Content with padding */}
                   <div className="flex-1 flex items-stretch gap-2 p-2">
@@ -2732,8 +2738,8 @@ const TableOrderDetails = () => {
                           <span className="text-white font-medium truncate">{guest.name}</span>
                         </div>
                         <span className="text-white/60 flex-1 text-left truncate px-1">{guest.server}</span>
-                        <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(guest.status)}`}>
-                          {guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}
+                        <span className={`font-semibold uppercase flex-shrink-0 ${guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}`}>
+                          {guest.id === mergedOrderId && destOrderId ? 'MERGED' : (guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status)}
                         </span>
                       </div>
                       

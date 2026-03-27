@@ -393,14 +393,14 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   }, []);
 
   const handleGoBack = useCallback(() => {
-    if (currentStep === "activation-methods" || currentStep === "personal-link-methods") {
+    if (currentStep === "activation-methods" || currentStep === "personal-link-methods" || currentStep === "returning-contact") {
       setMessages([]);
       setCurrentStep("initial");
     } else if (["activate-code", "sign-in-link", "demo-email"].includes(currentStep)) {
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
-      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Welcome back! To send you an activation code, how would you like to be reached?" };
       setMessages([userMsg, assistantMsg]);
-      setCurrentStep("activation-methods");
+      setCurrentStep("returning-contact");
       setDemoEmail("");
       setDemoOtp("");
       setDemoOtpError("");

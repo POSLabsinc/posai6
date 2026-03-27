@@ -1347,20 +1347,11 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                             setCurrentStep("new-checking");
                             setSignInInput("");
 
-                            // Simulate account lookup (2s delay)
+                            // Simulate account lookup (2s delay) - new users won't have existing accounts
                             setTimeout(() => {
-                              // Simulate: 50% chance account exists for demo purposes
-                              const accountExists = Math.random() > 0.5;
-                              if (accountExists) {
-                                const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `✅ Account found! We've sent a 6-digit activation code to **${email}**. Please enter the code below.` };
-                                setMessages((prev) => [...prev, successMsg]);
-                                setCurrentStep("activate-code");
-                                setActivationCode(["", "", "", "", "", ""]);
-                              } else {
-                                const notFoundMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: "Sorry, your account was not found. Would you like to create a new account or try a different email/phone?" };
-                                setMessages((prev) => [...prev, notFoundMsg]);
-                                setCurrentStep("new-not-found");
-                              }
+                              const notFoundMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: "Sorry, your account was not found. Would you like to create a new account or try a different email/phone?" };
+                              setMessages((prev) => [...prev, notFoundMsg]);
+                              setCurrentStep("new-not-found");
                             }, 2000);
                           }
                         }}
@@ -1476,19 +1467,11 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                             setCurrentStep("new-checking");
                             setSignInInput("");
 
-                            // Simulate account lookup (2s delay)
+                            // Simulate account lookup (2s delay) - new users won't have existing accounts
                             setTimeout(() => {
-                              const accountExists = Math.random() > 0.5;
-                              if (accountExists) {
-                                const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `✅ Account found! We've sent a 6-digit activation code to **${phone}**. Please enter the code below.` };
-                                setMessages((prev) => [...prev, successMsg]);
-                                setCurrentStep("activate-code");
-                                setActivationCode(["", "", "", "", "", ""]);
-                              } else {
-                                const notFoundMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: "Sorry, your account was not found. Would you like to create a new account or try a different email/phone?" };
-                                setMessages((prev) => [...prev, notFoundMsg]);
-                                setCurrentStep("new-not-found");
-                              }
+                              const notFoundMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: "Sorry, your account was not found. Would you like to create a new account or try a different email/phone?" };
+                              setMessages((prev) => [...prev, notFoundMsg]);
+                              setCurrentStep("new-not-found");
                             }, 2000);
                           }
                         }}

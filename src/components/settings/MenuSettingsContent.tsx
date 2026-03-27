@@ -118,6 +118,11 @@ const MenuSettingsContent = ({
   } = useAppearance();
   const isMobile = useIsMobile();
   const { menuSort, modifierStyle } = useMenuPreferences();
+  const [enableWriteOff, setEnableWriteOff] = useState(() => SettingsManager.getControlCenterSettings().enableWriteOff);
+  const handleEnableWriteOffChange = useCallback((value: boolean) => {
+    setEnableWriteOff(value);
+    SettingsManager.updateControlCenterSettings({ enableWriteOff: value });
+  }, []);
   const iconSizeClass = getIconSizeClass();
   const containerSize = iconContainerSizeMap[iconSize];
   const handleItemClick = (itemId: string) => {

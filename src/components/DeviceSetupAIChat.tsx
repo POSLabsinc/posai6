@@ -365,9 +365,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setMessages([userMsg, assistantMsg]);
       setCurrentStep("personal-link-methods");
     } else {
-      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Welcome back! To send you an activation code, how would you like to be reached?" };
       setMessages([userMsg, assistantMsg]);
-      setCurrentStep("activation-methods");
+      setCurrentStep("returning-contact");
     }
   }, [deviceType]);
 

@@ -393,7 +393,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   }, []);
 
   const handleGoBack = useCallback(() => {
-    if (currentStep === "activation-methods" || currentStep === "personal-link-methods" || currentStep === "returning-contact") {
+    if (currentStep === "activation-methods" || currentStep === "personal-link-methods" || currentStep === "returning-contact" || currentStep === "new-contact") {
       setMessages([]);
       setCurrentStep("initial");
     } else if (["activate-code", "sign-in-link", "demo-email"].includes(currentStep)) {

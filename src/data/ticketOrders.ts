@@ -28,6 +28,7 @@ export interface TicketTransferInfo {
 
 export interface TicketOrder {
   id: string;
+  orderNumber?: number;
   name: string;
   phone: string;
   partySize: number;

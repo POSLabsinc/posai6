@@ -265,6 +265,7 @@ export interface ControlCenterSettings {
   hideEmployeeFeedback: boolean;
   hideSeatSelector: boolean;
   resetTablesDaily: boolean;
+  enableWriteOff: boolean;
   businessHoursStart: string;
   businessHoursEnd: string;
   dashboardMetrics: DashboardMetricsVisibility;

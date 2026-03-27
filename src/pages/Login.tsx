@@ -5407,6 +5407,193 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     );
   }
 
+  // Personal Device - Sign in with Link (Magic Link)
+  if (deviceType === "personal" && activationMethod === "link") {
+    const isEmail = magicLinkInputType === "email";
+    const isValidEmail = magicLinkEmail.includes("@") && magicLinkEmail.includes(".");
+    const isValidPhone = magicLinkPhone.replace(/\D/g, '').length >= 10;
+    const isValid = isEmail ? isValidEmail : isValidPhone;
+
+    if (magicLinkSent) {
+      const maxResends = 3;
+      const isResendDisabled = magicLinkResendCooldown > 0 || magicLinkResendCount >= maxResends || isActivating;
+      
+      const handleResendLink = () => {
+        setIsActivating(true);
+        setTimeout(() => {
+          setIsActivating(false);
+          setMagicLinkResendCount(prev => prev + 1);
+          const cooldownTime = 30 * (magicLinkResendCount + 1);
+          setMagicLinkResendCooldown(cooldownTime);
+          toast({
+            title: "Link resent",
+            description: `A new link has been sent to your ${isEmail ? "email" : "phone"}`
+          });
+        }, 800);
+      };
+
+      return (
+        <div className="fixed inset-0 login-bg flex overflow-hidden">
+          <div className="absolute inset-0 gradient-mesh opacity-30" />
+          <div className="hidden md:block relative z-10">
+            <PersonalDeviceAuthPanel currentScreen="link-device" invitedUser={null} />
+          </div>
+          <div className="relative z-10 flex-1 flex items-center justify-center p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full max-w-sm flex flex-col items-center">
+              <motion.button
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                onClick={() => {
+                  setMagicLinkSent(false);
+                  setMagicLinkResendCount(0);
+                  setMagicLinkResendCooldown(0);
+                }}
+                className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back</span>
+              </motion.button>
+
+              <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-16 h-16 rounded-2xl bg-emerald-500/10 flex items-center justify-center mb-4 border border-emerald-500/20">
+                <CheckCircle2 className="w-8 h-8 text-emerald-500" />
+              </motion.div>
+
+              <h1 className="text-xl font-semibold text-foreground mb-2 text-center">Check your {isEmail ? "inbox" : "messages"}</h1>
+              <p className="text-sm text-foreground/50 mb-6 text-center max-w-xs">
+                We sent a secure sign-in link to <span className="font-medium text-foreground/70">{isEmail ? magicLinkEmail : magicLinkPhone}</span>
+              </p>
+
+              <div className="w-full space-y-3">
+                <Button
+                  onClick={handleResendLink}
+                  disabled={isResendDisabled}
+                  variant="outline"
+                  className="w-full h-12 rounded-2xl"
+                >
+                  {isActivating ? (
+                    <><Loader2 className="w-4 h-4 animate-spin mr-2" />Sending...</>
+                  ) : magicLinkResendCooldown > 0 ? (
+                    <><Clock className="w-4 h-4 mr-2" />Resend in {magicLinkResendCooldown}s</>
+                  ) : (
+                    <><Send className="w-4 h-4 mr-2" />Resend Link</>
+                  )}
+                </Button>
+              </div>
+
+              {magicLinkResendCount >= maxResends && (
+                <p className="text-xs text-foreground/40 mt-4 text-center">Maximum resend attempts reached. Please contact your admin.</p>
+              )}
+            </motion.div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="fixed inset-0 login-bg flex overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh opacity-30" />
+        <div className="hidden md:block relative z-10">
+          <PersonalDeviceAuthPanel currentScreen="link-device" invitedUser={null} />
+        </div>
+        <div className="relative z-10 flex-1 flex items-center justify-center p-6">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="w-full max-w-sm flex flex-col items-center">
+            <motion.button
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              onClick={() => {
+                setActivationMethod(null);
+                setMagicLinkEmail("");
+                setMagicLinkPhone("");
+                setActivationError("");
+              }}
+              className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </motion.button>
+
+            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-16 h-16 rounded-2xl bg-violet-500/10 flex items-center justify-center mb-4 border border-violet-500/20">
+              <Mail className="w-8 h-8 text-violet-500" />
+            </motion.div>
+
+            <h1 className="text-xl font-semibold text-foreground mb-1 text-center">Sign in with Link</h1>
+            <p className="text-sm text-foreground/50 mb-6 text-center">
+              We'll send a secure sign-in link to your {isEmail ? "email" : "phone"}
+            </p>
+
+            <div className="w-full space-y-3">
+              <div className="flex gap-2 mb-2">
+                <button
+                  onClick={() => { setMagicLinkInputType("email"); setActivationError(""); }}
+                  className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${isEmail ? "bg-primary/10 text-primary border border-primary/20" : "bg-foreground/[0.03] text-foreground/50 border border-foreground/[0.06]"}`}
+                >
+                  Email
+                </button>
+                <button
+                  onClick={() => { setMagicLinkInputType("phone"); setActivationError(""); }}
+                  className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${!isEmail ? "bg-primary/10 text-primary border border-primary/20" : "bg-foreground/[0.03] text-foreground/50 border border-foreground/[0.06]"}`}
+                >
+                  Phone
+                </button>
+              </div>
+
+              <div className="relative">
+                {isEmail ? (
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                ) : (
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                )}
+                <Input
+                  type={isEmail ? "email" : "tel"}
+                  placeholder={isEmail ? "Enter your email" : "Enter your phone number"}
+                  value={isEmail ? magicLinkEmail : magicLinkPhone}
+                  onChange={(e) => {
+                    if (isEmail) setMagicLinkEmail(e.target.value);
+                    else setMagicLinkPhone(e.target.value);
+                    setActivationError("");
+                  }}
+                  className="h-14 pl-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
+                />
+              </div>
+
+              <AnimatePresence>
+                {activationError && (
+                  <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10">
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <span className="text-sm text-destructive">{activationError}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <Button
+                onClick={() => {
+                  if (!isValid) {
+                    setActivationError(isEmail ? "Please enter a valid email address" : "Please enter a valid phone number");
+                    return;
+                  }
+                  setIsActivating(true);
+                  setTimeout(() => {
+                    setIsActivating(false);
+                    setMagicLinkSent(true);
+                  }, 1200);
+                }}
+                disabled={isActivating || !(isEmail ? magicLinkEmail.trim() : magicLinkPhone.trim())}
+                className="w-full h-14 text-base font-medium rounded-2xl"
+                size="lg"
+              >
+                {isActivating ? (
+                  <><Loader2 className="w-5 h-5 animate-spin mr-2" />Sending...</>
+                ) : (
+                  <><Send className="w-5 h-5 mr-2" />Send Sign-in Link</>
+                )}
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
   // Personal Device - Code Entry Screen (only show if not in clock-in or PIN entry flow)
   if (deviceType === "personal" && personalActivationApproach === "manual" && !showClockIn && !showPersonalPinEntry) {
     return (

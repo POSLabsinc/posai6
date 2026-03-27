@@ -1,8 +1,16 @@
 
 
-## Plan: Rename "Start Drawer" button to "Open Drawer" in Cash Management
+## Plan: Remove "Admin" Branding from Sign-In Screen
 
-**File:** `src/components/settings/CashManagementContent.tsx`
+The word "Admin" appears in three places that need updating:
 
-- Find the button text "Start Drawer" and replace it with "Open Drawer".
+### Changes
+
+**1. `src/pages/Login.tsx`**
+- Line ~3111: Change `"Admin Sign In"` → `"Sign In"`
+- Line ~3120: Change `"Sign in with your admin credentials"` → `"Sign in with your credentials"`
+
+**2. `src/components/DeviceSetupLayout.tsx`**
+- Line ~75: Change `"Admin Access"` → `"Account Access"`
+- Line ~76: Change `"Sign in with your administrator credentials to activate and manage this device."` → `"Sign in with your credentials to activate and manage this device."`
 

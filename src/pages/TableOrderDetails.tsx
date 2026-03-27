@@ -2732,8 +2732,8 @@ const TableOrderDetails = () => {
                           <span className="text-white font-medium truncate">{guest.name}</span>
                         </div>
                         <span className="text-white/60 flex-1 text-left truncate px-1">{guest.server}</span>
-                        <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(guest.status)}`}>
-                          {guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}
+                        <span className={`font-semibold uppercase flex-shrink-0 ${guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}`}>
+                          {guest.id === mergedOrderId && destOrderId ? 'MERGED' : (guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status)}
                         </span>
                       </div>
                       

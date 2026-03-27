@@ -2689,41 +2689,112 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                   </button>
                 </div>
               ) : currentStep === "create-phone" ? (
-                <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
-                    <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                        className="flex items-center gap-1 px-3 py-2.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.04] text-sm text-foreground hover:bg-foreground/[0.06] transition-all h-full"
+                      >
+                        <span className="text-base leading-none">{selectedCountry.flag}</span>
+                        <span className="text-sm text-foreground/60">{selectedCountry.dial}</span>
+                        <ChevronDown className="w-3 h-3 text-foreground/40" />
+                      </button>
+
+                      <AnimatePresence>
+                        {showCountryDropdown && (
+                          <>
+                            <div className="fixed inset-0 z-40" onClick={() => { setShowCountryDropdown(false); setCountrySearch(""); }} />
+                            <motion.div
+                              initial={{ opacity: 0, y: -4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -4 }}
+                              transition={{ duration: 0.15 }}
+                              className="absolute left-0 bottom-full mb-1 w-56 max-h-48 overflow-hidden rounded-xl border border-foreground/[0.1] bg-background shadow-lg z-50 flex flex-col"
+                            >
+                              <div className="p-2 border-b border-foreground/[0.06]">
+                                <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-foreground/[0.04]">
+                                  <Search className="w-3 h-3 text-foreground/30" />
+                                  <input
+                                    type="text"
+                                    value={countrySearch}
+                                    onChange={(e) => setCountrySearch(e.target.value)}
+                                    placeholder="Search country..."
+                                    className="flex-1 bg-transparent text-xs text-foreground placeholder:text-foreground/30 outline-none"
+                                    autoFocus
+                                  />
+                                </div>
+                              </div>
+                              <div className="overflow-y-auto flex-1 scrollbar-hide">
+                                {COUNTRY_CODES.filter(c =>
+                                  c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+                                  c.dial.includes(countrySearch) ||
+                                  c.code.toLowerCase().includes(countrySearch.toLowerCase())
+                                ).map((country) => (
+                                  <button
+                                    key={country.code}
+                                    onClick={() => {
+                                      setSelectedCountry(country);
+                                      setShowCountryDropdown(false);
+                                      setCountrySearch("");
+                                      setCreatePhone("");
+                                    }}
+                                    className={`w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-foreground/[0.04] transition-colors ${
+                                      selectedCountry.code === country.code ? "bg-primary/[0.06]" : ""
+                                    }`}
+                                  >
+                                    <span className="text-base leading-none">{country.flag}</span>
+                                    <span className="text-xs text-foreground flex-1 truncate">{country.name}</span>
+                                    <span className="text-xs text-foreground/40">{country.dial}</span>
+                                  </button>
+                                ))}
+                              </div>
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
+                    </div>
+
                     <input
                       ref={inputRef}
                       type="tel"
+                      inputMode="numeric"
                       value={createPhone}
-                      onChange={(e) => setCreatePhone(e.target.value)}
+                      onChange={(e) => {
+                        const raw = e.target.value.replace(/\D/g, "");
+                        if (raw.length <= (selectedCountry.phoneLength || 10)) {
+                          setCreatePhone(raw);
+                        }
+                      }}
                       onKeyDown={(e) => {
-                        if (e.key === "Enter" && createPhone.trim().length >= 7) {
-                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: createPhone.trim() };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a verification code to **${createEmail}** and **${createPhone.trim()}**. Please enter the 6-digit code.` };
+                        if (e.key === "Enter" && createPhone.length >= 7) {
+                          const fullPhone = `${selectedCountry.dial} ${createPhone}`;
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: fullPhone };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a verification code to **${createEmail}** and **${fullPhone}**. Please enter the 6-digit code.` };
                           setMessages((prev) => [...prev, userMsg, assistantMsg]);
                           setCurrentStep("create-otp");
                         }
                       }}
-                      placeholder="Enter your phone number..."
-                      className="flex-1 w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/30 transition-colors"
+                      placeholder={selectedCountry.placeholder || "Enter phone number..."}
+                      className="flex-1 bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl px-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/30 transition-colors"
                       autoFocus
                     />
+                    <button
+                      onClick={() => {
+                        if (createPhone.length >= 7) {
+                          const fullPhone = `${selectedCountry.dial} ${createPhone}`;
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: fullPhone };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a verification code to **${createEmail}** and **${fullPhone}**. Please enter the 6-digit code.` };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("create-otp");
+                        }
+                      }}
+                      disabled={createPhone.length < 7}
+                      className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      <Send className="w-4 h-4 text-primary-foreground" />
+                    </button>
                   </div>
-                  <button
-                    onClick={() => {
-                      if (createPhone.trim().length >= 7) {
-                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: createPhone.trim() };
-                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a verification code to **${createEmail}** and **${createPhone.trim()}**. Please enter the 6-digit code.` };
-                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                        setCurrentStep("create-otp");
-                      }
-                    }}
-                    disabled={createPhone.trim().length < 7}
-                    className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-                  >
-                    <Send className="w-4 h-4 text-primary-foreground" />
-                  </button>
                 </div>
               ) : currentStep === "create-country" ? (
                 <div className="flex items-center gap-2">

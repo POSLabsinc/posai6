@@ -1245,7 +1245,8 @@ export class SettingsManager {
     summary += `- Force Clock-In: ${controlCenter.forceClockIn ? "Enabled" : "Disabled"}\n`;
     summary += `- Open Register Without PIN: ${controlCenter.openRegisterWithoutPIN ? "Enabled" : "Disabled"}\n`;
     summary += `- Hide Performance Summary: ${controlCenter.hidePerformanceSummary ? "Hidden" : "Visible"}\n`;
-    summary += `- Built-In Display: ${controlCenter.builtInDisplay ? "Enabled" : "Disabled"}\n\n`;
+    summary += `- Built-In Display: ${controlCenter.builtInDisplay ? "Enabled" : "Disabled"}\n`;
+    summary += `- Write-Off Prompt: ${controlCenter.enableWriteOff ? "Enabled" : "Disabled"}\n\n`;
 
     // Checkout Options
     summary += "### Checkout Options\n";

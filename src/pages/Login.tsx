@@ -1642,52 +1642,190 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       setActivationSendingCode(false);
     };
 
-    // Sub-screen: Activate with Code (using NumericKeypad)
+    // Sub-screen: Activate with Code (with email/phone step first)
     if (activationMethod === "code") {
       const CODE_LENGTH = 6;
       const codeDigits = activationCode.split('');
-      const isCodeComplete = activationCode.length === CODE_LENGTH;
-      
-      const handleCodeKeyPress = (key: string) => {
-        if (activationCode.length < CODE_LENGTH) {
-          const newCode = activationCode + key;
-          setActivationCode(newCode);
-          setActivationError("");
-          
-          // Auto-submit when code is complete
-          if (newCode.length === CODE_LENGTH) {
-            // Validate the code
-            setIsActivating(true);
-            setTimeout(() => {
-              // Mock validation - codes starting with "0" are "expired", "9" are "invalid"
-              if (newCode.startsWith("0")) {
-                setIsActivating(false);
-                setActivationError("This code has expired. Please request a new one.");
-                setActivationCode("");
-              } else if (newCode.startsWith("9")) {
-                setIsActivating(false);
-                setActivationError("Invalid code. Please check and try again.");
-                setActivationCode("");
-              } else {
-                // Success - trust device and navigate to Dashboard (ClockInOverlay will handle clock-in)
-                setIsActivating(false);
-                localStorage.setItem("pos_device_session", JSON.stringify({
-                  deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-                  deviceType: "company",
-                  trustedAt: new Date().toISOString(),
-                }));
-                navigate("/");
-              }
-            }, 1500);
-          }
-        }
-      };
-      
-      const handleCodeDelete = () => {
-        setActivationCode(prev => prev.slice(0, -1));
-        setActivationError("");
+
+      const isContactEmail = activationContactType === "email";
+      const isValidContact = isContactEmail
+        ? activationContactValue.includes("@") && activationContactValue.includes(".")
+        : activationContactValue.replace(/\D/g, '').length >= 10;
+
+      const formatActivationPhone = (value: string) => {
+        const digits = value.replace(/\D/g, '').slice(0, 10);
+        if (digits.length <= 3) return digits;
+        if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+        return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
       };
 
+      const handleSendActivationCode = () => {
+        if (!isValidContact) {
+          setActivationError(isContactEmail ? "Please enter a valid email address" : "Please enter a valid phone number");
+          return;
+        }
+        setActivationSendingCode(true);
+        setActivationError("");
+        setTimeout(() => {
+          setActivationSendingCode(false);
+          setActivationCodeSent(true);
+          toast({
+            title: "Activation code sent",
+            description: isContactEmail
+              ? `Check ${activationContactValue} for your code`
+              : `Check your phone for the code`,
+          });
+        }, 1200);
+      };
+
+      // Step 1: Collect email or phone
+      if (!activationCodeSent) {
+        return (
+          <DeviceSetupLayout variant="activation">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="relative w-full flex flex-col items-center"
+            >
+              <motion.button
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                onClick={handleBackFromMethod}
+                className="self-start mb-4 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back</span>
+              </motion.button>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.05 }}
+                className="w-16 h-16 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-5"
+              >
+                <KeyRound className="w-8 h-8 text-primary" />
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="text-xl font-semibold text-foreground mb-1 text-center"
+              >
+                Activate with Code
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15 }}
+                className="text-sm text-foreground/50 mb-6 text-center max-w-xs"
+              >
+                Enter your email or phone number to receive an activation code
+              </motion.p>
+
+              {/* Toggle email/phone */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.2 }}
+                className="flex items-center gap-1 p-1 rounded-xl bg-foreground/[0.04] border border-foreground/[0.06] mb-4"
+              >
+                <button
+                  onClick={() => {
+                    setActivationContactType("email");
+                    setActivationContactValue("");
+                    setActivationError("");
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    isContactEmail
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-foreground/50 hover:text-foreground/70"
+                  }`}
+                >
+                  Email
+                </button>
+                <button
+                  onClick={() => {
+                    setActivationContactType("phone");
+                    setActivationContactValue("");
+                    setActivationError("");
+                  }}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
+                    !isContactEmail
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-foreground/50 hover:text-foreground/70"
+                  }`}
+                >
+                  Phone
+                </button>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.25 }}
+                className="w-full space-y-4"
+              >
+                <div className="relative">
+                  {isContactEmail ? (
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                  ) : (
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                  )}
+                  <Input
+                    type={isContactEmail ? "email" : "tel"}
+                    placeholder={isContactEmail ? "your@email.com" : "(555) 000-0000"}
+                    value={isContactEmail ? activationContactValue : formatActivationPhone(activationContactValue)}
+                    onChange={(e) => {
+                      if (isContactEmail) {
+                        setActivationContactValue(e.target.value);
+                      } else {
+                        setActivationContactValue(e.target.value.replace(/\D/g, '').slice(0, 10));
+                      }
+                      setActivationError("");
+                    }}
+                    className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.03] border-foreground/[0.08] focus:border-primary/40"
+                    disabled={activationSendingCode}
+                  />
+                </div>
+
+                {activationError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/20"
+                  >
+                    <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                    <p className="text-xs text-destructive">{activationError}</p>
+                  </motion.div>
+                )}
+
+                <Button
+                  onClick={handleSendActivationCode}
+                  disabled={!activationContactValue || !isValidContact || activationSendingCode}
+                  className="w-full h-14 text-base font-medium rounded-2xl"
+                  size="lg"
+                >
+                  {activationSendingCode ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                      Sending Code...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-5 h-5 mr-2" />
+                      Send Code
+                    </>
+                  )}
+                </Button>
+              </motion.div>
+            </motion.div>
+          </DeviceSetupLayout>
+        );
+      }
+
+      // Step 2: Enter the activation code
       return (
         <DeviceSetupLayout variant="activation">
           <motion.div 
@@ -1695,11 +1833,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             animate={{ opacity: 1 }}
             className="relative w-full flex flex-col items-center"
           >
-            {/* Back Button - Self-aligned at top left */}
+            {/* Back Button */}
             <motion.button
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
-              onClick={handleBackFromMethod}
+              onClick={() => {
+                setActivationCodeSent(false);
+                setActivationCode("");
+                setActivationError("");
+              }}
               disabled={isActivating}
               className="self-start mb-4 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors disabled:opacity-30"
             >
@@ -1723,7 +1865,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               transition={{ delay: 0.15 }}
               className="text-sm text-foreground/50 mb-4 text-center"
             >
-              Enter the 6-digit code from your admin
+              Enter the 6-digit code sent to {isContactEmail ? activationContactValue : formatActivationPhone(activationContactValue)}
             </motion.p>
 
             {/* Code Display */}
@@ -1787,7 +1929,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </AnimatePresence>
             </div>
 
-            {/* Hidden input for native keyboard - captures input into code boxes */}
+            {/* Hidden input for native keyboard */}
             <input
               type="text"
               inputMode="numeric"
@@ -1827,7 +1969,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               id="activation-code-hidden"
             />
 
-            {/* Helper Text - Time-limited notice */}
+            {/* Helper Text */}
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1841,7 +1983,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </p>
             </motion.div>
 
-            {/* Request New Code Link */}
+            {/* Resend Code Link */}
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1850,14 +1992,16 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 setActivationCode("");
                 setActivationError("");
                 toast({
-                  title: "New code requested",
-                  description: "Check your admin portal for a fresh activation code"
+                  title: "New code sent",
+                  description: isContactEmail
+                    ? `Check ${activationContactValue} for a fresh code`
+                    : "Check your phone for a fresh code",
                 });
               }}
               disabled={isActivating}
               className="mt-4 text-sm text-foreground/40 hover:text-foreground/60 transition-colors disabled:opacity-30"
             >
-              Request a new code
+              Resend code
             </motion.button>
           </motion.div>
         </DeviceSetupLayout>

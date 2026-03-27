@@ -153,6 +153,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   const [isPersonalSigningIn, setIsPersonalSigningIn] = useState(false);
   const [showKeyboard, setShowKeyboard] = useState(false);
 
+  // Account creation flow states
+  const [createFullName, setCreateFullName] = useState("");
+  const [createEmail, setCreateEmail] = useState("");
+  const [createPhone, setCreatePhone] = useState("");
+  const [createOtp, setCreateOtp] = useState("");
+  const [createOtpError, setCreateOtpError] = useState("");
+  const [createCountry, setCreateCountry] = useState("");
+  const [createBusiness, setCreateBusiness] = useState("");
+
   useEffect(() => {
     if (open && scrollRef.current) {
       const container = scrollRef.current;

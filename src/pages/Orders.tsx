@@ -1846,28 +1846,6 @@ const Orders = () => {
                       <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
                       No Sale
                     </DropdownMenuItem>
-                   {pastOrderItems.length > 0 && guestName.trim() && (
-                      <DropdownMenuItem
-                        onClick={() => {
-                          const availableItems = pastOrderItems.filter(i => i.isAvailable !== false);
-                          if (availableItems.length === 0) { toast.error("No available products from past order"); return; }
-                          setOrderItems(prev => {
-                            let updated = [...prev];
-                            for (const item of availableItems) {
-                              const existing = updated.find(o => o.name.toLowerCase() === item.name.toLowerCase() && (!o.modifiers || o.modifiers.length === 0));
-                              if (existing) { updated = updated.map(o => o.id === existing.id ? { ...o, qty: o.qty + item.quantity } : o); }
-                              else { updated = [...updated, { id: Date.now() + Math.random(), qty: item.quantity, name: item.name, price: item.price }]; }
-                            }
-                            return updated;
-                          });
-                          toast.success(`Past order: ${availableItems.length} product${availableItems.length > 1 ? 's' : ''} added`);
-                          if (pastOrderNotes) { toast.info(`Order notes: ${pastOrderNotes}`, { duration: 6000 }); }
-                        }}
-                        className="text-blue-400 hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                        <RotateCcw className="w-3.5 h-3.5" />
-                        Past Order
-                      </DropdownMenuItem>
-                    )}
                     <DropdownMenuItem
                   onClick={() => setShowTransferCheckDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">

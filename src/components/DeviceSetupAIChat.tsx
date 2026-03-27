@@ -1515,9 +1515,16 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       <button
                         onClick={() => {
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Create New Account" };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "To create a new account, please contact your administrator. They can set up your account in the Admin Portal and provide you with an activation code." };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Let's create your account! Please enter your full name." };
                           setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("chat");
+                          setCurrentStep("create-fullname");
+                          setCreateFullName("");
+                          setCreateEmail("");
+                          setCreatePhone("");
+                          setCreateOtp("");
+                          setCreateOtpError("");
+                          setCreateCountry("");
+                          setCreateBusiness("");
                         }}
                         className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                       >

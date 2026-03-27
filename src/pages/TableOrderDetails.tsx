@@ -1532,15 +1532,16 @@ const TableOrderDetails = () => {
                )}
               <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (localTransferResult && localTransferResult.sourceOrderId === guest.id) || (guest.transferredFrom && guest.transferredFrom.length > 0 && virtualTransferOrder.some(v => v.id === guest.id)) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
               {/* Swipe Action Buttons (revealed on swipe left) */}
-              {(guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed') ? (
-                /* Receipt and Register buttons for paid orders */
+              {(guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' || (guest.id === mergedOrderId && destOrderId)) ? (
+                /* Receipt and Register buttons for paid/merged orders */
                 <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 z-10 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                   <button 
                     onMouseDown={e => e.stopPropagation()}
                     onTouchStart={e => e.stopPropagation()}
                     onClick={e => {
                       e.stopPropagation();
-                      setReceiptGuest(guest);
+                      const receiptTarget = (guest.id === mergedOrderId && destOrderId) ? guestOrders.find(g => g.id === destOrderId) || guest : guest;
+                      setReceiptGuest(receiptTarget);
                       setShowReceiptDialog(true);
                     }} 
                     className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-neutral-700 hover:bg-neutral-600"
@@ -1553,7 +1554,6 @@ const TableOrderDetails = () => {
                     onTouchStart={e => e.stopPropagation()}
                     onClick={e => {
                       e.stopPropagation();
-                      // Handle register action
                     }} 
                     className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-neutral-600 hover:bg-neutral-500"
                   >

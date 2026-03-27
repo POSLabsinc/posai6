@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Html5Qrcode } from "html5-qrcode";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, ShieldCheck, AlertCircle, ScanLine, Lock, Eye, EyeOff, User, ShieldX } from "lucide-react";
+import { X, Send, Loader2, Pencil, KeyRound, Mail, FlaskConical, Clock, Info, Smartphone, CheckCircle2, RefreshCw, ArrowLeft, ChevronDown, Search, ShieldCheck, AlertCircle, ScanLine, Lock, Eye, EyeOff, User, ShieldX, Building2, Globe, Key } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import InlineIOSKeyboard from "@/components/InlineIOSKeyboard";
@@ -24,7 +24,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner" | "returning-contact" | "returning-email" | "returning-phone" | "new-contact" | "new-email" | "new-phone" | "new-not-found" | "new-checking";
+type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner" | "returning-contact" | "returning-email" | "returning-phone" | "new-contact" | "new-email" | "new-phone" | "new-not-found" | "new-checking" | "create-fullname" | "create-email" | "create-phone" | "create-otp" | "create-otp-verifying" | "create-country" | "create-business" | "create-creating" | "create-success" | "license-request" | "license-submitted";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -152,6 +152,15 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   const [personalSignInError, setPersonalSignInError] = useState("");
   const [isPersonalSigningIn, setIsPersonalSigningIn] = useState(false);
   const [showKeyboard, setShowKeyboard] = useState(false);
+
+  // Account creation flow states
+  const [createFullName, setCreateFullName] = useState("");
+  const [createEmail, setCreateEmail] = useState("");
+  const [createPhone, setCreatePhone] = useState("");
+  const [createOtp, setCreateOtp] = useState("");
+  const [createOtpError, setCreateOtpError] = useState("");
+  const [createCountry, setCreateCountry] = useState("");
+  const [createBusiness, setCreateBusiness] = useState("");
 
   useEffect(() => {
     if (open && scrollRef.current) {
@@ -482,6 +491,33 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setCurrentStep("new-contact");
       setSignInInput("");
       setSentAddress("");
+    } else if (currentStep === "create-fullname") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("new-not-found");
+      setCreateFullName("");
+    } else if (currentStep === "create-email") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-fullname");
+      setCreateEmail("");
+    } else if (currentStep === "create-phone") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-email");
+      setCreatePhone("");
+    } else if (currentStep === "create-otp") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-phone");
+      setCreateOtp("");
+      setCreateOtpError("");
+    } else if (currentStep === "create-country") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-otp");
+      setCreateCountry("");
+    } else if (currentStep === "create-business") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-country");
+      setCreateBusiness("");
+    } else if (currentStep === "license-request") {
+      // Can't go back from here
     } else if (currentStep === "chat") {
       setMessages([]);
       setCurrentStep("initial");
@@ -1506,9 +1542,16 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       <button
                         onClick={() => {
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Create New Account" };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "To create a new account, please contact your administrator. They can set up your account in the Admin Portal and provide you with an activation code." };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Let's create your account! Please enter your full name." };
                           setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("chat");
+                          setCurrentStep("create-fullname");
+                          setCreateFullName("");
+                          setCreateEmail("");
+                          setCreatePhone("");
+                          setCreateOtp("");
+                          setCreateOtpError("");
+                          setCreateCountry("");
+                          setCreateBusiness("");
                         }}
                         className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
                       >
@@ -1539,6 +1582,135 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Try a different contact</p>
                         </div>
                       </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Account creation - OTP verification */}
+                {currentStep === "create-otp" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="px-0 pt-3 pb-2 space-y-4"
+                  >
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        value={createOtp}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                          setCreateOtp(val);
+                          setCreateOtpError("");
+                        }}
+                        placeholder="Enter 6-digit code"
+                        className="flex-1 px-4 py-3 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.04] text-base text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all tracking-[0.3em] text-center font-mono"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => {
+                          if (createOtp.length !== 6) {
+                            setCreateOtpError("Please enter the 6-digit code");
+                            return;
+                          }
+                          setCurrentStep("create-otp-verifying");
+                          // Simulate OTP verification
+                          setTimeout(() => {
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: `Code: ${createOtp}` };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "✅ Verified! Now, which country are you located in?" };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("create-country");
+                          }, 1500);
+                        }}
+                        disabled={createOtp.length !== 6}
+                        className="px-5 py-3 rounded-2xl bg-primary text-primary-foreground text-base font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        Verify
+                      </button>
+                    </div>
+                    {createOtpError && (
+                      <p className="text-xs text-destructive pl-1">{createOtpError}</p>
+                    )}
+                    <p className="text-xs text-foreground/35 pl-0.5">We sent a verification code to your email and phone.</p>
+                  </motion.div>
+                )}
+
+                {/* Account creation - OTP verifying loader */}
+                {currentStep === "create-otp-verifying" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2"
+                  >
+                    <div className="flex items-center gap-2 text-foreground/50">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <span className="text-sm font-medium">Verifying code...</span>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Account creation - Creating account loader */}
+                {currentStep === "create-creating" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2"
+                  >
+                    <div className="flex items-center gap-2 text-foreground/50">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <span className="text-sm font-medium">Creating your account...</span>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Account creation - Success + License request */}
+                {currentStep === "license-request" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2"
+                  >
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Request License Key" };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "✅ Your request has been submitted. Our team will get back to you with the license key within 24 hours." };
+                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("license-submitted");
+                      }}
+                      className="flex items-center gap-3 w-full px-3 py-3 rounded-xl border border-primary/30 bg-primary/[0.06] hover:bg-primary/[0.12] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                    >
+                      <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                        <Key className="w-4 h-4 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[13px] font-medium text-foreground leading-tight">Request License Key</p>
+                        <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Get your license key to activate your device</p>
+                      </div>
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* License submitted - final state */}
+                {currentStep === "license-submitted" && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-3"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
+                        <CheckCircle2 className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">Request Submitted!</p>
+                        <p className="text-xs text-foreground/50">You'll receive your license key within 24 hours.</p>
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -2331,7 +2503,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
           </div>
 
           {/* Input - hide when in specific steps */}
-          {(currentStep === "demo-email" || currentStep === "personal-sign-in-email" || currentStep === "personal-sign-in-password" || currentStep === "chat") && (
+          {(currentStep === "demo-email" || currentStep === "personal-sign-in-email" || currentStep === "personal-sign-in-password" || currentStep === "chat" || currentStep === "create-fullname" || currentStep === "create-email" || currentStep === "create-phone" || currentStep === "create-country" || currentStep === "create-business") && (
             <div className="px-6 py-4 flex-shrink-0">
               {currentStep === "demo-email" ? (
                 <div className="space-y-2">
@@ -2436,6 +2608,202 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                   <button
                     onClick={handlePersonalPasswordSubmit}
                     disabled={!personalPassword.trim()}
+                    className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    <Send className="w-4 h-4 text-primary-foreground" />
+                  </button>
+                </div>
+              ) : currentStep === "create-fullname" ? (
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={createFullName}
+                      onChange={(e) => setCreateFullName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && createFullName.trim().length >= 2) {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: createFullName.trim() };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `Nice to meet you, ${createFullName.trim()}! What's your email address?` };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("create-email");
+                        }
+                      }}
+                      placeholder="Enter your full name..."
+                      className="flex-1 w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/30 transition-colors"
+                      autoFocus
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (createFullName.trim().length >= 2) {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: createFullName.trim() };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `Nice to meet you, ${createFullName.trim()}! What's your email address?` };
+                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("create-email");
+                      }
+                    }}
+                    disabled={createFullName.trim().length < 2}
+                    className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    <Send className="w-4 h-4 text-primary-foreground" />
+                  </button>
+                </div>
+              ) : currentStep === "create-email" ? (
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                    <input
+                      ref={inputRef}
+                      type="email"
+                      value={createEmail}
+                      onChange={(e) => setCreateEmail(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && createEmail.trim() && createEmail.includes("@")) {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: createEmail.trim() };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Great! And your phone number?" };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("create-phone");
+                        }
+                      }}
+                      placeholder="Enter your email address..."
+                      className="flex-1 w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/30 transition-colors"
+                      autoFocus
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (createEmail.trim() && createEmail.includes("@")) {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: createEmail.trim() };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Great! And your phone number?" };
+                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("create-phone");
+                      }
+                    }}
+                    disabled={!createEmail.trim() || !createEmail.includes("@")}
+                    className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    <Send className="w-4 h-4 text-primary-foreground" />
+                  </button>
+                </div>
+              ) : currentStep === "create-phone" ? (
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Smartphone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                    <input
+                      ref={inputRef}
+                      type="tel"
+                      value={createPhone}
+                      onChange={(e) => setCreatePhone(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && createPhone.trim().length >= 7) {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: createPhone.trim() };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a verification code to **${createEmail}** and **${createPhone.trim()}**. Please enter the 6-digit code.` };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("create-otp");
+                        }
+                      }}
+                      placeholder="Enter your phone number..."
+                      className="flex-1 w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/30 transition-colors"
+                      autoFocus
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (createPhone.trim().length >= 7) {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: createPhone.trim() };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a verification code to **${createEmail}** and **${createPhone.trim()}**. Please enter the 6-digit code.` };
+                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("create-otp");
+                      }
+                    }}
+                    disabled={createPhone.trim().length < 7}
+                    className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    <Send className="w-4 h-4 text-primary-foreground" />
+                  </button>
+                </div>
+              ) : currentStep === "create-country" ? (
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={createCountry}
+                      onChange={(e) => setCreateCountry(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && createCountry.trim().length >= 2) {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: createCountry.trim() };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Almost done! What's your business name?" };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("create-business");
+                        }
+                      }}
+                      placeholder="Enter your country..."
+                      className="flex-1 w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/30 transition-colors"
+                      autoFocus
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (createCountry.trim().length >= 2) {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: createCountry.trim() };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Almost done! What's your business name?" };
+                        setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("create-business");
+                      }
+                    }}
+                    disabled={createCountry.trim().length < 2}
+                    className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  >
+                    <Send className="w-4 h-4 text-primary-foreground" />
+                  </button>
+                </div>
+              ) : currentStep === "create-business" ? (
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <Building2 className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                    <input
+                      ref={inputRef}
+                      type="text"
+                      value={createBusiness}
+                      onChange={(e) => setCreateBusiness(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && createBusiness.trim().length >= 2) {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: createBusiness.trim() };
+                          const creatingMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "🔄 Creating your account..." };
+                          setMessages((prev) => [...prev, userMsg, creatingMsg]);
+                          setCurrentStep("create-creating");
+                          // Simulate account creation
+                          setTimeout(() => {
+                            const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n**${createFullName}**\n📧 ${createEmail}\n📱 ${createPhone}\n🌍 ${createCountry}\n🏢 ${createBusiness.trim()}\n\nWould you like to request a License Key to activate your device?` };
+                            setMessages((prev) => [...prev, successMsg]);
+                            setCurrentStep("license-request");
+                          }, 2000);
+                        }
+                      }}
+                      placeholder="Enter your business name..."
+                      className="flex-1 w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl pl-10 pr-3.5 py-2.5 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/30 transition-colors"
+                      autoFocus
+                    />
+                  </div>
+                  <button
+                    onClick={() => {
+                      if (createBusiness.trim().length >= 2) {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: createBusiness.trim() };
+                        const creatingMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "🔄 Creating your account..." };
+                        setMessages((prev) => [...prev, userMsg, creatingMsg]);
+                        setCurrentStep("create-creating");
+                        setTimeout(() => {
+                          const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n**${createFullName}**\n📧 ${createEmail}\n📱 ${createPhone}\n🌍 ${createCountry}\n🏢 ${createBusiness.trim()}\n\nWould you like to request a License Key to activate your device?` };
+                          setMessages((prev) => [...prev, successMsg]);
+                          setCurrentStep("license-request");
+                        }, 2000);
+                      }
+                    }}
+                    disabled={createBusiness.trim().length < 2}
                     className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                   >
                     <Send className="w-4 h-4 text-primary-foreground" />

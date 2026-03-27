@@ -5940,7 +5940,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       />
 
       {isClearDialogOpen && (() => {
-        const hasFired = selectedGuest?.items?.some((i: any) => i.isFired) || false;
+        const writeOffEnabled = SettingsManager.getControlCenterSettings().enableWriteOff;
+        const hasFired = writeOffEnabled && (selectedGuest?.items?.some((i: any) => i.isFired) || false);
         const commonReasons = [
           'Customer changed mind',
           'Out of stock',

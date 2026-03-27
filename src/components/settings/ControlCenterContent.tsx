@@ -73,6 +73,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const [hideEmployeeFeedback, setHideEmployeeFeedback] = useState(() => loadSettings().hideEmployeeFeedback);
   const [hideSeatSelector, setHideSeatSelector] = useState(() => loadSettings().hideSeatSelector);
   const [resetTablesDaily, setResetTablesDaily] = useState(() => loadSettings().resetTablesDaily);
+  const [enableWriteOff, setEnableWriteOff] = useState(() => loadSettings().enableWriteOff);
   const [dashboardMetrics, setDashboardMetrics] = useState<DashboardMetricsVisibility>(() => loadSettings().dashboardMetrics);
   const [showMetricsPinModal, setShowMetricsPinModal] = useState(false);
   const [pendingMetricToggle, setPendingMetricToggle] = useState<{ key: keyof DashboardMetricsVisibility; value: boolean } | null>(null);
@@ -98,6 +99,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
         setHideEmployeeFeedback(settings.hideEmployeeFeedback);
         setHideSeatSelector(settings.hideSeatSelector);
         setResetTablesDaily(settings.resetTablesDaily);
+        setEnableWriteOff(settings.enableWriteOff);
         setDashboardMetrics(settings.dashboardMetrics);
       }
     };
@@ -194,6 +196,11 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const handleResetTablesDailyChange = (value: boolean) => {
     setResetTablesDaily(value);
     updateSetting('resetTablesDaily', value);
+  };
+
+  const handleEnableWriteOffChange = (value: boolean) => {
+    setEnableWriteOff(value);
+    updateSetting('enableWriteOff', value);
   };
 
   const handleDashboardMetricToggle = (metric: keyof DashboardMetricsVisibility, value: boolean) => {
@@ -515,6 +522,16 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
                 <Switch checked={hideEmployeeFeedback} onCheckedChange={handleHideEmployeeFeedbackChange} />
               </div>
               <p className="text-neutral-500 text-sm mt-1">Hide employee feedback options.</p>
+            </div>
+            <div className="h-px bg-neutral-700/50 mx-4" />
+
+            {/* Write-Off Prompt */}
+            <div className="py-3.5 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-lg font-medium">Write-Off Prompt</span>
+                <Switch checked={enableWriteOff} onCheckedChange={handleEnableWriteOffChange} />
+              </div>
+              <p className="text-neutral-500 text-sm mt-1">Show write-off / return to stock options when cancelling fired products.</p>
             </div>
           </div>
 

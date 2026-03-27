@@ -265,6 +265,7 @@ export interface ControlCenterSettings {
   hideEmployeeFeedback: boolean;
   hideSeatSelector: boolean;
   resetTablesDaily: boolean;
+  enableWriteOff: boolean;
   businessHoursStart: string;
   businessHoursEnd: string;
   dashboardMetrics: DashboardMetricsVisibility;
@@ -354,6 +355,7 @@ const defaultControlCenterSettings: ControlCenterSettings = {
   hideEmployeeFeedback: false,
   hideSeatSelector: false,
   resetTablesDaily: false,
+  enableWriteOff: true,
   businessHoursStart: "6:00 AM",
   businessHoursEnd: "1:00 AM",
   dashboardMetrics: {
@@ -1243,7 +1245,8 @@ export class SettingsManager {
     summary += `- Force Clock-In: ${controlCenter.forceClockIn ? "Enabled" : "Disabled"}\n`;
     summary += `- Open Register Without PIN: ${controlCenter.openRegisterWithoutPIN ? "Enabled" : "Disabled"}\n`;
     summary += `- Hide Performance Summary: ${controlCenter.hidePerformanceSummary ? "Hidden" : "Visible"}\n`;
-    summary += `- Built-In Display: ${controlCenter.builtInDisplay ? "Enabled" : "Disabled"}\n\n`;
+    summary += `- Built-In Display: ${controlCenter.builtInDisplay ? "Enabled" : "Disabled"}\n`;
+    summary += `- Write-Off Prompt: ${controlCenter.enableWriteOff ? "Enabled" : "Disabled"}\n\n`;
 
     // Checkout Options
     summary += "### Checkout Options\n";

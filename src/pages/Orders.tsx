@@ -1341,10 +1341,18 @@ const Orders = () => {
   const removeFromCart = (itemId: number) => {
     const target = orderItems.find(i => i.id === itemId);
     if (target && target.isFired) {
-      // Show write-off choice popup for fired items
-      setWriteOffPendingItemId(itemId);
-      setShowWriteOffPopup(true);
-      return;
+      const writeOffEnabled = SettingsManager.getControlCenterSettings().enableWriteOff;
+      if (writeOffEnabled) {
+        // Show write-off choice popup for fired items
+        setWriteOffPendingItemId(itemId);
+        setShowWriteOffPopup(true);
+        return;
+      } else {
+        // Write-off disabled: just restore stock and remove
+        adjustStock([{ name: target.name, qty: target.qty }], 'restore');
+        setOrderItems((prev) => prev.filter((item) => item.id !== itemId));
+        return;
+      }
     }
     // Not fired: always restore stock
     if (target) {
@@ -3856,7 +3864,8 @@ const Orders = () => {
 
       {/* Cancel Order Confirmation Dialog */}
       {showClearConfirm && (() => {
-        const hasFired = orderItems.some(i => i.isFired);
+        const writeOffEnabled = SettingsManager.getControlCenterSettings().enableWriteOff;
+        const hasFired = writeOffEnabled && orderItems.some(i => i.isFired);
         const commonReasons = [
           'Customer changed mind',
           'Out of stock',
@@ -4020,7 +4029,7 @@ const Orders = () => {
                 onClick={() => { setShowWriteOffPopup(false); setWriteOffPendingItemId(null); }}
                 className="w-full h-9 rounded-full border border-neutral-600 text-neutral-400 text-xs font-medium hover:bg-neutral-800 transition-colors"
               >
-                Keep Product
+                Don't Cancel
               </button>
             </div>
           </div>

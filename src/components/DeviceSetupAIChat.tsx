@@ -1698,9 +1698,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     <button
                       onClick={() => {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Try Demo Mode" };
-                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "While you wait for your license key, you can explore eatOS in Demo Mode with sample data. Please enter your email to get started." };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "✅ Starting Demo Mode with sample data. Since you just created your account, no additional verification is needed. Enjoy exploring eatOS!" };
                         setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                        setCurrentStep("demo-email");
+                        setCurrentStep("demo-verified");
                       }}
                       className="flex items-center gap-3 w-full px-3 py-3 rounded-xl border border-primary/30 bg-primary/[0.06] hover:bg-primary/[0.12] transition-all hover:scale-[1.01] active:scale-[0.99] text-left mt-2"
                     >

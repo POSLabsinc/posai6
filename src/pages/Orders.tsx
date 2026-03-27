@@ -4020,7 +4020,7 @@ const Orders = () => {
                 onClick={() => { setShowWriteOffPopup(false); setWriteOffPendingItemId(null); }}
                 className="w-full h-9 rounded-full border border-neutral-600 text-neutral-400 text-xs font-medium hover:bg-neutral-800 transition-colors"
               >
-                Keep Product
+                Don't Cancel
               </button>
             </div>
           </div>

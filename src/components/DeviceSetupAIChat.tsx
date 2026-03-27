@@ -24,7 +24,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner";
+type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner" | "returning-contact" | "returning-email" | "returning-phone";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -365,9 +365,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setMessages([userMsg, assistantMsg]);
       setCurrentStep("personal-link-methods");
     } else {
-      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Welcome back! To send you an activation code, how would you like to be reached?" };
       setMessages([userMsg, assistantMsg]);
-      setCurrentStep("activation-methods");
+      setCurrentStep("returning-contact");
     }
   }, [deviceType]);
 
@@ -393,14 +393,14 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
   }, []);
 
   const handleGoBack = useCallback(() => {
-    if (currentStep === "activation-methods" || currentStep === "personal-link-methods") {
+    if (currentStep === "activation-methods" || currentStep === "personal-link-methods" || currentStep === "returning-contact") {
       setMessages([]);
       setCurrentStep("initial");
     } else if (["activate-code", "sign-in-link", "demo-email"].includes(currentStep)) {
       const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
-      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please choose one of these activation methods:" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Welcome back! To send you an activation code, how would you like to be reached?" };
       setMessages([userMsg, assistantMsg]);
-      setCurrentStep("activation-methods");
+      setCurrentStep("returning-contact");
       setDemoEmail("");
       setDemoOtp("");
       setDemoOtpError("");
@@ -443,6 +443,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setCurrentStep("demo-email");
       setDemoOtp("");
       setDemoOtpError("");
+    } else if (currentStep === "returning-email" || currentStep === "returning-phone") {
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "No, I'm not new" };
+      const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Welcome back! To send you an activation code, how would you like to be reached?" };
+      setMessages([userMsg, assistantMsg]);
+      setCurrentStep("returning-contact");
+      setSignInInput("");
+      setSentAddress("");
     } else if (currentStep === "sign-in-email" || currentStep === "sign-in-phone") {
       const msgs = messages.slice(0, -2);
       setMessages(msgs);
@@ -970,6 +977,246 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       <FlaskConical className="w-4 h-4 text-primary" />
                       <span className="text-sm font-medium text-primary">Try Demo Mode</span>
                     </button>
+                  </motion.div>
+                )}
+
+                {/* Returning user contact choice: Email or Phone */}
+                {currentStep === "returning-contact" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2"
+                  >
+                    <div className="flex gap-2.5">
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Email" };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please enter your email address. We'll send you a 6-digit activation code." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("returning-email");
+                          setSignInInput("");
+                        }}
+                        className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                          <Mail className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-medium text-foreground leading-tight">Email</p>
+                          <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Receive activation code via email</p>
+                        </div>
+                      </button>
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Phone" };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Please enter your phone number. We'll send you a 6-digit activation code." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("returning-phone");
+                          setSignInInput("");
+                        }}
+                        className="flex items-center gap-3 flex-1 px-3 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all hover:scale-[1.01] active:scale-[0.99] text-left"
+                      >
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0">
+                          <Smartphone className="w-4 h-4 text-primary" />
+                        </div>
+                        <div className="min-w-0">
+                          <p className="text-[13px] font-medium text-foreground leading-tight">Phone</p>
+                          <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Receive activation code via SMS</p>
+                        </div>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Returning user email input */}
+                {currentStep === "returning-email" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="px-0 pt-3 pb-2 space-y-4"
+                  >
+                    <div className="flex gap-2">
+                      <input
+                        type="email"
+                        value={signInInput}
+                        placeholder="name@company.com"
+                        readOnly
+                        onFocus={() => setShowKeyboard(true)}
+                        className="flex-1 px-4 py-3 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.04] text-base text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && signInInput.trim() && signInInput.includes("@")) {
+                            const email = signInInput.trim();
+                            setSentAddress(email);
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: email };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a 6-digit activation code to **${email}**. Please enter the code below.` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("activate-code");
+                            setSignInInput("");
+                            setActivationCode(["", "", "", "", "", ""]);
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (signInInput.trim() && signInInput.includes("@")) {
+                            const email = signInInput.trim();
+                            setSentAddress(email);
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: email };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a 6-digit activation code to **${email}**. Please enter the code below.` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("activate-code");
+                            setSignInInput("");
+                            setActivationCode(["", "", "", "", "", ""]);
+                          }
+                        }}
+                        disabled={!signInInput.trim() || !signInInput.includes("@")}
+                        className="px-5 py-3 rounded-2xl bg-primary text-primary-foreground text-base font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        Send
+                      </button>
+                    </div>
+
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="email"
+                        fullWidth
+                        size="large"
+                        onKeyPress={(key) => setSignInInput((prev) => `${prev}${key}`.slice(0, 80))}
+                        onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
+                      />
+                    )}
+                  </motion.div>
+                )}
+
+                {/* Returning user phone input */}
+                {currentStep === "returning-phone" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="px-0 pt-3 pb-2 space-y-4"
+                  >
+                    <div className="flex gap-2">
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowCountryDropdown(!showCountryDropdown)}
+                          className="flex items-center gap-1 px-3 py-3 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.04] text-sm text-foreground hover:bg-foreground/[0.06] transition-all h-full"
+                        >
+                          <span className="text-base leading-none">{selectedCountry.flag}</span>
+                          <span className="text-sm text-foreground/60">{selectedCountry.dial}</span>
+                          <ChevronDown className="w-3 h-3 text-foreground/40" />
+                        </button>
+
+                        <AnimatePresence>
+                          {showCountryDropdown && (
+                            <>
+                              <div className="fixed inset-0 z-40" onClick={() => { setShowCountryDropdown(false); setCountrySearch(""); }} />
+                              <motion.div
+                                initial={{ opacity: 0, y: -4 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -4 }}
+                                transition={{ duration: 0.15 }}
+                                className="absolute left-0 bottom-full mb-1 w-56 max-h-48 overflow-hidden rounded-xl border border-foreground/[0.1] bg-background shadow-lg z-50 flex flex-col"
+                              >
+                                <div className="p-2 border-b border-foreground/[0.06]">
+                                  <div className="flex items-center gap-1.5 px-2 py-1.5 rounded-lg bg-foreground/[0.04]">
+                                    <Search className="w-3 h-3 text-foreground/30" />
+                                    <input
+                                      type="text"
+                                      value={countrySearch}
+                                      onChange={(e) => setCountrySearch(e.target.value)}
+                                      placeholder="Search country..."
+                                      className="flex-1 bg-transparent text-xs text-foreground placeholder:text-foreground/30 outline-none"
+                                      autoFocus
+                                    />
+                                  </div>
+                                </div>
+                                <div className="overflow-y-auto flex-1 scrollbar-hide">
+                                  {COUNTRY_CODES.filter(c =>
+                                    c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+                                    c.dial.includes(countrySearch) ||
+                                    c.code.toLowerCase().includes(countrySearch.toLowerCase())
+                                  ).map((country) => (
+                                    <button
+                                      key={country.code}
+                                      onClick={() => {
+                                        setSelectedCountry(country);
+                                        setShowCountryDropdown(false);
+                                        setCountrySearch("");
+                                        setSignInInput("");
+                                      }}
+                                      className={`w-full flex items-center gap-2.5 px-3 py-2 text-left hover:bg-foreground/[0.04] transition-colors ${
+                                        selectedCountry.code === country.code ? "bg-primary/[0.06]" : ""
+                                      }`}
+                                    >
+                                      <span className="text-base leading-none">{country.flag}</span>
+                                      <span className="text-xs text-foreground flex-1 truncate">{country.name}</span>
+                                      <span className="text-xs text-foreground/40">{country.dial}</span>
+                                    </button>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            </>
+                          )}
+                        </AnimatePresence>
+                      </div>
+
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        value={formatPhone(signInInput, selectedCountry.format)}
+                        placeholder={selectedCountry.placeholder}
+                        readOnly
+                        onFocus={() => setShowKeyboard(true)}
+                        className="flex-1 px-4 py-3 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.04] text-base text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && signInInput.length === selectedCountry.phoneLength) {
+                            const phone = `${selectedCountry.dial} ${formatPhone(signInInput, selectedCountry.format)}`;
+                            setSentAddress(phone);
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: phone };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a 6-digit activation code to **${phone}**. Please enter the code below.` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("activate-code");
+                            setSignInInput("");
+                            setActivationCode(["", "", "", "", "", ""]);
+                          }
+                        }}
+                      />
+                      <button
+                        onClick={() => {
+                          if (signInInput.length === selectedCountry.phoneLength) {
+                            const phone = `${selectedCountry.dial} ${formatPhone(signInInput, selectedCountry.format)}`;
+                            setSentAddress(phone);
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: phone };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a 6-digit activation code to **${phone}**. Please enter the code below.` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("activate-code");
+                            setSignInInput("");
+                            setActivationCode(["", "", "", "", "", ""]);
+                          }
+                        }}
+                        disabled={signInInput.length !== selectedCountry.phoneLength}
+                        className="px-5 py-3 rounded-2xl bg-primary text-primary-foreground text-base font-medium hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        Send
+                      </button>
+                    </div>
+
+                    {showKeyboard && (
+                      <InlineIOSKeyboard
+                        mode="phone"
+                        fullWidth
+                        size="large"
+                        onKeyPress={(key) =>
+                          setSignInInput((prev) => `${prev}${key}`.replace(/\D/g, "").slice(0, selectedCountry.phoneLength))
+                        }
+                        onDelete={() => setSignInInput((prev) => prev.slice(0, -1))}
+                      />
+                    )}
+
+                    <p className="text-xs text-foreground/35 pl-0.5">{selectedCountry.hint}</p>
                   </motion.div>
                 )}
 

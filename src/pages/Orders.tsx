@@ -571,6 +571,7 @@ const Orders = () => {
   const [pastOrderItems, setPastOrderItems] = useState<GuestPastItem[]>([]);
   const [pastOrderNotes, setPastOrderNotes] = useState<string>('');
   const [pastOrderLoading, setPastOrderLoading] = useState(false);
+  const [pastOrderCardExpanded, setPastOrderCardExpanded] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isDesktopSearchOpen, setIsDesktopSearchOpen] = useState(false);

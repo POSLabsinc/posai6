@@ -4028,13 +4028,21 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             transition={{ delay: 0.35 }}
             className="mt-4 md:mt-8 pt-3 md:pt-6 border-t border-foreground/[0.06] w-full"
           >
-            <div className="text-center">
+            <div className="text-center space-y-2">
               <button
                 onClick={() => setActivationMethod("password")}
                 className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
               >
                 Sign in with email and password
               </button>
+              <div>
+                <button
+                  onClick={() => setActivationMethod("signup")}
+                  className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+                >
+                  Create Account
+                </button>
+              </div>
             </div>
           </motion.div>
 

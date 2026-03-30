@@ -500,7 +500,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setCreateFullName("");
     } else if (currentStep === "create-email") {
       setMessages((prev) => prev.slice(0, -2));
-      setCurrentStep("create-fullname");
+      setCurrentStep("create-confirm-email");
       setCreateEmail("");
     } else if (currentStep === "create-phone") {
       setMessages((prev) => prev.slice(0, -2));

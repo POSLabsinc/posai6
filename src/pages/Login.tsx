@@ -3416,6 +3416,20 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 )}
               </Button>
 
+              <div className="text-center pt-2">
+                <span className="text-sm text-foreground/40">Don't have an account? </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActivationMethod("signup");
+                    setActivationError("");
+                  }}
+                  className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+                >
+                  Create Account
+                </button>
+              </div>
+
             </motion.div>
           </motion.div>
         </DeviceSetupLayout>

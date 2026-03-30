@@ -1115,7 +1115,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     try {
       await (supabase as any).from('kds_messages').insert({
         message_id: `kitchen-instr-${orderId}-${Date.now()}`,
-        message_text: instructionText.trim(),
+        message_text: cleanedText,
         store_id: 'default',
         terminal_id: 'tickets-module',
         terminal_name: 'Tickets',
@@ -1134,8 +1134,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       const combinedNotes = (() => {
         const existing = allOrders.find(o => o.id === orderId)?.notes || "";
         const existingTrimmed = existing.trim();
-        if (existingTrimmed) return `${instructionText.trim()}, ${existingTrimmed}`;
-        return instructionText.trim();
+        if (existingTrimmed) return `${cleanedText}, ${existingTrimmed}`;
+        return cleanedText;
       })();
       await updateTicketOrder(orderId, { notes: combinedNotes });
       // Clear the input field after sending

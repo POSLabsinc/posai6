@@ -501,10 +501,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
       setSentAddress("");
     } else if (currentStep === "create-confirm-email") {
       setMessages((prev) => prev.slice(0, -2));
-      setCurrentStep("new-not-found");
+      setCurrentStep("new-contact");
+      setSignInInput("");
+      setSentAddress("");
+      setCreateEmail("");
     } else if (currentStep === "create-fullname") {
       setMessages((prev) => prev.slice(0, -2));
-      setCurrentStep("new-not-found");
+      setCurrentStep("create-confirm-email");
       setCreateFullName("");
     } else if (currentStep === "create-email") {
       setMessages((prev) => prev.slice(0, -2));

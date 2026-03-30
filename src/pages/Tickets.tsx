@@ -2256,6 +2256,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     handleKitchenInstructionChange(selectedGuest.id, newVal, selectedGuest.notes, selectedGuest.status);
                   }}
                   onKeyDown={(e) => {
+                    if (e.key === 'Enter' && typingPart.trim()) {
+                      e.preventDefault();
+                      const newVal = committedChips.length > 0 ? `${committedChips.join(', ')}, ${typingPart.trim()},` : `${typingPart.trim()},`;
+                      handleNotesChange(selectedGuest.id, newVal);
+                    }
                     if (e.key === 'Backspace' && !typingPart && committedChips.length > 0) {
                       const newChips = committedChips.slice(0, -1);
                       handleNotesChange(selectedGuest.id, newChips.length > 0 ? newChips.join(', ') + ', ' : '');

@@ -2283,19 +2283,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             </button>
           )}
         </div>
-        {/* Saved notes as chips */}
+        {/* Saved notes */}
         {selectedGuest.notes && selectedGuest.notes.trim() && (
-          <div className="mt-1.5 flex flex-wrap gap-1">
-            {selectedGuest.notes.split(/,\s*/).filter(n => n.trim()).map((note, idx) => (
-              <span key={`saved-${idx}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-neutral-700/60 text-white/60 border border-neutral-600/50">
-                <span className="truncate max-w-[120px]">{note.trim()}</span>
-                {canEditNotes(selectedGuest.status) && (
-                  <button type="button" onClick={() => removeOrderNoteChip(selectedGuest.id, note.trim())} className="ml-0.5 hover:text-white transition-colors">
-                    <X className="w-3 h-3" />
-                  </button>
-                )}
-              </span>
-            ))}
+          <div className="mt-1.5 px-2 py-1.5 text-xs text-white/50 italic bg-neutral-800/50 rounded-md">
+            <span className="not-italic mr-1">📋</span>{selectedGuest.notes}
           </div>
         )}
         {notesFocused && canEditNotes(selectedGuest.status) && (

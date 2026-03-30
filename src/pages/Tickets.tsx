@@ -1088,8 +1088,23 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     const lastWord = words[words.length - 1] || "";
     setNotesSearchTerm(lastWord);
   };
-  
-  // Kitchen instruction state - track which orders have had instructions sent to KDS
+
+  // Remove a specific note chip from saved order notes
+  const removeOrderNoteChip = useCallback(async (orderId: string, noteToRemove: string) => {
+    const currentNotes = selectedGuest.notes || "";
+    const notesList = currentNotes.split(/,\s*/).filter(n => n.trim()).filter(n => n.trim() !== noteToRemove.trim());
+    const updatedNotes = notesList.join(', ');
+    await updateTicketOrder(orderId, { notes: updatedNotes });
+    setSelectedGuest(prev => prev.id === orderId ? { ...prev, notes: updatedNotes } : prev);
+  }, [selectedGuest, updateTicketOrder]);
+
+  // Remove a typed (unsent) note chip
+  const removeTypedNoteChip = useCallback((orderId: string, noteToRemove: string) => {
+    const current = orderNotes[orderId] || "";
+    const notesList = current.split(/,\s*/).filter(n => n.trim()).filter(n => n.trim() !== noteToRemove.trim());
+    handleNotesChange(orderId, notesList.join(', '));
+  }, [orderNotes, handleNotesChange]);
+
   const [instructionSentOrders, setInstructionSentOrders] = useState<Set<string>>(new Set());
   const [instructionDirtyOrders, setInstructionDirtyOrders] = useState<Set<string>>(new Set());
 
@@ -2213,21 +2228,48 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       {/* Kitchen Instruction */}
       <div className="px-3 py-2 border-b border-neutral-700/50 relative">
         <div className="text-white/40 text-[10px] font-medium mb-1 px-1">Kitchen instruction</div>
-        <div className="flex items-center gap-2 text-white/50 text-sm bg-neutral-800 border border-neutral-700 p-2 rounded-lg relative">
+        <div className="flex items-center gap-1.5 flex-wrap text-white/50 text-sm bg-neutral-800 border border-neutral-700 p-2 rounded-lg">
           <span>📝</span>
-          {canEditNotes(selectedGuest.status) ? (
-            <input
-              type="text"
-              value={orderNotes[selectedGuest.id] !== undefined ? orderNotes[selectedGuest.id] : ""}
-              onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
-              onFocus={() => setNotesFocused(true)}
-              onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-              placeholder="Add order notes"
-              className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm pr-8"
-            />
-          ) : (
-            <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
-          )}
+          {/* Typed notes as chips (all committed parts before the last comma) */}
+          {(() => {
+            const raw = orderNotes[selectedGuest.id] || "";
+            const parts = raw.split(/,/).map(s => s.trim()).filter(Boolean);
+            const committedChips = parts.length > 1 ? parts.slice(0, -1) : (raw.endsWith(',') ? parts : []);
+            const typingPart = raw.endsWith(',') ? "" : (parts.length > 1 ? parts[parts.length - 1] : raw);
+            return (<>
+              {committedChips.map((note, idx) => (
+                <span key={`typed-${idx}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-neutral-600 text-neutral-200 border border-neutral-500/50">
+                  <span className="truncate max-w-[120px]">{note}</span>
+                  <button type="button" onClick={() => removeTypedNoteChip(selectedGuest.id, note)} className="ml-0.5 hover:text-white transition-colors">
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+              {canEditNotes(selectedGuest.status) ? (
+                <input
+                  type="text"
+                  value={typingPart}
+                  onChange={(e) => {
+                    const newTyping = e.target.value;
+                    const newVal = committedChips.length > 0 ? `${committedChips.join(', ')}, ${newTyping}` : newTyping;
+                    handleKitchenInstructionChange(selectedGuest.id, newVal, selectedGuest.notes, selectedGuest.status);
+                  }}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Backspace' && !typingPart && committedChips.length > 0) {
+                      const newChips = committedChips.slice(0, -1);
+                      handleNotesChange(selectedGuest.id, newChips.length > 0 ? newChips.join(', ') + ', ' : '');
+                    }
+                  }}
+                  onFocus={() => setNotesFocused(true)}
+                  onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
+                  placeholder={committedChips.length === 0 ? "Add order notes" : "Add more..."}
+                  className="flex-1 min-w-[80px] bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
+                />
+              ) : (
+                <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
+              )}
+            </>);
+          })()}
           {orderNotes[selectedGuest.id]?.trim() && (
             <button
               onClick={async () => {
@@ -2235,15 +2277,25 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
                 if (success) toast.success("Instruction sent to kitchen", { duration: 3000 });
               }}
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-orange-400 hover:text-orange-300 transition-colors"
+              className="p-1 rounded-md text-orange-400 hover:text-orange-300 transition-colors flex-shrink-0"
             >
               <SendHorizontal className="h-4 w-4" />
             </button>
           )}
         </div>
+        {/* Saved notes as chips */}
         {selectedGuest.notes && selectedGuest.notes.trim() && (
-          <div className="mt-1.5 px-2 py-1.5 text-xs text-white/50 italic bg-neutral-800/50 rounded-md">
-            <span className="not-italic mr-1">📋</span>{selectedGuest.notes.split('\n').filter(n => n.trim()).join(', ')}
+          <div className="mt-1.5 flex flex-wrap gap-1">
+            {selectedGuest.notes.split(/,\s*/).filter(n => n.trim()).map((note, idx) => (
+              <span key={`saved-${idx}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-neutral-700/60 text-white/60 border border-neutral-600/50">
+                <span className="truncate max-w-[120px]">{note.trim()}</span>
+                {canEditNotes(selectedGuest.status) && (
+                  <button type="button" onClick={() => removeOrderNoteChip(selectedGuest.id, note.trim())} className="ml-0.5 hover:text-white transition-colors">
+                    <X className="w-3 h-3" />
+                  </button>
+                )}
+              </span>
+            ))}
           </div>
         )}
         {notesFocused && canEditNotes(selectedGuest.status) && (
@@ -3389,21 +3441,47 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           {/* Kitchen Instruction */}
           <div className="px-4 py-3 border-b border-neutral-700/50 relative">
             <div className="text-white/40 text-[10px] font-medium mb-1 px-1">Kitchen instruction</div>
-            <div className="flex items-center gap-2 text-white/50 text-sm bg-neutral-800 border border-neutral-700 p-2 rounded-lg relative">
+            <div className="flex items-center gap-1.5 flex-wrap text-white/50 text-sm bg-neutral-800 border border-neutral-700 p-2 rounded-lg">
               <span>📝</span>
-              {canEditNotes(selectedGuest.status) ? (
-                <input
-                  type="text"
-                  value={orderNotes[selectedGuest.id] !== undefined ? orderNotes[selectedGuest.id] : ""}
-                  onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
-                  onFocus={() => setNotesFocused(true)}
-                  onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-                  placeholder="Add order notes"
-                  className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm pr-8"
-                />
-              ) : (
-                <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
-              )}
+              {(() => {
+                const raw = orderNotes[selectedGuest.id] || "";
+                const parts = raw.split(/,/).map(s => s.trim()).filter(Boolean);
+                const committedChips = parts.length > 1 ? parts.slice(0, -1) : (raw.endsWith(',') ? parts : []);
+                const typingPart = raw.endsWith(',') ? "" : (parts.length > 1 ? parts[parts.length - 1] : raw);
+                return (<>
+                  {committedChips.map((note, idx) => (
+                    <span key={`typed-${idx}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-neutral-600 text-neutral-200 border border-neutral-500/50">
+                      <span className="truncate max-w-[120px]">{note}</span>
+                      <button type="button" onClick={() => removeTypedNoteChip(selectedGuest.id, note)} className="ml-0.5 hover:text-white transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    </span>
+                  ))}
+                  {canEditNotes(selectedGuest.status) ? (
+                    <input
+                      type="text"
+                      value={typingPart}
+                      onChange={(e) => {
+                        const newTyping = e.target.value;
+                        const newVal = committedChips.length > 0 ? `${committedChips.join(', ')}, ${newTyping}` : newTyping;
+                        handleKitchenInstructionChange(selectedGuest.id, newVal, selectedGuest.notes, selectedGuest.status);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Backspace' && !typingPart && committedChips.length > 0) {
+                          const newChips = committedChips.slice(0, -1);
+                          handleNotesChange(selectedGuest.id, newChips.length > 0 ? newChips.join(', ') + ', ' : '');
+                        }
+                      }}
+                      onFocus={() => setNotesFocused(true)}
+                      onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
+                      placeholder={committedChips.length === 0 ? "Add order notes" : "Add more..."}
+                      className="flex-1 min-w-[80px] bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
+                    />
+                  ) : (
+                    <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
+                  )}
+                </>);
+              })()}
               {orderNotes[selectedGuest.id]?.trim() && (
                 <button
                   onClick={async () => {
@@ -3411,15 +3489,24 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
                     if (success) toast.success("Instruction sent to kitchen", { duration: 3000 });
                   }}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-orange-400 hover:text-orange-300 transition-colors"
+                  className="p-1 rounded-md text-orange-400 hover:text-orange-300 transition-colors flex-shrink-0"
                 >
                   <SendHorizontal className="h-4 w-4" />
                 </button>
               )}
             </div>
             {selectedGuest.notes && selectedGuest.notes.trim() && (
-              <div className="mt-1.5 px-2 py-1.5 text-xs text-white/50 italic bg-neutral-800/50 rounded-md">
-                <span className="not-italic mr-1">📋</span>{selectedGuest.notes.split('\n').filter(n => n.trim()).join(', ')}
+              <div className="mt-1.5 flex flex-wrap gap-1">
+                {selectedGuest.notes.split(/,\s*/).filter(n => n.trim()).map((note, idx) => (
+                  <span key={`saved-${idx}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-neutral-700/60 text-white/60 border border-neutral-600/50">
+                    <span className="truncate max-w-[120px]">{note.trim()}</span>
+                    {canEditNotes(selectedGuest.status) && (
+                      <button type="button" onClick={() => removeOrderNoteChip(selectedGuest.id, note.trim())} className="ml-0.5 hover:text-white transition-colors">
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </span>
+                ))}
               </div>
             )}
             {notesFocused && canEditNotes(selectedGuest.status) && (
@@ -4282,21 +4369,47 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           {/* Kitchen Instruction */}
           <div className="px-3 py-2 border-b border-neutral-700/50 relative">
             <div className="text-white/40 text-[9px] font-medium mb-1 px-0.5">Kitchen instruction</div>
-            <div className="flex items-center gap-2 text-white/50 text-xs bg-neutral-800 border border-neutral-700 p-1.5 rounded-lg relative">
+            <div className="flex items-center gap-1 flex-wrap text-white/50 text-xs bg-neutral-800 border border-neutral-700 p-1.5 rounded-lg">
               <span>📝</span>
-              {canEditNotes(selectedGuest.status) ? (
-                <input
-                  type="text"
-                  value={orderNotes[selectedGuest.id] !== undefined ? orderNotes[selectedGuest.id] : ""}
-                  onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
-                  onFocus={() => setNotesFocused(true)}
-                  onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-                  placeholder="Add order notes"
-                  className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-xs pr-7"
-                />
-              ) : (
-                <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
-              )}
+              {(() => {
+                const raw = orderNotes[selectedGuest.id] || "";
+                const parts = raw.split(/,/).map(s => s.trim()).filter(Boolean);
+                const committedChips = parts.length > 1 ? parts.slice(0, -1) : (raw.endsWith(',') ? parts : []);
+                const typingPart = raw.endsWith(',') ? "" : (parts.length > 1 ? parts[parts.length - 1] : raw);
+                return (<>
+                  {committedChips.map((note, idx) => (
+                    <span key={`typed-${idx}`} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] bg-neutral-600 text-neutral-200 border border-neutral-500/50">
+                      <span className="truncate max-w-[100px]">{note}</span>
+                      <button type="button" onClick={() => removeTypedNoteChip(selectedGuest.id, note)} className="ml-0.5 hover:text-white transition-colors">
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    </span>
+                  ))}
+                  {canEditNotes(selectedGuest.status) ? (
+                    <input
+                      type="text"
+                      value={typingPart}
+                      onChange={(e) => {
+                        const newTyping = e.target.value;
+                        const newVal = committedChips.length > 0 ? `${committedChips.join(', ')}, ${newTyping}` : newTyping;
+                        handleKitchenInstructionChange(selectedGuest.id, newVal, selectedGuest.notes, selectedGuest.status);
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Backspace' && !typingPart && committedChips.length > 0) {
+                          const newChips = committedChips.slice(0, -1);
+                          handleNotesChange(selectedGuest.id, newChips.length > 0 ? newChips.join(', ') + ', ' : '');
+                        }
+                      }}
+                      onFocus={() => setNotesFocused(true)}
+                      onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
+                      placeholder={committedChips.length === 0 ? "Add order notes" : "Add more..."}
+                      className="flex-1 min-w-[60px] bg-transparent text-white/80 placeholder:text-white/40 outline-none text-xs"
+                    />
+                  ) : (
+                    <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
+                  )}
+                </>);
+              })()}
               {orderNotes[selectedGuest.id]?.trim() && (
                 <button
                   onClick={async () => {
@@ -4304,15 +4417,24 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
                     if (success) toast.success("Instruction sent to kitchen", { duration: 3000 });
                   }}
-                  className="absolute right-1.5 top-1/2 -translate-y-1/2 p-0.5 rounded-md text-orange-400 hover:text-orange-300 transition-colors"
+                  className="p-0.5 rounded-md text-orange-400 hover:text-orange-300 transition-colors flex-shrink-0"
                 >
                   <SendHorizontal className="h-3.5 w-3.5" />
                 </button>
               )}
             </div>
             {selectedGuest.notes && selectedGuest.notes.trim() && (
-              <div className="mt-1 px-1.5 py-1 text-[10px] text-white/50 italic bg-neutral-800/50 rounded-md">
-                <span className="not-italic mr-1">📋</span>{selectedGuest.notes.split('\n').filter(n => n.trim()).join(', ')}
+              <div className="mt-1 flex flex-wrap gap-1">
+                {selectedGuest.notes.split(/,\s*/).filter(n => n.trim()).map((note, idx) => (
+                  <span key={`saved-${idx}`} className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] bg-neutral-700/60 text-white/60 border border-neutral-600/50">
+                    <span className="truncate max-w-[100px]">{note.trim()}</span>
+                    {canEditNotes(selectedGuest.status) && (
+                      <button type="button" onClick={() => removeOrderNoteChip(selectedGuest.id, note.trim())} className="ml-0.5 hover:text-white transition-colors">
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    )}
+                  </span>
+                ))}
               </div>
             )}
             {notesFocused && canEditNotes(selectedGuest.status) && (

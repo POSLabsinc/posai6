@@ -24,7 +24,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner" | "returning-contact" | "returning-email" | "returning-phone" | "new-contact" | "new-email" | "new-phone" | "new-not-found" | "new-checking" | "create-fullname" | "create-email" | "create-phone" | "create-otp" | "create-otp-verifying" | "create-country" | "create-business" | "create-creating" | "create-success" | "license-request" | "license-submitted";
+type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner" | "returning-contact" | "returning-email" | "returning-phone" | "new-contact" | "new-email" | "new-phone" | "new-not-found" | "new-checking" | "create-fullname" | "create-confirm-email" | "create-email" | "create-phone" | "create-otp" | "create-otp-verifying" | "create-country" | "create-business" | "create-creating" | "create-success" | "license-request" | "license-submitted";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -491,13 +491,16 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setCurrentStep("new-contact");
       setSignInInput("");
       setSentAddress("");
+    } else if (currentStep === "create-confirm-email") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("new-not-found");
     } else if (currentStep === "create-fullname") {
       setMessages((prev) => prev.slice(0, -2));
       setCurrentStep("new-not-found");
       setCreateFullName("");
     } else if (currentStep === "create-email") {
       setMessages((prev) => prev.slice(0, -2));
-      setCurrentStep("create-fullname");
+      setCurrentStep("create-confirm-email");
       setCreateEmail("");
     } else if (currentStep === "create-phone") {
       setMessages((prev) => prev.slice(0, -2));
@@ -505,7 +508,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setCreatePhone("");
     } else if (currentStep === "create-otp") {
       setMessages((prev) => prev.slice(0, -2));
-      setCurrentStep("create-phone");
+      setCurrentStep("create-confirm-email");
       setCreateOtp("");
       setCreateOtpError("");
     } else if (currentStep === "create-country") {
@@ -1522,14 +1525,19 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     className="pl-7 pt-3 pb-2"
                   >
                     <div className="flex gap-2.5">
-                      <button
+                       <button
                         onClick={() => {
+                          const emailFromInput = signInInput || sentAddress || "";
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Create New Account" };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Let's create your account! Please enter your full name." };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: emailFromInput ? `We'll use **${emailFromInput}** for your new account. Would you like to continue with this email?` : "Let's create your account! Please enter your email address." };
                           setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("create-fullname");
+                          if (emailFromInput) {
+                            setCreateEmail(emailFromInput);
+                            setCurrentStep("create-confirm-email");
+                          } else {
+                            setCurrentStep("create-email");
+                          }
                           setCreateFullName("");
-                          setCreateEmail("");
                           setCreatePhone("");
                           setCreateOtp("");
                           setCreateOtpError("");
@@ -1565,6 +1573,50 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                           <p className="text-[11px] text-foreground/40 leading-tight mt-0.5">Try a different contact</p>
                         </div>
                       </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Account creation - Confirm email */}
+                {currentStep === "create-confirm-email" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2"
+                  >
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03]">
+                        <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                        <span className="text-sm font-medium text-foreground">{createEmail}</span>
+                      </div>
+                      <div className="flex gap-2.5">
+                        <button
+                          onClick={() => {
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: `Yes, use ${createEmail}` };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a verification code to **${createEmail}**. Please enter the 6-digit code.` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("create-otp");
+                          }}
+                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:bg-primary/90 transition-all"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          Yes, continue
+                        </button>
+                        <button
+                          onClick={() => {
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Use a different email" };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "No problem! Please enter the email you'd like to use." };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCreateEmail("");
+                            setCurrentStep("create-email");
+                          }}
+                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-[13px] font-medium text-foreground/60 transition-all"
+                        >
+                          <Pencil className="w-4 h-4" />
+                          Change email
+                        </button>
+                      </div>
                     </div>
                   </motion.div>
                 )}
@@ -1616,7 +1668,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     {createOtpError && (
                       <p className="text-xs text-destructive pl-1">{createOtpError}</p>
                     )}
-                    <p className="text-xs text-foreground/35 pl-0.5">We sent a verification code to your email and phone.</p>
+                    <p className="text-xs text-foreground/35 pl-0.5">We sent a verification code to your email.</p>
                   </motion.div>
                 )}
 
@@ -2663,9 +2715,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && createEmail.trim() && createEmail.includes("@")) {
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: createEmail.trim() };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Great! And your phone number?" };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a verification code to **${createEmail.trim()}**. Please enter the 6-digit code.` };
                           setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("create-phone");
+                          setCurrentStep("create-otp");
                         }
                       }}
                       placeholder="Enter your email address..."
@@ -2677,9 +2729,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     onClick={() => {
                       if (createEmail.trim() && createEmail.includes("@")) {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: createEmail.trim() };
-                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Great! And your phone number?" };
+                        const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a verification code to **${createEmail.trim()}**. Please enter the 6-digit code.` };
                         setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                        setCurrentStep("create-phone");
+                        setCurrentStep("create-otp");
                       }
                     }}
                     disabled={!createEmail.trim() || !createEmail.includes("@")}

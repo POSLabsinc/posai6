@@ -1668,7 +1668,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     {createOtpError && (
                       <p className="text-xs text-destructive pl-1">{createOtpError}</p>
                     )}
-                    <p className="text-xs text-foreground/35 pl-0.5">We sent a verification code to your email and phone.</p>
+                    <p className="text-xs text-foreground/35 pl-0.5">We sent a verification code to your email.</p>
                   </motion.div>
                 )}
 

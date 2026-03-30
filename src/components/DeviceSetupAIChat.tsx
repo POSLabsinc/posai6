@@ -112,7 +112,7 @@ interface DeviceSetupAIChatProps {
   onAccountCreated?: () => void;
 }
 
-const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetupAIChatProps) => {
+const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCreated }: DeviceSetupAIChatProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);

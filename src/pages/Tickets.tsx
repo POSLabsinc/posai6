@@ -3384,7 +3384,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               {canEditNotes(selectedGuest.status) ? (
                 <input
                   type="text"
-                  value={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
+                  value={orderNotes[selectedGuest.id] !== undefined ? orderNotes[selectedGuest.id] : ""}
                   onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
                   onFocus={() => setNotesFocused(true)}
                   onBlur={() => setTimeout(() => setNotesFocused(false), 150)}

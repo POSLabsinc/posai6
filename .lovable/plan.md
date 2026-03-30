@@ -1,31 +1,18 @@
 
 
-## Plan: Redesign Kitchen Instruction Notes UI
+## Plan: Add "Sign in with Link" to Company Device Manual Activation
 
 ### What Changes
 
-Three responsive layout variants of the Kitchen Instruction section in `src/pages/Tickets.tsx` (around lines 2203-2242, 3374-3413, 4262-4301) will be updated with the same logic:
+The company device manual activation screen (the screen that says "This device is not yet linked to a business. Choose how to activate it.") currently only shows one primary option: **Activate with Code**. We will add a second option: **Sign in with Link**, directly below "Activate with Code."
 
-### Design
+### Technical Details
 
-**Case 1: No existing notes (originalNotes is empty/null)**
-- Show the input field with placeholder "Add order notes"
-- When user types text, show a send arrow icon button **inside** the input box (right-aligned) instead of the separate "Send to kitchen" button below
-- The send arrow uses `SendHorizontal` from lucide-react, placed inside the input container div
-- Arrow only appears when the input has content AND the order is fired
+**File: `src/pages/Login.tsx`** (around lines 3302-3304)
 
-**Case 2: Existing notes (originalNotes has content)**
-- Show the "Add order notes" input field (editable, for adding new notes)
-- Below the input, show the existing original notes as a read-only styled text block (smaller text, muted color, with a label like the note emoji)
-- The send arrow icon appears inline in the input box when new text is typed and order is fired
+- After the "Activate with Code" button and before the closing `</motion.div>` of the primary options section, add a new button for "Sign in with Link"
+- The button sets `activationMethod` to `"link"` on click, reusing the existing `activationMethod === "link"` sub-screen (line 2012) which already handles the full magic link flow with email/phone toggle, send link, and confirmation
+- Style the button consistently with the "Activate with Code" button, using a `Link2` icon with a distinct color (e.g., blue/violet tones)
 
-### Changes in `src/pages/Tickets.tsx`
-
-For each of the 3 layout blocks:
-
-1. **Move the send button inline**: Replace the separate `<button>Send to kitchen</button>` below the input box with a `SendHorizontal` icon button placed inside the input container div (after the `<input>`)
-2. **Add existing notes display**: Below the input container, if `selectedGuest.notes` has content (the original saved notes), render a read-only block showing those notes
-3. Import `SendHorizontal` from `lucide-react`
-
-No other files, routes, or components change.
+No new components, routes, or logic needed. The existing magic link sub-screen already works for company device context.
 

@@ -1124,8 +1124,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       await updateTicketOrder(orderId, { notes: combinedNotes });
       // Clear the input field after sending
       setOrderNotes(prev => ({ ...prev, [orderId]: "" }));
-      // Update local order data so the read-only block shows updated notes
-      setAllOrders(prev => prev.map(o => o.id === orderId ? { ...o, notes: combinedNotes } : o));
+      // Update selectedGuest notes so the read-only block shows updated notes
+      setSelectedGuest(prev => prev.id === orderId ? { ...prev, notes: combinedNotes } : prev);
       setInstructionSentOrders(prev => new Set(prev).add(orderId));
       setInstructionDirtyOrders(prev => {
         const next = new Set(prev);

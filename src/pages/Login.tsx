@@ -2604,6 +2604,26 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             ],
             image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&h=340&fit=crop",
           },
+          {
+            title: "Dashboard",
+            desc: "Get a real-time overview of your business performance at a glance.",
+            icon: <LayoutGrid className="w-5 h-5" />,
+            features: [
+              { icon: <LayoutGrid className="w-4 h-4" />, title: "Live business overview", desc: "Monitor sales, orders, and team activity from a single unified dashboard." },
+              { icon: <Clock className="w-4 h-4" />, title: "Real-time updates", desc: "See live order statuses, payment activity, and shift information as it happens." },
+            ],
+            image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=600&h=340&fit=crop",
+          },
+          {
+            title: "Reports & Analytics",
+            desc: "Track trends, measure performance, and make data-driven decisions.",
+            icon: <BarChart3 className="w-5 h-5" />,
+            features: [
+              { icon: <BarChart3 className="w-4 h-4" />, title: "Sales reports", desc: "View detailed breakdowns of revenue, top products, and payment methods over any period." },
+              { icon: <Settings className="w-4 h-4" />, title: "Custom reporting", desc: "Filter and export reports by date, employee, category, or order type." },
+            ],
+            image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=600&h=340&fit=crop",
+          },
         ];
 
         const currentTrialStep = trialSteps[trialStepIndex] || trialSteps[0];

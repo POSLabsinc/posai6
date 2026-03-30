@@ -1089,6 +1089,62 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     setNotesSearchTerm(lastWord);
   };
   
+  // Kitchen instruction state - track which orders have had instructions sent to KDS
+  const [instructionSentOrders, setInstructionSentOrders] = useState<Set<string>>(new Set());
+  const [instructionDirtyOrders, setInstructionDirtyOrders] = useState<Set<string>>(new Set());
+
+  // Send kitchen instruction to KDS via kds_messages table
+  const sendKitchenInstruction = useCallback(async (orderId: string, instructionText: string, orderNumber: number) => {
+    if (!instructionText.trim()) return;
+    try {
+      await (supabase as any).from('kds_messages').insert({
+        message_id: `kitchen-instr-${orderId}-${Date.now()}`,
+        message_text: instructionText.trim(),
+        store_id: 'default',
+        terminal_id: 'tickets-module',
+        terminal_name: 'Tickets',
+        employee_id: 'system',
+        employee_name: selectedGuest.server || 'Staff',
+        employee_role: null,
+        table_id: selectedGuest.table || null,
+        table_number: selectedGuest.table || null,
+        linked_order_id: orderId,
+        linked_order_number: orderNumber,
+        linked_order_ids: [orderId],
+        link_type: 'order',
+        status: 'pending',
+      });
+      // Also persist instruction to order notes in DB
+      await updateTicketOrder(orderId, { notes: instructionText.trim() });
+      setInstructionSentOrders(prev => new Set(prev).add(orderId));
+      setInstructionDirtyOrders(prev => {
+        const next = new Set(prev);
+        next.delete(orderId);
+        return next;
+      });
+      return true;
+    } catch (err) {
+      console.error('Failed to send kitchen instruction:', err);
+      return false;
+    }
+  }, [selectedGuest, updateTicketOrder]);
+
+  // Check if an order has been fired (status beyond ORDERING)
+  const isOrderFired = useCallback((status: string) => {
+    return status !== 'ORDERING';
+  }, []);
+
+  // Handle notes change with dirty tracking for post-fire edits
+  const handleKitchenInstructionChange = useCallback((orderId: string, value: string, originalNotes: string, orderStatus: string) => {
+    handleNotesChange(orderId, value);
+    const words = value.split(/[,\s]+/);
+    const lastWord = words[words.length - 1] || "";
+    setNotesSearchTerm(lastWord);
+    if (isOrderFired(orderStatus)) {
+      setInstructionDirtyOrders(prev => new Set(prev).add(orderId));
+    }
+  }, [handleNotesChange, isOrderFired]);
+
 
   const [mobileFilters, setMobileFilters] = useState<MobileFiltersState>({
     revenueCenter: null,

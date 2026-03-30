@@ -119,6 +119,7 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
   const [signupOtp, setSignupOtp] = useState("");
   const [signupVerifyingOtp, setSignupVerifyingOtp] = useState(false);
   const [signupOtpResendCooldown, setSignupOtpResendCooldown] = useState(0);
+  const [trialStepIndex, setTrialStepIndex] = useState(0);
   const [activationApproach, setActivationApproach] = useState<"ai" | "manual" | null>(null);
   const [activationCode, setActivationCode] = useState("");
   const [activationError, setActivationError] = useState("");

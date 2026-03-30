@@ -2570,11 +2570,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               className="w-full space-y-4"
             >
               <Input
-                type="text"
-                placeholder="Full name"
-                value={signupFullName}
+                type="email"
+                placeholder="Email address"
+                value={signupEmail}
                 onChange={(e) => {
-                  setSignupFullName(e.target.value);
+                  setSignupEmail(e.target.value);
                   setSignupError("");
                 }}
                 className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"

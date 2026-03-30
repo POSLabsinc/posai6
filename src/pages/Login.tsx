@@ -2505,6 +2505,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           setActivationMethod("password");
           setAdminEmail(signupEmail);
           setSignupFullName("");
+          setSignupAgreed(false);
+          setSignupCountry("United States");
           setSignupEmail("");
           setSignupPassword("");
         } catch (err) {

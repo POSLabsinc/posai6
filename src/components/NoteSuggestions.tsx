@@ -1,6 +1,18 @@
 import { useMemo } from "react";
 
 // Predefined suggestion lists for restaurant use
+// KDS-specific phrases to exclude from order note suggestions
+const kdsExcludedPhrases = [
+  "low stock warning",
+  "rush this order",
+  "hold this order",
+  "fire when ready",
+  "86'd - out of stock",
+  "remake needed",
+  "special request",
+  "extra sauce on the side",
+];
+
 const frequentNotes = [
   "No substitutions",
   "Split check",
@@ -69,12 +81,14 @@ export default function NoteSuggestions({ query, onSelect, currentValue, recentN
       // Split by comma and clean up each phrase
       const phrases = note.split(',').map(p => p.trim()).filter(p => p.length > 0);
       phrases.forEach(phrase => {
-        if (!allPhrases.includes(phrase)) {
+        // Exclude KDS-specific phrases from recent notes
+        const isKdsPhrase = kdsExcludedPhrases.some(kds => phrase.toLowerCase().includes(kds));
+        if (!allPhrases.includes(phrase) && !isKdsPhrase) {
           allPhrases.push(phrase);
         }
       });
     });
-    return allPhrases.slice(0, 10); // Keep last 10 unique phrases
+    return allPhrases.slice(0, 10);
   }, [recentNotes]);
 
   const suggestions = useMemo(() => {

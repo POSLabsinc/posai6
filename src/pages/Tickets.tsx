@@ -1109,6 +1109,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   // Send kitchen instruction to KDS via kds_messages table
   const sendKitchenInstruction = useCallback(async (orderId: string, instructionText: string, orderNumber: number) => {
     if (!instructionText.trim()) return;
+    // Clean trailing commas from chip format
+    const cleanedText = instructionText.replace(/,\s*$/, '').trim();
+    if (!cleanedText) return;
     try {
       await (supabase as any).from('kds_messages').insert({
         message_id: `kitchen-instr-${orderId}-${Date.now()}`,

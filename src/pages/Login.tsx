@@ -2636,8 +2636,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               animate={{ opacity: 1 }}
               className="relative w-full flex flex-col"
             >
-              {/* Top bar with back arrow only */}
-              <div className="flex items-center mb-6">
+              {/* Top bar with back arrow and trial badge */}
+              <div className="flex items-center justify-between mb-6">
                 <motion.button
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}

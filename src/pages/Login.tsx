@@ -2501,24 +2501,310 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           }
 
           setIsSigningUp(false);
-          toast({
-            title: "Account created",
-            description: "Please check your email to verify your account before signing in."
-          });
-          // Switch to sign-in screen
-          setActivationMethod("password");
-          setAdminEmail(signupEmail);
-          setSignupFullName("");
-          setSignupAgreed(false);
-          setSignupCountry("United States");
-          setSignupEmail("");
-          setSignupPassword("");
+          setSignupStep("otp");
+          setSignupOtp("");
+          setSignupOtpResendCooldown(30);
         } catch (err) {
           setSignupError("Something went wrong. Please try again.");
           setIsSigningUp(false);
         }
       };
 
+      const handleVerifyOtp = async () => {
+        if (signupOtp.length !== 6) {
+          setSignupError("Please enter the 6-digit code");
+          return;
+        }
+        setSignupVerifyingOtp(true);
+        setSignupError("");
+
+        try {
+          const { error } = await supabase.auth.verifyOtp({
+            email: signupEmail,
+            token: signupOtp,
+            type: "signup",
+          });
+
+          if (error) {
+            setSignupError("Invalid or expired code. Please try again.");
+            setSignupVerifyingOtp(false);
+            return;
+          }
+
+          setSignupVerifyingOtp(false);
+          setSignupStep("trial");
+        } catch (err) {
+          setSignupError("Verification failed. Please try again.");
+          setSignupVerifyingOtp(false);
+        }
+      };
+
+      const handleResendOtp = async () => {
+        if (signupOtpResendCooldown > 0) return;
+        setSignupError("");
+        try {
+          await supabase.auth.resend({
+            type: "signup",
+            email: signupEmail,
+          });
+          setSignupOtpResendCooldown(30);
+          toast({ title: "Code resent", description: "A new verification code has been sent to your email." });
+        } catch {
+          setSignupError("Failed to resend code.");
+        }
+      };
+
+      // OTP resend cooldown timer
+      useEffect(() => {
+        if (signupOtpResendCooldown <= 0) return;
+        const timer = setTimeout(() => setSignupOtpResendCooldown(signupOtpResendCooldown - 1), 1000);
+        return () => clearTimeout(timer);
+      }, [signupOtpResendCooldown]);
+
+      const handleOtpKeyPress = (key: string) => {
+        if (signupOtp.length < 6) {
+          setSignupOtp(prev => prev + key);
+          setSignupError("");
+        }
+      };
+
+      const handleOtpDelete = () => {
+        setSignupOtp(prev => prev.slice(0, -1));
+        setSignupError("");
+      };
+
+      // Step 3: Free Trial Features
+      if (signupStep === "trial") {
+        const freeTrialFeatures = [
+          { icon: <Monitor className="w-5 h-5" />, title: "POS Terminal", desc: "Full point-of-sale system" },
+          { icon: <Users className="w-5 h-5" />, title: "Up to 3 Employees", desc: "Manage your team" },
+          { icon: <UtensilsCrossed className="w-5 h-5" />, title: "Unlimited Products", desc: "Add your full menu or catalog" },
+          { icon: <Sparkles className="w-5 h-5" />, title: "AI Assistant", desc: "Smart settings and insights" },
+          { icon: <Clock className="w-5 h-5" />, title: "14-Day Free Trial", desc: "No credit card required" },
+          { icon: <ShieldCheck className="w-5 h-5" />, title: "Secure Payments", desc: "End-to-end encrypted" },
+        ];
+
+        return (
+          <DeviceSetupLayout variant="admin">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="relative w-full flex flex-col items-center"
+            >
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mb-4 border border-green-500/20"
+              >
+                <CheckCircle2 className="w-8 h-8 text-green-400" />
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="text-xl font-semibold text-foreground mb-1 text-center"
+              >
+                Account Verified
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15 }}
+                className="text-sm text-foreground/50 mb-6 text-center"
+              >
+                Your free trial includes everything you need to get started
+              </motion.p>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="w-full space-y-2.5 mb-6"
+              >
+                {freeTrialFeatures.map((feature, i) => (
+                  <motion.div
+                    key={feature.title}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.25 + i * 0.06 }}
+                    className="flex items-center gap-3.5 p-3 rounded-xl bg-foreground/[0.03] border border-foreground/[0.06]"
+                  >
+                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
+                      {feature.icon}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium text-foreground">{feature.title}</p>
+                      <p className="text-xs text-foreground/45">{feature.desc}</p>
+                    </div>
+                    <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
+                  </motion.div>
+                ))}
+              </motion.div>
+
+              <Button
+                onClick={() => {
+                  setSignupStep("form");
+                  setActivationMethod(null);
+                  setSignupEmail("");
+                  setSignupPassword("");
+                  setSignupOtp("");
+                  setSignupAgreed(false);
+                  setSignupCountry("United States");
+                  navigate("/");
+                }}
+                className="w-full h-14 text-base font-medium rounded-2xl"
+                size="lg"
+              >
+                Get Started
+              </Button>
+            </motion.div>
+          </DeviceSetupLayout>
+        );
+      }
+
+      // Step 2: OTP Verification
+      if (signupStep === "otp") {
+        return (
+          <DeviceSetupLayout variant="admin">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="relative w-full flex flex-col items-center"
+            >
+              <motion.button
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                onClick={() => {
+                  setSignupStep("form");
+                  setSignupOtp("");
+                  setSignupError("");
+                }}
+                className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" />
+                <span>Back</span>
+              </motion.button>
+
+              <motion.div
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 border border-primary/20"
+              >
+                <Mail className="w-8 h-8 text-primary" />
+              </motion.div>
+
+              <motion.h1
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.1 }}
+                className="text-xl font-semibold text-foreground mb-2 text-center"
+              >
+                Verify Your Email
+              </motion.h1>
+
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15 }}
+                className="text-sm text-foreground/50 mb-2 text-center"
+              >
+                We sent a 6-digit code to
+              </motion.p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.15 }}
+                className="text-sm text-primary font-medium mb-8 text-center"
+              >
+                {signupEmail}
+              </motion.p>
+
+              {/* OTP Display */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="flex justify-center gap-2.5 mb-6"
+              >
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`w-11 h-13 rounded-xl border flex items-center justify-center text-xl font-semibold transition-all duration-150 ${
+                      signupOtp[i]
+                        ? "border-primary/40 bg-primary/5 text-foreground"
+                        : i === signupOtp.length
+                          ? "border-primary/60 bg-primary/5"
+                          : "border-foreground/[0.1] bg-foreground/[0.03] text-foreground/30"
+                    }`}
+                  >
+                    {signupOtp[i] || ""}
+                  </div>
+                ))}
+              </motion.div>
+
+              <AnimatePresence mode="wait">
+                {signupError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 mb-4 w-full"
+                  >
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <span className="text-sm font-medium text-destructive">{signupError}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Numeric Keypad */}
+              <div className="w-full max-w-[280px] mx-auto mb-5">
+                <NumericKeypad
+                  onKeyPress={handleOtpKeyPress}
+                  onDelete={handleOtpDelete}
+                  variant="dark"
+                />
+              </div>
+
+              {/* Verify Button */}
+              <Button
+                onClick={handleVerifyOtp}
+                disabled={signupVerifyingOtp || signupOtp.length !== 6}
+                className="w-full h-14 text-base font-medium rounded-2xl mb-3"
+                size="lg"
+              >
+                {signupVerifyingOtp ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    Verifying...
+                  </>
+                ) : (
+                  "Verify Email"
+                )}
+              </Button>
+
+              {/* Resend */}
+              <div className="text-center">
+                {signupOtpResendCooldown > 0 ? (
+                  <p className="text-sm text-foreground/40">
+                    Resend code in <span className="text-foreground/60 font-medium">{signupOtpResendCooldown}s</span>
+                  </p>
+                ) : (
+                  <button
+                    onClick={handleResendOtp}
+                    className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+                  >
+                    Resend Code
+                  </button>
+                )}
+              </div>
+            </motion.div>
+          </DeviceSetupLayout>
+        );
+      }
+
+      // Step 1: Signup Form (default)
       return (
         <DeviceSetupLayout variant="admin">
           <motion.div 
@@ -2538,6 +2824,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 setSignupEmail("");
                 setSignupPassword("");
                 setSignupError("");
+                setSignupStep("form");
               }}
               className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
             >

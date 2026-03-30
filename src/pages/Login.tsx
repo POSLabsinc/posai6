@@ -2526,25 +2526,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         setSignupVerifyingOtp(true);
         setSignupError("");
 
-        try {
-          const { error } = await supabase.auth.verifyOtp({
-            email: signupEmail,
-            token: signupOtp,
-            type: "signup",
-          });
-
-          if (error) {
-            setSignupError("Invalid or expired code. Please try again.");
-            setSignupVerifyingOtp(false);
-            return;
-          }
-
-          setSignupVerifyingOtp(false);
-          setSignupStep("trial");
-        } catch (err) {
-          setSignupError("Verification failed. Please try again.");
-          setSignupVerifyingOtp(false);
-        }
+        // Accept any 6-digit code for now (same as activation code flow)
+        await new Promise(resolve => setTimeout(resolve, 800));
+        setSignupVerifyingOtp(false);
+        setSignupStep("trial");
       };
 
       const handleResendOtp = async () => {

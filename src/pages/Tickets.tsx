@@ -1115,7 +1115,17 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         status: 'pending',
       });
       // Also persist instruction to order notes in DB
-      await updateTicketOrder(orderId, { notes: instructionText.trim() });
+      const combinedNotes = (() => {
+        const existing = allOrders.find(o => o.id === orderId)?.notes || "";
+        const existingTrimmed = existing.trim();
+        if (existingTrimmed) return `${instructionText.trim()}\n${existingTrimmed}`;
+        return instructionText.trim();
+      })();
+      await updateTicketOrder(orderId, { notes: combinedNotes });
+      // Clear the input field after sending
+      setOrderNotes(prev => ({ ...prev, [orderId]: "" }));
+      // Update local order data so the read-only block shows updated notes
+      setAllOrders(prev => prev.map(o => o.id === orderId ? { ...o, notes: combinedNotes } : o));
       setInstructionSentOrders(prev => new Set(prev).add(orderId));
       setInstructionDirtyOrders(prev => {
         const next = new Set(prev);

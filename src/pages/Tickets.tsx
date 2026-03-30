@@ -4312,7 +4312,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             </div>
             {selectedGuest.notes && selectedGuest.notes.trim() && (
               <div className="mt-1 px-1.5 py-1 text-[10px] text-white/50 italic bg-neutral-800/50 rounded-md">
-                <span className="not-italic mr-1">📋</span>{selectedGuest.notes}
+                <span className="not-italic mr-1">📋</span>{selectedGuest.notes.split('\n').filter(n => n.trim()).join(', ')}
               </div>
             )}
             {notesFocused && canEditNotes(selectedGuest.status) && (

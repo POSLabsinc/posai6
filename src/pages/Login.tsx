@@ -2462,16 +2462,16 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     // Sub-screen: Create Account (signup)
     if (activationMethod === "signup") {
       const handleSignUp = async () => {
-        if (!signupFullName.trim()) {
-          setSignupError("Please enter your full name");
-          return;
-        }
         if (!signupEmail.trim() || !signupEmail.includes("@")) {
           setSignupError("Please enter a valid email address");
           return;
         }
         if (!signupPassword.trim() || signupPassword.length < 8) {
           setSignupError("Password must be at least 8 characters");
+          return;
+        }
+        if (!signupAgreed) {
+          setSignupError("You must agree to the User Seller Agreement and Privacy Policy");
           return;
         }
 

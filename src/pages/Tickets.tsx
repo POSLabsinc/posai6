@@ -2212,11 +2212,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
               onFocus={() => setNotesFocused(true)}
               onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-              placeholder="No notes"
+              placeholder="Add order notes"
                className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
              />
            ) : (
-             <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "No notes"}</span>
+             <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
           )}
         </div>
         {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
@@ -3383,11 +3383,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
                   onFocus={() => setNotesFocused(true)}
                   onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-                   placeholder="No notes"
+                   placeholder="Add order notes"
                    className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
                  />
                ) : (
-                 <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "No notes"}</span>
+                 <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
               )}
             </div>
             {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
@@ -4271,11 +4271,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
                   onFocus={() => setNotesFocused(true)}
                   onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-                   placeholder="No notes"
+                   placeholder="Add order notes"
                    className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-xs"
                  />
                ) : (
-                 <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "No notes"}</span>
+                 <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
               )}
             </div>
             {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (

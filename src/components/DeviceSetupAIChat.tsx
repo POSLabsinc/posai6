@@ -1577,6 +1577,50 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                   </motion.div>
                 )}
 
+                {/* Account creation - Confirm email */}
+                {currentStep === "create-confirm-email" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2"
+                  >
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-3 px-4 py-3 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03]">
+                        <Mail className="w-4 h-4 text-primary flex-shrink-0" />
+                        <span className="text-sm font-medium text-foreground">{createEmail}</span>
+                      </div>
+                      <div className="flex gap-2.5">
+                        <button
+                          onClick={() => {
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: `Yes, use ${createEmail}` };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a verification code to **${createEmail}**. Please enter the 6-digit code.` };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("create-otp");
+                          }}
+                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 rounded-xl bg-primary text-primary-foreground text-[13px] font-medium hover:bg-primary/90 transition-all"
+                        >
+                          <CheckCircle2 className="w-4 h-4" />
+                          Yes, continue
+                        </button>
+                        <button
+                          onClick={() => {
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Use a different email" };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "No problem! Please enter the email you'd like to use." };
+                            setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                            setCreateEmail("");
+                            setCurrentStep("create-email");
+                          }}
+                          className="flex items-center gap-2 flex-1 justify-center px-3 py-2.5 rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-[13px] font-medium text-foreground/60 transition-all"
+                        >
+                          <Pencil className="w-4 h-4" />
+                          Change email
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* Account creation - OTP verification */}
                 {currentStep === "create-otp" && !isLoading && (
                   <motion.div

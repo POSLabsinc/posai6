@@ -1064,18 +1064,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   
   // Handle note suggestion selection - replace the current search term with the suggestion
   const handleNoteSuggestionSelect = (orderId: string, currentNotes: string, suggestion: string) => {
-    // Remove the currently typed search term and replace with the suggestion
+    // Replace the current search term with the suggestion and add trailing comma to commit as chip
     if (notesSearchTerm && currentNotes.endsWith(notesSearchTerm)) {
-      // Remove the search term from the end and add the suggestion
       const baseNotes = currentNotes.slice(0, currentNotes.length - notesSearchTerm.length).replace(/[,\s]+$/, '');
-      const newNotes = baseNotes ? `${baseNotes}, ${suggestion}` : suggestion;
+      const newNotes = baseNotes ? `${baseNotes}, ${suggestion},` : `${suggestion},`;
       handleNotesChange(orderId, newNotes);
     } else if (currentNotes) {
-      // If no search term or notes don't end with it, append the suggestion
-      const newNotes = `${currentNotes}, ${suggestion}`;
+      const newNotes = `${currentNotes}, ${suggestion},`;
       handleNotesChange(orderId, newNotes);
     } else {
-      handleNotesChange(orderId, suggestion);
+      handleNotesChange(orderId, `${suggestion},`);
     }
     setNotesSearchTerm("");
   };
@@ -1111,10 +1109,13 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   // Send kitchen instruction to KDS via kds_messages table
   const sendKitchenInstruction = useCallback(async (orderId: string, instructionText: string, orderNumber: number) => {
     if (!instructionText.trim()) return;
+    // Clean trailing commas from chip format
+    const cleanedText = instructionText.replace(/,\s*$/, '').trim();
+    if (!cleanedText) return;
     try {
       await (supabase as any).from('kds_messages').insert({
         message_id: `kitchen-instr-${orderId}-${Date.now()}`,
-        message_text: instructionText.trim(),
+        message_text: cleanedText,
         store_id: 'default',
         terminal_id: 'tickets-module',
         terminal_name: 'Tickets',
@@ -1133,8 +1134,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       const combinedNotes = (() => {
         const existing = allOrders.find(o => o.id === orderId)?.notes || "";
         const existingTrimmed = existing.trim();
-        if (existingTrimmed) return `${instructionText.trim()}, ${existingTrimmed}`;
-        return instructionText.trim();
+        if (existingTrimmed) return `${cleanedText}, ${existingTrimmed}`;
+        return cleanedText;
       })();
       await updateTicketOrder(orderId, { notes: combinedNotes });
       // Clear the input field after sending

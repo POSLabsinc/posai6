@@ -24,7 +24,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner" | "returning-contact" | "returning-email" | "returning-phone" | "new-contact" | "new-email" | "new-phone" | "new-not-found" | "new-checking" | "create-fullname" | "create-confirm-email" | "create-email" | "create-phone" | "create-otp" | "create-otp-verifying" | "create-password" | "create-country" | "create-business" | "create-creating" | "create-success" | "license-request" | "license-submitted";
+type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner" | "returning-contact" | "returning-email" | "returning-phone" | "new-contact" | "new-email" | "new-phone" | "new-not-found" | "new-checking" | "create-fullname" | "create-confirm-email" | "create-email" | "create-phone" | "create-otp" | "create-otp-verifying" | "create-password" | "create-device-pin" | "create-country" | "create-business" | "create-creating" | "create-success" | "license-request" | "license-submitted";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -165,6 +165,8 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
   const [createPassword, setCreatePassword] = useState("");
   const [showCreatePassword, setShowCreatePassword] = useState(false);
   const [createPasswordError, setCreatePasswordError] = useState("");
+  const [createDevicePin, setCreateDevicePin] = useState("");
+  const [createDevicePinError, setCreateDevicePinError] = useState("");
 
   useEffect(() => {
     if (open && scrollRef.current) {
@@ -520,6 +522,11 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
       setCurrentStep("create-otp");
       setCreatePassword("");
       setCreatePasswordError("");
+    } else if (currentStep === "create-device-pin") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-password");
+      setCreateDevicePin("");
+      setCreateDevicePinError("");
     } else if (currentStep === "create-country") {
       setMessages((prev) => prev.slice(0, -2));
       setCurrentStep("create-password");
@@ -1717,18 +1724,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                           onKeyDown={(e) => {
                             if (e.key === "Enter" && createPassword.length >= 6) {
                               const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Password set" };
-                              const creatingMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "🔄 Creating your account..." };
-                              setMessages((prev) => [...prev, userMsg, creatingMsg]);
-                              setCurrentStep("create-creating");
-                              setTimeout(() => {
-                                const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n📧 ${createEmail}\n\nYour **7-day free trial** is now active! Let's show you what's included.` };
-                                setMessages((prev) => [...prev, successMsg]);
-                                if (onAccountCreated) {
-                                  onAccountCreated();
-                                } else {
-                                  setCurrentStep("license-request");
-                                }
-                              }, 2000);
+                              const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "🔐 Now set a **4-digit device PIN** for quick Clock In and Clock Out." };
+                              setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                              setCurrentStep("create-device-pin");
                             }
                           }}
                           placeholder="Create a password (min 6 characters)"
@@ -1750,6 +1748,73 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                             return;
                           }
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Password set" };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "🔐 Now set a **4-digit device PIN** for quick Clock In and Clock Out." };
+                          setMessages((prev) => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("create-device-pin");
+                        }}
+                        disabled={createPassword.length < 6}
+                        className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        <Send className="w-4 h-4 text-primary-foreground" />
+                      </button>
+                    </div>
+                    {createPasswordError && (
+                      <p className="text-xs text-destructive pl-1">{createPasswordError}</p>
+                    )}
+                    <p className="text-xs text-foreground/35 pl-0.5">Must be at least 6 characters</p>
+                  </motion.div>
+                )}
+
+                {/* Account creation - Device PIN step */}
+                {currentStep === "create-device-pin" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <KeyRound className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                        <input
+                          type="password"
+                          inputMode="numeric"
+                          maxLength={4}
+                          value={createDevicePin}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "").slice(0, 4);
+                            setCreateDevicePin(val);
+                            setCreateDevicePinError("");
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && createDevicePin.length === 4) {
+                              const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Device PIN set" };
+                              const creatingMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "🔄 Creating your account..." };
+                              setMessages((prev) => [...prev, userMsg, creatingMsg]);
+                              setCurrentStep("create-creating");
+                              setTimeout(() => {
+                                const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n📧 ${createEmail}\n\nYour **7-day free trial** is now active! Let's show you what's included.` };
+                                setMessages((prev) => [...prev, successMsg]);
+                                if (onAccountCreated) {
+                                  onAccountCreated();
+                                } else {
+                                  setCurrentStep("license-request");
+                                }
+                              }, 2000);
+                            }
+                          }}
+                          placeholder="Enter 4-digit PIN"
+                          className="flex-1 w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl pl-10 pr-4 py-2.5 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/30 transition-colors tracking-[0.5em] text-center"
+                          autoFocus
+                        />
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (createDevicePin.length !== 4) {
+                            setCreateDevicePinError("PIN must be exactly 4 digits");
+                            return;
+                          }
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Device PIN set" };
                           const creatingMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "🔄 Creating your account..." };
                           setMessages((prev) => [...prev, userMsg, creatingMsg]);
                           setCurrentStep("create-creating");
@@ -1763,16 +1828,16 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                             }
                           }, 2000);
                         }}
-                        disabled={createPassword.length < 6}
+                        disabled={createDevicePin.length !== 4}
                         className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
                       >
                         <Send className="w-4 h-4 text-primary-foreground" />
                       </button>
                     </div>
-                    {createPasswordError && (
-                      <p className="text-xs text-destructive pl-1">{createPasswordError}</p>
+                    {createDevicePinError && (
+                      <p className="text-xs text-destructive pl-1">{createDevicePinError}</p>
                     )}
-                    <p className="text-xs text-foreground/35 pl-0.5">Must be at least 6 characters</p>
+                    <p className="text-xs text-foreground/35 pl-0.5">This PIN will be used for Clock In and Clock Out</p>
                   </motion.div>
                 )}
 

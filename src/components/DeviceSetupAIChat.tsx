@@ -491,6 +491,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setCurrentStep("new-contact");
       setSignInInput("");
       setSentAddress("");
+    } else if (currentStep === "create-confirm-email") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("new-not-found");
     } else if (currentStep === "create-fullname") {
       setMessages((prev) => prev.slice(0, -2));
       setCurrentStep("new-not-found");
@@ -505,7 +508,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
       setCreatePhone("");
     } else if (currentStep === "create-otp") {
       setMessages((prev) => prev.slice(0, -2));
-      setCurrentStep("create-phone");
+      setCurrentStep("create-confirm-email");
       setCreateOtp("");
       setCreateOtpError("");
     } else if (currentStep === "create-country") {

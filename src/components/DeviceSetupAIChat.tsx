@@ -1658,9 +1658,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                           // Simulate OTP verification
                           setTimeout(() => {
                             const userMsg: Message = { id: Date.now().toString(), role: "user", content: `Code: ${createOtp}` };
-                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "✅ Verified! Now, which country are you located in?" };
+                            const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "✅ Email verified! Now, create a password for your account." };
                             setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                            setCurrentStep("create-country");
+                            setCurrentStep("create-password");
                           }, 1500);
                         }}
                         disabled={createOtp.length !== 6}

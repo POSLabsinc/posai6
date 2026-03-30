@@ -2228,7 +2228,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           ) : (
             <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
           )}
-          {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && orderNotes[selectedGuest.id]?.trim() && (
+          {orderNotes[selectedGuest.id]?.trim() && (
             <button
               onClick={async () => {
                 const text = orderNotes[selectedGuest.id] || "";
@@ -2249,8 +2249,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         {notesFocused && canEditNotes(selectedGuest.status) && (
           <NoteSuggestions
             query={notesSearchTerm}
-            currentValue={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
-            onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, getCurrentNotes(selectedGuest.id, selectedGuest.notes), suggestion)}
+            currentValue={orderNotes[selectedGuest.id] || ""}
+            onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, orderNotes[selectedGuest.id] || "", suggestion)}
             recentNotes={recentNotes}
           />
         )}
@@ -3404,7 +3404,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               ) : (
                 <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
               )}
-              {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && orderNotes[selectedGuest.id]?.trim() && (
+              {orderNotes[selectedGuest.id]?.trim() && (
                 <button
                   onClick={async () => {
                     const text = orderNotes[selectedGuest.id] || "";
@@ -3425,8 +3425,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             {notesFocused && canEditNotes(selectedGuest.status) && (
               <NoteSuggestions
                 query={notesSearchTerm}
-                currentValue={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
-                onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, getCurrentNotes(selectedGuest.id, selectedGuest.notes), suggestion)}
+                currentValue={orderNotes[selectedGuest.id] || ""}
+                onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, orderNotes[selectedGuest.id] || "", suggestion)}
                 recentNotes={recentNotes}
               />
             )}
@@ -4297,7 +4297,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               ) : (
                 <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
               )}
-              {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && orderNotes[selectedGuest.id]?.trim() && (
+              {orderNotes[selectedGuest.id]?.trim() && (
                 <button
                   onClick={async () => {
                     const text = orderNotes[selectedGuest.id] || "";
@@ -4318,8 +4318,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             {notesFocused && canEditNotes(selectedGuest.status) && (
               <NoteSuggestions
                 query={notesSearchTerm}
-                currentValue={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
-                onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, getCurrentNotes(selectedGuest.id, selectedGuest.notes), suggestion)}
+                currentValue={orderNotes[selectedGuest.id] || ""}
+                onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, orderNotes[selectedGuest.id] || "", suggestion)}
                 recentNotes={recentNotes}
               />
             )}

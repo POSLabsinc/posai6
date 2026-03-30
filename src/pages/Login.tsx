@@ -2529,6 +2529,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               onClick={() => {
                 setActivationMethod(null);
                 setSignupFullName("");
+                setSignupAgreed(false);
+                setSignupCountry("United States");
                 setSignupEmail("");
                 setSignupPassword("");
                 setSignupError("");

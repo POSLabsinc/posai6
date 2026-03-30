@@ -1220,6 +1220,12 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       setSelectedGuest(prev => ({ ...prev, tip: newTotalTip, total: newTotal }));
     }
     // If tipAmount is 0 (No Tip selected), keep existing tip unchanged
+
+    // Send kitchen instruction to KDS when FIRE is tapped
+    const currentInstruction = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
+    if (currentInstruction && currentInstruction.trim()) {
+      await sendKitchenInstruction(selectedGuest.id, currentInstruction, selectedGuest.orderNumber);
+    }
   };
 
   // Refund flow handlers

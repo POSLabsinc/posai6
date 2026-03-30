@@ -106,7 +106,13 @@ const Login = () => {
   
   // Company Device - First-time device setup state
   const [showDeviceSetup, setShowDeviceSetup] = useState(false);
-  const [activationMethod, setActivationMethod] = useState<"code" | "link" | "password" | null>(null);
+const [activationMethod, setActivationMethod] = useState<"code" | "link" | "password" | "signup" | null>(null);
+  const [signupFullName, setSignupFullName] = useState("");
+  const [signupEmail, setSignupEmail] = useState("");
+  const [signupPassword, setSignupPassword] = useState("");
+  const [showSignupPassword, setShowSignupPassword] = useState(false);
+  const [signupError, setSignupError] = useState("");
+  const [isSigningUp, setIsSigningUp] = useState(false);
   const [activationApproach, setActivationApproach] = useState<"ai" | "manual" | null>(null);
   const [activationCode, setActivationCode] = useState("");
   const [activationError, setActivationError] = useState("");

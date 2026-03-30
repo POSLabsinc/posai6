@@ -2715,9 +2715,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                       onKeyDown={(e) => {
                         if (e.key === "Enter" && createEmail.trim() && createEmail.includes("@")) {
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: createEmail.trim() };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Great! And your phone number?" };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: `We've sent a verification code to **${createEmail.trim()}**. Please enter the 6-digit code.` };
                           setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("create-phone");
+                          setCurrentStep("create-otp");
                         }
                       }}
                       placeholder="Enter your email address..."

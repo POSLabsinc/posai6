@@ -13,7 +13,7 @@ interface TicketsProps {
 
 import { motion, AnimatePresence } from "framer-motion";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, X, ChevronLeft, DollarSign, RotateCcw, Percent, FileText, Check, Calendar, Users, Wallet, ClipboardList, CircleDollarSign, Delete, ListFilter, MoreVertical, Share2, Clock, MessageSquare, Mail, Printer } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, X, ChevronLeft, DollarSign, RotateCcw, Percent, FileText, Check, Calendar, Users, Wallet, ClipboardList, CircleDollarSign, Delete, ListFilter, MoreVertical, Share2, Clock, MessageSquare, Mail, Printer, SendHorizontal } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

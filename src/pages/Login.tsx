@@ -2485,7 +2485,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             options: {
               emailRedirectTo: `${window.location.origin}/`,
               data: {
-                full_name: signupFullName,
+                country: signupCountry,
               },
             },
           });

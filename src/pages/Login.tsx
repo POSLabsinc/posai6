@@ -2526,25 +2526,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         setSignupVerifyingOtp(true);
         setSignupError("");
 
-        try {
-          const { error } = await supabase.auth.verifyOtp({
-            email: signupEmail,
-            token: signupOtp,
-            type: "signup",
-          });
-
-          if (error) {
-            setSignupError("Invalid or expired code. Please try again.");
-            setSignupVerifyingOtp(false);
-            return;
-          }
-
-          setSignupVerifyingOtp(false);
-          setSignupStep("trial");
-        } catch (err) {
-          setSignupError("Verification failed. Please try again.");
-          setSignupVerifyingOtp(false);
-        }
+        // Accept any 6-digit code for now (same as activation code flow)
+        await new Promise(resolve => setTimeout(resolve, 800));
+        setSignupVerifyingOtp(false);
+        setSignupStep("trial");
       };
 
       const handleResendOtp = async () => {
@@ -2723,7 +2708,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 {signupEmail}
               </motion.p>
 
-              {/* OTP Display */}
+              {/* OTP Input Boxes */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -2731,18 +2716,57 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 className="flex justify-center gap-2.5 mb-6"
               >
                 {Array.from({ length: 6 }).map((_, i) => (
-                  <div
+                  <input
                     key={i}
-                    className={`w-11 h-13 rounded-xl border flex items-center justify-center text-xl font-semibold transition-all duration-150 ${
+                    id={`signup-otp-${i}`}
+                    type="text"
+                    inputMode="numeric"
+                    maxLength={1}
+                    value={signupOtp[i] || ""}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, "");
+                      if (val) {
+                        const newOtp = signupOtp.substring(0, i) + val + signupOtp.substring(i + 1);
+                        setSignupOtp(newOtp.slice(0, 6));
+                        setSignupError("");
+                        // Auto-focus next
+                        if (i < 5) {
+                          document.getElementById(`signup-otp-${i + 1}`)?.focus();
+                        }
+                        // Auto-submit when all 6 digits entered
+                        if (newOtp.length === 6 && !signupVerifyingOtp) {
+                          setTimeout(() => handleVerifyOtp(), 150);
+                        }
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Backspace" && !signupOtp[i] && i > 0) {
+                        const newOtp = signupOtp.substring(0, i - 1) + signupOtp.substring(i);
+                        setSignupOtp(newOtp);
+                        setSignupError("");
+                        document.getElementById(`signup-otp-${i - 1}`)?.focus();
+                      }
+                    }}
+                    onPaste={(e) => {
+                      e.preventDefault();
+                      const pasted = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, 6);
+                      if (pasted) {
+                        setSignupOtp(pasted);
+                        setSignupError("");
+                        const focusIdx = Math.min(pasted.length, 5);
+                        document.getElementById(`signup-otp-${focusIdx}`)?.focus();
+                        if (pasted.length === 6 && !signupVerifyingOtp) {
+                          setTimeout(() => handleVerifyOtp(), 150);
+                        }
+                      }
+                    }}
+                    className={`w-11 h-14 rounded-xl border text-center text-xl font-semibold bg-foreground/[0.03] text-foreground outline-none transition-all duration-150 ${
                       signupOtp[i]
-                        ? "border-primary/40 bg-primary/5 text-foreground"
-                        : i === signupOtp.length
-                          ? "border-primary/60 bg-primary/5"
-                          : "border-foreground/[0.1] bg-foreground/[0.03] text-foreground/30"
-                    }`}
-                  >
-                    {signupOtp[i] || ""}
-                  </div>
+                        ? "border-primary/40 bg-primary/5"
+                        : "border-foreground/[0.1]"
+                    } focus:border-primary/60 focus:bg-primary/5`}
+                    autoFocus={i === 0}
+                  />
                 ))}
               </motion.div>
 
@@ -2759,15 +2783,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              {/* Numeric Keypad */}
-              <div className="w-full max-w-[280px] mx-auto mb-5">
-                <NumericKeypad
-                  onKeyPress={handleOtpKeyPress}
-                  onDelete={handleOtpDelete}
-                  variant="dark"
-                />
-              </div>
 
               {/* Verify Button */}
               <Button

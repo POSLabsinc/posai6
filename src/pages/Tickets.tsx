@@ -4297,7 +4297,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               ) : (
                 <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
               )}
-              {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && orderNotes[selectedGuest.id]?.trim() && (
+              {orderNotes[selectedGuest.id]?.trim() && (
                 <button
                   onClick={async () => {
                     const text = orderNotes[selectedGuest.id] || "";

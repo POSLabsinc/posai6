@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import InlineIOSKeyboard from "@/components/InlineIOSKeyboard";
 import ReactMarkdown from "react-markdown";
+import MerchantOnboarding from "@/components/MerchantOnboarding";
 import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";
 import { formatPhone } from "@/components/voucher/voucherHelpers";
 
@@ -167,6 +168,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
   const [createPasswordError, setCreatePasswordError] = useState("");
   const [createDevicePin, setCreateDevicePin] = useState("");
   const [createDevicePinError, setCreateDevicePinError] = useState("");
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   useEffect(() => {
     if (open && scrollRef.current) {
@@ -849,7 +851,39 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
   }, [personalEmail, personalPassword, invitedUser]);
 
 
-  return (
+  return showOnboarding ? (
+    <motion.div
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 40 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="w-full h-full"
+    >
+      <MerchantOnboarding
+        prefillEmail={createEmail}
+        prefillName={createFullName}
+        onBack={() => setShowOnboarding(false)}
+        onComplete={(data) => {
+          localStorage.setItem("pos_device_session", JSON.stringify({
+            deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            deviceType,
+            trustedAt: new Date().toISOString(),
+            lastValidated: new Date().toISOString(),
+          }));
+          localStorage.setItem("pos_session", JSON.stringify({
+            employeeId: "onboarded-user",
+            employeeName: createFullName || data.full_name || "Manager",
+            employeeRole: "manager",
+            revenueCenter: "Dine Center",
+            deviceType,
+            loginTime: new Date().toISOString(),
+          }));
+          localStorage.setItem("pos_onboarding_data", JSON.stringify(data));
+          window.location.href = "/";
+        }}
+      />
+    </motion.div>
+  ) : (
     <motion.div
       initial={{ opacity: 0, x: 40 }}
       animate={{ opacity: 1, x: 0 }}
@@ -1793,13 +1827,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                               setMessages((prev) => [...prev, userMsg, creatingMsg]);
                               setCurrentStep("create-creating");
                               setTimeout(() => {
-                                const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n📧 ${createEmail}\n\nYour **7-day free trial** is now active! Let's show you what's included.` };
+                                const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n📧 ${createEmail}\n\nNow let's set up your restaurant!` };
                                 setMessages((prev) => [...prev, successMsg]);
-                                if (onAccountCreated) {
-                                  onAccountCreated();
-                                } else {
-                                  setCurrentStep("license-request");
-                                }
+                                setTimeout(() => setShowOnboarding(true), 1000);
                               }, 2000);
                             }
                           }}
@@ -1819,13 +1849,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                           setMessages((prev) => [...prev, userMsg, creatingMsg]);
                           setCurrentStep("create-creating");
                           setTimeout(() => {
-                            const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n📧 ${createEmail}\n\nYour **7-day free trial** is now active! Let's show you what's included.` };
+                            const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n📧 ${createEmail}\n\nNow let's set up your restaurant!` };
                             setMessages((prev) => [...prev, successMsg]);
-                            if (onAccountCreated) {
-                              onAccountCreated();
-                            } else {
-                              setCurrentStep("license-request");
-                            }
+                            setTimeout(() => setShowOnboarding(true), 1000);
                           }, 2000);
                         }}
                         disabled={createDevicePin.length !== 4}

@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, UtensilsCrossed, Zap, Users, Truck, ShieldCheck, ArrowLeft, Delete, Loader2, Clock, MapPin, Briefcase, CheckCircle2, Monitor, Smartphone, KeyRound, AlertCircle, Send, ShieldX, Mail, MessageSquare, RefreshCw, Lock, Eye, EyeOff, Sun, Moon, Sunrise, Sunset, Fingerprint, ScanFace, Phone, X, ScanLine, Camera, HelpCircle, Info, FlaskConical, Timer, Wine, ChefHat, Sparkles } from "lucide-react";
+import { User, UtensilsCrossed, Zap, Users, Truck, ShieldCheck, ArrowLeft, Delete, Loader2, Clock, MapPin, Briefcase, CheckCircle2, Monitor, Smartphone, KeyRound, AlertCircle, Send, ShieldX, Mail, MessageSquare, RefreshCw, Lock, Eye, EyeOff, Sun, Moon, Sunrise, Sunset, Fingerprint, ScanFace, Phone, X, ScanLine, Camera, HelpCircle, Info, FlaskConical, Timer, Wine, ChefHat, Sparkles, Link2 } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import {
   Dialog,
@@ -3297,6 +3297,23 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 </p>
                 <p className="text-sm text-foreground/50">
                   Enter a code from your admin portal
+                </p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setActivationMethod("link")}
+              className="w-full flex items-center gap-4 p-4 rounded-2xl bg-[#252525] hover:bg-[#1C1C1C] border border-white/[0.06] hover:border-blue-500/30 transition-all duration-200 group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/15 transition-colors">
+                <Link2 className="w-6 h-6 text-blue-400" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-[15px] font-semibold text-foreground mb-0.5">
+                  Sign in with Link
+                </p>
+                <p className="text-sm text-foreground/50">
+                  Get a magic link via email or SMS
                 </p>
               </div>
             </button>

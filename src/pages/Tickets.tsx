@@ -2249,8 +2249,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         {notesFocused && canEditNotes(selectedGuest.status) && (
           <NoteSuggestions
             query={notesSearchTerm}
-            currentValue={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
-            onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, getCurrentNotes(selectedGuest.id, selectedGuest.notes), suggestion)}
+            currentValue={orderNotes[selectedGuest.id] || ""}
+            onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, orderNotes[selectedGuest.id] || "", suggestion)}
             recentNotes={recentNotes}
           />
         )}

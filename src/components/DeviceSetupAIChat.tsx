@@ -1696,7 +1696,87 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                   </motion.div>
                 )}
 
-                {/* Account creation - Creating account loader */}
+                {/* Account creation - Password step */}
+                {currentStep === "create-password" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="pl-7 pt-3 pb-2 space-y-2"
+                  >
+                    <div className="flex items-center gap-2">
+                      <div className="relative flex-1">
+                        <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                        <input
+                          type={showCreatePassword ? "text" : "password"}
+                          value={createPassword}
+                          onChange={(e) => {
+                            setCreatePassword(e.target.value);
+                            setCreatePasswordError("");
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && createPassword.length >= 6) {
+                              const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Password set" };
+                              const creatingMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "🔄 Creating your account..." };
+                              setMessages((prev) => [...prev, userMsg, creatingMsg]);
+                              setCurrentStep("create-creating");
+                              setTimeout(() => {
+                                const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n📧 ${createEmail}\n\nYour **7-day free trial** is now active! Let's show you what's included.` };
+                                setMessages((prev) => [...prev, successMsg]);
+                                if (onAccountCreated) {
+                                  onAccountCreated();
+                                } else {
+                                  setCurrentStep("license-request");
+                                }
+                              }, 2000);
+                            }
+                          }}
+                          placeholder="Create a password (min 6 characters)"
+                          className="flex-1 w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl pl-10 pr-10 py-2.5 text-sm text-foreground placeholder:text-foreground/30 outline-none focus:border-primary/30 transition-colors"
+                          autoFocus
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowCreatePassword(!showCreatePassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2"
+                        >
+                          {showCreatePassword ? <EyeOff className="w-4 h-4 text-foreground/30" /> : <Eye className="w-4 h-4 text-foreground/30" />}
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => {
+                          if (createPassword.length < 6) {
+                            setCreatePasswordError("Password must be at least 6 characters");
+                            return;
+                          }
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Password set" };
+                          const creatingMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "🔄 Creating your account..." };
+                          setMessages((prev) => [...prev, userMsg, creatingMsg]);
+                          setCurrentStep("create-creating");
+                          setTimeout(() => {
+                            const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n📧 ${createEmail}\n\nYour **7-day free trial** is now active! Let's show you what's included.` };
+                            setMessages((prev) => [...prev, successMsg]);
+                            if (onAccountCreated) {
+                              onAccountCreated();
+                            } else {
+                              setCurrentStep("license-request");
+                            }
+                          }, 2000);
+                        }}
+                        disabled={createPassword.length < 6}
+                        className="w-9 h-9 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/90 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                      >
+                        <Send className="w-4 h-4 text-primary-foreground" />
+                      </button>
+                    </div>
+                    {createPasswordError && (
+                      <p className="text-xs text-destructive pl-1">{createPasswordError}</p>
+                    )}
+                    <p className="text-xs text-foreground/35 pl-0.5">Must be at least 6 characters</p>
+                  </motion.div>
+                )}
+
+
                 {currentStep === "create-creating" && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}

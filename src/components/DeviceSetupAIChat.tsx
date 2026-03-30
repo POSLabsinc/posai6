@@ -522,6 +522,11 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
       setCurrentStep("create-otp");
       setCreatePassword("");
       setCreatePasswordError("");
+    } else if (currentStep === "create-device-pin") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-password");
+      setCreateDevicePin("");
+      setCreateDevicePinError("");
     } else if (currentStep === "create-country") {
       setMessages((prev) => prev.slice(0, -2));
       setCurrentStep("create-password");

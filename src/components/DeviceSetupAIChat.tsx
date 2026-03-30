@@ -1817,13 +1817,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                           setMessages((prev) => [...prev, userMsg, creatingMsg]);
                           setCurrentStep("create-creating");
                           setTimeout(() => {
-                            const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n📧 ${createEmail}\n\nYour **7-day free trial** is now active! Let's show you what's included.` };
+                            const successMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `🎉 Account created successfully!\n\n📧 ${createEmail}\n\nNow let's set up your restaurant!` };
                             setMessages((prev) => [...prev, successMsg]);
-                            if (onAccountCreated) {
-                              onAccountCreated();
-                            } else {
-                              setCurrentStep("license-request");
-                            }
+                            setTimeout(() => setShowOnboarding(true), 1000);
                           }, 2000);
                         }}
                         disabled={createDevicePin.length !== 4}

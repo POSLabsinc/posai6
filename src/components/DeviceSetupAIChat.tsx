@@ -515,9 +515,14 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
       setCurrentStep("create-confirm-email");
       setCreateOtp("");
       setCreateOtpError("");
-    } else if (currentStep === "create-country") {
+    } else if (currentStep === "create-password") {
       setMessages((prev) => prev.slice(0, -2));
       setCurrentStep("create-otp");
+      setCreatePassword("");
+      setCreatePasswordError("");
+    } else if (currentStep === "create-country") {
+      setMessages((prev) => prev.slice(0, -2));
+      setCurrentStep("create-password");
       setCreateCountry("");
     } else if (currentStep === "create-business") {
       setMessages((prev) => prev.slice(0, -2));

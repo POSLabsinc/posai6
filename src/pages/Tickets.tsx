@@ -2148,11 +2148,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               onChange={(e) => handleNotesInputChange(selectedGuest.id, e.target.value, selectedGuest.notes)}
               onFocus={() => setNotesFocused(true)}
               onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-              placeholder="Add notes..."
-              className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
-            />
-          ) : (
-            <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "No notes"}</span>
+              placeholder="Add Order Notes"
+               className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
+             />
+           ) : (
+             <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add Order Notes"}</span>
           )}
         </div>
         {notesFocused && canEditNotes(selectedGuest.status) && (

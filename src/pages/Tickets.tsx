@@ -1063,14 +1063,18 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   }, []);
   
   // Handle note suggestion selection - replace the current search term with the suggestion
-  const handleNoteSuggestionSelect = (orderId: string, currentNotes: string, suggestion: string) => {
+  const handleNoteSuggestionSelect = (orderId: string, _currentNotes: string, suggestion: string) => {
+    // Read latest notes from state to avoid stale closure
+    const latestNotes = orderNotes[orderId] || "";
     // Replace the current search term with the suggestion and add trailing comma to commit as chip
-    if (notesSearchTerm && currentNotes.endsWith(notesSearchTerm)) {
-      const baseNotes = currentNotes.slice(0, currentNotes.length - notesSearchTerm.length).replace(/[,\s]+$/, '');
+    if (notesSearchTerm && latestNotes.endsWith(notesSearchTerm)) {
+      const baseNotes = latestNotes.slice(0, latestNotes.length - notesSearchTerm.length).replace(/[,\s]+$/, '');
       const newNotes = baseNotes ? `${baseNotes}, ${suggestion},` : `${suggestion},`;
       handleNotesChange(orderId, newNotes);
-    } else if (currentNotes) {
-      const newNotes = `${currentNotes}, ${suggestion},`;
+    } else if (latestNotes) {
+      // Strip any trailing comma/space before appending
+      const cleanBase = latestNotes.replace(/[,\s]+$/, '');
+      const newNotes = cleanBase ? `${cleanBase}, ${suggestion},` : `${suggestion},`;
       handleNotesChange(orderId, newNotes);
     } else {
       handleNotesChange(orderId, `${suggestion},`);

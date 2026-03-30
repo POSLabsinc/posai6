@@ -162,6 +162,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
   const [createOtpError, setCreateOtpError] = useState("");
   const [createCountry, setCreateCountry] = useState("");
   const [createBusiness, setCreateBusiness] = useState("");
+  const [createPassword, setCreatePassword] = useState("");
+  const [showCreatePassword, setShowCreatePassword] = useState(false);
+  const [createPasswordError, setCreatePasswordError] = useState("");
 
   useEffect(() => {
     if (open && scrollRef.current) {

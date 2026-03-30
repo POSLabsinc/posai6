@@ -2614,74 +2614,95 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="relative w-full flex flex-col h-full"
+              className="relative w-full flex flex-col"
             >
-              {/* Back button - consistent with other screens */}
-              <motion.button
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                onClick={() => {
-                  if (trialStepIndex > 0) {
-                    setTrialStepIndex(trialStepIndex - 1);
-                  } else {
-                    setSignupStep("form");
-                    setActivationMethod(null);
-                    setSignupEmail("");
-                    setSignupPassword("");
-                    setSignupOtp("");
-                    setSignupAgreed(false);
-                    setSignupCountry("United States");
-                  }
-                }}
-                className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
-              >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back</span>
-              </motion.button>
+              {/* Top bar with back and next */}
+              <div className="flex items-center justify-between mb-6">
+                <motion.button
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  onClick={() => {
+                    if (trialStepIndex > 0) {
+                      setTrialStepIndex(trialStepIndex - 1);
+                    } else {
+                      setSignupStep("form");
+                      setActivationMethod(null);
+                      setSignupEmail("");
+                      setSignupPassword("");
+                      setSignupOtp("");
+                      setSignupAgreed(false);
+                      setSignupCountry("United States");
+                    }
+                  }}
+                  className="w-10 h-10 rounded-full bg-foreground/[0.06] flex items-center justify-center hover:bg-foreground/10 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4 text-foreground" />
+                </motion.button>
 
-              <div className="flex-1">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={trialStepIndex}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    transition={{ duration: 0.25 }}
-                    className="flex flex-col"
-                  >
-                    {/* Title and description */}
-                    <h1 className="text-xl font-bold text-foreground mb-1.5">{currentTrialStep.title}</h1>
-                    <p className="text-sm text-foreground/50 mb-5 leading-relaxed">{currentTrialStep.desc}</p>
-
-                    {/* Image preview */}
-                    <div className="w-full rounded-2xl overflow-hidden mb-5 border border-foreground/[0.06] bg-foreground/[0.03]">
-                      <img
-                        src={currentTrialStep.image}
-                        alt={currentTrialStep.title}
-                        className="w-full h-[180px] object-cover"
-                      />
-                    </div>
-
-                    {/* Features list */}
-                    <div className="space-y-3">
-                      {currentTrialStep.features.map((feature, i) => (
-                        <div key={feature.title} className="flex items-start gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary mt-0.5">
-                            {feature.icon}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-semibold text-foreground">{feature.title}</p>
-                            <p className="text-xs text-foreground/45 leading-relaxed">{feature.desc}</p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </motion.div>
-                </AnimatePresence>
+                <Button
+                  onClick={() => {
+                    if (isLastStep) {
+                      setSignupStep("form");
+                      setActivationMethod(null);
+                      setSignupEmail("");
+                      setSignupPassword("");
+                      setSignupOtp("");
+                      setSignupAgreed(false);
+                      setSignupCountry("United States");
+                      setTrialStepIndex(0);
+                      navigate("/");
+                    } else {
+                      setTrialStepIndex(trialStepIndex + 1);
+                    }
+                  }}
+                  className="h-10 px-5 rounded-full text-sm font-medium"
+                  size="sm"
+                >
+                  {isLastStep ? "Get Started" : "Next"}
+                </Button>
               </div>
 
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={trialStepIndex}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.25 }}
+                  className="flex flex-col"
+                >
+                  {/* Title and description */}
+                  <h1 className="text-xl font-bold text-foreground mb-1.5">{currentTrialStep.title}</h1>
+                  <p className="text-sm text-foreground/50 mb-5 leading-relaxed">{currentTrialStep.desc}</p>
+
+                  {/* Image preview */}
+                  <div className="w-full rounded-2xl overflow-hidden mb-5 border border-foreground/[0.06] bg-foreground/[0.03]">
+                    <img
+                      src={currentTrialStep.image}
+                      alt={currentTrialStep.title}
+                      className="w-full h-[180px] object-cover"
+                    />
+                  </div>
+
+                  {/* Features list */}
+                  <div className="space-y-3">
+                    {currentTrialStep.features.map((feature, i) => (
+                      <div key={feature.title} className="flex items-start gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary mt-0.5">
+                          {feature.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">{feature.title}</p>
+                          <p className="text-xs text-foreground/45 leading-relaxed">{feature.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
               {/* Step dots */}
-              <div className="flex items-center justify-center gap-1.5 mt-6 mb-4">
+              <div className="flex items-center justify-center gap-1.5 mt-6">
                 {trialSteps.map((_, i) => (
                   <button
                     key={i}
@@ -2694,28 +2715,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   />
                 ))}
               </div>
-
-              {/* Full-width Next/Get Started button at bottom */}
-              <Button
-                onClick={() => {
-                  if (isLastStep) {
-                    setSignupStep("form");
-                    setActivationMethod(null);
-                    setSignupEmail("");
-                    setSignupPassword("");
-                    setSignupOtp("");
-                    setSignupAgreed(false);
-                    setSignupCountry("United States");
-                    setTrialStepIndex(0);
-                    navigate("/");
-                  } else {
-                    setTrialStepIndex(trialStepIndex + 1);
-                  }
-                }}
-                className="w-full h-12 rounded-full text-sm font-medium"
-              >
-                {isLastStep ? "Get Started" : "Next"}
-              </Button>
             </motion.div>
           </DeviceSetupLayout>
         );

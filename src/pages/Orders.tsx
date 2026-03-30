@@ -1881,7 +1881,7 @@ const Orders = () => {
                       <Ticket className="w-3.5 h-3.5" />
                       Voucher
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setShowMessageKitchen(true)} className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                    <DropdownMenuItem onClick={() => setShowMessageKitchen(true)} className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 items-center gap-2 hidden">
                       <img src={messageKdsIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
                       Message Kitchen
                     </DropdownMenuItem>

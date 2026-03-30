@@ -4259,24 +4259,37 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             )}
           </div>
 
-          {/* Notes */}
+          {/* Kitchen Instruction */}
           <div className="px-3 py-2 border-b border-neutral-700/50 relative">
+            <div className="text-white/40 text-[9px] font-medium mb-1 px-0.5">Kitchen instruction</div>
             <div className="flex items-center gap-2 text-white/50 text-xs bg-neutral-800 border border-neutral-700 p-1.5 rounded-lg relative">
               <span>📝</span>
               {canEditNotes(selectedGuest.status) ? (
                 <input
                   type="text"
                   value={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
-                  onChange={(e) => handleNotesInputChange(selectedGuest.id, e.target.value, selectedGuest.notes)}
+                  onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
                   onFocus={() => setNotesFocused(true)}
                   onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-                   placeholder="Add Order Notes"
+                   placeholder="No notes"
                    className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-xs"
                  />
                ) : (
-                 <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add Order Notes"}</span>
+                 <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "No notes"}</span>
               )}
             </div>
+            {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
+              <button
+                onClick={async () => {
+                  const text = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
+                  const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
+                  if (success) toast.success("Instruction sent to kitchen ✓", { duration: 3000 });
+                }}
+                className="mt-1 px-2 py-0.5 rounded-md text-[10px] font-medium text-white/90 bg-orange-600 hover:bg-orange-500 transition-colors"
+              >
+                Send to kitchen
+              </button>
+            )}
             {notesFocused && canEditNotes(selectedGuest.status) && (
               <NoteSuggestions
                 query={notesSearchTerm}

@@ -2640,8 +2640,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 </motion.button>
               </div>
 
-              {/* Scrollable content */}
-              <div className="flex-1 min-h-0 overflow-y-auto">
+              {/* Content */}
+              <div>
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={trialStepIndex}

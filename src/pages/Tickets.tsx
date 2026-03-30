@@ -1088,8 +1088,23 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     const lastWord = words[words.length - 1] || "";
     setNotesSearchTerm(lastWord);
   };
-  
-  // Kitchen instruction state - track which orders have had instructions sent to KDS
+
+  // Remove a specific note chip from saved order notes
+  const removeOrderNoteChip = useCallback(async (orderId: string, noteToRemove: string) => {
+    const currentNotes = selectedGuest.notes || "";
+    const notesList = currentNotes.split(/,\s*/).filter(n => n.trim()).filter(n => n.trim() !== noteToRemove.trim());
+    const updatedNotes = notesList.join(', ');
+    await updateTicketOrder(orderId, { notes: updatedNotes });
+    setSelectedGuest(prev => prev.id === orderId ? { ...prev, notes: updatedNotes } : prev);
+  }, [selectedGuest, updateTicketOrder]);
+
+  // Remove a typed (unsent) note chip
+  const removeTypedNoteChip = useCallback((orderId: string, noteToRemove: string) => {
+    const current = orderNotes[orderId] || "";
+    const notesList = current.split(/,\s*/).filter(n => n.trim()).filter(n => n.trim() !== noteToRemove.trim());
+    handleNotesChange(orderId, notesList.join(', '));
+  }, [orderNotes, handleNotesChange]);
+
   const [instructionSentOrders, setInstructionSentOrders] = useState<Set<string>>(new Set());
   const [instructionDirtyOrders, setInstructionDirtyOrders] = useState<Set<string>>(new Set());
 

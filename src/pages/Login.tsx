@@ -261,6 +261,14 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
     }
   }, [demoOtpResendCooldown]);
 
+  // Signup OTP resend cooldown timer
+  useEffect(() => {
+    if (signupOtpResendCooldown > 0) {
+      const timer = setTimeout(() => setSignupOtpResendCooldown(signupOtpResendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [signupOtpResendCooldown]);
+
   // Reset password resend cooldown timer
   useEffect(() => {
     if (resetResendCooldown > 0) {

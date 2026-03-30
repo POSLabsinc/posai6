@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useWriteOffProcessor } from "@/hooks/useWriteOffProcessor";
@@ -1088,6 +1089,62 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     setNotesSearchTerm(lastWord);
   };
   
+  // Kitchen instruction state - track which orders have had instructions sent to KDS
+  const [instructionSentOrders, setInstructionSentOrders] = useState<Set<string>>(new Set());
+  const [instructionDirtyOrders, setInstructionDirtyOrders] = useState<Set<string>>(new Set());
+
+  // Send kitchen instruction to KDS via kds_messages table
+  const sendKitchenInstruction = useCallback(async (orderId: string, instructionText: string, orderNumber: number) => {
+    if (!instructionText.trim()) return;
+    try {
+      await (supabase as any).from('kds_messages').insert({
+        message_id: `kitchen-instr-${orderId}-${Date.now()}`,
+        message_text: instructionText.trim(),
+        store_id: 'default',
+        terminal_id: 'tickets-module',
+        terminal_name: 'Tickets',
+        employee_id: 'system',
+        employee_name: selectedGuest.server || 'Staff',
+        employee_role: null,
+        table_id: selectedGuest.table || null,
+        table_number: selectedGuest.table || null,
+        linked_order_id: orderId,
+        linked_order_number: orderNumber,
+        linked_order_ids: [orderId],
+        link_type: 'order',
+        status: 'pending',
+      });
+      // Also persist instruction to order notes in DB
+      await updateTicketOrder(orderId, { notes: instructionText.trim() });
+      setInstructionSentOrders(prev => new Set(prev).add(orderId));
+      setInstructionDirtyOrders(prev => {
+        const next = new Set(prev);
+        next.delete(orderId);
+        return next;
+      });
+      return true;
+    } catch (err) {
+      console.error('Failed to send kitchen instruction:', err);
+      return false;
+    }
+  }, [selectedGuest, updateTicketOrder]);
+
+  // Check if an order has been fired (status beyond ORDERING)
+  const isOrderFired = useCallback((status: string) => {
+    return status !== 'ORDERING';
+  }, []);
+
+  // Handle notes change with dirty tracking for post-fire edits
+  const handleKitchenInstructionChange = useCallback((orderId: string, value: string, originalNotes: string, orderStatus: string) => {
+    handleNotesChange(orderId, value);
+    const words = value.split(/[,\s]+/);
+    const lastWord = words[words.length - 1] || "";
+    setNotesSearchTerm(lastWord);
+    if (isOrderFired(orderStatus)) {
+      setInstructionDirtyOrders(prev => new Set(prev).add(orderId));
+    }
+  }, [handleNotesChange, isOrderFired]);
+
 
   const [mobileFilters, setMobileFilters] = useState<MobileFiltersState>({
     revenueCenter: null,
@@ -1163,6 +1220,12 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       setSelectedGuest(prev => ({ ...prev, tip: newTotalTip, total: newTotal }));
     }
     // If tipAmount is 0 (No Tip selected), keep existing tip unchanged
+
+    // Send kitchen instruction to KDS when FIRE is tapped
+    const currentInstruction = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
+    if (currentInstruction && currentInstruction.trim()) {
+      await sendKitchenInstruction(selectedGuest.id, currentInstruction, selectedGuest.orderNumber);
+    }
   };
 
   // Refund flow handlers
@@ -2137,24 +2200,37 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         )}
       </div>
 
-      {/* Notes */}
+      {/* Kitchen Instruction */}
       <div className="px-3 py-2 border-b border-neutral-700/50 relative">
+        <div className="text-white/40 text-[10px] font-medium mb-1 px-1">Kitchen instruction</div>
         <div className="flex items-center gap-2 text-white/50 text-sm bg-neutral-800 border border-neutral-700 p-2 rounded-lg relative">
           <span>📝</span>
           {canEditNotes(selectedGuest.status) ? (
             <input
               type="text"
               value={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
-              onChange={(e) => handleNotesInputChange(selectedGuest.id, e.target.value, selectedGuest.notes)}
+              onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
               onFocus={() => setNotesFocused(true)}
               onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-              placeholder="Add Order Notes"
+              placeholder="No notes"
                className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
              />
            ) : (
-             <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add Order Notes"}</span>
+             <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "No notes"}</span>
           )}
         </div>
+        {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
+          <button
+            onClick={async () => {
+              const text = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
+              const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
+              if (success) toast.success("Instruction sent to kitchen ✓", { duration: 3000 });
+            }}
+            className="mt-1.5 px-3 py-1 rounded-md text-xs font-medium text-white/90 bg-orange-600 hover:bg-orange-500 transition-colors"
+          >
+            Send to kitchen
+          </button>
+        )}
         {notesFocused && canEditNotes(selectedGuest.status) && (
           <NoteSuggestions
             query={notesSearchTerm}
@@ -3295,24 +3371,37 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             )}
           </div>
 
-          {/* Notes */}
+          {/* Kitchen Instruction */}
           <div className="px-4 py-3 border-b border-neutral-700/50 relative">
+            <div className="text-white/40 text-[10px] font-medium mb-1 px-1">Kitchen instruction</div>
             <div className="flex items-center gap-2 text-white/50 text-sm bg-neutral-800 border border-neutral-700 p-2 rounded-lg relative">
               <span>📝</span>
               {canEditNotes(selectedGuest.status) ? (
                 <input
                   type="text"
                   value={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
-                  onChange={(e) => handleNotesInputChange(selectedGuest.id, e.target.value, selectedGuest.notes)}
+                  onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
                   onFocus={() => setNotesFocused(true)}
                   onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-                   placeholder="Add Order Notes"
+                   placeholder="No notes"
                    className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
                  />
                ) : (
-                 <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add Order Notes"}</span>
+                 <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "No notes"}</span>
               )}
             </div>
+            {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
+              <button
+                onClick={async () => {
+                  const text = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
+                  const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
+                  if (success) toast.success("Instruction sent to kitchen ✓", { duration: 3000 });
+                }}
+                className="mt-1.5 px-3 py-1 rounded-md text-xs font-medium text-white/90 bg-orange-600 hover:bg-orange-500 transition-colors"
+              >
+                Send to kitchen
+              </button>
+            )}
             {notesFocused && canEditNotes(selectedGuest.status) && (
               <NoteSuggestions
                 query={notesSearchTerm}
@@ -4170,24 +4259,37 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             )}
           </div>
 
-          {/* Notes */}
+          {/* Kitchen Instruction */}
           <div className="px-3 py-2 border-b border-neutral-700/50 relative">
+            <div className="text-white/40 text-[9px] font-medium mb-1 px-0.5">Kitchen instruction</div>
             <div className="flex items-center gap-2 text-white/50 text-xs bg-neutral-800 border border-neutral-700 p-1.5 rounded-lg relative">
               <span>📝</span>
               {canEditNotes(selectedGuest.status) ? (
                 <input
                   type="text"
                   value={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
-                  onChange={(e) => handleNotesInputChange(selectedGuest.id, e.target.value, selectedGuest.notes)}
+                  onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
                   onFocus={() => setNotesFocused(true)}
                   onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-                   placeholder="Add Order Notes"
+                   placeholder="No notes"
                    className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-xs"
                  />
                ) : (
-                 <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add Order Notes"}</span>
+                 <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "No notes"}</span>
               )}
             </div>
+            {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
+              <button
+                onClick={async () => {
+                  const text = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
+                  const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
+                  if (success) toast.success("Instruction sent to kitchen ✓", { duration: 3000 });
+                }}
+                className="mt-1 px-2 py-0.5 rounded-md text-[10px] font-medium text-white/90 bg-orange-600 hover:bg-orange-500 transition-colors"
+              >
+                Send to kitchen
+              </button>
+            )}
             {notesFocused && canEditNotes(selectedGuest.status) && (
               <NoteSuggestions
                 query={notesSearchTerm}

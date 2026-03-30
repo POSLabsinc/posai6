@@ -2727,6 +2727,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   ))}
                 </div>
 
+                <p className="text-[11px] text-foreground/40 text-center">All features included free for 7 days. No credit card required.</p>
+
                 {/* Next / Get Started button */}
                 <Button
                   onClick={() => {

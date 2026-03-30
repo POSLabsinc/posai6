@@ -1,6 +1,18 @@
 import { useMemo } from "react";
 
 // Predefined suggestion lists for restaurant use
+// KDS-specific phrases to exclude from order note suggestions
+const kdsExcludedPhrases = [
+  "low stock warning",
+  "rush this order",
+  "hold this order",
+  "fire when ready",
+  "86'd - out of stock",
+  "remake needed",
+  "special request",
+  "extra sauce on the side",
+];
+
 const frequentNotes = [
   "No substitutions",
   "Split check",

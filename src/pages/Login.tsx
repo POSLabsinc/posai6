@@ -2636,8 +2636,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               animate={{ opacity: 1 }}
               className="relative w-full flex flex-col"
             >
-              {/* Top bar with back arrow only */}
-              <div className="flex items-center mb-6">
+              {/* Top bar with back arrow and trial badge */}
+              <div className="flex items-center justify-between mb-6">
                 <motion.button
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
@@ -2658,6 +2658,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 >
                   <ChevronLeft className="w-5 h-5 text-foreground/70" />
                 </motion.button>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary/10 border border-primary/20"
+                >
+                  <Clock className="w-3.5 h-3.5 text-primary" />
+                  <span className="text-xs font-semibold text-primary">7-Day Free Trial</span>
+                </motion.div>
               </div>
 
               {/* Content */}
@@ -2718,6 +2726,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     />
                   ))}
                 </div>
+
+                <p className="text-[11px] text-foreground/40 text-center">All features included free for 7 days. No credit card required.</p>
 
                 {/* Next / Get Started button */}
                 <Button

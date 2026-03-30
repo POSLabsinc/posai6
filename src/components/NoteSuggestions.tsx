@@ -81,12 +81,14 @@ export default function NoteSuggestions({ query, onSelect, currentValue, recentN
       // Split by comma and clean up each phrase
       const phrases = note.split(',').map(p => p.trim()).filter(p => p.length > 0);
       phrases.forEach(phrase => {
-        if (!allPhrases.includes(phrase)) {
+        // Exclude KDS-specific phrases from recent notes
+        const isKdsPhrase = kdsExcludedPhrases.some(kds => phrase.toLowerCase().includes(kds));
+        if (!allPhrases.includes(phrase) && !isKdsPhrase) {
           allPhrases.push(phrase);
         }
       });
     });
-    return allPhrases.slice(0, 10); // Keep last 10 unique phrases
+    return allPhrases.slice(0, 10);
   }, [recentNotes]);
 
   const suggestions = useMemo(() => {

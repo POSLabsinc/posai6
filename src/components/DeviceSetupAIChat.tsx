@@ -1525,14 +1525,19 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetu
                     className="pl-7 pt-3 pb-2"
                   >
                     <div className="flex gap-2.5">
-                      <button
+                       <button
                         onClick={() => {
+                          const emailFromInput = signInInput || sentAddress || "";
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Create New Account" };
-                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: "Let's create your account! Please enter your full name." };
+                          const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: emailFromInput ? `We'll use **${emailFromInput}** for your new account. Would you like to continue with this email?` : "Let's create your account! Please enter your email address." };
                           setMessages((prev) => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("create-fullname");
+                          if (emailFromInput) {
+                            setCreateEmail(emailFromInput);
+                            setCurrentStep("create-confirm-email");
+                          } else {
+                            setCurrentStep("create-email");
+                          }
                           setCreateFullName("");
-                          setCreateEmail("");
                           setCreatePhone("");
                           setCreateOtp("");
                           setCreateOtpError("");

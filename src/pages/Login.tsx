@@ -2554,12 +2554,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         }
       };
 
-      // OTP resend cooldown timer
-      useEffect(() => {
-        if (signupOtpResendCooldown <= 0) return;
-        const timer = setTimeout(() => setSignupOtpResendCooldown(signupOtpResendCooldown - 1), 1000);
-        return () => clearTimeout(timer);
-      }, [signupOtpResendCooldown]);
 
       const handleOtpKeyPress = (key: string) => {
         if (signupOtp.length < 6) {

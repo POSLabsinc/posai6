@@ -3301,6 +3301,23 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </div>
             </button>
 
+            <button
+              onClick={() => setActivationMethod("link")}
+              className="w-full flex items-center gap-4 p-4 rounded-2xl bg-[#252525] hover:bg-[#1C1C1C] border border-white/[0.06] hover:border-blue-500/30 transition-all duration-200 group"
+            >
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500/15 transition-colors">
+                <Link2 className="w-6 h-6 text-blue-400" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-[15px] font-semibold text-foreground mb-0.5">
+                  Sign in with Link
+                </p>
+                <p className="text-sm text-foreground/50">
+                  Get a magic link via email or SMS
+                </p>
+              </div>
+            </button>
+
           </motion.div>
 
           {/* Secondary Option: Try Demo */}

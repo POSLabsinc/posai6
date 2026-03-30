@@ -2208,7 +2208,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           {canEditNotes(selectedGuest.status) ? (
             <input
               type="text"
-              value={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
+              value={orderNotes[selectedGuest.id] !== undefined ? orderNotes[selectedGuest.id] : ""}
               onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
               onFocus={() => setNotesFocused(true)}
               onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
@@ -2218,10 +2218,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           ) : (
             <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
           )}
-          {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
+          {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && orderNotes[selectedGuest.id]?.trim() && (
             <button
               onClick={async () => {
-                const text = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
+                const text = orderNotes[selectedGuest.id] || "";
                 const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
                 if (success) toast.success("Instruction sent to kitchen", { duration: 3000 });
               }}
@@ -3384,7 +3384,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               {canEditNotes(selectedGuest.status) ? (
                 <input
                   type="text"
-                  value={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
+                  value={orderNotes[selectedGuest.id] !== undefined ? orderNotes[selectedGuest.id] : ""}
                   onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
                   onFocus={() => setNotesFocused(true)}
                   onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
@@ -3394,10 +3394,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               ) : (
                 <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
               )}
-              {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
+              {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && orderNotes[selectedGuest.id]?.trim() && (
                 <button
                   onClick={async () => {
-                    const text = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
+                    const text = orderNotes[selectedGuest.id] || "";
                     const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
                     if (success) toast.success("Instruction sent to kitchen", { duration: 3000 });
                   }}
@@ -4277,7 +4277,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               {canEditNotes(selectedGuest.status) ? (
                 <input
                   type="text"
-                  value={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
+                  value={orderNotes[selectedGuest.id] !== undefined ? orderNotes[selectedGuest.id] : ""}
                   onChange={(e) => handleKitchenInstructionChange(selectedGuest.id, e.target.value, selectedGuest.notes, selectedGuest.status)}
                   onFocus={() => setNotesFocused(true)}
                   onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
@@ -4287,10 +4287,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               ) : (
                 <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
               )}
-              {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
+              {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && orderNotes[selectedGuest.id]?.trim() && (
                 <button
                   onClick={async () => {
-                    const text = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
+                    const text = orderNotes[selectedGuest.id] || "";
                     const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
                     if (success) toast.success("Instruction sent to kitchen", { duration: 3000 });
                   }}

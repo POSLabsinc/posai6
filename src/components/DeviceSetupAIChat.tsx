@@ -1400,11 +1400,12 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                             setCurrentStep("new-checking");
                             setSignInInput("");
 
-                            // Simulate account lookup (2s delay) - new users won't have existing accounts
+                            // Simulate account lookup (2s delay) - new users go directly to account setup
                             setTimeout(() => {
-                              const notFoundMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: "Sorry, your account was not found. Would you like to create a new account or try a different email/phone?" };
-                              setMessages((prev) => [...prev, notFoundMsg]);
-                              setCurrentStep("new-not-found");
+                              const setupMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `No existing account found. Let's set up your new account! We'll use **${email}** for your account. Would you like to continue with this email?` };
+                              setMessages((prev) => [...prev, setupMsg]);
+                              setCreateEmail(email);
+                              setCurrentStep("create-confirm-email");
                             }, 2000);
                           }
                         }}
@@ -1520,11 +1521,12 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                             setCurrentStep("new-checking");
                             setSignInInput("");
 
-                            // Simulate account lookup (2s delay) - new users won't have existing accounts
+                            // Simulate account lookup (2s delay) - new users go directly to account setup
                             setTimeout(() => {
-                              const notFoundMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: "Sorry, your account was not found. Would you like to create a new account or try a different email/phone?" };
-                              setMessages((prev) => [...prev, notFoundMsg]);
-                              setCurrentStep("new-not-found");
+                              const setupMsg: Message = { id: (Date.now() + 2).toString(), role: "assistant", content: `No existing account found. Let's set up your new account! We'll use **${phone}** for your account. Would you like to continue?` };
+                              setMessages((prev) => [...prev, setupMsg]);
+                              setCreateEmail(phone);
+                              setCurrentStep("create-confirm-email");
                             }, 2000);
                           }
                         }}

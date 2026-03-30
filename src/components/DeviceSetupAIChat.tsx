@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import InlineIOSKeyboard from "@/components/InlineIOSKeyboard";
 import ReactMarkdown from "react-markdown";
+import MerchantOnboarding from "@/components/MerchantOnboarding";
 import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";
 import { formatPhone } from "@/components/voucher/voucherHelpers";
 

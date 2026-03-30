@@ -2457,6 +2457,209 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       );
     }
 
+    // Sub-screen: Create Account (signup)
+    if (activationMethod === "signup") {
+      const handleSignUp = async () => {
+        if (!signupFullName.trim()) {
+          setSignupError("Please enter your full name");
+          return;
+        }
+        if (!signupEmail.trim() || !signupEmail.includes("@")) {
+          setSignupError("Please enter a valid email address");
+          return;
+        }
+        if (!signupPassword.trim() || signupPassword.length < 8) {
+          setSignupError("Password must be at least 8 characters");
+          return;
+        }
+
+        setIsSigningUp(true);
+        setSignupError("");
+
+        try {
+          const { error } = await supabase.auth.signUp({
+            email: signupEmail,
+            password: signupPassword,
+            options: {
+              emailRedirectTo: `${window.location.origin}/`,
+              data: {
+                full_name: signupFullName,
+              },
+            },
+          });
+
+          if (error) {
+            setSignupError(error.message);
+            setIsSigningUp(false);
+            return;
+          }
+
+          setIsSigningUp(false);
+          toast({
+            title: "Account created",
+            description: "Please check your email to verify your account before signing in."
+          });
+          // Switch to sign-in screen
+          setActivationMethod("password");
+          setAdminEmail(signupEmail);
+          setSignupFullName("");
+          setSignupEmail("");
+          setSignupPassword("");
+        } catch (err) {
+          setSignupError("Something went wrong. Please try again.");
+          setIsSigningUp(false);
+        }
+      };
+
+      return (
+        <DeviceSetupLayout variant="admin">
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="relative w-full flex flex-col items-center"
+          >
+            {/* Back Button */}
+            <motion.button
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              onClick={() => {
+                setActivationMethod(null);
+                setSignupFullName("");
+                setSignupEmail("");
+                setSignupPassword("");
+                setSignupError("");
+              }}
+              className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </motion.button>
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 border border-primary/20"
+            >
+              <UserPlus className="w-8 h-8 text-primary" />
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.1 }}
+              className="text-xl font-semibold text-foreground mb-2 text-center"
+            >
+              Create Account
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.15 }}
+              className="text-sm text-foreground/50 mb-8 text-center"
+            >
+              Set up a new account to get started
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="w-full space-y-4"
+            >
+              <Input
+                type="text"
+                placeholder="Full name"
+                value={signupFullName}
+                onChange={(e) => {
+                  setSignupFullName(e.target.value);
+                  setSignupError("");
+                }}
+                className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
+              />
+
+              <Input
+                type="email"
+                placeholder="Email address"
+                value={signupEmail}
+                onChange={(e) => {
+                  setSignupEmail(e.target.value);
+                  setSignupError("");
+                }}
+                className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
+              />
+              
+              <div className="relative">
+                <Input
+                  type={showSignupPassword ? "text" : "password"}
+                  placeholder="Password"
+                  value={signupPassword}
+                  onChange={(e) => {
+                    setSignupPassword(e.target.value);
+                    setSignupError("");
+                  }}
+                  className={`h-12 pr-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
+                    signupError ? "border-destructive" : ""
+                  }`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowSignupPassword(!showSignupPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground/60 transition-colors"
+                >
+                  {showSignupPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                </button>
+              </div>
+
+              <AnimatePresence mode="wait">
+                {signupError && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    className="flex items-center justify-center gap-2 px-3 py-2 rounded-xl bg-destructive/10"
+                  >
+                    <AlertCircle className="w-4 h-4 text-destructive" />
+                    <span className="text-sm font-medium text-destructive">{signupError}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <Button
+                onClick={handleSignUp}
+                disabled={isSigningUp || !signupFullName.trim() || !signupEmail.trim() || !signupPassword.trim()}
+                className="w-full h-14 text-base font-medium rounded-2xl"
+                size="lg"
+              >
+                {isSigningUp ? (
+                  <>
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    Creating account...
+                  </>
+                ) : (
+                  "Create Account"
+                )}
+              </Button>
+
+              <div className="text-center pt-2">
+                <span className="text-sm text-foreground/40">Already have an account? </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setActivationMethod("password");
+                    setSignupError("");
+                  }}
+                  className="text-sm text-primary hover:text-primary/80 transition-colors font-medium"
+                >
+                  Sign In
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        </DeviceSetupLayout>
+      );
+    }
+
     // Sub-screen: Email and Password (admin sign-in)
     if (activationMethod === "password") {
       // Password Reset Flow

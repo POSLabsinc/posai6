@@ -2716,7 +2716,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       setTrialStepIndex(trialStepIndex + 1);
                     }
                   }}
-                  className="w-full h-12 rounded-2xl text-sm font-semibold"
+                  className="w-full h-12 rounded-xl text-sm font-semibold"
                 >
                   {isLastStep ? "Get Started" : "Next"}
                 </Button>

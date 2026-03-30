@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, UtensilsCrossed, Zap, Users, Truck, ShieldCheck, ArrowLeft, Delete, Loader2, Clock, MapPin, Briefcase, CheckCircle2, Monitor, Smartphone, KeyRound, AlertCircle, Send, ShieldX, Mail, MessageSquare, RefreshCw, Lock, Eye, EyeOff, Sun, Moon, Sunrise, Sunset, Fingerprint, ScanFace, Phone, X, ScanLine, Camera, HelpCircle, Info, FlaskConical, Timer, Wine, ChefHat, Sparkles, Link2, UserPlus, ChevronDown, LayoutGrid, CreditCard, BarChart3, Settings, ChevronRight } from "lucide-react";
+import { User, UtensilsCrossed, Zap, Users, Truck, ShieldCheck, ArrowLeft, Delete, Loader2, Clock, MapPin, Briefcase, CheckCircle2, Monitor, Smartphone, KeyRound, AlertCircle, Send, ShieldX, Mail, MessageSquare, RefreshCw, Lock, Eye, EyeOff, Sun, Moon, Sunrise, Sunset, Fingerprint, ScanFace, Phone, X, ScanLine, Camera, HelpCircle, Info, FlaskConical, Timer, Wine, ChefHat, Sparkles, Link2, UserPlus, ChevronDown, ChevronLeft, LayoutGrid, CreditCard, BarChart3, Settings, ChevronRight } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import {
   Dialog,

@@ -1906,16 +1906,13 @@ const Orders = () => {
             </div>
         }
 
-          {/* Order Notes - only show when cart has products */}
-          {orderItems.length > 0 && (
+          {/* Order Notes / Kitchen Message */}
           <div className="px-2 py-1.5 border-b border-sidebar-border">
             <OrderNotesAutocomplete
             value={orderNotes}
             onChange={setOrderNotes}
-            placeholder="Order notes and Allergies" />
-
+            placeholder={orderItems.length > 0 ? "Order notes and Allergies" : "Add Kitchen Message"} />
           </div>
-          )}
           {transferNewMode &&
         <div className="px-3 py-1.5 border-b border-sidebar-border flex items-center gap-2">
               <img src={transferIconPng} alt="Transferred" className="w-4 h-4 opacity-70" />

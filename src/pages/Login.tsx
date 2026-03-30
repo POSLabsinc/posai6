@@ -2560,92 +2560,160 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         setSignupError("");
       };
 
-      // Step 3: Free Trial Features
+      // Step 3: Free Trial Features - Step by step walkthrough
       if (signupStep === "trial") {
-        const freeTrialFeatures = [
-          { icon: <Monitor className="w-5 h-5" />, title: "POS Terminal", desc: "Full point-of-sale system" },
-          { icon: <Users className="w-5 h-5" />, title: "Up to 3 Employees", desc: "Manage your team" },
-          { icon: <UtensilsCrossed className="w-5 h-5" />, title: "Unlimited Products", desc: "Add your full menu or catalog" },
-          { icon: <Sparkles className="w-5 h-5" />, title: "AI Assistant", desc: "Smart settings and insights" },
-          { icon: <Clock className="w-5 h-5" />, title: "14-Day Free Trial", desc: "No credit card required" },
-          { icon: <ShieldCheck className="w-5 h-5" />, title: "Secure Payments", desc: "End-to-end encrypted" },
+        const trialSteps = [
+          {
+            title: "Point-of-Sale Terminal",
+            desc: "Start taking payments quickly with a flexible setup to manage your business.",
+            icon: <Monitor className="w-5 h-5" />,
+            features: [
+              { icon: <LayoutGrid className="w-4 h-4" />, title: "Free point-of-sale system", desc: "Get set up quickly and accept flexible payment methods at the counter or on the go." },
+              { icon: <UtensilsCrossed className="w-4 h-4" />, title: "Unlimited products", desc: "Add your full menu or catalog with variants, modifiers, and categories." },
+            ],
+            image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=600&h=340&fit=crop",
+          },
+          {
+            title: "Team Management",
+            desc: "Manage your employees, shifts, and permissions all in one place.",
+            icon: <Users className="w-5 h-5" />,
+            features: [
+              { icon: <Users className="w-4 h-4" />, title: "Up to 3 employees", desc: "Add team members with individual PINs and role-based access control." },
+              { icon: <Clock className="w-4 h-4" />, title: "Shift scheduling", desc: "Create and manage employee shifts with clock-in and clock-out tracking." },
+            ],
+            image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=600&h=340&fit=crop",
+          },
+          {
+            title: "AI Assistant",
+            desc: "Your intelligent business companion that helps manage settings and provides insights.",
+            icon: <Sparkles className="w-5 h-5" />,
+            features: [
+              { icon: <Sparkles className="w-4 h-4" />, title: "Smart settings management", desc: "Use natural language to configure your POS system quickly and efficiently." },
+              { icon: <BarChart3 className="w-4 h-4" />, title: "Business insights", desc: "Get real-time analytics and intelligent recommendations for your business." },
+            ],
+            image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=340&fit=crop",
+          },
+          {
+            title: "Payments & Security",
+            desc: "Accept payments securely with end-to-end encryption and flexible options.",
+            icon: <ShieldCheck className="w-5 h-5" />,
+            features: [
+              { icon: <CreditCard className="w-4 h-4" />, title: "Flexible payments", desc: "Accept credit cards, cash, mobile payments, and split checks with ease." },
+              { icon: <ShieldCheck className="w-4 h-4" />, title: "Secure & encrypted", desc: "All transactions are protected with industry-standard end-to-end encryption." },
+            ],
+            image: "https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=600&h=340&fit=crop",
+          },
         ];
+
+        const currentTrialStep = trialSteps[trialStepIndex] || trialSteps[0];
+        const isLastStep = trialStepIndex === trialSteps.length - 1;
 
         return (
           <DeviceSetupLayout variant="admin">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="relative w-full flex flex-col items-center"
+              className="relative w-full flex flex-col"
             >
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="w-16 h-16 rounded-2xl bg-green-500/10 flex items-center justify-center mb-4 border border-green-500/20"
-              >
-                <CheckCircle2 className="w-8 h-8 text-green-400" />
-              </motion.div>
+              {/* Top bar with back and next */}
+              <div className="flex items-center justify-between mb-6">
+                <motion.button
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  onClick={() => {
+                    if (trialStepIndex > 0) {
+                      setTrialStepIndex(trialStepIndex - 1);
+                    } else {
+                      setSignupStep("form");
+                      setActivationMethod(null);
+                      setSignupEmail("");
+                      setSignupPassword("");
+                      setSignupOtp("");
+                      setSignupAgreed(false);
+                      setSignupCountry("United States");
+                    }
+                  }}
+                  className="w-10 h-10 rounded-full bg-foreground/[0.06] flex items-center justify-center hover:bg-foreground/10 transition-colors"
+                >
+                  <ArrowLeft className="w-4 h-4 text-foreground" />
+                </motion.button>
 
-              <motion.h1
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.1 }}
-                className="text-xl font-semibold text-foreground mb-1 text-center"
-              >
-                Account Verified
-              </motion.h1>
+                <Button
+                  onClick={() => {
+                    if (isLastStep) {
+                      setSignupStep("form");
+                      setActivationMethod(null);
+                      setSignupEmail("");
+                      setSignupPassword("");
+                      setSignupOtp("");
+                      setSignupAgreed(false);
+                      setSignupCountry("United States");
+                      setTrialStepIndex(0);
+                      navigate("/");
+                    } else {
+                      setTrialStepIndex(trialStepIndex + 1);
+                    }
+                  }}
+                  className="h-10 px-5 rounded-full text-sm font-medium"
+                  size="sm"
+                >
+                  {isLastStep ? "Get Started" : "Next"}
+                </Button>
+              </div>
 
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.15 }}
-                className="text-sm text-foreground/50 mb-6 text-center"
-              >
-                Your free trial includes everything you need to get started
-              </motion.p>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={trialStepIndex}
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  transition={{ duration: 0.25 }}
+                  className="flex flex-col"
+                >
+                  {/* Title and description */}
+                  <h1 className="text-xl font-bold text-foreground mb-1.5">{currentTrialStep.title}</h1>
+                  <p className="text-sm text-foreground/50 mb-5 leading-relaxed">{currentTrialStep.desc}</p>
 
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="w-full space-y-2.5 mb-6"
-              >
-                {freeTrialFeatures.map((feature, i) => (
-                  <motion.div
-                    key={feature.title}
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.25 + i * 0.06 }}
-                    className="flex items-center gap-3.5 p-3 rounded-xl bg-foreground/[0.03] border border-foreground/[0.06]"
-                  >
-                    <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary">
-                      {feature.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">{feature.title}</p>
-                      <p className="text-xs text-foreground/45">{feature.desc}</p>
-                    </div>
-                    <CheckCircle2 className="w-4 h-4 text-green-400 flex-shrink-0" />
-                  </motion.div>
+                  {/* Image preview */}
+                  <div className="w-full rounded-2xl overflow-hidden mb-5 border border-foreground/[0.06] bg-foreground/[0.03]">
+                    <img
+                      src={currentTrialStep.image}
+                      alt={currentTrialStep.title}
+                      className="w-full h-[180px] object-cover"
+                    />
+                  </div>
+
+                  {/* Features list */}
+                  <div className="space-y-3">
+                    {currentTrialStep.features.map((feature, i) => (
+                      <div key={feature.title} className="flex items-start gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 text-primary mt-0.5">
+                          {feature.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">{feature.title}</p>
+                          <p className="text-xs text-foreground/45 leading-relaxed">{feature.desc}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Step dots */}
+              <div className="flex items-center justify-center gap-1.5 mt-6">
+                {trialSteps.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setTrialStepIndex(i)}
+                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                      i === trialStepIndex
+                        ? "w-6 bg-primary"
+                        : "w-1.5 bg-foreground/15 hover:bg-foreground/25"
+                    }`}
+                  />
                 ))}
-              </motion.div>
-
-              <Button
-                onClick={() => {
-                  setSignupStep("form");
-                  setActivationMethod(null);
-                  setSignupEmail("");
-                  setSignupPassword("");
-                  setSignupOtp("");
-                  setSignupAgreed(false);
-                  setSignupCountry("United States");
-                  navigate("/");
-                }}
-                className="w-full h-14 text-base font-medium rounded-2xl"
-                size="lg"
-              >
-                Get Started
-              </Button>
+              </div>
             </motion.div>
           </DeviceSetupLayout>
         );

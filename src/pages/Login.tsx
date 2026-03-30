@@ -2580,17 +2580,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
               />
 
-              <Input
-                type="email"
-                placeholder="Email address"
-                value={signupEmail}
-                onChange={(e) => {
-                  setSignupEmail(e.target.value);
-                  setSignupError("");
-                }}
-                className="h-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
-              />
-              
               <div className="relative">
                 <Input
                   type={showSignupPassword ? "text" : "password"}
@@ -2613,6 +2602,55 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 </button>
               </div>
 
+              {/* Country Selector */}
+              <div className="relative">
+                <select
+                  value={signupCountry}
+                  onChange={(e) => {
+                    setSignupCountry(e.target.value);
+                    setSignupError("");
+                  }}
+                  className="w-full h-12 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] px-3 text-foreground text-sm appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background"
+                >
+                  {[
+                    "United States", "Canada", "United Kingdom", "Australia", "Germany", "France",
+                    "Spain", "Italy", "Netherlands", "Brazil", "Mexico", "India", "Japan",
+                    "South Korea", "Singapore", "United Arab Emirates", "Saudi Arabia", "South Africa",
+                    "Nigeria", "Argentina", "Colombia", "Chile", "Peru", "Philippines", "Thailand",
+                    "Vietnam", "Indonesia", "Malaysia", "New Zealand", "Ireland", "Portugal",
+                    "Sweden", "Norway", "Denmark", "Finland", "Belgium", "Switzerland", "Austria",
+                    "Poland", "Czech Republic", "Turkey", "Egypt", "Kenya", "Ghana", "Pakistan",
+                    "Bangladesh", "Sri Lanka", "Nepal"
+                  ].map(country => (
+                    <option key={country} value={country}>{country}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
+              </div>
+
+              {/* User Seller Agreement & Privacy Policy */}
+              <label className="flex items-start gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={signupAgreed}
+                  onChange={(e) => {
+                    setSignupAgreed(e.target.checked);
+                    setSignupError("");
+                  }}
+                  className="mt-0.5 h-4 w-4 rounded border-foreground/20 bg-foreground/[0.03] text-primary accent-primary cursor-pointer"
+                />
+                <span className="text-xs text-foreground/50 leading-relaxed">
+                  I agree to the{" "}
+                  <a href="https://www.eatos.com/legal-terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    User Seller Agreement
+                  </a>{" "}
+                  and{" "}
+                  <a href="https://www.eatos.com/legal-terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+                    Privacy Policy
+                  </a>
+                </span>
+              </label>
+
               <AnimatePresence mode="wait">
                 {signupError && (
                   <motion.div
@@ -2629,7 +2667,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
               <Button
                 onClick={handleSignUp}
-                disabled={isSigningUp || !signupFullName.trim() || !signupEmail.trim() || !signupPassword.trim()}
+                disabled={isSigningUp || !signupEmail.trim() || !signupPassword.trim() || !signupAgreed}
                 className="w-full h-14 text-base font-medium rounded-2xl"
                 size="lg"
               >

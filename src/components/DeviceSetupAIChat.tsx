@@ -109,6 +109,7 @@ interface DeviceSetupAIChatProps {
   open: boolean;
   onClose: () => void;
   deviceType?: "company" | "personal";
+  onAccountCreated?: () => void;
 }
 
 const DeviceSetupAIChat = ({ open, onClose, deviceType = "company" }: DeviceSetupAIChatProps) => {

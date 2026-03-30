@@ -1038,10 +1038,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     return raw ? raw.replace(/🔥\s*/g, '').trim() : raw;
   };
   
-  // Check if order can have notes edited (ORDERING or UNPAID status)
-  const canEditNotes = (status: string) => {
-    return status === "ORDERING" || status === "UNPAID";
-  };
+   // Check if order can have notes edited (all statuses except PAID and COMPLETED)
+   const canEditNotes = (status: string) => {
+     return status !== "PAID" && status !== "COMPLETED";
+   };
   
   // Handle notes change - update immediately
   const handleNotesChange = (orderId: string, newNotes: string) => {

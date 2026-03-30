@@ -842,8 +842,6 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
       }, 1500);
     }, 1500);
   }, [personalEmail, personalPassword, invitedUser]);
-  const [createDevicePin, setCreateDevicePin] = useState("");
-  const [createDevicePinError, setCreateDevicePinError] = useState("");
 
 
   return (

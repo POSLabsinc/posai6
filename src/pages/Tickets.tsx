@@ -4287,10 +4287,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               ) : (
                 <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
               )}
-              {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
+              {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && orderNotes[selectedGuest.id]?.trim() && (
                 <button
                   onClick={async () => {
-                    const text = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
+                    const text = orderNotes[selectedGuest.id] || "";
                     const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
                     if (success) toast.success("Instruction sent to kitchen", { duration: 3000 });
                   }}

@@ -2213,23 +2213,28 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               onFocus={() => setNotesFocused(true)}
               onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
               placeholder="Add order notes"
-               className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
-             />
-           ) : (
-             <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
+              className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm pr-8"
+            />
+          ) : (
+            <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
+          )}
+          {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
+            <button
+              onClick={async () => {
+                const text = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
+                const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
+                if (success) toast.success("Instruction sent to kitchen", { duration: 3000 });
+              }}
+              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-orange-400 hover:text-orange-300 transition-colors"
+            >
+              <SendHorizontal className="h-4 w-4" />
+            </button>
           )}
         </div>
-        {isOrderFired(selectedGuest.status) && instructionDirtyOrders.has(selectedGuest.id) && getCurrentNotes(selectedGuest.id, selectedGuest.notes)?.trim() && (
-          <button
-            onClick={async () => {
-              const text = getCurrentNotes(selectedGuest.id, selectedGuest.notes);
-              const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
-              if (success) toast.success("Instruction sent to kitchen ✓", { duration: 3000 });
-            }}
-            className="mt-1.5 px-3 py-1 rounded-md text-xs font-medium text-white/90 bg-orange-600 hover:bg-orange-500 transition-colors"
-          >
-            Send to kitchen
-          </button>
+        {selectedGuest.notes && selectedGuest.notes.trim() && (
+          <div className="mt-1.5 px-2 py-1.5 text-xs text-white/50 italic bg-neutral-800/50 rounded-md">
+            <span className="not-italic mr-1">📋</span>{selectedGuest.notes}
+          </div>
         )}
         {notesFocused && canEditNotes(selectedGuest.status) && (
           <NoteSuggestions

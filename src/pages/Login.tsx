@@ -3998,23 +3998,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </div>
             </button>
 
-            {/* Create Account */}
-            <button
-              onClick={() => setActivationMethod("signup")}
-              className="w-full flex items-center gap-4 p-4 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500/15 transition-colors">
-                <UserPlus className="w-6 h-6 text-emerald-400" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-[15px] font-semibold text-foreground mb-0.5">
-                  Create Account
-                </p>
-                <p className="text-sm text-foreground/50">
-                  Set up a new account to get started
-                </p>
-              </div>
-            </button>
+
+
 
           </motion.div>
 
@@ -4043,13 +4028,21 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             transition={{ delay: 0.35 }}
             className="mt-4 md:mt-8 pt-3 md:pt-6 border-t border-foreground/[0.06] w-full"
           >
-            <div className="text-center">
+            <div className="text-center space-y-2">
               <button
                 onClick={() => setActivationMethod("password")}
                 className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
               >
                 Sign in with email and password
               </button>
+              <div>
+                <button
+                  onClick={() => setActivationMethod("signup")}
+                  className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+                >
+                  Create Account
+                </button>
+              </div>
             </div>
           </motion.div>
 

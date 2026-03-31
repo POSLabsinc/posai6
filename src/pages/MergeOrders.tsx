@@ -86,9 +86,9 @@ const MergeOrders = () => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
 
   // Auto-select all seats when panel order changes
-  useMemo(() => {
+  useEffect(() => {
     setSelectedSeats(allSeats);
-  }, [allSeats]);
+  }, [panelPartySize]);
 
   // Order to show in right panel
   const panelOrder = displayedOrder || currentOrder;

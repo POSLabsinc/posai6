@@ -896,6 +896,7 @@ const Dashboard = () => {
       const isPaid = order.status === 'PAID' || order.status === 'Completed';
       return {
         id: Number(order.id.replace(/\D/g, '').slice(0, 8)) || idx + 1,
+        dbId: order.id, // Preserve original UUID for DB operations
         orderNumber: order.orderNumber || (idx + 1),
         status: order.status,
         statusColor: getStatusColorHex(order.status),
@@ -968,6 +969,9 @@ const Dashboard = () => {
   const [cancelReason, setCancelReason] = useState('');
   const [customCancelReason, setCustomCancelReason] = useState('');
 
+  // Helper to get DB-compatible order ID
+  const getDbOrderId = (order: DashboardOrder): string => order.dbId || String(order.id);
+
   const handleCancelOrderAttempt = () => {
     setCancelReason('');
     setCustomCancelReason('');
@@ -978,7 +982,7 @@ const Dashboard = () => {
     const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
     console.log('[Dashboard CancelOrder] order:', selectedOrder?.id, 'reason:', reason);
     if (selectedOrder) {
-      const orderId = String(selectedOrder.id);
+      const orderId = getDbOrderId(selectedOrder);
       // Try to find and cancel as session order
       const sessionOrder = sessionOrders.find(so => so.id === orderId);
       if (sessionOrder) {
@@ -1054,7 +1058,8 @@ const Dashboard = () => {
   // Helper to persist item changes to DB
   const persistItemChanges = (updatedItems: OrderItemType[]) => {
     if (!selectedOrder) return;
-    const dbOrder = dbTicketOrders.find(o => o.id === String(selectedOrder.id));
+    const orderId = getDbOrderId(selectedOrder);
+    const dbOrder = dbTicketOrders.find(o => o.id === orderId);
     if (dbOrder) {
       const dbItems = updatedItems.map(item => ({
         qty: item.qty,
@@ -1111,7 +1116,7 @@ const Dashboard = () => {
       return updated;
     });
     // Update order status to ORDERED in DB
-    const orderId = String(selectedOrder.id);
+    const orderId = getDbOrderId(selectedOrder);
     const dbOrder = dbTicketOrders.find(o => o.id === orderId);
     if (dbOrder) {
       updateDashboardTicketOrder(orderId, { status: 'ORDERED' } as any).catch(err => console.error('Failed to update status:', err));
@@ -1122,7 +1127,7 @@ const Dashboard = () => {
   // Save order handler - persist notes to DB
   const handleSaveOrder = () => {
     if (!selectedOrder) return;
-    const orderId = String(selectedOrder.id);
+    const orderId = getDbOrderId(selectedOrder);
     const dbOrder = dbTicketOrders.find(o => o.id === orderId);
     if (dbOrder) {
       updateDashboardTicketOrder(orderId, { notes: orderNotes } as any).catch(err => console.error('Failed to save order:', err));
@@ -2039,7 +2044,7 @@ const Dashboard = () => {
           
           // Persist payment data to database
           if (selectedOrder) {
-            const orderId = String(selectedOrder.id);
+            const orderId = getDbOrderId(selectedOrder);
             const dbOrder = dbTicketOrders.find(o => o.id === orderId);
             if (dbOrder) {
               updateDashboardTicketOrder(orderId, {
@@ -2170,7 +2175,7 @@ const Dashboard = () => {
             const newTotalTip = existingTip + tip;
             const newTotal = (selectedOrder.total || 0) + tip;
             try {
-              await updateDashboardTicketOrder(String(selectedOrder.id), { tip: newTotalTip, total: newTotal });
+              await updateDashboardTicketOrder(getDbOrderId(selectedOrder), { tip: newTotalTip, total: newTotal });
             } catch (err) {
               console.error('Failed to persist tip:', err);
             }
@@ -2195,7 +2200,7 @@ const Dashboard = () => {
         onRefundComplete={async (amount, reason) => {
           if (selectedOrder?.id) {
             try {
-              const orderId = String(selectedOrder.id);
+              const orderId = getDbOrderId(selectedOrder);
               const order = dbTicketOrders.find(o => o.id === orderId);
               const existingRefundAmount = order?.refundAmount || 0;
               const existingTransactions = order?.refundTransactions || [];

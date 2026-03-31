@@ -1101,7 +1101,34 @@ const Dashboard = () => {
     });
   };
 
-  // Table card click handler
+  // Fire all items handler - mark all as fired and persist to DB
+  const handleFireAll = () => {
+    if (!selectedOrder) return;
+    setOrderItems(prev => {
+      const updated = prev.map(item => ({ ...item, isFired: true }));
+      persistItemChanges(updated);
+      return updated;
+    });
+    // Update order status to ORDERED in DB
+    const orderId = String(selectedOrder.id);
+    const dbOrder = dbTicketOrders.find(o => o.id === orderId);
+    if (dbOrder) {
+      updateDashboardTicketOrder(orderId, { status: 'ORDERED' } as any).catch(err => console.error('Failed to update status:', err));
+    }
+    toast.success('Order fired to kitchen');
+  };
+
+  // Save order handler - persist notes to DB
+  const handleSaveOrder = () => {
+    if (!selectedOrder) return;
+    const orderId = String(selectedOrder.id);
+    const dbOrder = dbTicketOrders.find(o => o.id === orderId);
+    if (dbOrder) {
+      updateDashboardTicketOrder(orderId, { notes: orderNotes } as any).catch(err => console.error('Failed to save order:', err));
+    }
+    toast.success('Order saved');
+  };
+
   const handleTableCardClick = (table: typeof mockTables[0]) => {
     if (table.status === "Available") {
       setGuestDropdownTableCard(guestDropdownTableCard === table.id ? null : table.id);

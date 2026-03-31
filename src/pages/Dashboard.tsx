@@ -2200,7 +2200,7 @@ const Dashboard = () => {
         onRefundComplete={async (amount, reason) => {
           if (selectedOrder?.id) {
             try {
-              const orderId = String(selectedOrder.id);
+              const orderId = getDbOrderId(selectedOrder);
               const order = dbTicketOrders.find(o => o.id === orderId);
               const existingRefundAmount = order?.refundAmount || 0;
               const existingTransactions = order?.refundTransactions || [];

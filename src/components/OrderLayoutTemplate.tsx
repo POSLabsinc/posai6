@@ -45,9 +45,9 @@ const getOrderTypeLabel = (orderType?: string) => {
 export const getOrderStatusColor = (status: string) => {
   switch (status.toUpperCase()) {
     case 'ORDERING':
-      return 'text-blue-400';
+      return 'text-yellow-400';
     case 'ORDERED':
-      return 'text-green-400';
+      return 'text-orange-500';
     case 'PAID':
       return 'text-emerald-400';
     case 'UNPAID':

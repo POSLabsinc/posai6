@@ -1,6 +1,7 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useRestaurantTables } from "@/hooks/use-restaurant-tables";
 import { useTableStatusSync } from "@/hooks/use-table-status-sync";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import { SettingsManager } from "@/lib/settingsManager";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";

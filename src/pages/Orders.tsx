@@ -3118,7 +3118,7 @@ const Orders = () => {
                     {/* Add All button */}
                     <div className="border-t border-sidebar-border px-3 py-2">
                       <button
-                        className="w-full flex items-center justify-center gap-1.5 text-[10px] font-medium text-primary hover:text-primary/80 transition-colors py-1"
+                        className="w-full flex items-center justify-center gap-1.5 text-xs font-semibold text-primary hover:text-primary/80 transition-colors py-1"
                         onClick={() => {
                           const availableItems = pastOrderItems.filter(i => i.isAvailable !== false);
                           if (availableItems.length === 0) {

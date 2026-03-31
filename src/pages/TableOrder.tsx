@@ -2849,8 +2849,8 @@ const TableOrder = () => {
           {pendingMerge && (() => {
             const sourceTable = tablePositions.find(t => t.id === pendingMerge.source);
             const targetTable = tablePositions.find(t => t.id === pendingMerge.target);
-            const sourceOrder = getTableOrder(pendingMerge.source);
-            const targetOrder = getTableOrder(pendingMerge.target);
+            const sourceOrder = allDbOrders.find(o => o.table === pendingMerge.source && !['PAID', 'COMPLETED', 'Completed'].includes(o.status));
+            const targetOrder = allDbOrders.find(o => o.table === pendingMerge.target && !['PAID', 'COMPLETED', 'Completed'].includes(o.status));
 
             const handleSwapMergeDirection = () => {
               setPendingMerge({

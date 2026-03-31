@@ -447,8 +447,19 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     const record = refundedTipRecords.find(r => r.orderId === orderId);
     return record?.refundedAmount || 0;
   };
-  
-  
+
+  // Sync orderNotes from DB when switching orders
+  useEffect(() => {
+    if (selectedGuest.id && selectedGuest.id !== FALLBACK_SELECTED_GUEST_ID) {
+      setOrderNotes(prev => {
+        if (prev[selectedGuest.id] === undefined && selectedGuest.notes) {
+          return { ...prev, [selectedGuest.id]: selectedGuest.notes };
+        }
+        return prev;
+      });
+    }
+  }, [selectedGuest.id, selectedGuest.notes]);
+
   // Helper to calculate remaining refundable amount for an order
   const getRemainingRefundableAmount = (guest: GuestOrder): number => {
     const orderId = guest.id;

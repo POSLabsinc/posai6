@@ -113,7 +113,7 @@ export interface UnifiedTicketOrder {
 
 function rowToUnified(row: TicketOrderRow): UnifiedTicketOrder {
   const payments = Array.isArray(row.payments) ? row.payments : [];
-  const isPaid = row.status === 'PAID' || row.status === 'Completed';
+  const isPaid = row.status === 'PAID' || row.status === 'Completed' || row.status === 'Closed';
 
   return {
     id: row.id,

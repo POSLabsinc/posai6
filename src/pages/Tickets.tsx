@@ -255,7 +255,7 @@ const getOrderItems = (order: GuestOrder) => order.items.map(item => ({
   displayPrice: formatPrice(item.price * item.qty)
 }));
 
-const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
+const filters = ["All", "Open", "Paid", "Unpaid"];
 
 const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const isMobile = useIsMobile();

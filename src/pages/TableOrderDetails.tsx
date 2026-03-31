@@ -1490,7 +1490,7 @@ const TableOrderDetails = () => {
       {/* Guest Orders List */}
       <ScrollArea className="flex-1 px-3">
         <div className="space-y-2 pb-3">
-          {filteredGuestOrders.map((guest, guestIndex) => <div key={guest.id} className="space-y-2">
+          {filteredGuestOrders.map((guest, guestIndex) => <div key={guest.id}>
               {/* Merged Order Indicator - Destination (URL params or persisted DB data) */}
               {((destOrderId === guest.id && mergedFromTable && mergedOrderId) || 
                 (guest.mergedFrom && guest.mergedFrom.length > 0 && (guest as any)?._persistedMerge)) && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">

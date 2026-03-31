@@ -1082,7 +1082,7 @@ const TableOrder = () => {
   
   const [activeFilter, setActiveFilter] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "list" | "visual" | "floorplan">("grid");
-  const [selectedFloor, setSelectedFloor] = useState("floor-1");
+  const [selectedFloor, setSelectedFloor] = useState("all");
   const [selectedArea, setSelectedArea] = useState("Main Dining Room");
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);

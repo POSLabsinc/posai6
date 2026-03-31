@@ -969,6 +969,9 @@ const Dashboard = () => {
   const [cancelReason, setCancelReason] = useState('');
   const [customCancelReason, setCustomCancelReason] = useState('');
 
+  // Helper to get DB-compatible order ID
+  const getDbOrderId = (order: DashboardOrder): string => order.dbId || String(order.id);
+
   const handleCancelOrderAttempt = () => {
     setCancelReason('');
     setCustomCancelReason('');

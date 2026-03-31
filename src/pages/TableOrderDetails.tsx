@@ -472,6 +472,7 @@ const TableOrderDetails = () => {
     }
     
     // If this order is the destination of a merge, add merged order data
+    // First check URL params (immediate after merge navigation)
     if (destOrderId === order.id && mergedOrderId) {
       const mergedSource = allDbOrders.find(o => o.id === mergedOrderId);
       if (mergedSource) {
@@ -488,6 +489,21 @@ const TableOrderDetails = () => {
         orderWithTotals.serviceCharge = combinedTotals.serviceCharge;
         orderWithTotals.tax = combinedTotals.tax;
         orderWithTotals.total = combinedTotals.total;
+      }
+    }
+    
+    // Also check persisted mergedFrom in DB (source order may have been deleted)
+    const dbMergedFrom = (order as any).mergedFrom;
+    if (!orderWithTotals.mergedFrom && dbMergedFrom) {
+      const merged = Array.isArray(dbMergedFrom) ? dbMergedFrom[0] : dbMergedFrom;
+      if (merged && merged.orderId) {
+        orderWithTotals.mergedFrom = [{
+          orderId: merged.orderId,
+          orderName: merged.name || merged.orderName || 'Order',
+          table: merged.table || '',
+          items: merged.items || []
+        }];
+        (orderWithTotals as any)._persistedMerge = true;
       }
     }
     

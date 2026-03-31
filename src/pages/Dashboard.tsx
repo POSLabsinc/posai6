@@ -828,7 +828,7 @@ const Dashboard = () => {
   
   // Get session orders context
   const { sessionOrders, deleteOrder: deleteSessionOrder } = useSessionOrders();
-  const { orders: dbTicketOrders, updateOrder: updateDashboardTicketOrder, removeOrder: removeDashboardTicketOrder } = useTicketOrders();
+  const { orders: dbTicketOrders, updateOrder: updateDashboardTicketOrder, updateOrderItems: updateDashboardTicketOrderItems, removeOrder: removeDashboardTicketOrder } = useTicketOrders();
   
   // Static split configs for non-session orders (persisted in localStorage)
   const [staticSplitConfigs, setStaticSplitConfigs] = useState<Record<string, SplitConfiguration>>(() => {

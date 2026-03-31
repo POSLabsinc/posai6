@@ -1635,6 +1635,13 @@ const TableOrder = () => {
   const { createOrder, getActiveOrderForTable, getOrdersByTable: getSessionOrdersByTable } = useSessionOrders();
   const { orders: allDbOrders } = useTicketOrders();
 
+  // Sync table statuses with active ticket orders
+  useTableStatusSync(
+    allDbOrders,
+    dbTables.map(t => ({ tableNumber: t.tableNumber, status: t.status })),
+    updateDbTable
+  );
+
   // Check if table has any active (non-paid/non-completed) order
   const hasActiveOrderOnTable = (tableId: string): boolean => {
     const activeSession = getActiveOrderForTable(tableId);

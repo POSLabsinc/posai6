@@ -855,7 +855,7 @@ const Dashboard = () => {
   
   // DB tables
   const { tables: dbTables, updateTable: updateDbTableStatus } = useRestaurantTables();
-  const mockTables = dbTables.map(t => ({ id: t.id, seats: t.seats, status: t.status }));
+  const mockTables = dbTables.map(t => ({ id: t.id, seats: t.seats, status: t.status, floorArea: t.floorArea }));
   
   // Get session orders context
   const { sessionOrders, deleteOrder: deleteSessionOrder } = useSessionOrders();

@@ -1980,6 +1980,7 @@ const Dashboard = () => {
             selectedDiscountId={selectedDiscountId} 
             setSelectedDiscountId={setSelectedDiscountId}
             onChargeClick={handleOpenPaymentFromDashboard}
+            onDiscountClick={() => setShowDiscountMpin(true)}
             showTipDialog={showTipDialog} 
             setShowTipDialog={setShowTipDialog} 
             showRefundMode={showRefundMode} 

@@ -436,6 +436,8 @@ interface OrderPanelContentProps {
   hasSplitConfiguration: boolean;
   onMergeClick: () => void;
   onCancelOrder: () => void;
+  onFireAll: () => void;
+  onSaveOrder: () => void;
 }
 
 const OrderPanelContent = ({
@@ -467,7 +469,9 @@ const OrderPanelContent = ({
   isSplitCheckSelected,
   hasSplitConfiguration,
   onMergeClick,
-  onCancelOrder
+  onCancelOrder,
+  onFireAll,
+  onSaveOrder
 }: OrderPanelContentProps) => {
   const showSaveButton = SettingsManager.getCheckoutOptionsSettings().showSaveButton;
   const autoCloseTicket = SettingsManager.getCheckoutOptionsSettings().autoCloseTicket;
@@ -726,6 +730,7 @@ const OrderPanelContent = ({
               </button>
               {showSaveButton && (
               <button 
+                onClick={onSaveOrder}
                 className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
                 style={{ background: '#C9C9C9' }}
               >
@@ -733,6 +738,7 @@ const OrderPanelContent = ({
               </button>
               )}
               <button 
+                onClick={onFireAll}
                 className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
                 style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
               >
@@ -828,7 +834,7 @@ const Dashboard = () => {
   
   // Get session orders context
   const { sessionOrders, deleteOrder: deleteSessionOrder } = useSessionOrders();
-  const { orders: dbTicketOrders, updateOrder: updateDashboardTicketOrder, removeOrder: removeDashboardTicketOrder } = useTicketOrders();
+  const { orders: dbTicketOrders, updateOrder: updateDashboardTicketOrder, updateOrderItems: updateDashboardTicketOrderItems, removeOrder: removeDashboardTicketOrder } = useTicketOrders();
   
   // Static split configs for non-session orders (persisted in localStorage)
   const [staticSplitConfigs, setStaticSplitConfigs] = useState<Record<string, SplitConfiguration>>(() => {
@@ -1034,24 +1040,96 @@ const Dashboard = () => {
     setShowRefundMode(false);
   }, [selectedOrder?.id]);
 
-  // Order item handlers
+  // Sync selectedOrder and orderItems when allOrders refreshes from DB
+  useEffect(() => {
+    if (!selectedOrder) return;
+    const freshOrder = allOrders.find(o => o.id === selectedOrder.id);
+    if (freshOrder) {
+      setSelectedOrder(freshOrder);
+      setOrderItems(freshOrder.items || []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allOrders]);
+
+  // Helper to persist item changes to DB
+  const persistItemChanges = (updatedItems: OrderItemType[]) => {
+    if (!selectedOrder) return;
+    const dbOrder = dbTicketOrders.find(o => o.id === String(selectedOrder.id));
+    if (dbOrder) {
+      const dbItems = updatedItems.map(item => ({
+        qty: item.qty,
+        name: item.name,
+        price: item.price,
+        seats: item.seats,
+        modifiers: [] as string[],
+        isShared: item.seats.length === (selectedOrder.seats || 4),
+        isFired: item.isFired,
+        noTax: item.noTax,
+      }));
+      updateDashboardTicketOrderItems(dbOrder.id, dbItems).catch(err => console.error('Failed to persist item changes:', err));
+    }
+  };
+
+  // Order item handlers - persist to DB
   const handleToggleNoTax = (itemId: number) => {
-    setOrderItems(prev => prev.map(item => item.id === itemId ? { ...item, noTax: !item.noTax } : item));
+    setOrderItems(prev => {
+      const updated = prev.map(item => item.id === itemId ? { ...item, noTax: !item.noTax } : item);
+      persistItemChanges(updated);
+      return updated;
+    });
   };
 
   const handleOrderTypeChange = (itemId: number, orderType: string) => {
-    setOrderItems(prev => prev.map(item => item.id === itemId ? { ...item, itemOrderType: orderType } : item));
+    setOrderItems(prev => {
+      const updated = prev.map(item => item.id === itemId ? { ...item, itemOrderType: orderType } : item);
+      return updated;
+    });
   };
 
   const handleDeleteItem = (itemId: number) => {
-    setOrderItems(prev => prev.filter(item => item.id !== itemId));
+    setOrderItems(prev => {
+      const updated = prev.filter(item => item.id !== itemId);
+      persistItemChanges(updated);
+      return updated;
+    });
   };
 
   const handleFireItem = (itemId: number) => {
-    setOrderItems(prev => prev.map(item => item.id === itemId ? { ...item, isFired: !item.isFired } : item));
+    setOrderItems(prev => {
+      const updated = prev.map(item => item.id === itemId ? { ...item, isFired: !item.isFired } : item);
+      persistItemChanges(updated);
+      return updated;
+    });
   };
 
-  // Table card click handler
+  // Fire all items handler - mark all as fired and persist to DB
+  const handleFireAll = () => {
+    if (!selectedOrder) return;
+    setOrderItems(prev => {
+      const updated = prev.map(item => ({ ...item, isFired: true }));
+      persistItemChanges(updated);
+      return updated;
+    });
+    // Update order status to ORDERED in DB
+    const orderId = String(selectedOrder.id);
+    const dbOrder = dbTicketOrders.find(o => o.id === orderId);
+    if (dbOrder) {
+      updateDashboardTicketOrder(orderId, { status: 'ORDERED' } as any).catch(err => console.error('Failed to update status:', err));
+    }
+    toast.success('Order fired to kitchen');
+  };
+
+  // Save order handler - persist notes to DB
+  const handleSaveOrder = () => {
+    if (!selectedOrder) return;
+    const orderId = String(selectedOrder.id);
+    const dbOrder = dbTicketOrders.find(o => o.id === orderId);
+    if (dbOrder) {
+      updateDashboardTicketOrder(orderId, { notes: orderNotes } as any).catch(err => console.error('Failed to save order:', err));
+    }
+    toast.success('Order saved');
+  };
+
   const handleTableCardClick = (table: typeof mockTables[0]) => {
     if (table.status === "Available") {
       setGuestDropdownTableCard(guestDropdownTableCard === table.id ? null : table.id);
@@ -1888,6 +1966,8 @@ const Dashboard = () => {
             hasSplitConfiguration={!!(selectedOrder?.splitConfiguration && selectedOrder.splitConfiguration.checks.length > 0)}
             onMergeClick={handleMergeClick}
             onCancelOrder={handleCancelOrderAttempt}
+            onFireAll={handleFireAll}
+            onSaveOrder={handleSaveOrder}
           />
         </div>
       </div>
@@ -1931,6 +2011,8 @@ const Dashboard = () => {
               hasSplitConfiguration={!!(selectedOrder?.splitConfiguration && selectedOrder.splitConfiguration.checks.length > 0)}
               onMergeClick={handleMergeClick}
               onCancelOrder={handleCancelOrderAttempt}
+              onFireAll={handleFireAll}
+              onSaveOrder={handleSaveOrder}
             />
           </div>
         </DrawerContent>
@@ -1948,15 +2030,35 @@ const Dashboard = () => {
           console.log("Payment completed:", paymentHistory);
           setShowPaymentDialog(false);
           
-          // Mark the order as PAID
+          const totalPaid = paymentHistory.reduce((sum: number, p: any) => sum + p.amount, 0);
+          const primaryMethod = paymentHistory.length > 0 ? paymentHistory[0].method || paymentHistory[0].methodLabel || "Card" : "Card";
+          const paymentsArray = paymentHistory.map((p: any) => ({
+            method: p.methodLabel || p.method || "Card",
+            amount: p.amount,
+          }));
+          
+          // Persist payment data to database
           if (selectedOrder) {
+            const orderId = String(selectedOrder.id);
+            const dbOrder = dbTicketOrders.find(o => o.id === orderId);
+            if (dbOrder) {
+              updateDashboardTicketOrder(orderId, {
+                status: "PAID",
+                paymentType: primaryMethod,
+                payments: paymentsArray,
+                paidAmount: totalPaid.toFixed(2),
+                paymentStatus: "completed",
+              } as any).catch(err => console.error('Failed to persist payment:', err));
+            }
+            
+            // Update local state immediately
             const paidOrder: DashboardOrder = {
               ...selectedOrder,
               status: "PAID",
               isPaid: true,
               statusColor: "#22c55e",
               filterCategory: "Paid",
-              paymentType: paymentHistory?.[0]?.method || "Card",
+              paymentType: primaryMethod,
             };
             setSelectedOrder(paidOrder);
           }

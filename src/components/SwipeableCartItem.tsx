@@ -28,7 +28,7 @@ interface SwipeableCartItemProps {
 }
 
 const ORDER_TYPES = [
-  "Dine In",
+  "DINE IN",
   "TAKE OUT",
   "DELIVERY",
   "BANQUET",

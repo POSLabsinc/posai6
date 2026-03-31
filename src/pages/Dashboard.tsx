@@ -737,6 +737,7 @@ const OrderPanelContent = ({
               </button>
               )}
               <button 
+                onClick={onFireAll}
                 className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
                 style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
               >

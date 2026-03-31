@@ -785,7 +785,7 @@ const OrderPanelContent = ({
       {/* Discount Dialog */}
       {showDiscountDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowDiscountDialog(false)}>
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-4 border-b border-neutral-700">
               <h2 className="text-white text-lg font-semibold">Select Discount</h2>
               <button 

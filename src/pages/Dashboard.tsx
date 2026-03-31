@@ -33,6 +33,7 @@ import { DashboardOrder, DashboardOrderItem, PaymentMethod, formatTableName, cal
 import receiptIcon from "@/assets/icons/receipt-icon.svg";
 import registerIcon from "@/assets/icons/register.svg";
 import discountBtnIcon from "@/assets/icons/discount-icon.svg";
+import customItemIcon from "@/assets/icons/custom-item.svg";
 import linkMergeIcon from "@/assets/icons/link-merge.png";
 import { useSessionOrders, SplitConfiguration, SplitCheck, SessionOrder } from "@/contexts/SessionOrderContext";
 import { useTicketOrders } from "@/hooks/use-ticket-orders";

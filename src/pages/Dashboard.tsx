@@ -2044,7 +2044,7 @@ const Dashboard = () => {
           
           // Persist payment data to database
           if (selectedOrder) {
-            const orderId = String(selectedOrder.id);
+            const orderId = getDbOrderId(selectedOrder);
             const dbOrder = dbTicketOrders.find(o => o.id === orderId);
             if (dbOrder) {
               updateDashboardTicketOrder(orderId, {

@@ -33,6 +33,7 @@ import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
 import { useTicketOrders } from "@/hooks/use-ticket-orders";
 import { useRestaurantTables, type RestaurantTable, type FloorArea as DBFloorArea, type FloorDivider } from "@/hooks/use-restaurant-tables";
+import { useTableStatusSync } from "@/hooks/use-table-status-sync";
 
 // Import icons
 import burgerOpenIcon from "@/assets/icons/burger-open.png";

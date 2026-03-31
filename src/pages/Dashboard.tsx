@@ -483,7 +483,7 @@ const OrderPanelContent = ({
   const tip = selectedOrder?.tip ? parseFloat(selectedOrder.tip.replace('$', '')) || 0 : 0;
   const finalTotal = subtotal - discount + tax + serviceCharge + tip;
   const guestCount = selectedOrder?.seats || 4;
-  const isOrderDisabled = selectedOrder && ['Completed', 'Paid', 'Closed'].includes(selectedOrder.status);
+  const isOrderDisabled = selectedOrder && ['Completed', 'Paid', 'Closed', 'PAID', 'COMPLETED'].includes(selectedOrder.status);
 
   return (
     <>
@@ -501,32 +501,34 @@ const OrderPanelContent = ({
           </div>
         </div>
         <div className="flex gap-2">
-          {(isSplitCheckSelected || hasSplitConfiguration) ? (
-            <button 
-              className="text-[10px] rounded-[10px] bg-amber-600 hover:bg-amber-500 border border-amber-500 h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
-              onClick={onMergeClick}
-            >
-              <img src={linkMergeIcon} alt="" className="w-3 h-3" />
-              Merge
-            </button>
-          ) : (
-            <button 
-              className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
-              onClick={() => {
-                if (!selectedOrder) return;
-                const ticketContext = {
-                  guest: selectedOrder,
-                  discounts: [],
-                  serviceCharge: 0,
-                  taxExempt: false,
-                };
-                localStorage.setItem('pos-add-product-context', JSON.stringify(ticketContext));
-                window.location.href = `/orders?orderId=${selectedOrder.id}&tableId=${selectedOrder.table}&mode=addItem`;
-              }}
-            >
-              <img src={customItemIcon} alt="" className="w-3 h-3" />
-              Add Product
-            </button>
+          {!isOrderDisabled && (
+            (isSplitCheckSelected || hasSplitConfiguration) ? (
+              <button 
+                className="text-[10px] rounded-[10px] bg-amber-600 hover:bg-amber-500 border border-amber-500 h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
+                onClick={onMergeClick}
+              >
+                <img src={linkMergeIcon} alt="" className="w-3 h-3" />
+                Merge
+              </button>
+            ) : (
+              <button 
+                className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
+                onClick={() => {
+                  if (!selectedOrder) return;
+                  const ticketContext = {
+                    guest: selectedOrder,
+                    discounts: [],
+                    serviceCharge: 0,
+                    taxExempt: false,
+                  };
+                  localStorage.setItem('pos-add-product-context', JSON.stringify(ticketContext));
+                  window.location.href = `/orders?orderId=${selectedOrder.id}&tableId=${selectedOrder.table}&mode=addItem`;
+                }}
+              >
+                <img src={customItemIcon} alt="" className="w-3 h-3" />
+                Add Item
+              </button>
+            )
           )}
           {!isOrderDisabled && (
             <button 

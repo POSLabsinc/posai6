@@ -102,12 +102,12 @@ export async function printEndOfDayReport(
   const reportData: EodReportData = {
     date: today,
     totalOrders: orders.length,
-    paidOrders: orders.filter(o => o.status === "PAID" || o.status === "Closed").length,
+    paidOrders: orders.filter(o => o.status === "PAID" || o.status === "COMPLETED").length,
     unpaidOrders: orders.filter(o => o.status === "UNPAID" || o.status === "UN PAID").length,
     cancelledOrders: orders.filter(o => o.status === "Cancelled").length,
-    closedOrders: orders.filter(o => o.status === "Closed").length,
+    closedOrders: orders.filter(o => o.status === "PAID" || o.status === "COMPLETED").length,
     totalSales: orders
-      .filter(o => o.status === "PAID" || o.status === "Closed")
+      .filter(o => o.status === "PAID" || o.status === "COMPLETED")
       .reduce((sum, o) => sum + (o.total || 0), 0),
   };
 

@@ -1,6 +1,7 @@
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { useRestaurantTables } from "@/hooks/use-restaurant-tables";
 import { useTableStatusSync } from "@/hooks/use-table-status-sync";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import { SettingsManager } from "@/lib/settingsManager";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
@@ -425,6 +426,7 @@ interface OrderPanelContentProps {
   selectedDiscountId: string | null;
   setSelectedDiscountId: (id: string | null) => void;
   onChargeClick: () => void;
+  onDiscountClick?: () => void;
   // Tip and Refund props for paid orders
   showTipDialog: boolean;
   setShowTipDialog: (show: boolean) => void;
@@ -461,6 +463,7 @@ const OrderPanelContent = ({
   selectedDiscountId,
   setSelectedDiscountId,
   onChargeClick,
+  onDiscountClick,
   showTipDialog,
   setShowTipDialog,
   showRefundMode,
@@ -533,7 +536,7 @@ const OrderPanelContent = ({
           {!isOrderDisabled && (
             <button 
               className={`text-[10px] rounded-[10px] ${selectedDiscountId ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#555555] border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors`}
-              onClick={() => setShowDiscountDialog(true)}
+              onClick={() => onDiscountClick ? onDiscountClick() : setShowDiscountDialog(true)}
             >
               <img src={discountBtnIcon} alt="" className="w-3 h-3" />
               Discount
@@ -969,7 +972,8 @@ const Dashboard = () => {
   const [orderItems, setOrderItems] = useState<OrderItemType[]>(allOrders[0]?.items || []);
   const [selectedFloor, setSelectedFloor] = useState("first");
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
-  const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+  const [orderDiscountMap, setOrderDiscountMap] = useState<Record<string, string | null>>({});
+  const [showDiscountMpin, setShowDiscountMpin] = useState(false);
   
   // Split check selection state
   const [selectedSplitCheck, setSelectedSplitCheck] = useState<{ orderId: number; checkId: string } | null>(null);
@@ -1498,7 +1502,12 @@ const Dashboard = () => {
     }
   };
 
-  // Prepare order details for PaymentDialog
+  // Derive per-order discount
+  const currentOrderKey = selectedOrder?.id?.toString() || '';
+  const selectedDiscountId = orderDiscountMap[currentOrderKey] || null;
+  const setSelectedDiscountId = useCallback((id: string | null) => {
+    setOrderDiscountMap(prev => ({ ...prev, [currentOrderKey]: id }));
+  }, [currentOrderKey]);
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount ? selectedDiscount.fixedAmount || subtotal * ((selectedDiscount.percentage || 0) / 100) : 0;
   const tax = subtotal * 0.02;
@@ -1971,6 +1980,7 @@ const Dashboard = () => {
             selectedDiscountId={selectedDiscountId} 
             setSelectedDiscountId={setSelectedDiscountId}
             onChargeClick={handleOpenPaymentFromDashboard}
+            onDiscountClick={() => setShowDiscountMpin(true)}
             showTipDialog={showTipDialog} 
             setShowTipDialog={setShowTipDialog} 
             showRefundMode={showRefundMode} 
@@ -2016,6 +2026,7 @@ const Dashboard = () => {
               selectedDiscountId={selectedDiscountId} 
               setSelectedDiscountId={setSelectedDiscountId}
               onChargeClick={handleOpenPaymentFromDashboard}
+              onDiscountClick={() => setShowDiscountMpin(true)}
               showTipDialog={showTipDialog} 
               setShowTipDialog={setShowTipDialog} 
               showRefundMode={showRefundMode} 
@@ -2308,6 +2319,20 @@ const Dashboard = () => {
           </div>
         );
       })()}
+      {showDiscountMpin && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70">
+          <div className="w-full max-w-sm rounded-2xl overflow-hidden">
+            <AccessRestrictedModal
+              subtitle="Manager approval required to apply discount."
+              onBack={() => setShowDiscountMpin(false)}
+              onSuccess={() => {
+                setShowDiscountMpin(false);
+                setShowDiscountDialog(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

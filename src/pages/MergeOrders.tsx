@@ -187,7 +187,9 @@ const MergeOrders = () => {
       });
 
       setIsConfirmDialogOpen(false);
-      navigate(`/tableorder/${tableId}`);
+      // Navigate back with merge params so the notification banner shows
+      const destTable = toOrder.table || tableId;
+      navigate(`/tableorder/${destTable}?dest=${toOrder.id}&merged=${fromOrder.id}&from=${fromOrder.table || tableId}`);
     } catch (err) {
       console.error("Merge failed:", err);
       toast({

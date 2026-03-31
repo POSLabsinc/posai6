@@ -472,6 +472,7 @@ const TableOrderDetails = () => {
     }
     
     // If this order is the destination of a merge, add merged order data
+    // First check URL params (immediate after merge navigation)
     if (destOrderId === order.id && mergedOrderId) {
       const mergedSource = allDbOrders.find(o => o.id === mergedOrderId);
       if (mergedSource) {
@@ -488,6 +489,21 @@ const TableOrderDetails = () => {
         orderWithTotals.serviceCharge = combinedTotals.serviceCharge;
         orderWithTotals.tax = combinedTotals.tax;
         orderWithTotals.total = combinedTotals.total;
+      }
+    }
+    
+    // Also check persisted mergedFrom in DB (source order may have been deleted)
+    const dbMergedFrom = (order as any).mergedFrom;
+    if (!orderWithTotals.mergedFrom && dbMergedFrom) {
+      const merged = Array.isArray(dbMergedFrom) ? dbMergedFrom[0] : dbMergedFrom;
+      if (merged && merged.orderId) {
+        orderWithTotals.mergedFrom = [{
+          orderId: merged.orderId,
+          orderName: merged.name || merged.orderName || 'Order',
+          table: merged.table || '',
+          items: merged.items || []
+        }];
+        (orderWithTotals as any)._persistedMerge = true;
       }
     }
     
@@ -1475,10 +1491,19 @@ const TableOrderDetails = () => {
       <ScrollArea className="flex-1 px-3">
         <div className="space-y-2 pb-3">
           {filteredGuestOrders.map((guest, guestIndex) => <div key={guest.id} className="space-y-2">
-              {/* Merged Order Indicator - Destination */}
-              {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
+              {/* Merged Order Indicator - Destination (URL params or persisted DB data) */}
+              {((destOrderId === guest.id && mergedFromTable && mergedOrderId) || 
+                (guest.mergedFrom && guest.mergedFrom.length > 0 && (guest as any)?._persistedMerge)) && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
                   <span className="text-xs font-medium">
-                    <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
+                    {(() => {
+                      const mSource = guest.mergedFrom?.[0];
+                      const mOrderNum = mergedOrderId || mSource?.orderId || '';
+                      const mTable = mergedFromTable || mSource?.table || '';
+                      const mArea = mergedSourceArea || '';
+                      return <>
+                        <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order #{mOrderNum}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mTable)}{mArea ? ` (${mArea})` : ''}</span>
+                      </>;
+                    })()}
                   </span>
                 </div>}
               {/* Merged Order Indicator - Source (disabled look) */}
@@ -1831,10 +1856,19 @@ const TableOrderDetails = () => {
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
             {filteredGuestOrders.map((guest, guestIndex) => <div key={guest.id} className="space-y-2">
-                {/* Merged Order Indicator - Destination */}
-                {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
+                {/* Merged Order Indicator - Destination (URL params or persisted DB data) */}
+                {((destOrderId === guest.id && mergedFromTable && mergedOrderId) || 
+                  (guest.mergedFrom && guest.mergedFrom.length > 0 && (guest as any)?._persistedMerge)) && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
+                      {(() => {
+                        const mSource = guest.mergedFrom?.[0];
+                        const mOrderNum = mergedOrderId || mSource?.orderId || '';
+                        const mTable = mergedFromTable || mSource?.table || '';
+                        const mArea = mergedSourceArea || '';
+                        return <>
+                          <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order #{mOrderNum}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mTable)}{mArea ? ` (${mArea})` : ''}</span>
+                        </>;
+                      })()}
                     </span>
                   </div>}
                 {/* Merged Order Indicator - Source (disabled look) */}
@@ -2676,10 +2710,19 @@ const TableOrderDetails = () => {
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
             {filteredGuestOrders.map((guest, guestIndex) => <div key={guest.id} className="space-y-2">
-                {/* Merged Order Indicator */}
-                {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 bg-[#392514] rounded-t-xl">
+                {/* Merged Order Indicator (URL params or persisted DB data) */}
+                {((destOrderId === guest.id && mergedFromTable && mergedOrderId) || 
+                  (guest.mergedFrom && guest.mergedFrom.length > 0 && (guest as any)?._persistedMerge)) && <div className="px-2 py-0.5 bg-[#392514] rounded-t-xl">
                     <span className="text-xs font-medium">
-                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
+                      {(() => {
+                        const mSource = guest.mergedFrom?.[0];
+                        const mOrderNum = mergedOrderId || mSource?.orderId || '';
+                        const mTable = mergedFromTable || mSource?.table || '';
+                        const mArea = mergedSourceArea || '';
+                        return <>
+                          <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order #{mOrderNum}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mTable)}{mArea ? ` (${mArea})` : ''}</span>
+                        </>;
+                      })()}
                     </span>
                   </div>}
                 {/* Merged Order Indicator - Source (disabled look) */}

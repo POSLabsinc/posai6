@@ -1862,7 +1862,7 @@ const TableOrder = () => {
       setTablePositions(dbTables.map(t => ({
         id: t.id, seats: t.seats, shape: t.shape, status: t.status,
         x: t.x, y: t.y, guests: t.guests, occupiedSeats: t.occupiedSeats,
-        time: t.time, mergedWith: t.mergedWith, isMergeSource: t.isMergeSource, mergeGroupId: t.mergeGroupId,
+        time: t.time, mergedWith: t.mergedWith, isMergeSource: t.isMergeSource, mergeGroupId: t.mergeGroupId, floorArea: t.floorArea,
       })));
     }
     if (dbFloorAreas.length > 0) {

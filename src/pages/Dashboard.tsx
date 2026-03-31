@@ -1269,19 +1269,31 @@ const Dashboard = () => {
     }));
   }, [allOrders]);
 
+  // Get unique floor areas from DB tables
+  const floorAreas = useMemo(() => {
+    const areas = [...new Set(mockTables.map(t => t.floorArea).filter(Boolean))];
+    return areas.length > 0 ? areas : [];
+  }, [mockTables]);
+
+  // Tables filtered by selected floor
+  const floorFilteredTables = useMemo(() => {
+    if (selectedFloor === "all") return mockTables;
+    return mockTables.filter(t => t.floorArea === selectedFloor);
+  }, [selectedFloor, mockTables]);
+
   // Filter tables based on active table filter
   const filteredTables = useMemo(() => {
-    if (activeTableFilter === "All") return mockTables;
-    return mockTables.filter(table => table.status === activeTableFilter);
-  }, [activeTableFilter, mockTables]);
+    if (activeTableFilter === "All") return floorFilteredTables;
+    return floorFilteredTables.filter(table => table.status === activeTableFilter);
+  }, [activeTableFilter, floorFilteredTables]);
 
   // Calculate counts for each table filter
   const tableFilters = useMemo(() => {
     return tableFilterLabels.map(label => ({
       label,
-      count: label === "All" ? mockTables.length : mockTables.filter(table => table.status === label).length
+      count: label === "All" ? floorFilteredTables.length : floorFilteredTables.filter(table => table.status === label).length
     }));
-  }, [mockTables]);
+  }, [floorFilteredTables]);
 
   const handleOrderClick = (order: DashboardOrder) => {
     setSelectedOrder(order);

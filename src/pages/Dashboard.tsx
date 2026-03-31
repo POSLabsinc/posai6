@@ -469,7 +469,9 @@ const OrderPanelContent = ({
   isSplitCheckSelected,
   hasSplitConfiguration,
   onMergeClick,
-  onCancelOrder
+  onCancelOrder,
+  onFireAll,
+  onSaveOrder
 }: OrderPanelContentProps) => {
   const showSaveButton = SettingsManager.getCheckoutOptionsSettings().showSaveButton;
   const autoCloseTicket = SettingsManager.getCheckoutOptionsSettings().autoCloseTicket;

@@ -1134,6 +1134,7 @@ const TableOrder = () => {
         mergedWith: t.mergedWith,
         isMergeSource: t.isMergeSource,
         mergeGroupId: t.mergeGroupId,
+        floorArea: t.floorArea,
       })));
     }
   }, [dbTables]);

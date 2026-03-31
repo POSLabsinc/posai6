@@ -1705,7 +1705,7 @@ const Dashboard = () => {
                     }} 
                     className={`rounded-xl cursor-pointer transition-all overflow-hidden border ${
                       selectedOrder?.id === order.id && !selectedSplitCheck 
-                        ? "border-white" 
+                        ? "border-orange-500" 
                         : "border-neutral-700 hover:border-neutral-600"
                     }`} 
                     style={{ backgroundColor: "#1B1C20" }}

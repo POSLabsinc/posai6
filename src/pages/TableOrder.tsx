@@ -1959,7 +1959,7 @@ const TableOrder = () => {
                     <div className="text-left">
                       <p className="text-white text-sm font-medium">Floor</p>
                       <p className="text-neutral-400 text-xs">
-                        {floors.find(f => f.id === selectedFloor)?.name || "Floor 1"}
+                        {selectedFloor === "all" ? "All Floors" : selectedFloor}
                       </p>
                     </div>
                   </div>
@@ -1968,24 +1968,31 @@ const TableOrder = () => {
                 
                 {expandedMenuSection === "floor" && (
                   <div className="mt-1 ml-11 space-y-0.5">
-                    {floors.map((floor) => (
+                    <button
+                      onClick={() => {
+                        setSelectedFloor("all");
+                        setExpandedMenuSection(null);
+                      }}
+                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
+                        selectedFloor === "all" ? "bg-purple-500/20 text-purple-400" : "hover:bg-neutral-800 text-neutral-300"
+                      }`}
+                    >
+                      <span className="text-sm">All Floors</span>
+                      {selectedFloor === "all" && <Check className="w-3.5 h-3.5 ml-auto" />}
+                    </button>
+                    {dbFloorAreaNames.map((area) => (
                       <button
-                        key={floor.id}
+                        key={area}
                         onClick={() => {
-                          setSelectedFloor(floor.id);
-                          // Reset service area to first of new floor
-                          const newAreas = serviceAreasByFloor[floor.id];
-                          if (newAreas && newAreas.length > 0) {
-                            setSelectedArea(newAreas[0]);
-                          }
+                          setSelectedFloor(area);
                           setExpandedMenuSection(null);
                         }}
                         className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
-                          selectedFloor === floor.id ? "bg-purple-500/20 text-purple-400" : "hover:bg-neutral-800 text-neutral-300"
+                          selectedFloor === area ? "bg-purple-500/20 text-purple-400" : "hover:bg-neutral-800 text-neutral-300"
                         }`}
                       >
-                        <span className="text-sm">{floor.name}</span>
-                        {selectedFloor === floor.id && <Check className="w-3.5 h-3.5 ml-auto" />}
+                        <span className="text-sm">{area}</span>
+                        {selectedFloor === area && <Check className="w-3.5 h-3.5 ml-auto" />}
                       </button>
                     ))}
                   </div>

@@ -28,7 +28,7 @@ interface SwipeableCartItemProps {
 }
 
 const ORDER_TYPES = [
-  "Dine In",
+  "DINE IN",
   "TAKE OUT",
   "DELIVERY",
   "BANQUET",
@@ -47,7 +47,7 @@ const SwipeableCartItem = ({
   onFire, 
   onNoTax,
   onOrderTypeChange,
-  itemOrderType = "Dine In",
+  itemOrderType = "DINE IN",
   isNoTax = false,
   isFired = false,
   isOpen,

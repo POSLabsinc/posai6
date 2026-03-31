@@ -4271,7 +4271,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       {/* Right Panel - Order Details (condensed) */}
       <div className="w-[280px] flex flex-col">
         {/* Guest Header */}
-        <div className="px-1 pb-2">
+        <div className="px-1 pt-2 pb-2">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
             <input 
               type="text" 

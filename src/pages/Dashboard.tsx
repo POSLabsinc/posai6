@@ -1917,10 +1917,10 @@ const Dashboard = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-800 border-white/10">
-                  <SelectItem value="first" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">First Floor</SelectItem>
-                  <SelectItem value="second" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">Second Floor</SelectItem>
-                  <SelectItem value="outdoor" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">Outdoor Patio</SelectItem>
-                  <SelectItem value="rooftop" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">Rooftop Bar</SelectItem>
+                  <SelectItem value="all" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">All Floors</SelectItem>
+                  {floorAreas.map(area => (
+                    <SelectItem key={area} value={area} className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">{area}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {tableFilters.map(filter => (

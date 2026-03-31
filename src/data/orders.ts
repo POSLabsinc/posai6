@@ -559,6 +559,7 @@ export interface DashboardOrderItem {
 // Dashboard order interface
 export interface DashboardOrder {
   id: number;
+  dbId?: string; // Original DB UUID for database operations
   orderNumber?: number;
   status: string;
   statusColor: string;

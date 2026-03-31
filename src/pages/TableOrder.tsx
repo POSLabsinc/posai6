@@ -40,27 +40,12 @@ import burgerOpenIcon from "@/assets/icons/burger-open.png";
 import burgerCloseIcon from "@/assets/icons/burger-close.png";
 import chairIcon from "@/assets/icons/chair-icon.png";
 
-// Mock orders for each table (for the merge flow display)
-const tableOrdersMap: Record<string, { id: string; name: string; table: string; amount: string; partySize: number; time: string; status: string; timer: string; server: string; check: string; revenueCenter: string; paymentType: string; phone?: string }> = {
-  "T1": { id: "1", name: "Amanda White", table: "T1", amount: "$156.00", partySize: 5, time: "7:00 PM", status: "UNPAID", timer: "1:30 Hrs", server: "Dustin H", check: "123491", revenueCenter: "Private Room", paymentType: "--", phone: "(415) 555-6789" },
-  "T2": { id: "2", name: "Sarah Kim", table: "T2", amount: "$72.00", partySize: 3, time: "7:30 PM", status: "ORDERING", timer: "00:25", server: "Mia Jones", check: "--", revenueCenter: "FF Balcony", paymentType: "--", phone: "(415) 555-1234" },
-  "T3": { id: "3", name: "Emily Wilson", table: "T3", amount: "$54.00", partySize: 2, time: "8:15 PM", status: "ORDERING", timer: "00:20", server: "Alex M", check: "--", revenueCenter: "Patio", paymentType: "--", phone: "(415) 555-2345" },
-  "T4": { id: "4", name: "Reserved Guest", table: "T4", amount: "$0.00", partySize: 4, time: "7:30 PM", status: "RESERVED", timer: "--", server: "--", check: "--", revenueCenter: "Main", paymentType: "--", phone: "" },
-  "T5": { id: "5", name: "Williams", table: "T5", amount: "$120.75", partySize: 4, time: "7:30 PM", status: "ORDERED", timer: "2:10 Hrs", server: "Dustin H", check: "1236", revenueCenter: "Patio", paymentType: "--", phone: "" },
-  "T6": { id: "6", name: "Brown", table: "T6", amount: "$65.50", partySize: 2, time: "7:15 PM", status: "PREPARING", timer: "2:30 Hrs", server: "Mia J", check: "1237", revenueCenter: "Main", paymentType: "Card", phone: "" },
-  "T7": { id: "7", name: "James Brown", table: "T7", amount: "$62.00", partySize: 4, time: "7:45 PM", status: "1ST COURSE", timer: "0:35 Hrs", server: "Dustin H", check: "123489", revenueCenter: "Online", paymentType: "--", phone: "(415) 555-3456" },
-  "T8": { id: "8", name: "Lisa Garcia", table: "T8", amount: "$54.00", partySize: 3, time: "7:50 PM", status: "READY", timer: "0:50 Hrs", server: "Mia Jones", check: "123490", revenueCenter: "Main Dining", paymentType: "--", phone: "(415) 555-4567" },
-};
-
-// Helper to get order for a table
-const getTableOrder = (tableId: string) => tableOrdersMap[tableId] || null;
-
-// Helper to convert table order to OrderLayoutTemplate format
-const toOrderTemplateData = (order: typeof tableOrdersMap[string]) => ({
-  id: Number(order.id),
+// Helper to convert DB order to OrderLayoutTemplate format for merge flow
+const dbOrderToTemplateData = (order: { orderNumber: number; name: string; table: string; status: string; time: string; timer: string; server: string; check: string; revenueCenter: string; paymentType: string; phone: string; partySize: number; total: number }) => ({
+  id: order.orderNumber || 0,
   name: order.name,
   table: order.table,
-  amount: order.amount,
+  amount: `$${order.total.toFixed(2)}`,
   partySize: order.partySize,
   time: order.time,
   status: order.status,

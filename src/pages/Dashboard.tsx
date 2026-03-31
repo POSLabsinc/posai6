@@ -784,8 +784,8 @@ const OrderPanelContent = ({
 
       {/* Discount Dialog */}
       {showDiscountDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setShowDiscountDialog(false)}>
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between p-4 border-b border-neutral-700">
               <h2 className="text-white text-lg font-semibold">Select Discount</h2>
               <button 
@@ -855,7 +855,7 @@ const Dashboard = () => {
   
   // DB tables
   const { tables: dbTables, updateTable: updateDbTableStatus } = useRestaurantTables();
-  const mockTables = dbTables.map(t => ({ id: t.id, seats: t.seats, status: t.status }));
+  const mockTables = dbTables.map(t => ({ id: t.id, seats: t.seats, status: t.status, floorArea: t.floorArea }));
   
   // Get session orders context
   const { sessionOrders, deleteOrder: deleteSessionOrder } = useSessionOrders();
@@ -989,7 +989,7 @@ const Dashboard = () => {
   const [compareCustomDateRange, setCompareCustomDateRange] = useState<DateRange | undefined>();
   const [isCompareCustomCalendarOpen, setIsCompareCustomCalendarOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItemType[]>(allOrders[0]?.items || []);
-  const [selectedFloor, setSelectedFloor] = useState("first");
+  const [selectedFloor, setSelectedFloor] = useState("all");
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [orderDiscountMap, setOrderDiscountMap] = useState<Record<string, string | null>>({});
   const [showDiscountMpin, setShowDiscountMpin] = useState(false);
@@ -1269,19 +1269,31 @@ const Dashboard = () => {
     }));
   }, [allOrders]);
 
+  // Get unique floor areas from DB tables
+  const floorAreas = useMemo(() => {
+    const areas = [...new Set(mockTables.map(t => t.floorArea).filter(Boolean))];
+    return areas.length > 0 ? areas : [];
+  }, [mockTables]);
+
+  // Tables filtered by selected floor
+  const floorFilteredTables = useMemo(() => {
+    if (selectedFloor === "all") return mockTables;
+    return mockTables.filter(t => t.floorArea === selectedFloor);
+  }, [selectedFloor, mockTables]);
+
   // Filter tables based on active table filter
   const filteredTables = useMemo(() => {
-    if (activeTableFilter === "All") return mockTables;
-    return mockTables.filter(table => table.status === activeTableFilter);
-  }, [activeTableFilter, mockTables]);
+    if (activeTableFilter === "All") return floorFilteredTables;
+    return floorFilteredTables.filter(table => table.status === activeTableFilter);
+  }, [activeTableFilter, floorFilteredTables]);
 
   // Calculate counts for each table filter
   const tableFilters = useMemo(() => {
     return tableFilterLabels.map(label => ({
       label,
-      count: label === "All" ? mockTables.length : mockTables.filter(table => table.status === label).length
+      count: label === "All" ? floorFilteredTables.length : floorFilteredTables.filter(table => table.status === label).length
     }));
-  }, [mockTables]);
+  }, [floorFilteredTables]);
 
   const handleOrderClick = (order: DashboardOrder) => {
     setSelectedOrder(order);
@@ -1905,10 +1917,10 @@ const Dashboard = () => {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-800 border-white/10">
-                  <SelectItem value="first" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">First Floor</SelectItem>
-                  <SelectItem value="second" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">Second Floor</SelectItem>
-                  <SelectItem value="outdoor" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">Outdoor Patio</SelectItem>
-                  <SelectItem value="rooftop" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">Rooftop Bar</SelectItem>
+                  <SelectItem value="all" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">All Floors</SelectItem>
+                  {floorAreas.map(area => (
+                    <SelectItem key={area} value={area} className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">{area}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
               {tableFilters.map(filter => (

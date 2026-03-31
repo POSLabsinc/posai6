@@ -989,7 +989,7 @@ const Dashboard = () => {
   const [compareCustomDateRange, setCompareCustomDateRange] = useState<DateRange | undefined>();
   const [isCompareCustomCalendarOpen, setIsCompareCustomCalendarOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItemType[]>(allOrders[0]?.items || []);
-  const [selectedFloor, setSelectedFloor] = useState("first");
+  const [selectedFloor, setSelectedFloor] = useState("all");
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [orderDiscountMap, setOrderDiscountMap] = useState<Record<string, string | null>>({});
   const [showDiscountMpin, setShowDiscountMpin] = useState(false);

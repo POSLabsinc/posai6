@@ -1052,10 +1052,14 @@ const Dashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allOrders]);
 
+  // Helper to get DB-compatible order ID
+  const getDbOrderId = (order: DashboardOrder): string => order.dbId || String(order.id);
+
   // Helper to persist item changes to DB
   const persistItemChanges = (updatedItems: OrderItemType[]) => {
     if (!selectedOrder) return;
-    const dbOrder = dbTicketOrders.find(o => o.id === String(selectedOrder.id));
+    const orderId = getDbOrderId(selectedOrder);
+    const dbOrder = dbTicketOrders.find(o => o.id === orderId);
     if (dbOrder) {
       const dbItems = updatedItems.map(item => ({
         qty: item.qty,

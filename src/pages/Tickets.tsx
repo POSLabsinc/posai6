@@ -2000,7 +2000,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     let matchesStatus = true;
     switch (activeFilter) {
       case "Open": matchesStatus = guest.status === "ORDERING"; break;
-      case "Completed": matchesStatus = guest.status === "COMPLETED"; break;
+      case "Paid": matchesStatus = guest.status === "PAID" || guest.status === "COMPLETED" || guest.status === "Closed" || guest.paymentType !== "--"; break;
       case "Paid": matchesStatus = guest.status === "PAID" || guest.paymentType !== "--"; break;
       case "Unpaid": matchesStatus = guest.status === "UNPAID" || guest.paymentType === "--"; break;
       default: matchesStatus = true;

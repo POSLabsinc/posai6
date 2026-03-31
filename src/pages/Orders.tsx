@@ -3059,7 +3059,7 @@ const Orders = () => {
             <div className="px-0 mt-3 mb-3">
               <div
                 className="rounded-xl border border-sidebar-border overflow-hidden transition-all"
-                style={{ background: '#1E1E24' }}
+                style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}
               >
                 {/* Card Header - always visible */}
                 <button

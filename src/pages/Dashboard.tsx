@@ -979,7 +979,7 @@ const Dashboard = () => {
     const reason = cancelReason === '__custom__' ? customCancelReason.trim() : cancelReason;
     console.log('[Dashboard CancelOrder] order:', selectedOrder?.id, 'reason:', reason);
     if (selectedOrder) {
-      const orderId = String(selectedOrder.id);
+      const orderId = getDbOrderId(selectedOrder);
       // Try to find and cancel as session order
       const sessionOrder = sessionOrders.find(so => so.id === orderId);
       if (sessionOrder) {

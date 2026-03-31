@@ -426,6 +426,7 @@ interface OrderPanelContentProps {
   selectedDiscountId: string | null;
   setSelectedDiscountId: (id: string | null) => void;
   onChargeClick: () => void;
+  onDiscountClick?: () => void;
   // Tip and Refund props for paid orders
   showTipDialog: boolean;
   setShowTipDialog: (show: boolean) => void;

@@ -436,6 +436,8 @@ interface OrderPanelContentProps {
   hasSplitConfiguration: boolean;
   onMergeClick: () => void;
   onCancelOrder: () => void;
+  onFireAll: () => void;
+  onSaveOrder: () => void;
 }
 
 const OrderPanelContent = ({

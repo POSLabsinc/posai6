@@ -3085,7 +3085,7 @@ const Orders = () => {
                         return (
                           <div
                             key={item.id || idx}
-                            className={`flex items-center justify-between px-3 py-1.5 ${idx > 0 ? 'border-t border-white/5' : ''} ${!isAvailable ? 'opacity-40' : 'hover:bg-white/5 cursor-pointer'}`}
+                            className={`flex items-center justify-between px-3 py-2 ${idx > 0 ? 'border-t border-white/5' : ''} ${!isAvailable ? 'opacity-40' : 'hover:bg-white/5 cursor-pointer'}`}
                             onClick={() => {
                               if (!isAvailable) return;
                               setOrderItems(prev => {

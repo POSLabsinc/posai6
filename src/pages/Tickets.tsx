@@ -3384,81 +3384,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             )}
           </div>
 
-          {/* Kitchen Instruction */}
-          <div className="px-4 py-3 border-b border-neutral-700/50 relative">
-            <div className="text-white/40 text-[10px] font-medium mb-1 px-1">Kitchen instruction</div>
-            <div className="flex items-center gap-1.5 flex-wrap text-white/50 text-sm bg-neutral-800 border border-neutral-700 p-2 rounded-lg">
-              <span>📝</span>
-              {(() => {
-                const raw = orderNotes[selectedGuest.id] || "";
-                const parts = raw.split(/,/).map(s => s.trim()).filter(Boolean);
-                const committedChips = parts.length > 1 ? parts.slice(0, -1) : (raw.endsWith(',') ? parts : []);
-                const typingPart = raw.endsWith(',') ? "" : (parts.length > 1 ? parts[parts.length - 1] : raw);
-                return (<>
-                  {committedChips.map((note, idx) => (
-                    <span key={`typed-${idx}`} className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs bg-neutral-600 text-neutral-200 border border-neutral-500/50">
-                      <span className="truncate max-w-[120px]">{note}</span>
-                      <button type="button" onClick={() => removeTypedNoteChip(selectedGuest.id, note)} className="ml-0.5 hover:text-white transition-colors">
-                        <X className="w-3 h-3" />
-                      </button>
-                    </span>
-                  ))}
-                  {canEditNotes(selectedGuest.status) ? (
-                    <input
-                      type="text"
-                      value={typingPart}
-                      onChange={(e) => {
-                        const newTyping = e.target.value;
-                        const newVal = committedChips.length > 0 ? `${committedChips.join(', ')}, ${newTyping}` : newTyping;
-                        handleKitchenInstructionChange(selectedGuest.id, newVal, selectedGuest.notes, selectedGuest.status);
-                      }}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter' && typingPart.trim()) {
-                          e.preventDefault();
-                          const newVal = committedChips.length > 0 ? `${committedChips.join(', ')}, ${typingPart.trim()},` : `${typingPart.trim()},`;
-                          handleNotesChange(selectedGuest.id, newVal);
-                        }
-                        if (e.key === 'Backspace' && !typingPart && committedChips.length > 0) {
-                          const newChips = committedChips.slice(0, -1);
-                          handleNotesChange(selectedGuest.id, newChips.length > 0 ? newChips.join(', ') + ', ' : '');
-                        }
-                      }}
-                      onFocus={() => setNotesFocused(true)}
-                      onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
-                      placeholder={committedChips.length === 0 ? "Add order notes" : "Add more..."}
-                      className="flex-1 min-w-[80px] bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
-                    />
-                  ) : (
-                    <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "Add order notes"}</span>
-                  )}
-                </>);
-              })()}
-              {orderNotes[selectedGuest.id]?.trim() && (
-                <button
-                  onClick={async () => {
-                    const text = orderNotes[selectedGuest.id] || "";
-                    const success = await sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
-                    if (success) toast.success("Instruction sent to kitchen", { duration: 3000 });
-                  }}
-                  className="p-1 rounded-md text-orange-400 hover:text-orange-300 transition-colors flex-shrink-0"
-                >
-                  <SendHorizontal className="h-4 w-4" />
-                </button>
-              )}
-            </div>
-            {selectedGuest.notes && selectedGuest.notes.trim() && (
-              <div className="mt-1.5 px-2 py-1.5 text-xs text-white/50 italic bg-neutral-800/50 rounded-md">
-                <span className="not-italic mr-1">📋</span>{selectedGuest.notes}
-              </div>
-            )}
-            {notesFocused && canEditNotes(selectedGuest.status) && (
-              <NoteSuggestions
-                query={notesSearchTerm}
-                currentValue={orderNotes[selectedGuest.id] || ""}
-                onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, orderNotes[selectedGuest.id] || "", suggestion)}
-                recentNotes={recentNotes}
-              />
-            )}
+          {/* Notes */}
+          <div className="px-4 py-3 border-b border-neutral-700/50">
+            <OrderNotesAutocomplete 
+              value={orderNotes[selectedGuest.id] || selectedGuest.notes || ""} 
+              onChange={(val) => handleNotesChange(selectedGuest.id, val)} 
+              placeholder="Order notes and Allergies" 
+              storageKey="tickets-order-notes" 
+            />
           </div>
           {/* Order Items */}
           <ScrollArea className="flex-1 px-4">

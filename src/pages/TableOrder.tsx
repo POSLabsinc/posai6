@@ -1578,9 +1578,14 @@ const TableOrder = () => {
     "Paid",
   ];
 
+  const floorFilteredTables = useMemo(() => {
+    if (selectedFloor === "all") return tablePositions;
+    return tablePositions.filter(t => t.floorArea === selectedFloor);
+  }, [selectedFloor, tablePositions]);
+
   const filteredTables = activeFilter === "All" 
-    ? tablePositions 
-    : tablePositions.filter(t => t.status === activeFilter);
+    ? floorFilteredTables 
+    : floorFilteredTables.filter(t => t.status === activeFilter);
 
   const handleFloorplanTableClick = (table: TableType, e: React.MouseEvent) => {
     e.stopPropagation();

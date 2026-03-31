@@ -1502,8 +1502,8 @@ const Dashboard = () => {
     }
   };
 
-  // Derive per-order discount
-  const currentOrderKey = selectedOrder?.id?.toString() || '';
+  // Derive per-order discount using unique key (dbId for DB orders, id for session orders)
+  const currentOrderKey = selectedOrder?.dbId || selectedOrder?.id?.toString() || '';
   const selectedDiscountId = orderDiscountMap[currentOrderKey] || null;
   const setSelectedDiscountId = useCallback((id: string | null) => {
     setOrderDiscountMap(prev => ({ ...prev, [currentOrderKey]: id }));

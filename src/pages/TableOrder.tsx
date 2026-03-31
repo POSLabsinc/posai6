@@ -2608,7 +2608,7 @@ const TableOrder = () => {
                                 {Array.from({ length: table.seats }).map((_, i) => (
                                   <button
                                     key={i}
-                                    onClick={() => handleAddGuests(table.id, i + 1)}
+                                    onClick={() => handleGuestSelect(table.id, i + 1)}
                                     className="w-8 h-8 flex items-center justify-center text-sm font-bold text-white bg-neutral-700 rounded-lg hover:bg-green-500 transition-all hover:scale-105"
                                   >
                                     {i + 1}

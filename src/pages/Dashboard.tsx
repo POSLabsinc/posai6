@@ -1500,7 +1500,12 @@ const Dashboard = () => {
     }
   };
 
-  // Prepare order details for PaymentDialog
+  // Derive per-order discount
+  const currentOrderKey = selectedOrder?.id?.toString() || '';
+  const selectedDiscountId = orderDiscountMap[currentOrderKey] || null;
+  const setSelectedDiscountId = useCallback((id: string | null) => {
+    setOrderDiscountMap(prev => ({ ...prev, [currentOrderKey]: id }));
+  }, [currentOrderKey]);
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount ? selectedDiscount.fixedAmount || subtotal * ((selectedDiscount.percentage || 0) / 100) : 0;
   const tax = subtotal * 0.02;

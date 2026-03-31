@@ -1034,21 +1034,66 @@ const Dashboard = () => {
     setShowRefundMode(false);
   }, [selectedOrder?.id]);
 
-  // Order item handlers
+  // Sync selectedOrder and orderItems when allOrders refreshes from DB
+  useEffect(() => {
+    if (!selectedOrder) return;
+    const freshOrder = allOrders.find(o => o.id === selectedOrder.id);
+    if (freshOrder) {
+      setSelectedOrder(freshOrder);
+      setOrderItems(freshOrder.items || []);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allOrders]);
+
+  // Helper to persist item changes to DB
+  const persistItemChanges = (updatedItems: OrderItemType[]) => {
+    if (!selectedOrder) return;
+    const dbOrder = dbTicketOrders.find(o => o.id === String(selectedOrder.id));
+    if (dbOrder) {
+      const dbItems = updatedItems.map(item => ({
+        qty: item.qty,
+        name: item.name,
+        price: item.price,
+        seats: item.seats,
+        modifiers: [] as string[],
+        isShared: item.seats.length === (selectedOrder.seats || 4),
+        isFired: item.isFired,
+        noTax: item.noTax,
+      }));
+      updateDashboardTicketOrderItems(dbOrder.id, dbItems).catch(err => console.error('Failed to persist item changes:', err));
+    }
+  };
+
+  // Order item handlers - persist to DB
   const handleToggleNoTax = (itemId: number) => {
-    setOrderItems(prev => prev.map(item => item.id === itemId ? { ...item, noTax: !item.noTax } : item));
+    setOrderItems(prev => {
+      const updated = prev.map(item => item.id === itemId ? { ...item, noTax: !item.noTax } : item);
+      persistItemChanges(updated);
+      return updated;
+    });
   };
 
   const handleOrderTypeChange = (itemId: number, orderType: string) => {
-    setOrderItems(prev => prev.map(item => item.id === itemId ? { ...item, itemOrderType: orderType } : item));
+    setOrderItems(prev => {
+      const updated = prev.map(item => item.id === itemId ? { ...item, itemOrderType: orderType } : item);
+      return updated;
+    });
   };
 
   const handleDeleteItem = (itemId: number) => {
-    setOrderItems(prev => prev.filter(item => item.id !== itemId));
+    setOrderItems(prev => {
+      const updated = prev.filter(item => item.id !== itemId);
+      persistItemChanges(updated);
+      return updated;
+    });
   };
 
   const handleFireItem = (itemId: number) => {
-    setOrderItems(prev => prev.map(item => item.id === itemId ? { ...item, isFired: !item.isFired } : item));
+    setOrderItems(prev => {
+      const updated = prev.map(item => item.id === itemId ? { ...item, isFired: !item.isFired } : item);
+      persistItemChanges(updated);
+      return updated;
+    });
   };
 
   // Table card click handler

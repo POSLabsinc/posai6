@@ -463,6 +463,7 @@ const OrderPanelContent = ({
   selectedDiscountId,
   setSelectedDiscountId,
   onChargeClick,
+  onDiscountClick,
   showTipDialog,
   setShowTipDialog,
   showRefundMode,

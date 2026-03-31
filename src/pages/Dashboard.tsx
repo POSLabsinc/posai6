@@ -1965,6 +1965,8 @@ const Dashboard = () => {
             hasSplitConfiguration={!!(selectedOrder?.splitConfiguration && selectedOrder.splitConfiguration.checks.length > 0)}
             onMergeClick={handleMergeClick}
             onCancelOrder={handleCancelOrderAttempt}
+            onFireAll={handleFireAll}
+            onSaveOrder={handleSaveOrder}
           />
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Users, Grid, List, ChevronDown, ChevronRight, Circle, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X, Settings, Plus, Trash2, GripVertical, Pencil, FolderOpen, Save, Check, FileText, Bell, Calendar, Building2, Layers } from "lucide-react";
@@ -89,6 +89,7 @@ type TableType = {
   mergedWith?: string | null;
   isMergeSource?: boolean;
   mergeGroupId?: string;
+  floorArea?: string;
 };
 
 // Seat dot colors based on status
@@ -1082,7 +1083,7 @@ const TableOrder = () => {
   
   const [activeFilter, setActiveFilter] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "list" | "visual" | "floorplan">("grid");
-  const [selectedFloor, setSelectedFloor] = useState("floor-1");
+  const [selectedFloor, setSelectedFloor] = useState("all");
   const [selectedArea, setSelectedArea] = useState("Main Dining Room");
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
@@ -1133,6 +1134,7 @@ const TableOrder = () => {
         mergedWith: t.mergedWith,
         isMergeSource: t.isMergeSource,
         mergeGroupId: t.mergeGroupId,
+        floorArea: t.floorArea,
       })));
     }
   }, [dbTables]);
@@ -1237,8 +1239,14 @@ const TableOrder = () => {
   const MERGE_THRESHOLD = 120;
   const SNAP_OFFSET = 160;
   
+  // Get unique floor areas from DB tables (synced with Dashboard)
+  const dbFloorAreaNames = useMemo(() => {
+    const areas = [...new Set(tablePositions.map(t => t.floorArea).filter(Boolean))];
+    return areas.length > 0 ? areas : [];
+  }, [tablePositions]);
+  
   // Get service areas for selected floor
-  const currentServiceAreas = serviceAreasByFloor[selectedFloor] || serviceAreasByFloor["floor-1"];
+  const currentServiceAreas = dbFloorAreaNames;
   
   // Reservations count for today
   const todayReservationsCount = reservations.filter(r => r.status !== "seated").length;
@@ -1547,7 +1555,7 @@ const TableOrder = () => {
       setTablePositions(dbTables.map(t => ({
         id: t.id, seats: t.seats, shape: t.shape, status: t.status,
         x: t.x, y: t.y, guests: t.guests, occupiedSeats: t.occupiedSeats,
-        time: t.time, mergedWith: t.mergedWith, isMergeSource: t.isMergeSource, mergeGroupId: t.mergeGroupId,
+        time: t.time, mergedWith: t.mergedWith, isMergeSource: t.isMergeSource, mergeGroupId: t.mergeGroupId, floorArea: t.floorArea,
       })));
     }
     toast.success("Table positions reset");
@@ -1570,9 +1578,14 @@ const TableOrder = () => {
     "Paid",
   ];
 
+  const floorFilteredTables = useMemo(() => {
+    if (selectedFloor === "all") return tablePositions;
+    return tablePositions.filter(t => t.floorArea === selectedFloor);
+  }, [selectedFloor, tablePositions]);
+
   const filteredTables = activeFilter === "All" 
-    ? tablePositions 
-    : tablePositions.filter(t => t.status === activeFilter);
+    ? floorFilteredTables 
+    : floorFilteredTables.filter(t => t.status === activeFilter);
 
   const handleFloorplanTableClick = (table: TableType, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -1854,7 +1867,7 @@ const TableOrder = () => {
       setTablePositions(dbTables.map(t => ({
         id: t.id, seats: t.seats, shape: t.shape, status: t.status,
         x: t.x, y: t.y, guests: t.guests, occupiedSeats: t.occupiedSeats,
-        time: t.time, mergedWith: t.mergedWith, isMergeSource: t.isMergeSource, mergeGroupId: t.mergeGroupId,
+        time: t.time, mergedWith: t.mergedWith, isMergeSource: t.isMergeSource, mergeGroupId: t.mergeGroupId, floorArea: t.floorArea,
       })));
     }
     if (dbFloorAreas.length > 0) {
@@ -1946,7 +1959,7 @@ const TableOrder = () => {
                     <div className="text-left">
                       <p className="text-white text-sm font-medium">Floor</p>
                       <p className="text-neutral-400 text-xs">
-                        {floors.find(f => f.id === selectedFloor)?.name || "Floor 1"}
+                        {selectedFloor === "all" ? "All Floors" : selectedFloor}
                       </p>
                     </div>
                   </div>
@@ -1955,24 +1968,31 @@ const TableOrder = () => {
                 
                 {expandedMenuSection === "floor" && (
                   <div className="mt-1 ml-11 space-y-0.5">
-                    {floors.map((floor) => (
+                    <button
+                      onClick={() => {
+                        setSelectedFloor("all");
+                        setExpandedMenuSection(null);
+                      }}
+                      className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
+                        selectedFloor === "all" ? "bg-purple-500/20 text-purple-400" : "hover:bg-neutral-800 text-neutral-300"
+                      }`}
+                    >
+                      <span className="text-sm">All Floors</span>
+                      {selectedFloor === "all" && <Check className="w-3.5 h-3.5 ml-auto" />}
+                    </button>
+                    {dbFloorAreaNames.map((area) => (
                       <button
-                        key={floor.id}
+                        key={area}
                         onClick={() => {
-                          setSelectedFloor(floor.id);
-                          // Reset service area to first of new floor
-                          const newAreas = serviceAreasByFloor[floor.id];
-                          if (newAreas && newAreas.length > 0) {
-                            setSelectedArea(newAreas[0]);
-                          }
+                          setSelectedFloor(area);
                           setExpandedMenuSection(null);
                         }}
                         className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
-                          selectedFloor === floor.id ? "bg-purple-500/20 text-purple-400" : "hover:bg-neutral-800 text-neutral-300"
+                          selectedFloor === area ? "bg-purple-500/20 text-purple-400" : "hover:bg-neutral-800 text-neutral-300"
                         }`}
                       >
-                        <span className="text-sm">{floor.name}</span>
-                        {selectedFloor === floor.id && <Check className="w-3.5 h-3.5 ml-auto" />}
+                        <span className="text-sm">{area}</span>
+                        {selectedFloor === area && <Check className="w-3.5 h-3.5 ml-auto" />}
                       </button>
                     ))}
                   </div>

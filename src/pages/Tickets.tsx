@@ -255,7 +255,7 @@ const getOrderItems = (order: GuestOrder) => order.items.map(item => ({
   displayPrice: formatPrice(item.price * item.qty)
 }));
 
-const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
+const filters = ["All", "Open", "Paid", "Unpaid"];
 
 const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const isMobile = useIsMobile();
@@ -1990,8 +1990,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const getFilterCount = (filter: string) => {
     if (filter === "All") return allOrders.length;
     if (filter === "Open") return allOrders.filter(g => g.status === "ORDERING").length;
-    if (filter === "Completed") return allOrders.filter(g => g.status === "COMPLETED").length;
-    if (filter === "Paid") return allOrders.filter(g => g.status === "PAID" || g.paymentType !== "--").length;
+    if (filter === "Paid") return allOrders.filter(g => g.status === "PAID" || g.status === "COMPLETED" || g.status === "Closed" || g.paymentType !== "--").length;
     if (filter === "Unpaid") return allOrders.filter(g => g.status === "UNPAID" || g.paymentType === "--").length;
     return 0;
   };
@@ -2001,7 +2000,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     let matchesStatus = true;
     switch (activeFilter) {
       case "Open": matchesStatus = guest.status === "ORDERING"; break;
-      case "Completed": matchesStatus = guest.status === "COMPLETED"; break;
+      case "Paid": matchesStatus = guest.status === "PAID" || guest.status === "COMPLETED" || guest.status === "Closed" || guest.paymentType !== "--"; break;
       case "Paid": matchesStatus = guest.status === "PAID" || guest.paymentType !== "--"; break;
       case "Unpaid": matchesStatus = guest.status === "UNPAID" || guest.paymentType === "--"; break;
       default: matchesStatus = true;
@@ -2025,7 +2024,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     let matchesStatus = true;
     switch (activeFilter) {
       case "Open": matchesStatus = guest.status === "ORDERING"; break;
-      case "Completed": matchesStatus = guest.status === "COMPLETED"; break;
+      case "Paid": matchesStatus = guest.status === "PAID" || guest.status === "COMPLETED" || guest.status === "Closed" || guest.paymentType !== "--"; break;
       case "Paid": matchesStatus = guest.status === "PAID" || guest.paymentType !== "--"; break;
       case "Unpaid": matchesStatus = guest.status === "UNPAID" || guest.paymentType === "--"; break;
       default: matchesStatus = true;

@@ -1116,7 +1116,7 @@ const Dashboard = () => {
       return updated;
     });
     // Update order status to ORDERED in DB
-    const orderId = String(selectedOrder.id);
+    const orderId = getDbOrderId(selectedOrder);
     const dbOrder = dbTicketOrders.find(o => o.id === orderId);
     if (dbOrder) {
       updateDashboardTicketOrder(orderId, { status: 'ORDERED' } as any).catch(err => console.error('Failed to update status:', err));

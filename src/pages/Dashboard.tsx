@@ -512,11 +512,11 @@ const OrderPanelContent = ({
                 const ticketContext = {
                   guest: selectedOrder,
                   discounts: [],
-                  serviceCharge: selectedOrder.serviceCharge || 0,
+                  serviceCharge: 0,
                   taxExempt: false,
                 };
                 localStorage.setItem('pos-add-product-context', JSON.stringify(ticketContext));
-                navigate(`/orders?orderId=${selectedOrder.id}&tableId=${selectedOrder.table}&mode=addItem`);
+                window.location.href = `/orders?orderId=${selectedOrder.id}&tableId=${selectedOrder.table}&mode=addItem`;
               }}
             >
               <img src={customItemIcon} alt="" className="w-3 h-3" />

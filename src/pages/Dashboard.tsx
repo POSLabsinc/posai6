@@ -1127,7 +1127,7 @@ const Dashboard = () => {
   // Save order handler - persist notes to DB
   const handleSaveOrder = () => {
     if (!selectedOrder) return;
-    const orderId = String(selectedOrder.id);
+    const orderId = getDbOrderId(selectedOrder);
     const dbOrder = dbTicketOrders.find(o => o.id === orderId);
     if (dbOrder) {
       updateDashboardTicketOrder(orderId, { notes: orderNotes } as any).catch(err => console.error('Failed to save order:', err));

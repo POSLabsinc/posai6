@@ -896,6 +896,7 @@ const Dashboard = () => {
       const isPaid = order.status === 'PAID' || order.status === 'Completed';
       return {
         id: Number(order.id.replace(/\D/g, '').slice(0, 8)) || idx + 1,
+        dbId: order.id, // Preserve original UUID for DB operations
         orderNumber: order.orderNumber || (idx + 1),
         status: order.status,
         statusColor: getStatusColorHex(order.status),

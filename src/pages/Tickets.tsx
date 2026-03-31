@@ -3357,41 +3357,43 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               <span className="text-white text-xs">{selectedGuest.time}</span>
             </div>
           </div>
-          {!(selectedGuest.status === "PAID" || selectedGuest.paid) && (
-            <div className="flex gap-2 items-center">
-              <button onClick={handleAddProduct} className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1">
-                <img src={customItemIcon} alt="" className="w-3 h-3" />
-                Add Product
-              </button>
-              <button 
-                className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${currentTicketDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}
-                onClick={handleDiscountClick}
-              >
-                <img src={discountIcon} alt="" className="w-3 h-3" />
-                Discount {currentTicketDiscounts.length > 0 && `(${currentTicketDiscounts.length})`}
-              </button>
-              <button 
-                className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
-                onClick={() => setIsReceiptDialogOpen(true)}
-              >
-                <img src={receiptIcon} alt="" className="w-3 h-3" />
-                Receipt
-              </button>
-              <button 
-                className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${isCurrentTicketTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'}`}
-                onClick={handleNoTaxClick}
-              >
-                <img src={noTaxIcon} alt="" className="w-3 h-3" />
-                {isCurrentTicketTaxExempt ? 'Tax Exempt' : 'No Tax'}
-              </button>
-              <button 
-                className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
-              >
-                <img src={registerIcon} alt="" className="w-3 h-3" />
-                No Sale
-              </button>
-            </div>
-          )}
+          <div className="flex gap-2 items-center">
+            {!(selectedGuest.status === "PAID" || selectedGuest.paid) && (
+              <>
+                <button onClick={handleAddProduct} className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1">
+                  <img src={customItemIcon} alt="" className="w-3 h-3" />
+                  Add Item
+                </button>
+                <button 
+                  className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${currentTicketDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}
+                  onClick={handleDiscountClick}
+                >
+                  <img src={discountIcon} alt="" className="w-3 h-3" />
+                  Discount {currentTicketDiscounts.length > 0 && `(${currentTicketDiscounts.length})`}
+                </button>
+              </>
+            )}
+            <button 
+              className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
+              onClick={() => setIsReceiptDialogOpen(true)}
+            >
+              <img src={receiptIcon} alt="" className="w-3 h-3" />
+              Receipt
+            </button>
+            <button 
+              className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${isCurrentTicketTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'}`}
+              onClick={handleNoTaxClick}
+            >
+              <img src={noTaxIcon} alt="" className="w-3 h-3" />
+              {isCurrentTicketTaxExempt ? 'Tax Exempt' : 'No Tax'}
+            </button>
+            <button 
+              className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
+            >
+              <img src={registerIcon} alt="" className="w-3 h-3" />
+              No Sale
+            </button>
+          </div>
         </div>
 
         {/* Main Panel Box */}

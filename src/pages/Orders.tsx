@@ -3067,9 +3067,9 @@ const Orders = () => {
                   onClick={() => setPastOrderCardExpanded(prev => !prev)}
                 >
                   <div className="flex items-center gap-2">
-                    <RotateCcw className="w-3.5 h-3.5 text-primary" />
-                    <span className="text-xs font-medium text-white">Past Orders</span>
-                    <span className="text-[10px] text-neutral-400 bg-neutral-700 rounded-full px-1.5 py-0.5">
+                    <RotateCcw className="w-4 h-4 text-primary" />
+                    <span className="text-sm font-semibold text-white">Past Orders</span>
+                    <span className="text-xs text-neutral-400 bg-neutral-700 rounded-full px-2 py-0.5 font-medium">
                       {pastOrderItems.length} product{pastOrderItems.length !== 1 ? 's' : ''}
                     </span>
                   </div>

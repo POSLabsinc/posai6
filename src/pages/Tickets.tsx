@@ -1991,7 +1991,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     if (filter === "All") return allOrders.length;
     if (filter === "Open") return allOrders.filter(g => g.status === "ORDERING").length;
     if (filter === "Paid") return allOrders.filter(g => g.status === "PAID" || g.status === "COMPLETED" || g.status === "Closed" || g.paymentType !== "--").length;
-    if (filter === "Paid") return allOrders.filter(g => g.status === "PAID" || g.paymentType !== "--").length;
+    if (filter === "Paid") return allOrders.filter(g => g.status === "PAID" || g.status === "COMPLETED" || g.status === "Closed" || g.paymentType !== "--").length;
     if (filter === "Unpaid") return allOrders.filter(g => g.status === "UNPAID" || g.paymentType === "--").length;
     return 0;
   };

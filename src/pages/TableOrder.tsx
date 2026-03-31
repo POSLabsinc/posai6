@@ -89,6 +89,7 @@ type TableType = {
   mergedWith?: string | null;
   isMergeSource?: boolean;
   mergeGroupId?: string;
+  floorArea?: string;
 };
 
 // Seat dot colors based on status

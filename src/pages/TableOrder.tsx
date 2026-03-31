@@ -1237,8 +1237,14 @@ const TableOrder = () => {
   const MERGE_THRESHOLD = 120;
   const SNAP_OFFSET = 160;
   
+  // Get unique floor areas from DB tables (synced with Dashboard)
+  const dbFloorAreaNames = useMemo(() => {
+    const areas = [...new Set(tablePositions.map(t => t.floorArea).filter(Boolean))];
+    return areas.length > 0 ? areas : [];
+  }, [tablePositions]);
+  
   // Get service areas for selected floor
-  const currentServiceAreas = serviceAreasByFloor[selectedFloor] || serviceAreasByFloor["floor-1"];
+  const currentServiceAreas = dbFloorAreaNames;
   
   // Reservations count for today
   const todayReservationsCount = reservations.filter(r => r.status !== "seated").length;

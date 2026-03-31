@@ -1183,7 +1183,7 @@ const TableOrderDetails = () => {
           }}>
               <ChevronLeft className="w-4 h-4 text-white" />
             </button>
-            <span className="text-white font-medium">{currentSelectedGuest.name}</span>
+            <span className="text-white font-medium">Order #{currentSelectedGuest.orderNumber || 0}</span>
           </div>
           <div className="flex items-center gap-3 text-white/50 text-sm">
             <div className="flex items-center gap-1">

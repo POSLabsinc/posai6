@@ -534,7 +534,7 @@ const OrderPanelContent = ({
           {!isOrderDisabled && (
             <button 
               className={`text-[10px] rounded-[10px] ${selectedDiscountId ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#555555] border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors`}
-              onClick={() => setShowDiscountDialog(true)}
+              onClick={() => onDiscountClick ? onDiscountClick() : setShowDiscountDialog(true)}
             >
               <img src={discountBtnIcon} alt="" className="w-3 h-3" />
               Discount

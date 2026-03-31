@@ -505,8 +505,21 @@ const OrderPanelContent = ({
               Merge
             </button>
           ) : (
-            <button className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors">
-              <img src={receiptIcon} alt="" className="w-3 h-3" />
+            <button 
+              className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
+              onClick={() => {
+                if (!selectedOrder) return;
+                const ticketContext = {
+                  guest: selectedOrder,
+                  discounts: [],
+                  serviceCharge: selectedOrder.serviceCharge || 0,
+                  taxExempt: false,
+                };
+                localStorage.setItem('pos-add-product-context', JSON.stringify(ticketContext));
+                navigate(`/orders?orderId=${selectedOrder.id}&tableId=${selectedOrder.table}&mode=addItem`);
+              }}
+            >
+              <img src={customItemIcon} alt="" className="w-3 h-3" />
               Add Product
             </button>
           )}

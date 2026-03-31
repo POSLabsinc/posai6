@@ -3056,7 +3056,7 @@ const Orders = () => {
 
           {/* Past Orders Expandable Card */}
           {pastOrderItems.length > 0 && guestName.trim() && (
-            <div className="px-0 mt-1">
+            <div className="px-0 mt-3 mb-3">
               <div
                 className="rounded-xl border border-sidebar-border overflow-hidden transition-all"
                 style={{ background: '#1E1E24' }}

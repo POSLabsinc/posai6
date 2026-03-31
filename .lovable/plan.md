@@ -1,69 +1,50 @@
 
 
-## Plan: Create Standalone Clock In Screen Component
+## Plan: Reset Ticket Orders to 10 Test Tickets
 
-### What You Get
+### Summary
 
-A single self-contained file (`StandaloneClockInScreen.tsx`) with all CSS embedded as a `<style>` tag, zero custom dependencies. Only requires `react`, `date-fns`, `lucide-react`, and `framer-motion` as peer dependencies (all common libraries).
+Clear all existing ticket orders from the database and the static data file, then insert exactly 10 tickets with specific distribution:
 
-### What Is Included
+- **5 Quick Orders** (no table, orderType varies: Take Out, Delivery, etc.) - all in ORDERING status
+- **3 Table 2 Orders** - 1 ORDERING (active), 2 PAID
+- **2 Table 3 Orders** - 1 ORDERING (active), 1 PAID
 
-The standalone component replicates the **core Clock In screen** visual design:
+All other tables remain available (no orders assigned).
 
-1. **Full-screen overlay** with dark blurred background
-2. **Left panel** (desktop): Date, large animated clock, weather, location
-3. **Right panel**: PIN entry with 4-dot indicator, 3D skeuomorphic keypad (1-9, C, 0, ENTER)
-4. **Action buttons**: Clock Out (red), Break (gray), Clock In (green)
-5. **Bottom row**: Fingerprint icon, Revenue Center selector dropdown, Face ID icon, LOGOUT button
-6. **Clock In Summary screen**: Success checkmark, time/revenue center/job type cards, "Enter POS" button
-7. **Clock Out Summary screen**: Total hours, break time, shift duration cards
-8. **Mobile layout**: Compact single-column version with inline date/time header
-9. **Keyboard support**: Physical keyboard input for PIN digits, backspace, enter, escape
+### Changes
 
-### What Is Removed (to eliminate dependencies)
+#### 1. Database: Delete existing and insert new records
+- Run SQL via insert tool to DELETE all rows from `ticket_order_items` and `ticket_orders`
+- INSERT 10 new `ticket_orders` rows with correct statuses, tables, and order types
+- INSERT corresponding `ticket_order_items` for each order
+- Reset the `ticket_orders_order_number_seq` sequence to start fresh
 
-- Mood check-in flow (emotions, tags, anonymous toggle) - removed entirely
-- Fingerprint/Face ID authentication modals - buttons remain but show alerts
-- PIN lockout/manager PIN flow - simplified to basic error message
-- Employee database lookup - replaced with hardcoded demo employees
-- Settings manager integration - replaced with inline defaults
-- Custom SVG icon imports - replaced with unicode/lucide equivalents
-- AppleAlertDialog - replaced with native confirm()
-- React Router navigation - replaced with callback props
-- `useIsMobile` hook - replaced with inline `window.innerWidth` check
+#### 2. Update static file `src/data/ticketOrders.ts`
+- Replace the `ticketOrders` array with exactly 10 entries matching the DB records
+- 5 quick orders (table: "--", various order types like Take Out, Delivery, Drive Thru, Curb Side, Phone-In)
+- 3 T2 orders (1 ORDERING, 2 PAID with payment info)
+- 2 T3 orders (1 ORDERING, 1 PAID with payment info)
 
-### Embedded CSS
+### Ticket Breakdown
 
-All `keypad-btn-3d` variants (normal, enter, clock-in, clock-out, break, dark, revenue, outlined) and `keypad-bounce` animation will be injected via a `<style>` tag inside the component.
-
-### Props Interface
-
-```typescript
-interface StandaloneClockInScreenProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onEnterPOS: () => void;
-  onLogout?: () => void;
-}
+```text
+#   Name              Table   Type         Status
+1   Quick Order 1     --      Take Out     ORDERING
+2   Quick Order 2     --      Delivery     ORDERING
+3   Quick Order 3     --      Drive Thru   ORDERING
+4   Quick Order 4     --      Curb Side    ORDERING
+5   Quick Order 5     --      Phone-In     ORDERING
+6   Table 2 Active    T2      Table Order  ORDERING
+7   Table 2 Paid 1    T2      Table Order  PAID
+8   Table 2 Paid 2    T2      Table Order  PAID
+9   Table 3 Active    T3      Table Order  ORDERING
+10  Table 3 Paid      T3      Table Order  PAID
 ```
 
-### Demo Data
-
-- PIN `1234` maps to "Sarah Johnson" (Server, Bartender)
-- PIN `5678` maps to "Mike Chen" (Manager)
-- PIN `0000` maps to "Alex Rivera" (Host)
-
-### File to Create
-
-- `src/components/StandaloneClockInScreen.tsx` - single file, ~800 lines, copy-paste ready
-
 ### Technical Details
-
-- All CSS is scoped via a `<style>` block injected on mount using `useEffect`
-- Uses `date-fns` for formatting (format, differenceInMinutes)
-- Uses `framer-motion` for AnimatePresence transitions
-- Uses `lucide-react` for icons (Sun, Fingerprint, ScanFace, ChevronDown, Check, Clock, MapPin, Briefcase, X, Timer, LogOut, Coffee, ArrowLeft)
-- Montserrat font import included in the style block
-- Revenue center dropdown with animated open/close
-- Responsive: detects mobile via `window.innerWidth < 768` with resize listener
+- Each order gets 2-3 realistic menu products with modifiers
+- PAID orders include payment entries (Visa/Cash), check numbers, and tip amounts
+- Sequence reset ensures new orders created after this start from order_number 11
+- The static array serves as fallback; the DB is the source of truth via `useTicketOrders` hook
 

@@ -558,7 +558,8 @@ const OrderPanelContent = ({
         background: "#7575754D",
         boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
       }}>
-        {/* Table Order Info - Row 1 */}
+        {/* Table Order Info - Row 1 (only for table orders) */}
+        {selectedOrder?.table && selectedOrder.table.startsWith('T') && (
         <div className="px-3 py-2 border-b border-white/10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -577,8 +578,25 @@ const OrderPanelContent = ({
             </div>
           </div>
         </div>
+        )}
+
+        {/* Quick Order Info - Row 1 (for non-table orders) */}
+        {(!selectedOrder?.table || !selectedOrder.table.startsWith('T')) && (
+        <div className="px-3 py-2 border-b border-white/10">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-white font-bold text-sm">Order #{String(selectedOrder?.orderNumber || selectedOrder?.id || 0)}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <img src={runnerIcon} alt="Server" className="w-4 h-4" />
+              <span className="text-white/70 text-xs">{selectedOrder?.server?.toUpperCase() || "SERVER"}</span>
+            </div>
+          </div>
+        </div>
+        )}
           
-        {/* Seat Buttons - Row 2 */}
+        {/* Seat Buttons - Row 2 (only for table orders) */}
+        {selectedOrder?.table && selectedOrder.table.startsWith('T') && (
         <div className="px-3 py-2 border-b border-white/10">
           <div className="flex gap-1.5">
             <button className="w-6 h-6 bg-neutral-600 rounded flex items-center justify-center hover:bg-neutral-500 transition-colors">
@@ -601,6 +619,7 @@ const OrderPanelContent = ({
             ))}
           </div>
         </div>
+        )}
 
         {/* Notes - with Autocomplete */}
         <div className="px-3 py-2 border-b border-white/10">

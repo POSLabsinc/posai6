@@ -47,7 +47,7 @@ const SwipeableCartItem = ({
   onFire, 
   onNoTax,
   onOrderTypeChange,
-  itemOrderType = "Dine In",
+  itemOrderType = "DINE IN",
   isNoTax = false,
   isFired = false,
   isOpen,

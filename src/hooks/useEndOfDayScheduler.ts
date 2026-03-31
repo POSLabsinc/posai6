@@ -158,7 +158,7 @@ export function useEndOfDayScheduler(): EndOfDaySchedulerState {
         if (paidCount > 0) {
           updateOrders((prev) =>
             prev.map((o) =>
-              o.status === "PAID" ? { ...o, status: "Closed" } : o
+              o.status === "PAID" ? { ...o, status: "PAID" } : o
             )
           );
           actions.push(`${paidCount} paid order${paidCount > 1 ? "s" : ""} closed`);

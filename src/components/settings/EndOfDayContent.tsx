@@ -88,7 +88,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
       const paidCount = orders.filter(o => o.status === "PAID").length;
       if (paidCount > 0) {
         updateOrders(prev => prev.map(o => 
-          o.status === "PAID" ? { ...o, status: "Closed" } : o
+          o.status === "PAID" ? { ...o, status: "PAID" } : o
         ));
         toast({
           title: "Paid Orders Closed",

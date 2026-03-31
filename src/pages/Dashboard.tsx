@@ -337,7 +337,7 @@ const statsData: Record<string, Array<{
 const dateFilters = ["Today", "Yesterday", "This Week", "Last Week", "This Month", "Last Month", "Custom"];
 
 // Order filter labels
-const orderFilterLabels = ["All", "In Progress", "Unpaid", "Open", "Paid", "Closed"];
+const orderFilterLabels = ["All", "In Progress", "Unpaid", "Open", "Paid"];
 
 // Order item interface - alias for DashboardOrderItem
 type OrderItemType = DashboardOrderItem;

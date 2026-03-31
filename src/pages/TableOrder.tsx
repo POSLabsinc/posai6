@@ -2881,7 +2881,7 @@ const TableOrder = () => {
                 <div className="px-6 pb-4">
                   <p className="text-white/60 text-sm mb-2">Merge From</p>
                   {sourceOrder ? (
-                    <OrderLayoutTemplate order={toOrderTemplateData(sourceOrder)} />
+                    <OrderLayoutTemplate order={dbOrderToTemplateData(sourceOrder)} />
                   ) : (
                     <div className="rounded-xl border border-neutral-700 p-4 text-center" style={{ backgroundColor: '#1B1C20' }}>
                       <span className="text-white font-bold text-lg">{sourceTable?.id}</span>

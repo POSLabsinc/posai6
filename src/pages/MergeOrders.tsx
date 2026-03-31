@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ArrowUpDown, SlidersHorizontal, Search, Phone } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -64,7 +64,6 @@ const MergeOrders = () => {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [fromOrder, setFromOrder] = useState<UnifiedTicketOrder | null>(null);
   const [toOrder, setToOrder] = useState<UnifiedTicketOrder | null>(null);
-  const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
@@ -77,16 +76,32 @@ const MergeOrders = () => {
 
   // Get the current order being merged (from the table we came from)
   const currentOrder = useMemo(() =>
-    allOrders.find(o => o.id === orderId) || allOrders[0],
+    allOrders.find(o => o.id === orderId),
     [allOrders, orderId]
   );
+
+  // Dynamic seats based on current panel order's party size
+  const panelPartySize = (displayedOrder || currentOrder)?.partySize || 4;
+  const allSeats = useMemo(() => Array.from({ length: panelPartySize }, (_, i) => i + 1), [panelPartySize]);
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+
+  // Auto-select all seats when panel order changes
+  useEffect(() => {
+    setSelectedSeats(allSeats);
+  }, [panelPartySize]);
 
   // Order to show in right panel
   const panelOrder = displayedOrder || currentOrder;
 
-  // Filter all orders, excluding the current order and paid/completed orders
+  // Filter only active orders (non-PAID/COMPLETED) excluding the current order
+  // Only show orders that have a table assigned (table orders) for merging
   const availableOrders = useMemo(() =>
-    allOrders.filter(o => o.id !== orderId && o.status !== "PAID" && o.status.toUpperCase() !== "COMPLETED"),
+    allOrders.filter(o => 
+      o.id !== orderId && 
+      o.status !== "PAID" && 
+      o.status.toUpperCase() !== "COMPLETED" &&
+      o.table && o.table !== '--' && o.table !== ''
+    ),
     [allOrders, orderId]
   );
 
@@ -498,7 +513,7 @@ const MergeOrders = () => {
             <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
               <img src={splitIcon} alt="Split" className="w-3 h-3" />
             </button>
-            {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat])} className={`w-6 h-6 rounded text-xs font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
+             {allSeats.map(seat => <button key={seat} onClick={() => setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat])} className={`w-6 h-6 rounded text-xs font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {seat}
               </button>)}
           </div>

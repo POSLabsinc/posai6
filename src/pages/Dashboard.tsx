@@ -1947,6 +1947,20 @@ const Dashboard = () => {
         onPaymentComplete={(paymentHistory) => {
           console.log("Payment completed:", paymentHistory);
           setShowPaymentDialog(false);
+          
+          // Mark the order as PAID
+          if (selectedOrder) {
+            const paidOrder: DashboardOrder = {
+              ...selectedOrder,
+              status: "PAID",
+              isPaid: true,
+              statusColor: "#22c55e",
+              filterCategory: "Paid",
+              paymentType: paymentHistory?.[0]?.method || "Card",
+            };
+            setSelectedOrder(paidOrder);
+          }
+          
           const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();
           if (checkoutSettings.printReceipt) {
             toast.success("Receipt sent to printer");

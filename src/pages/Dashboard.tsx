@@ -970,7 +970,8 @@ const Dashboard = () => {
   const [orderItems, setOrderItems] = useState<OrderItemType[]>(allOrders[0]?.items || []);
   const [selectedFloor, setSelectedFloor] = useState("first");
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
-  const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+  const [orderDiscountMap, setOrderDiscountMap] = useState<Record<string, string | null>>({});
+  const [showDiscountMpin, setShowDiscountMpin] = useState(false);
   
   // Split check selection state
   const [selectedSplitCheck, setSelectedSplitCheck] = useState<{ orderId: number; checkId: string } | null>(null);

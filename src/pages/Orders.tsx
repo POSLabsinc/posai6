@@ -3099,17 +3099,17 @@ const Orders = () => {
                             }}
                           >
                             <div className="flex items-center gap-2 min-w-0 flex-1">
-                              <span className="text-xs text-neutral-300 w-4 text-center flex-shrink-0">{item.quantity}x</span>
-                              <span className={`text-xs truncate ${isAvailable ? 'text-white' : 'text-neutral-500 line-through'}`}>
+                              <span className="text-sm font-semibold text-neutral-200 w-5 text-center flex-shrink-0">{item.quantity}x</span>
+                              <span className={`text-sm font-medium truncate ${isAvailable ? 'text-white' : 'text-neutral-500 line-through'}`}>
                                 {item.name}
                               </span>
                               {!isAvailable && (
-                                <span className="text-[9px] text-red-400 flex-shrink-0">Unavailable</span>
+                                <span className="text-[10px] font-medium text-red-400 flex-shrink-0">Unavailable</span>
                               )}
                             </div>
                             <div className="flex items-center gap-2 flex-shrink-0">
-                              <span className="text-xs text-neutral-400">${item.price.toFixed(2)}</span>
-                              {isAvailable && <Plus className="w-3 h-3 text-primary" />}
+                              <span className="text-sm font-medium text-neutral-300">${item.price.toFixed(2)}</span>
+                              {isAvailable && <Plus className="w-3.5 h-3.5 text-primary" />}
                             </div>
                           </div>
                         );

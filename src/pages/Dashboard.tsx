@@ -1993,15 +1993,35 @@ const Dashboard = () => {
           console.log("Payment completed:", paymentHistory);
           setShowPaymentDialog(false);
           
-          // Mark the order as PAID
+          const totalPaid = paymentHistory.reduce((sum: number, p: any) => sum + p.amount, 0);
+          const primaryMethod = paymentHistory.length > 0 ? paymentHistory[0].method || paymentHistory[0].methodLabel || "Card" : "Card";
+          const paymentsArray = paymentHistory.map((p: any) => ({
+            method: p.methodLabel || p.method || "Card",
+            amount: p.amount,
+          }));
+          
+          // Persist payment data to database
           if (selectedOrder) {
+            const orderId = String(selectedOrder.id);
+            const dbOrder = dbTicketOrders.find(o => o.id === orderId);
+            if (dbOrder) {
+              updateDashboardTicketOrder(orderId, {
+                status: "PAID",
+                paymentType: primaryMethod,
+                payments: paymentsArray,
+                paidAmount: totalPaid.toFixed(2),
+                paymentStatus: "completed",
+              } as any).catch(err => console.error('Failed to persist payment:', err));
+            }
+            
+            // Update local state immediately
             const paidOrder: DashboardOrder = {
               ...selectedOrder,
               status: "PAID",
               isPaid: true,
               statusColor: "#22c55e",
               filterCategory: "Paid",
-              paymentType: paymentHistory?.[0]?.method || "Card",
+              paymentType: primaryMethod,
             };
             setSelectedOrder(paidOrder);
           }

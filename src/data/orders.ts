@@ -593,7 +593,7 @@ export const getFilterCategory = (status: string): string => {
   if (['UNPAID', 'PENDING PAYMENT'].includes(normalizedStatus)) return 'Unpaid';
   if (['NEW ORDER', 'READY'].includes(normalizedStatus)) return 'Open';
   if (['PAID', 'COMPLETED'].includes(normalizedStatus)) return 'Paid';
-  if (['CLOSED'].includes(normalizedStatus)) return 'Closed';
+  if (['CLOSED'].includes(normalizedStatus)) return 'Paid';
   return 'Open';
 };
 

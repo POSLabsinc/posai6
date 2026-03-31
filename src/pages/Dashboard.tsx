@@ -1055,9 +1055,6 @@ const Dashboard = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [allOrders]);
 
-  // Helper to get DB-compatible order ID
-  const getDbOrderId = (order: DashboardOrder): string => order.dbId || String(order.id);
-
   // Helper to persist item changes to DB
   const persistItemChanges = (updatedItems: OrderItemType[]) => {
     if (!selectedOrder) return;

@@ -829,12 +829,19 @@ const Dashboard = () => {
   const isMobile = useIsMobile();
   
   // DB tables
-  const { tables: dbTables } = useRestaurantTables();
+  const { tables: dbTables, updateTable: updateDbTableStatus } = useRestaurantTables();
   const mockTables = dbTables.map(t => ({ id: t.id, seats: t.seats, status: t.status }));
   
   // Get session orders context
   const { sessionOrders, deleteOrder: deleteSessionOrder } = useSessionOrders();
   const { orders: dbTicketOrders, updateOrder: updateDashboardTicketOrder, updateOrderItems: updateDashboardTicketOrderItems, removeOrder: removeDashboardTicketOrder } = useTicketOrders();
+
+  // Sync table statuses with active ticket orders
+  useTableStatusSync(
+    dbTicketOrders,
+    dbTables.map(t => ({ tableNumber: t.tableNumber, status: t.status })),
+    updateDbTableStatus
+  );
   
   // Static split configs for non-session orders (persisted in localStorage)
   const [staticSplitConfigs, setStaticSplitConfigs] = useState<Record<string, SplitConfiguration>>(() => {

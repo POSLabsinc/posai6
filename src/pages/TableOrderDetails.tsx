@@ -1183,7 +1183,7 @@ const TableOrderDetails = () => {
           }}>
               <ChevronLeft className="w-4 h-4 text-white" />
             </button>
-            <span className="text-white font-medium">Order #{currentSelectedGuest.orderNumber || 0}</span>
+            <span className="text-white font-medium">{currentSelectedGuest.orderNumber || 0}</span>
           </div>
           <div className="flex items-center gap-3 text-white/50 text-sm">
             <div className="flex items-center gap-1">
@@ -2271,7 +2271,7 @@ const TableOrderDetails = () => {
             </span>
             <Users className="w-4 h-4 text-neutral-400" />
             <span className="text-neutral-400 text-xs">{currentSelectedGuest?.items.length || 0}</span>
-            <span className="font-bold text-white text-sm">Order #{currentSelectedGuest?.orderNumber || 0}</span>
+            <span className="font-bold text-white text-sm">{currentSelectedGuest?.orderNumber || 0}</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
@@ -2929,7 +2929,7 @@ const TableOrderDetails = () => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
-              <span className="text-white font-bold">#{currentSelectedGuest?.orderNumber || 0}</span>
+              <span className="text-white font-bold">{currentSelectedGuest?.orderNumber || 0}</span>
             </div>
             <div className="flex items-center gap-2">
               <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />

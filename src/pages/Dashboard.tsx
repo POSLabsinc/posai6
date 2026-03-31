@@ -2315,6 +2315,20 @@ const Dashboard = () => {
           </div>
         );
       })()}
+      {showDiscountMpin && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70">
+          <div className="w-full max-w-sm rounded-2xl overflow-hidden">
+            <AccessRestrictedModal
+              subtitle="Manager approval required to apply discount."
+              onBack={() => setShowDiscountMpin(false)}
+              onSuccess={() => {
+                setShowDiscountMpin(false);
+                setShowDiscountDialog(true);
+              }}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

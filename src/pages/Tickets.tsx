@@ -25,6 +25,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import runnerIcon from "@/assets/icons/runner.png";
 import clearIcon from "@/assets/icons/clear-c.png";
 import fireIcon from "@/assets/icons/fire.png";
+import saveIcon from "@/assets/icons/save.png";
 import phoneIcon from "@/assets/icons/phone-icon.png";
 import timeIcon from "@/assets/icons/time-icon.png";
 import tableTargetIcon from "@/assets/icons/table-target.png";
@@ -2647,29 +2648,41 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             </>
           )
         ) : (
-          <>
-            <button 
-              onClick={handleClearOrderAttempt}
-              className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
-            >
-              <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
-            </button>
-            <button 
-              onClick={() => setIsTipSheetOpen(true)}
-              className="px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium" 
-              style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
-            >
-              <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
-              <span>FIRE</span>
-            </button>
-            <button 
-              onClick={() => setShowPaymentDialog(true)}
-              className="flex-1 py-2.5 rounded-full text-black text-sm font-bold" 
-              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-            >
-              CHARGE {formatPrice(selectedGuest.total)}
-            </button>
-          </>
+          (() => {
+            const showSaveButton = SettingsManager.getCheckoutOptionsSettings().showSaveButton;
+            return (
+              <>
+                <button 
+                  onClick={handleClearOrderAttempt}
+                  className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0"
+                >
+                  <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+                </button>
+                {showSaveButton && (
+                  <button 
+                    className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" 
+                    style={{ background: '#C9C9C9' }}
+                  >
+                    <img src={saveIcon} alt="Save" className="w-4 h-4 brightness-0" />
+                  </button>
+                )}
+                <button 
+                  className="flex-1 h-10 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
+                  style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+                >
+                  <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+                  <span>FIRE</span>
+                </button>
+                <button 
+                  onClick={() => setShowPaymentDialog(true)}
+                  className="flex-1 h-10 rounded-full text-black text-sm font-bold" 
+                  style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+                >
+                  CHARGE {formatPrice(selectedGuest.total)}
+                </button>
+              </>
+            );
+          })()
         )}
       </div>
     </div>
@@ -3323,13 +3336,6 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               Receipt
             </button>
             <button 
-              className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${isCurrentTicketTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'}`}
-              onClick={handleNoTaxClick}
-            >
-              <img src={noTaxIcon} alt="" className="w-3 h-3" />
-              {isCurrentTicketTaxExempt ? 'Tax Exempt' : 'No Tax'}
-            </button>
-            <button 
               className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
             >
               <img src={registerIcon} alt="" className="w-3 h-3" />
@@ -3815,21 +3821,33 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             ) : (
               (() => {
                 const totals = calculateAdjustedTotals(selectedGuest);
+                const showSaveButton = SettingsManager.getCheckoutOptionsSettings().showSaveButton;
                 return (
                   <>
                     <button 
                       onClick={handleClearOrderAttempt}
-                      className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
+                      className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0"
                     >
                       <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
                     </button>
-                    <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}>
+                    {showSaveButton && (
+                      <button 
+                        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
+                        style={{ background: '#C9C9C9' }}
+                      >
+                        <img src={saveIcon} alt="Save" className="w-4 h-4 brightness-0" />
+                      </button>
+                    )}
+                    <button 
+                      className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
+                      style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+                    >
                       <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
                       <span>FIRE</span>
                     </button>
                     <button 
                       onClick={() => setShowPaymentDialog(true)}
-                      className="flex-1 py-2 rounded-full text-black text-sm font-bold" 
+                      className="flex-1 h-8 rounded-full text-black text-sm font-bold" 
                       style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                     >
                       CHARGE {formatPrice(totals.hasNoTaxItems ? totals.adjustedTotal : selectedGuest.total)}
@@ -4633,25 +4651,41 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 </button>
               </>
             ) : (
-              <>
-                <button 
-                  onClick={handleClearOrderAttempt}
-                  className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
-                >
-                  <img src={clearIcon} alt="Clear" className="w-3 h-3 brightness-0 invert" />
-                </button>
-                <button className="px-3 py-1.5 rounded-full flex items-center gap-1 text-white text-xs font-medium" style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}>
-                  <img src={fireIcon} alt="Fire" className="w-3 h-3 brightness-0 invert" />
-                  <span>FIRE</span>
-                </button>
-                <button 
-                  onClick={() => setShowPaymentDialog(true)}
-                  className="flex-1 py-1.5 rounded-full text-black text-xs font-bold" 
-                  style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-                >
-                  CHARGE {formatPrice(selectedGuest.total)}
-                </button>
-              </>
+              (() => {
+                const showSaveButton = SettingsManager.getCheckoutOptionsSettings().showSaveButton;
+                return (
+                  <>
+                    <button 
+                      onClick={handleClearOrderAttempt}
+                      className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0"
+                    >
+                      <img src={clearIcon} alt="Clear" className="w-3 h-3 brightness-0 invert" />
+                    </button>
+                    {showSaveButton && (
+                      <button 
+                        className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" 
+                        style={{ background: '#C9C9C9' }}
+                      >
+                        <img src={saveIcon} alt="Save" className="w-3 h-3 brightness-0" />
+                      </button>
+                    )}
+                    <button 
+                      className="flex-1 h-7 rounded-full flex items-center justify-center gap-1 text-white text-xs font-medium" 
+                      style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+                    >
+                      <img src={fireIcon} alt="Fire" className="w-3 h-3 brightness-0 invert" />
+                      <span>FIRE</span>
+                    </button>
+                    <button 
+                      onClick={() => setShowPaymentDialog(true)}
+                      className="flex-1 h-7 rounded-full text-black text-xs font-bold" 
+                      style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+                    >
+                      CHARGE {formatPrice(selectedGuest.total)}
+                    </button>
+                  </>
+                );
+              })()
             )}
           </div>
         </div>

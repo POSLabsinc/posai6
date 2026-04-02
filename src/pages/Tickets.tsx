@@ -3862,7 +3862,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
 
   // Tablet Layout
   const tabletLayout = (
-    <div className="flex h-full bg-black gap-2">
+    <div className="flex h-full bg-black gap-2 pr-3">
       {/* Left Panel - Order List */}
       <div className="flex flex-col flex-1 rounded-r-[20px] overflow-hidden">
         {/* Header - Inline filter options */}

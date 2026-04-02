@@ -319,6 +319,7 @@ const ClosingGracePeriodModal = ({
         confirmText="Confirm"
       />
     </Dialog>
+    </div>
   );
 };
 

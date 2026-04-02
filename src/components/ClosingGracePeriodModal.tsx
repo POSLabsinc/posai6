@@ -92,7 +92,10 @@ const ClosingGracePeriodModal = ({
     exit: { opacity: 0, y: -10 },
   };
 
+  if (!isOpen) return null;
+
   return (
+    <div className="fixed inset-0 z-[10001]">
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent
         hideCloseButton

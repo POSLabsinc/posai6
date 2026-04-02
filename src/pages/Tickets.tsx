@@ -4639,25 +4639,41 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 </button>
               </>
             ) : (
-              <>
-                <button 
-                  onClick={handleClearOrderAttempt}
-                  className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
-                >
-                  <img src={clearIcon} alt="Clear" className="w-3 h-3 brightness-0 invert" />
-                </button>
-                <button className="px-3 py-1.5 rounded-full flex items-center gap-1 text-white text-xs font-medium" style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}>
-                  <img src={fireIcon} alt="Fire" className="w-3 h-3 brightness-0 invert" />
-                  <span>FIRE</span>
-                </button>
-                <button 
-                  onClick={() => setShowPaymentDialog(true)}
-                  className="flex-1 py-1.5 rounded-full text-black text-xs font-bold" 
-                  style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-                >
-                  CHARGE {formatPrice(selectedGuest.total)}
-                </button>
-              </>
+              (() => {
+                const showSaveButton = SettingsManager.getCheckoutOptionsSettings().showSaveButton;
+                return (
+                  <>
+                    <button 
+                      onClick={handleClearOrderAttempt}
+                      className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0"
+                    >
+                      <img src={clearIcon} alt="Clear" className="w-3 h-3 brightness-0 invert" />
+                    </button>
+                    {showSaveButton && (
+                      <button 
+                        className="w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0" 
+                        style={{ background: '#C9C9C9' }}
+                      >
+                        <img src={saveIcon} alt="Save" className="w-3 h-3 brightness-0" />
+                      </button>
+                    )}
+                    <button 
+                      className="flex-1 h-7 rounded-full flex items-center justify-center gap-1 text-white text-xs font-medium" 
+                      style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+                    >
+                      <img src={fireIcon} alt="Fire" className="w-3 h-3 brightness-0 invert" />
+                      <span>FIRE</span>
+                    </button>
+                    <button 
+                      onClick={() => setShowPaymentDialog(true)}
+                      className="flex-1 h-7 rounded-full text-black text-xs font-bold" 
+                      style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+                    >
+                      CHARGE {formatPrice(selectedGuest.total)}
+                    </button>
+                  </>
+                );
+              })()
             )}
           </div>
         </div>

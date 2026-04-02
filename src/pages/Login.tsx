@@ -5935,34 +5935,26 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             </p>
 
             <div className="w-full space-y-3">
-              <div className="flex gap-2 mb-2">
-                <button
-                  onClick={() => { setMagicLinkInputType("email"); setActivationError(""); }}
-                  className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${isEmail ? "bg-primary/10 text-primary border border-primary/20" : "bg-foreground/[0.03] text-foreground/50 border border-foreground/[0.06]"}`}
-                >
-                  Email
-                </button>
-                <button
-                  onClick={() => { setMagicLinkInputType("phone"); setActivationError(""); }}
-                  className={`flex-1 py-2 rounded-xl text-sm font-medium transition-all ${!isEmail ? "bg-primary/10 text-primary border border-primary/20" : "bg-foreground/[0.03] text-foreground/50 border border-foreground/[0.06]"}`}
-                >
-                  Phone
-                </button>
-              </div>
-
               <div className="relative">
-                {isEmail ? (
+                {(magicLinkEmail.includes("@") || (!(/^\d|^\(/.test(isEmail ? magicLinkEmail : magicLinkPhone)))) ? (
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
                 ) : (
                   <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
                 )}
                 <Input
-                  type={isEmail ? "email" : "tel"}
-                  placeholder={isEmail ? "Enter your email" : "Enter your phone number"}
+                  type="text"
+                  placeholder="your@email.com or phone number"
                   value={isEmail ? magicLinkEmail : magicLinkPhone}
                   onChange={(e) => {
-                    if (isEmail) setMagicLinkEmail(e.target.value);
-                    else setMagicLinkPhone(e.target.value);
+                    const val = e.target.value;
+                    if (val.includes("@") || !(/^\d|^\(/.test(val) && val.replace(/\D/g, '').length > 0)) {
+                      setMagicLinkInputType("email");
+                      setMagicLinkEmail(val);
+                    } else {
+                      setMagicLinkInputType("phone");
+                      setMagicLinkPhone(val.replace(/\D/g, "").slice(0, 10));
+                      setMagicLinkEmail(val);
+                    }
                     setActivationError("");
                   }}
                   className="h-14 pl-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"

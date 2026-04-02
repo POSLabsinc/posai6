@@ -246,7 +246,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
 
       <div className="flex-1 overflow-y-auto scrollbar-hide pt-0 px-6 pb-28">
         {/* Name, Revenue Center, Ordering Source */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+        <div className="bg-neutral-800/60 rounded-2xl" style={{ overflow: "visible" }}>
           <div className="flex items-center justify-between py-3.5 px-4 border-b border-neutral-700/30">
             <span className="text-foreground text-[15px]">Timed Pricing Name</span>
             <div className="flex items-center gap-1">

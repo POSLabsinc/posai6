@@ -3774,7 +3774,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
 
           {/* Bottom Actions */}
           <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
-            {(refundStep === 'closed' || getTotalRefundedAmount(selectedGuest) > 0) && selectedGuest.paid ? (
+            {(refundStep === 'closed' || refundStep === null || getTotalRefundedAmount(selectedGuest) > 0) && selectedGuest.paid ? (
               // Only show refund button if there's remaining amount to refund
               getRemainingRefundableAmount(selectedGuest) > 0 ? (
                 <button 

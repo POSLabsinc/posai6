@@ -736,16 +736,47 @@ export const ClockInOverlay = ({
             </div>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <MapPin className="w-5 h-5 md:w-6 md:h-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
-              <p className="text-white text-lg md:text-xl font-bold">
-                {clockInSummary!.revenueCenter}
-              </p>
-            </div>
+          <div className="relative">
+            <button
+              onClick={() => setShowSummaryRevenueCenterDropdown(!showSummaryRevenueCenterDropdown)}
+              className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
+            >
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <MapPin className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
+                <p className="text-white text-lg md:text-xl font-bold">
+                  {clockInSummary!.revenueCenter}
+                </p>
+              </div>
+              <ChevronDown className={`w-5 h-5 text-white/60 transition-transform ${showSummaryRevenueCenterDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            <AnimatePresence>
+              {showSummaryRevenueCenterDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="mt-1 bg-white/10 backdrop-blur-xl rounded-xl overflow-hidden"
+                >
+                  {revenueCenters.map(center => (
+                    <button
+                      key={center}
+                      onClick={() => {
+                        setClockInSummary(prev => prev ? { ...prev, revenueCenter: center } : prev);
+                        setShowSummaryRevenueCenterDropdown(false);
+                      }}
+                      className={`w-full px-4 py-3 text-left text-sm flex items-center justify-between transition-colors hover:bg-white/10 ${clockInSummary!.revenueCenter === center ? 'bg-white/10' : ''}`}
+                    >
+                      <span className="text-white font-medium">{center}</span>
+                      {clockInSummary!.revenueCenter === center && <Check className="w-4 h-4 text-emerald-400" />}
+                    </button>
+                  ))}
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4">

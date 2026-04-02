@@ -93,11 +93,10 @@ const ClosingGracePeriodModal = ({
   };
 
   return (
-    <div className={`fixed inset-0 z-[10001] ${isOpen ? '' : 'pointer-events-none hidden'}`}>
     <Dialog open={isOpen} onOpenChange={() => {}}>
       <DialogContent
         hideCloseButton
-        className="max-w-md w-full p-0 gap-0 bg-neutral-900 border-neutral-700 rounded-2xl overflow-hidden z-[10001]"
+        className="max-w-md w-full p-0 gap-0 bg-neutral-900 border-neutral-700 rounded-2xl overflow-hidden"
         onPointerDownOutside={(e) => e.preventDefault()}
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
@@ -317,7 +316,6 @@ const ClosingGracePeriodModal = ({
         confirmText="Confirm"
       />
     </Dialog>
-    </div>
   );
 };
 

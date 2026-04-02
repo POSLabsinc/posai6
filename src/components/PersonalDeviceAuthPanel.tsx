@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, User, ShieldCheck, Lock, CheckCircle2, Send, Clock } from "lucide-react";
-import eatosLogo from "@/assets/icons/eatos-logo.svg";
+import eatosLogo from "@/assets/icons/posai-logo.png";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useState, useEffect } from "react";
 
@@ -174,7 +174,7 @@ export const PersonalDeviceAuthPanel = ({ currentScreen, invitedUser }: Personal
         {/* Logo */}
         <motion.img
           src={eatosLogo}
-          alt="eatOS"
+          alt="POS AI"
           className="w-24 h-auto mb-12"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

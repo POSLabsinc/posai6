@@ -16,7 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import eatosLogo from "@/assets/icons/eatos-logo.svg";
+import eatosLogo from "@/assets/icons/posai-logo.png";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -786,7 +786,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           {/* Logo */}
           <motion.img
             src={eatosLogo}
-            alt="eatOS"
+            alt="POS AI"
             className="w-24 h-auto mb-4"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -901,7 +901,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           {/* Logo - only show on mobile */}
           <motion.img
             src={eatosLogo}
-            alt="eatOS"
+            alt="POS AI"
             className="w-16 h-auto mb-3 md:hidden"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -3920,7 +3920,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           {/* Logo - only show on mobile */}
           <motion.img
             src={eatosLogo}
-            alt="eatOS"
+            alt="POS AI"
             className="w-16 h-auto mb-3 md:hidden"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -4633,7 +4633,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <div className="flex-1 flex flex-col justify-center px-10 lg:px-14 py-10">
               <motion.img
                 src={eatosLogo}
-                alt="eatOS"
+                alt="POS AI"
                 className="w-24 h-auto mb-12"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -6934,7 +6934,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           {/* Logo & Title */}
           <motion.img
             src={eatosLogo}
-            alt="eatOS"
+            alt="POS AI"
             className="w-20 h-auto mb-4"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -7111,7 +7111,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             {/* Logo */}
             <motion.img
               src={eatosLogo}
-              alt="eatOS"
+              alt="POS AI"
               className="w-20 h-auto mb-10"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

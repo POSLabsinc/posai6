@@ -275,7 +275,10 @@ const EditMenuContent = ({
 
         {/* Organize */}
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
-          <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
+          <button
+            className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
+            onClick={() => setShowOrganize(true)}
+          >
             <span className="text-foreground text-base font-medium">Organize</span>
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground text-base">Organize Categories</span>

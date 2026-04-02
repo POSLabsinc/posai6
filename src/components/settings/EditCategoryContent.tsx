@@ -152,22 +152,18 @@ const EditCategoryContent = ({ category, onBack, onSave, parentCategoryOptions =
         </p>
 
         {/* Menu Display Name */}
-        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
-          <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
-            <span className="text-foreground text-base font-medium">Menu Display Name</span>
-            <div className="flex items-center gap-1">
-              <input
-                type="text"
-                value={menuDisplayName}
-                onChange={(e) => setMenuDisplayName(e.target.value)}
-                placeholder=""
-                className="bg-transparent text-right text-foreground placeholder:text-neutral-500 outline-none text-base w-32"
-                onClick={(e) => e.stopPropagation()}
-              />
-              <ChevronRight className="w-4 h-4 text-neutral-500" />
-            </div>
-          </button>
-        </div>
+        <label className="bg-neutral-800/60 rounded-full overflow-hidden mb-1 block cursor-text">
+          <div className="w-full flex items-center justify-between py-4 px-4">
+            <span className="text-foreground text-base font-medium flex-shrink-0 mr-4">Menu Display Name</span>
+            <input
+              type="text"
+              value={menuDisplayName}
+              onChange={(e) => setMenuDisplayName(e.target.value)}
+              placeholder="Enter name"
+              className="bg-transparent text-right text-foreground placeholder:text-neutral-500 outline-none text-base flex-1 min-w-0"
+            />
+          </div>
+        </label>
         <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">
           Enter a custom name if you want this category to appear differently on the menu display. Useful for customer-facing screens or online menus.
         </p>

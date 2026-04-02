@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import OrganizeCategoriesContent from "@/components/settings/OrganizeCategoriesContent";
 
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
@@ -57,6 +58,7 @@ const EditMenuContent = ({
   const [showCategoriesSheet, setShowCategoriesSheet] = useState(false);
   const [showRevenueCentersSheet, setShowRevenueCentersSheet] = useState(false);
   const [selectedRevenueCenters, setSelectedRevenueCenters] = useState<string[]>([]);
+  const [showOrganize, setShowOrganize] = useState(false);
 
   const [activeChannels, setActiveChannels] = useState<Record<string, boolean>>({
     pos: false, pop: false, kiosk: false, orderos: false,
@@ -176,6 +178,18 @@ const EditMenuContent = ({
     );
   }
 
+  if (showOrganize) {
+    return (
+      <OrganizeCategoriesContent
+        categories={selectedCategories}
+        onBack={(reordered) => {
+          setSelectedCategories(reordered);
+          setShowOrganize(false);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">
       {/* Header */}
@@ -273,7 +287,10 @@ const EditMenuContent = ({
 
         {/* Organize */}
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
-          <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
+          <button
+            className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
+            onClick={() => setShowOrganize(true)}
+          >
             <span className="text-foreground text-base font-medium">Organize</span>
             <div className="flex items-center gap-1">
               <span className="text-muted-foreground text-base">Organize Categories</span>

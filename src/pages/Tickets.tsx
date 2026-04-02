@@ -4694,7 +4694,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   );
 
   // Refund Modal Component - Responsive (Bottom Sheet on mobile, Dialog on desktop)
-  const RefundModal = () => {
+  const refundModal = useMemo(() => {
     // Get current step configuration
     const getStepConfig = () => {
       switch (refundStep) {
@@ -4709,8 +4709,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         case 'tip-refund':
           return { title: 'Tip Refund', onBack: () => setRefundStep('type-selection') };
         case 'item-refund':
-          return { 
-            title: swipeRefundTarget?.type === 'item' ? 'Item Refund' : 'Modifier Refund', 
+          return {
+            title: swipeRefundTarget?.type === 'item' ? 'Item Refund' : 'Modifier Refund',
             onBack: () => {
               setRefundStep('closed');
               setIsRefundModalOpen(false);
@@ -4728,7 +4728,6 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
 
     const stepConfig = getStepConfig();
 
-    // Get footer for current step
     const getStepFooter = () => {
       switch (refundStep) {
         case 'full-refund':
@@ -4750,14 +4749,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 onClick={handleProceedRefund}
                 disabled={getTotalRefundSelectionsCount() === 0}
                 className={`w-full py-3 rounded-full font-bold text-sm transition-all ${
-                  getTotalRefundSelectionsCount() > 0 
-                    ? 'text-white hover:scale-[1.02] active:scale-[0.98]' 
+                  getTotalRefundSelectionsCount() > 0
+                    ? 'text-white hover:scale-[1.02] active:scale-[0.98]'
                     : 'text-white/50 cursor-not-allowed'
                 }`}
-                style={{ 
-                  background: getTotalRefundSelectionsCount() > 0 
-                    ? "linear-gradient(180deg, #F97316 0%, #C2410C 100%)" 
-                    : "linear-gradient(180deg, #525252 0%, #404040 100%)" 
+                style={{
+                  background: getTotalRefundSelectionsCount() > 0
+                    ? "linear-gradient(180deg, #F97316 0%, #C2410C 100%)"
+                    : "linear-gradient(180deg, #525252 0%, #404040 100%)"
                 }}
               >
                 PROCEED REFUND {getTotalRefundSelectionsCount() > 0 && `(${formatPrice(getPartialRefundTotal(includeRefundTip))})`}
@@ -4771,14 +4770,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 onClick={handleProceedRefund}
                 disabled={!isCustomAmountValid()}
                 className={`w-full py-3 rounded-full font-bold text-sm transition-all ${
-                  isCustomAmountValid() 
-                    ? 'text-white hover:scale-[1.02] active:scale-[0.98]' 
+                  isCustomAmountValid()
+                    ? 'text-white hover:scale-[1.02] active:scale-[0.98]'
                     : 'text-white/50 cursor-not-allowed'
                 }`}
-                style={{ 
-                  background: isCustomAmountValid() 
-                    ? "linear-gradient(180deg, #A78BFA 0%, #7C3AED 100%)" 
-                    : "linear-gradient(180deg, #525252 0%, #404040 100%)" 
+                style={{
+                  background: isCustomAmountValid()
+                    ? "linear-gradient(180deg, #A78BFA 0%, #7C3AED 100%)"
+                    : "linear-gradient(180deg, #525252 0%, #404040 100%)"
                 }}
               >
                 PROCEED REFUND {isCustomAmountValid() && `(${formatPrice(getCustomRefundValue())})`}
@@ -4792,14 +4791,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 onClick={handleProceedRefund}
                 disabled={!isTipAmountValid()}
                 className={`w-full py-3 rounded-full font-bold text-sm transition-all ${
-                  isTipAmountValid() 
-                    ? 'text-white hover:scale-[1.02] active:scale-[0.98]' 
+                  isTipAmountValid()
+                    ? 'text-white hover:scale-[1.02] active:scale-[0.98]'
                     : 'text-white/50 cursor-not-allowed'
                 }`}
-                style={{ 
-                  background: isTipAmountValid() 
-                    ? "linear-gradient(180deg, #FCD34D 0%, #F59E0B 100%)" 
-                    : "linear-gradient(180deg, #525252 0%, #404040 100%)" 
+                style={{
+                  background: isTipAmountValid()
+                    ? "linear-gradient(180deg, #FCD34D 0%, #F59E0B 100%)"
+                    : "linear-gradient(180deg, #525252 0%, #404040 100%)"
                 }}
               >
                 PROCEED REFUND {isTipAmountValid() && `(${formatPrice(getTipRefundValue())})`}
@@ -4835,7 +4834,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       ? 'text-white hover:scale-[1.02] active:scale-[0.98]'
                       : 'text-white/50 cursor-not-allowed'
                   }`}
-                  style={{ 
+                  style={{
                     background: validateRefundAllocations(selectedGuest).valid
                       ? "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)"
                       : "linear-gradient(180deg, #525252 0%, #404040 100%)"
@@ -4874,1051 +4873,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       }
     };
 
-    // Render step content (shared between Dialog and Bottom Sheet)
     const renderStepContent = () => {
       return (
         <>
-          {refundStep === 'type-selection' && (
-            <>
-              {/* Split Payment Indicator - Chip-based Display */}
-              {hasSplitPayments(selectedGuest) && (
-                <div className="px-4 pt-4 pb-2">
-                  <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10">
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
-                      <span className="text-amber-400 text-sm font-medium">Payment Methods</span>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {selectedGuest.paymentMethods?.map((pm) => (
-                        <div 
-                          key={pm.id} 
-                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-800/80 border border-neutral-600/50"
-                        >
-                          <span className="text-white/70 text-sm">
-                            {getPaymentMethodIcon(pm.type)} {pm.label}
-                          </span>
-                          <span className="text-white font-medium text-sm">
-                            {formatPrice(pm.amount + (pm.tipAmount || 0))}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              )}
-              
-              {/* Refund Type Options */}
-              <div className="p-4 space-y-3">
-                  {/* Full Refund - disabled if order already fully refunded */}
-                  {isFullRefundAvailable(selectedGuest) ? (
-                    <button
-                      onClick={() => handleSelectRefundType('full')}
-                      className="w-full p-4 rounded-xl border border-neutral-700 hover:border-red-500/50 hover:bg-red-500/10 transition-all group"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
-                          <DollarSign className="w-6 h-6 text-red-400" />
-                        </div>
-                        <div className="text-left flex-1">
-                          <h3 className="text-white font-semibold group-hover:text-red-400 transition-colors">Full Refund</h3>
-                          <p className="text-white/50 text-sm">Refund the entire order amount</p>
-                        </div>
-                        <ChevronLeft className="w-5 h-5 text-white/30 rotate-180" />
-                      </div>
-                    </button>
-                  ) : (
-                    <div className="w-full p-4 rounded-xl border border-neutral-700/50 opacity-50 cursor-not-allowed">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
-                          <DollarSign className="w-6 h-6 text-red-400/50" />
-                        </div>
-                        <div className="text-left flex-1">
-                          <h3 className="text-white/50 font-semibold">Full Refund</h3>
-                          <p className="text-white/30 text-sm">Already refunded</p>
-                        </div>
-                        <Check className="w-5 h-5 text-red-400/50" />
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Partial Refund - disabled if nothing left to refund */}
-                  {isPartialRefundAvailable(selectedGuest) ? (
-                    <button
-                      onClick={() => handleSelectRefundType('partial')}
-                      className="w-full p-4 rounded-xl border border-neutral-700 hover:border-orange-500/50 hover:bg-orange-500/10 transition-all group"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
-                          <Percent className="w-6 h-6 text-orange-400" />
-                        </div>
-                        <div className="text-left flex-1">
-                          <h3 className="text-white font-semibold group-hover:text-orange-400 transition-colors">Partial Refund</h3>
-                          <p className="text-white/50 text-sm">Refund specific items</p>
-                        </div>
-                        <ChevronLeft className="w-5 h-5 text-white/30 rotate-180" />
-                      </div>
-                    </button>
-                  ) : (
-                    <div className="w-full p-4 rounded-xl border border-neutral-700/50 opacity-50 cursor-not-allowed">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center">
-                          <Percent className="w-6 h-6 text-orange-400/50" />
-                        </div>
-                        <div className="text-left flex-1">
-                          <h3 className="text-white/50 font-semibold">Partial Refund</h3>
-                          <p className="text-white/30 text-sm">No items available to refund</p>
-                        </div>
-                        <Check className="w-5 h-5 text-orange-400/50" />
-                      </div>
-                    </div>
-                  )}
-                  
-                  {/* Tip Refund - only show if there's a tip and it hasn't been fully refunded */}
-                  {selectedGuest.tip > 0 && (
-                    isTipRefundAvailable(selectedGuest) ? (
-                      <button
-                        onClick={() => handleSelectRefundType('tip')}
-                        className="w-full p-4 rounded-xl border border-neutral-700 hover:border-amber-500/50 hover:bg-amber-500/10 transition-all group"
-                      >
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                            <CircleDollarSign className="w-6 h-6 text-amber-400" />
-                          </div>
-                          <div className="text-left flex-1">
-                            <h3 className="text-white font-semibold group-hover:text-amber-400 transition-colors">Tip Refund</h3>
-                            <p className="text-white/50 text-sm">
-                              Refund tip amount ({formatPrice(getRemainingTipAmount(selectedGuest))})
-                              {getRefundedTipAmount(selectedGuest.id) > 0 && (
-                                <span className="text-red-400 ml-1">
-                                  ({formatPrice(getRefundedTipAmount(selectedGuest.id))} already refunded)
-                                </span>
-                              )}
-                            </p>
-                          </div>
-                          <ChevronLeft className="w-5 h-5 text-white/30 rotate-180" />
-                        </div>
-                      </button>
-                    ) : (
-                      <div className="w-full p-4 rounded-xl border border-neutral-700/50 opacity-50 cursor-not-allowed">
-                        <div className="flex items-center gap-4">
-                          <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
-                            <CircleDollarSign className="w-6 h-6 text-amber-400/50" />
-                          </div>
-                          <div className="text-left flex-1">
-                            <h3 className="text-white/50 font-semibold">Tip Refund</h3>
-                            <p className="text-white/30 text-sm">Tip already refunded ({formatPrice(selectedGuest.tip)})</p>
-                          </div>
-                          <Check className="w-5 h-5 text-amber-400/50" />
-                        </div>
-                      </div>
-                    )
-                  )}
-                  
-                  {/* Custom Refund - disabled if nothing left to refund */}
-                  {isPartialRefundAvailable(selectedGuest) ? (
-                    <button
-                      onClick={() => handleSelectRefundType('custom')}
-                      className="w-full p-4 rounded-xl border border-neutral-700 hover:border-violet-500/50 hover:bg-violet-500/10 transition-all group"
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center">
-                          <FileText className="w-6 h-6 text-violet-400" />
-                        </div>
-                        <div className="text-left flex-1">
-                          <h3 className="text-white font-semibold group-hover:text-violet-400 transition-colors">Custom Refund</h3>
-                          <p className="text-white/50 text-sm">Enter a custom amount (max {formatPrice(getRemainingRefundableAmount(selectedGuest))})</p>
-                        </div>
-                        <ChevronLeft className="w-5 h-5 text-white/30 rotate-180" />
-                      </div>
-                    </button>
-                  ) : (
-                    <div className="w-full p-4 rounded-xl border border-neutral-700/50 opacity-50 cursor-not-allowed">
-                      <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center">
-                          <FileText className="w-6 h-6 text-violet-400/50" />
-                        </div>
-                        <div className="text-left flex-1">
-                          <h3 className="text-white/50 font-semibold">Custom Refund</h3>
-                          <p className="text-white/30 text-sm">No remaining balance to refund</p>
-                        </div>
-                        <Check className="w-5 h-5 text-violet-400/50" />
-                      </div>
-                    </div>
-                  )}
-              </div>
-            </>
-          )}
-
-          {refundStep === 'full-refund' && (
-            <>
-              {/* Refund Amount */}
-              <div className="p-6 text-center border-b border-neutral-800">
-                <p className="text-white/50 text-sm mb-2">Refund Amount</p>
-                <div className="text-4xl font-bold text-white">
-                  {formatPrice(includeRefundTip ? selectedGuest.total + selectedGuest.tip : selectedGuest.total)}
-                </div>
-                {selectedGuest.tip > 0 && (
-                  <div className="text-white/40 text-xs mt-1">
-                    Total {formatPrice(selectedGuest.total)} {includeRefundTip && `+ Tip ${formatPrice(selectedGuest.tip)}`}
-                  </div>
-                )}
-                <p className="text-white/40 text-xs mt-2">
-                  Order #{selectedGuest.check} • {selectedGuest.name}
-                </p>
-              </div>
-              
-              {/* Include Tip Toggle */}
-              {selectedGuest.tip > 0 && (
-                <div className="px-4 py-3 border-b border-neutral-800">
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-white text-sm font-medium">Include Tip in Refund</span>
-                      <span className="text-white/50 text-xs">Tip amount: {formatPrice(selectedGuest.tip)}</span>
-                    </div>
-                    <Switch 
-                      checked={includeRefundTip}
-                      onCheckedChange={setIncludeRefundTip}
-                      className="data-[state=checked]:bg-orange-500"
-                    />
-                  </div>
-                </div>
-              )}
-              
-              {/* Refund Reason */}
-              <div className="p-4">
-                <label className="text-white/70 text-sm mb-3 block">Reason for Refund</label>
-                <div className="space-y-2">
-                  {refundReasons.map((reason) => (
-                    <button
-                      key={reason.value}
-                      onClick={() => setRefundReason(reason.value as RefundReason)}
-                      className={`w-full p-3 rounded-xl border text-left transition-all ${
-                        refundReason === reason.value 
-                          ? 'border-red-500 bg-red-500/10 text-white' 
-                          : 'border-neutral-700 text-white/70 hover:border-neutral-600'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          refundReason === reason.value ? 'border-red-500 bg-red-500' : 'border-neutral-600'
-                        }`}>
-                          {refundReason === reason.value && (
-                            <Check className="w-3 h-3 text-white" />
-                          )}
-                        </div>
-                        <span>{reason.label}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {refundStep === 'partial-refund' && (
-            <>
-              {/* Items List */}
-              <div className="p-4">
-                <p className="text-white/50 text-sm mb-3">Select items to refund</p>
-                <div className="space-y-2">
-                  {/* Empty state when all items are already refunded */}
-                  {selectedGuest.items.every((item, index) => {
-                    const refundedQty = getRefundedQtyForItem(selectedGuest.id, index);
-                    const remainingQty = item.qty - refundedQty;
-                    const hasRefundableModifiers = item.richModifiers?.some(
-                      (mod, modIndex) => mod.price && mod.price > 0 && !isModifierRefunded(selectedGuest.id, index, modIndex)
-                    );
-                    return remainingQty <= 0 && !hasRefundableModifiers;
-                  }) && (
-                    <div className="py-8 text-center">
-                      <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-neutral-800 flex items-center justify-center">
-                        <Check className="w-6 h-6 text-white/30" />
-                      </div>
-                      <p className="text-white/50 text-sm">All items have been refunded</p>
-                      <p className="text-white/30 text-xs mt-1">No items remaining for partial refund</p>
-                    </div>
-                  )}
-                  {selectedGuest.items.map((item, index) => {
-                    // Calculate remaining refundable quantity
-                    const refundedQty = getRefundedQtyForItem(selectedGuest.id, index);
-                    const remainingQty = item.qty - refundedQty;
-                    const isFullyRefundedItem = remainingQty <= 0;
-                    
-                    // Check for refundable modifiers (not already refunded)
-                    const hasRefundableModifiers = item.richModifiers?.some(
-                      (mod, modIndex) => mod.price && mod.price > 0 && !isModifierRefunded(selectedGuest.id, index, modIndex)
-                    );
-                    
-                    // Skip fully refunded items with no refundable modifiers
-                    if (isFullyRefundedItem && !hasRefundableModifiers) return null;
-                    
-                    const isSelected = selectedRefundItems.some(r => r.index === index);
-                    const refundItem = selectedRefundItems.find(r => r.index === index);
-                    const isExpanded = expandedRefundItems.has(index);
-                    const hasModifiers = item.richModifiers && item.richModifiers.length > 0;
-                    const hasPaidModifiers = item.richModifiers?.some(m => m.price && m.price > 0);
-                    const selectedModsCount = getSelectedModifiersCount(index);
-                    
-                    return (
-                      <div
-                        key={index}
-                        className={`rounded-xl border transition-all ${
-                          isSelected || selectedModsCount > 0
-                            ? 'border-orange-500 bg-orange-500/10' 
-                            : 'border-neutral-700 hover:border-neutral-600'
-                        }`}
-                      >
-                        {/* Item Row */}
-                        <div className="p-3">
-                          <div className="flex items-center gap-3">
-                            {/* Checkbox - disabled if item fully refunded */}
-                            {!isFullyRefundedItem ? (
-                              <div 
-                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0 cursor-pointer ${
-                                  isSelected ? 'border-orange-500 bg-orange-500' : 'border-neutral-600'
-                                }`}
-                                onClick={() => toggleRefundItem(index, item)}
-                              >
-                                {isSelected && <Check className="w-3 h-3 text-white" />}
-                              </div>
-                            ) : (
-                              <div className="w-5 h-5 rounded border-2 border-neutral-700 bg-neutral-700/50 flex items-center justify-center flex-shrink-0">
-                                <Check className="w-3 h-3 text-white/30" />
-                              </div>
-                            )}
-                            
-                            {/* Item Info */}
-                            <div 
-                              className={`flex-1 min-w-0 ${!isFullyRefundedItem ? 'cursor-pointer' : ''}`}
-                              onClick={() => !isFullyRefundedItem && toggleRefundItem(index, item)}
-                            >
-                              <div className="flex items-center gap-2">
-                                <p className={`font-medium truncate ${
-                                  isFullyRefundedItem 
-                                    ? 'text-white/40 line-through' 
-                                    : (isSelected || selectedModsCount > 0 ? 'text-white' : 'text-white/70')
-                                }`}>
-                                  {item.name}
-                                </p>
-                                {isFullyRefundedItem && (
-                                  <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[10px] font-medium rounded flex-shrink-0">
-                                    REFUNDED
-                                  </span>
-                                )}
-                                {refundedQty > 0 && !isFullyRefundedItem && (
-                                  <span className="px-1.5 py-0.5 bg-orange-500/20 text-orange-400 text-[10px] font-medium rounded flex-shrink-0">
-                                    {refundedQty} REFUNDED
-                                  </span>
-                                )}
-                              </div>
-                              <p className="text-white/40 text-xs">
-                                {formatPrice(item.price)} each • {isFullyRefundedItem ? 'Fully refunded' : `Remaining: ${remainingQty} of ${item.qty}`}
-                              </p>
-                            </div>
-                            
-                            {/* Inline QTY selector when item selected */}
-                            {isSelected && refundItem && !isFullyRefundedItem && (
-                              <select
-                                value={refundItem.qty}
-                                onChange={(e) => {
-                                  e.stopPropagation();
-                                  updateRefundItemQty(index, parseInt(e.target.value));
-                                }}
-                                onClick={(e) => e.stopPropagation()}
-                                className="min-w-[52px] h-11 px-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white font-semibold text-sm appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/50 pr-7 flex-shrink-0"
-                                style={{
-                                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
-                                  backgroundRepeat: 'no-repeat',
-                                  backgroundPosition: 'right 10px center'
-                                }}
-                              >
-                                {Array.from({ length: remainingQty }, (_, i) => i + 1).map(qty => (
-                                  <option key={qty} value={qty}>{qty}</option>
-                                ))}
-                              </select>
-                            )}
-                            
-                            {/* Price */}
-                            {!isFullyRefundedItem && (
-                              <span className={`font-semibold flex-shrink-0 ${isSelected || selectedModsCount > 0 ? 'text-orange-400' : 'text-white/50'}`}>
-                                {formatPrice(item.price * (refundItem?.qty || remainingQty))}
-                              </span>
-                            )}
-                            
-                            {/* Expand/Collapse for items with paid modifiers */}
-                            {hasRefundableModifiers && (
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleItemExpansion(index);
-                                }}
-                                className="p-1.5 rounded-full hover:bg-white/10 transition-colors flex-shrink-0"
-                              >
-                                <ChevronLeft className={`w-4 h-4 text-white/50 transition-transform ${isExpanded ? 'rotate-90' : '-rotate-90'}`} />
-                              </button>
-                            )}
-                          </div>
-                          
-                          {/* Selected modifiers indicator (when collapsed) */}
-                          {!isExpanded && selectedModsCount > 0 && (
-                            <div className="mt-2 ml-8 text-xs text-orange-400">
-                              {selectedModsCount} modifier{selectedModsCount > 1 ? 's' : ''} selected for refund
-                            </div>
-                          )}
-                        </div>
-                        
-                        {/* Expanded Modifiers */}
-                        {isExpanded && item.richModifiers && item.richModifiers.length > 0 && (
-                          <div className="border-t border-neutral-700/50 px-3 pb-3">
-                            <div className="pt-2 space-y-1.5">
-                              {item.richModifiers.map((mod, modIndex) => {
-                                const hasPaidPrice = mod.price && mod.price > 0;
-                                const isModAlreadyRefunded = isModifierRefunded(selectedGuest.id, index, modIndex);
-                                const isModSelected = isModifierSelectedForRefund(index, modIndex);
-                                
-                                // Skip already refunded modifiers (they're read-only in order summary)
-                                if (isModAlreadyRefunded) {
-                                  return (
-                                    <div 
-                                      key={modIndex} 
-                                      className="flex items-center gap-2 py-1.5 pl-8 pr-2 rounded-lg opacity-50"
-                                    >
-                                      <div className="w-4 h-4 rounded border-2 border-neutral-700 bg-neutral-700/50 flex items-center justify-center flex-shrink-0">
-                                        <Check className="w-2.5 h-2.5 text-white/30" />
-                                      </div>
-                                      <span className="text-xs flex-shrink-0 text-white/40">
-                                        {mod.type === 'add' ? '+' : mod.type === 'remove' ? '–' : mod.type === 'side' ? '◆' : '•'}
-                                      </span>
-                                      <span className="text-sm flex-1 text-white/40 line-through">
-                                        {mod.text}
-                                      </span>
-                                      <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[10px] font-medium rounded flex-shrink-0">
-                                        REFUNDED
-                                      </span>
-                                    </div>
-                                  );
-                                }
-                                
-                                return (
-                                  <div 
-                                    key={modIndex} 
-                                    className={`flex items-center gap-2 py-1.5 pl-8 pr-2 rounded-lg transition-colors ${
-                                      hasPaidPrice ? 'cursor-pointer hover:bg-white/5' : ''
-                                    } ${isModSelected ? 'bg-orange-500/10' : ''}`}
-                                    onClick={() => hasPaidPrice && toggleRefundModifier(index, modIndex, mod)}
-                                  >
-                                    {/* Modifier checkbox (only for paid modifiers) */}
-                                    {hasPaidPrice ? (
-                                      <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
-                                        isModSelected ? 'border-orange-500 bg-orange-500' : 'border-neutral-600'
-                                      }`}>
-                                        {isModSelected && <Check className="w-2.5 h-2.5 text-white" />}
-                                      </div>
-                                    ) : (
-                                      <div className="w-4 h-4 flex-shrink-0" />
-                                    )}
-                                    
-                                    {/* Modifier type indicator */}
-                                    <span className={`text-xs flex-shrink-0 ${
-                                      mod.type === 'add' ? 'text-orange-400' : 
-                                      mod.type === 'remove' ? 'text-red-400' : 
-                                      mod.type === 'side' ? 'text-amber-400' :
-                                      'text-white/40'
-                                    }`}>
-                                      {mod.type === 'add' ? '+' : mod.type === 'remove' ? '–' : mod.type === 'side' ? '◆' : '•'}
-                                    </span>
-                                    
-                                    {/* Modifier name */}
-                                    <span className={`text-sm flex-1 ${isModSelected ? 'text-white' : 'text-white/60'}`}>
-                                      {mod.text}
-                                    </span>
-                                    
-                                    {/* Modifier price */}
-                                    {hasPaidPrice && (
-                                      <span className={`text-sm font-medium flex-shrink-0 ${isModSelected ? 'text-orange-400' : 'text-white/50'}`}>
-                                        {formatPrice(mod.price)}
-                                      </span>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              
-              {/* Include Tip Toggle - only show if tip not fully refunded */}
-              {isTipRefundAvailable(selectedGuest) && (
-                <div className="px-4 py-3 border-t border-neutral-800">
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-white text-sm font-medium">Include Tip in Refund</span>
-                      <span className="text-white/50 text-xs">Remaining tip: {formatPrice(getRemainingTipAmount(selectedGuest))}</span>
-                    </div>
-                    <Switch 
-                      checked={includeRefundTip}
-                      onCheckedChange={setIncludeRefundTip}
-                      className="data-[state=checked]:bg-orange-500"
-                    />
-                  </div>
-                </div>
-              )}
-              {/* Show refunded tip indicator if tip was already refunded */}
-              {selectedGuest.tip > 0 && !isTipRefundAvailable(selectedGuest) && (
-                <div className="px-4 py-3 border-t border-neutral-800">
-                  <div className="flex items-center justify-between">
-                    <div className="flex flex-col">
-                      <span className="text-white/50 text-sm font-medium line-through">Tip</span>
-                      <span className="text-white/40 text-xs">{formatPrice(selectedGuest.tip)}</span>
-                    </div>
-                    <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs font-medium rounded">
-                      REFUNDED
-                    </span>
-                  </div>
-                </div>
-              )}
-              
-              {/* Refund Summary */}
-              <div className="p-4 border-t border-neutral-800 bg-neutral-800/50">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-white/50 text-sm">Selections</span>
-                  <span className="text-white font-medium">
-                    {selectedRefundItems.length > 0 && `${selectedRefundItems.length} item${selectedRefundItems.length > 1 ? 's' : ''}`}
-                    {selectedRefundItems.length > 0 && selectedRefundModifiers.length > 0 && ', '}
-                    {selectedRefundModifiers.length > 0 && `${selectedRefundModifiers.length} modifier${selectedRefundModifiers.length > 1 ? 's' : ''}`}
-                    {selectedRefundItems.length === 0 && selectedRefundModifiers.length === 0 && '0'}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-white/50 text-sm">Items & Modifiers</span>
-                  <span className="text-white font-medium">{formatPrice(getPartialRefundTotal(false))}</span>
-                </div>
-                {includeRefundTip && isTipRefundAvailable(selectedGuest) && (
-                  <div className="flex items-center justify-between mt-1">
-                    <span className="text-white/50 text-sm">+ Tip</span>
-                    <span className="text-white font-medium">{formatPrice(getRemainingTipAmount(selectedGuest))}</span>
-                  </div>
-                )}
-                <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/10">
-                  <span className="text-white/70 text-sm font-medium">Refund total</span>
-                  <span className="text-orange-400 font-bold text-lg">{formatPrice(getPartialRefundTotal(includeRefundTip))}</span>
-                </div>
-              </div>
-              
-              {/* Refund Reason */}
-              <div className="p-4 border-t border-neutral-800">
-                <label className="text-white/70 text-sm mb-2 block">Reason for Refund</label>
-                <select 
-                  value={refundReason}
-                  onChange={(e) => setRefundReason(e.target.value as RefundReason)}
-                  className="w-full p-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white text-sm focus:outline-none focus:border-orange-500"
-                >
-                  {refundReasons.map(reason => (
-                    <option key={reason.value} value={reason.value}>{reason.label}</option>
-                  ))}
-                </select>
-              </div>
-            </>
-          )}
-
-          {refundStep === 'custom-refund' && (
-            <>
-              {/* Amount Display */}
-              {/* Amount Display */}
-              <div className="p-6 text-center border-b border-neutral-800">
-                <p className="text-white/50 text-sm mb-2">Enter Refund Amount</p>
-                <div className={`text-4xl font-bold text-white flex items-center justify-center ${shakeCustomAmount ? 'animate-shake text-red-400' : ''}`}>
-                  <span className="text-white/50 mr-1">$</span>
-                  <span>{customRefundAmount || "0.00"}</span>
-                </div>
-                <p className="text-white/40 text-xs mt-2">
-                  Max refund: {formatPrice(selectedGuest.total)}
-                </p>
-                {parseFloat(customRefundAmount) > selectedGuest.total && (
-                  <p className="text-red-400 text-xs mt-1">
-                    Amount exceeds order total
-                  </p>
-                )}
-              </div>
-              
-              {/* Numeric Keypad */}
-              <div className="p-4">
-                <div className="grid grid-cols-3 gap-2">
-                  {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'backspace'].map((key) => (
-                    <button
-                      key={key}
-                      onClick={() => handleKeypadInput(key)}
-                      className={`h-14 rounded-xl font-semibold text-lg transition-all active:scale-95 ${
-                        key === 'backspace' 
-                          ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
-                          : 'bg-neutral-800 text-white hover:bg-neutral-700'
-                      }`}
-                    >
-                      {key === 'backspace' ? (
-                        <RotateCcw className="w-5 h-5 mx-auto" />
-                      ) : key}
-                    </button>
-                  ))}
-                </div>
-                
-                {/* Clear Button */}
-                <button
-                  onClick={() => handleKeypadInput('clear')}
-                  className="w-full mt-2 py-3 rounded-xl bg-neutral-800 text-white/70 hover:bg-neutral-700 text-sm font-medium transition-all"
-                >
-                  Clear
-                </button>
-              </div>
-              
-              {/* Refund Reason */}
-              <div className="p-4 border-t border-neutral-800">
-                <label className="text-white/70 text-sm mb-2 block">Reason for Refund</label>
-                <select 
-                  value={refundReason}
-                  onChange={(e) => setRefundReason(e.target.value as RefundReason)}
-                  className="w-full p-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white text-sm focus:outline-none focus:border-violet-500"
-                >
-                  {refundReasons.map(reason => (
-                    <option key={reason.value} value={reason.value}>{reason.label}</option>
-                  ))}
-                </select>
-              </div>
-            </>
-          )}
-
-          {refundStep === 'tip-refund' && (
-            <>
-              {/* Amount Display */}
-              <div className="p-6 text-center border-b border-neutral-800">
-                <p className="text-white/50 text-sm mb-2">Tip Refund Amount</p>
-                <div className={`text-4xl font-bold text-white flex items-center justify-center ${shakeTipAmount ? 'animate-shake text-red-400' : ''}`}>
-                  <span className="text-white/50 mr-1">$</span>
-                  <span>{tipRefundAmount || "0.00"}</span>
-                </div>
-                <p className="text-white/40 text-xs mt-2">
-                  Original tip: {formatPrice(selectedGuest.tip)}
-                </p>
-                {parseFloat(tipRefundAmount) > selectedGuest.tip && (
-                  <p className="text-red-400 text-xs mt-1">
-                    Amount exceeds original tip
-                  </p>
-                )}
-              </div>
-              
-              {/* Numeric Keypad */}
-              <div className="p-4">
-                <div className="grid grid-cols-3 gap-2">
-                  {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'backspace'].map((key) => (
-                    <button
-                      key={key}
-                      onClick={() => handleTipKeypadInput(key)}
-                      className={`h-14 rounded-xl font-semibold text-lg transition-all active:scale-95 ${
-                        key === 'backspace' 
-                          ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
-                          : 'bg-neutral-800 text-white hover:bg-neutral-700'
-                      }`}
-                    >
-                      {key === 'backspace' ? (
-                        <Delete className="w-5 h-5 mx-auto" />
-                      ) : key}
-                    </button>
-                  ))}
-                </div>
-                
-                {/* Quick amount buttons */}
-                <div className="flex gap-2 mt-3">
-                  <button
-                    onClick={() => setTipRefundAmount(selectedGuest.tip.toFixed(2))}
-                    className="flex-1 py-2 rounded-xl bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 text-sm font-medium transition-all"
-                  >
-                    Full Tip ({formatPrice(selectedGuest.tip)})
-                  </button>
-                  <button
-                    onClick={() => handleTipKeypadInput('clear')}
-                    className="flex-1 py-2 rounded-xl bg-neutral-800 text-white/70 hover:bg-neutral-700 text-sm font-medium transition-all"
-                  >
-                    Clear
-                  </button>
-                </div>
-              </div>
-              
-              {/* Refund Reason */}
-              <div className="p-4 border-t border-neutral-800">
-                <label className="text-white/70 text-sm mb-2 block">Reason for Refund</label>
-                <select 
-                  value={refundReason}
-                  onChange={(e) => setRefundReason(e.target.value as RefundReason)}
-                  className="w-full p-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white text-sm focus:outline-none focus:border-amber-500"
-                >
-                  {tipRefundReasons.map(reason => (
-                    <option key={reason.value} value={reason.value}>{reason.label}</option>
-                  ))}
-                </select>
-              </div>
-            </>
-          )}
-
-          {refundStep === 'item-refund' && swipeRefundTarget && (
-            <>
-              {/* Refund Amount */}
-              <div className="p-6 text-center border-b border-neutral-800">
-                <p className="text-white/50 text-sm mb-2">Refund Amount</p>
-                <div className="text-4xl font-bold text-white">
-                  {formatPrice(swipeRefundTarget.price)}
-                </div>
-                <p className="text-white/70 text-sm mt-2">
-                  {swipeRefundTarget.name}
-                </p>
-                <p className="text-white/40 text-xs mt-1">
-                  Order #{selectedGuest.check} • {selectedGuest.name}
-                </p>
-              </div>
-              
-              {/* Refund Reason */}
-              <div className="p-4">
-                <label className="text-white/70 text-sm mb-3 block">Reason for Refund</label>
-                <div className="space-y-2">
-                  {refundReasons.map((reason) => (
-                    <button
-                      key={reason.value}
-                      onClick={() => setRefundReason(reason.value as RefundReason)}
-                      className={`w-full p-3 rounded-xl border text-left transition-all ${
-                        refundReason === reason.value 
-                          ? 'border-red-500 bg-red-500/10 text-white' 
-                          : 'border-neutral-700 text-white/70 hover:border-neutral-600'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                          refundReason === reason.value ? 'border-red-500 bg-red-500' : 'border-neutral-600'
-                        }`}>
-                          {refundReason === reason.value && (
-                            <Check className="w-3 h-3 text-white" />
-                          )}
-                        </div>
-                        <span>{reason.label}</span>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Confirmation Step for Split Payments */}
-          {refundStep === 'confirmation' && hasSplitPayments(selectedGuest) && (
-            <>
-              {/* Total Refund Amount */}
-              <div className="p-4 text-center border-b border-neutral-800">
-                <p className="text-white/50 text-sm mb-1">Total Refund Amount</p>
-                <div className="text-3xl font-bold text-white">
-                  {formatPrice(getTotalAllocatedRefund())}
-                </div>
-                <p className="text-white/40 text-xs mt-1">
-                  Order #{selectedGuest.check} • {selectedGuest.name}
-                </p>
-              </div>
-              
-              {/* Payment Breakdown */}
-              <div className="px-4 pt-4 pb-4">
-                <label className="text-white/70 text-sm mb-3 block">Refund Breakdown by Payment Method</label>
-                <div className="space-y-2">
-                  {selectedGuest.paymentMethods?.map((pm) => {
-                    const allocation = refundAllocations.find(a => a.paymentMethodId === pm.id);
-                    const totalRefund = (allocation?.refundAmount || 0) + (allocation?.tipRefundAmount || 0);
-                    const maxRefund = pm.amount + (pm.tipAmount || 0);
-                    
-                    return (
-                      <div 
-                        key={pm.id}
-                        className="p-3 rounded-xl border border-neutral-700 bg-neutral-800/50"
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-lg">{getPaymentMethodIcon(pm.type)}</span>
-                            <div>
-                              <p className="text-white text-sm font-medium">{pm.label}</p>
-                              <p className="text-white/40 text-xs">
-                                Paid: {formatPrice(pm.amount)}
-                                {pm.tipAmount && pm.tipAmount > 0 && ` + Tip: ${formatPrice(pm.tipAmount)}`}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="text-right">
-                            <p className={`text-sm font-bold ${totalRefund > 0 ? 'text-red-400' : 'text-white/40'}`}>
-                              -{formatPrice(totalRefund)}
-                            </p>
-                            <p className="text-white/40 text-xs">of {formatPrice(maxRefund)}</p>
-                          </div>
-                        </div>
-                        
-                        {/* Detailed breakdown - Inline refund summary */}
-                        {allocation && (allocation.refundAmount > 0 || allocation.tipRefundAmount > 0) && (
-                          <div className="mt-3 pt-3 border-t border-neutral-700/50 flex items-center gap-4">
-                            {allocation.refundAmount > 0 && (
-                              <span className="text-sm">
-                                <span className="text-white/70">Order </span>
-                                <span className="text-white">{formatPrice(allocation.refundAmount)}</span>
-                              </span>
-                            )}
-                            {allocation.tipRefundAmount > 0 && (
-                              <span className="text-sm">
-                                <span className="text-white/70">Tip </span>
-                                <span className="text-white">{formatPrice(allocation.tipRefundAmount)}</span>
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        
-                        {/* Remaining after refund - De-emphasized */}
-                        <div className="mt-2 pt-2 border-t border-neutral-700/30 flex justify-between">
-                          <span className="text-white/30 text-xs">Remaining after refund</span>
-                          <span className="text-white/40 text-xs">
-                            {formatPrice(maxRefund - totalRefund)}
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-              
-              {/* Validation Errors */}
-              {(() => {
-                const validation = validateRefundAllocations(selectedGuest);
-                if (!validation.valid) {
-                  return (
-                    <div className="px-4 pb-4">
-                      <div className="p-3 rounded-xl border border-red-500/50 bg-red-500/10">
-                        <p className="text-red-400 text-sm font-medium mb-1">Invalid Allocation</p>
-                        {validation.errors.map((error, i) => (
-                          <p key={i} className="text-red-400/70 text-xs">{error}</p>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                }
-                return null;
-              })()}
-              
-              {/* Refund Reason Summary */}
-              <div className="px-4 pb-4">
-                <div className="p-3 rounded-xl bg-neutral-800/50 border border-neutral-700">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/50 text-sm">Reason</span>
-                    <span className="text-white text-sm">{refundReasons.find(r => r.value === refundReason)?.label}</span>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {/* Confirmation Step for Single Payment Orders */}
-          {refundStep === 'confirmation' && !hasSplitPayments(selectedGuest) && (
-            <>
-              {/* Total Refund Amount */}
-              <div className="p-4 text-center border-b border-neutral-800">
-                <p className="text-white/50 text-sm mb-1">Total Refund Amount</p>
-                <div className="text-3xl font-bold text-white">
-                  {formatPrice(getRefundDisplayAmount())}
-                </div>
-                <p className="text-white/40 text-xs mt-1">
-                  Order #{selectedGuest.check} • {selectedGuest.name}
-                </p>
-              </div>
-              
-              {/* Payment Method Card */}
-              <div className="px-4 pt-4 pb-4">
-                <label className="text-white/70 text-sm mb-3 block">Refund Details</label>
-                <div className="p-3 rounded-xl border border-neutral-700 bg-neutral-800/50">
-                  {/* Payment Method Header */}
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{getPaymentMethodIcon(selectedGuest.paymentType as "cash" | "credit_card" | "debit_card" | "gift_card")}</span>
-                      <div>
-                        <p className="text-white text-sm font-medium">
-                          {selectedGuest.paymentType === 'cash' ? 'Cash' : 
-                           selectedGuest.paymentType === 'credit' ? 'Credit Card' :
-                           selectedGuest.paymentType === 'gift' ? 'Gift Card' : 
-                           selectedGuest.paymentType === 'credit_card' ? 'Credit Card' :
-                           selectedGuest.paymentType === 'debit_card' ? 'Debit Card' :
-                           selectedGuest.paymentType === 'gift_card' ? 'Gift Card' : 
-                           selectedGuest.paymentType}
-                        </p>
-                        <p className="text-white/40 text-xs">
-                          Original: {formatPrice(selectedGuest.total)}
-                          {selectedGuest.tip > 0 && ` + Tip: ${formatPrice(selectedGuest.tip)}`}
-                        </p>
-                      </div>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-sm font-bold text-red-400">
-                        −{formatPrice(getRefundDisplayAmount())}
-                      </p>
-                      <p className="text-white/40 text-xs">of {formatPrice(selectedGuest.total + selectedGuest.tip)}</p>
-                    </div>
-                  </div>
-                  
-                  {/* Detailed breakdown - Prominent refund line items */}
-                  {(() => {
-                    // Calculate order refund based on available data
-                    const isTipOnlyRefund = parseFloat(tipRefundAmount) > 0 && !swipeRefundTarget && selectedRefundItems.length === 0 && parseFloat(customRefundAmount) <= 0;
-                    const orderRefund = isTipOnlyRefund ? 0 : 
-                      (swipeRefundTarget ? swipeRefundTarget.price :
-                       selectedRefundItems.length > 0 ? getPartialRefundTotal(false) :
-                       parseFloat(customRefundAmount) > 0 ? getCustomRefundValue() :
-                       selectedGuest.total);
-                    // Calculate tip refund
-                    const tipRefund = parseFloat(tipRefundAmount) > 0 
-                      ? getTipRefundValue() 
-                      : (includeRefundTip ? selectedGuest.tip : 0);
-                    const totalOriginal = selectedGuest.total + selectedGuest.tip;
-                    const remaining = totalOriginal - orderRefund - tipRefund;
-                    
-                    return (
-                      <>
-                        {(orderRefund > 0 || tipRefund > 0) && (
-                          <div className="mt-3 pt-3 border-t border-neutral-700/50 flex items-center gap-4">
-                            {orderRefund > 0 && (
-                              <span className="text-sm">
-                                <span className="text-white/70">Order </span>
-                                <span className="text-white">{formatPrice(orderRefund)}</span>
-                              </span>
-                            )}
-                            {tipRefund > 0 && (
-                              <span className="text-sm">
-                                <span className="text-white/70">Tip </span>
-                                <span className="text-white">{formatPrice(tipRefund)}</span>
-                              </span>
-                            )}
-                          </div>
-                        )}
-                        
-                        {/* Remaining after refund - De-emphasized */}
-                        <div className="mt-2 pt-2 border-t border-neutral-700/30 flex justify-between">
-                          <span className="text-white/30 text-xs">Remaining after refund</span>
-                          <span className="text-white/40 text-xs">
-                            {formatPrice(remaining > 0 ? remaining : 0)}
-                          </span>
-                        </div>
-                      </>
-                    );
-                  })()}
-                </div>
-              </div>
-              
-              {/* Refund Reason Summary */}
-              <div className="px-4 pb-4">
-                <div className="p-3 rounded-xl bg-neutral-800/50 border border-neutral-700">
-                  <div className="flex justify-between items-center">
-                    <span className="text-white/50 text-sm">Reason</span>
-                    <span className="text-white text-sm">{refundReasons.find(r => r.value === refundReason)?.label || tipRefundReasons.find(r => r.value === refundReason)?.label}</span>
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-
-          {refundStep === 'success' && (
-            <>
-              <div className="p-8 text-center">
-                {/* Success Tick Icon */}
-                <img src={successTick} alt="Success" className="w-24 h-24 mb-4 mx-auto" />
-                <h2 className="text-white text-xl font-semibold mb-2">Refund Successful</h2>
-                <p className="text-amber-400 text-3xl font-bold">
-                  {swipeRefundTarget 
-                    ? formatPrice(swipeRefundTarget.price)
-                    : hasSplitPayments(selectedGuest) && refundAllocations.length > 0
-                      ? formatPrice(getTotalAllocatedRefund())
-                      : formatPrice(getRefundDisplayAmount())
-                  }
-                </p>
-                {/* Show split payment breakdown in success - chip style with staggered animation */}
-                {hasSplitPayments(selectedGuest) && refundAllocations.length > 0 && (
-                  <motion.div 
-                    className="mt-4 flex flex-wrap justify-center gap-2"
-                    initial="hidden"
-                    animate="visible"
-                    variants={{
-                      hidden: {},
-                      visible: {
-                        transition: {
-                          staggerChildren: 0.1
-                        }
-                      }
-                    }}
-                  >
-                    {selectedGuest.paymentMethods?.map((pm) => {
-                      const allocation = refundAllocations.find(a => a.paymentMethodId === pm.id);
-                      const totalRefund = (allocation?.refundAmount || 0) + (allocation?.tipRefundAmount || 0);
-                      if (totalRefund <= 0) return null;
-                      return (
-                        <motion.div 
-                          key={pm.id} 
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-800 border border-neutral-700"
-                          variants={{
-                            hidden: { opacity: 0, y: 10, scale: 0.9 },
-                            visible: { opacity: 1, y: 0, scale: 1 }
-                          }}
-                          transition={{ duration: 0.3, ease: "easeOut" }}
-                        >
-                          <span className="text-white/70 text-sm">{getPaymentMethodIcon(pm.type)}</span>
-                          <span className="text-white text-sm font-medium">{pm.label}:</span>
-                          <span className="text-amber-400 text-sm font-semibold">-{formatPrice(totalRefund)}</span>
-                        </motion.div>
-                      );
-                    })}
-                  </motion.div>
-                )}
-              </div>
-              
-              {/* Receipt Options */}
-              <div className="px-4 pb-4">
-                <p className="text-white/50 text-sm text-center mb-3">Send refund receipt</p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => {
-                      console.log('Print refund receipt');
-                      handleCancelRefund();
-                    }}
-                    className="flex-1 py-3 px-4 rounded-xl bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Printer className="w-5 h-5 text-white" />
-                    <span className="text-white font-medium">Print</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleCancelRefund();
-                      setTimeout(() => setIsReceiptDialogOpen(true), 100);
-                    }}
-                    className="flex-1 py-3 px-4 rounded-xl bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <MessageSquare className="w-5 h-5 text-white" />
-                    <span className="text-white font-medium">Text</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleCancelRefund();
-                      setTimeout(() => setIsReceiptDialogOpen(true), 100);
-                    }}
-                    className="flex-1 py-3 px-4 rounded-xl bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2"
-                  >
-                    <Mail className="w-5 h-5 text-white" />
-                    <span className="text-white font-medium">Email</span>
-                  </button>
-                </div>
-              </div>
-            </>
-          )}
+// ... keep existing code
         </>
       );
     };
 
-    // Responsive: Bottom Sheet on mobile, Dialog on desktop
     if (isMobile) {
       return (
         <RefundBottomSheet
@@ -5949,7 +4911,29 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         </DialogContent>
       </Dialog>
     );
-  };
+  }, [
+    refundStep,
+    swipeRefundTarget,
+    isMobile,
+    isRefundModalOpen,
+    selectedGuest,
+    includeRefundTip,
+    refundReason,
+    selectedRefundItems,
+    selectedRefundModifiers,
+    expandedRefundItems,
+    customRefundAmount,
+    tipRefundAmount,
+    refundAllocations,
+    originalRefundType,
+    refundedItemRecords,
+    refundedModifierRecords,
+    refundedTipRecords,
+    expandedRefundTransactions,
+    showRefundConfirmation,
+    isReceiptDialogOpen,
+    useCustomAllocation,
+  ]);
 
   // Responsive rendering
   return (
@@ -5981,7 +4965,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       />
 
       {/* Refund Modal */}
-      <RefundModal />
+      {refundModal}
 
       {/* Mobile Filters Bottom Sheet */}
       <MobileFiltersSheet

@@ -3375,7 +3375,7 @@ const OrderOS = () => {
 
   // Desktop Layout
   const desktopLayout = (
-    <div className="flex h-full bg-background gap-2">
+    <div className="flex h-full bg-background gap-2 py-2">
       {/* Left Section - Kanban Board */}
       <div className="flex-1 flex flex-col rounded-[20px] overflow-hidden bg-surface border border-border">
         {/* Header - Horizontally scrollable on smaller screens */}
@@ -3608,7 +3608,7 @@ const OrderOS = () => {
 
   // Mobile Layout
   const mobileLayout = (
-     <div className="flex flex-col h-full bg-background">
+     <div className="flex flex-col h-full bg-background py-2">
        {/* Header */}
        <div className="flex items-center justify-between p-3 border-b border-border">
         {/* Vertical Mode Selector with Arrow Navigation */}

@@ -378,12 +378,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   
   // Update current time every second for dynamic timers
   useEffect(() => {
-    if (isRefundModalOpen) return;
     const interval = setInterval(() => {
       setCurrentTime(new Date());
     }, 1000);
     return () => clearInterval(interval);
-  }, [isRefundModalOpen]);
+  }, []);
   
   // Refund flow state
   const [refundStep, setRefundStep] = useState<RefundStep | null>(null);

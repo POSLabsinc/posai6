@@ -259,19 +259,57 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
               <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
             </div>
           </div>
-          <div className="flex items-center justify-between py-3.5 px-4 border-b border-neutral-700/30">
-            <span className="text-foreground text-[15px]">Revenue Center</span>
-            <div className="flex items-center gap-1">
-              <span className="text-neutral-500 text-[15px]">{revenueCenter || "Select Revenue Center"}</span>
-              <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
-            </div>
+          <div className="relative">
+            <button
+              onClick={() => { setShowRevenueCenterPicker(!showRevenueCenterPicker); setShowOrderingSourcePicker(false); }}
+              className="w-full flex items-center justify-between py-3.5 px-4 border-b border-neutral-700/30 active:opacity-70 transition-opacity"
+            >
+              <span className="text-foreground text-[15px]">Revenue Center</span>
+              <div className="flex items-center gap-1">
+                <span className="text-neutral-500 text-[15px]">{revenueCenter || "Select Revenue Center"}</span>
+                <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
+              </div>
+            </button>
+            {showRevenueCenterPicker && (
+              <div className="absolute right-4 top-full mt-1 z-50 bg-neutral-700 rounded-xl shadow-lg overflow-hidden min-w-[180px]">
+                {["Full Service", "Quick Service"].map((rc) => (
+                  <button
+                    key={rc}
+                    onClick={() => { setRevenueCenter(rc); setShowRevenueCenterPicker(false); }}
+                    className={`w-full text-left px-4 py-3 text-[15px] transition-colors flex items-center justify-between ${revenueCenter === rc ? "text-primary" : "text-foreground"} hover:bg-neutral-600/50`}
+                  >
+                    {rc}
+                    {revenueCenter === rc && <Check className="w-4 h-4 text-primary" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-[15px]">Ordering Source</span>
-            <div className="flex items-center gap-1">
-              <span className="text-neutral-500 text-[15px]">{orderingSource || "Select Ordering Source"}</span>
-              <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
-            </div>
+          <div className="relative">
+            <button
+              onClick={() => { setShowOrderingSourcePicker(!showOrderingSourcePicker); setShowRevenueCenterPicker(false); }}
+              className="w-full flex items-center justify-between py-3.5 px-4 active:opacity-70 transition-opacity"
+            >
+              <span className="text-foreground text-[15px]">Ordering Source</span>
+              <div className="flex items-center gap-1">
+                <span className="text-neutral-500 text-[15px]">{orderingSource || "Select Ordering Source"}</span>
+                <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
+              </div>
+            </button>
+            {showOrderingSourcePicker && (
+              <div className="absolute right-4 top-full mt-1 z-50 bg-neutral-700 rounded-xl shadow-lg overflow-hidden min-w-[180px]">
+                {["POS", "Kiosk", "Order-OS", "Online"].map((os) => (
+                  <button
+                    key={os}
+                    onClick={() => { setOrderingSource(os); setShowOrderingSourcePicker(false); }}
+                    className={`w-full text-left px-4 py-3 text-[15px] transition-colors flex items-center justify-between ${orderingSource === os ? "text-primary" : "text-foreground"} hover:bg-neutral-600/50`}
+                  >
+                    {os}
+                    {orderingSource === os && <Check className="w-4 h-4 text-primary" />}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 

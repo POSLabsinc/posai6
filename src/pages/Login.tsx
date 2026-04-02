@@ -1745,64 +1745,33 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 Enter your email or phone number to receive an activation code
               </motion.p>
 
-              {/* Toggle email/phone */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.2 }}
-                className="flex items-center gap-1 p-1 rounded-xl bg-foreground/[0.04] border border-foreground/[0.06] mb-4"
-              >
-                <button
-                  onClick={() => {
-                    setActivationContactType("email");
-                    setActivationContactValue("");
-                    setActivationError("");
-                  }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    isContactEmail
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-foreground/50 hover:text-foreground/70"
-                  }`}
-                >
-                  Email
-                </button>
-                <button
-                  onClick={() => {
-                    setActivationContactType("phone");
-                    setActivationContactValue("");
-                    setActivationError("");
-                  }}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                    !isContactEmail
-                      ? "bg-primary text-primary-foreground shadow-sm"
-                      : "text-foreground/50 hover:text-foreground/70"
-                  }`}
-                >
-                  Phone
-                </button>
-              </motion.div>
-
               <motion.div
                 initial={{ opacity: 0, y: 15 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
+                transition={{ delay: 0.2 }}
                 className="w-full space-y-4"
               >
                 <div className="relative">
-                  {isContactEmail ? (
+                  {activationContactValue.includes("@") ? (
                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
-                  ) : (
+                  ) : /^\d|^\(/.test(activationContactValue) && activationContactValue.replace(/\D/g, '').length > 0 ? (
                     <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                  ) : (
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
                   )}
                   <Input
-                    type={isContactEmail ? "email" : "tel"}
-                    placeholder={isContactEmail ? "your@email.com" : "(555) 000-0000"}
-                    value={isContactEmail ? activationContactValue : formatActivationPhone(activationContactValue)}
+                    type="text"
+                    placeholder="your@email.com or phone number"
+                    value={activationContactValue}
                     onChange={(e) => {
-                      if (isContactEmail) {
-                        setActivationContactValue(e.target.value);
+                      const val = e.target.value;
+                      setActivationContactValue(val);
+                      if (val.includes("@")) {
+                        setActivationContactType("email");
+                      } else if (/^\d|^\(/.test(val) && val.replace(/\D/g, '').length > 0) {
+                        setActivationContactType("phone");
                       } else {
-                        setActivationContactValue(e.target.value.replace(/\D/g, '').slice(0, 10));
+                        setActivationContactType("email");
                       }
                       setActivationError("");
                     }}
@@ -1810,7 +1779,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     disabled={activationSendingCode}
                   />
                 </div>
-
                 {activationError && (
                   <motion.div
                     initial={{ opacity: 0, y: -5 }}

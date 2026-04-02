@@ -2949,7 +2949,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
 
   // Desktop Layout
   const desktopLayout = (
-    <div className="flex h-full bg-black gap-2">
+    <div className="flex h-full bg-black gap-2 pr-3">
       {/* Left Panel - Order List */}
       <div className="flex flex-col w-[55%] rounded-r-[20px] overflow-hidden">
         {/* Header - Inline filter options */}

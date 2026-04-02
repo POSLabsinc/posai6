@@ -2684,7 +2684,12 @@ const Orders = () => {
         {/* Subcategories based on selected category - Hidden in search mode on mobile */}
         <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[7rem] lg:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
           <div className={`flex gap-1 md:gap-1.5 lg:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
-            {(mergedCategorySubcategories[activeCategory] || []).map((sub) => <Button key={sub} variant="outline" className={`rounded-md px-3 md:px-4 lg:px-6 h-7 md:h-7 lg:h-8 text-[11px] md:text-[10px] lg:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`}`} onClick={() => setActiveSubcategory(sub)}>
+            {(mergedCategorySubcategories[activeCategory] || []).filter((sub) => {
+              // Only show subcategory buttons that have actual products
+              const menuData = dynamicMenuItems[selectedMenu];
+              const catData = menuData?.[activeCategory];
+              return catData?.[sub] && catData[sub].length > 0;
+            }).map((sub) => <Button key={sub} variant="outline" className={`rounded-md px-3 md:px-4 lg:px-6 h-7 md:h-7 lg:h-8 text-[11px] md:text-[10px] lg:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`}`} onClick={() => setActiveSubcategory(sub)}>
                 {sub}
               </Button>)}
           </div>

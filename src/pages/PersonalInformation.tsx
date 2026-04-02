@@ -218,7 +218,6 @@ const PersonalInformation = () => {
                 <span className="text-neutral-400 text-base">Manager</span>
               </div>
             </button>
-          </div>
         </div>
       </div>
     </div>

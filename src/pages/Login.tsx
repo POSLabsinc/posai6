@@ -2291,43 +2291,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               Enter your email or phone to receive a secure activation link
             </motion.p>
 
-            {/* Input Type Toggle */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.18 }}
-              className="flex items-center gap-1 p-1 rounded-xl bg-foreground/[0.04] border border-foreground/[0.06] mb-4"
-            >
-              <button
-                onClick={() => {
-                  setMagicLinkInputType("email");
-                  setActivationError("");
-                }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  isEmail
-                    ? "bg-foreground/[0.08] text-foreground"
-                    : "text-foreground/50 hover:text-foreground/70"
-                }`}
-              >
-                <Mail className="w-4 h-4" />
-                Email
-              </button>
-              <button
-                onClick={() => {
-                  setMagicLinkInputType("phone");
-                  setActivationError("");
-                }}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all ${
-                  !isEmail
-                    ? "bg-foreground/[0.08] text-foreground"
-                    : "text-foreground/50 hover:text-foreground/70"
-                }`}
-              >
-                <Phone className="w-4 h-4" />
-                Phone
-              </button>
-            </motion.div>
-
             {/* Input Field */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -2335,56 +2298,32 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               transition={{ delay: 0.2 }}
               className="w-full space-y-4"
             >
-              <AnimatePresence mode="wait">
-                {isEmail ? (
-                  <motion.div
-                    key="email-input"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 10 }}
-                    transition={{ duration: 0.15 }}
-                  >
-                    <Input
-                      type="email"
-                      placeholder="you@restaurant.com"
-                      value={magicLinkEmail}
-                      onChange={(e) => {
-                        setMagicLinkEmail(e.target.value);
-                        setActivationError("");
-                      }}
-                      className={`h-14 text-center text-base rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
-                        activationError ? "border-destructive" : ""
-                      }`}
-                    />
-                  </motion.div>
+              <div className="relative">
+                {(isEmail ? magicLinkEmail : magicLinkPhone).includes("@") || !(/^\d|^\(/.test(isEmail ? magicLinkEmail : magicLinkPhone)) ? (
+                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
                 ) : (
-                  <motion.div
-                    key="phone-input"
-                    initial={{ opacity: 0, x: 10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -10 }}
-                    transition={{ duration: 0.15 }}
-                    className="flex gap-2"
-                  >
-                    <div className="h-14 px-4 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] flex items-center justify-center text-foreground/60 font-medium">
-                      +1
-                    </div>
-                    <Input
-                      type="tel"
-                      placeholder="(555) 555-5555"
-                      value={formatPhoneNumber(magicLinkPhone)}
-                      onChange={(e) => {
-                        setMagicLinkPhone(e.target.value.replace(/\D/g, "").slice(0, 10));
-                        setActivationError("");
-                      }}
-                      className={`h-14 text-center text-base flex-1 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
-                        activationError ? "border-destructive" : ""
-                      }`}
-                    />
-                  </motion.div>
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
                 )}
-              </AnimatePresence>
-
+                <Input
+                  type="text"
+                  placeholder="your@email.com or phone number"
+                  value={isEmail ? magicLinkEmail : magicLinkPhone}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val.includes("@") || !(/^\d|^\(/.test(val) && val.replace(/\D/g, '').length > 0)) {
+                      setMagicLinkInputType("email");
+                      setMagicLinkEmail(val);
+                    } else {
+                      setMagicLinkInputType("phone");
+                      setMagicLinkPhone(val.replace(/\D/g, "").slice(0, 10));
+                    }
+                    setActivationError("");
+                  }}
+                  className={`h-14 pl-12 text-base rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
+                    activationError ? "border-destructive" : ""
+                  }`}
+                />
+              </div>
               
               {/* Error Message */}
               <AnimatePresence mode="wait">

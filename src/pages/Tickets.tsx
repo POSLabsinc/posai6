@@ -2603,7 +2603,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       <div className="px-3 py-3 border-t border-neutral-700/50 flex items-center gap-2">
         {selectedGuest.paid ? (
           // Check if closed OR if there are any refunds on this ticket
-          (refundStep === 'closed' || getTotalRefundedAmount(selectedGuest) > 0) ? (
+          (refundStep === 'closed' || refundStep === null || getTotalRefundedAmount(selectedGuest) > 0) ? (
             // Only show refund button if there's remaining amount to refund
             getRemainingRefundableAmount(selectedGuest) > 0 ? (
               <button 

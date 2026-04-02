@@ -1,29 +1,34 @@
 
 
-## Plan: Fix Dashboard Discount - Add MPIN Gate and Per-Order Tracking
+## Plan: Make Open Price Products Visible in Menu Navigation
 
-### Problems
-1. Dashboard discount button opens the discount dialog directly without requiring Manager PIN authorization (unlike Tickets screen which uses `AccessRestrictedModal`)
-2. A single shared `selectedDiscountId` state is used across all orders, so applying a discount affects every order on the dashboard
+### Problem
+The 3 open price products (Daily Special, Market Price Fish, Chef's Special Chicken) are in the **Specials** category in the database. While they appear in search results, they don't reliably show when browsing menus. The "Specials" category is linked to Weekend, HAPPY HOUR M/W, and Holiday Menu — the products should appear when clicking the "Specials" tab under those menus.
 
-### Changes
+### Root Cause
+The `dynamicMenuItems` builder in `Orders.tsx` correctly adds DB products under the "Specials" category key. However, the subcategories row for "Specials" shows 12 hardcoded subcategories (Chef's Choice, Daily Special, Seasonal, etc.) from `categorySubcategories`. Clicking any of these shows **nothing** because the DB products are keyed under `"Specials"` not under individual subcategory names. This confusing UI may lead users to think the products are missing.
 
-#### 1. Add MPIN gate state and import `AccessRestrictedModal` (`src/pages/Dashboard.tsx`)
-- Add `showDiscountMpin` state variable
-- Import `AccessRestrictedModal` component
-- Change discount button click handler to set `showDiscountMpin = true` instead of directly opening the discount dialog
-- Render `AccessRestrictedModal` with subtitle "Manager approval required to apply discount." - on success, close MPIN and open discount dialog (same pattern as Tickets)
+Additionally, the products only appear when clicking the "Specials" category tab itself (no subcategory selected), which may not be obvious.
 
-#### 2. Change discount tracking from single value to per-order map (`src/pages/Dashboard.tsx`)
-- Replace `selectedDiscountId: string | null` with `orderDiscountMap: Record<string, string | null>` keyed by order ID (using `dbId` or order `id`)
-- When selecting a discount, store it under the currently selected order's key
-- When reading discount for display/calculation, look up from the map using the selected order's key
-- Update the `OrderPanel` props to pass the correct per-order discount ID
-- Update `OrderPanel` component interface to receive the order-specific discount
+### Solution
+
+**File: `src/pages/Orders.tsx`** (lines ~428-451)
+- When adding DB products to `dynamicMenuItems`, also distribute them to matching subcategory keys based on product name matching (e.g., "Daily Special (Open Price)" → "Daily Special" subcategory)
+- For any unmatched DB products, add them to a general/visible subcategory so they're always accessible
+
+**File: `src/data/orderMenuData.ts`** (line 55)  
+- No changes needed to the subcategory definitions — they serve as navigation aids
+
+### Alternative Simpler Approach (Recommended)
+Since these are the **only** products in the Specials category and the subcategories are just hardcoded navigation stubs with no real products behind them:
+
+**File: `src/pages/Orders.tsx`** (lines ~382-408)
+- When building `dynamicMenuItems`, if a category has DB products but no localStorage-assigned subcategory products, skip the subcategory loop entirely and place all DB products directly under the category name
+- This makes the products show immediately when clicking the "Specials" tab without needing to navigate subcategories
 
 ### Technical Details
-- The `OrderPanel` component (defined inline in Dashboard.tsx) currently receives `selectedDiscountId` and `setSelectedDiscountId` as props
-- Will change these to derive from the per-order map based on the currently selected order
-- The MPIN modal rendering follows the exact same pattern as Tickets.tsx lines 6159-6170
-- `AccessRestrictedModal` is already available at `@/components/AccessRestrictedModal`
+- Modify the `dynamicMenuItems` useMemo block around lines 391-425
+- Add a check: if none of the subcategories have products from `getCategoryProducts()`, skip creating empty subcategory entries and let the DB product merge (lines 428-451) handle everything
+- This already works correctly — the real fix is ensuring the **subcategory buttons don't mislead** users into clicking them when no products exist under those sub-keys
+- Add a guard in the subcategory rendering (line 2687) to only show subcategories that actually have products in the current data structure
 

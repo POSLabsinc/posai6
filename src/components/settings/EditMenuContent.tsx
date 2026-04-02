@@ -178,6 +178,18 @@ const EditMenuContent = ({
     );
   }
 
+  if (showOrganize) {
+    return (
+      <OrganizeCategoriesContent
+        categories={selectedCategories}
+        onBack={(reordered) => {
+          setSelectedCategories(reordered);
+          setShowOrganize(false);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="h-full flex flex-col overflow-hidden bg-background">
       {/* Header */}

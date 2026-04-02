@@ -282,7 +282,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     status: o.status,
     notes: o.notes,
     table: o.table,
-    orderType: o.orderType,
+    orderType: o.orderType === "Table Order" ? "Table" : o.orderType,
     items: o.items.map(item => ({
       qty: item.qty,
       name: item.name,

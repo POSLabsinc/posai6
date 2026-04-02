@@ -246,7 +246,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
 
       <div className="flex-1 overflow-y-auto scrollbar-hide pt-0 px-6 pb-28">
         {/* Name, Revenue Center, Ordering Source */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+        <div className="bg-neutral-800/60 rounded-2xl" style={{ overflow: "visible" }}>
           <div className="flex items-center justify-between py-3.5 px-4 border-b border-neutral-700/30">
             <span className="text-foreground text-[15px]">Timed Pricing Name</span>
             <div className="flex items-center gap-1">
@@ -297,7 +297,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
               </div>
             </button>
             {showOrderingSourcePicker && (
-              <div className="absolute right-4 top-full mt-1 z-50 bg-neutral-700 rounded-xl shadow-lg overflow-hidden min-w-[180px]">
+              <div className="absolute right-4 bottom-full mb-1 z-50 bg-neutral-700 rounded-xl shadow-lg overflow-hidden min-w-[180px]">
                 {["POS", "Kiosk", "Order-OS", "Online"].map((os) => (
                   <button
                     key={os}

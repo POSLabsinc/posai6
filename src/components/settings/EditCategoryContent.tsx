@@ -101,22 +101,18 @@ const EditCategoryContent = ({ category, onBack, onSave, parentCategoryOptions =
         </label>
 
         {/* Position */}
-        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
-          <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
-            <span className="text-foreground text-base font-medium">Position</span>
-            <div className="flex items-center gap-1">
-              <input
-                type="number"
-                value={position ?? ""}
-                onChange={(e) => setPosition(e.target.value ? parseInt(e.target.value) : null)}
-                placeholder=""
-                className="bg-transparent text-right text-foreground placeholder:text-neutral-500 outline-none text-base w-20"
-                onClick={(e) => e.stopPropagation()}
-              />
-              <ChevronRight className="w-4 h-4 text-neutral-500" />
-            </div>
-          </button>
-        </div>
+        <label className="bg-neutral-800/60 rounded-full overflow-hidden mb-1 block cursor-text">
+          <div className="w-full flex items-center justify-between py-4 px-4">
+            <span className="text-foreground text-base font-medium flex-shrink-0 mr-4">Position</span>
+            <input
+              type="number"
+              value={position ?? ""}
+              onChange={(e) => setPosition(e.target.value ? parseInt(e.target.value) : null)}
+              placeholder="Enter position"
+              className="bg-transparent text-right text-foreground placeholder:text-neutral-500 outline-none text-base flex-1 min-w-0"
+            />
+          </div>
+        </label>
         <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">
           Set the order in which the category appears on the Point of Sale screen. Lower numbers usually appear first.
         </p>

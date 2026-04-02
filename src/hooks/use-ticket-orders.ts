@@ -255,19 +255,27 @@ export function useTicketOrders() {
     staleTime: 30_000,
   });
 
-  // Realtime subscription
+  // Realtime subscription with debounce to prevent flickering during mutations
   useEffect(() => {
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+    
+    const debouncedInvalidate = () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['ticket-orders'] });
+      }, 1000);
+    };
+
     const channel = supabase
       .channel('ticket-orders-realtime')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'ticket_orders' }, () => {
-        queryClient.invalidateQueries({ queryKey: ['ticket-orders'] });
-      })
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'ticket_order_items' }, () => {
-        queryClient.invalidateQueries({ queryKey: ['ticket-orders'] });
-      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ticket_orders' }, debouncedInvalidate)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ticket_order_items' }, debouncedInvalidate)
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      supabase.removeChannel(channel);
+    };
   }, [queryClient]);
 
   // ─── Mutations ──────────────────────────────────────────────

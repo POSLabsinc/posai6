@@ -6,7 +6,7 @@ import { useState } from "react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { CountryCodeSelector, countryCodes, type CountryCode } from "./CountryCodeSelector";
 import { useIsLandscape } from "@/hooks/use-landscape";
-import eatosLogo from "@/assets/icons/eatos-logo.svg";
+import eatosLogo from "@/assets/icons/posai-logo.png";
 
 interface ReceiptOptionsDialogProps {
   open: boolean;
@@ -199,7 +199,7 @@ const ReceiptOptionsDialog = ({
             {/* Powered by eatOS */}
             <div className="flex items-center justify-center gap-2 mt-6">
               <span className="text-neutral-500 text-sm">Powered by</span>
-              <img src={eatosLogo} alt="eatOS" className="h-5" />
+              <img src={eatosLogo} alt="POS AI" className="h-5" />
             </div>
           </div>
         </div>
@@ -263,7 +263,7 @@ const ReceiptOptionsDialog = ({
           {/* Powered by eatOS */}
           <div className="flex items-center justify-center gap-2 mb-4 shrink-0">
             <span className="text-neutral-500 text-sm">Powered by</span>
-            <img src={eatosLogo} alt="eatOS" className="h-5" />
+            <img src={eatosLogo} alt="POS AI" className="h-5" />
           </div>
 
           {/* Send Button */}
@@ -358,7 +358,7 @@ const ReceiptOptionsDialog = ({
           {/* Powered by eatOS */}
           <div className="flex items-center justify-center gap-2 mb-6 shrink-0">
             <span className="text-neutral-500 text-sm">Powered by</span>
-            <img src={eatosLogo} alt="eatOS" className="h-5" />
+            <img src={eatosLogo} alt="POS AI" className="h-5" />
           </div>
 
           {/* Send Button */}

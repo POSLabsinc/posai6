@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Monitor, Clock, ShieldCheck, CheckCircle2 } from "lucide-react";
-import eatosLogo from "@/assets/icons/eatos-logo.svg";
+import eatosLogo from "@/assets/icons/posai-logo.png";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ReactNode } from "react";
@@ -122,7 +122,7 @@ export function DeviceSetupLayout({ children, title, subtitle, variant = "setup"
           {/* Logo */}
           <motion.img
             src={eatosLogo}
-            alt="eatOS"
+            alt="POS AI"
             className="w-24 h-auto mb-12"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

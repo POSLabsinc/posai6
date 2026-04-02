@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import eatosLogo from "@/assets/icons/eatos-logo.svg";
+import eatosLogo from "@/assets/icons/posai-logo.png";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -41,7 +41,7 @@ export function SplashScreen({ onComplete, duration = 2000 }: SplashScreenProps)
       <div className="flex flex-col items-center justify-center" style={{ animation: "fadeIn 0.5s ease-in" }}>
         <img
           src={eatosLogo}
-          alt="eatOS Logo"
+          alt="POS AI Logo"
           className="w-32 h-auto md:w-44 lg:w-52"
         />
       </div>

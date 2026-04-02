@@ -15,7 +15,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { useIsLandscape } from "@/hooks/use-landscape";
 import { CountryCodeSelector, countryCodes, type CountryCode } from "./CountryCodeSelector";
-import eatosLogo from "@/assets/icons/eatos-logo.svg";
+import eatosLogo from "@/assets/icons/posai-logo.png";
 import successTick from "@/assets/icons/success-tick.svg";
 export interface OrderItemForDisplay {
   name: string;
@@ -1090,7 +1090,7 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
                 {isCFDMode && (
                   <div className="flex items-center justify-center gap-2 mt-6">
                     <span className="text-neutral-500 text-sm">Powered by</span>
-                    <img src={eatosLogo} alt="eatOS" className="h-5" />
+                    <img src={eatosLogo} alt="POS AI" className="h-5" />
                   </div>
                 )}
               </div>
@@ -1166,7 +1166,7 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
               {isCFDMode && (
                 <div className="flex items-center justify-center gap-2 mb-4 shrink-0">
                   <span className="text-neutral-500 text-sm">Powered by</span>
-                  <img src={eatosLogo} alt="eatOS" className="h-5" />
+                  <img src={eatosLogo} alt="POS AI" className="h-5" />
                 </div>
               )}
 
@@ -1275,7 +1275,7 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
               {isCFDMode && (
                 <div className="flex items-center justify-center gap-2 mb-3 shrink-0">
                   <span className="text-neutral-500 text-sm">Powered by</span>
-                  <img src={eatosLogo} alt="eatOS" className="h-5" />
+                  <img src={eatosLogo} alt="POS AI" className="h-5" />
                 </div>
               )}
 
@@ -1494,7 +1494,7 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
               {isCFDMode && (
                 <div className="flex items-center justify-center gap-2 mt-6">
                   <span className="text-neutral-500 text-sm">Powered by</span>
-                  <img src={eatosLogo} alt="eatOS" className="h-5" />
+                  <img src={eatosLogo} alt="POS AI" className="h-5" />
                 </div>
               )}
             </>

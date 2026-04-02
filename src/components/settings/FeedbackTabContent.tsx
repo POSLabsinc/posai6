@@ -6,7 +6,7 @@ import { format } from "date-fns";
 // Platform logos
 import googleLogo from "@/assets/icons/feedback-google.svg";
 import yelpLogo from "@/assets/icons/feedback-yelp.svg";
-import eatosLogo from "@/assets/icons/eatos-logo.svg";
+import eatosLogo from "@/assets/icons/posai-logo.png";
 import orderosLogo from "@/assets/icons/orderos-logo.png";
 
 interface FeedbackItem {

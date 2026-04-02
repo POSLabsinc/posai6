@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import OrganizeCategoriesContent from "@/components/settings/OrganizeCategoriesContent";
 
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";

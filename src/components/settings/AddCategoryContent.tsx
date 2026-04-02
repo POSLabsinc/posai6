@@ -72,22 +72,18 @@ const AddCategoryContent = ({ onBack, onSave, parentCategoryOptions = [], produc
 
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
         {/* Category Name */}
-        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-4">
-          <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
-            <span className="text-foreground text-base font-medium">Category Name</span>
-            <div className="flex items-center gap-1">
-              <input
-                type="text"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder=""
-                className="bg-transparent text-right text-foreground placeholder:text-neutral-500 outline-none text-base w-32"
-                onClick={(e) => e.stopPropagation()}
-              />
-              <ChevronRight className="w-4 h-4 text-neutral-500" />
-            </div>
-          </button>
-        </div>
+        <label className="bg-neutral-800/60 rounded-full overflow-hidden mb-4 block cursor-text">
+          <div className="w-full flex items-center justify-between py-4 px-4">
+            <span className="text-foreground text-base font-medium flex-shrink-0 mr-4">Category Name</span>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Enter name"
+              className="bg-transparent text-right text-foreground placeholder:text-neutral-500 outline-none text-base flex-1 min-w-0"
+            />
+          </div>
+        </label>
 
         {/* Position */}
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">

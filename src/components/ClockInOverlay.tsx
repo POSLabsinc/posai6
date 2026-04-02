@@ -1143,7 +1143,7 @@ export const ClockInOverlay = ({
           Welcome, {validatedEmployee?.name}
         </h2>
         <p className="text-white/60 text-sm">
-          Select your job type for this shift
+          Select your assigned job type for this shift
         </p>
       </div>
 

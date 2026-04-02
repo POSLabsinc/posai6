@@ -3608,7 +3608,7 @@ const OrderOS = () => {
 
   // Mobile Layout
   const mobileLayout = (
-     <div className="flex flex-col h-full bg-background">
+     <div className="flex flex-col h-full bg-background py-2">
        {/* Header */}
        <div className="flex items-center justify-between p-3 border-b border-border">
         {/* Vertical Mode Selector with Arrow Navigation */}

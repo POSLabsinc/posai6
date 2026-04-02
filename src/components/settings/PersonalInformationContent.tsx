@@ -91,6 +91,43 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
   const navigate = useNavigate();
   const [email, setEmail] = useState("jimhopper@eatos.com");
   const [phone, setPhone] = useState("(123) 456 - 7890");
+  const [addressQuery, setAddressQuery] = useState("");
+  const [currentAddress, setCurrentAddress] = useState("24 High Street, Lancaster, LA1 1AB, United Kingdom");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const addressRef = useRef<HTMLDivElement>(null);
+
+  // Mock address suggestions based on query
+  const addressSuggestions = addressQuery.length >= 2 ? [
+    `${addressQuery} Main Street, New York, NY 10001, USA`,
+    `${addressQuery} Broadway, Los Angeles, CA 90001, USA`,
+    `${addressQuery} Park Avenue, Chicago, IL 60601, USA`,
+    `${addressQuery} Oak Lane, London, SW1A 1AA, UK`,
+    `${addressQuery} High Street, Manchester, M1 1AA, UK`,
+  ] : [];
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (addressRef.current && !addressRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSelectAddress = (address: string) => {
+    setCurrentAddress(address);
+    setAddressQuery("");
+    setShowSuggestions(false);
+  };
+
+  const handleLocate = () => {
+    setCurrentAddress("Current Location, Detected via GPS");
+    setAddressQuery("");
+    setShowSuggestions(false);
+  };
+
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Header - only shown in tablet/desktop right panel */}
@@ -151,22 +188,50 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
             <h2 className="text-sm font-semibold text-neutral-400 tracking-wider">Address</h2>
             
             {/* Search Address Input */}
-            <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
-              <div className="flex items-center px-5 py-4">
-                <Search className="w-5 h-5 text-neutral-500 mr-3" />
-                <input
-                  type="text"
-                  placeholder="Search Address"
-                  className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-base"
-                />
-                <LocateFixed className="w-5 h-5 text-foreground" />
+            <div ref={addressRef} className="relative">
+              <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
+                <div className="flex items-center px-5 py-4">
+                  <Search className="w-5 h-5 text-neutral-500 mr-3" />
+                  <input
+                    type="text"
+                    placeholder="Search Address"
+                    value={addressQuery}
+                    onChange={(e) => {
+                      setAddressQuery(e.target.value);
+                      setShowSuggestions(e.target.value.length >= 2);
+                    }}
+                    onFocus={() => {
+                      if (addressQuery.length >= 2) setShowSuggestions(true);
+                    }}
+                    className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-base"
+                  />
+                  <button onClick={handleLocate} className="active:opacity-70 transition-opacity">
+                    <LocateFixed className="w-5 h-5 text-foreground" />
+                  </button>
+                </div>
               </div>
+
+              {/* Address Suggestions Dropdown */}
+              {showSuggestions && addressSuggestions.length > 0 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-2xl border border-neutral-700 overflow-hidden z-50 shadow-lg">
+                  {addressSuggestions.map((suggestion, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSelectAddress(suggestion)}
+                      className="w-full text-left px-5 py-3 text-sm text-foreground hover:bg-neutral-700/50 transition-colors flex items-center gap-3"
+                    >
+                      <LocateFixed className="w-4 h-4 text-neutral-500 flex-shrink-0" />
+                      <span className="truncate">{suggestion}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
 
             {/* Current Address */}
             <div className="bg-neutral-800/40 rounded-2xl overflow-hidden px-5 py-4">
               <p className="text-neutral-400 text-base leading-relaxed">
-                24 High Street, Lancaster, LA1 1AB, United Kingdom
+                {currentAddress}
               </p>
             </div>
           </div>

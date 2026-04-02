@@ -25,6 +25,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import runnerIcon from "@/assets/icons/runner.png";
 import clearIcon from "@/assets/icons/clear-c.png";
 import fireIcon from "@/assets/icons/fire.png";
+import saveIcon from "@/assets/icons/save.png";
 import phoneIcon from "@/assets/icons/phone-icon.png";
 import timeIcon from "@/assets/icons/time-icon.png";
 import tableTargetIcon from "@/assets/icons/table-target.png";

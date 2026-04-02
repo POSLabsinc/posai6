@@ -444,9 +444,9 @@ const Orders = () => {
             }));
 
           if (newDbItems.length > 0) {
-            // Add to the category directly if no subcategories
-            const targetKey = Object.keys(subItems).length > 0 ? Object.keys(subItems)[0] : cat;
-            subItems[targetKey] = [...(subItems[targetKey] || []), ...newDbItems];
+            // Always add DB-only products under the parent category key so they're visible
+            // without needing to click a specific subcategory
+            subItems[cat] = [...(subItems[cat] || []), ...newDbItems];
           }
         }
 

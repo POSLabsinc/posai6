@@ -3809,21 +3809,33 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             ) : (
               (() => {
                 const totals = calculateAdjustedTotals(selectedGuest);
+                const showSaveButton = SettingsManager.getCheckoutOptionsSettings().showSaveButton;
                 return (
                   <>
                     <button 
                       onClick={handleClearOrderAttempt}
-                      className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
+                      className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0"
                     >
                       <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
                     </button>
-                    <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}>
+                    {showSaveButton && (
+                      <button 
+                        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
+                        style={{ background: '#C9C9C9' }}
+                      >
+                        <img src={saveIcon} alt="Save" className="w-4 h-4 brightness-0" />
+                      </button>
+                    )}
+                    <button 
+                      className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
+                      style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+                    >
                       <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
                       <span>FIRE</span>
                     </button>
                     <button 
                       onClick={() => setShowPaymentDialog(true)}
-                      className="flex-1 py-2 rounded-full text-black text-sm font-bold" 
+                      className="flex-1 h-8 rounded-full text-black text-sm font-bold" 
                       style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                     >
                       CHARGE {formatPrice(totals.hasNoTaxItems ? totals.adjustedTotal : selectedGuest.total)}

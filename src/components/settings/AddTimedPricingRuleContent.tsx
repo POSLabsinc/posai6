@@ -52,6 +52,8 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
   const [name, setName] = useState(editRule?.name ?? "");
   const [revenueCenter, setRevenueCenter] = useState("");
   const [orderingSource, setOrderingSource] = useState("");
+  const [showRevenueCenterPicker, setShowRevenueCenterPicker] = useState(false);
+  const [showOrderingSourcePicker, setShowOrderingSourcePicker] = useState(false);
   const [startDate, setStartDate] = useState<Date>(new Date());
   const [endDate, setEndDate] = useState<Date>(new Date());
   const [daySchedules, setDaySchedules] = useState<Record<string, DaySchedule>>(() => {

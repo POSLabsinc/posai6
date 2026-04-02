@@ -4965,7 +4965,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       />
 
       {/* Refund Modal */}
-      {RefundModal()}
+      {refundModal}
 
       {/* Mobile Filters Bottom Sheet */}
       <MobileFiltersSheet

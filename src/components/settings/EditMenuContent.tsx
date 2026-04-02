@@ -58,6 +58,7 @@ const EditMenuContent = ({
   const [showCategoriesSheet, setShowCategoriesSheet] = useState(false);
   const [showRevenueCentersSheet, setShowRevenueCentersSheet] = useState(false);
   const [selectedRevenueCenters, setSelectedRevenueCenters] = useState<string[]>([]);
+  const [showOrganize, setShowOrganize] = useState(false);
 
   const [activeChannels, setActiveChannels] = useState<Record<string, boolean>>({
     pos: false, pop: false, kiosk: false, orderos: false,

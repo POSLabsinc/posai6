@@ -31,6 +31,22 @@ const DEMO_EMPLOYEES: Record<string, DemoEmployee> = {
   "0000": { id: "3", name: "Alex Rivera", role: "Host", jobTypes: ["Host"], avatar: "AR" },
 };
 
+// Get device PIN set during onboarding (if any)
+function getDevicePinEmployee(): { pin: string; pinLength: number; employee: DemoEmployee } | null {
+  try {
+    const savedPin = localStorage.getItem("pos_device_pin");
+    const savedLen = localStorage.getItem("pos_device_pin_length");
+    if (savedPin) {
+      return {
+        pin: savedPin,
+        pinLength: parseInt(savedLen || "4", 10),
+        employee: { id: "guest-device", name: "Guest", role: "Guest", jobTypes: ["Guest"], avatar: "G" },
+      };
+    }
+  } catch {}
+  return null;
+}
+
 const REVENUE_CENTERS = ["Dine-In", "Bar", "Patio", "Takeout", "Drive-Thru"];
 
 // ── CSS (injected once) ────────────────────────────────────────────────────

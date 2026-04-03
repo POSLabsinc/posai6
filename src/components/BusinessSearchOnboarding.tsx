@@ -121,6 +121,13 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardOtp, setCardOtp] = useState(["", "", "", "", "", ""]);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [bankOption, setBankOption] = useState<"posai" | "external">("posai");
+  const [showSsn, setShowSsn] = useState(false);
+  const [verifyForm, setVerifyForm] = useState({
+    firstName: "", lastName: "", phone: "", dob: "",
+    address1: "", address2: "", city: "", state: "", zip: "", ssn: "",
+    agreedTerms: false,
+  });
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);

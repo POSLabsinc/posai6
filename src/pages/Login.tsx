@@ -2104,7 +2104,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         };
 
         return (
-          <DeviceSetupLayout variant="activation">
+          <DeviceSetupLayout variant="activation" leftPanelContent={{
+              icon: <Send className="w-6 h-6 text-primary" />,
+              title: "Link Sent",
+              description: "A secure sign-in link has been sent. Check your inbox or messages to continue.",
+              features: ["One-click sign in", "Secure link verification", "Auto-expires for safety"]
+            }}>
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}

@@ -516,8 +516,8 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
 
           {/* Not sure yet / manual entry */}
           <button
-            onClick={() => { setSelectedRevenue("custom"); setCustomRevenue(""); }}
-            className={`w-full flex flex-col px-4 py-4 transition-colors text-left ${selectedRevenue === "custom" ? "bg-primary/[0.08]" : "hover:bg-foreground/[0.04]"}`}
+            onClick={() => { setSelectedRevenue("not_sure"); setCustomRevenue(""); }}
+            className={`w-full flex flex-col px-4 py-4 transition-colors text-left ${selectedRevenue === "not_sure" ? "bg-primary/[0.08]" : "hover:bg-foreground/[0.04]"}`}
           >
             <p className="text-sm font-medium text-foreground">Not sure yet</p>
             <p className="text-xs text-foreground/40 mt-0.5">If you're a new {entityLabelLower}, or don't know right now</p>

@@ -661,7 +661,16 @@ const Orders = () => {
   const [appliedVoucherAmount, setAppliedVoucherAmount] = useState(0);
   const [voucherCode, setVoucherCode] = useState('');
   const [priceOverrideItem, setPriceOverrideItem] = useState<{id: number;name: string;price: number;image?: string;} | null>(null);
+  const nextOrderNumber = useMemo(() => {
+    if (!allTicketOrders || allTicketOrders.length === 0) return 1;
+    const maxNum = Math.max(...allTicketOrders.map(o => o.orderNumber || 0));
+    return maxNum + 1;
+  }, [allTicketOrders]);
   const [orderNumber, setOrderNumber] = useState(1);
+
+  useEffect(() => {
+    setOrderNumber(nextOrderNumber);
+  }, [nextOrderNumber]);
   const [orderCreatedTime] = useState<string>(() => {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
   });

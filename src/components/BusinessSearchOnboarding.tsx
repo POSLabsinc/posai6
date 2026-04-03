@@ -604,25 +604,15 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
 
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center max-h-[80vh] overflow-y-auto scrollbar-hide">
-        <div className="w-full flex items-center justify-between mb-6 sticky top-0 bg-background z-10 pb-2">
-          <motion.button
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            onClick={() => setStep("bank")}
-            className="flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
-          </motion.button>
-          <div className="flex items-center gap-2">
-            <button onClick={() => handleBankNext()} className="h-9 px-4 rounded-xl text-sm font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
-              Finish later
-            </button>
-            <Button onClick={() => { if (canSubmitVerify) handleBankNext(); }} disabled={!canSubmitVerify} className="h-9 px-5 rounded-xl text-sm font-medium">
-              Next
-            </Button>
-          </div>
-        </div>
+        <motion.button
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => setStep("bank")}
+          className="self-start mb-5 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </motion.button>
 
         <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl font-semibold text-foreground mb-2 text-left w-full">
           Verify your identity to activate your account

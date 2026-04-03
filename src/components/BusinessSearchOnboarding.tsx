@@ -229,6 +229,23 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
 
   const handleRevenueNext = () => {
     if (selectedBusiness && (selectedRevenue || customRevenue.trim())) {
+      setStep("planOrSkip");
+    }
+  };
+
+  const handleSelectPlan = (planName: string) => {
+    setSelectedPlan(planName);
+  };
+
+  const handleStartTrial = () => {
+    if (selectedBusiness && selectedPlan) {
+      const revenueValue = selectedRevenue === "custom" ? customRevenue.trim() : selectedRevenue;
+      onNext({ ...selectedBusiness, categories: selectedCategories, annualRevenue: revenueValue || undefined });
+    }
+  };
+
+  const handleBankNext = () => {
+    if (selectedBusiness) {
       const revenueValue = selectedRevenue === "custom" ? customRevenue.trim() : selectedRevenue;
       onNext({ ...selectedBusiness, categories: selectedCategories, annualRevenue: revenueValue || undefined });
     }

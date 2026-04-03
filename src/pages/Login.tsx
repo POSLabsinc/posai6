@@ -3983,7 +3983,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
 
     return (
-      <DeviceSetupLayout variant="setup">
+      <DeviceSetupLayout variant="setup" leftPanelContent={{
+          icon: <Monitor className="w-6 h-6 text-primary" />,
+          title: "Choose Device Type",
+          description: "Select how this device will be used to get the right setup experience.",
+          features: ["Company or personal device", "Secure activation options", "Demo mode available"]
+        }}>
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

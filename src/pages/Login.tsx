@@ -2535,7 +2535,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       // Step 3a: Business Search Onboarding
       if (signupStep === "business") {
         return (
-          <DeviceSetupLayout variant="admin">
+          <DeviceSetupLayout variant="admin" leftPanelContent={{
+              icon: <Building2 className="w-6 h-6 text-primary" />,
+              title: "Business Setup",
+              description: "Search for your business or add it manually to get started with your account.",
+              features: ["Google Places integration", "Category and plan selection", "Bank account setup"]
+            }}>
             <BusinessSearchOnboarding
               onNext={(business) => {
                 localStorage.setItem("onboarding_business", JSON.stringify(business));

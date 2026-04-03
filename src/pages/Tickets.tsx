@@ -69,6 +69,7 @@ import AppleAlertDialog from "@/components/AppleAlertDialog";
 import RefundModalLayout from "@/components/RefundModalLayout";
 import MessageKitchenDialog from "@/components/MessageKitchenDialog";
 import messageKdsIcon from "@/assets/icons/message-kds.svg";
+import OrderMessageThread, { useOrderMessageStatus } from "@/components/OrderMessageThread";
 import RefundBottomSheet from "@/components/RefundBottomSheet";
 import TicketsTransferView, { TransferGuestOrder } from "@/components/TicketsTransferView";
 
@@ -1016,7 +1017,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   // Order notes state - stores updated notes by order ID
   const [orderNotes, setOrderNotes] = useState<{ [orderId: string]: string }>({});
   const [showMessageKitchen, setShowMessageKitchen] = useState(false);
-  
+  const [showMessageThread, setShowMessageThread] = useState(false);
+
+  // Message status for selected order
+  const { hasMessages: selectedOrderHasMessages, hasUnreadReply: selectedOrderHasUnread } = useOrderMessageStatus(
+    selectedGuest?.id !== FALLBACK_SELECTED_GUEST_ID ? selectedGuest?.id : undefined,
+    selectedGuest?.orderNumber
+  );
+
   // Guest info state - stores updated name/phone by order ID
   const [guestInfo, setGuestInfo] = useState<{ [orderId: string]: { name: string; phone: string } }>({});
   
@@ -2168,6 +2176,17 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             <span className="text-white font-bold">{String(selectedGuest.orderNumber || 0)}</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
+            {selectedOrderHasMessages && (
+              <button
+                onClick={() => setShowMessageThread(true)}
+                className="relative p-1 rounded hover:bg-white/10 transition-colors"
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-orange-400" />
+                {selectedOrderHasUnread && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                )}
+              </button>
+            )}
             <img src={runnerIcon} alt="Runner" className="w-4 h-4" />
             <span className="text-white/80">{selectedGuest.server}</span>
             <DropdownMenu>
@@ -3391,6 +3410,17 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 <span className="text-white font-bold">{String(selectedGuest.orderNumber || 0)}</span>
               </div>
               <div className="flex items-center gap-2">
+                {selectedOrderHasMessages && (
+                  <button
+                    onClick={() => setShowMessageThread(true)}
+                    className="relative p-1 rounded hover:bg-white/10 transition-colors"
+                  >
+                    <MessageSquare className="w-4 h-4 text-orange-400" />
+                    {selectedOrderHasUnread && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                    )}
+                  </button>
+                )}
                 <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
                 <span className="text-white/50 text-sm">{selectedGuest.server}</span>
               </div>
@@ -6133,6 +6163,13 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         open={showMessageKitchen}
         onOpenChange={setShowMessageKitchen}
         serverName={selectedGuest?.server || "Staff"}
+      />
+
+      <OrderMessageThread
+        orderId={selectedGuest?.id || ""}
+        orderNumber={selectedGuest?.orderNumber || 0}
+        open={showMessageThread}
+        onOpenChange={setShowMessageThread}
       />
     </>
   );

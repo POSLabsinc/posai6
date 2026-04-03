@@ -6164,6 +6164,13 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         onOpenChange={setShowMessageKitchen}
         serverName={selectedGuest?.server || "Staff"}
       />
+
+      <OrderMessageThread
+        orderId={selectedGuest?.id || ""}
+        orderNumber={selectedGuest?.orderNumber || 0}
+        open={showMessageThread}
+        onOpenChange={setShowMessageThread}
+      />
     </>
   );
 };

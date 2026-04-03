@@ -2683,7 +2683,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         const isLastStep = trialStepIndex === trialSteps.length - 1;
 
         return (
-          <DeviceSetupLayout variant="admin">
+          <DeviceSetupLayout variant="admin" leftPanelContent={{
+              icon: <Sparkles className="w-6 h-6 text-primary" />,
+              title: "Getting Started",
+              description: "Explore the key features that will help you manage your business efficiently.",
+              features: ["Quick feature overview", "Interactive walkthrough", "Personalized setup"]
+            }}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

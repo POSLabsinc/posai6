@@ -1,34 +1,55 @@
 
 
-## Plan: Make Open Price Products Visible in Menu Navigation
+## Plan: Ticket-Specific AI Assistant Panel
 
 ### Problem
-The 3 open price products (Daily Special, Market Price Fish, Chef's Special Chicken) are in the **Specials** category in the database. While they appear in search results, they don't reliably show when browsing menus. The "Specials" category is linked to Weekend, HAPPY HOUR M/W, and Holiday Menu — the products should appear when clicking the "Specials" tab under those menus.
+The AI assistant on the Tickets screen currently shows New Order actions (Add Product, Order Type, Guest, Note, Summary, Pay, Clear). These are irrelevant on the Tickets screen where users manage existing orders. We need ticket-specific actions.
 
-### Root Cause
-The `dynamicMenuItems` builder in `Orders.tsx` correctly adds DB products under the "Specials" category key. However, the subcategories row for "Specials" shows 12 hardcoded subcategories (Chef's Choice, Daily Special, Seasonal, etc.) from `categorySubcategories`. Clicking any of these shows **nothing** because the DB products are keyed under `"Specials"` not under individual subcategory names. This confusing UI may lead users to think the products are missing.
+### Approach
+Create a new `TicketAIChatPanel` component specifically for the Tickets screen, with quick actions and AI capabilities tailored to ticket operations.
 
-Additionally, the products only appear when clicking the "Specials" category tab itself (no subcategory selected), which may not be obvious.
+### Ticket Actions to Include
 
-### Solution
+Based on the existing Tickets screen functionality, the AI assistant will support these quick actions:
 
-**File: `src/pages/Orders.tsx`** (lines ~428-451)
-- When adding DB products to `dynamicMenuItems`, also distribute them to matching subcategory keys based on product name matching (e.g., "Daily Special (Open Price)" → "Daily Special" subcategory)
-- For any unmatched DB products, add them to a general/visible subcategory so they're always accessible
+1. **Refund** - Initiate refund flow for the selected ticket
+2. **Void** - Void/cancel the selected order
+3. **Transfer** - Transfer order to another table/order
+4. **Receipt** - Print/send receipt for the ticket
+5. **Discount** - Apply discount to the ticket
+6. **Message Kitchen** - Send message to kitchen
+7. **Order Summary** - Show details of the selected ticket
+8. **Reopen** - Reopen a closed/paid ticket
 
-**File: `src/data/orderMenuData.ts`** (line 55)  
-- No changes needed to the subcategory definitions — they serve as navigation aids
+### AI Chat Capabilities
 
-### Alternative Simpler Approach (Recommended)
-Since these are the **only** products in the Specials category and the subcategories are just hardcoded navigation stubs with no real products behind them:
-
-**File: `src/pages/Orders.tsx`** (lines ~382-408)
-- When building `dynamicMenuItems`, if a category has DB products but no localStorage-assigned subcategory products, skip the subcategory loop entirely and place all DB products directly under the category name
-- This makes the products show immediately when clicking the "Specials" tab without needing to navigate subcategories
+The AI will understand natural language commands like:
+- "Refund this order"
+- "Void order #6"
+- "Transfer this to Table 5"
+- "Print the receipt"
+- "Apply 10% discount"
+- "Send a message to the kitchen"
+- "Show me the order summary"
+- "Reopen this ticket"
 
 ### Technical Details
-- Modify the `dynamicMenuItems` useMemo block around lines 391-425
-- Add a check: if none of the subcategories have products from `getCategoryProducts()`, skip creating empty subcategory entries and let the DB product merge (lines 428-451) handle everything
-- This already works correctly — the real fix is ensuring the **subcategory buttons don't mislead** users into clicking them when no products exist under those sub-keys
-- Add a guard in the subcategory rendering (line 2687) to only show subcategories that actually have products in the current data structure
+
+**New file: `src/components/TicketAIChatPanel.tsx`**
+- New component modeled after `OrderAIChatPanel` but with ticket-specific logic
+- Welcome message updated with ticket-relevant example commands
+- Quick action buttons replaced with: Refund, Void, Transfer, Receipt, Discount, Message Kitchen, Summary, Reopen
+- `TicketActions` interface with callbacks: `openRefund`, `openVoid`, `openTransfer`, `openReceipt`, `openDiscount`, `openMessageKitchen`, `reopenOrder`
+- `TicketContext` interface with: order ID, order number, guest name, status, total, payment type, items, table
+- AI chat sends ticket context to the edge function for contextual responses
+- Quick actions trigger the corresponding dialogs/flows in the parent Tickets page
+
+**Modified file: `src/pages/Tickets.tsx`**
+- Replace `OrderAIChatPanel` import with `TicketAIChatPanel`
+- Pass `ticketActions` callbacks that trigger existing state setters (e.g., `setShowRefundConfirmation`, `setShowTransferIntentDialog`, `setIsDiscountDialogOpen`, `setShowMessageKitchen`, `setShowReceiptOptions`)
+- Pass `ticketContext` with the selected guest's order data
+
+### Files Changed
+1. **Create** `src/components/TicketAIChatPanel.tsx` - New ticket-specific AI panel
+2. **Edit** `src/pages/Tickets.tsx` - Swap panel component and wire up callbacks
 

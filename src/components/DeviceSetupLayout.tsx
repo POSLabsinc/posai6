@@ -5,12 +5,20 @@ import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ReactNode } from "react";
 
+interface LeftPanelContent {
+  icon?: ReactNode;
+  title?: string;
+  description?: string;
+  features?: string[];
+}
+
 interface DeviceSetupLayoutProps {
   children: ReactNode;
   title?: string;
   subtitle?: string;
   variant?: "setup" | "demo" | "activation" | "admin";
   fullWidthRight?: boolean;
+  leftPanelContent?: LeftPanelContent;
 }
 
 // Get time-based greeting and info
@@ -27,7 +35,7 @@ const getTimeOfDayInfo = (date: Date) => {
   }
 };
 
-export function DeviceSetupLayout({ children, title, subtitle, variant = "setup", fullWidthRight = false }: DeviceSetupLayoutProps) {
+export function DeviceSetupLayout({ children, title, subtitle, variant = "setup", fullWidthRight = false, leftPanelContent }: DeviceSetupLayoutProps) {
   const isMobile = useIsMobile();
   const currentTime = new Date();
   const timeInfo = getTimeOfDayInfo(currentTime);
@@ -94,7 +102,13 @@ export function DeviceSetupLayout({ children, title, subtitle, variant = "setup"
     }
   };
 
-  const variantContent = getVariantContent();
+  const defaultVariantContent = getVariantContent();
+  const variantContent = leftPanelContent ? {
+    icon: leftPanelContent.icon || defaultVariantContent.icon,
+    title: leftPanelContent.title || defaultVariantContent.title,
+    description: leftPanelContent.description || defaultVariantContent.description,
+    features: leftPanelContent.features || defaultVariantContent.features,
+  } : defaultVariantContent;
 
   // Mobile: Single column layout
   if (isMobile) {

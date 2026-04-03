@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, UtensilsCrossed, Zap, Users, Truck, ShieldCheck, ArrowLeft, Delete, Loader2, Clock, MapPin, Briefcase, CheckCircle2, Monitor, Smartphone, KeyRound, AlertCircle, Send, ShieldX, Mail, MessageSquare, RefreshCw, Lock, Eye, EyeOff, Sun, Moon, Sunrise, Sunset, Fingerprint, ScanFace, Phone, X, ScanLine, Camera, HelpCircle, Info, FlaskConical, Timer, Wine, ChefHat, Sparkles, Link2, UserPlus, ChevronDown, ChevronLeft, LayoutGrid, CreditCard, BarChart3, Settings, ChevronRight } from "lucide-react";
+import { User, UtensilsCrossed, Zap, Users, Truck, ShieldCheck, ArrowLeft, Delete, Loader2, Clock, MapPin, Briefcase, CheckCircle2, Monitor, Smartphone, KeyRound, AlertCircle, Send, ShieldX, Mail, MessageSquare, RefreshCw, Lock, Eye, EyeOff, Sun, Moon, Sunrise, Sunset, Fingerprint, ScanFace, Phone, X, ScanLine, Camera, HelpCircle, Info, FlaskConical, Timer, Wine, ChefHat, Sparkles, Link2, UserPlus, ChevronDown, ChevronLeft, LayoutGrid, CreditCard, BarChart3, Settings, ChevronRight, Building2 } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import {
   Dialog,
@@ -873,14 +873,24 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     // When AI chat is open, show it in the right panel
     if (showAIChat) {
       return (
-        <DeviceSetupLayout variant="setup" fullWidthRight>
+        <DeviceSetupLayout variant="setup" fullWidthRight leftPanelContent={{
+            icon: <Sparkles className="w-6 h-6 text-primary" />,
+            title: "AI-Powered Setup",
+            description: "Let our AI assistant guide you through device activation and account setup in minutes.",
+            features: ["Conversational setup flow", "Smart auto-configuration", "Instant device pairing"]
+          }}>
           <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} deviceType="company" onAccountCreated={() => { setActivationMethod("signup"); setSignupStep("business"); }} />
         </DeviceSetupLayout>
       );
     }
 
     return (
-      <DeviceSetupLayout variant="setup">
+      <DeviceSetupLayout variant="setup" leftPanelContent={{
+          icon: <Monitor className="w-6 h-6 text-primary" />,
+          title: "Device Setup",
+          description: "Connect this device to your business to start taking orders and managing your restaurant.",
+          features: ["Quick 2-minute setup", "Secure device pairing", "Automatic sync with your account"]
+        }}>
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -1170,7 +1180,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       // Step 1: Email verification (gate)
       if (!demoEmailVerified) {
         return (
-          <DeviceSetupLayout variant="demo">
+          <DeviceSetupLayout variant="demo" leftPanelContent={{
+              icon: <Monitor className="w-6 h-6 text-amber-500" />,
+              title: "Demo Verification",
+              description: "Verify your identity to access the demo environment with sample data.",
+              features: ["Quick email verification", "No real data affected", "Full feature access"]
+            }}>
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1478,7 +1493,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       };
 
       return (
-        <DeviceSetupLayout variant="demo">
+        <DeviceSetupLayout variant="demo" leftPanelContent={{
+            icon: <Monitor className="w-6 h-6 text-amber-500" />,
+            title: "Demo Experience",
+            description: "Explore eatOS with sample data. Perfect for training or evaluation.",
+            features: ["Sample menu and categories", "Mock orders and transactions", "Full feature exploration"]
+          }}>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -1704,7 +1724,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       // Step 1: Collect email or phone
       if (!activationCodeSent) {
         return (
-          <DeviceSetupLayout variant="activation">
+          <DeviceSetupLayout variant="activation" leftPanelContent={{
+              icon: <ShieldCheck className="w-6 h-6 text-primary" />,
+              title: "Activate with Code",
+              description: "Enter your email or phone to receive a secure activation code for this device.",
+              features: ["Time-limited activation codes", "Secure email or SMS delivery", "Device trust establishment"]
+            }}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -1828,7 +1853,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       // Step 2: Enter the activation code
       return (
-        <DeviceSetupLayout variant="activation">
+        <DeviceSetupLayout variant="activation" leftPanelContent={{
+            icon: <ShieldCheck className="w-6 h-6 text-primary" />,
+            title: "Code Verification",
+            description: "Enter the 6-digit code sent to your email or phone to complete activation.",
+            features: ["6-digit secure code", "Auto-expires for security", "One-time use verification"]
+          }}>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -2074,7 +2104,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         };
 
         return (
-          <DeviceSetupLayout variant="activation">
+          <DeviceSetupLayout variant="activation" leftPanelContent={{
+              icon: <Send className="w-6 h-6 text-primary" />,
+              title: "Link Sent",
+              description: "A secure sign-in link has been sent. Check your inbox or messages to continue.",
+              features: ["One-click sign in", "Secure link verification", "Auto-expires for safety"]
+            }}>
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
@@ -2267,7 +2302,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       // Magic Link Input Screen
       return (
-        <DeviceSetupLayout variant="activation">
+        <DeviceSetupLayout variant="activation" leftPanelContent={{
+            icon: <Link2 className="w-6 h-6 text-primary" />,
+            title: "Sign in with Link",
+            description: "Receive a secure magic link to sign in without a password.",
+            features: ["Passwordless authentication", "Secure email or SMS link", "One-click device access"]
+          }}>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -2495,7 +2535,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       // Step 3a: Business Search Onboarding
       if (signupStep === "business") {
         return (
-          <DeviceSetupLayout variant="admin">
+          <DeviceSetupLayout variant="admin" leftPanelContent={{
+              icon: <Building2 className="w-6 h-6 text-primary" />,
+              title: "Business Setup",
+              description: "Search for your business or add it manually to get started with your account.",
+              features: ["Google Places integration", "Category and plan selection", "Bank account setup"]
+            }}>
             <BusinessSearchOnboarding
               onNext={(business) => {
                 localStorage.setItem("onboarding_business", JSON.stringify(business));
@@ -2530,7 +2575,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       // Step 3b: Merchant Onboarding (replaces trial walkthrough)
       if (signupStep === "onboarding") {
         return (
-          <DeviceSetupLayout variant="setup" fullWidthRight>
+          <DeviceSetupLayout variant="setup" fullWidthRight leftPanelContent={{
+              icon: <Settings className="w-6 h-6 text-primary" />,
+              title: "Merchant Setup",
+              description: "Configure your restaurant hours, departments, roles, and menu to get operational.",
+              features: ["Restaurant hours setup", "Staff roles and permissions", "Menu configuration"]
+            }}>
             <MerchantOnboarding
               prefillEmail={signupEmail}
               prefillName={signupFullName}
@@ -2633,7 +2683,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         const isLastStep = trialStepIndex === trialSteps.length - 1;
 
         return (
-          <DeviceSetupLayout variant="admin">
+          <DeviceSetupLayout variant="admin" leftPanelContent={{
+              icon: <Sparkles className="w-6 h-6 text-primary" />,
+              title: "Getting Started",
+              description: "Explore the key features that will help you manage your business efficiently.",
+              features: ["Quick feature overview", "Interactive walkthrough", "Personalized setup"]
+            }}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -2762,7 +2817,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       // Step 2: OTP Verification
       if (signupStep === "otp") {
         return (
-          <DeviceSetupLayout variant="admin">
+          <DeviceSetupLayout variant="admin" leftPanelContent={{
+              icon: <ShieldCheck className="w-6 h-6 text-primary" />,
+              title: "Verify Identity",
+              description: "Enter the verification code sent to your email to secure your new account.",
+              features: ["6-digit verification code", "Email confirmation", "Account security"]
+            }}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -2931,7 +2991,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       // Step 1: Signup Form (default)
       return (
-        <DeviceSetupLayout variant="admin">
+        <DeviceSetupLayout variant="admin" leftPanelContent={{
+            icon: <UserPlus className="w-6 h-6 text-primary" />,
+            title: "Create Account",
+            description: "Set up a new account to activate and manage this device.",
+            features: ["Quick account creation", "Secure email verification", "Instant device access"]
+          }}>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -3179,7 +3244,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           };
 
           return (
-            <DeviceSetupLayout variant="admin">
+            <DeviceSetupLayout variant="admin" leftPanelContent={{
+                icon: <Lock className="w-6 h-6 text-primary" />,
+                title: "Reset Password",
+                description: "Enter the verification code to reset your password securely.",
+                features: ["Secure code verification", "Password reset link", "Account recovery"]
+              }}>
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -3362,7 +3432,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             : `+1 ${formatPhoneDisplay(forgotPasswordPhone)}`;
 
           return (
-            <DeviceSetupLayout variant="admin">
+            <DeviceSetupLayout variant="admin" leftPanelContent={{
+                icon: <Lock className="w-6 h-6 text-primary" />,
+                title: "New Password",
+                description: "Create a new secure password for your account.",
+                features: ["6-character minimum", "Secure password update", "Instant access after reset"]
+              }}>
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -3595,7 +3670,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         };
 
         return (
-          <DeviceSetupLayout variant="admin">
+          <DeviceSetupLayout variant="admin" leftPanelContent={{
+              icon: <Lock className="w-6 h-6 text-primary" />,
+              title: "Forgot Password",
+              description: "Enter your email or phone to receive a password reset code.",
+              features: ["Email or SMS recovery", "Secure reset process", "Quick account access"]
+            }}>
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -3746,7 +3826,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       // Main admin sign-in form
       return (
-        <DeviceSetupLayout variant="admin">
+        <DeviceSetupLayout variant="admin" leftPanelContent={{
+            icon: <ShieldCheck className="w-6 h-6 text-primary" />,
+            title: "Account Access",
+            description: "Sign in with your credentials to activate and manage this device.",
+            features: ["Full device management", "Configure business settings", "Assign staff permissions"]
+          }}>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -3898,7 +3983,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
 
     return (
-      <DeviceSetupLayout variant="setup">
+      <DeviceSetupLayout variant="setup" leftPanelContent={{
+          icon: <Monitor className="w-6 h-6 text-primary" />,
+          title: "Choose Device Type",
+          description: "Select how this device will be used to get the right setup experience.",
+          features: ["Company or personal device", "Secure activation options", "Demo mode available"]
+        }}>
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

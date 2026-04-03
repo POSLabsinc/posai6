@@ -124,6 +124,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   const [bankOption, setBankOption] = useState<"posai" | "external">("posai");
   const [showSsn, setShowSsn] = useState(false);
   const [transferMethod, setTransferMethod] = useState<"next-day" | "same-day" | null>(null);
+  const [showFinishLaterDialog, setShowFinishLaterDialog] = useState(false);
   const [verifyForm, setVerifyForm] = useState({
     firstName: "", lastName: "", phone: "", dob: "",
     address1: "", address2: "", city: "", state: "", zip: "", ssn: "",

@@ -2817,7 +2817,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       // Step 2: OTP Verification
       if (signupStep === "otp") {
         return (
-          <DeviceSetupLayout variant="admin">
+          <DeviceSetupLayout variant="admin" leftPanelContent={{
+              icon: <ShieldCheck className="w-6 h-6 text-primary" />,
+              title: "Verify Identity",
+              description: "Enter the verification code sent to your email to secure your new account.",
+              features: ["6-digit verification code", "Email confirmation", "Account security"]
+            }}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Building2, ChevronRight, ArrowLeft, Loader2, Check, UtensilsCrossed } from "lucide-react";
+import { Search, MapPin, Building2, ChevronRight, ArrowLeft, Loader2, Check, UtensilsCrossed, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export interface BusinessDetails {
@@ -12,6 +12,7 @@ export interface BusinessDetails {
   placeId: string;
   categories?: string[];
   placeType?: string;
+  annualRevenue?: string;
 }
 
 interface BusinessSearchOnboardingProps {
@@ -62,7 +63,15 @@ const ALL_CATEGORIES = [
 
 const RESTAURANT_CATEGORIES = ALL_CATEGORIES.filter((c) => c.group === "Food and Drink");
 
-type Step = "search" | "category";
+const REVENUE_OPTIONS = [
+  { label: "Less than $100K", value: "less_100k" },
+  { label: "$100K - $250K", value: "100k_250k" },
+  { label: "$250K - $1M", value: "250k_1m" },
+  { label: "$1M - $5M", value: "1m_5m" },
+  { label: "$5M - $25M+", value: "5m_25m_plus" },
+];
+
+type Step = "search" | "category" | "revenue";
 
 const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSearchOnboardingProps) => {
   const [step, setStep] = useState<Step>("search");
@@ -77,6 +86,8 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   const [noResults, setNoResults] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [categorySearch, setCategorySearch] = useState("");
+  const [selectedRevenue, setSelectedRevenue] = useState<string | null>(null);
+  const [customRevenue, setCustomRevenue] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
@@ -181,11 +192,101 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
 
   const handleCategoryNext = () => {
     if (selectedBusiness && selectedCategories.length > 0) {
-      onNext({ ...selectedBusiness, categories: selectedCategories });
+      setStep("revenue");
+    }
+  };
+
+  const handleRevenueNext = () => {
+    if (selectedBusiness && (selectedRevenue || customRevenue.trim())) {
+      const revenueValue = selectedRevenue === "custom" ? customRevenue.trim() : selectedRevenue;
+      onNext({ ...selectedBusiness, categories: selectedCategories, annualRevenue: revenueValue || undefined });
     }
   };
 
   const HeaderIcon = isRestaurant ? UtensilsCrossed : Building2;
+
+  // Revenue Step
+  if (step === "revenue") {
+    const canProceedRevenue = selectedRevenue || customRevenue.trim();
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
+        <motion.button
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => setStep("category")}
+          className="self-start mb-5 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </motion.button>
+
+        <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="text-xl font-semibold text-foreground mb-1.5 text-center">
+          What's your annual revenue?
+        </motion.h1>
+
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-sm text-foreground/50 mb-5 text-center leading-relaxed">
+          This helps us provide the best solutions for your {entityLabelLower}.
+        </motion.p>
+
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="w-full rounded-2xl border border-foreground/[0.08] bg-foreground/[0.02] mb-4">
+          {REVENUE_OPTIONS.map((opt) => {
+            const isSelected = selectedRevenue === opt.value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => { setSelectedRevenue(opt.value); setCustomRevenue(""); }}
+                className={`w-full flex items-center px-4 py-4 border-b border-foreground/[0.06] last:border-b-0 transition-colors text-left ${isSelected ? "bg-primary/[0.08]" : "hover:bg-foreground/[0.04]"}`}
+              >
+                <p className="text-sm font-medium text-foreground flex-1">{opt.label}</p>
+                {isSelected && (
+                  <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center flex-shrink-0 ml-3">
+                    <Check className="w-3 h-3 text-primary-foreground" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+
+          {/* Not sure yet / manual entry */}
+          <button
+            onClick={() => { setSelectedRevenue("custom"); setCustomRevenue(""); }}
+            className={`w-full flex flex-col px-4 py-4 transition-colors text-left ${selectedRevenue === "custom" ? "bg-primary/[0.08]" : "hover:bg-foreground/[0.04]"}`}
+          >
+            <p className="text-sm font-medium text-foreground">Not sure yet</p>
+            <p className="text-xs text-foreground/40 mt-0.5">If you're a new {entityLabelLower}, or don't know right now</p>
+          </button>
+        </motion.div>
+
+        {/* Custom revenue input */}
+        <AnimatePresence>
+          {selectedRevenue === "custom" && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="w-full mb-4 overflow-hidden">
+              <div className="relative">
+                <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                <input
+                  type="text"
+                  value={customRevenue}
+                  onChange={(e) => setCustomRevenue(e.target.value)}
+                  placeholder="Enter estimated annual revenue..."
+                  className="w-full h-12 pl-11 pr-4 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] text-foreground placeholder:text-foreground/30 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background transition-all"
+                  autoFocus
+                />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        <Button
+          onClick={handleRevenueNext}
+          disabled={!canProceedRevenue}
+          className="w-full h-14 text-base font-medium rounded-2xl"
+          size="lg"
+        >
+          Next
+        </Button>
+      </motion.div>
+    );
+  }
 
   // Category Selection Step
   if (step === "category") {

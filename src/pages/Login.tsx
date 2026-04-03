@@ -30,6 +30,7 @@ import { PersonalDeviceAuthPanel } from "@/components/PersonalDeviceAuthPanel";
 import { SplashScreen } from "@/components/SplashScreen";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import DeviceSetupAIChat from "@/components/DeviceSetupAIChat";
+import BusinessSearchOnboarding from "@/components/BusinessSearchOnboarding";
 
 
 import { revenueCenters, employeePinMapping, locationEmployees, getRoleIcon, getRoleBadgeStyle, getTimeOfDayInfo, PIN_LENGTH, DeviceType } from "@/data/loginData";

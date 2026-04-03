@@ -19,6 +19,7 @@ interface BusinessSearchOnboardingProps {
   onNext: (business: BusinessDetails) => void;
   onManualEntry: () => void;
   onBack?: () => void;
+  onDevicePinComplete?: (pin: string, pinLength: number) => void;
 }
 
 // Mock Google Places results with place type

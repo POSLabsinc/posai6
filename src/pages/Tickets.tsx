@@ -1017,7 +1017,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   // Order notes state - stores updated notes by order ID
   const [orderNotes, setOrderNotes] = useState<{ [orderId: string]: string }>({});
   const [showMessageKitchen, setShowMessageKitchen] = useState(false);
-  
+  const [showMessageThread, setShowMessageThread] = useState(false);
+
+  // Message status for selected order
+  const { hasMessages: selectedOrderHasMessages, hasUnreadReply: selectedOrderHasUnread } = useOrderMessageStatus(
+    selectedGuest?.id !== FALLBACK_SELECTED_GUEST_ID ? selectedGuest?.id : undefined,
+    selectedGuest?.orderNumber
+  );
+
   // Guest info state - stores updated name/phone by order ID
   const [guestInfo, setGuestInfo] = useState<{ [orderId: string]: { name: string; phone: string } }>({});
   

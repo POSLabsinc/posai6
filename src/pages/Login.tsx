@@ -1180,7 +1180,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       // Step 1: Email verification (gate)
       if (!demoEmailVerified) {
         return (
-          <DeviceSetupLayout variant="demo">
+          <DeviceSetupLayout variant="demo" leftPanelContent={{
+              icon: <Monitor className="w-6 h-6 text-amber-500" />,
+              title: "Demo Verification",
+              description: "Verify your identity to access the demo environment with sample data.",
+              features: ["Quick email verification", "No real data affected", "Full feature access"]
+            }}>
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

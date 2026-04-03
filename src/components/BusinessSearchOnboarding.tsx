@@ -450,6 +450,65 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
     );
   }
 
+
+  // Card OTP Verification Step
+  if (step === "cardOtp") {
+    const maskedCard = cardNumber.replace(/\s/g, '').slice(-4);
+    const otpComplete = cardOtp.every(d => d !== "");
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
+        <motion.button
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => { setCardOtp(["", "", "", "", "", ""]); setStep("planOrSkip"); }}
+          className="self-start mb-5 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </motion.button>
+
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 border border-primary/20">
+          <Shield className="w-7 h-7 text-primary" />
+        </motion.div>
+
+        <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="text-xl font-semibold text-foreground mb-1.5 text-center">
+          Verify your card
+        </motion.h1>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-sm text-foreground/50 mb-6 text-center leading-relaxed">
+          We sent a 6-digit code to the phone number linked to your card ending in {maskedCard}
+        </motion.p>
+
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="flex gap-3 mb-6">
+          {cardOtp.map((digit, i) => (
+            <input
+              key={i}
+              ref={(el) => { otpRefs.current[i] = el; }}
+              type="text"
+              inputMode="numeric"
+              maxLength={1}
+              value={digit}
+              onChange={(e) => handleOtpChange(i, e.target.value)}
+              onKeyDown={(e) => handleOtpKeyDown(i, e)}
+              className="w-12 h-14 text-center text-lg font-semibold rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] text-foreground outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background transition-all"
+            />
+          ))}
+        </motion.div>
+
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-xs text-foreground/40 mb-5 text-center">
+          Didn't receive a code? <button className="text-primary underline">Resend</button>
+        </motion.p>
+
+        <Button onClick={handleVerifyOtp} disabled={!otpComplete || isVerifyingOtp} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
+          {isVerifyingOtp ? (
+            <span className="flex items-center gap-2"><Loader2 className="w-5 h-5 animate-spin" /> Verifying...</span>
+          ) : (
+            `Confirm and Start ${selectedPlan} Plan`
+          )}
+        </Button>
+      </motion.div>
+    );
+  }
+
   // Bank Account Step
   if (step === "bank") {
     return (

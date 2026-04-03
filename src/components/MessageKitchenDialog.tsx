@@ -36,6 +36,8 @@ interface MessageKitchenDialogProps {
   onOpenChange: (open: boolean) => void;
   tableId?: string | null;
   serverName?: string;
+  defaultLinkedOrderId?: string | null;
+  defaultLinkedOrderNumber?: number | null;
 }
 
 const MAX_LENGTH = 100;

@@ -191,7 +191,14 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
 
   const handleCategoryNext = () => {
     if (selectedBusiness && selectedCategories.length > 0) {
-      onNext({ ...selectedBusiness, categories: selectedCategories });
+      setStep("revenue");
+    }
+  };
+
+  const handleRevenueNext = () => {
+    if (selectedBusiness && (selectedRevenue || customRevenue.trim())) {
+      const revenueValue = selectedRevenue === "custom" ? customRevenue.trim() : selectedRevenue;
+      onNext({ ...selectedBusiness, categories: selectedCategories, annualRevenue: revenueValue || undefined });
     }
   };
 

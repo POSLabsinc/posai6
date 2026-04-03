@@ -3244,7 +3244,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           };
 
           return (
-            <DeviceSetupLayout variant="admin">
+            <DeviceSetupLayout variant="admin" leftPanelContent={{
+                icon: <Lock className="w-6 h-6 text-primary" />,
+                title: "Reset Password",
+                description: "Enter the verification code to reset your password securely.",
+                features: ["Secure code verification", "Password reset link", "Account recovery"]
+              }}>
               <motion.div 
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}

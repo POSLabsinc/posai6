@@ -752,7 +752,7 @@ export const ClockInOverlay = ({
               className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <MapPin className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                {(() => { const Icon = REVENUE_CENTER_ICONS[clockInSummary!.revenueCenter] || MapPin; return <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />; })()}
               </div>
               <div className="flex-1 text-left">
                 <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
@@ -769,21 +769,32 @@ export const ClockInOverlay = ({
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.15 }}
-                  className="mt-1 bg-white/10 backdrop-blur-xl rounded-xl overflow-hidden"
+                  className="mt-2 overflow-hidden"
                 >
-                  {revenueCenters.map(center => (
-                    <button
-                      key={center}
-                      onClick={() => {
-                        setClockInSummary(prev => prev ? { ...prev, revenueCenter: center } : prev);
-                        setShowSummaryRevenueCenterDropdown(false);
-                      }}
-                      className={`w-full px-4 py-3 text-left text-sm flex items-center justify-between transition-colors hover:bg-white/10 ${clockInSummary!.revenueCenter === center ? 'bg-white/10' : ''}`}
-                    >
-                      <span className="text-white font-medium">{center}</span>
-                      {clockInSummary!.revenueCenter === center && <Check className="w-4 h-4 text-emerald-400" />}
-                    </button>
-                  ))}
+                  <div className="grid grid-cols-2 gap-2">
+                    {revenueCenters.map(center => {
+                      const Icon = REVENUE_CENTER_ICONS[center] || MapPin;
+                      const isSelected = clockInSummary!.revenueCenter === center;
+                      return (
+                        <button
+                          key={center}
+                          onClick={() => {
+                            setClockInSummary(prev => prev ? { ...prev, revenueCenter: center } : prev);
+                            setShowSummaryRevenueCenterDropdown(false);
+                          }}
+                          className={`rounded-xl p-3 flex flex-col items-center gap-2 transition-all min-h-[80px] ${
+                            isSelected
+                              ? 'bg-emerald-500/20 border border-emerald-500/50'
+                              : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
+                          }`}
+                        >
+                          <Icon className={`w-8 h-8 ${isSelected ? 'text-emerald-400' : 'text-white'}`} />
+                          <span className={`text-xs font-medium text-center ${isSelected ? 'text-emerald-400' : 'text-white'}`}>{center}</span>
+                          {isSelected && <Check className="w-4 h-4 text-emerald-400" />}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>

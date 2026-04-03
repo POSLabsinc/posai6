@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Building2, ChevronRight, ArrowLeft, Loader2, Check, UtensilsCrossed, DollarSign, CreditCard, Landmark, Shield, Zap, Star } from "lucide-react";
+import { Search, MapPin, Building2, ChevronRight, ArrowLeft, Loader2, Check, UtensilsCrossed, DollarSign, CreditCard, Landmark, Shield, Zap, Star, Lock, Eye, EyeOff, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export interface BusinessDetails {
@@ -99,7 +99,7 @@ const PLANS = [
   },
 ];
 
-type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp";
+type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp" | "verifyIdentity";
 
 const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSearchOnboardingProps) => {
   const [step, setStep] = useState<Step>("search");
@@ -121,6 +121,13 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardOtp, setCardOtp] = useState(["", "", "", "", "", ""]);
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [bankOption, setBankOption] = useState<"posai" | "external">("posai");
+  const [showSsn, setShowSsn] = useState(false);
+  const [verifyForm, setVerifyForm] = useState({
+    firstName: "", lastName: "", phone: "", dob: "",
+    address1: "", address2: "", city: "", state: "", zip: "", ssn: "",
+    agreedTerms: false,
+  });
   const otpRefs = useRef<(HTMLInputElement | null)[]>([]);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -537,11 +544,11 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="w-full rounded-2xl border border-foreground/[0.08] bg-foreground/[0.02] mb-4">
           {/* POSAI Checking option */}
-          <div className="p-4 border-b border-foreground/[0.06]">
+          <button onClick={() => setBankOption("posai")} className="w-full p-4 border-b border-foreground/[0.06] text-left">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
-                <div className="w-5 h-5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
-                  <div className="w-2 h-2 rounded-full bg-primary-foreground" />
+                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${bankOption === "posai" ? "border-primary bg-primary" : "border-foreground/20 bg-transparent"}`}>
+                  {bankOption === "posai" && <div className="w-2 h-2 rounded-full bg-primary-foreground" />}
                 </div>
                 <span className="text-sm font-semibold text-foreground">POSAI Checking</span>
               </div>
@@ -565,28 +572,129 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
                 <span className="text-xs text-foreground/60">Accept free ACH payments with Invoices</span>
               </div>
             </div>
-          </div>
+          </button>
 
           {/* External bank option */}
-          <div className="p-4">
+          <button onClick={() => setBankOption("external")} className="w-full p-4 text-left">
             <div className="flex items-center gap-3 mb-2">
-              <div className="w-5 h-5 rounded-full border-2 border-foreground/20 bg-transparent" />
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${bankOption === "external" ? "border-primary bg-primary" : "border-foreground/20 bg-transparent"}`}>
+                {bankOption === "external" && <div className="w-2 h-2 rounded-full bg-primary-foreground" />}
+              </div>
               <span className="text-sm font-medium text-foreground">Use an external bank account</span>
             </div>
             <p className="text-xs text-foreground/40 pl-8">
-              Funds will be available in your linked account within 1–2 business days, or same-day for a 1.95% fee.
+              Funds will be available in your linked account within 1-2 business days, or same-day for a 1.95% fee.
             </p>
-          </div>
+          </button>
         </motion.div>
 
-        <Button onClick={handleBankNext} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
+        <Button onClick={() => { bankOption === "external" ? setStep("verifyIdentity") : handleBankNext(); }} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
           Continue
         </Button>
       </motion.div>
     );
   }
 
-  // Revenue Step
+  // Verify Identity Step (for external bank)
+  if (step === "verifyIdentity") {
+    const US_STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"];
+    const canSubmitVerify = verifyForm.firstName && verifyForm.lastName && verifyForm.dob && verifyForm.address1 && verifyForm.city && verifyForm.state && verifyForm.zip && verifyForm.ssn.length >= 9 && verifyForm.agreedTerms;
+
+    const inputClass = "w-full h-12 px-4 rounded-xl bg-foreground/[0.04] border border-foreground/[0.08] text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/40 transition-colors";
+
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center max-h-[80vh] overflow-y-auto scrollbar-hide">
+        <div className="w-full flex items-center justify-between mb-6 sticky top-0 bg-background z-10 pb-2">
+          <motion.button
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            onClick={() => setStep("bank")}
+            className="flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back</span>
+          </motion.button>
+          <div className="flex items-center gap-2">
+            <button onClick={() => handleBankNext()} className="h-9 px-4 rounded-xl text-sm font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
+              Finish later
+            </button>
+            <Button onClick={() => { if (canSubmitVerify) handleBankNext(); }} disabled={!canSubmitVerify} className="h-9 px-5 rounded-xl text-sm font-medium">
+              Next
+            </Button>
+          </div>
+        </div>
+
+        <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xl font-semibold text-foreground mb-2 text-left w-full">
+          Verify your identity to activate your account
+        </motion.h1>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="text-sm text-foreground/50 mb-6 text-left w-full leading-relaxed">
+          Why do we do this? For your safety and to prevent fraud, we require identity verification. POSAI encrypts and protects your data and shares only as described in our <span className="underline cursor-pointer text-foreground/70">privacy notice</span>.
+        </motion.p>
+
+        <div className="w-full space-y-3">
+          <input type="text" placeholder="Legal first name" value={verifyForm.firstName} onChange={e => setVerifyForm(p => ({ ...p, firstName: e.target.value }))} className={inputClass} />
+          <input type="text" placeholder="Legal last name" value={verifyForm.lastName} onChange={e => setVerifyForm(p => ({ ...p, lastName: e.target.value }))} className={inputClass} />
+
+          <div className="rounded-xl bg-foreground/[0.04] border border-foreground/[0.08] px-4 py-2.5">
+            <div className="text-xs text-foreground/50 mb-0.5">Phone number</div>
+            <input type="tel" placeholder="(000) 000-0000" value={verifyForm.phone} onChange={e => setVerifyForm(p => ({ ...p, phone: e.target.value }))} className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground/30 focus:outline-none" />
+          </div>
+
+          <p className="text-xs text-foreground/40 leading-relaxed">
+            By clicking "Next", I certify that I have read POSAI's privacy policy and consent to calls, texts, and automated messages from POSAI regarding my accounts.
+          </p>
+
+          <input type="text" placeholder="Date of birth" value={verifyForm.dob} onChange={e => setVerifyForm(p => ({ ...p, dob: e.target.value }))} onFocus={e => { if (!verifyForm.dob) e.target.type = 'date'; }} className={inputClass} />
+
+          <input type="text" placeholder="Address Line 1" value={verifyForm.address1} onChange={e => setVerifyForm(p => ({ ...p, address1: e.target.value }))} className={inputClass} />
+          <input type="text" placeholder="Apt, Suite, etc. (Optional)" value={verifyForm.address2} onChange={e => setVerifyForm(p => ({ ...p, address2: e.target.value }))} className={inputClass} />
+          <input type="text" placeholder="City" value={verifyForm.city} onChange={e => setVerifyForm(p => ({ ...p, city: e.target.value }))} className={inputClass} />
+
+          <div className="flex gap-3">
+            <div className="relative flex-1">
+              <select value={verifyForm.state} onChange={e => setVerifyForm(p => ({ ...p, state: e.target.value }))} className={`${inputClass} appearance-none pr-8`}>
+                <option value="">State</option>
+                {US_STATES.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/40 pointer-events-none" />
+            </div>
+            <input type="text" placeholder="Zip Code" value={verifyForm.zip} onChange={e => setVerifyForm(p => ({ ...p, zip: e.target.value }))} className={`${inputClass} flex-1`} />
+          </div>
+
+          <div className="relative">
+            <input type={showSsn ? "text" : "password"} placeholder="Full SSN or ITIN" value={verifyForm.ssn} onChange={e => setVerifyForm(p => ({ ...p, ssn: e.target.value.replace(/\D/g, '').slice(0, 9) }))} className={`${inputClass} pr-10`} />
+            <button type="button" onClick={() => setShowSsn(!showSsn)} className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/40 hover:text-foreground/60">
+              {showSsn ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+            </button>
+          </div>
+
+          <div className="rounded-xl bg-primary/[0.06] border border-primary/10 px-4 py-3 flex items-start gap-3">
+            <Lock className="w-4 h-4 text-primary/60 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-foreground/60 leading-relaxed">
+              POSAI uses this for identity verification and tax-reporting. Your information is stored securely with 256-bit encryption. <span className="underline cursor-pointer text-foreground/70">Learn more</span>
+            </p>
+          </div>
+
+          <div className="rounded-xl bg-foreground/[0.03] border border-foreground/[0.06] px-4 py-3 space-y-2">
+            <p className="text-xs text-foreground/40">By tapping "Next", under penalties of perjury, I certify that all of the information provided is true and accurate.</p>
+            <p className="text-xs text-foreground/40">Once this information is verified, your POSAI Checking account will be opened and a digital debit card will be issued.</p>
+          </div>
+
+          <label className="flex items-start gap-3 cursor-pointer py-1" onClick={() => setVerifyForm(p => ({ ...p, agreedTerms: !p.agreedTerms }))}>
+            <div className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${verifyForm.agreedTerms ? "bg-primary border-primary" : "border-foreground/20 bg-transparent"}`}>
+              {verifyForm.agreedTerms && <Check className="w-3 h-3 text-primary-foreground" />}
+            </div>
+            <span className="text-sm text-foreground/70">I have read and agree to the <span className="underline text-foreground">POSAI Checking Terms of Service</span></span>
+          </label>
+
+          <p className="text-[10px] text-foreground/30 leading-relaxed pb-4">
+            POSAI, Inc. is a financial services platform and not an FDIC-insured bank. FDIC deposit insurance coverage only protects against the failure of an FDIC-insured deposit institution. If you have a POSAI Checking account, up to $250,000 of your balance may be covered by FDIC insurance on a pass-through basis through our partner bank, Member FDIC, subject to aggregation of the account holder's funds held at our partner bank and if certain conditions have been met.
+          </p>
+        </div>
+      </motion.div>
+    );
+  }
+
   if (step === "revenue") {
     const canProceedRevenue = selectedRevenue || customRevenue.trim();
     return (

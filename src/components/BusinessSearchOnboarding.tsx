@@ -253,14 +253,17 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
 
   const HeaderIcon = isRestaurant ? UtensilsCrossed : Building2;
 
-  // Plan or Skip Step
+  const selectedPlanData = PLANS.find(p => p.name === selectedPlan);
+  const chargeDate = new Date(Date.now() + (selectedPlanData?.trialDays || 7) * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+
+  // Plan or Skip Step (card entry)
   if (step === "planOrSkip") {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
         <motion.button
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
-          onClick={() => setStep("revenue")}
+          onClick={() => selectedPlan ? setStep("plans") : setStep("revenue")}
           className="self-start mb-5 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -289,22 +292,34 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         </motion.div>
 
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="text-xs text-foreground/40 mb-5 text-center leading-relaxed">
-          By clicking Start Plus trial, you accept that this payment method will be automatically charged starting{" "}
-          {new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}{" "}
-          until you cancel your subscription. You may cancel at any time from your <span className="underline cursor-pointer text-foreground/60">account settings</span>.
+          {selectedPlan && selectedPlanData ? (
+            <>
+              By clicking Start {selectedPlan} trial, you accept that this payment method will be automatically charged {selectedPlanData.price}{selectedPlanData.period} starting {chargeDate} until you cancel your subscription. You may cancel at any time from your <span className="underline cursor-pointer text-foreground/60">account settings</span>.
+            </>
+          ) : (
+            <>
+              By clicking Start Plus trial, you accept that this payment method will be automatically charged starting {chargeDate} until you cancel your subscription. You may cancel at any time from your <span className="underline cursor-pointer text-foreground/60">account settings</span>.
+            </>
+          )}
         </motion.p>
 
-        <div className="w-full flex items-center gap-3">
-          <Button onClick={() => setStep("plans")} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
-            Choose a Plan
+        {selectedPlan ? (
+          <Button onClick={handleStartTrial} disabled={!cardNumber.trim() || !cardExpiry.trim()} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
+            Start {selectedPlan} Plan
           </Button>
-          <button
-            onClick={() => setStep("bank")}
-            className="h-14 px-6 text-base font-medium text-foreground/70 hover:text-foreground transition-colors"
-          >
-            Not now
-          </button>
-        </div>
+        ) : (
+          <div className="w-full flex items-center gap-3">
+            <Button onClick={() => setStep("plans")} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+              Choose a Plan
+            </Button>
+            <button
+              onClick={() => setStep("bank")}
+              className="h-14 px-6 text-base font-medium text-foreground/70 hover:text-foreground transition-colors"
+            >
+              Not now
+            </button>
+          </div>
+        )}
       </motion.div>
     );
   }

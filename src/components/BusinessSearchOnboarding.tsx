@@ -956,6 +956,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   }
 
 
+  if (step === "revenue") {
     const canProceedRevenue = selectedRevenue || customRevenue.trim();
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">

@@ -35,7 +35,7 @@ const getTimeOfDayInfo = (date: Date) => {
   }
 };
 
-export function DeviceSetupLayout({ children, title, subtitle, variant = "setup", fullWidthRight = false }: DeviceSetupLayoutProps) {
+export function DeviceSetupLayout({ children, title, subtitle, variant = "setup", fullWidthRight = false, leftPanelContent }: DeviceSetupLayoutProps) {
   const isMobile = useIsMobile();
   const currentTime = new Date();
   const timeInfo = getTimeOfDayInfo(currentTime);

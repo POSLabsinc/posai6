@@ -300,7 +300,7 @@ const Header = () => {
                                }
                              }
                              navigate("/settings/notifications/all");
-                           }
+                           }}
                           className={`w-full flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left ${!n.is_read ? "bg-white/[0.03]" : ""}`}
                         >
                           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">

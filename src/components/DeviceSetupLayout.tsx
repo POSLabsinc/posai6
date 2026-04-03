@@ -5,12 +5,20 @@ import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ReactNode } from "react";
 
+interface LeftPanelContent {
+  icon?: ReactNode;
+  title?: string;
+  description?: string;
+  features?: string[];
+}
+
 interface DeviceSetupLayoutProps {
   children: ReactNode;
   title?: string;
   subtitle?: string;
   variant?: "setup" | "demo" | "activation" | "admin";
   fullWidthRight?: boolean;
+  leftPanelContent?: LeftPanelContent;
 }
 
 // Get time-based greeting and info

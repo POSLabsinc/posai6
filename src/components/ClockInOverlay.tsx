@@ -301,6 +301,7 @@ export const ClockInOverlay = ({
   };
 
   const completeClockIn = (employee: Employee, jobType: string) => {
+    setSummaryAvailableJobTypes(employee.assignedJobTypes || [jobType]);
     setClockInSummary({
       clockInTime: new Date(),
       revenueCenter: employee.revenueCenter,

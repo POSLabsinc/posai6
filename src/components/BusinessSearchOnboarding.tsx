@@ -409,7 +409,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
             {selectedPlan ? `Continue with ${selectedPlan}` : "Select a Plan"}
           </Button>
           <button
-            onClick={() => { setSelectedPlan(null); setStep("planOrSkip"); }}
+            onClick={() => { setSelectedPlan(null); setStep("bank"); }}
             className="h-14 px-6 text-base font-medium text-foreground/70 hover:text-foreground transition-colors"
           >
             Not now

@@ -277,16 +277,31 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="w-full space-y-3 mb-4 mt-4">
           <input
             type="text"
+            inputMode="numeric"
             value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value)}
+            onChange={(e) => {
+              const raw = e.target.value.replace(/\D/g, '').slice(0, 16);
+              const formatted = raw.replace(/(\d{4})(?=\d)/g, '$1 ');
+              setCardNumber(formatted);
+            }}
             placeholder="Card number"
+            maxLength={19}
             className="w-full h-12 px-4 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] text-foreground placeholder:text-foreground/30 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background transition-all"
           />
           <input
             type="text"
+            inputMode="numeric"
             value={cardExpiry}
-            onChange={(e) => setCardExpiry(e.target.value)}
+            onChange={(e) => {
+              const raw = e.target.value.replace(/\D/g, '').slice(0, 4);
+              let formatted = raw;
+              if (raw.length >= 3) {
+                formatted = raw.slice(0, 2) + ' / ' + raw.slice(2);
+              }
+              setCardExpiry(formatted);
+            }}
             placeholder="MM / YY"
+            maxLength={7}
             className="w-full h-12 px-4 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] text-foreground placeholder:text-foreground/30 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background transition-all"
           />
         </motion.div>
@@ -298,7 +313,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
             </>
           ) : (
             <>
-              By clicking Start Plus trial, you accept that this payment method will be automatically charged starting {chargeDate} until you cancel your subscription. You may cancel at any time from your <span className="underline cursor-pointer text-foreground/60">account settings</span>.
+              By choosing a plan, you agree to be charged based on your selected subscription. You can manage or cancel your plan at any time in <span className="underline cursor-pointer text-foreground/60">account settings</span>.
             </>
           )}
         </motion.p>

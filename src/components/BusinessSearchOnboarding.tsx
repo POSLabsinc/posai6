@@ -351,7 +351,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
 
         <div className="w-full flex items-center gap-3">
           {selectedPlan ? (
-            <Button onClick={handleStartTrial} disabled={!cardNumber.trim() || !cardExpiry.trim()} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+            <Button onClick={() => setStep("cardOtp")} disabled={!cardNumber.trim() || !cardExpiry.trim()} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
               Start {selectedPlan} Plan
             </Button>
           ) : (

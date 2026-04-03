@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useWriteOffProcessor } from "@/hooks/useWriteOffProcessor";
 import { PaymentDialog } from "@/components/PaymentDialog";
@@ -326,9 +326,24 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`);
   };
   const { updateOrders: updateUnifiedOrders, updateOrder } = useUnifiedOrders();
+  const [searchParams, setSearchParams] = useSearchParams();
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState<GuestOrder>(() => allOrders[0] ?? FALLBACK_SELECTED_GUEST);
   
+  // Auto-select order from URL query param (e.g. from notification deep-link)
+  useEffect(() => {
+    const orderNumberParam = searchParams.get("orderNumber");
+    if (orderNumberParam && allOrders.length > 0) {
+      const targetOrder = allOrders.find(o => String(o.orderNumber) === orderNumberParam);
+      if (targetOrder) {
+        setSelectedGuest(targetOrder);
+        // Clear the param so it doesn't re-trigger
+        searchParams.delete("orderNumber");
+        setSearchParams(searchParams, { replace: true });
+      }
+    }
+  }, [searchParams, allOrders, setSearchParams]);
+
   // Keep selected ticket in sync when orders load or change
   useEffect(() => {
     if (allOrders.length === 0) return;

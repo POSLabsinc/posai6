@@ -190,12 +190,23 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
   const selectedNotification = notifications.find((n) => n.id === effectiveSelectedId);
 
   const handleSelect = (notification: NotificationItem) => {
+    if (!notification.is_read) markAsRead(notification.id);
+
+    // Kitchen/order-related notifications: navigate to Tickets with order selected
+    const title = notification.title.toLowerCase();
+    const isKitchenOrOrder = title.includes("kitchen reply") || title.includes("new order") || title.includes("order received") || title.includes("order cancelled") || title.includes("instruction");
+    if (isKitchenOrOrder) {
+      const orderMatch = notification.title.match(/Order\s*#(\d+)/i) || notification.preview.match(/Order\s*#(\d+)/i) || notification.body.match(/Order\s*#(\d+)/i);
+      if (orderMatch) {
+        navigate(`/tickets?orderNumber=${orderMatch[1]}`);
+        return;
+      }
+    }
+
     if (isMobile) {
-      if (!notification.is_read) markAsRead(notification.id);
       navigate(`/settings/notifications/detail/${notification.id}`);
     } else {
       setSelectedId(notification.id);
-      if (!notification.is_read) markAsRead(notification.id);
     }
   };
 

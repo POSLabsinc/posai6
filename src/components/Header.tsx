@@ -289,9 +289,18 @@ const Header = () => {
                         <button
                           key={n.id}
                           onClick={() => {
-                            setShowNotifPopover(false);
-                            navigate("/settings/notifications/all");
-                          }}
+                             setShowNotifPopover(false);
+                             const title = (n.title || "").toLowerCase();
+                             const isKitchenOrOrder = title.includes("kitchen reply") || title.includes("new order") || title.includes("order received") || title.includes("order cancelled") || title.includes("instruction");
+                             if (isKitchenOrOrder) {
+                               const orderMatch = (n.title || "").match(/Order\s*#(\d+)/i) || (n.preview || "").match(/Order\s*#(\d+)/i);
+                               if (orderMatch) {
+                                 navigate(`/tickets?orderNumber=${orderMatch[1]}`);
+                                 return;
+                               }
+                             }
+                             navigate("/settings/notifications/all");
+                           }}
                           className={`w-full flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left ${!n.is_read ? "bg-white/[0.03]" : ""}`}
                         >
                           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center shrink-0 mt-0.5">

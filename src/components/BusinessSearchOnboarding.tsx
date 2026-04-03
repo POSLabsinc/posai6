@@ -436,7 +436,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         </motion.div>
 
         <div className="w-full flex items-center gap-3">
-          <Button onClick={() => { if (selectedPlan) setStep("planOrSkip"); }} disabled={!selectedPlan} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+          <Button onClick={() => { if (selectedPlan) { hasCardDetails ? setStep("cardOtp") : setStep("planOrSkip"); } }} disabled={!selectedPlan} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
             {selectedPlan ? `Continue with ${selectedPlan}` : "Select a Plan"}
           </Button>
           <button

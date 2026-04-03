@@ -2258,31 +2258,13 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         )}
       </div>
 
-      {/* Kitchen Instructions & Notes */}
-      <div className="px-3 py-2 border-b border-neutral-700/50">
-        <p className="text-xs text-muted-foreground mb-1.5 italic">Kitchen instruction</p>
-        <OrderNotesAutocomplete 
-          value={orderNotes[selectedGuest.id] || ""} 
-          onChange={(val) => handleNotesChange(selectedGuest.id, val)} 
-          placeholder="Add order notes" 
-          storageKey="tickets-order-notes"
-          disabled={selectedGuest.status === "PAID" || !!selectedGuest.paid}
-          showSendButton={!(selectedGuest.status === "PAID" || !!selectedGuest.paid)}
-          onSend={(text) => {
-            sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
-          }}
-        />
-        {(() => {
-          const existingNotes = selectedGuest.notes || "";
-          const notesList = existingNotes.split(' | ').map(n => n.trim()).filter(Boolean);
-          return notesList.length > 0 ? (
-            <p className="text-xs text-muted-foreground mt-1.5 flex items-start gap-1.5">
-              <span className="inline-block mt-0.5">📋</span>
-              <span className="italic">{notesList.join(', ')}</span>
-            </p>
-          ) : null;
-        })()}
-      </div>
+      {/* Order Notes - Read-only display matching Dashboard */}
+      {selectedGuest.notes && (
+        <div className="mx-3 my-2 p-3 bg-[#FFD60A]/10 border border-[#FFD60A]/30 rounded-lg">
+          <span className="text-[#FFD60A] text-xs font-medium">Order Notes: </span>
+          <span className="text-[#FFD60A] text-xs italic">"{selectedGuest.notes}"</span>
+        </div>
+      )}
       {/* Order Items */}
       <ScrollArea className="flex-1 px-3">
         <div className="py-2 space-y-2">

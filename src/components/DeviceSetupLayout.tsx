@@ -102,7 +102,13 @@ export function DeviceSetupLayout({ children, title, subtitle, variant = "setup"
     }
   };
 
-  const variantContent = getVariantContent();
+  const defaultVariantContent = getVariantContent();
+  const variantContent = leftPanelContent ? {
+    icon: leftPanelContent.icon || defaultVariantContent.icon,
+    title: leftPanelContent.title || defaultVariantContent.title,
+    description: leftPanelContent.description || defaultVariantContent.description,
+    features: leftPanelContent.features || defaultVariantContent.features,
+  } : defaultVariantContent;
 
   // Mobile: Single column layout
   if (isMobile) {

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { FileText, AlertTriangle, Clock, X } from 'lucide-react';
+import { FileText, AlertTriangle, Clock, X, Send } from 'lucide-react';
 
 interface SavedNote {
   text: string;
@@ -14,6 +14,8 @@ interface OrderNotesAutocompleteProps {
   className?: string;
   storageKey?: string;
   disabled?: boolean;
+  onSend?: (text: string) => void;
+  showSendButton?: boolean;
 }
 
 const DEFAULT_STORAGE_KEY = 'order-notes-history';
@@ -47,6 +49,8 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
   className = "",
   storageKey = DEFAULT_STORAGE_KEY,
   disabled = false,
+  onSend,
+  showSendButton = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [savedNotes, setSavedNotes] = useState<SavedNote[]>([]);
@@ -210,12 +214,34 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
       inputRef.current?.blur();
     } else if (e.key === 'Enter' && inputValue.trim()) {
       e.preventDefault();
-      addNote(inputValue.trim());
-      setInputValue('');
+      if (showSendButton && onSend) {
+        const fullText = [...selectedNotes, inputValue.trim()].join(NOTE_DELIMITER);
+        onSend(fullText);
+        setInputValue('');
+        // Clear selected notes after send
+        onChange('');
+      } else {
+        addNote(inputValue.trim());
+        setInputValue('');
+      }
     } else if (e.key === 'Backspace' && !inputValue && selectedNotes.length > 0) {
       // Remove last note if backspace is pressed with empty input
       removeNote(selectedNotes[selectedNotes.length - 1]);
     }
+  };
+
+  const handleSendClick = () => {
+    const allNotes = [...selectedNotes];
+    if (inputValue.trim()) {
+      allNotes.push(inputValue.trim());
+    }
+    if (allNotes.length === 0) return;
+    const fullText = allNotes.join(NOTE_DELIMITER);
+    if (onSend) {
+      onSend(fullText);
+    }
+    setInputValue('');
+    onChange('');
   };
 
   const getCategoryIcon = (category: string, timestamp: number) => {
@@ -292,6 +318,17 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
             onKeyDown={handleKeyDown}
             className="flex-1 min-w-[80px] bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none"
           />
+        )}
+        
+        {/* Send button */}
+        {showSendButton && !disabled && (selectedNotes.length > 0 || inputValue.trim()) && (
+          <button
+            type="button"
+            onClick={handleSendClick}
+            className="flex-shrink-0 p-1 rounded transition-colors hover:bg-white/10"
+          >
+            <Send className="w-4 h-4 text-orange-400" />
+          </button>
         )}
       </div>
 

@@ -3826,7 +3826,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       // Main admin sign-in form
       return (
-        <DeviceSetupLayout variant="admin">
+        <DeviceSetupLayout variant="admin" leftPanelContent={{
+            icon: <ShieldCheck className="w-6 h-6 text-primary" />,
+            title: "Account Access",
+            description: "Sign in with your credentials to activate and manage this device.",
+            features: ["Full device management", "Configure business settings", "Assign staff permissions"]
+          }}>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

@@ -694,15 +694,6 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   if (step === "transferMethod") {
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
-        <div className="w-full flex justify-end gap-3 mb-8">
-          <button onClick={() => handleBankNext()} className="px-5 py-2.5 rounded-full text-sm font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
-            Skip
-          </button>
-          <Button onClick={() => { if (transferMethod) handleBankNext(); }} disabled={!transferMethod} className="px-6 py-2.5 rounded-full text-sm font-medium" size="sm">
-            Next
-          </Button>
-        </div>
-
         <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-2xl font-bold text-foreground mb-6 text-left w-full">
           How do you want to get paid?
         </motion.h1>
@@ -747,6 +738,15 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
               </div>
             </div>
           </button>
+        </div>
+
+        <div className="w-full flex gap-3 mt-8">
+          <button onClick={() => handleBankNext()} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
+            Skip
+          </button>
+          <Button onClick={() => { if (transferMethod) handleBankNext(); }} disabled={!transferMethod} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+            Next
+          </Button>
         </div>
       </motion.div>
     );

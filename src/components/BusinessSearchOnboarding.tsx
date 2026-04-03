@@ -1,6 +1,6 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Building2, ChevronRight, ArrowLeft, Loader2, Check } from "lucide-react";
+import { Search, MapPin, Building2, ChevronRight, ArrowLeft, Loader2, Check, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export interface BusinessDetails {
@@ -11,6 +11,7 @@ export interface BusinessDetails {
   country: string;
   placeId: string;
   categories?: string[];
+  placeType?: string;
 }
 
 interface BusinessSearchOnboardingProps {
@@ -19,26 +20,28 @@ interface BusinessSearchOnboardingProps {
   onBack?: () => void;
 }
 
-// Mock Google Places results
+// Mock Google Places results with place type
 const MOCK_BUSINESSES: BusinessDetails[] = [
-  { name: "The Capital Grille", address: "1861 International Dr", city: "Tysons Corner", state: "Virginia", country: "United States", placeId: "mock_1" },
-  { name: "The Cheesecake Factory", address: "10300 Little Patuxent Pkwy", city: "Columbia", state: "Maryland", country: "United States", placeId: "mock_2" },
-  { name: "The Coffee Bean & Tea Leaf", address: "350 S Grand Ave", city: "Los Angeles", state: "California", country: "United States", placeId: "mock_3" },
-  { name: "The Halal Guys", address: "307 E 14th St", city: "New York", state: "New York", country: "United States", placeId: "mock_4" },
-  { name: "The Original Pancake House", address: "22 E Bellevue Pl", city: "Chicago", state: "Illinois", country: "United States", placeId: "mock_5" },
-  { name: "Bella Italia Ristorante", address: "45 High Street", city: "London", state: "England", country: "United Kingdom", placeId: "mock_6" },
-  { name: "Blue Bottle Coffee", address: "66 Mint St", city: "San Francisco", state: "California", country: "United States", placeId: "mock_7" },
-  { name: "Burger & Lobster", address: "36 Dean St", city: "London", state: "England", country: "United Kingdom", placeId: "mock_8" },
-  { name: "Din Tai Fung", address: "1088 Nanjing Rd", city: "Shanghai", state: "Shanghai", country: "China", placeId: "mock_9" },
-  { name: "Five Guys Burgers", address: "1400 Chain Bridge Rd", city: "McLean", state: "Virginia", country: "United States", placeId: "mock_10" },
-  { name: "Nando's Peri-Peri", address: "200 Wisconsin Ave", city: "Washington", state: "DC", country: "United States", placeId: "mock_11" },
-  { name: "Shake Shack", address: "Madison Square Park", city: "New York", state: "New York", country: "United States", placeId: "mock_12" },
-  { name: "Sweetgreen", address: "4075 Wilson Blvd", city: "Arlington", state: "Virginia", country: "United States", placeId: "mock_13" },
-  { name: "Zuma Restaurant", address: "DIFC Gate Village", city: "Dubai", state: "Dubai", country: "United Arab Emirates", placeId: "mock_14" },
-  { name: "Salt Bae Steakhouse", address: "60 Broad St", city: "New York", state: "New York", country: "United States", placeId: "mock_15" },
+  { name: "The Capital Grille", address: "1861 International Dr", city: "Tysons Corner", state: "Virginia", country: "United States", placeId: "mock_1", placeType: "restaurant" },
+  { name: "The Cheesecake Factory", address: "10300 Little Patuxent Pkwy", city: "Columbia", state: "Maryland", country: "United States", placeId: "mock_2", placeType: "restaurant" },
+  { name: "The Coffee Bean & Tea Leaf", address: "350 S Grand Ave", city: "Los Angeles", state: "California", country: "United States", placeId: "mock_3", placeType: "cafe" },
+  { name: "The Halal Guys", address: "307 E 14th St", city: "New York", state: "New York", country: "United States", placeId: "mock_4", placeType: "restaurant" },
+  { name: "The Original Pancake House", address: "22 E Bellevue Pl", city: "Chicago", state: "Illinois", country: "United States", placeId: "mock_5", placeType: "restaurant" },
+  { name: "Bella Italia Ristorante", address: "45 High Street", city: "London", state: "England", country: "United Kingdom", placeId: "mock_6", placeType: "restaurant" },
+  { name: "Blue Bottle Coffee", address: "66 Mint St", city: "San Francisco", state: "California", country: "United States", placeId: "mock_7", placeType: "cafe" },
+  { name: "Burger & Lobster", address: "36 Dean St", city: "London", state: "England", country: "United Kingdom", placeId: "mock_8", placeType: "restaurant" },
+  { name: "Din Tai Fung", address: "1088 Nanjing Rd", city: "Shanghai", state: "Shanghai", country: "China", placeId: "mock_9", placeType: "restaurant" },
+  { name: "Five Guys Burgers", address: "1400 Chain Bridge Rd", city: "McLean", state: "Virginia", country: "United States", placeId: "mock_10", placeType: "restaurant" },
+  { name: "Nando's Peri-Peri", address: "200 Wisconsin Ave", city: "Washington", state: "DC", country: "United States", placeId: "mock_11", placeType: "restaurant" },
+  { name: "Shake Shack", address: "Madison Square Park", city: "New York", state: "New York", country: "United States", placeId: "mock_12", placeType: "restaurant" },
+  { name: "Sweetgreen", address: "4075 Wilson Blvd", city: "Arlington", state: "Virginia", country: "United States", placeId: "mock_13", placeType: "restaurant" },
+  { name: "Zuma Restaurant", address: "DIFC Gate Village", city: "Dubai", state: "Dubai", country: "United Arab Emirates", placeId: "mock_14", placeType: "restaurant" },
+  { name: "Salt Bae Steakhouse", address: "60 Broad St", city: "New York", state: "New York", country: "United States", placeId: "mock_15", placeType: "restaurant" },
 ];
 
-const BUSINESS_CATEGORIES = [
+const RESTAURANT_TYPES = ["restaurant", "cafe", "bakery", "bar", "food"];
+
+const ALL_CATEGORIES = [
   { name: "Coffee/Tea Cafe", group: "Food and Drink" },
   { name: "Counter Service Restaurant", group: "Food and Drink" },
   { name: "Table Service Restaurant", group: "Food and Drink" },
@@ -56,6 +59,8 @@ const BUSINESS_CATEGORIES = [
   { name: "Professional Services", group: "Services" },
   { name: "Entertainment/Events", group: "Services" },
 ];
+
+const RESTAURANT_CATEGORIES = ALL_CATEGORIES.filter((c) => c.group === "Food and Drink");
 
 type Step = "search" | "category";
 
@@ -75,6 +80,21 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const isRestaurant = useMemo(() => {
+    if (!selectedBusiness?.placeType) return false;
+    return RESTAURANT_TYPES.includes(selectedBusiness.placeType.toLowerCase());
+  }, [selectedBusiness]);
+
+  const entityLabel = isRestaurant ? "Restaurant" : "Business";
+  const entityLabelLower = isRestaurant ? "restaurant" : "business";
+
+  const visibleCategories = useMemo(() => {
+    const base = isRestaurant ? RESTAURANT_CATEGORIES : ALL_CATEGORIES;
+    if (!categorySearch.trim()) return base;
+    const q = categorySearch.toLowerCase();
+    return base.filter((c) => c.name.toLowerCase().includes(q) || c.group.toLowerCase().includes(q));
+  }, [isRestaurant, categorySearch]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -121,6 +141,8 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
     setShowSuggestions(false);
     setSuggestions([]);
     setIsManualEntry(false);
+    // Reset categories when selection changes
+    setSelectedCategories([]);
   };
 
   const handleUseCustomName = () => {
@@ -129,6 +151,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
     setSuggestions([]);
     setNoResults(false);
     setSelectedBusiness(null);
+    setSelectedCategories([]);
   };
 
   const toggleCategory = (name: string) => {
@@ -150,6 +173,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         state: "",
         country: "",
         placeId: `manual_${Date.now()}`,
+        placeType: "business",
       });
       setStep("category");
     }
@@ -161,9 +185,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
     }
   };
 
-  const filteredCategories = categorySearch.trim()
-    ? BUSINESS_CATEGORIES.filter((c) => c.name.toLowerCase().includes(categorySearch.toLowerCase()) || c.group.toLowerCase().includes(categorySearch.toLowerCase()))
-    : BUSINESS_CATEGORIES;
+  const HeaderIcon = isRestaurant ? UtensilsCrossed : Building2;
 
   // Category Selection Step
   if (step === "category") {
@@ -180,15 +202,17 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         </motion.button>
 
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 border border-primary/20">
-          <Building2 className="w-7 h-7 text-primary" />
+          <HeaderIcon className="w-7 h-7 text-primary" />
         </motion.div>
 
         <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-xl font-semibold text-foreground mb-1.5 text-center">
-          What kind of business best describes {selectedBusiness?.name || "your business"}?
+          What type of {entityLabelLower} is {selectedBusiness?.name || `your ${entityLabelLower}`}?
         </motion.h1>
 
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="text-sm text-foreground/50 mb-5 text-center leading-relaxed">
-          Search or select your business type to help us categorize most of what you sell.
+          {isRestaurant
+            ? "Select the restaurant types that best describe your establishment."
+            : "Search or select your business type to help us categorize most of what you sell."}
         </motion.p>
 
         {/* Category search */}
@@ -198,14 +222,14 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
             type="text"
             value={categorySearch}
             onChange={(e) => setCategorySearch(e.target.value)}
-            placeholder="Search business categories"
+            placeholder={isRestaurant ? "Search restaurant categories" : "Search business categories"}
             className="w-full h-12 pl-11 pr-4 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] text-foreground placeholder:text-foreground/30 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background transition-all"
           />
         </motion.div>
 
         {/* Category list */}
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="w-full max-h-[280px] overflow-y-auto rounded-2xl border border-foreground/[0.08] bg-foreground/[0.02] mb-4">
-          {filteredCategories.map((cat) => {
+          {visibleCategories.map((cat) => {
             const isSelected = selectedCategories.includes(cat.name);
             return (
               <button
@@ -225,7 +249,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
               </button>
             );
           })}
-          {filteredCategories.length === 0 && (
+          {visibleCategories.length === 0 && (
             <div className="px-4 py-6 text-center text-sm text-foreground/40">No categories found</div>
           )}
         </motion.div>
@@ -254,11 +278,15 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
       )}
 
       <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 border border-primary/20">
-        <Building2 className="w-7 h-7 text-primary" />
+        {selectedBusiness && isRestaurant ? (
+          <UtensilsCrossed className="w-7 h-7 text-primary" />
+        ) : (
+          <Building2 className="w-7 h-7 text-primary" />
+        )}
       </motion.div>
 
       <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-xl font-semibold text-foreground mb-1.5 text-center">
-        Tell us about your business
+        {selectedBusiness && isRestaurant ? "Tell us about your restaurant" : "Tell us about your business"}
       </motion.h1>
 
       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="text-sm text-foreground/50 mb-5 text-center leading-relaxed">
@@ -275,7 +303,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
             value={query}
             onChange={(e) => handleInputChange(e.target.value)}
             onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
-            placeholder="Search your business name..."
+            placeholder={selectedBusiness && isRestaurant ? "Search your restaurant name..." : "Search your business name..."}
             className="w-full h-12 pl-11 pr-4 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] text-foreground placeholder:text-foreground/30 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background transition-all"
             autoFocus
           />
@@ -326,6 +354,9 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         {selectedBusiness && !isManualEntry && (
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="w-full mb-3">
             <div className="bg-foreground/[0.03] border border-foreground/[0.1] rounded-2xl p-4 space-y-2.5">
+              {isRestaurant && (
+                <DetailRow label="Type" value="Restaurant" />
+              )}
               <DetailRow label="Address" value={selectedBusiness.address} />
               <DetailRow label="City" value={selectedBusiness.city} />
               <DetailRow label="State" value={selectedBusiness.state} />

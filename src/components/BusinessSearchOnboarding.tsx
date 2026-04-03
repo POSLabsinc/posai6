@@ -318,23 +318,23 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           )}
         </motion.p>
 
-        {selectedPlan ? (
-          <Button onClick={handleStartTrial} disabled={!cardNumber.trim() || !cardExpiry.trim()} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
-            Start {selectedPlan} Plan
-          </Button>
-        ) : (
-          <div className="w-full flex items-center gap-3">
+        <div className="w-full flex items-center gap-3">
+          {selectedPlan ? (
+            <Button onClick={handleStartTrial} disabled={!cardNumber.trim() || !cardExpiry.trim()} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+              Start {selectedPlan} Plan
+            </Button>
+          ) : (
             <Button onClick={() => setStep("plans")} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
               Choose a Plan
             </Button>
-            <button
-              onClick={() => setStep("bank")}
-              className="h-14 px-6 text-base font-medium text-foreground/70 hover:text-foreground transition-colors"
-            >
-              Not now
-            </button>
-          </div>
-        )}
+          )}
+          <button
+            onClick={() => setStep("bank")}
+            className="h-14 px-6 text-base font-medium text-foreground/70 hover:text-foreground transition-colors"
+          >
+            Not now
+          </button>
+        </div>
       </motion.div>
     );
   }

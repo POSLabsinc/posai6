@@ -124,6 +124,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   const [bankOption, setBankOption] = useState<"posai" | "external">("posai");
   const [showSsn, setShowSsn] = useState(false);
   const [transferMethod, setTransferMethod] = useState<"next-day" | "same-day" | null>(null);
+  const [showFinishLaterDialog, setShowFinishLaterDialog] = useState(false);
   const [verifyForm, setVerifyForm] = useState({
     firstName: "", lastName: "", phone: "", dob: "",
     address1: "", address2: "", city: "", state: "", zip: "", ssn: "",
@@ -600,6 +601,25 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
     const inputClass = "w-full h-12 px-4 rounded-xl bg-foreground/[0.04] border border-foreground/[0.08] text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/40 transition-colors";
 
     return (
+      <>
+      {showFinishLaterDialog && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-background rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+            <h2 className="text-lg font-bold text-foreground mb-2">Finish verification later?</h2>
+            <p className="text-sm text-foreground/50 mb-6 leading-relaxed">
+              Your account needs to be verified before processing payments. If you exit now, you may need to re-enter some information when you return. Only cash payments will be available until verification is complete.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowFinishLaterDialog(false)} className="flex-1 h-12 rounded-xl text-sm font-medium text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
+                Continue verification
+              </button>
+              <Button onClick={() => { setShowFinishLaterDialog(false); handleBankNext(); }} className="flex-1 h-12 text-sm font-medium rounded-xl" size="sm">
+                Finish later
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center max-h-[80vh] overflow-y-auto scrollbar-hide">
         <motion.button
           initial={{ opacity: 0, x: -10 }}
@@ -680,7 +700,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         </div>
 
         <div className="w-full flex gap-3 mt-4">
-          <button onClick={() => handleBankNext()} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
+          <button onClick={() => setShowFinishLaterDialog(true)} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
             Finish later
           </button>
           <Button onClick={() => { if (canSubmitVerify) setStep("transferMethod"); }} disabled={!canSubmitVerify} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
@@ -688,11 +708,31 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           </Button>
         </div>
       </motion.div>
+      </>
     );
   }
 
   if (step === "transferMethod") {
     return (
+      <>
+      {showFinishLaterDialog && (
+        <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="bg-background rounded-2xl p-6 max-w-sm w-full mx-4 shadow-2xl">
+            <h2 className="text-lg font-bold text-foreground mb-2">Finish verification later?</h2>
+            <p className="text-sm text-foreground/50 mb-6 leading-relaxed">
+              Your account needs to be verified before processing payments. If you exit now, you may need to re-enter some information when you return. Only cash payments will be available until verification is complete.
+            </p>
+            <div className="flex gap-3">
+              <button onClick={() => setShowFinishLaterDialog(false)} className="flex-1 h-12 rounded-xl text-sm font-medium text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
+                Continue verification
+              </button>
+              <Button onClick={() => { setShowFinishLaterDialog(false); handleBankNext(); }} className="flex-1 h-12 text-sm font-medium rounded-xl" size="sm">
+                Finish later
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
         <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-2xl font-bold text-foreground mb-6 text-left w-full">
           How do you want to get paid?
@@ -741,7 +781,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         </div>
 
         <div className="w-full flex gap-3 mt-8">
-          <button onClick={() => handleBankNext()} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
+          <button onClick={() => setShowFinishLaterDialog(true)} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
             Skip
           </button>
           <Button onClick={() => { if (transferMethod) handleBankNext(); }} disabled={!transferMethod} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
@@ -749,6 +789,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           </Button>
         </div>
       </motion.div>
+      </>
     );
   }
 

@@ -2479,9 +2479,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 localStorage.setItem("onboarding_business", JSON.stringify(business));
                 setSignupStep("onboarding");
               }}
-              onManualEntry={() => {
-                setSignupStep("onboarding");
-              }}
+              onManualEntry={() => {}}
               onBack={() => {
                 setSignupStep("form");
                 setActivationMethod(null);

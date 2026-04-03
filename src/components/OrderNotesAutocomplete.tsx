@@ -281,17 +281,18 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
           );
         })}
         
-        {/* Input field */}
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder={selectedNotes.length === 0 ? placeholder : "Add more..."}
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={handleInputFocus}
-          onKeyDown={handleKeyDown}
-          className="flex-1 min-w-[80px] bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none"
-        />
+        {!disabled && (
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder={selectedNotes.length === 0 ? placeholder : "Add more..."}
+            value={inputValue}
+            onChange={handleInputChange}
+            onFocus={handleInputFocus}
+            onKeyDown={handleKeyDown}
+            className="flex-1 min-w-[80px] bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none"
+          />
+        )}
       </div>
 
       {/* Dropdown */}

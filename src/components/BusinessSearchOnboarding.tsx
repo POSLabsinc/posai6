@@ -123,6 +123,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [bankOption, setBankOption] = useState<"posai" | "external">("posai");
   const [showSsn, setShowSsn] = useState(false);
+  const [transferMethod, setTransferMethod] = useState<"next-day" | "same-day" | null>(null);
   const [verifyForm, setVerifyForm] = useState({
     firstName: "", lastName: "", phone: "", dob: "",
     address1: "", address2: "", city: "", state: "", zip: "", ssn: "",

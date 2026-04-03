@@ -71,7 +71,35 @@ const REVENUE_OPTIONS = [
   { label: "$5M - $25M+", value: "5m_25m_plus" },
 ];
 
-type Step = "search" | "category" | "revenue";
+const PLANS = [
+  {
+    name: "Starter",
+    price: "$0",
+    period: "/mo",
+    description: "For small businesses just getting started",
+    features: ["1 Location", "Basic POS", "Email support", "Standard reports"],
+    popular: false,
+  },
+  {
+    name: "Plus",
+    price: "$60",
+    period: "/mo",
+    description: "For growing businesses that need more",
+    features: ["Up to 5 Locations", "Advanced POS + KDS", "Priority support", "Advanced analytics", "Online ordering"],
+    popular: true,
+    trialDays: 30,
+  },
+  {
+    name: "Premium",
+    price: "$120",
+    period: "/mo",
+    description: "For established businesses with multiple locations",
+    features: ["Unlimited Locations", "Full suite access", "24/7 phone support", "Custom integrations", "Dedicated account manager"],
+    popular: false,
+  },
+];
+
+type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank";
 
 const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSearchOnboardingProps) => {
   const [step, setStep] = useState<Step>("search");

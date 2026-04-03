@@ -214,12 +214,34 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
       inputRef.current?.blur();
     } else if (e.key === 'Enter' && inputValue.trim()) {
       e.preventDefault();
-      addNote(inputValue.trim());
-      setInputValue('');
+      if (showSendButton && onSend) {
+        const fullText = [...selectedNotes, inputValue.trim()].join(NOTE_DELIMITER);
+        onSend(fullText);
+        setInputValue('');
+        // Clear selected notes after send
+        onChange('');
+      } else {
+        addNote(inputValue.trim());
+        setInputValue('');
+      }
     } else if (e.key === 'Backspace' && !inputValue && selectedNotes.length > 0) {
       // Remove last note if backspace is pressed with empty input
       removeNote(selectedNotes[selectedNotes.length - 1]);
     }
+  };
+
+  const handleSendClick = () => {
+    const allNotes = [...selectedNotes];
+    if (inputValue.trim()) {
+      allNotes.push(inputValue.trim());
+    }
+    if (allNotes.length === 0) return;
+    const fullText = allNotes.join(NOTE_DELIMITER);
+    if (onSend) {
+      onSend(fullText);
+    }
+    setInputValue('');
+    onChange('');
   };
 
   const getCategoryIcon = (category: string, timestamp: number) => {

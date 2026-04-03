@@ -2438,7 +2438,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         // Accept any 6-digit code for now (same as activation code flow)
         await new Promise(resolve => setTimeout(resolve, 800));
         setSignupVerifyingOtp(false);
-        setSignupStep("trial");
+        setSignupStep("business");
       };
 
       const handleResendOtp = async () => {

@@ -342,7 +342,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   // Plans Step
   if (step === "plans") {
     return (
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center" style={{ maxWidth: 720 }}>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
         <motion.button
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
@@ -360,44 +360,44 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           Select the plan that best fits your {entityLabelLower}.
         </motion.p>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="w-full grid grid-cols-3 gap-3 mb-4">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="w-full space-y-3 mb-4">
           {PLANS.map((plan) => {
             const isSelected = selectedPlan === plan.name;
             return (
               <button
                 key={plan.name}
                 onClick={() => handleSelectPlan(plan.name)}
-                className={`w-full text-left rounded-2xl border p-4 transition-all flex flex-col ${
+                className={`w-full text-left rounded-2xl border p-4 transition-all ${
                   isSelected
                     ? "border-primary bg-primary/[0.08]"
                     : "border-foreground/[0.08] bg-foreground/[0.02] hover:bg-foreground/[0.04]"
                 }`}
               >
-                <div className="flex items-center justify-between mb-1">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-sm font-semibold text-foreground">{plan.name}</span>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-semibold text-foreground">{plan.name}</span>
                     {plan.popular && (
-                      <span className="text-[9px] font-medium bg-primary/20 text-primary px-1.5 py-0.5 rounded-full flex items-center gap-0.5">
-                        <Star className="w-2.5 h-2.5" /> Popular
+                      <span className="text-[10px] font-medium bg-primary/20 text-primary px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Star className="w-3 h-3" /> Popular
                       </span>
                     )}
                   </div>
                   <div className="flex items-baseline gap-0.5">
-                    <span className="text-base font-bold text-foreground">{plan.price}</span>
-                    <span className="text-[10px] text-foreground/40">{plan.period}</span>
+                    <span className="text-lg font-bold text-foreground">{plan.price}</span>
+                    <span className="text-xs text-foreground/40">{plan.period}</span>
                   </div>
                 </div>
-                <p className="text-[11px] text-foreground/50 mb-3">{plan.description}</p>
-                <div className="space-y-1.5 flex-1">
+                <p className="text-xs text-foreground/50 mb-3">{plan.description}</p>
+                <div className="space-y-1.5">
                   {plan.features.map((f, i) => (
-                    <div key={i} className="flex items-center gap-1.5">
-                      <Check className="w-3 h-3 text-primary/60 flex-shrink-0" />
-                      <span className="text-[11px] text-foreground/60">{f}</span>
+                    <div key={i} className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-primary/60" />
+                      <span className="text-xs text-foreground/60">{f}</span>
                     </div>
                   ))}
                 </div>
                 {plan.trialDays && (
-                  <p className="text-[11px] text-primary mt-3 font-medium">{plan.trialDays}-day free trial included</p>
+                  <p className="text-xs text-primary mt-3 font-medium">{plan.trialDays}-day free trial included</p>
                 )}
               </button>
             );

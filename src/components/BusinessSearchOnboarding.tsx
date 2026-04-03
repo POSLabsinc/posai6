@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Building2, Sparkles, ChevronRight, Keyboard } from "lucide-react";
+import { Search, MapPin, Building2, ChevronRight, Keyboard, ArrowLeft, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface BusinessDetails {
@@ -15,10 +15,11 @@ interface BusinessDetails {
 interface BusinessSearchOnboardingProps {
   onNext: (business: BusinessDetails) => void;
   onManualEntry: () => void;
+  onBack?: () => void;
 }
 
 // Mock Google Places results
-const MOCK_BUSINESSES: { name: string; address: string; city: string; state: string; country: string; placeId: string }[] = [
+const MOCK_BUSINESSES: BusinessDetails[] = [
   { name: "The Capital Grille", address: "1861 International Dr", city: "Tysons Corner", state: "Virginia", country: "United States", placeId: "mock_1" },
   { name: "The Cheesecake Factory", address: "10300 Little Patuxent Pkwy", city: "Columbia", state: "Maryland", country: "United States", placeId: "mock_2" },
   { name: "The Coffee Bean & Tea Leaf", address: "350 S Grand Ave", city: "Los Angeles", state: "California", country: "United States", placeId: "mock_3" },
@@ -36,9 +37,9 @@ const MOCK_BUSINESSES: { name: string; address: string; city: string; state: str
   { name: "Salt Bae Steakhouse", address: "60 Broad St", city: "New York", state: "New York", country: "United States", placeId: "mock_15" },
 ];
 
-const BusinessSearchOnboarding = ({ onNext, onManualEntry }: BusinessSearchOnboardingProps) => {
+const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSearchOnboardingProps) => {
   const [query, setQuery] = useState("");
-  const [suggestions, setSuggestions] = useState<typeof MOCK_BUSINESSES>([]);
+  const [suggestions, setSuggestions] = useState<BusinessDetails[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessDetails | null>(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
@@ -47,7 +48,6 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry }: BusinessSearchOnboa
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
 
-  // Outside click to close suggestions
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
@@ -65,18 +65,14 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry }: BusinessSearchOnboa
       setShowSuggestions(false);
       return;
     }
-
     setIsSearching(true);
     setNoResults(false);
-
-    // Simulate API delay
     debounceRef.current && clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       const lower = q.toLowerCase();
       const results = MOCK_BUSINESSES.filter(
         (b) => b.name.toLowerCase().includes(lower) || b.city.toLowerCase().includes(lower) || b.address.toLowerCase().includes(lower)
       ).slice(0, 5);
-
       setSuggestions(results);
       setShowSuggestions(true);
       setNoResults(results.length === 0);
@@ -90,7 +86,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry }: BusinessSearchOnboa
     searchBusinesses(val);
   };
 
-  const handleSelect = (biz: typeof MOCK_BUSINESSES[0]) => {
+  const handleSelect = (biz: BusinessDetails) => {
     setSelectedBusiness(biz);
     setQuery(biz.name);
     setShowSuggestions(false);
@@ -98,35 +94,63 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry }: BusinessSearchOnboa
   };
 
   return (
-    <div className="w-full flex flex-col h-full">
-      {/* AI message bubble */}
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="relative w-full flex flex-col items-center"
+    >
+      {/* Back Button */}
+      {onBack && (
+        <motion.button
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={onBack}
+          className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </motion.button>
+      )}
+
+      {/* Icon */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 border border-primary/20"
+      >
+        <Building2 className="w-8 h-8 text-primary" />
+      </motion.div>
+
+      {/* Title */}
+      <motion.h1
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        className="text-xl font-semibold text-foreground mb-2 text-center"
+      >
+        Tell us about your business
+      </motion.h1>
+
+      {/* Subtitle */}
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.15 }}
+        className="text-sm text-foreground/50 mb-6 text-center leading-relaxed"
+      >
+        This is what we will use on your emails, receipts, and messages to customers.
+      </motion.p>
+
+      {/* Search Input */}
       <motion.div
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="flex gap-3 mb-6"
-      >
-        <div className="w-8 h-8 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0 mt-0.5">
-          <Sparkles className="w-4 h-4 text-primary" />
-        </div>
-        <div className="flex-1">
-          <h2 className="text-lg font-bold text-foreground mb-1">Tell us about your business</h2>
-          <p className="text-sm text-foreground/50 leading-relaxed">
-            This is what we will use on your emails, receipts, and messages to customers. Start typing your business name to search.
-          </p>
-        </div>
-      </motion.div>
-
-      {/* Search input */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4 }}
         ref={containerRef}
-        className="relative mb-4"
+        className="relative w-full mb-4"
       >
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-foreground/30" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
           <input
             ref={inputRef}
             type="text"
@@ -134,12 +158,12 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry }: BusinessSearchOnboa
             onChange={(e) => handleInputChange(e.target.value)}
             onFocus={() => { if (suggestions.length > 0) setShowSuggestions(true); }}
             placeholder="Search your business name..."
-            className="w-full h-12 pl-11 pr-4 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] text-foreground placeholder:text-foreground/30 text-sm outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/20 transition-all"
+            className="w-full h-12 pl-11 pr-4 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] text-foreground placeholder:text-foreground/30 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background transition-all"
             autoFocus
           />
           {isSearching && (
             <div className="absolute right-4 top-1/2 -translate-y-1/2">
-              <div className="w-4 h-4 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+              <Loader2 className="w-4 h-4 text-primary animate-spin" />
             </div>
           )}
         </div>
@@ -151,7 +175,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry }: BusinessSearchOnboa
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="absolute top-full left-0 right-0 mt-1.5 bg-[#252525] rounded-xl border border-foreground/[0.08] overflow-hidden z-50 shadow-xl"
+              className="absolute top-full left-0 right-0 mt-1.5 bg-[#252525] rounded-2xl border border-foreground/[0.08] overflow-hidden z-50 shadow-xl"
             >
               {suggestions.map((biz) => (
                 <button
@@ -178,7 +202,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry }: BusinessSearchOnboa
               initial={{ opacity: 0, y: -4 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -4 }}
-              className="absolute top-full left-0 right-0 mt-1.5 bg-[#252525] rounded-xl border border-foreground/[0.08] overflow-hidden z-50 shadow-xl"
+              className="absolute top-full left-0 right-0 mt-1.5 bg-[#252525] rounded-2xl border border-foreground/[0.08] overflow-hidden z-50 shadow-xl"
             >
               <div className="px-4 py-4 text-center">
                 <p className="text-sm text-foreground/50 mb-3">No businesses found for "{query}"</p>
@@ -208,57 +232,44 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry }: BusinessSearchOnboa
       <AnimatePresence>
         {selectedBusiness && (
           <motion.div
-            initial={{ opacity: 0, y: 10, height: 0 }}
-            animate={{ opacity: 1, y: 0, height: "auto" }}
-            exit={{ opacity: 0, y: 10, height: 0 }}
-            className="overflow-hidden"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="w-full"
           >
-            <div className="bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl p-4 space-y-3 mb-6">
-              <div className="flex items-center gap-3 mb-3">
-                <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                  <Building2 className="w-4.5 h-4.5 text-primary" />
-                </div>
-                <p className="text-sm font-semibold text-foreground">{selectedBusiness.name}</p>
-              </div>
-              <div className="space-y-2 pl-12">
-                <DetailRow label="Address" value={selectedBusiness.address} />
-                <DetailRow label="City" value={selectedBusiness.city} />
-                <DetailRow label="State" value={selectedBusiness.state} />
-                <DetailRow label="Country" value={selectedBusiness.country} />
-              </div>
+            <div className="bg-foreground/[0.03] border border-foreground/[0.1] rounded-2xl p-4 space-y-2.5 mb-4">
+              <DetailRow label="Address" value={selectedBusiness.address} />
+              <DetailRow label="City" value={selectedBusiness.city} />
+              <DetailRow label="State" value={selectedBusiness.state} />
+              <DetailRow label="Country" value={selectedBusiness.country} />
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* Bottom actions */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
-        className="space-y-3 pt-4"
-      >
-        {!selectedBusiness && (
-          <button
-            onClick={onManualEntry}
-            className="w-full text-center text-xs text-foreground/40 hover:text-foreground/60 transition-colors py-1"
-          >
-            My business doesn't have a permanent physical address
-          </button>
-        )}
-
-        <Button
-          onClick={() => selectedBusiness && onNext(selectedBusiness)}
-          disabled={!selectedBusiness}
-          className="w-full h-12 rounded-xl text-sm font-semibold"
+      {/* Manual entry link */}
+      {!selectedBusiness && (
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          onClick={onManualEntry}
+          className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors mb-4"
         >
-          Next
-        </Button>
-      </motion.div>
-    </div>
+          My business doesn't have a permanent physical address
+        </motion.button>
+      )}
+
+      {/* Next Button */}
+      <Button
+        onClick={() => selectedBusiness && onNext(selectedBusiness)}
+        disabled={!selectedBusiness}
+        className="w-full h-14 text-base font-medium rounded-2xl"
+        size="lg"
+      >
+        Next
+      </Button>
+    </motion.div>
   );
 };
 

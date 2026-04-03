@@ -2474,21 +2474,19 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       if (signupStep === "business") {
         return (
           <DeviceSetupLayout variant="admin">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="w-full h-full flex flex-col"
-            >
-              <BusinessSearchOnboarding
-                onNext={(business) => {
-                  localStorage.setItem("onboarding_business", JSON.stringify(business));
-                  setSignupStep("onboarding");
-                }}
-                onManualEntry={() => {
-                  setSignupStep("onboarding");
-                }}
-              />
-            </motion.div>
+            <BusinessSearchOnboarding
+              onNext={(business) => {
+                localStorage.setItem("onboarding_business", JSON.stringify(business));
+                setSignupStep("onboarding");
+              }}
+              onManualEntry={() => {
+                setSignupStep("onboarding");
+              }}
+              onBack={() => {
+                setSignupStep("form");
+                setActivationMethod(null);
+              }}
+            />
           </DeviceSetupLayout>
         );
       }

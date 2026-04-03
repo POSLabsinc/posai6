@@ -102,7 +102,7 @@ const PLANS = [
 
 type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp" | "verifyIdentity" | "transferMethod" | "devicePin";
 
-const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSearchOnboardingProps) => {
+const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinComplete }: BusinessSearchOnboardingProps) => {
   const [step, setStep] = useState<Step>("search");
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<BusinessDetails[]>([]);

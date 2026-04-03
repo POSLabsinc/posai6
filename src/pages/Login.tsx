@@ -2481,12 +2481,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             >
               <BusinessSearchOnboarding
                 onNext={(business) => {
-                  // Store business details and proceed to MerchantOnboarding via trial
                   localStorage.setItem("onboarding_business", JSON.stringify(business));
-                  setSignupStep("trial");
+                  setSignupStep("onboarding");
                 }}
                 onManualEntry={() => {
-                  setSignupStep("trial");
+                  setSignupStep("onboarding");
                 }}
               />
             </motion.div>

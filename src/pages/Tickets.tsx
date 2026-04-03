@@ -1015,6 +1015,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   
   // Order notes state - stores updated notes by order ID
   const [orderNotes, setOrderNotes] = useState<{ [orderId: string]: string }>({});
+  const [showMessageKitchen, setShowMessageKitchen] = useState(false);
   
   // Guest info state - stores updated name/phone by order ID
   const [guestInfo, setGuestInfo] = useState<{ [orderId: string]: { name: string; phone: string } }>({});

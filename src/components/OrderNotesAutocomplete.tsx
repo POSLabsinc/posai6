@@ -13,6 +13,7 @@ interface OrderNotesAutocompleteProps {
   placeholder?: string;
   className?: string;
   storageKey?: string;
+  disabled?: boolean;
 }
 
 const DEFAULT_STORAGE_KEY = 'order-notes-history';

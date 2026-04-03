@@ -3399,6 +3399,17 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 <span className="text-white font-bold">{String(selectedGuest.orderNumber || 0)}</span>
               </div>
               <div className="flex items-center gap-2">
+                {selectedOrderHasMessages && (
+                  <button
+                    onClick={() => setShowMessageThread(true)}
+                    className="relative p-1 rounded hover:bg-white/10 transition-colors"
+                  >
+                    <MessageSquare className="w-4 h-4 text-orange-400" />
+                    {selectedOrderHasUnread && (
+                      <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
+                    )}
+                  </button>
+                )}
                 <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
                 <span className="text-white/50 text-sm">{selectedGuest.server}</span>
               </div>

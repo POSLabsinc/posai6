@@ -510,38 +510,6 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
 
       messageChips.forEach(chip => recordSuggestionUse(chip));
 
-      // Persist kitchen message to order notes in the database
-      const orderIdsToUpdate: string[] = [];
-      if (linkedOrderId) {
-        orderIdsToUpdate.push(linkedOrderId);
-      } else if (linkedOrderIds && linkedOrderIds.length > 0) {
-        orderIdsToUpdate.push(...linkedOrderIds);
-      }
-
-      if (orderIdsToUpdate.length > 0) {
-        for (const oid of orderIdsToUpdate) {
-          try {
-            const { data: existing } = await (supabase as any)
-              .from('ticket_orders')
-              .select('notes')
-              .eq('id', oid)
-              .single();
-
-            const currentNotes = existing?.notes || '';
-            const newNote = currentNotes
-              ? `${currentNotes} | ${trimmedMessage}`
-              : trimmedMessage;
-
-            await (supabase as any)
-              .from('ticket_orders')
-              .update({ notes: newNote })
-              .eq('id', oid);
-          } catch (e) {
-            console.error('Failed to update order notes for', oid, e);
-          }
-        }
-      }
-
       onOpenChange(false);
       toast.success("Message sent to kitchen ✓", { duration: 3000 });
     } catch (err) {

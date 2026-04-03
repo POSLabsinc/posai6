@@ -261,7 +261,7 @@ export const StandaloneClockInScreen = ({
       setTimeout(() => { setPin(""); setError(false); setErrorMsg(""); }, 1500);
     }
   }, [pin, devicePinInfo]);
-  }, [pin]);
+  
 
   const handleClockIn = () => {
     setIsClockedIn(true);

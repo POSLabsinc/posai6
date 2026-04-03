@@ -4266,7 +4266,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               value={orderNotes[selectedGuest.id] || selectedGuest.notes || ""} 
               onChange={(val) => handleNotesChange(selectedGuest.id, val)} 
               placeholder="Order notes and Allergies" 
-              storageKey="tickets-order-notes" 
+              storageKey="tickets-order-notes"
+              disabled={selectedGuest.status === "PAID" || !!selectedGuest.paid}
             />
           </div>
           {/* Order Items */}

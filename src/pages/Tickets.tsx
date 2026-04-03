@@ -3405,13 +3405,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             )}
           </div>
 
-          {/* Order Notes - Read-only display matching Dashboard */}
-          {selectedGuest.notes && (
-            <div className="mx-4 my-3 p-3 bg-[#FFD60A]/10 border border-[#FFD60A]/30 rounded-lg">
-              <span className="text-[#FFD60A] text-xs font-medium">Order Notes: </span>
-              <span className="text-[#FFD60A] text-xs italic">"{selectedGuest.notes}"</span>
-            </div>
-          )}
+          {/* Notes - with Autocomplete */}
+          <div className="px-4 py-2 border-b border-white/10">
+            <OrderNotesAutocomplete 
+              value={orderNotes[selectedGuest.id] || ""} 
+              onChange={(val) => handleNotesChange(selectedGuest.id, val)} 
+              placeholder="Order notes and Allergies" 
+              storageKey="tickets-order-notes"
+              disabled={selectedGuest.status === "PAID" || !!selectedGuest.paid}
+            />
+          </div>
           {/* Order Items */}
           <ScrollArea className="flex-1 px-4">
             <div className="py-2 space-y-2">

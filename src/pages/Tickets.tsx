@@ -4293,16 +4293,6 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           {/* Kitchen Instructions & Notes */}
           <div className="px-3 py-2 border-b border-neutral-700/50">
             <p className="text-xs text-muted-foreground mb-1.5 italic">Kitchen instruction</p>
-            {(() => {
-              const existingNotes = selectedGuest.notes || "";
-              const notesList = existingNotes.split(' | ').map(n => n.trim()).filter(Boolean);
-              return notesList.length > 0 ? (
-                <p className="text-xs text-muted-foreground mb-1.5 flex items-start gap-1.5">
-                  <span className="inline-block mt-0.5">📋</span>
-                  <span className="italic">{notesList.join(', ')}</span>
-                </p>
-              ) : null;
-            })()}
             <OrderNotesAutocomplete 
               value={orderNotes[selectedGuest.id] || ""} 
               onChange={(val) => handleNotesChange(selectedGuest.id, val)} 
@@ -4314,6 +4304,16 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
               }}
             />
+            {(() => {
+              const existingNotes = selectedGuest.notes || "";
+              const notesList = existingNotes.split(' | ').map(n => n.trim()).filter(Boolean);
+              return notesList.length > 0 ? (
+                <p className="text-xs text-muted-foreground mt-1.5 flex items-start gap-1.5">
+                  <span className="inline-block mt-0.5">📋</span>
+                  <span className="italic">{notesList.join(', ')}</span>
+                </p>
+              ) : null;
+            })()}
           </div>
           {/* Order Items */}
           <ScrollArea className="flex-1 px-3">

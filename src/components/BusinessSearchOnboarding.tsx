@@ -389,8 +389,8 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           })}
         </motion.div>
 
-        <Button onClick={handleStartTrial} disabled={!selectedPlan} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
-          {selectedPlan ? `Start ${selectedPlan} Plan` : "Select a Plan"}
+        <Button onClick={() => { if (selectedPlan) setStep("planOrSkip"); }} disabled={!selectedPlan} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
+          {selectedPlan ? `Continue with ${selectedPlan}` : "Select a Plan"}
         </Button>
       </motion.div>
     );

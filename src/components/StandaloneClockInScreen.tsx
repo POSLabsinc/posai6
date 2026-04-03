@@ -213,10 +213,13 @@ export const StandaloneClockInScreen = ({
     return () => window.removeEventListener("keydown", handler);
   }, [isOpen, view, pin]);
 
+  const devicePinInfo = getDevicePinEmployee();
+  const maxPinLength = devicePinInfo?.pinLength || 4;
+
   const handleDigit = useCallback((d: string) => {
-    if (pin.length >= 4 || error) return;
+    if (pin.length >= maxPinLength || error) return;
     setPin(p => p + d);
-  }, [pin, error]);
+  }, [pin, error, maxPinLength]);
 
   const handleClear = useCallback(() => {
     if (error) { setError(false); setErrorMsg(""); }
@@ -230,19 +233,34 @@ export const StandaloneClockInScreen = ({
   }, []);
 
   const handleEnter = useCallback(() => {
-    if (pin.length !== 4) return;
-    const emp = DEMO_EMPLOYEES[pin];
-    if (emp) {
-      setEmployee(emp);
-      setSelectedJob(emp.jobTypes[0]);
+    // Check device PIN first (supports 4 or 6 digit)
+    if (devicePinInfo && pin.length === devicePinInfo.pinLength && pin === devicePinInfo.pin) {
+      setEmployee(devicePinInfo.employee);
+      setSelectedJob(devicePinInfo.employee.jobTypes[0]);
       setError(false);
       setErrorMsg("");
       setView("actions");
-    } else {
+      return;
+    }
+    // Then check demo employees (4-digit)
+    if (pin.length === 4) {
+      const emp = DEMO_EMPLOYEES[pin];
+      if (emp) {
+        setEmployee(emp);
+        setSelectedJob(emp.jobTypes[0]);
+        setError(false);
+        setErrorMsg("");
+        setView("actions");
+        return;
+      }
+    }
+    // Invalid
+    if (pin.length >= 4) {
       setError(true);
-      setErrorMsg("Invalid PIN. Try 1234, 5678, or 0000");
+      setErrorMsg("Invalid PIN");
       setTimeout(() => { setPin(""); setError(false); setErrorMsg(""); }, 1500);
     }
+  }, [pin, devicePinInfo]);
   }, [pin]);
 
   const handleClockIn = () => {

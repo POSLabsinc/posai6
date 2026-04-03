@@ -407,14 +407,14 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="w-full rounded-2xl border border-foreground/[0.08] bg-foreground/[0.02] mb-4">
-          {/* eatOS Checking option */}
+          {/* POSAI Checking option */}
           <div className="p-4 border-b border-foreground/[0.06]">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-3">
                 <div className="w-5 h-5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
                   <div className="w-2 h-2 rounded-full bg-primary-foreground" />
                 </div>
-                <span className="text-sm font-semibold text-foreground">eatOS Checking</span>
+                <span className="text-sm font-semibold text-foreground">POSAI Checking</span>
               </div>
               <span className="text-[10px] font-medium bg-primary/20 text-primary px-2 py-0.5 rounded-full">Instant access to sales</span>
             </div>

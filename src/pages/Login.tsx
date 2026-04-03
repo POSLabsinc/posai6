@@ -2484,6 +2484,22 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 setSignupStep("form");
                 setActivationMethod(null);
               }}
+              onDevicePinComplete={(pin, pinLen) => {
+                // Save device session
+                localStorage.setItem("pos_device_session", JSON.stringify({
+                  deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+                  deviceType: "company",
+                  trustedAt: new Date().toISOString(),
+                }));
+                // Save business data
+                if (localStorage.getItem("onboarding_business") === null) {
+                  localStorage.setItem("onboarding_business", JSON.stringify({ name: "My Business" }));
+                }
+                // Clear signup state and navigate to clock-in
+                setSignupStep("form");
+                setActivationMethod(null);
+                navigate("/");
+              }}
             />
           </DeviceSetupLayout>
         );

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Building2, ChevronRight, ArrowLeft, Loader2, Check, UtensilsCrossed, DollarSign } from "lucide-react";
+import { Search, MapPin, Building2, ChevronRight, ArrowLeft, Loader2, Check, UtensilsCrossed, DollarSign, CreditCard, Landmark, Shield, Zap, Star } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export interface BusinessDetails {
@@ -71,7 +71,35 @@ const REVENUE_OPTIONS = [
   { label: "$5M - $25M+", value: "5m_25m_plus" },
 ];
 
-type Step = "search" | "category" | "revenue";
+const PLANS = [
+  {
+    name: "Starter",
+    price: "$0",
+    period: "/mo",
+    description: "For small businesses just getting started",
+    features: ["1 Location", "Basic POS", "Email support", "Standard reports"],
+    popular: false,
+  },
+  {
+    name: "Plus",
+    price: "$60",
+    period: "/mo",
+    description: "For growing businesses that need more",
+    features: ["Up to 5 Locations", "Advanced POS + KDS", "Priority support", "Advanced analytics", "Online ordering"],
+    popular: true,
+    trialDays: 30,
+  },
+  {
+    name: "Premium",
+    price: "$120",
+    period: "/mo",
+    description: "For established businesses with multiple locations",
+    features: ["Unlimited Locations", "Full suite access", "24/7 phone support", "Custom integrations", "Dedicated account manager"],
+    popular: false,
+  },
+];
+
+type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank";
 
 const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSearchOnboardingProps) => {
   const [step, setStep] = useState<Step>("search");
@@ -88,6 +116,9 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   const [categorySearch, setCategorySearch] = useState("");
   const [selectedRevenue, setSelectedRevenue] = useState<string | null>(null);
   const [customRevenue, setCustomRevenue] = useState("");
+  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [cardNumber, setCardNumber] = useState("");
+  const [cardExpiry, setCardExpiry] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
@@ -198,12 +229,233 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
 
   const handleRevenueNext = () => {
     if (selectedBusiness && (selectedRevenue || customRevenue.trim())) {
+      setStep("planOrSkip");
+    }
+  };
+
+  const handleSelectPlan = (planName: string) => {
+    setSelectedPlan(planName);
+  };
+
+  const handleStartTrial = () => {
+    if (selectedBusiness && selectedPlan) {
+      const revenueValue = selectedRevenue === "custom" ? customRevenue.trim() : selectedRevenue;
+      onNext({ ...selectedBusiness, categories: selectedCategories, annualRevenue: revenueValue || undefined });
+    }
+  };
+
+  const handleBankNext = () => {
+    if (selectedBusiness) {
       const revenueValue = selectedRevenue === "custom" ? customRevenue.trim() : selectedRevenue;
       onNext({ ...selectedBusiness, categories: selectedCategories, annualRevenue: revenueValue || undefined });
     }
   };
 
   const HeaderIcon = isRestaurant ? UtensilsCrossed : Building2;
+
+  // Plan or Skip Step
+  if (step === "planOrSkip") {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
+        <motion.button
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => setStep("revenue")}
+          className="self-start mb-5 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </motion.button>
+
+        <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="text-xl font-semibold text-foreground mb-1.5 text-center">
+          Enter a credit card to get started
+        </motion.h1>
+
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="w-full space-y-3 mb-4 mt-4">
+          <input
+            type="text"
+            value={cardNumber}
+            onChange={(e) => setCardNumber(e.target.value)}
+            placeholder="Card number"
+            className="w-full h-12 px-4 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] text-foreground placeholder:text-foreground/30 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background transition-all"
+          />
+          <input
+            type="text"
+            value={cardExpiry}
+            onChange={(e) => setCardExpiry(e.target.value)}
+            placeholder="MM / YY"
+            className="w-full h-12 px-4 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] text-foreground placeholder:text-foreground/30 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background transition-all"
+          />
+        </motion.div>
+
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="text-xs text-foreground/40 mb-5 text-center leading-relaxed">
+          By clicking Start Plus trial, you accept that this payment method will be automatically charged starting{" "}
+          {new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}{" "}
+          until you cancel your subscription. You may cancel at any time from your <span className="underline cursor-pointer text-foreground/60">account settings</span>.
+        </motion.p>
+
+        <div className="w-full flex items-center gap-3">
+          <Button onClick={() => setStep("plans")} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+            Choose a Plan
+          </Button>
+          <button
+            onClick={() => setStep("bank")}
+            className="h-14 px-6 text-base font-medium text-foreground/70 hover:text-foreground transition-colors"
+          >
+            Not now
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Plans Step
+  if (step === "plans") {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
+        <motion.button
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => setStep("planOrSkip")}
+          className="self-start mb-5 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </motion.button>
+
+        <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="text-xl font-semibold text-foreground mb-1.5 text-center">
+          Choose a plan
+        </motion.h1>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-sm text-foreground/50 mb-5 text-center">
+          Select the plan that best fits your {entityLabelLower}.
+        </motion.p>
+
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="w-full space-y-3 mb-4">
+          {PLANS.map((plan) => {
+            const isSelected = selectedPlan === plan.name;
+            return (
+              <button
+                key={plan.name}
+                onClick={() => handleSelectPlan(plan.name)}
+                className={`w-full text-left rounded-2xl border p-4 transition-all ${
+                  isSelected
+                    ? "border-primary bg-primary/[0.08]"
+                    : "border-foreground/[0.08] bg-foreground/[0.02] hover:bg-foreground/[0.04]"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base font-semibold text-foreground">{plan.name}</span>
+                    {plan.popular && (
+                      <span className="text-[10px] font-medium bg-primary/20 text-primary px-2 py-0.5 rounded-full flex items-center gap-1">
+                        <Star className="w-3 h-3" /> Popular
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-baseline gap-0.5">
+                    <span className="text-lg font-bold text-foreground">{plan.price}</span>
+                    <span className="text-xs text-foreground/40">{plan.period}</span>
+                  </div>
+                </div>
+                <p className="text-xs text-foreground/50 mb-3">{plan.description}</p>
+                <div className="space-y-1.5">
+                  {plan.features.map((f, i) => (
+                    <div key={i} className="flex items-center gap-2">
+                      <Check className="w-3.5 h-3.5 text-primary/60" />
+                      <span className="text-xs text-foreground/60">{f}</span>
+                    </div>
+                  ))}
+                </div>
+                {plan.trialDays && (
+                  <p className="text-xs text-primary mt-3 font-medium">{plan.trialDays}-day free trial included</p>
+                )}
+              </button>
+            );
+          })}
+        </motion.div>
+
+        <Button onClick={handleStartTrial} disabled={!selectedPlan} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
+          {selectedPlan ? `Start ${selectedPlan} Plan` : "Select a Plan"}
+        </Button>
+      </motion.div>
+    );
+  }
+
+  // Bank Account Step
+  if (step === "bank") {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
+        <motion.button
+          initial={{ opacity: 0, x: -10 }}
+          animate={{ opacity: 1, x: 0 }}
+          onClick={() => setStep("planOrSkip")}
+          className="self-start mb-5 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </motion.button>
+
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 border border-primary/20">
+          <Landmark className="w-7 h-7 text-primary" />
+        </motion.div>
+
+        <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="text-xl font-semibold text-foreground mb-1.5 text-center">
+          Access your sales instantly
+        </motion.h1>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-sm text-foreground/50 mb-5 text-center leading-relaxed">
+          Link a bank account to manage your payouts and payments all in one place.
+        </motion.p>
+
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="w-full rounded-2xl border border-foreground/[0.08] bg-foreground/[0.02] mb-4">
+          {/* eatOS Checking option */}
+          <div className="p-4 border-b border-foreground/[0.06]">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="w-5 h-5 rounded-full border-2 border-primary bg-primary flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-primary-foreground" />
+                </div>
+                <span className="text-sm font-semibold text-foreground">eatOS Checking</span>
+              </div>
+              <span className="text-[10px] font-medium bg-primary/20 text-primary px-2 py-0.5 rounded-full">Instant access to sales</span>
+            </div>
+            <div className="space-y-2 pl-8">
+              <div className="flex items-center gap-2">
+                <Zap className="w-3.5 h-3.5 text-primary/60" />
+                <span className="text-xs text-foreground/60">No monthly fees or minimums</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="w-3.5 h-3.5 text-primary/60" />
+                <span className="text-xs text-foreground/60">Sign up in 2 minutes, spend right away</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="w-3.5 h-3.5 text-primary/60" />
+                <span className="text-xs text-foreground/60">Pay with a debit card, check, or Bill Pay</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Zap className="w-3.5 h-3.5 text-primary/60" />
+                <span className="text-xs text-foreground/60">Accept free ACH payments with Invoices</span>
+              </div>
+            </div>
+          </div>
+
+          {/* External bank option */}
+          <div className="p-4">
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-5 h-5 rounded-full border-2 border-foreground/20 bg-transparent" />
+              <span className="text-sm font-medium text-foreground">Use an external bank account</span>
+            </div>
+            <p className="text-xs text-foreground/40 pl-8">
+              Funds will be available in your linked account within 1–2 business days, or same-day for a 1.95% fee.
+            </p>
+          </div>
+        </motion.div>
+
+        <Button onClick={handleBankNext} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
+          Continue
+        </Button>
+      </motion.div>
+    );
+  }
 
   // Revenue Step
   if (step === "revenue") {

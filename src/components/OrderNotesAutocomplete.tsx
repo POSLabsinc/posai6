@@ -13,6 +13,7 @@ interface OrderNotesAutocompleteProps {
   placeholder?: string;
   className?: string;
   storageKey?: string;
+  disabled?: boolean;
 }
 
 const DEFAULT_STORAGE_KEY = 'order-notes-history';
@@ -45,6 +46,7 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
   placeholder = "Order notes",
   className = "",
   storageKey = DEFAULT_STORAGE_KEY,
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [savedNotes, setSavedNotes] = useState<SavedNote[]>([]);
@@ -240,12 +242,12 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       <div 
-        className="flex items-center gap-2 rounded px-3 py-2 flex-wrap min-h-[40px] cursor-text" 
+        className={`flex items-center gap-2 rounded px-3 py-2 flex-wrap min-h-[40px] ${disabled ? 'cursor-default opacity-60' : 'cursor-text'}`}
         style={{
           background: '#7575754D',
           boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
         }}
-        onClick={() => inputRef.current?.focus()}
+        onClick={() => !disabled && inputRef.current?.focus()}
       >
         <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         
@@ -263,31 +265,34 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
             >
               {isAllergy && <AlertTriangle className="w-3 h-3" />}
               <span className="truncate max-w-[120px]">{note}</span>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeNote(note);
-                }}
-                className="ml-0.5 hover:text-white transition-colors"
-              >
-                <X className="w-3 h-3" />
-              </button>
+              {!disabled && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeNote(note);
+                  }}
+                  className="ml-0.5 hover:text-white transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
             </span>
           );
         })}
         
-        {/* Input field */}
-        <input
-          ref={inputRef}
-          type="text"
-          placeholder={selectedNotes.length === 0 ? placeholder : "Add more..."}
-          value={inputValue}
-          onChange={handleInputChange}
-          onFocus={handleInputFocus}
-          onKeyDown={handleKeyDown}
-          className="flex-1 min-w-[80px] bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none"
-        />
+        {!disabled && (
+          <input
+            ref={inputRef}
+            type="text"
+            placeholder={selectedNotes.length === 0 ? placeholder : "Add more..."}
+            value={inputValue}
+            onChange={handleInputChange}
+            onFocus={handleInputFocus}
+            onKeyDown={handleKeyDown}
+            className="flex-1 min-w-[80px] bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none"
+          />
+        )}
       </div>
 
       {/* Dropdown */}

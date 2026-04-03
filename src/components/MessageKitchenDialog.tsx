@@ -36,6 +36,8 @@ interface MessageKitchenDialogProps {
   onOpenChange: (open: boolean) => void;
   tableId?: string | null;
   serverName?: string;
+  defaultLinkedOrderId?: string | null;
+  defaultLinkedOrderNumber?: number | null;
 }
 
 const MAX_LENGTH = 100;
@@ -187,7 +189,7 @@ const getStatusColor = (status: string) => {
   return "text-neutral-400";
 };
 
-const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff" }: MessageKitchenDialogProps) => {
+const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff", defaultLinkedOrderId, defaultLinkedOrderNumber }: MessageKitchenDialogProps) => {
   const [messageChips, setMessageChips] = useState<string[]>([]);
   const [chipInput, setChipInput] = useState("");
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -457,6 +459,9 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       linkedTableId = selectedTable.tableNumber;
       linkedTableNumber = selectedTable.displayName;
       linkedOrderIds = selectedTable.orderIds;
+    } else if (defaultLinkedOrderId) {
+      linkedOrderId = defaultLinkedOrderId;
+      linkedOrderNumber = defaultLinkedOrderNumber || null;
     }
 
     const terminalName = localStorage.getItem("pos_terminal_name") || "POS 1";

@@ -6163,6 +6163,8 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         open={showMessageKitchen}
         onOpenChange={setShowMessageKitchen}
         serverName={selectedGuest?.server || "Staff"}
+        defaultLinkedOrderId={selectedGuest?.id !== FALLBACK_SELECTED_GUEST_ID ? selectedGuest?.id : undefined}
+        defaultLinkedOrderNumber={selectedGuest?.orderNumber}
       />
 
       <OrderMessageThread

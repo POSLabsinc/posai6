@@ -568,7 +568,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
 
   return (
     <Dialog open={open} onOpenChange={sending ? undefined : onOpenChange}>
-      <DialogContent className="bg-neutral-900 border-neutral-700 text-white max-w-[820px]" hideCloseButton>
+      <DialogContent className="bg-neutral-900 border-neutral-700 text-white max-w-[820px]">
         <DialogHeader>
           <DialogTitle className="text-white text-lg">Send Message to Kitchen</DialogTitle>
           <DialogDescription className="sr-only">Send a message to the kitchen display system</DialogDescription>
@@ -805,20 +805,12 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
           </div>
         )}
 
-        {/* Buttons */}
-        <div className="flex gap-2 pt-2">
-          <Button
-            variant="outline"
-            onClick={() => onOpenChange(false)}
-            className="flex-1 bg-neutral-800 border-neutral-600 text-white hover:bg-neutral-700"
-            disabled={sending}
-          >
-            Cancel
-          </Button>
+        {/* Send Button */}
+        <div className="pt-2">
           <Button
             onClick={handleSend}
             disabled={!canSend}
-            className="flex-1 bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50"
+            className="w-full bg-orange-600 hover:bg-orange-700 text-white disabled:opacity-50"
           >
             {sending ? (
               <span className="flex items-center gap-2">

@@ -819,15 +819,22 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
       }
     };
 
+    const finishPinSetup = () => {
+      localStorage.setItem("pos_device_pin", devicePin);
+      localStorage.setItem("pos_device_pin_length", String(pinLength));
+      if (onDevicePinComplete) {
+        onDevicePinComplete(devicePin, pinLength);
+      } else {
+        handleBankNext();
+      }
+    };
+
     const handlePinSubmit = () => {
       if (pinStep === "enter" && devicePin.length === maxLen) {
         setPinStep("confirm");
       } else if (pinStep === "confirm" && confirmDevicePin.length === maxLen) {
         if (confirmDevicePin === devicePin) {
-          // Save PIN and proceed
-          localStorage.setItem("pos_device_pin", devicePin);
-          localStorage.setItem("pos_device_pin_length", String(pinLength));
-          handleBankNext();
+          finishPinSetup();
         } else {
           setConfirmDevicePin("");
         }
@@ -841,9 +848,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
     if (pinStep === "confirm" && confirmDevicePin.length === maxLen) {
       setTimeout(() => {
         if (confirmDevicePin === devicePin) {
-          localStorage.setItem("pos_device_pin", devicePin);
-          localStorage.setItem("pos_device_pin_length", String(pinLength));
-          handleBankNext();
+          finishPinSetup();
         } else {
           setConfirmDevicePin("");
         }

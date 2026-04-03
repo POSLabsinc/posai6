@@ -31,6 +31,7 @@ import { SplashScreen } from "@/components/SplashScreen";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import DeviceSetupAIChat from "@/components/DeviceSetupAIChat";
 import BusinessSearchOnboarding from "@/components/BusinessSearchOnboarding";
+import MerchantOnboarding from "@/components/MerchantOnboarding";
 
 
 import { revenueCenters, employeePinMapping, locationEmployees, getRoleIcon, getRoleBadgeStyle, getTimeOfDayInfo, PIN_LENGTH, DeviceType } from "@/data/loginData";

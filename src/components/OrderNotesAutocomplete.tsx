@@ -319,6 +319,17 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
             className="flex-1 min-w-[80px] bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none"
           />
         )}
+        
+        {/* Send button */}
+        {showSendButton && !disabled && (selectedNotes.length > 0 || inputValue.trim()) && (
+          <button
+            type="button"
+            onClick={handleSendClick}
+            className="flex-shrink-0 p-1 rounded transition-colors hover:bg-white/10"
+          >
+            <Send className="w-4 h-4 text-orange-400" />
+          </button>
+        )}
       </div>
 
       {/* Dropdown */}

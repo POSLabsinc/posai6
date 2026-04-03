@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { format, differenceInMinutes, differenceInHours } from "date-fns";
-import { Sun, Fingerprint, ScanFace, ChevronDown, Check, Clock, MapPin, Briefcase, X, Timer, LogOut, Coffee, ArrowLeft, EyeOff, Lock, ShieldAlert } from "lucide-react";
+import { Sun, Fingerprint, ScanFace, ChevronDown, Check, Clock, MapPin, Briefcase, X, Timer, LogOut, Coffee, ArrowLeft, EyeOff, Lock, ShieldAlert, UtensilsCrossed, TreePine, Wine, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";

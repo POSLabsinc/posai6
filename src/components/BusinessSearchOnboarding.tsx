@@ -44,11 +44,14 @@ const MOCK_BUSINESSES: BusinessDetails[] = [
 const RESTAURANT_TYPES = ["restaurant", "cafe", "bakery", "bar", "food"];
 
 const ALL_CATEGORIES = [
+  { name: "Quick Service", group: "Food and Drink" },
+  { name: "Full Service", group: "Food and Drink" },
+  { name: "Fast Casual", group: "Food and Drink" },
+  { name: "Pizzeria", group: "Food and Drink" },
+  { name: "Catering", group: "Food and Drink" },
+  { name: "Enterprise", group: "Food and Drink" },
   { name: "Coffee/Tea Cafe", group: "Food and Drink" },
-  { name: "Counter Service Restaurant", group: "Food and Drink" },
-  { name: "Table Service Restaurant", group: "Food and Drink" },
   { name: "Food Truck/Cart", group: "Food and Drink" },
-  { name: "Caterer", group: "Food and Drink" },
   { name: "Bakery", group: "Food and Drink" },
   { name: "Bar/Lounge/Nightclub", group: "Food and Drink" },
   { name: "Brewery/Winery/Distillery", group: "Food and Drink" },

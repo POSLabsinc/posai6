@@ -1170,7 +1170,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       console.error('Failed to send kitchen instruction:', err);
       return false;
     }
-  }, [selectedGuest, updateTicketOrder]);
+  }, [selectedGuest, updateTicketOrder, allOrders]);
 
   // Check if an order has been fired (status beyond ORDERING)
   const isOrderFired = useCallback((status: string) => {

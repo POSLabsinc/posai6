@@ -1493,7 +1493,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       };
 
       return (
-        <DeviceSetupLayout variant="demo">
+        <DeviceSetupLayout variant="demo" leftPanelContent={{
+            icon: <Monitor className="w-6 h-6 text-amber-500" />,
+            title: "Demo Experience",
+            description: "Explore eatOS with sample data. Perfect for training or evaluation.",
+            features: ["Sample menu and categories", "Mock orders and transactions", "Full feature exploration"]
+          }}>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

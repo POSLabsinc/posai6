@@ -459,6 +459,9 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       linkedTableId = selectedTable.tableNumber;
       linkedTableNumber = selectedTable.displayName;
       linkedOrderIds = selectedTable.orderIds;
+    } else if (defaultLinkedOrderId) {
+      linkedOrderId = defaultLinkedOrderId;
+      linkedOrderNumber = defaultLinkedOrderNumber || null;
     }
 
     const terminalName = localStorage.getItem("pos_terminal_name") || "POS 1";

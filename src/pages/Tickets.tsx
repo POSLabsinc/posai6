@@ -4293,23 +4293,27 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           {/* Kitchen Instructions & Notes */}
           <div className="px-3 py-2 border-b border-neutral-700/50">
             <p className="text-xs text-muted-foreground mb-1.5 italic">Kitchen instruction</p>
-            <OrderNotesAutocomplete 
-              value={orderNotes[selectedGuest.id] || selectedGuest.notes || ""} 
-              onChange={(val) => handleNotesChange(selectedGuest.id, val)} 
-              placeholder="Add order notes" 
-              storageKey="tickets-order-notes"
-              disabled={selectedGuest.status === "PAID" || !!selectedGuest.paid}
-            />
             {(() => {
-              const notesVal = orderNotes[selectedGuest.id] || selectedGuest.notes || "";
-              const notesList = notesVal.split(' | ').map(n => n.trim()).filter(Boolean);
+              const existingNotes = selectedGuest.notes || "";
+              const notesList = existingNotes.split(' | ').map(n => n.trim()).filter(Boolean);
               return notesList.length > 0 ? (
-                <p className="text-xs text-muted-foreground mt-1.5 flex items-start gap-1.5">
+                <p className="text-xs text-muted-foreground mb-1.5 flex items-start gap-1.5">
                   <span className="inline-block mt-0.5">📋</span>
                   <span className="italic">{notesList.join(', ')}</span>
                 </p>
               ) : null;
             })()}
+            <OrderNotesAutocomplete 
+              value={orderNotes[selectedGuest.id] || ""} 
+              onChange={(val) => handleNotesChange(selectedGuest.id, val)} 
+              placeholder="Add order notes" 
+              storageKey="tickets-order-notes"
+              disabled={selectedGuest.status === "PAID" || !!selectedGuest.paid}
+              showSendButton={!(selectedGuest.status === "PAID" || !!selectedGuest.paid)}
+              onSend={(text) => {
+                sendKitchenInstruction(selectedGuest.id, text, selectedGuest.orderNumber);
+              }}
+            />
           </div>
           {/* Order Items */}
           <ScrollArea className="flex-1 px-3">

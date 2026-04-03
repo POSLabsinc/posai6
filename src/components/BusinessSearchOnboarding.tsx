@@ -126,6 +126,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
   const [showSsn, setShowSsn] = useState(false);
   const [transferMethod, setTransferMethod] = useState<"next-day" | "same-day" | null>(null);
   const [showFinishLaterDialog, setShowFinishLaterDialog] = useState(false);
+  const [bankDetailsForm, setBankDetailsForm] = useState({ routingNumber: "", accountNumber: "", confirmAccountNumber: "", accountHolderName: "" });
   const [pinLength, setPinLength] = useState<4 | 6>(4);
   const [devicePin, setDevicePin] = useState("");
   const [confirmDevicePin, setConfirmDevicePin] = useState("");

@@ -1753,33 +1753,43 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 transition={{ delay: 0.2 }}
                 className="w-full space-y-4"
               >
-                <div className="relative">
-                  {activationContactValue.includes("@") ? (
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
-                  ) : /^\d|^\(/.test(activationContactValue) && activationContactValue.replace(/\D/g, '').length > 0 ? (
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
-                  ) : (
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                <div className="relative flex gap-2">
+                  {activationContactType === "phone" && activationContactValue.replace(/\D/g, '').length > 0 && (
+                    <div className="flex items-center gap-1 px-3 h-14 rounded-2xl bg-foreground/[0.03] border border-foreground/[0.08] shrink-0">
+                      <span className="text-lg">🇺🇸</span>
+                      <span className="text-sm text-foreground/50">+1</span>
+                    </div>
                   )}
-                  <Input
-                    type="text"
-                    placeholder="your@email.com or phone number"
-                    value={activationContactValue}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setActivationContactValue(val);
-                      if (val.includes("@")) {
-                        setActivationContactType("email");
-                      } else if (/^\d|^\(/.test(val) && val.replace(/\D/g, '').length > 0) {
-                        setActivationContactType("phone");
-                      } else {
-                        setActivationContactType("email");
-                      }
-                      setActivationError("");
-                    }}
-                    className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.03] border-foreground/[0.08] focus:border-primary/40"
-                    disabled={activationSendingCode}
-                  />
+                  <div className="relative flex-1">
+                    {activationContactValue.includes("@") ? (
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                    ) : /^\d|^\(/.test(activationContactValue) && activationContactValue.replace(/\D/g, '').length > 0 ? (
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                    ) : (
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                    )}
+                    <Input
+                      type="text"
+                      placeholder="your@email.com or phone number"
+                      value={activationContactType === "phone" ? formatActivationPhone(activationContactValue.replace(/\D/g, '')) : activationContactValue}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val.includes("@")) {
+                          setActivationContactType("email");
+                          setActivationContactValue(val);
+                        } else if (/^\d|^\(/.test(val) && val.replace(/\D/g, '').length > 0) {
+                          setActivationContactType("phone");
+                          setActivationContactValue(val.replace(/\D/g, '').slice(0, 10));
+                        } else {
+                          setActivationContactType("email");
+                          setActivationContactValue(val);
+                        }
+                        setActivationError("");
+                      }}
+                      className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.03] border-foreground/[0.08] focus:border-primary/40"
+                      disabled={activationSendingCode}
+                    />
+                  </div>
                 </div>
                 {activationError && (
                   <motion.div

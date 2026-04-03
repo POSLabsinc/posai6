@@ -99,7 +99,7 @@ const PLANS = [
   },
 ];
 
-type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp" | "verifyIdentity" | "transferMethod";
+type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp" | "verifyIdentity" | "transferMethod" | "devicePin";
 
 const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSearchOnboardingProps) => {
   const [step, setStep] = useState<Step>("search");
@@ -125,6 +125,10 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   const [showSsn, setShowSsn] = useState(false);
   const [transferMethod, setTransferMethod] = useState<"next-day" | "same-day" | null>(null);
   const [showFinishLaterDialog, setShowFinishLaterDialog] = useState(false);
+  const [pinLength, setPinLength] = useState<4 | 6>(4);
+  const [devicePin, setDevicePin] = useState("");
+  const [confirmDevicePin, setConfirmDevicePin] = useState("");
+  const [pinStep, setPinStep] = useState<"choose" | "enter" | "confirm">("choose");
   const [verifyForm, setVerifyForm] = useState({
     firstName: "", lastName: "", phone: "", dob: "",
     address1: "", address2: "", city: "", state: "", zip: "", ssn: "",
@@ -613,7 +617,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
               <button onClick={() => setShowFinishLaterDialog(false)} className="flex-1 h-12 rounded-xl text-sm font-medium text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
                 Continue verification
               </button>
-              <Button onClick={() => { setShowFinishLaterDialog(false); handleBankNext(); }} className="flex-1 h-12 text-sm font-medium rounded-xl" size="sm">
+              <Button onClick={() => { setShowFinishLaterDialog(false); setStep("devicePin"); setPinStep("choose"); setDevicePin(""); setConfirmDevicePin(""); }} className="flex-1 h-12 text-sm font-medium rounded-xl" size="sm">
                 Finish later
               </Button>
             </div>
@@ -726,7 +730,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
               <button onClick={() => setShowFinishLaterDialog(false)} className="flex-1 h-12 rounded-xl text-sm font-medium text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
                 Continue verification
               </button>
-              <Button onClick={() => { setShowFinishLaterDialog(false); handleBankNext(); }} className="flex-1 h-12 text-sm font-medium rounded-xl" size="sm">
+              <Button onClick={() => { setShowFinishLaterDialog(false); setStep("devicePin"); setPinStep("choose"); setDevicePin(""); setConfirmDevicePin(""); }} className="flex-1 h-12 text-sm font-medium rounded-xl" size="sm">
                 Finish later
               </Button>
             </div>
@@ -784,12 +788,170 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           <button onClick={() => setShowFinishLaterDialog(true)} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
             Skip
           </button>
-          <Button onClick={() => { if (transferMethod) handleBankNext(); }} disabled={!transferMethod} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+          <Button onClick={() => { if (transferMethod) { setStep("devicePin"); setPinStep("choose"); setDevicePin(""); setConfirmDevicePin(""); } }} disabled={!transferMethod} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
             Next
           </Button>
         </div>
       </motion.div>
       </>
+    );
+  }
+
+  // Device PIN Setup Step
+  if (step === "devicePin") {
+    const maxLen = pinLength;
+    const currentPin = pinStep === "confirm" ? confirmDevicePin : devicePin;
+
+    const handlePinDigit = (digit: string) => {
+      if (pinStep === "confirm") {
+        if (confirmDevicePin.length < maxLen) setConfirmDevicePin(prev => prev + digit);
+      } else {
+        if (devicePin.length < maxLen) setDevicePin(prev => prev + digit);
+      }
+    };
+
+    const handlePinBackspace = () => {
+      if (pinStep === "confirm") {
+        setConfirmDevicePin(prev => prev.slice(0, -1));
+      } else {
+        setDevicePin(prev => prev.slice(0, -1));
+      }
+    };
+
+    const handlePinSubmit = () => {
+      if (pinStep === "enter" && devicePin.length === maxLen) {
+        setPinStep("confirm");
+      } else if (pinStep === "confirm" && confirmDevicePin.length === maxLen) {
+        if (confirmDevicePin === devicePin) {
+          // Save PIN and proceed
+          localStorage.setItem("pos_device_pin", devicePin);
+          localStorage.setItem("pos_device_pin_length", String(pinLength));
+          handleBankNext();
+        } else {
+          setConfirmDevicePin("");
+        }
+      }
+    };
+
+    // Auto-submit when PIN reaches target length
+    if (pinStep === "enter" && devicePin.length === maxLen) {
+      setTimeout(() => setPinStep("confirm"), 300);
+    }
+    if (pinStep === "confirm" && confirmDevicePin.length === maxLen) {
+      setTimeout(() => {
+        if (confirmDevicePin === devicePin) {
+          localStorage.setItem("pos_device_pin", devicePin);
+          localStorage.setItem("pos_device_pin_length", String(pinLength));
+          handleBankNext();
+        } else {
+          setConfirmDevicePin("");
+        }
+      }, 300);
+    }
+
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
+        {pinStep === "choose" ? (
+          <>
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+              <Lock className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Set Device PIN</h2>
+            <p className="text-foreground/50 text-sm mb-8 text-center">Choose your preferred PIN length for device lock screen</p>
+
+            <div className="w-full space-y-3 mb-8">
+              {([4, 6] as const).map(len => (
+                <button
+                  key={len}
+                  onClick={() => setPinLength(len)}
+                  className={`w-full p-5 rounded-2xl border-2 transition-all text-left ${
+                    pinLength === len
+                      ? "border-primary bg-primary/10"
+                      : "border-foreground/[0.08] hover:border-foreground/20 bg-foreground/[0.03]"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-base font-semibold text-foreground">{len}-Digit PIN</p>
+                      <p className="text-sm text-foreground/50 mt-1">{len === 4 ? "Quick and easy access" : "Enhanced security"}</p>
+                    </div>
+                    <div className="flex gap-1.5">
+                      {Array.from({ length: len }).map((_, i) => (
+                        <div key={i} className={`w-2.5 h-2.5 rounded-full ${pinLength === len ? "bg-primary" : "bg-foreground/20"}`} />
+                      ))}
+                    </div>
+                  </div>
+                </button>
+              ))}
+            </div>
+
+            <div className="w-full flex gap-3">
+              <Button onClick={() => { setPinStep("enter"); setDevicePin(""); setConfirmDevicePin(""); }} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
+                Continue
+              </Button>
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
+              <Lock className="w-8 h-8 text-primary" />
+            </div>
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              {pinStep === "enter" ? "Enter your PIN" : "Confirm your PIN"}
+            </h2>
+            <p className="text-foreground/50 text-sm mb-8 text-center">
+              {pinStep === "enter" ? `Enter a ${maxLen}-digit PIN for this device` : "Re-enter your PIN to confirm"}
+            </p>
+
+            {/* PIN dots */}
+            <div className="flex gap-3 mb-8">
+              {Array.from({ length: maxLen }).map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-4 h-4 rounded-full transition-all ${
+                    i < currentPin.length ? "bg-primary scale-110" : "bg-foreground/20"
+                  }`}
+                />
+              ))}
+            </div>
+
+            {pinStep === "confirm" && confirmDevicePin.length === maxLen && confirmDevicePin !== devicePin && (
+              <p className="text-destructive text-sm mb-4">PINs don't match. Try again.</p>
+            )}
+
+            {/* Numeric keypad */}
+            <div className="grid grid-cols-3 gap-3 w-full max-w-[280px]">
+              {[1,2,3,4,5,6,7,8,9].map(n => (
+                <button
+                  key={n}
+                  onClick={() => handlePinDigit(String(n))}
+                  className="h-16 rounded-2xl text-2xl font-medium text-foreground bg-foreground/[0.05] hover:bg-foreground/[0.1] active:bg-foreground/[0.15] transition-colors"
+                >
+                  {n}
+                </button>
+              ))}
+              <button
+                onClick={() => { setPinStep("choose"); setDevicePin(""); setConfirmDevicePin(""); }}
+                className="h-16 rounded-2xl text-sm font-medium text-foreground/50 hover:text-foreground transition-colors"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => handlePinDigit("0")}
+                className="h-16 rounded-2xl text-2xl font-medium text-foreground bg-foreground/[0.05] hover:bg-foreground/[0.1] active:bg-foreground/[0.15] transition-colors"
+              >
+                0
+              </button>
+              <button
+                onClick={handlePinBackspace}
+                className="h-16 rounded-2xl text-sm font-medium text-foreground/50 hover:text-foreground transition-colors"
+              >
+                ⌫
+              </button>
+            </div>
+          </>
+        )}
+      </motion.div>
     );
   }
 

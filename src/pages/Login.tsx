@@ -2991,7 +2991,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       // Step 1: Signup Form (default)
       return (
-        <DeviceSetupLayout variant="admin">
+        <DeviceSetupLayout variant="admin" leftPanelContent={{
+            icon: <UserPlus className="w-6 h-6 text-primary" />,
+            title: "Create Account",
+            description: "Set up a new account to activate and manage this device.",
+            features: ["Quick account creation", "Secure email verification", "Instant device access"]
+          }}>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

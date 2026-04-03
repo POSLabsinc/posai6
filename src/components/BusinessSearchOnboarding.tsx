@@ -1007,7 +1007,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
         {pinStep === "choose" ? (
           <>
             <button
-              onClick={() => setStep("transferMethod")}
+              onClick={() => setStep("accountAdded")}
               className="self-start mb-4 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />

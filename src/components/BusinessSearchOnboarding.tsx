@@ -62,7 +62,15 @@ const ALL_CATEGORIES = [
 
 const RESTAURANT_CATEGORIES = ALL_CATEGORIES.filter((c) => c.group === "Food and Drink");
 
-type Step = "search" | "category";
+const REVENUE_OPTIONS = [
+  { label: "Less than $100K", value: "less_100k" },
+  { label: "$100K - $250K", value: "100k_250k" },
+  { label: "$250K - $1M", value: "250k_1m" },
+  { label: "$1M - $5M", value: "1m_5m" },
+  { label: "$5M - $25M+", value: "5m_25m_plus" },
+];
+
+type Step = "search" | "category" | "revenue";
 
 const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSearchOnboardingProps) => {
   const [step, setStep] = useState<Step>("search");

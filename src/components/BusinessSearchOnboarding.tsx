@@ -258,6 +258,34 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
 
   const selectedPlanData = PLANS.find(p => p.name === selectedPlan);
   const chargeDate = new Date(Date.now() + (selectedPlanData?.trialDays || 7) * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const hasCardDetails = cardNumber.replace(/\s/g, '').length >= 13 && cardExpiry.replace(/\D/g, '').length >= 4;
+
+  const handleOtpChange = (index: number, value: string) => {
+    if (!/^\d*$/.test(value)) return;
+    const newOtp = [...cardOtp];
+    newOtp[index] = value.slice(-1);
+    setCardOtp(newOtp);
+    if (value && index < 5) {
+      otpRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
+    if (e.key === "Backspace" && !cardOtp[index] && index > 0) {
+      otpRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleVerifyOtp = () => {
+    const code = cardOtp.join("");
+    if (code.length === 6) {
+      setIsVerifyingOtp(true);
+      setTimeout(() => {
+        setIsVerifyingOtp(false);
+        handleStartTrial();
+      }, 1500);
+    }
+  };
 
   // Plan or Skip Step (card entry)
   if (step === "planOrSkip") {

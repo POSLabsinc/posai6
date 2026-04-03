@@ -742,7 +742,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         </div>
 
         <div className="w-full flex gap-3 mt-8">
-          <button onClick={() => handleBankNext()} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
+          <button onClick={() => setShowFinishLaterDialog(true)} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
             Skip
           </button>
           <Button onClick={() => { if (transferMethod) handleBankNext(); }} disabled={!transferMethod} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">

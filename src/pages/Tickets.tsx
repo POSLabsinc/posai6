@@ -1160,6 +1160,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       // Update selectedGuest notes so the read-only block shows updated notes
       setSelectedGuest(prev => prev.id === orderId ? { ...prev, notes: combinedNotes } : prev);
       setInstructionSentOrders(prev => new Set(prev).add(orderId));
+      toast.success("Instruction sent to kitchen");
       setInstructionDirtyOrders(prev => {
         const next = new Set(prev);
         next.delete(orderId);

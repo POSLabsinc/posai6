@@ -12,6 +12,7 @@ export interface BusinessDetails {
   placeId: string;
   categories?: string[];
   placeType?: string;
+  annualRevenue?: string;
 }
 
 interface BusinessSearchOnboardingProps {

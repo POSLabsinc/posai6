@@ -1,55 +1,53 @@
 
 
-## Plan: Ticket-Specific AI Assistant Panel
+## Plan: Inline AI Assistant Actions with Business Logic Validation
 
 ### Problem
-The AI assistant on the Tickets screen currently shows New Order actions (Add Product, Order Type, Guest, Note, Summary, Pay, Clear). These are irrelevant on the Tickets screen where users manage existing orders. We need ticket-specific actions.
+Currently, clicking quick actions (Refund, Void, Discount, etc.) in the TicketAIChatPanel closes the AI chat and opens separate dialogs. The user wants all actions to work **inline within the chat panel**, with proper business logic validation (e.g., can only refund PAID orders, cannot discount PAID orders, must have an order selected).
 
 ### Approach
-Create a new `TicketAIChatPanel` component specifically for the Tickets screen, with quick actions and AI capabilities tailored to ticket operations.
+Enhance `TicketAIChatPanel` to handle actions inline with validation messages, and keep the chat open. Actions that require complex UI (like the full RefundDialog or DiscountDialog) will still open their respective dialogs but the AI will first validate and confirm the action is appropriate, showing error messages inline when validation fails.
 
-### Ticket Actions to Include
+### Changes
 
-Based on the existing Tickets screen functionality, the AI assistant will support these quick actions:
+**File: `src/components/TicketAIChatPanel.tsx`**
 
-1. **Refund** - Initiate refund flow for the selected ticket
-2. **Void** - Void/cancel the selected order
-3. **Transfer** - Transfer order to another table/order
-4. **Receipt** - Print/send receipt for the ticket
-5. **Discount** - Apply discount to the ticket
-6. **Message Kitchen** - Send message to kitchen
-7. **Order Summary** - Show details of the selected ticket
-8. **Reopen** - Reopen a closed/paid ticket
+1. **Add order selection validation** - Before any action, check if `ticketContext` exists. If not, show inline message: "Please select an order first from the ticket list."
 
-### AI Chat Capabilities
+2. **Add status-aware validation for each action:**
+   - **Refund**: Only allowed for PAID orders. If status is not PAID, show: "This order has not been paid yet. Refunds can only be processed for paid orders."
+   - **Void/Cancel**: Only allowed for non-PAID orders. If PAID, show: "This order has already been paid. Use Refund instead."
+   - **Discount**: Only allowed for non-PAID orders. If PAID, show: "Cannot apply discount to a paid order."
+   - **Transfer**: Only allowed for non-PAID, non-CANCELLED orders.
+   - **Receipt**: Allowed for all orders (no restriction).
+   - **Message Kitchen**: Allowed for all orders.
+   - **Reopen**: Only for PAID/CANCELLED orders.
+   - **Summary**: Always allowed (already works inline).
 
-The AI will understand natural language commands like:
-- "Refund this order"
-- "Void order #6"
-- "Transfer this to Table 5"
-- "Print the receipt"
-- "Apply 10% discount"
-- "Send a message to the kitchen"
-- "Show me the order summary"
-- "Reopen this ticket"
+3. **Keep chat open on action execution** - Remove `setIsAIChatOpen(false)` from ticketActions callbacks in Tickets.tsx. The dialogs open on top of the chat overlay.
+
+4. **Add confirmation flow inline** - For destructive actions (Refund, Void), show a confirmation message in chat before triggering the action:
+   - AI: "Are you sure you want to refund Order #X ($Y total)? This will process a full refund."
+   - User confirms: "Yes" / clicks confirm button rendered inline
+   - Then triggers the actual action
+
+5. **Inline action buttons in chat messages** - For confirmation steps, render clickable "Confirm" / "Cancel" buttons within the assistant message bubble.
+
+**File: `src/pages/Tickets.tsx`**
+
+6. **Update ticketActions callbacks** - Remove `setIsAIChatOpen(false)` from all action callbacks so the chat stays open while dialogs appear on top.
+
+7. **Pass additional context** - Add `paid` boolean and `refundedAmount` to `TicketContext` so the panel can make informed validation decisions.
 
 ### Technical Details
 
-**New file: `src/components/TicketAIChatPanel.tsx`**
-- New component modeled after `OrderAIChatPanel` but with ticket-specific logic
-- Welcome message updated with ticket-relevant example commands
-- Quick action buttons replaced with: Refund, Void, Transfer, Receipt, Discount, Message Kitchen, Summary, Reopen
-- `TicketActions` interface with callbacks: `openRefund`, `openVoid`, `openTransfer`, `openReceipt`, `openDiscount`, `openMessageKitchen`, `reopenOrder`
-- `TicketContext` interface with: order ID, order number, guest name, status, total, payment type, items, table
-- AI chat sends ticket context to the edge function for contextual responses
-- Quick actions trigger the corresponding dialogs/flows in the parent Tickets page
-
-**Modified file: `src/pages/Tickets.tsx`**
-- Replace `OrderAIChatPanel` import with `TicketAIChatPanel`
-- Pass `ticketActions` callbacks that trigger existing state setters (e.g., `setShowRefundConfirmation`, `setShowTransferIntentDialog`, `setIsDiscountDialogOpen`, `setShowMessageKitchen`, `setShowReceiptOptions`)
-- Pass `ticketContext` with the selected guest's order data
+- New `TicketContext` fields: `paid: boolean`, `refundedAmount: number`, `cancelled: boolean`
+- New state in TicketAIChatPanel: `pendingAction` to track confirmation flows
+- Validation logic runs in `processTicketCommand` before calling any `ticketActions` callback
+- Inline confirmation uses a special message type with action buttons rendered as part of the chat UI
+- The `processTicketCommand` function becomes the validation gate, checking `ticketContext.status` before allowing actions
 
 ### Files Changed
-1. **Create** `src/components/TicketAIChatPanel.tsx` - New ticket-specific AI panel
-2. **Edit** `src/pages/Tickets.tsx` - Swap panel component and wire up callbacks
+1. **Edit** `src/components/TicketAIChatPanel.tsx` - Add validation logic, confirmation flows, inline action buttons
+2. **Edit** `src/pages/Tickets.tsx` - Update ticketActions callbacks (keep chat open), pass extended context
 

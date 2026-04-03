@@ -60,7 +60,7 @@ import MobileFiltersSheet, { MobileFiltersState } from "@/components/MobileFilte
 import OrderTypeIcon from "@/components/OrderTypeIcon";
 import { SimpleModifierTree } from "@/components/ModifierWithConnector";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import OrderAIChatPanel from "@/components/OrderAIChatPanel";
+import TicketAIChatPanel from "@/components/TicketAIChatPanel";
 import { DiscountDialog, availableDiscounts, type Discount } from "@/components/DiscountDialog";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import NoteSuggestions from "@/components/NoteSuggestions";

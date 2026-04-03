@@ -6111,6 +6111,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 paymentType: selectedGuest.paymentType,
                 table: selectedGuest.table,
                 items: selectedGuest.items.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+                paid: selectedGuest.status?.toUpperCase() === "PAID",
+                refundedAmount: 0,
+                cancelled: selectedGuest.status?.toUpperCase() === "CANCELLED",
               } : undefined}
               ticketActions={{
                 openRefund: () => { setShowRefundConfirmation(true); },

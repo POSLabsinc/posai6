@@ -103,7 +103,6 @@ const PIN_LENGTH = 4;
 const revenueCenters = ["Dine Center", "Main Hall", "Outdoor Patio", "Private Dining", "Bar Area", "Takeout Counter"];
 
 // Revenue center icons mapping
-import { MapPin, UtensilsCrossed, TreePine, Lock, Wine, ShoppingBag } from "lucide-react";
 const REVENUE_CENTER_ICONS: Record<string, React.ComponentType<any>> = {
   "Dine Center": UtensilsCrossed,
   "Main Hall": MapPin,

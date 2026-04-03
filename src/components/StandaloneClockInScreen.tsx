@@ -296,7 +296,7 @@ export const StandaloneClockInScreen = ({
   // ── PIN Dots ──
   const renderPinDots = () => (
     <div className="flex items-center justify-center gap-3 mb-1">
-      {[0, 1, 2, 3].map(i => (
+      {Array.from({ length: maxPinLength }).map((_, i) => (
         <div key={i} className="relative">
           <div className={`w-4 h-4 rounded-full transition-all duration-200 ${
             error ? (i < pin.length ? "bg-red-500 scale-110" : "bg-white/10")

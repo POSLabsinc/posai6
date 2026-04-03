@@ -1,15 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Building2, ChevronRight, Keyboard, ArrowLeft, Loader2 } from "lucide-react";
+import { Search, MapPin, Building2, ChevronRight, ArrowLeft, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-interface BusinessDetails {
+export interface BusinessDetails {
   name: string;
   address: string;
   city: string;
   state: string;
   country: string;
   placeId: string;
+  categories?: string[];
 }
 
 interface BusinessSearchOnboardingProps {
@@ -37,13 +38,40 @@ const MOCK_BUSINESSES: BusinessDetails[] = [
   { name: "Salt Bae Steakhouse", address: "60 Broad St", city: "New York", state: "New York", country: "United States", placeId: "mock_15" },
 ];
 
+const BUSINESS_CATEGORIES = [
+  { name: "Coffee/Tea Cafe", group: "Food and Drink" },
+  { name: "Counter Service Restaurant", group: "Food and Drink" },
+  { name: "Table Service Restaurant", group: "Food and Drink" },
+  { name: "Food Truck/Cart", group: "Food and Drink" },
+  { name: "Caterer", group: "Food and Drink" },
+  { name: "Bakery", group: "Food and Drink" },
+  { name: "Bar/Lounge/Nightclub", group: "Food and Drink" },
+  { name: "Brewery/Winery/Distillery", group: "Food and Drink" },
+  { name: "Specialty Shop", group: "Retail" },
+  { name: "Grocery/Market", group: "Retail" },
+  { name: "Clothing/Fashion", group: "Retail" },
+  { name: "Electronics Store", group: "Retail" },
+  { name: "Beauty/Salon/Spa", group: "Services" },
+  { name: "Health/Fitness", group: "Services" },
+  { name: "Professional Services", group: "Services" },
+  { name: "Entertainment/Events", group: "Services" },
+];
+
+type Step = "search" | "category";
+
 const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSearchOnboardingProps) => {
+  const [step, setStep] = useState<Step>("search");
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<BusinessDetails[]>([]);
   const [selectedBusiness, setSelectedBusiness] = useState<BusinessDetails | null>(null);
+  const [isManualEntry, setIsManualEntry] = useState(false);
+  const [manualAddress, setManualAddress] = useState("");
+  const [noPhysicalAddress, setNoPhysicalAddress] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [noResults, setNoResults] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [categorySearch, setCategorySearch] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const debounceRef = useRef<ReturnType<typeof setTimeout>>();
@@ -83,6 +111,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   const handleInputChange = (val: string) => {
     setQuery(val);
     setSelectedBusiness(null);
+    setIsManualEntry(false);
     searchBusinesses(val);
   };
 
@@ -91,64 +120,153 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
     setQuery(biz.name);
     setShowSuggestions(false);
     setSuggestions([]);
+    setIsManualEntry(false);
   };
 
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="relative w-full flex flex-col items-center"
-    >
-      {/* Back Button */}
-      {onBack && (
+  const handleUseCustomName = () => {
+    setIsManualEntry(true);
+    setShowSuggestions(false);
+    setSuggestions([]);
+    setNoResults(false);
+    setSelectedBusiness(null);
+  };
+
+  const toggleCategory = (name: string) => {
+    setSelectedCategories((prev) =>
+      prev.includes(name) ? prev.filter((c) => c !== name) : [...prev, name]
+    );
+  };
+
+  const canProceedFromSearch = selectedBusiness || (isManualEntry && query.trim().length > 0 && (noPhysicalAddress || manualAddress.trim().length > 0));
+
+  const handleSearchNext = () => {
+    if (selectedBusiness) {
+      setStep("category");
+    } else if (isManualEntry && query.trim()) {
+      setSelectedBusiness({
+        name: query.trim(),
+        address: noPhysicalAddress ? "No physical address" : manualAddress.trim(),
+        city: "",
+        state: "",
+        country: "",
+        placeId: `manual_${Date.now()}`,
+      });
+      setStep("category");
+    }
+  };
+
+  const handleCategoryNext = () => {
+    if (selectedBusiness && selectedCategories.length > 0) {
+      onNext({ ...selectedBusiness, categories: selectedCategories });
+    }
+  };
+
+  const filteredCategories = categorySearch.trim()
+    ? BUSINESS_CATEGORIES.filter((c) => c.name.toLowerCase().includes(categorySearch.toLowerCase()) || c.group.toLowerCase().includes(categorySearch.toLowerCase()))
+    : BUSINESS_CATEGORIES;
+
+  // Category Selection Step
+  if (step === "category") {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
         <motion.button
           initial={{ opacity: 0, x: -10 }}
           animate={{ opacity: 1, x: 0 }}
-          onClick={onBack}
-          className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+          onClick={() => setStep("search")}
+          className="self-start mb-5 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
         >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </motion.button>
+
+        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 border border-primary/20">
+          <Building2 className="w-7 h-7 text-primary" />
+        </motion.div>
+
+        <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-xl font-semibold text-foreground mb-1.5 text-center">
+          What kind of business best describes {selectedBusiness?.name || "your business"}?
+        </motion.h1>
+
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="text-sm text-foreground/50 mb-5 text-center leading-relaxed">
+          Search or select your business type to help us categorize most of what you sell.
+        </motion.p>
+
+        {/* Category search */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative w-full mb-3">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+          <input
+            type="text"
+            value={categorySearch}
+            onChange={(e) => setCategorySearch(e.target.value)}
+            placeholder="Search business categories"
+            className="w-full h-12 pl-11 pr-4 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] text-foreground placeholder:text-foreground/30 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background transition-all"
+          />
+        </motion.div>
+
+        {/* Category list */}
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="w-full max-h-[280px] overflow-y-auto rounded-2xl border border-foreground/[0.08] bg-foreground/[0.02] mb-4">
+          {filteredCategories.map((cat) => {
+            const isSelected = selectedCategories.includes(cat.name);
+            return (
+              <button
+                key={cat.name}
+                onClick={() => toggleCategory(cat.name)}
+                className={`w-full flex items-center justify-between px-4 py-3.5 border-b border-foreground/[0.06] last:border-b-0 transition-colors text-left ${isSelected ? "bg-primary/[0.08]" : "hover:bg-foreground/[0.04]"}`}
+              >
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">{cat.name}</p>
+                  <p className="text-xs text-foreground/40">{cat.group}</p>
+                </div>
+                {isSelected && (
+                  <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center flex-shrink-0 ml-3">
+                    <Check className="w-3 h-3 text-primary-foreground" />
+                  </div>
+                )}
+              </button>
+            );
+          })}
+          {filteredCategories.length === 0 && (
+            <div className="px-4 py-6 text-center text-sm text-foreground/40">No categories found</div>
+          )}
+        </motion.div>
+
+        {selectedCategories.length > 0 && (
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-foreground/40 mb-3">
+            {selectedCategories.length} selected
+          </motion.p>
+        )}
+
+        <Button onClick={handleCategoryNext} disabled={selectedCategories.length === 0} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
+          Next
+        </Button>
+      </motion.div>
+    );
+  }
+
+  // Search Step
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
+      {onBack && (
+        <motion.button initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} onClick={onBack} className="self-start mb-5 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors">
           <ArrowLeft className="w-4 h-4" />
           <span>Back</span>
         </motion.button>
       )}
 
-      {/* Icon */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 border border-primary/20"
-      >
-        <Building2 className="w-8 h-8 text-primary" />
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 border border-primary/20">
+        <Building2 className="w-7 h-7 text-primary" />
       </motion.div>
 
-      {/* Title */}
-      <motion.h1
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="text-xl font-semibold text-foreground mb-2 text-center"
-      >
+      <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.1 }} className="text-xl font-semibold text-foreground mb-1.5 text-center">
         Tell us about your business
       </motion.h1>
 
-      {/* Subtitle */}
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.15 }}
-        className="text-sm text-foreground/50 mb-6 text-center leading-relaxed"
-      >
+      <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="text-sm text-foreground/50 mb-5 text-center leading-relaxed">
         This is what we will use on your emails, receipts, and messages to customers.
       </motion.p>
 
       {/* Search Input */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.2 }}
-        ref={containerRef}
-        className="relative w-full mb-4"
-      >
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} ref={containerRef} className="relative w-full mb-3">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
           <input
@@ -171,18 +289,9 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         {/* Suggestions dropdown */}
         <AnimatePresence>
           {showSuggestions && suggestions.length > 0 && (
-            <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="absolute top-full left-0 right-0 mt-1.5 bg-[#252525] rounded-2xl border border-foreground/[0.08] overflow-hidden z-50 shadow-xl"
-            >
+            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="absolute top-full left-0 right-0 mt-1.5 bg-[#252525] rounded-2xl border border-foreground/[0.08] overflow-hidden z-50 shadow-xl">
               {suggestions.map((biz) => (
-                <button
-                  key={biz.placeId}
-                  onClick={() => handleSelect(biz)}
-                  className="w-full flex items-start gap-3 px-4 py-3 hover:bg-foreground/[0.06] transition-colors text-left"
-                >
+                <button key={biz.placeId} onClick={() => handleSelect(biz)} className="w-full flex items-start gap-3 px-4 py-3 hover:bg-foreground/[0.06] transition-colors text-left">
                   <MapPin className="w-4 h-4 text-foreground/30 mt-0.5 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground truncate">{biz.name}</p>
@@ -195,34 +304,18 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           )}
         </AnimatePresence>
 
-        {/* No results */}
+        {/* No results - use as custom name */}
         <AnimatePresence>
           {noResults && showSuggestions && (
-            <motion.div
-              initial={{ opacity: 0, y: -4 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -4 }}
-              className="absolute top-full left-0 right-0 mt-1.5 bg-[#252525] rounded-2xl border border-foreground/[0.08] overflow-hidden z-50 shadow-xl"
-            >
-              <div className="px-4 py-4 text-center">
-                <p className="text-sm text-foreground/50 mb-3">No businesses found for "{query}"</p>
-                <div className="flex gap-2 justify-center">
-                  <button
-                    onClick={onManualEntry}
-                    className="text-xs font-medium text-primary hover:text-primary/80 transition-colors flex items-center gap-1.5"
-                  >
-                    <Keyboard className="w-3.5 h-3.5" />
-                    Enter manually
-                  </button>
-                  <span className="text-foreground/20">|</span>
-                  <button
-                    onClick={() => { setQuery(""); setNoResults(false); setShowSuggestions(false); inputRef.current?.focus(); }}
-                    className="text-xs font-medium text-foreground/50 hover:text-foreground/70 transition-colors"
-                  >
-                    Try again
-                  </button>
+            <motion.div initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -4 }} className="absolute top-full left-0 right-0 mt-1.5 bg-[#252525] rounded-2xl border border-foreground/[0.08] overflow-hidden z-50 shadow-xl">
+              <button onClick={handleUseCustomName} className="w-full flex items-center gap-3 px-4 py-3.5 hover:bg-foreground/[0.06] transition-colors text-left">
+                <Building2 className="w-4 h-4 text-primary flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">Use "{query}" as business name</p>
+                  <p className="text-xs text-foreground/40">Enter address details manually</p>
                 </div>
-              </div>
+                <ChevronRight className="w-4 h-4 text-foreground/20 flex-shrink-0" />
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -230,14 +323,9 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
 
       {/* Selected business details */}
       <AnimatePresence>
-        {selectedBusiness && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="w-full"
-          >
-            <div className="bg-foreground/[0.03] border border-foreground/[0.1] rounded-2xl p-4 space-y-2.5 mb-4">
+        {selectedBusiness && !isManualEntry && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 10 }} className="w-full mb-3">
+            <div className="bg-foreground/[0.03] border border-foreground/[0.1] rounded-2xl p-4 space-y-2.5">
               <DetailRow label="Address" value={selectedBusiness.address} />
               <DetailRow label="City" value={selectedBusiness.city} />
               <DetailRow label="State" value={selectedBusiness.state} />
@@ -247,26 +335,36 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
         )}
       </AnimatePresence>
 
-      {/* Manual entry link */}
-      {!selectedBusiness && (
-        <motion.button
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
-          onClick={onManualEntry}
-          className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors mb-4"
-        >
-          My business doesn't have a permanent physical address
-        </motion.button>
-      )}
+      {/* Manual address entry */}
+      <AnimatePresence>
+        {isManualEntry && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="w-full space-y-3 mb-3">
+            {!noPhysicalAddress && (
+              <div className="relative">
+                <MapPin className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                <input
+                  type="text"
+                  value={manualAddress}
+                  onChange={(e) => setManualAddress(e.target.value)}
+                  placeholder="Enter your business address..."
+                  className="w-full h-12 pl-11 pr-4 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.03] text-foreground placeholder:text-foreground/30 text-sm outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 ring-offset-background transition-all"
+                />
+              </div>
+            )}
+            <label className="flex items-center gap-3 cursor-pointer px-1">
+              <div
+                onClick={() => setNoPhysicalAddress(!noPhysicalAddress)}
+                className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${noPhysicalAddress ? "bg-primary border-primary" : "border-foreground/20 bg-transparent"}`}
+              >
+                {noPhysicalAddress && <Check className="w-3 h-3 text-primary-foreground" />}
+              </div>
+              <span className="text-sm text-foreground/60">My business doesn't have a permanent physical address</span>
+            </label>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
-      {/* Next Button */}
-      <Button
-        onClick={() => selectedBusiness && onNext(selectedBusiness)}
-        disabled={!selectedBusiness}
-        className="w-full h-14 text-base font-medium rounded-2xl"
-        size="lg"
-      >
+      <Button onClick={handleSearchNext} disabled={!canProceedFromSearch} className="w-full h-14 text-base font-medium rounded-2xl mt-1" size="lg">
         Next
       </Button>
     </motion.div>

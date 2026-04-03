@@ -31,6 +31,22 @@ const DEMO_EMPLOYEES: Record<string, DemoEmployee> = {
   "0000": { id: "3", name: "Alex Rivera", role: "Host", jobTypes: ["Host"], avatar: "AR" },
 };
 
+// Get device PIN set during onboarding (if any)
+function getDevicePinEmployee(): { pin: string; pinLength: number; employee: DemoEmployee } | null {
+  try {
+    const savedPin = localStorage.getItem("pos_device_pin");
+    const savedLen = localStorage.getItem("pos_device_pin_length");
+    if (savedPin) {
+      return {
+        pin: savedPin,
+        pinLength: parseInt(savedLen || "4", 10),
+        employee: { id: "guest-device", name: "Guest", role: "Guest", jobTypes: ["Guest"], avatar: "G" },
+      };
+    }
+  } catch {}
+  return null;
+}
+
 const REVENUE_CENTERS = ["Dine-In", "Bar", "Patio", "Takeout", "Drive-Thru"];
 
 // ── CSS (injected once) ────────────────────────────────────────────────────
@@ -197,10 +213,13 @@ export const StandaloneClockInScreen = ({
     return () => window.removeEventListener("keydown", handler);
   }, [isOpen, view, pin]);
 
+  const devicePinInfo = getDevicePinEmployee();
+  const maxPinLength = devicePinInfo?.pinLength || 4;
+
   const handleDigit = useCallback((d: string) => {
-    if (pin.length >= 4 || error) return;
+    if (pin.length >= maxPinLength || error) return;
     setPin(p => p + d);
-  }, [pin, error]);
+  }, [pin, error, maxPinLength]);
 
   const handleClear = useCallback(() => {
     if (error) { setError(false); setErrorMsg(""); }
@@ -214,20 +233,35 @@ export const StandaloneClockInScreen = ({
   }, []);
 
   const handleEnter = useCallback(() => {
-    if (pin.length !== 4) return;
-    const emp = DEMO_EMPLOYEES[pin];
-    if (emp) {
-      setEmployee(emp);
-      setSelectedJob(emp.jobTypes[0]);
+    // Check device PIN first (supports 4 or 6 digit)
+    if (devicePinInfo && pin.length === devicePinInfo.pinLength && pin === devicePinInfo.pin) {
+      setEmployee(devicePinInfo.employee);
+      setSelectedJob(devicePinInfo.employee.jobTypes[0]);
       setError(false);
       setErrorMsg("");
       setView("actions");
-    } else {
+      return;
+    }
+    // Then check demo employees (4-digit)
+    if (pin.length === 4) {
+      const emp = DEMO_EMPLOYEES[pin];
+      if (emp) {
+        setEmployee(emp);
+        setSelectedJob(emp.jobTypes[0]);
+        setError(false);
+        setErrorMsg("");
+        setView("actions");
+        return;
+      }
+    }
+    // Invalid
+    if (pin.length >= 4) {
       setError(true);
-      setErrorMsg("Invalid PIN. Try 1234, 5678, or 0000");
+      setErrorMsg("Invalid PIN");
       setTimeout(() => { setPin(""); setError(false); setErrorMsg(""); }, 1500);
     }
-  }, [pin]);
+  }, [pin, devicePinInfo]);
+  
 
   const handleClockIn = () => {
     setIsClockedIn(true);
@@ -262,7 +296,7 @@ export const StandaloneClockInScreen = ({
   // ── PIN Dots ──
   const renderPinDots = () => (
     <div className="flex items-center justify-center gap-3 mb-1">
-      {[0, 1, 2, 3].map(i => (
+      {Array.from({ length: maxPinLength }).map((_, i) => (
         <div key={i} className="relative">
           <div className={`w-4 h-4 rounded-full transition-all duration-200 ${
             error ? (i < pin.length ? "bg-red-500 scale-110" : "bg-white/10")

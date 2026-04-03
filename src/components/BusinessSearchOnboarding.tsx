@@ -19,6 +19,7 @@ interface BusinessSearchOnboardingProps {
   onNext: (business: BusinessDetails) => void;
   onManualEntry: () => void;
   onBack?: () => void;
+  onDevicePinComplete?: (pin: string, pinLength: number) => void;
 }
 
 // Mock Google Places results with place type
@@ -101,7 +102,7 @@ const PLANS = [
 
 type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp" | "verifyIdentity" | "transferMethod" | "devicePin";
 
-const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSearchOnboardingProps) => {
+const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinComplete }: BusinessSearchOnboardingProps) => {
   const [step, setStep] = useState<Step>("search");
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<BusinessDetails[]>([]);
@@ -818,15 +819,22 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
       }
     };
 
+    const finishPinSetup = () => {
+      localStorage.setItem("pos_device_pin", devicePin);
+      localStorage.setItem("pos_device_pin_length", String(pinLength));
+      if (onDevicePinComplete) {
+        onDevicePinComplete(devicePin, pinLength);
+      } else {
+        handleBankNext();
+      }
+    };
+
     const handlePinSubmit = () => {
       if (pinStep === "enter" && devicePin.length === maxLen) {
         setPinStep("confirm");
       } else if (pinStep === "confirm" && confirmDevicePin.length === maxLen) {
         if (confirmDevicePin === devicePin) {
-          // Save PIN and proceed
-          localStorage.setItem("pos_device_pin", devicePin);
-          localStorage.setItem("pos_device_pin_length", String(pinLength));
-          handleBankNext();
+          finishPinSetup();
         } else {
           setConfirmDevicePin("");
         }
@@ -840,9 +848,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
     if (pinStep === "confirm" && confirmDevicePin.length === maxLen) {
       setTimeout(() => {
         if (confirmDevicePin === devicePin) {
-          localStorage.setItem("pos_device_pin", devicePin);
-          localStorage.setItem("pos_device_pin_length", String(pinLength));
-          handleBankNext();
+          finishPinSetup();
         } else {
           setConfirmDevicePin("");
         }

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, RotateCcw, Receipt, Percent, MessageSquare, FileText, ArrowRightLeft, Ban, DollarSign } from "lucide-react";
+import { X, Send, RotateCcw, Receipt, Percent, MessageSquare, FileText, ArrowRightLeft, Ban, DollarSign, Check } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { toast } from "sonner";
@@ -9,6 +9,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
+  confirmAction?: string;
 }
 
 export interface TicketContext {
@@ -20,6 +21,9 @@ export interface TicketContext {
   paymentType: string;
   table: string;
   items: { name: string; qty: number; price: number }[];
+  paid?: boolean;
+  refundedAmount?: number;
+  cancelled?: boolean;
 }
 
 export interface TicketActions {
@@ -41,6 +45,10 @@ interface TicketAIChatPanelProps {
 type Msg = { role: "user" | "assistant"; content: string };
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/order-ai-chat`;
 
+const addMsg = (role: "assistant", content: string, confirmAction?: string): Message => ({
+  id: crypto.randomUUID(), role, content, timestamp: new Date(), confirmAction,
+});
+
 const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAIChatPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([{
     id: "welcome", role: "assistant",
@@ -49,6 +57,7 @@ const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAICh
   }]);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [pendingAction, setPendingAction] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const conversationRef = useRef<Msg[]>([]);
@@ -56,74 +65,161 @@ const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAICh
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages, isTyping]);
   useEffect(() => { inputRef.current?.focus(); }, []);
 
-  const processTicketCommand = useCallback((text: string): boolean => {
-    const lower = text.toLowerCase();
-    
-    if (lower.includes("refund")) {
-      ticketActions?.openRefund();
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: "Opening refund flow...", timestamp: new Date() }]);
+  const isPaid = ticketContext?.status?.toUpperCase() === "PAID" || ticketContext?.paid;
+  const isCancelled = ticketContext?.status?.toUpperCase() === "CANCELLED" || ticketContext?.cancelled;
+
+  const validateAndExecute = useCallback((action: string): boolean => {
+    if (!ticketContext) {
+      setMessages(prev => [...prev, addMsg("assistant", "Please select an order first from the ticket list.")]);
       return true;
     }
-    if (lower.includes("void") || lower.includes("cancel order")) {
-      ticketActions?.openVoid();
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: "Opening void/cancel flow...", timestamp: new Date() }]);
-      return true;
-    }
-    if (lower.includes("transfer")) {
-      ticketActions?.openTransfer();
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: "Opening transfer options...", timestamp: new Date() }]);
-      return true;
-    }
-    if (lower.includes("receipt") || lower.includes("print")) {
-      ticketActions?.openReceipt();
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: "Opening receipt options...", timestamp: new Date() }]);
-      return true;
-    }
-    if (lower.includes("discount")) {
-      ticketActions?.openDiscount();
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: "Opening discount dialog...", timestamp: new Date() }]);
-      return true;
-    }
-    if (lower.includes("message kitchen") || lower.includes("kitchen message") || lower.includes("send.*kitchen")) {
-      ticketActions?.openMessageKitchen();
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: "Opening kitchen message...", timestamp: new Date() }]);
-      return true;
-    }
-    if (lower.includes("reopen")) {
-      ticketActions?.reopenOrder();
-      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: "Reopening the order...", timestamp: new Date() }]);
-      return true;
-    }
-    if (lower.includes("summary") || lower.includes("details")) {
-      if (ticketContext) {
+
+    const orderLabel = `Order #${ticketContext.orderNumber || "N/A"}`;
+
+    switch (action) {
+      case "refund": {
+        if (!isPaid) {
+          setMessages(prev => [...prev, addMsg("assistant", `This order has not been paid yet. Refunds can only be processed for paid orders.`)]);
+          return true;
+        }
+        setMessages(prev => [...prev, addMsg("assistant",
+          `Are you sure you want to refund **${orderLabel}** ($${ticketContext.total.toFixed(2)} total)? This will open the refund flow.`,
+          "refund"
+        )]);
+        setPendingAction("refund");
+        return true;
+      }
+      case "void": {
+        if (isPaid) {
+          setMessages(prev => [...prev, addMsg("assistant", `This order has already been paid. Use **Refund** instead to return the payment.`)]);
+          return true;
+        }
+        if (isCancelled) {
+          setMessages(prev => [...prev, addMsg("assistant", `This order is already cancelled.`)]);
+          return true;
+        }
+        setMessages(prev => [...prev, addMsg("assistant",
+          `Are you sure you want to void/cancel **${orderLabel}**? This action cannot be undone.`,
+          "void"
+        )]);
+        setPendingAction("void");
+        return true;
+      }
+      case "transfer": {
+        if (isPaid) {
+          setMessages(prev => [...prev, addMsg("assistant", `Cannot transfer a paid order. The payment has already been processed.`)]);
+          return true;
+        }
+        if (isCancelled) {
+          setMessages(prev => [...prev, addMsg("assistant", `Cannot transfer a cancelled order.`)]);
+          return true;
+        }
+        ticketActions?.openTransfer();
+        setMessages(prev => [...prev, addMsg("assistant", `Opening transfer options for **${orderLabel}**...`)]);
+        return true;
+      }
+      case "receipt": {
+        ticketActions?.openReceipt();
+        setMessages(prev => [...prev, addMsg("assistant", `Opening receipt options for **${orderLabel}**...`)]);
+        return true;
+      }
+      case "discount": {
+        if (isPaid) {
+          setMessages(prev => [...prev, addMsg("assistant", `Cannot apply a discount to a paid order.`)]);
+          return true;
+        }
+        if (isCancelled) {
+          setMessages(prev => [...prev, addMsg("assistant", `Cannot apply a discount to a cancelled order.`)]);
+          return true;
+        }
+        ticketActions?.openDiscount();
+        setMessages(prev => [...prev, addMsg("assistant", `Opening discount dialog for **${orderLabel}**...`)]);
+        return true;
+      }
+      case "messageKitchen": {
+        ticketActions?.openMessageKitchen();
+        setMessages(prev => [...prev, addMsg("assistant", `Opening kitchen message for **${orderLabel}**...`)]);
+        return true;
+      }
+      case "reopen": {
+        if (!isPaid && !isCancelled) {
+          setMessages(prev => [...prev, addMsg("assistant", `This order is still active. Only paid or cancelled orders can be reopened.`)]);
+          return true;
+        }
+        ticketActions?.reopenOrder();
+        setMessages(prev => [...prev, addMsg("assistant", `Reopening **${orderLabel}**...`)]);
+        return true;
+      }
+      case "summary": {
         const itemsList = ticketContext.items.map(i => `- ${i.qty}x ${i.name} ($${(i.price * i.qty).toFixed(2)})`).join("\n");
-        const summary = `**Order #${ticketContext.orderNumber || "N/A"}**\n` +
+        const summary = `**${orderLabel}**\n` +
           `**Guest:** ${ticketContext.guestName}\n` +
           `**Status:** ${ticketContext.status}\n` +
           `**Table:** ${ticketContext.table}\n` +
           `**Payment:** ${ticketContext.paymentType}\n\n` +
           `**Products:**\n${itemsList || "No products"}\n\n` +
           `**Total:** $${ticketContext.total.toFixed(2)}`;
-        setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: summary, timestamp: new Date() }]);
-      } else {
-        setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: "No ticket selected. Please select a ticket first.", timestamp: new Date() }]);
+        setMessages(prev => [...prev, addMsg("assistant", summary)]);
+        return true;
       }
-      return true;
+      default:
+        return false;
     }
+  }, [ticketContext, ticketActions, isPaid, isCancelled]);
+
+  const handleConfirm = useCallback((action: string) => {
+    setPendingAction(null);
+    if (action === "refund") {
+      ticketActions?.openRefund();
+      setMessages(prev => [...prev, addMsg("assistant", "Opening refund flow...")]);
+    } else if (action === "void") {
+      ticketActions?.openVoid();
+      setMessages(prev => [...prev, addMsg("assistant", "Processing void/cancel...")]);
+    }
+  }, [ticketActions]);
+
+  const handleCancelConfirm = useCallback(() => {
+    setPendingAction(null);
+    setMessages(prev => [...prev, addMsg("assistant", "Action cancelled.")]);
+  }, []);
+
+  const processTicketCommand = useCallback((text: string): boolean => {
+    const lower = text.toLowerCase();
+
+    // Handle pending confirmation
+    if (pendingAction) {
+      if (lower === "yes" || lower === "confirm" || lower === "y") {
+        handleConfirm(pendingAction);
+        return true;
+      }
+      if (lower === "no" || lower === "cancel" || lower === "n") {
+        handleCancelConfirm();
+        return true;
+      }
+    }
+
+    if (lower.includes("refund")) return validateAndExecute("refund");
+    if (lower.includes("void") || lower.includes("cancel order")) return validateAndExecute("void");
+    if (lower.includes("transfer")) return validateAndExecute("transfer");
+    if (lower.includes("receipt") || lower.includes("print")) return validateAndExecute("receipt");
+    if (lower.includes("discount")) return validateAndExecute("discount");
+    if (lower.includes("message kitchen") || lower.includes("kitchen message") || lower.includes("send.*kitchen")) return validateAndExecute("messageKitchen");
+    if (lower.includes("reopen")) return validateAndExecute("reopen");
+    if (lower.includes("summary") || lower.includes("details")) return validateAndExecute("summary");
     return false;
-  }, [ticketActions, ticketContext]);
+  }, [pendingAction, handleConfirm, handleCancelConfirm, validateAndExecute]);
 
   const streamChat = useCallback(async (userMessage: string) => {
     const userMsg: Msg = { role: "user", content: userMessage };
     conversationRef.current = [...conversationRef.current, userMsg];
 
-    const contextMessage = ticketContext ? 
+    const contextMessage = ticketContext ?
       `Context: Managing ticket #${ticketContext.orderNumber} for ${ticketContext.guestName}, status: ${ticketContext.status}, total: $${ticketContext.total.toFixed(2)}, table: ${ticketContext.table}` : "";
 
     const resp = await fetch(CHAT_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
-      body: JSON.stringify({ 
+      body: JSON.stringify({
         messages: conversationRef.current,
         orderContext: {
           orderType: "Ticket Management",
@@ -178,16 +274,14 @@ const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAICh
   const sendMessage = useCallback(async (text: string) => {
     if (isTyping) return;
     setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "user", content: text, timestamp: new Date() }]);
-    
-    // Try local command processing first
+
     if (processTicketCommand(text)) return;
 
-    // Fall back to AI chat
     setIsTyping(true);
     try { await streamChat(text); } catch (e: any) {
       console.error("Chat error:", e);
       if (!(e instanceof Error && (e.message === "Rate limited" || e.message === "Payment required")))
-        setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: "Sorry, I encountered an error. Please try again.", timestamp: new Date() }]);
+        setMessages(prev => [...prev, addMsg("assistant", "Sorry, I encountered an error. Please try again.")]);
     } finally { setIsTyping(false); }
   }, [isTyping, processTicketCommand, streamChat]);
 
@@ -203,14 +297,14 @@ const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAICh
   };
 
   const quickActions = [
-    { icon: DollarSign, label: "Refund", action: () => ticketActions?.openRefund() },
-    { icon: Ban, label: "Void", action: () => ticketActions?.openVoid() },
-    { icon: ArrowRightLeft, label: "Transfer", action: () => ticketActions?.openTransfer() },
-    { icon: Receipt, label: "Receipt", action: () => ticketActions?.openReceipt() },
-    { icon: Percent, label: "Discount", action: () => ticketActions?.openDiscount() },
-    { icon: MessageSquare, label: "Msg Kitchen", action: () => ticketActions?.openMessageKitchen() },
-    { icon: FileText, label: "Summary", action: () => sendMessage("Show me the order summary") },
-    { icon: RotateCcw, label: "Reopen", action: () => ticketActions?.reopenOrder() },
+    { icon: DollarSign, label: "Refund", action: () => validateAndExecute("refund") },
+    { icon: Ban, label: "Void", action: () => validateAndExecute("void") },
+    { icon: ArrowRightLeft, label: "Transfer", action: () => validateAndExecute("transfer") },
+    { icon: Receipt, label: "Receipt", action: () => validateAndExecute("receipt") },
+    { icon: Percent, label: "Discount", action: () => validateAndExecute("discount") },
+    { icon: MessageSquare, label: "Msg Kitchen", action: () => validateAndExecute("messageKitchen") },
+    { icon: FileText, label: "Summary", action: () => validateAndExecute("summary") },
+    { icon: RotateCcw, label: "Reopen", action: () => validateAndExecute("reopen") },
   ];
 
   return (
@@ -234,7 +328,25 @@ const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAICh
               msg.role === "user" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-[#252525] text-foreground rounded-bl-md"
             }`}>
               {msg.role === "assistant" ? (
-                <div className="prose prose-sm prose-invert max-w-none"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
+                <>
+                  <div className="prose prose-sm prose-invert max-w-none"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
+                  {msg.confirmAction && pendingAction === msg.confirmAction && (
+                    <div className="flex gap-2 mt-3 pt-2 border-t border-neutral-700">
+                      <button
+                        onClick={() => handleConfirm(msg.confirmAction!)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
+                      >
+                        <Check className="w-3 h-3" /> Confirm
+                      </button>
+                      <button
+                        onClick={handleCancelConfirm}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-700 text-neutral-300 text-xs font-medium hover:bg-neutral-600 transition-colors"
+                      >
+                        <X className="w-3 h-3" /> Cancel
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : msg.content}
             </div>
           </div>

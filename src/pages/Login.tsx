@@ -3432,7 +3432,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             : `+1 ${formatPhoneDisplay(forgotPasswordPhone)}`;
 
           return (
-            <DeviceSetupLayout variant="admin">
+            <DeviceSetupLayout variant="admin" leftPanelContent={{
+                icon: <Lock className="w-6 h-6 text-primary" />,
+                title: "New Password",
+                description: "Create a new secure password for your account.",
+                features: ["6-character minimum", "Secure password update", "Instant access after reset"]
+              }}>
               <motion.div 
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}

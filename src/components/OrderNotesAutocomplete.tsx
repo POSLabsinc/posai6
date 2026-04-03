@@ -265,16 +265,18 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
             >
               {isAllergy && <AlertTriangle className="w-3 h-3" />}
               <span className="truncate max-w-[120px]">{note}</span>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  removeNote(note);
-                }}
-                className="ml-0.5 hover:text-white transition-colors"
-              >
-                <X className="w-3 h-3" />
-              </button>
+              {!disabled && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeNote(note);
+                  }}
+                  className="ml-0.5 hover:text-white transition-colors"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              )}
             </span>
           );
         })}

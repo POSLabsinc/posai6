@@ -6114,6 +6114,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         </div>
       )}
 
+      <MessageKitchenDialog
+        open={showMessageKitchen}
+        onOpenChange={setShowMessageKitchen}
+        serverName={selectedGuest?.server || "Staff"}
+      />
     </>
   );
 };

@@ -282,7 +282,8 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
       setIsVerifyingOtp(true);
       setTimeout(() => {
         setIsVerifyingOtp(false);
-        handleStartTrial();
+        setCardOtp(["", "", "", "", "", ""]);
+        setStep("bank");
       }, 1500);
     }
   };

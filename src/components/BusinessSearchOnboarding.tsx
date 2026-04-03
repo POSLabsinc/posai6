@@ -921,6 +921,13 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
           </>
         ) : (
           <>
+            <button
+              onClick={() => { if (pinStep === "confirm") { setPinStep("enter"); setConfirmDevicePin(""); } else { setPinStep("choose"); setDevicePin(""); } }}
+              className="self-start mb-4 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </button>
             <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-6">
               <Lock className="w-8 h-8 text-primary" />
             </div>

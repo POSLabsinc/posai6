@@ -3407,16 +3407,18 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             )}
           </div>
 
-          {/* Notes - with Autocomplete */}
-          <div className="px-4 py-2 border-b border-white/10">
-            <OrderNotesAutocomplete 
-              value={orderNotes[selectedGuest.id] || ""} 
-              onChange={(val) => handleNotesChange(selectedGuest.id, val)} 
-              placeholder="Order notes and Allergies" 
-              storageKey="tickets-order-notes"
-              disabled={true}
-            />
-          </div>
+          {/* Notes - only show if order has notes */}
+          {selectedGuest.notes && selectedGuest.notes.trim() && (
+            <div className="px-4 py-2 border-b border-white/10">
+              <OrderNotesAutocomplete 
+                value={selectedGuest.notes} 
+                onChange={() => {}} 
+                placeholder="Order notes and Allergies" 
+                storageKey="tickets-order-notes"
+                disabled={true}
+              />
+            </div>
+          )}
           {/* Order Items */}
           <ScrollArea className="flex-1 px-4">
             <div className="py-2 space-y-2">

@@ -30,6 +30,8 @@ import { PersonalDeviceAuthPanel } from "@/components/PersonalDeviceAuthPanel";
 import { SplashScreen } from "@/components/SplashScreen";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import DeviceSetupAIChat from "@/components/DeviceSetupAIChat";
+import BusinessSearchOnboarding from "@/components/BusinessSearchOnboarding";
+import MerchantOnboarding from "@/components/MerchantOnboarding";
 
 
 import { revenueCenters, employeePinMapping, locationEmployees, getRoleIcon, getRoleBadgeStyle, getTimeOfDayInfo, PIN_LENGTH, DeviceType } from "@/data/loginData";
@@ -115,7 +117,7 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
   const [isSigningUp, setIsSigningUp] = useState(false);
   const [signupCountry, setSignupCountry] = useState("United States");
   const [signupAgreed, setSignupAgreed] = useState(false);
-  const [signupStep, setSignupStep] = useState<"form" | "otp" | "trial">("form");
+  const [signupStep, setSignupStep] = useState<"form" | "otp" | "trial" | "business" | "onboarding">("form");
   const [signupOtp, setSignupOtp] = useState("");
   const [signupVerifyingOtp, setSignupVerifyingOtp] = useState(false);
   const [signupOtpResendCooldown, setSignupOtpResendCooldown] = useState(0);
@@ -872,7 +874,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     if (showAIChat) {
       return (
         <DeviceSetupLayout variant="setup" fullWidthRight>
-          <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} deviceType="company" onAccountCreated={() => { setActivationMethod("signup"); setSignupStep("trial"); }} />
+          <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} deviceType="company" onAccountCreated={() => { setActivationMethod("signup"); setSignupStep("business"); }} />
         </DeviceSetupLayout>
       );
     }
@@ -2437,7 +2439,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         // Accept any 6-digit code for now (same as activation code flow)
         await new Promise(resolve => setTimeout(resolve, 800));
         setSignupVerifyingOtp(false);
-        setSignupStep("trial");
+        setSignupStep("business");
       };
 
       const handleResendOtp = async () => {
@@ -2468,7 +2470,67 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         setSignupError("");
       };
 
-      // Step 3: Free Trial Features - Step by step walkthrough
+      // Step 3a: Business Search Onboarding
+      if (signupStep === "business") {
+        return (
+          <DeviceSetupLayout variant="admin">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="w-full h-full flex flex-col"
+            >
+              <BusinessSearchOnboarding
+                onNext={(business) => {
+                  localStorage.setItem("onboarding_business", JSON.stringify(business));
+                  setSignupStep("onboarding");
+                }}
+                onManualEntry={() => {
+                  setSignupStep("onboarding");
+                }}
+              />
+            </motion.div>
+          </DeviceSetupLayout>
+        );
+      }
+
+      // Step 3b: Merchant Onboarding (replaces trial walkthrough)
+      if (signupStep === "onboarding") {
+        return (
+          <DeviceSetupLayout variant="setup" fullWidthRight>
+            <MerchantOnboarding
+              prefillEmail={signupEmail}
+              prefillName={signupFullName}
+              onBack={() => setSignupStep("business")}
+              onComplete={(data) => {
+                localStorage.setItem("pos_device_session", JSON.stringify({
+                  deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+                  deviceType: "company",
+                  trustedAt: new Date().toISOString(),
+                }));
+                localStorage.setItem("pos_session", JSON.stringify({
+                  employeeId: "owner",
+                  employeeName: data.full_name || signupFullName || "Owner",
+                  employeeRole: "Owner",
+                  employeeAvatar: "",
+                  revenueCenter: data.restaurant_name || "Main",
+                  loginTime: new Date().toISOString(),
+                }));
+                setSignupStep("form");
+                setActivationMethod(null);
+                setSignupEmail("");
+                setSignupPassword("");
+                setSignupOtp("");
+                setSignupAgreed(false);
+                setSignupCountry("United States");
+                setTrialStepIndex(0);
+                navigate("/");
+              }}
+            />
+          </DeviceSetupLayout>
+        );
+      }
+
+      // Step 3c: Free Trial Features - Step by step walkthrough (legacy)
       if (signupStep === "trial") {
         const trialSteps = [
           {
@@ -6022,7 +6084,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           
           {/* Right Panel - AI Chat */}
           <div className="relative z-10 flex-1 flex h-full">
-            <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} deviceType="personal" onAccountCreated={() => { setActivationMethod("signup"); setSignupStep("trial"); }} />
+            <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} deviceType="personal" onAccountCreated={() => { setActivationMethod("signup"); setSignupStep("business"); }} />
           </div>
         </div>
       );

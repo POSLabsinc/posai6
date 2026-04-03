@@ -14,6 +14,8 @@ interface OrderNotesAutocompleteProps {
   className?: string;
   storageKey?: string;
   disabled?: boolean;
+  onSend?: (text: string) => void;
+  showSendButton?: boolean;
 }
 
 const DEFAULT_STORAGE_KEY = 'order-notes-history';

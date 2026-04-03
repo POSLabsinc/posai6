@@ -617,7 +617,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
               <button onClick={() => setShowFinishLaterDialog(false)} className="flex-1 h-12 rounded-xl text-sm font-medium text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
                 Continue verification
               </button>
-              <Button onClick={() => { setShowFinishLaterDialog(false); handleBankNext(); }} className="flex-1 h-12 text-sm font-medium rounded-xl" size="sm">
+              <Button onClick={() => { setShowFinishLaterDialog(false); setStep("devicePin"); setPinStep("choose"); setDevicePin(""); setConfirmDevicePin(""); }} className="flex-1 h-12 text-sm font-medium rounded-xl" size="sm">
                 Finish later
               </Button>
             </div>

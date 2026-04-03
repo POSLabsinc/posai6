@@ -1111,7 +1111,7 @@ export const ClockInOverlay = ({
               </span>
             </button>
             
-            {/* Revenue Center Dropdown - positioned above button */}
+            {/* Revenue Center Grid - positioned above button */}
             <AnimatePresence>
               {showRevenueCenterSelector && (
                 <motion.div 
@@ -1119,22 +1119,31 @@ export const ClockInOverlay = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-xl shadow-2xl border-2 border-red-400 z-50 max-h-[280px] md:max-h-[280px] lg:max-h-[312px] flex flex-col"
+                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[280px] md:w-[320px] bg-[#1a1a1e] rounded-xl shadow-2xl border border-white/10 z-50 p-3"
                 >
-                  <div className="overflow-y-auto overscroll-contain flex-1">
-                    {revenueCenters.map(center => (
-                      <button 
-                        key={center} 
-                        onClick={() => {
-                          setSelectedRevenueCenter(center);
-                          setShowRevenueCenterSelector(false);
-                        }} 
-                        className={`w-full px-4 py-3.5 text-left text-sm hover:bg-neutral-100 flex items-center justify-between ${selectedRevenueCenter === center ? "bg-neutral-100" : ""}`}
-                      >
-                        <span className="text-black font-medium">{center}</span>
-                        {selectedRevenueCenter === center && <Check className="w-4 h-4 text-emerald-500" />}
-                      </button>
-                    ))}
+                  <p className="text-white/60 text-xs font-medium mb-2 text-center">Select Revenue Center</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {revenueCenters.map(center => {
+                      const Icon = REVENUE_CENTER_ICONS[center] || MapPin;
+                      const isSelected = selectedRevenueCenter === center;
+                      return (
+                        <button 
+                          key={center} 
+                          onClick={() => {
+                            setSelectedRevenueCenter(center);
+                            setShowRevenueCenterSelector(false);
+                          }} 
+                          className={`rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all min-h-[70px] ${
+                            isSelected
+                              ? 'bg-emerald-500/20 border border-emerald-500/50'
+                              : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
+                          }`}
+                        >
+                          <Icon className={`w-6 h-6 ${isSelected ? 'text-emerald-400' : 'text-white'}`} />
+                          <span className={`text-[11px] font-medium text-center leading-tight ${isSelected ? 'text-emerald-400' : 'text-white'}`}>{center}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </motion.div>
               )}

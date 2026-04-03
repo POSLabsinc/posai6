@@ -3109,6 +3109,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   {showFilterPanel ? <X className="w-4 h-4 text-white" /> : <SlidersHorizontal className="w-4 h-4 text-white" />}
                 </button>
                 <button 
+                  onClick={() => setShowMessageKitchen(true)}
+                  className="p-2 rounded-full hover:opacity-80 transition-opacity" 
+                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                  title="Message Kitchen"
+                >
+                  <img src={messageKdsIcon} alt="Message Kitchen" className="w-4 h-4 brightness-0 invert" />
+                </button>
+                <button 
                   onClick={() => setShowSearchInput(true)}
                   className="p-2 rounded-full hover:opacity-80 transition-opacity" 
                   style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}

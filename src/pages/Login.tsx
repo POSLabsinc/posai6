@@ -1724,7 +1724,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       // Step 1: Collect email or phone
       if (!activationCodeSent) {
         return (
-          <DeviceSetupLayout variant="activation">
+          <DeviceSetupLayout variant="activation" leftPanelContent={{
+              icon: <ShieldCheck className="w-6 h-6 text-primary" />,
+              title: "Activate with Code",
+              description: "Enter your email or phone to receive a secure activation code for this device.",
+              features: ["Time-limited activation codes", "Secure email or SMS delivery", "Device trust establishment"]
+            }}>
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

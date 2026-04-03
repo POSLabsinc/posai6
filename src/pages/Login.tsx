@@ -885,7 +885,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     }
 
     return (
-      <DeviceSetupLayout variant="setup">
+      <DeviceSetupLayout variant="setup" leftPanelContent={{
+          icon: <Monitor className="w-6 h-6 text-primary" />,
+          title: "Device Setup",
+          description: "Connect this device to your business to start taking orders and managing your restaurant.",
+          features: ["Quick 2-minute setup", "Secure device pairing", "Automatic sync with your account"]
+        }}>
         <motion.div 
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}

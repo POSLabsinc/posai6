@@ -449,17 +449,17 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     return record?.refundedAmount || 0;
   };
 
-  // Sync orderNotes from DB when switching orders
+  // Ensure orderNotes input starts empty for each order (existing notes shown separately below)
   useEffect(() => {
     if (selectedGuest.id && selectedGuest.id !== FALLBACK_SELECTED_GUEST_ID) {
       setOrderNotes(prev => {
-        if (prev[selectedGuest.id] === undefined && selectedGuest.notes) {
-          return { ...prev, [selectedGuest.id]: selectedGuest.notes };
+        if (prev[selectedGuest.id] === undefined) {
+          return { ...prev, [selectedGuest.id]: "" };
         }
         return prev;
       });
     }
-  }, [selectedGuest.id, selectedGuest.notes]);
+  }, [selectedGuest.id]);
 
   // Helper to calculate remaining refundable amount for an order
   const getRemainingRefundableAmount = (guest: GuestOrder): number => {

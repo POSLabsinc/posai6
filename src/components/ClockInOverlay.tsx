@@ -771,7 +771,7 @@ export const ClockInOverlay = ({
                   transition={{ duration: 0.15 }}
                   className="mt-2 overflow-hidden"
                 >
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     {revenueCenters.map(center => {
                       const Icon = REVENUE_CENTER_ICONS[center] || MapPin;
                       const isSelected = clockInSummary!.revenueCenter === center;
@@ -784,13 +784,12 @@ export const ClockInOverlay = ({
                           }}
                           className={`rounded-xl p-3 flex flex-col items-center gap-2 transition-all min-h-[80px] ${
                             isSelected
-                              ? 'bg-emerald-500/20 border border-emerald-500/50'
+                              ? 'bg-white/20 border border-white/40'
                               : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
                           }`}
                         >
-                          <Icon className={`w-8 h-8 ${isSelected ? 'text-emerald-400' : 'text-white'}`} />
-                          <span className={`text-xs font-medium text-center ${isSelected ? 'text-emerald-400' : 'text-white'}`}>{center}</span>
-                          {isSelected && <Check className="w-4 h-4 text-emerald-400" />}
+                          <Icon className="w-7 h-7 text-white" />
+                          <span className="text-[11px] font-medium text-center text-white">{center}</span>
                         </button>
                       );
                     })}
@@ -1122,7 +1121,7 @@ export const ClockInOverlay = ({
                   className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[280px] md:w-[320px] bg-[#1a1a1e] rounded-xl shadow-2xl border border-white/10 z-50 p-3"
                 >
                   <p className="text-white/60 text-xs font-medium mb-2 text-center">Select Revenue Center</p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-3 gap-2">
                     {revenueCenters.map(center => {
                       const Icon = REVENUE_CENTER_ICONS[center] || MapPin;
                       const isSelected = selectedRevenueCenter === center;
@@ -1133,14 +1132,14 @@ export const ClockInOverlay = ({
                             setSelectedRevenueCenter(center);
                             setShowRevenueCenterSelector(false);
                           }} 
-                          className={`rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all min-h-[70px] ${
+                          className={`rounded-xl p-2.5 flex flex-col items-center gap-1.5 transition-all min-h-[60px] ${
                             isSelected
-                              ? 'bg-emerald-500/20 border border-emerald-500/50'
+                              ? 'bg-white/20 border border-white/40'
                               : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
                           }`}
                         >
-                          <Icon className={`w-6 h-6 ${isSelected ? 'text-emerald-400' : 'text-white'}`} />
-                          <span className={`text-[11px] font-medium text-center leading-tight ${isSelected ? 'text-emerald-400' : 'text-white'}`}>{center}</span>
+                          <Icon className="w-5 h-5 text-white" />
+                          <span className="text-[10px] font-medium text-center leading-tight text-white">{center}</span>
                         </button>
                       );
                     })}

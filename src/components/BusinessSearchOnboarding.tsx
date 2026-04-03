@@ -99,7 +99,7 @@ const PLANS = [
   },
 ];
 
-type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp" | "verifyIdentity";
+type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp" | "verifyIdentity" | "transferMethod";
 
 const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSearchOnboardingProps) => {
   const [step, setStep] = useState<Step>("search");
@@ -123,6 +123,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [bankOption, setBankOption] = useState<"posai" | "external">("posai");
   const [showSsn, setShowSsn] = useState(false);
+  const [transferMethod, setTransferMethod] = useState<"next-day" | "same-day" | null>(null);
   const [verifyForm, setVerifyForm] = useState({
     firstName: "", lastName: "", phone: "", dob: "",
     address1: "", address2: "", city: "", state: "", zip: "", ssn: "",
@@ -682,7 +683,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           <button onClick={() => handleBankNext()} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
             Finish later
           </button>
-          <Button onClick={() => { if (canSubmitVerify) handleBankNext(); }} disabled={!canSubmitVerify} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+          <Button onClick={() => { if (canSubmitVerify) setStep("transferMethod"); }} disabled={!canSubmitVerify} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
             Next
           </Button>
         </div>
@@ -690,7 +691,68 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
     );
   }
 
-  if (step === "revenue") {
+  if (step === "transferMethod") {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
+        <div className="w-full flex justify-end gap-3 mb-8">
+          <button onClick={() => handleBankNext()} className="px-5 py-2.5 rounded-full text-sm font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
+            Skip
+          </button>
+          <Button onClick={() => { if (transferMethod) handleBankNext(); }} disabled={!transferMethod} className="px-6 py-2.5 rounded-full text-sm font-medium" size="sm">
+            Next
+          </Button>
+        </div>
+
+        <motion.h1 initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-2xl font-bold text-foreground mb-6 text-left w-full">
+          How do you want to get paid?
+        </motion.h1>
+
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="text-base font-medium text-foreground mb-4 text-left w-full">
+          Transfer to your own bank account
+        </motion.p>
+
+        <div className="w-full space-y-4">
+          <button
+            onClick={() => setTransferMethod("next-day")}
+            className={`w-full text-left rounded-2xl border-2 p-5 transition-all ${transferMethod === "next-day" ? "border-foreground bg-foreground/[0.03]" : "border-foreground/[0.08] hover:border-foreground/20"}`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-1.5">
+                  <span className="text-base font-semibold text-foreground">Next-business-day transfer</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-foreground/[0.06] text-xs font-medium text-foreground/60">Free</span>
+                </div>
+                <p className="text-sm text-foreground/50">Your funds will be transferred within 1-2 business days.</p>
+              </div>
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${transferMethod === "next-day" ? "border-foreground" : "border-foreground/20"}`}>
+                {transferMethod === "next-day" && <div className="w-2.5 h-2.5 rounded-full bg-foreground" />}
+              </div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => setTransferMethod("same-day")}
+            className={`w-full text-left rounded-2xl border-2 p-5 transition-all ${transferMethod === "same-day" ? "border-foreground bg-foreground/[0.03]" : "border-foreground/[0.08] hover:border-foreground/20"}`}
+          >
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="flex items-center gap-3 mb-1.5">
+                  <span className="text-base font-semibold text-foreground">Same-day transfer</span>
+                  <span className="px-2.5 py-0.5 rounded-full bg-foreground/[0.06] text-xs font-medium text-foreground/60">1.95% fee</span>
+                </div>
+                <p className="text-sm text-foreground/50">Funds are sent to your linked bank account at the end of the day.</p>
+              </div>
+              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center flex-shrink-0 transition-colors ${transferMethod === "same-day" ? "border-foreground" : "border-foreground/20"}`}>
+                {transferMethod === "same-day" && <div className="w-2.5 h-2.5 rounded-full bg-foreground" />}
+              </div>
+            </div>
+          </button>
+        </div>
+      </motion.div>
+    );
+  }
+
+
     const canProceedRevenue = selectedRevenue || customRevenue.trim();
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">

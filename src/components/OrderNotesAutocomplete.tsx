@@ -46,6 +46,7 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
   placeholder = "Order notes",
   className = "",
   storageKey = DEFAULT_STORAGE_KEY,
+  disabled = false,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [savedNotes, setSavedNotes] = useState<SavedNote[]>([]);

@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { format, differenceInMinutes, differenceInHours } from "date-fns";
-import { Sun, Fingerprint, ScanFace, ChevronDown, Check, Clock, MapPin, Briefcase, X, Timer, LogOut, Coffee, ArrowLeft, EyeOff, Lock, ShieldAlert } from "lucide-react";
+import { Sun, Fingerprint, ScanFace, ChevronDown, Check, Clock, MapPin, Briefcase, X, Timer, LogOut, Coffee, ArrowLeft, EyeOff, Lock, ShieldAlert, UtensilsCrossed, TreePine, Wine, ShoppingBag } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -101,6 +101,16 @@ const EMOTION_TAGS: Record<EmotionKey, string[]> = {
 const ENABLE_MOOD_CHECKIN = true;
 const PIN_LENGTH = 4;
 const revenueCenters = ["Dine Center", "Main Hall", "Outdoor Patio", "Private Dining", "Bar Area", "Takeout Counter"];
+
+// Revenue center icons mapping
+const REVENUE_CENTER_ICONS: Record<string, React.ComponentType<any>> = {
+  "Dine Center": UtensilsCrossed,
+  "Main Hall": MapPin,
+  "Outdoor Patio": TreePine,
+  "Private Dining": Lock,
+  "Bar Area": Wine,
+  "Takeout Counter": ShoppingBag,
+};
 
 // Job type icons mapping
 const JOB_TYPE_ICONS: Record<string, string | null> = {
@@ -742,7 +752,7 @@ export const ClockInOverlay = ({
               className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <MapPin className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                {(() => { const Icon = REVENUE_CENTER_ICONS[clockInSummary!.revenueCenter] || MapPin; return <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />; })()}
               </div>
               <div className="flex-1 text-left">
                 <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
@@ -759,21 +769,32 @@ export const ClockInOverlay = ({
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.15 }}
-                  className="mt-1 bg-white/10 backdrop-blur-xl rounded-xl overflow-hidden"
+                  className="mt-2 overflow-hidden"
                 >
-                  {revenueCenters.map(center => (
-                    <button
-                      key={center}
-                      onClick={() => {
-                        setClockInSummary(prev => prev ? { ...prev, revenueCenter: center } : prev);
-                        setShowSummaryRevenueCenterDropdown(false);
-                      }}
-                      className={`w-full px-4 py-3 text-left text-sm flex items-center justify-between transition-colors hover:bg-white/10 ${clockInSummary!.revenueCenter === center ? 'bg-white/10' : ''}`}
-                    >
-                      <span className="text-white font-medium">{center}</span>
-                      {clockInSummary!.revenueCenter === center && <Check className="w-4 h-4 text-emerald-400" />}
-                    </button>
-                  ))}
+                  <div className="grid grid-cols-2 gap-2">
+                    {revenueCenters.map(center => {
+                      const Icon = REVENUE_CENTER_ICONS[center] || MapPin;
+                      const isSelected = clockInSummary!.revenueCenter === center;
+                      return (
+                        <button
+                          key={center}
+                          onClick={() => {
+                            setClockInSummary(prev => prev ? { ...prev, revenueCenter: center } : prev);
+                            setShowSummaryRevenueCenterDropdown(false);
+                          }}
+                          className={`rounded-xl p-3 flex flex-col items-center gap-2 transition-all min-h-[80px] ${
+                            isSelected
+                              ? 'bg-emerald-500/20 border border-emerald-500/50'
+                              : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
+                          }`}
+                        >
+                          <Icon className={`w-8 h-8 ${isSelected ? 'text-emerald-400' : 'text-white'}`} />
+                          <span className={`text-xs font-medium text-center ${isSelected ? 'text-emerald-400' : 'text-white'}`}>{center}</span>
+                          {isSelected && <Check className="w-4 h-4 text-emerald-400" />}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -1090,7 +1111,7 @@ export const ClockInOverlay = ({
               </span>
             </button>
             
-            {/* Revenue Center Dropdown - positioned above button */}
+            {/* Revenue Center Grid - positioned above button */}
             <AnimatePresence>
               {showRevenueCenterSelector && (
                 <motion.div 
@@ -1098,22 +1119,31 @@ export const ClockInOverlay = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-xl shadow-2xl border-2 border-red-400 z-50 max-h-[280px] md:max-h-[280px] lg:max-h-[312px] flex flex-col"
+                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[280px] md:w-[320px] bg-[#1a1a1e] rounded-xl shadow-2xl border border-white/10 z-50 p-3"
                 >
-                  <div className="overflow-y-auto overscroll-contain flex-1">
-                    {revenueCenters.map(center => (
-                      <button 
-                        key={center} 
-                        onClick={() => {
-                          setSelectedRevenueCenter(center);
-                          setShowRevenueCenterSelector(false);
-                        }} 
-                        className={`w-full px-4 py-3.5 text-left text-sm hover:bg-neutral-100 flex items-center justify-between ${selectedRevenueCenter === center ? "bg-neutral-100" : ""}`}
-                      >
-                        <span className="text-black font-medium">{center}</span>
-                        {selectedRevenueCenter === center && <Check className="w-4 h-4 text-emerald-500" />}
-                      </button>
-                    ))}
+                  <p className="text-white/60 text-xs font-medium mb-2 text-center">Select Revenue Center</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    {revenueCenters.map(center => {
+                      const Icon = REVENUE_CENTER_ICONS[center] || MapPin;
+                      const isSelected = selectedRevenueCenter === center;
+                      return (
+                        <button 
+                          key={center} 
+                          onClick={() => {
+                            setSelectedRevenueCenter(center);
+                            setShowRevenueCenterSelector(false);
+                          }} 
+                          className={`rounded-xl p-3 flex flex-col items-center gap-1.5 transition-all min-h-[70px] ${
+                            isSelected
+                              ? 'bg-emerald-500/20 border border-emerald-500/50'
+                              : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
+                          }`}
+                        >
+                          <Icon className={`w-6 h-6 ${isSelected ? 'text-emerald-400' : 'text-white'}`} />
+                          <span className={`text-[11px] font-medium text-center leading-tight ${isSelected ? 'text-emerald-400' : 'text-white'}`}>{center}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </motion.div>
               )}

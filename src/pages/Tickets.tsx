@@ -64,7 +64,7 @@ import OrderAIChatPanel from "@/components/OrderAIChatPanel";
 import { DiscountDialog, availableDiscounts, type Discount } from "@/components/DiscountDialog";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import NoteSuggestions from "@/components/NoteSuggestions";
-
+import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import AppleAlertDialog from "@/components/AppleAlertDialog";
 import RefundModalLayout from "@/components/RefundModalLayout";
 import RefundBottomSheet from "@/components/RefundBottomSheet";

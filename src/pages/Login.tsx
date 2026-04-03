@@ -2575,7 +2575,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       // Step 3b: Merchant Onboarding (replaces trial walkthrough)
       if (signupStep === "onboarding") {
         return (
-          <DeviceSetupLayout variant="setup" fullWidthRight>
+          <DeviceSetupLayout variant="setup" fullWidthRight leftPanelContent={{
+              icon: <Settings className="w-6 h-6 text-primary" />,
+              title: "Merchant Setup",
+              description: "Configure your restaurant hours, departments, roles, and menu to get operational.",
+              features: ["Restaurant hours setup", "Staff roles and permissions", "Menu configuration"]
+            }}>
             <MerchantOnboarding
               prefillEmail={signupEmail}
               prefillName={signupFullName}

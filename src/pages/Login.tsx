@@ -1853,7 +1853,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       // Step 2: Enter the activation code
       return (
-        <DeviceSetupLayout variant="activation">
+        <DeviceSetupLayout variant="activation" leftPanelContent={{
+            icon: <ShieldCheck className="w-6 h-6 text-primary" />,
+            title: "Code Verification",
+            description: "Enter the 6-digit code sent to your email or phone to complete activation.",
+            features: ["6-digit secure code", "Auto-expires for security", "One-time use verification"]
+          }}>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

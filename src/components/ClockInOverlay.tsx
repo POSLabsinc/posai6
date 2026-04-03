@@ -138,6 +138,8 @@ export const ClockInOverlay = ({
   const [showJobTypeSelector, setShowJobTypeSelector] = useState(false);
   const [clockInSummary, setClockInSummary] = useState<ClockInSummary | null>(null);
   const [showSummaryRevenueCenterDropdown, setShowSummaryRevenueCenterDropdown] = useState(false);
+  const [showSummaryJobTypeDropdown, setShowSummaryJobTypeDropdown] = useState(false);
+  const [summaryAvailableJobTypes, setSummaryAvailableJobTypes] = useState<string[]>([]);
   const [clockOutSummary, setClockOutSummary] = useState<ClockOutSummary | null>(null);
   const [isClockedIn, setIsClockedIn] = useState(false);
 

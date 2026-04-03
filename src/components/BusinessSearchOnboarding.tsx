@@ -542,19 +542,17 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           Link a bank account to manage your payouts and payments all in one place.
         </motion.p>
 
-        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="w-full rounded-2xl border border-foreground/[0.08] bg-foreground/[0.02] mb-4">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="w-full space-y-3 mb-4">
           {/* POSAI Checking option */}
-          <button onClick={() => setBankOption("posai")} className="w-full p-4 border-b border-foreground/[0.06] text-left">
+          <button
+            onClick={() => setBankOption("posai")}
+            className={`w-full p-4 rounded-2xl text-left transition-all ${bankOption === "posai" ? "border-2 border-primary bg-primary/[0.06]" : "border border-foreground/[0.08] bg-foreground/[0.02]"}`}
+          >
             <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-3">
-                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${bankOption === "posai" ? "border-primary bg-primary" : "border-foreground/20 bg-transparent"}`}>
-                  {bankOption === "posai" && <div className="w-2 h-2 rounded-full bg-primary-foreground" />}
-                </div>
-                <span className="text-sm font-semibold text-foreground">POSAI Checking</span>
-              </div>
+              <span className="text-sm font-semibold text-foreground">POSAI Checking</span>
               <span className="text-[10px] font-medium bg-primary/20 text-primary px-2 py-0.5 rounded-full">Instant access to sales</span>
             </div>
-            <div className="space-y-2 pl-8">
+            <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Zap className="w-3.5 h-3.5 text-primary/60" />
                 <span className="text-xs text-foreground/60">No monthly fees or minimums</span>
@@ -575,20 +573,18 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           </button>
 
           {/* External bank option */}
-          <button onClick={() => setBankOption("external")} className="w-full p-4 text-left">
-            <div className="flex items-center gap-3 mb-2">
-              <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors ${bankOption === "external" ? "border-primary bg-primary" : "border-foreground/20 bg-transparent"}`}>
-                {bankOption === "external" && <div className="w-2 h-2 rounded-full bg-primary-foreground" />}
-              </div>
-              <span className="text-sm font-medium text-foreground">Use an external bank account</span>
-            </div>
-            <p className="text-xs text-foreground/40 pl-8">
+          <button
+            onClick={() => setBankOption("external")}
+            className={`w-full p-4 rounded-2xl text-left transition-all ${bankOption === "external" ? "border-2 border-primary bg-primary/[0.06]" : "border border-foreground/[0.08] bg-foreground/[0.02]"}`}
+          >
+            <span className="text-sm font-medium text-foreground block mb-1">Use an external bank account</span>
+            <p className="text-xs text-foreground/40">
               Funds will be available in your linked account within 1-2 business days, or same-day for a 1.95% fee.
             </p>
           </button>
         </motion.div>
 
-        <Button onClick={() => { bankOption === "external" ? setStep("verifyIdentity") : handleBankNext(); }} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
+        <Button onClick={() => setStep("verifyIdentity")} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
           Continue
         </Button>
       </motion.div>

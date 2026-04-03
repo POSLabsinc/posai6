@@ -568,7 +568,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
 
   return (
     <Dialog open={open} onOpenChange={sending ? undefined : onOpenChange}>
-      <DialogContent className="bg-neutral-900 border-neutral-700 text-white max-w-[820px]" hideCloseButton>
+      <DialogContent className="bg-neutral-900 border-neutral-700 text-white max-w-[820px]">
         <DialogHeader>
           <DialogTitle className="text-white text-lg">Send Message to Kitchen</DialogTitle>
           <DialogDescription className="sr-only">Send a message to the kitchen display system</DialogDescription>

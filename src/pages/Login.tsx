@@ -2469,7 +2469,31 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         setSignupError("");
       };
 
-      // Step 3: Free Trial Features - Step by step walkthrough
+      // Step 3a: Business Search Onboarding
+      if (signupStep === "business") {
+        return (
+          <DeviceSetupLayout variant="admin">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="w-full h-full flex flex-col"
+            >
+              <BusinessSearchOnboarding
+                onNext={(business) => {
+                  // Store business details and proceed to MerchantOnboarding via trial
+                  localStorage.setItem("onboarding_business", JSON.stringify(business));
+                  setSignupStep("trial");
+                }}
+                onManualEntry={() => {
+                  setSignupStep("trial");
+                }}
+              />
+            </motion.div>
+          </DeviceSetupLayout>
+        );
+      }
+
+      // Step 3b: Free Trial Features - Step by step walkthrough
       if (signupStep === "trial") {
         const trialSteps = [
           {

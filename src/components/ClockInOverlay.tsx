@@ -102,6 +102,17 @@ const ENABLE_MOOD_CHECKIN = true;
 const PIN_LENGTH = 4;
 const revenueCenters = ["Dine Center", "Main Hall", "Outdoor Patio", "Private Dining", "Bar Area", "Takeout Counter"];
 
+// Revenue center icons mapping
+import { MapPin, UtensilsCrossed, TreePine, Lock, Wine, ShoppingBag } from "lucide-react";
+const REVENUE_CENTER_ICONS: Record<string, React.ComponentType<any>> = {
+  "Dine Center": UtensilsCrossed,
+  "Main Hall": MapPin,
+  "Outdoor Patio": TreePine,
+  "Private Dining": Lock,
+  "Bar Area": Wine,
+  "Takeout Counter": ShoppingBag,
+};
+
 // Job type icons mapping
 const JOB_TYPE_ICONS: Record<string, string | null> = {
   "Server": serverIcon,

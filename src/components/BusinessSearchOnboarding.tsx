@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Building2, ChevronRight, ArrowLeft, Loader2, Check, UtensilsCrossed, DollarSign, CreditCard, Landmark, Shield, Zap, Star, Lock, Eye, EyeOff, ChevronDown } from "lucide-react";
+import { Search, MapPin, Building2, ChevronRight, ArrowLeft, Loader2, Check, UtensilsCrossed, DollarSign, CreditCard, Landmark, Shield, Zap, Star, Lock, Eye, EyeOff, ChevronDown, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export interface BusinessDetails {
@@ -100,7 +100,7 @@ const PLANS = [
   },
 ];
 
-type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp" | "verifyIdentity" | "transferMethod" | "devicePin";
+type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp" | "verifyIdentity" | "transferMethod" | "bankDetails" | "accountAdded" | "devicePin";
 
 const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinComplete }: BusinessSearchOnboardingProps) => {
   const [step, setStep] = useState<Step>("search");
@@ -126,6 +126,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
   const [showSsn, setShowSsn] = useState(false);
   const [transferMethod, setTransferMethod] = useState<"next-day" | "same-day" | null>(null);
   const [showFinishLaterDialog, setShowFinishLaterDialog] = useState(false);
+  const [bankDetailsForm, setBankDetailsForm] = useState({ routingNumber: "", accountNumber: "", confirmAccountNumber: "", accountHolderName: "" });
   const [pinLength, setPinLength] = useState<4 | 6>(4);
   const [devicePin, setDevicePin] = useState("");
   const [confirmDevicePin, setConfirmDevicePin] = useState("");
@@ -804,7 +805,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
           <button onClick={() => setShowFinishLaterDialog(true)} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
             Skip
           </button>
-          <Button onClick={() => { if (transferMethod) { setStep("devicePin"); setPinStep("choose"); setDevicePin(""); setConfirmDevicePin(""); } }} disabled={!transferMethod} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+          <Button onClick={() => { if (transferMethod) { setStep("bankDetails"); } }} disabled={!transferMethod} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
             Next
           </Button>
         </div>
@@ -813,7 +814,138 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
     );
   }
 
-  // Device PIN Setup Step
+  // Bank Details Step
+  if (step === "bankDetails") {
+    const inputClass = "w-full rounded-xl bg-foreground/[0.04] border border-foreground/[0.08] px-4 py-3.5 text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-primary/40 transition-colors";
+    const isBankFormValid = bankDetailsForm.routingNumber.replace(/\D/g, '').length === 9 &&
+      bankDetailsForm.accountNumber.length >= 6 &&
+      bankDetailsForm.confirmAccountNumber === bankDetailsForm.accountNumber &&
+      bankDetailsForm.accountHolderName.trim().length > 0;
+
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center">
+        <button
+          onClick={() => setStep("transferMethod")}
+          className="self-start mb-4 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>Back</span>
+        </button>
+
+        <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-5">
+          <Building2 className="w-8 h-8 text-primary" />
+        </div>
+
+        <h2 className="text-2xl font-bold text-foreground mb-2 text-center">Bank account details</h2>
+        <p className="text-foreground/50 text-sm mb-8 text-center">Enter your bank account information for fund transfers</p>
+
+        <div className="w-full space-y-3">
+          <div>
+            <label className="text-xs text-foreground/50 mb-1.5 block">Account holder name</label>
+            <input
+              type="text"
+              placeholder="Full legal name"
+              value={bankDetailsForm.accountHolderName}
+              onChange={e => setBankDetailsForm(p => ({ ...p, accountHolderName: e.target.value }))}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-foreground/50 mb-1.5 block">Routing number</label>
+            <input
+              type="text"
+              placeholder="9-digit routing number"
+              value={bankDetailsForm.routingNumber}
+              onChange={e => setBankDetailsForm(p => ({ ...p, routingNumber: e.target.value.replace(/\D/g, '').slice(0, 9) }))}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-foreground/50 mb-1.5 block">Account number</label>
+            <input
+              type="text"
+              placeholder="Account number"
+              value={bankDetailsForm.accountNumber}
+              onChange={e => setBankDetailsForm(p => ({ ...p, accountNumber: e.target.value.replace(/\D/g, '').slice(0, 17) }))}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className="text-xs text-foreground/50 mb-1.5 block">Confirm account number</label>
+            <input
+              type="text"
+              placeholder="Re-enter account number"
+              value={bankDetailsForm.confirmAccountNumber}
+              onChange={e => setBankDetailsForm(p => ({ ...p, confirmAccountNumber: e.target.value.replace(/\D/g, '').slice(0, 17) }))}
+              className={inputClass}
+            />
+            {bankDetailsForm.confirmAccountNumber.length > 0 && bankDetailsForm.confirmAccountNumber !== bankDetailsForm.accountNumber && (
+              <p className="text-xs text-destructive mt-1">Account numbers do not match</p>
+            )}
+          </div>
+        </div>
+
+        <div className="w-full flex gap-3 mt-8">
+          <button onClick={() => setStep("transferMethod")} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
+            Back
+          </button>
+          <Button onClick={() => { if (isBankFormValid) setStep("accountAdded"); }} disabled={!isBankFormValid} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+            Next
+          </Button>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Account Added Confirmation Step
+  if (step === "accountAdded") {
+    return (
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="relative w-full flex flex-col items-center justify-center text-center">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+          className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center mb-6"
+        >
+          <CheckCircle2 className="w-10 h-10 text-emerald-500" />
+        </motion.div>
+
+        <motion.h2 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="text-2xl font-bold text-foreground mb-2">
+          Bank account added!
+        </motion.h2>
+        <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-foreground/50 text-sm mb-4 max-w-xs leading-relaxed">
+          Your bank account has been linked successfully. Funds will be transferred using your selected method.
+        </motion.p>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="w-full rounded-2xl bg-foreground/[0.03] border border-foreground/[0.08] p-4 mb-8 text-left space-y-2">
+          <div className="flex justify-between text-sm">
+            <span className="text-foreground/50">Account holder</span>
+            <span className="text-foreground font-medium">{bankDetailsForm.accountHolderName}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-foreground/50">Routing number</span>
+            <span className="text-foreground font-medium">****{bankDetailsForm.routingNumber.slice(-4)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-foreground/50">Account number</span>
+            <span className="text-foreground font-medium">****{bankDetailsForm.accountNumber.slice(-4)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-foreground/50">Transfer method</span>
+            <span className="text-foreground font-medium">{transferMethod === "same-day" ? "Same-day" : "Next business day"}</span>
+          </div>
+        </motion.div>
+
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="w-full">
+          <Button onClick={() => { setStep("devicePin"); setPinStep("choose"); setDevicePin(""); setConfirmDevicePin(""); }} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
+            Continue
+          </Button>
+        </motion.div>
+      </motion.div>
+    );
+  }
+
+
   if (step === "devicePin") {
     const maxLen = pinLength;
     const currentPin = pinStep === "confirm" ? confirmDevicePin : devicePin;
@@ -875,7 +1007,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
         {pinStep === "choose" ? (
           <>
             <button
-              onClick={() => setStep("transferMethod")}
+              onClick={() => setStep("accountAdded")}
               className="self-start mb-4 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
             >
               <ArrowLeft className="w-4 h-4" />

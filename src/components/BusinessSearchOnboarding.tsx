@@ -404,9 +404,17 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           })}
         </motion.div>
 
-        <Button onClick={() => { if (selectedPlan) setStep("planOrSkip"); }} disabled={!selectedPlan} className="w-full h-14 text-base font-medium rounded-2xl" size="lg">
-          {selectedPlan ? `Continue with ${selectedPlan}` : "Select a Plan"}
-        </Button>
+        <div className="w-full flex items-center gap-3">
+          <Button onClick={() => { if (selectedPlan) setStep("planOrSkip"); }} disabled={!selectedPlan} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+            {selectedPlan ? `Continue with ${selectedPlan}` : "Select a Plan"}
+          </Button>
+          <button
+            onClick={() => { setSelectedPlan(null); setStep("planOrSkip"); }}
+            className="h-14 px-6 text-base font-medium text-foreground/70 hover:text-foreground transition-colors"
+          >
+            Not now
+          </button>
+        </div>
       </motion.div>
     );
   }

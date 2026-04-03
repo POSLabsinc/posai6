@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { FileText, AlertTriangle, Clock, X } from 'lucide-react';
+import { FileText, AlertTriangle, Clock, X, Send } from 'lucide-react';
 
 interface SavedNote {
   text: string;

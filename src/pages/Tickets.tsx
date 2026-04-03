@@ -60,7 +60,7 @@ import MobileFiltersSheet, { MobileFiltersState } from "@/components/MobileFilte
 import OrderTypeIcon from "@/components/OrderTypeIcon";
 import { SimpleModifierTree } from "@/components/ModifierWithConnector";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import OrderAIChatPanel from "@/components/OrderAIChatPanel";
+import TicketAIChatPanel from "@/components/TicketAIChatPanel";
 import { DiscountDialog, availableDiscounts, type Discount } from "@/components/DiscountDialog";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import NoteSuggestions from "@/components/NoteSuggestions";
@@ -6100,14 +6100,26 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         <div className="fixed inset-0 z-[60] flex">
           <div className="absolute inset-0 bg-black/60" onClick={() => setIsAIChatOpen(false)} />
           <div className="absolute right-0 top-0 bottom-0 w-[85%] md:w-[380px] bg-black">
-            <OrderAIChatPanel
+            <TicketAIChatPanel
               onClose={() => setIsAIChatOpen(false)}
-              orderContext={{
-                orderType: selectedGuest?.orderType || "",
-                guestName: selectedGuest?.name || "",
-                orderItems: [],
-                orderNotes: "",
-                availableProducts: [],
+              ticketContext={selectedGuest ? {
+                orderId: selectedGuest.id,
+                orderNumber: selectedGuest.orderNumber,
+                guestName: selectedGuest.name,
+                status: selectedGuest.status,
+                total: selectedGuest.total,
+                paymentType: selectedGuest.paymentType,
+                table: selectedGuest.table,
+                items: selectedGuest.items.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
+              } : undefined}
+              ticketActions={{
+                openRefund: () => { setIsAIChatOpen(false); setShowRefundConfirmation(true); },
+                openVoid: () => { setIsAIChatOpen(false); handleClearOrderAttempt(); },
+                openTransfer: () => { setIsAIChatOpen(false); if (selectedGuest) { setTransferIntentOrderId(selectedGuest.id); setShowTransferIntentDialog(true); } },
+                openReceipt: () => { setIsAIChatOpen(false); setIsReceiptDialogOpen(true); },
+                openDiscount: () => { setIsAIChatOpen(false); setShowDiscountMpin(true); },
+                openMessageKitchen: () => { setIsAIChatOpen(false); setShowMessageKitchen(true); },
+                reopenOrder: () => { setIsAIChatOpen(false); toast.info("Reopen order is not yet implemented"); },
               }}
             />
           </div>

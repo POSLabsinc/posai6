@@ -1753,33 +1753,43 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 transition={{ delay: 0.2 }}
                 className="w-full space-y-4"
               >
-                <div className="relative">
-                  {activationContactValue.includes("@") ? (
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
-                  ) : /^\d|^\(/.test(activationContactValue) && activationContactValue.replace(/\D/g, '').length > 0 ? (
-                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
-                  ) : (
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                <div className="relative flex gap-2">
+                  {activationContactType === "phone" && activationContactValue.replace(/\D/g, '').length > 0 && (
+                    <div className="flex items-center gap-1 px-3 h-14 rounded-2xl bg-foreground/[0.03] border border-foreground/[0.08] shrink-0">
+                      <span className="text-lg">🇺🇸</span>
+                      <span className="text-sm text-foreground/50">+1</span>
+                    </div>
                   )}
-                  <Input
-                    type="text"
-                    placeholder="your@email.com or phone number"
-                    value={activationContactValue}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setActivationContactValue(val);
-                      if (val.includes("@")) {
-                        setActivationContactType("email");
-                      } else if (/^\d|^\(/.test(val) && val.replace(/\D/g, '').length > 0) {
-                        setActivationContactType("phone");
-                      } else {
-                        setActivationContactType("email");
-                      }
-                      setActivationError("");
-                    }}
-                    className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.03] border-foreground/[0.08] focus:border-primary/40"
-                    disabled={activationSendingCode}
-                  />
+                  <div className="relative flex-1">
+                    {activationContactValue.includes("@") ? (
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                    ) : /^\d|^\(/.test(activationContactValue) && activationContactValue.replace(/\D/g, '').length > 0 ? (
+                      <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                    ) : (
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                    )}
+                    <Input
+                      type="text"
+                      placeholder="your@email.com or phone number"
+                      value={activationContactType === "phone" ? formatActivationPhone(activationContactValue.replace(/\D/g, '')) : activationContactValue}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val.includes("@")) {
+                          setActivationContactType("email");
+                          setActivationContactValue(val);
+                        } else if (/^\d|^\(/.test(val) && val.replace(/\D/g, '').length > 0) {
+                          setActivationContactType("phone");
+                          setActivationContactValue(val.replace(/\D/g, '').slice(0, 10));
+                        } else {
+                          setActivationContactType("email");
+                          setActivationContactValue(val);
+                        }
+                        setActivationError("");
+                      }}
+                      className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.03] border-foreground/[0.08] focus:border-primary/40"
+                      disabled={activationSendingCode}
+                    />
+                  </div>
                 </div>
                 {activationError && (
                   <motion.div
@@ -2300,31 +2310,43 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               transition={{ delay: 0.2 }}
               className="w-full space-y-4"
             >
-              <div className="relative">
-                {(isEmail ? magicLinkEmail : magicLinkPhone).includes("@") || !(/^\d|^\(/.test(isEmail ? magicLinkEmail : magicLinkPhone)) ? (
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
-                ) : (
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+              <div className="flex gap-2">
+                {!isEmail && magicLinkPhone.length > 0 && (
+                  <div className="flex items-center gap-1 px-3 h-14 rounded-2xl bg-foreground/[0.03] border border-foreground/[0.1] shrink-0">
+                    <span className="text-lg">🇺🇸</span>
+                    <span className="text-sm text-foreground/50">+1</span>
+                  </div>
                 )}
-                <Input
-                  type="text"
-                  placeholder="your@email.com or phone number"
-                  value={isEmail ? magicLinkEmail : magicLinkPhone}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val.includes("@") || !(/^\d|^\(/.test(val) && val.replace(/\D/g, '').length > 0)) {
-                      setMagicLinkInputType("email");
-                      setMagicLinkEmail(val);
-                    } else {
-                      setMagicLinkInputType("phone");
-                      setMagicLinkPhone(val.replace(/\D/g, "").slice(0, 10));
-                    }
-                    setActivationError("");
-                  }}
-                  className={`h-14 pl-12 text-base rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
-                    activationError ? "border-destructive" : ""
-                  }`}
-                />
+                <div className="relative flex-1">
+                  {isEmail || magicLinkPhone.length === 0 ? (
+                    (isEmail ? magicLinkEmail : "").includes("@") || !(/^\d|^\(/.test(isEmail ? magicLinkEmail : "")) ? (
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                    ) : (
+                      <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                    )
+                  ) : (
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                  )}
+                  <Input
+                    type="text"
+                    placeholder="your@email.com or phone number"
+                    value={isEmail ? magicLinkEmail : formatPhoneNumber(magicLinkPhone)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.includes("@") || !(/^\d|^\(/.test(val) && val.replace(/\D/g, '').length > 0)) {
+                        setMagicLinkInputType("email");
+                        setMagicLinkEmail(val);
+                      } else {
+                        setMagicLinkInputType("phone");
+                        setMagicLinkPhone(val.replace(/\D/g, "").slice(0, 10));
+                      }
+                      setActivationError("");
+                    }}
+                    className={`h-14 pl-12 text-base rounded-2xl border-foreground/[0.1] bg-foreground/[0.03] ${
+                      activationError ? "border-destructive" : ""
+                    }`}
+                  />
+                </div>
               </div>
               
               {/* Error Message */}
@@ -6235,6 +6257,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     const isValidPhone = magicLinkPhone.replace(/\D/g, '').length >= 10;
     const isValid = isEmail ? isValidEmail : isValidPhone;
 
+    const formatPhoneNumber = (value: string) => {
+      const digits = value.replace(/\D/g, '').slice(0, 10);
+      if (digits.length <= 3) return digits;
+      if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    };
+
     if (magicLinkSent) {
       const maxResends = 3;
       const isResendDisabled = magicLinkResendCooldown > 0 || magicLinkResendCount >= maxResends || isActivating;
@@ -6343,29 +6372,37 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             </p>
 
             <div className="w-full space-y-3">
-              <div className="relative">
-                {(isEmail ? magicLinkEmail : magicLinkPhone).includes("@") || !(/^\d|^\(/.test(isEmail ? magicLinkEmail : magicLinkPhone)) ? (
-                  <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
-                ) : (
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+              <div className="flex gap-2">
+                {!isEmail && magicLinkPhone.length > 0 && (
+                  <div className="flex items-center gap-1 px-3 h-14 rounded-2xl bg-foreground/[0.03] border border-foreground/[0.1] shrink-0">
+                    <span className="text-lg">🇺🇸</span>
+                    <span className="text-sm text-foreground/50">+1</span>
+                  </div>
                 )}
-                <Input
-                  type="text"
-                  placeholder="your@email.com or phone number"
-                  value={isEmail ? magicLinkEmail : magicLinkPhone}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val.includes("@") || !(/^\d|^\(/.test(val) && val.replace(/\D/g, '').length > 0)) {
-                      setMagicLinkInputType("email");
-                      setMagicLinkEmail(val);
-                    } else {
-                      setMagicLinkInputType("phone");
-                      setMagicLinkPhone(val.replace(/\D/g, "").slice(0, 10));
-                    }
-                    setActivationError("");
-                  }}
-                  className="h-14 pl-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
-                />
+                <div className="relative flex-1">
+                  {isEmail || magicLinkPhone.length === 0 ? (
+                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                  ) : (
+                    <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                  )}
+                  <Input
+                    type="text"
+                    placeholder="your@email.com or phone number"
+                    value={isEmail ? magicLinkEmail : formatPhoneNumber(magicLinkPhone)}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.includes("@") || !(/^\d|^\(/.test(val) && val.replace(/\D/g, '').length > 0)) {
+                        setMagicLinkInputType("email");
+                        setMagicLinkEmail(val);
+                      } else {
+                        setMagicLinkInputType("phone");
+                        setMagicLinkPhone(val.replace(/\D/g, "").slice(0, 10));
+                      }
+                      setActivationError("");
+                    }}
+                    className="h-14 pl-12 rounded-2xl border-foreground/[0.1] bg-foreground/[0.03]"
+                  />
+                </div>
               </div>
               <AnimatePresence>
                 {activationError && (

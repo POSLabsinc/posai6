@@ -649,7 +649,22 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
 
           <div className="rounded-xl bg-foreground/[0.04] border border-foreground/[0.08] px-4 py-2.5">
             <div className="text-xs text-foreground/50 mb-0.5">Phone number</div>
-            <input type="tel" placeholder="(000) 000-0000" value={verifyForm.phone} onChange={e => setVerifyForm(p => ({ ...p, phone: e.target.value }))} className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground/30 focus:outline-none" />
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1 shrink-0">
+                <span className="text-base">🇺🇸</span>
+                <span className="text-sm text-foreground/50">+1</span>
+              </div>
+              <input type="tel" placeholder="(000) 000-0000" value={(() => {
+                const digits = verifyForm.phone.replace(/\D/g, '').slice(0, 10);
+                if (digits.length === 0) return '';
+                if (digits.length <= 3) return `(${digits}`;
+                if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+              })()} onChange={e => {
+                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                setVerifyForm(p => ({ ...p, phone: digits }));
+              }} className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground/30 focus:outline-none" />
+            </div>
           </div>
 
           <p className="text-xs text-foreground/40 leading-relaxed">

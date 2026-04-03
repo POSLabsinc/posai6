@@ -6113,13 +6113,13 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 items: selectedGuest.items.map(i => ({ name: i.name, qty: i.qty, price: i.price })),
               } : undefined}
               ticketActions={{
-                openRefund: () => { setIsAIChatOpen(false); setShowRefundConfirmation(true); },
-                openVoid: () => { setIsAIChatOpen(false); handleClearOrderAttempt(); },
-                openTransfer: () => { setIsAIChatOpen(false); if (selectedGuest) { setTransferIntentOrderId(selectedGuest.id); setShowTransferIntentDialog(true); } },
-                openReceipt: () => { setIsAIChatOpen(false); setIsReceiptDialogOpen(true); },
-                openDiscount: () => { setIsAIChatOpen(false); setShowDiscountMpin(true); },
-                openMessageKitchen: () => { setIsAIChatOpen(false); setShowMessageKitchen(true); },
-                reopenOrder: () => { setIsAIChatOpen(false); toast.info("Reopen order is not yet implemented"); },
+                openRefund: () => { setShowRefundConfirmation(true); },
+                openVoid: () => { handleClearOrderAttempt(); },
+                openTransfer: () => { if (selectedGuest) { setTransferIntentOrderId(selectedGuest.id); setShowTransferIntentDialog(true); } },
+                openReceipt: () => { setIsReceiptDialogOpen(true); },
+                openDiscount: () => { setShowDiscountMpin(true); },
+                openMessageKitchen: () => { setShowMessageKitchen(true); },
+                reopenOrder: () => { toast.info("Reopen order is not yet implemented"); },
               }}
             />
           </div>

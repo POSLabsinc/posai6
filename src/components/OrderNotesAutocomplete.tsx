@@ -242,12 +242,12 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
   return (
     <div className={`relative ${className}`} ref={containerRef}>
       <div 
-        className="flex items-center gap-2 rounded px-3 py-2 flex-wrap min-h-[40px] cursor-text" 
+        className={`flex items-center gap-2 rounded px-3 py-2 flex-wrap min-h-[40px] ${disabled ? 'cursor-default opacity-60' : 'cursor-text'}`}
         style={{
           background: '#7575754D',
           boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
         }}
-        onClick={() => inputRef.current?.focus()}
+        onClick={() => !disabled && inputRef.current?.focus()}
       >
         <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
         

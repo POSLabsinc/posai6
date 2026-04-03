@@ -67,6 +67,8 @@ import NoteSuggestions from "@/components/NoteSuggestions";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import AppleAlertDialog from "@/components/AppleAlertDialog";
 import RefundModalLayout from "@/components/RefundModalLayout";
+import MessageKitchenDialog from "@/components/MessageKitchenDialog";
+import messageKdsIcon from "@/assets/icons/message-kds.svg";
 import RefundBottomSheet from "@/components/RefundBottomSheet";
 import TicketsTransferView, { TransferGuestOrder } from "@/components/TicketsTransferView";
 
@@ -1013,6 +1015,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   
   // Order notes state - stores updated notes by order ID
   const [orderNotes, setOrderNotes] = useState<{ [orderId: string]: string }>({});
+  const [showMessageKitchen, setShowMessageKitchen] = useState(false);
   
   // Guest info state - stores updated name/phone by order ID
   const [guestInfo, setGuestInfo] = useState<{ [orderId: string]: { name: string; phone: string } }>({});
@@ -3104,6 +3107,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   style={{ background: showFilterPanel ? "rgba(255, 255, 255, 0.2)" : "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
                 >
                   {showFilterPanel ? <X className="w-4 h-4 text-white" /> : <SlidersHorizontal className="w-4 h-4 text-white" />}
+                </button>
+                <button 
+                  onClick={() => setShowMessageKitchen(true)}
+                  className="p-2 rounded-full hover:opacity-80 transition-opacity" 
+                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                  title="Message Kitchen"
+                >
+                  <img src={messageKdsIcon} alt="Message Kitchen" className="w-4 h-4 brightness-0 invert" />
                 </button>
                 <button 
                   onClick={() => setShowSearchInput(true)}
@@ -6103,6 +6114,11 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         </div>
       )}
 
+      <MessageKitchenDialog
+        open={showMessageKitchen}
+        onOpenChange={setShowMessageKitchen}
+        serverName={selectedGuest?.server || "Staff"}
+      />
     </>
   );
 };

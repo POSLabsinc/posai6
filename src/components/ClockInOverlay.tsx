@@ -802,16 +802,64 @@ export const ClockInOverlay = ({
             </AnimatePresence>
           </div>
 
-          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4">
-            <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-white" />
-            </div>
-            <div className="flex-1">
-              <p className="text-white/60 text-xs font-medium mb-0.5">Job Type</p>
-              <p className="text-white text-lg md:text-xl font-bold">
-                {clockInSummary!.jobType}
-              </p>
-            </div>
+          <div className="relative">
+            <button
+              onClick={() => setShowSummaryJobTypeDropdown(!showSummaryJobTypeDropdown)}
+              className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
+            >
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                {JOB_TYPE_ICONS[clockInSummary!.jobType] ? (
+                  <img src={JOB_TYPE_ICONS[clockInSummary!.jobType]!} alt={clockInSummary!.jobType} className="w-5 h-5 md:w-6 md:h-6" style={{ filter: 'invert(1) brightness(2)' }} />
+                ) : (
+                  <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                )}
+              </div>
+              <div className="flex-1 text-left">
+                <p className="text-white/60 text-xs font-medium mb-0.5">Job Type</p>
+                <p className="text-white text-lg md:text-xl font-bold">
+                  {clockInSummary!.jobType}
+                </p>
+              </div>
+              <ChevronDown className={`w-5 h-5 text-white/60 transition-transform ${showSummaryJobTypeDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            <AnimatePresence>
+              {showSummaryJobTypeDropdown && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="mt-2 overflow-hidden"
+                >
+                  <div className="grid grid-cols-3 gap-2">
+                    {summaryAvailableJobTypes.map(job => {
+                      const isSelected = clockInSummary!.jobType === job;
+                      return (
+                        <button
+                          key={job}
+                          onClick={() => {
+                            setClockInSummary(prev => prev ? { ...prev, jobType: job } : prev);
+                            setShowSummaryJobTypeDropdown(false);
+                          }}
+                          className={`rounded-xl p-3 flex flex-col items-center gap-2 transition-all min-h-[80px] ${
+                            isSelected
+                              ? 'bg-white/20 border border-white/40'
+                              : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
+                          }`}
+                        >
+                          {JOB_TYPE_ICONS[job] ? (
+                            <img src={JOB_TYPE_ICONS[job]!} alt={job} className="w-7 h-7" style={{ filter: 'invert(1) brightness(2)' }} />
+                          ) : (
+                            <Briefcase className="w-7 h-7 text-white" />
+                          )}
+                          <span className="text-[11px] font-medium text-center text-white">{job}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>

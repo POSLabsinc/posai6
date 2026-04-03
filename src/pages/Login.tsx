@@ -2302,7 +2302,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       // Magic Link Input Screen
       return (
-        <DeviceSetupLayout variant="activation">
+        <DeviceSetupLayout variant="activation" leftPanelContent={{
+            icon: <Link2 className="w-6 h-6 text-primary" />,
+            title: "Sign in with Link",
+            description: "Receive a secure magic link to sign in without a password.",
+            features: ["Passwordless authentication", "Secure email or SMS link", "One-click device access"]
+          }}>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}

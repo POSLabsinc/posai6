@@ -69,6 +69,7 @@ import AppleAlertDialog from "@/components/AppleAlertDialog";
 import RefundModalLayout from "@/components/RefundModalLayout";
 import MessageKitchenDialog from "@/components/MessageKitchenDialog";
 import messageKdsIcon from "@/assets/icons/message-kds.svg";
+import OrderMessageThread, { useOrderMessageStatus } from "@/components/OrderMessageThread";
 import RefundBottomSheet from "@/components/RefundBottomSheet";
 import TicketsTransferView, { TransferGuestOrder } from "@/components/TicketsTransferView";
 

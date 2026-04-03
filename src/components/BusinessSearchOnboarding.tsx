@@ -708,6 +708,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
           </Button>
         </div>
       </motion.div>
+      </>
     );
   }
 

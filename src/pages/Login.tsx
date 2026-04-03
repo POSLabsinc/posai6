@@ -873,7 +873,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     // When AI chat is open, show it in the right panel
     if (showAIChat) {
       return (
-        <DeviceSetupLayout variant="setup" fullWidthRight>
+        <DeviceSetupLayout variant="setup" fullWidthRight leftPanelContent={{
+            icon: <Sparkles className="w-6 h-6 text-primary" />,
+            title: "AI-Powered Setup",
+            description: "Let our AI assistant guide you through device activation and account setup in minutes.",
+            features: ["Conversational setup flow", "Smart auto-configuration", "Instant device pairing"]
+          }}>
           <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} deviceType="company" onAccountCreated={() => { setActivationMethod("signup"); setSignupStep("business"); }} />
         </DeviceSetupLayout>
       );

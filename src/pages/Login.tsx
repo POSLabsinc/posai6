@@ -2493,7 +2493,44 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         );
       }
 
-      // Step 3b: Free Trial Features - Step by step walkthrough
+      // Step 3b: Merchant Onboarding (replaces trial walkthrough)
+      if (signupStep === "onboarding") {
+        return (
+          <DeviceSetupLayout variant="setup" fullWidthRight>
+            <MerchantOnboarding
+              prefillEmail={signupEmail}
+              prefillName={signupFullName}
+              onBack={() => setSignupStep("business")}
+              onComplete={(data) => {
+                localStorage.setItem("pos_device_session", JSON.stringify({
+                  deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+                  deviceType: "company",
+                  trustedAt: new Date().toISOString(),
+                }));
+                localStorage.setItem("pos_session", JSON.stringify({
+                  employeeId: "owner",
+                  employeeName: data.full_name || signupFullName || "Owner",
+                  employeeRole: "Owner",
+                  employeeAvatar: "",
+                  revenueCenter: data.restaurant_name || "Main",
+                  loginTime: new Date().toISOString(),
+                }));
+                setSignupStep("form");
+                setActivationMethod(null);
+                setSignupEmail("");
+                setSignupPassword("");
+                setSignupOtp("");
+                setSignupAgreed(false);
+                setSignupCountry("United States");
+                setTrialStepIndex(0);
+                navigate("/");
+              }}
+            />
+          </DeviceSetupLayout>
+        );
+      }
+
+      // Step 3c: Free Trial Features - Step by step walkthrough (legacy)
       if (signupStep === "trial") {
         const trialSteps = [
           {

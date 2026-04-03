@@ -6257,6 +6257,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     const isValidPhone = magicLinkPhone.replace(/\D/g, '').length >= 10;
     const isValid = isEmail ? isValidEmail : isValidPhone;
 
+    const formatPhoneNumber = (value: string) => {
+      const digits = value.replace(/\D/g, '').slice(0, 10);
+      if (digits.length <= 3) return digits;
+      if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+      return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+    };
+
     if (magicLinkSent) {
       const maxResends = 3;
       const isResendDisabled = magicLinkResendCooldown > 0 || magicLinkResendCount >= maxResends || isActivating;

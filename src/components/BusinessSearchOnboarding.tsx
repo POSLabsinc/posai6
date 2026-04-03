@@ -677,9 +677,18 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack }: BusinessSea
             <span className="text-sm text-foreground/70">I have read and agree to the <span className="underline text-foreground">POSAI Checking Terms of Service</span></span>
           </label>
 
-          <p className="text-[10px] text-foreground/30 leading-relaxed pb-4">
+          <p className="text-[10px] text-foreground/30 leading-relaxed pb-2">
             POSAI, Inc. is a financial services platform and not an FDIC-insured bank. FDIC deposit insurance coverage only protects against the failure of an FDIC-insured deposit institution. If you have a POSAI Checking account, up to $250,000 of your balance may be covered by FDIC insurance on a pass-through basis through our partner bank, Member FDIC, subject to aggregation of the account holder's funds held at our partner bank and if certain conditions have been met.
           </p>
+        </div>
+
+        <div className="w-full flex gap-3 mt-4">
+          <button onClick={() => handleBankNext()} className="flex-1 h-14 rounded-2xl text-base font-medium text-foreground/60 hover:text-foreground border border-foreground/[0.08] hover:border-foreground/20 transition-colors">
+            Finish later
+          </button>
+          <Button onClick={() => { if (canSubmitVerify) handleBankNext(); }} disabled={!canSubmitVerify} className="flex-1 h-14 text-base font-medium rounded-2xl" size="lg">
+            Next
+          </Button>
         </div>
       </motion.div>
     );

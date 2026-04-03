@@ -100,7 +100,7 @@ const PLANS = [
   },
 ];
 
-type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp" | "verifyIdentity" | "transferMethod" | "devicePin";
+type Step = "search" | "category" | "revenue" | "planOrSkip" | "plans" | "bank" | "cardOtp" | "verifyIdentity" | "transferMethod" | "bankDetails" | "accountAdded" | "devicePin";
 
 const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinComplete }: BusinessSearchOnboardingProps) => {
   const [step, setStep] = useState<Step>("search");

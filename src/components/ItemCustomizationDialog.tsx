@@ -1368,11 +1368,11 @@ export const ItemCustomizationDialog = ({
       )}
 
       {/* Action Buttons */}
-      <div className="px-4 py-3 border-t border-neutral-700 mt-auto flex items-center gap-2">
+      <div className="px-5 py-3.5 border-t border-neutral-700 mt-auto flex items-center gap-3">
         <Button 
           variant="outline" 
           onClick={() => onOpenChange(false)} 
-          className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-transparent border border-neutral-500 hover:bg-neutral-800 h-10"
+          className="flex-1 py-2.5 rounded-full text-white font-medium text-sm bg-transparent border border-neutral-500 hover:bg-neutral-800 h-11"
         >
           CANCEL
         </Button>
@@ -1387,7 +1387,7 @@ export const ItemCustomizationDialog = ({
             }
             setShowDiscountDialog(true);
           }}
-          className={`w-10 h-10 rounded-full overflow-hidden flex-shrink-0 transition-all ${
+          className={`w-11 h-11 rounded-full overflow-hidden flex-shrink-0 transition-all ${
             selectedDiscountId ? 'ring-2 ring-orange-500 ring-offset-1 ring-offset-neutral-900' : ''
           }`}
         >
@@ -1395,7 +1395,7 @@ export const ItemCustomizationDialog = ({
         </button>
         <Button 
           onClick={handleAddToCart} 
-          className="flex-[2] py-2 rounded-full font-bold text-sm h-10" 
+          className="flex-[2] py-2.5 rounded-full font-bold text-sm h-11" 
           style={{
             background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
             color: 'black'
@@ -1418,7 +1418,7 @@ export const ItemCustomizationDialog = ({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent 
-          className={`bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full overflow-hidden rounded-2xl flex flex-col ${
+          className={`bg-neutral-900 border-neutral-700 p-0 max-w-lg w-[95vw] md:w-full overflow-hidden rounded-2xl flex flex-col ${
             currentView === 'mpin' ? 'h-auto' : 'max-h-[90vh]'
           }`}
         >

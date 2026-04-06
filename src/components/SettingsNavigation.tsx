@@ -320,7 +320,6 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
               <Mic className="w-5 h-5 text-muted-foreground" />
             </button>
           </div>
-          <AnimatedAIIcon onClick={handleAIClick} size={28} />
         </div>
 
         {/* User Profile Card */}

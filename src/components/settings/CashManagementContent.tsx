@@ -225,57 +225,34 @@ const CashManagementContent = ({
             
             <CollapsibleContent className="mt-3 animate-in slide-in-from-top-2 duration-200">
               <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-                <div className="flex items-center justify-between py-3.5 px-4">
-                  <span className="text-foreground text-lg font-medium">Drawer</span>
-                  <span className="text-neutral-400 text-base">{lastClosedSession.drawer}</span>
-                </div>
-                <div className="h-px bg-neutral-700/50 mx-4" />
-                <div className="flex items-center justify-between py-3.5 px-4">
-                  <span className="text-foreground text-lg font-medium">Closed At</span>
-                  <span className="text-neutral-400 text-base">{formatDateTime(lastClosedSession.closedAt)}</span>
-                </div>
-                <div className="h-px bg-neutral-700/50 mx-4" />
-                <div className="flex items-center justify-between py-3.5 px-4">
-                  <span className="text-foreground text-lg font-medium">Starting Cash</span>
-                  <span className="text-foreground text-base">${lastClosedSession.startingCash.toFixed(2)}</span>
-                </div>
-                <div className="h-px bg-neutral-700/50 mx-4" />
-                <div className="flex items-center justify-between py-3.5 px-4">
-                  <span className="text-foreground text-lg font-medium">Cash Sales</span>
-                  <span className="text-foreground text-base">${lastClosedSession.cashSales.toFixed(2)}</span>
-                </div>
-                <div className="h-px bg-neutral-700/50 mx-4" />
-                <div className="flex items-center justify-between py-3.5 px-4">
-                  <span className="text-foreground text-lg font-medium">Cash Refunds</span>
-                  <span className="text-foreground text-base">${lastClosedSession.cashRefunds.toFixed(2)}</span>
-                </div>
-                <div className="h-px bg-neutral-700/50 mx-4" />
-                <div className="flex items-center justify-between py-3.5 px-4">
-                  <span className="text-foreground text-lg font-medium">Paid In/Out</span>
-                  <span className="text-foreground text-base">
-                    {lastClosedSession.paidInOut < 0 ? '-' : ''}${Math.abs(lastClosedSession.paidInOut).toFixed(2)}
-                  </span>
-                </div>
-                <div className="h-px bg-neutral-700/50 mx-4" />
-                <div className="flex items-center justify-between py-3.5 px-4">
-                  <span className="text-foreground text-lg font-medium">Expected In Drawer</span>
-                  <span className="text-foreground text-base">${lastClosedSession.expectedInDrawer.toFixed(2)}</span>
-                </div>
-                <div className="h-px bg-neutral-700/50 mx-4" />
-                <div className="flex items-center justify-between py-3.5 px-4">
-                  <span className="text-foreground text-lg font-medium">Closing Balance</span>
-                  <span className="text-foreground text-base font-medium">${lastClosedSession.closingBalance.toFixed(2)}</span>
-                </div>
-                <div className="h-px bg-neutral-700/50 mx-4" />
-                <div className="flex items-center justify-between py-3.5 px-4">
-                  <span className="text-foreground text-lg font-medium">Difference</span>
-                  <span className={`text-base font-medium ${
-                    lastClosedSession.difference === 0 ? 'text-foreground' : 
-                    lastClosedSession.difference > 0 ? 'text-green-500' : 'text-red-500'
-                  }`}>
-                    {lastClosedSession.difference >= 0 ? '' : '-'}${Math.abs(lastClosedSession.difference).toFixed(2)}
-                  </span>
-                </div>
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-neutral-700/50 hover:bg-transparent">
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase">Field</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right">Value</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {[
+                      { label: 'Drawer', value: lastClosedSession.drawer, isInfo: true },
+                      { label: 'Closed At', value: formatDateTime(lastClosedSession.closedAt), isInfo: true },
+                      { label: 'Starting Cash', value: `$${lastClosedSession.startingCash.toFixed(2)}` },
+                      { label: 'Cash Sales', value: `$${lastClosedSession.cashSales.toFixed(2)}` },
+                      { label: 'Cash Refunds', value: `$${lastClosedSession.cashRefunds.toFixed(2)}` },
+                      { label: 'Paid In/Out', value: `${lastClosedSession.paidInOut < 0 ? '-' : ''}$${Math.abs(lastClosedSession.paidInOut).toFixed(2)}` },
+                      { label: 'Expected In Drawer', value: `$${lastClosedSession.expectedInDrawer.toFixed(2)}` },
+                      { label: 'Closing Balance', value: `$${lastClosedSession.closingBalance.toFixed(2)}`, isBold: true },
+                      { label: 'Difference', value: `${lastClosedSession.difference >= 0 ? '' : '-'}$${Math.abs(lastClosedSession.difference).toFixed(2)}`, isBold: true, colorClass: lastClosedSession.difference === 0 ? '' : lastClosedSession.difference > 0 ? 'text-green-500' : 'text-red-500' },
+                    ].map((row) => (
+                      <TableRow key={row.label} className="border-neutral-700/50 hover:bg-neutral-700/20">
+                        <TableCell className="text-foreground text-sm font-medium py-3">{row.label}</TableCell>
+                        <TableCell className={`text-right text-sm py-3 ${row.isInfo ? 'text-neutral-400' : row.colorClass || 'text-foreground'} ${row.isBold ? 'font-medium' : ''}`}>
+                          {row.value}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
               </div>
             </CollapsibleContent>
           </Collapsible>

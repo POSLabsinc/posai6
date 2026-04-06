@@ -1575,7 +1575,7 @@ export const ClockInOverlay = ({
       </div>
 
       {/* Right Panel */}
-      <div className="col-span-8 flex flex-col items-center justify-center p-6 py-8 overflow-y-auto">
+      <div className="col-span-7 flex flex-col items-center justify-center p-6 py-8 overflow-y-auto">
         <AnimatePresence mode="wait">
           {clockInSummary ? <motion.div key={showMoodCheckIn ? "mood-checkin" : "clock-in-summary"} initial={{
           opacity: 0,

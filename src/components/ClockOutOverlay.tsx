@@ -1576,7 +1576,7 @@ export const ClockOutOverlay = ({
       </div>
 
       {/* Right Keypad Panel - 8 columns */}
-      <div className="col-span-8 flex flex-col items-center justify-center p-6 py-8 overflow-y-auto">
+      <div className="col-span-7 flex flex-col items-center justify-center p-6 py-8 overflow-y-auto">
         <div className={`w-full flex flex-col max-h-full ${clockOutSummary || clockInSummary || showMoodCheckIn || showJobSelection ? 'max-w-[620px]' : 'max-w-[400px]'}`}>
           <AnimatePresence mode="wait">
             {renderContent()}

@@ -1459,7 +1459,7 @@ export const ClockOutOverlay = ({
         transition={{ duration: 0.25, ease: "easeOut" }}
         className={`relative z-10 flex justify-center w-full h-full p-4 ${showCenteredLayout ? 'items-center' : 'items-start pt-8'}`}
       >
-        <div className="w-full max-w-[420px] bg-black/60 backdrop-blur-xl rounded-2xl p-4 flex flex-col max-h-[calc(100vh-32px)] overflow-y-auto">
+        <div className="w-full max-w-[620px] bg-black/60 backdrop-blur-xl rounded-2xl p-4 flex flex-col max-h-[calc(100vh-32px)] overflow-y-auto">
           {/* Compact date/time header for mobile - show when on keypad */}
           {!showMoodCheckIn && !clockOutSummary && !clockInSummary && !showJobSelection && (
             <div className="text-center mb-3 flex-shrink-0">
@@ -1577,7 +1577,7 @@ export const ClockOutOverlay = ({
 
       {/* Right Keypad Panel - 8 columns */}
       <div className="col-span-8 flex flex-col items-center justify-center p-6 py-8 overflow-y-auto">
-        <div className="w-full max-w-[400px] flex flex-col max-h-full">
+        <div className="w-full max-w-[620px] flex flex-col max-h-full">
           <AnimatePresence mode="wait">
             {renderContent()}
           </AnimatePresence>

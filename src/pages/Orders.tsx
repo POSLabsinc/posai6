@@ -2868,7 +2868,7 @@ const Orders = () => {
       {isAIChatOpen && (
         <>
           
-          <div className={`hidden md:flex absolute bottom-0 ${panelLayout === 'menu-right' ? 'left-0' : 'right-0'} z-40 ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} pb-2 transition-all duration-300`} style={{ top: aiOverlayTop }}>
+          <div className={`hidden md:flex absolute bottom-0 ${panelLayout === 'menu-right' ? 'left-0' : 'right-0'} z-40 ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} pb-2 transition-all duration-300`} style={{ top: 0 }}>
             <div className="w-full h-full rounded-lg overflow-hidden shadow-2xl border-l border-neutral-700">
               <OrderAIChatPanel
                 onClose={() => setIsAIChatOpen(false)}

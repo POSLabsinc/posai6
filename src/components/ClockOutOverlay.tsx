@@ -1577,7 +1577,7 @@ export const ClockOutOverlay = ({
 
       {/* Right Keypad Panel - 8 columns */}
       <div className="col-span-8 flex flex-col items-center justify-center p-6 py-8 overflow-y-auto">
-        <div className="w-full max-w-[400px] flex flex-col max-h-full">
+        <div className="w-full max-w-[620px] flex flex-col max-h-full">
           <AnimatePresence mode="wait">
             {renderContent()}
           </AnimatePresence>

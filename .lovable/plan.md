@@ -1,44 +1,42 @@
 
 
-## Plan: Kitchen Message Icon with Chat Thread in Order Panel
+## Plan: Context-Aware AI Assistant Suggestions Based on Active Settings Tab
 
-### What We Are Building
-A message icon in the order panel header (before the server name like "Mia Jones") that:
-1. Shows a small envelope/message icon for orders that have been sent kitchen messages
-2. Shows a red notification dot when there are unread kitchen replies for that order
-3. Opens a chat-style popup showing the full conversation thread (sent messages + kitchen replies) with timestamps, sender names, and device info
+### Problem
+The AI assistant already has context-based suggestion chips defined for most sidebar tabs (system, payments, menu, etc.), but two things need fixing:
+1. **Missing `workforce` context chips** - no suggestion chips defined for the Workforce tab
+2. **Header AI icon doesn't pass context** - clicking the AI icon from the header navigates to `/settings/ai-assistant` without passing the current settings context, so suggestions default to generic ones
+3. The context mapping needs to work seamlessly so that when the AI assistant opens from any settings screen, it shows relevant suggestions for that tab
 
-### How It Works
+### What Changes
 
-**Message Icon Placement**: In the desktop order panel header (line ~3393 in Tickets.tsx), add a clickable message icon before the server name. The icon only appears if there are messages for the selected order.
+**1. Add missing context chip sets** (`src/components/settings/AISettingsContent.tsx`)
+- Add `workforceSuggestionChips` array with relevant prompts (e.g., "View employees", "Manage shifts", "Time tracking settings", "Roles and permissions")
+- Add `accountSuggestionChips` for the Account tab (e.g., "Personal info", "Restaurant info", "Security settings")
+- Register both in `contextChipsMap`
 
-**Red Notification Dot**: Query `notifications` table for unread "Kitchen Reply" entries matching the order number. If any exist, show a red dot on the message icon.
+**2. Fix Header AI icon to use in-page AI chat instead of route navigation** (`src/components/Header.tsx`)
+- When on a `/settings/*` route, clicking the AI icon should trigger `showAIChat` state in the Settings page rather than navigating to `/settings/ai-assistant`
+- This ensures the context (current pathname) is used to pick the right suggestion chips
+- For non-settings pages, keep existing behavior (navigate to `/settings/ai-assistant`)
 
-**Chat Popup**: When clicked, open a dialog/popover showing:
-- Each sent message (from POS to kitchen) with: message text, sender name, device/terminal, timestamp
-- Each kitchen reply (from notifications) below the corresponding sent message
-- Chat bubble style, POS messages on right, kitchen replies on left
-- Auto-scroll to latest message
+**3. Alternatively, pass context via route state** (`src/components/Header.tsx` + `src/components/routes/AISettingsRoute.tsx`)
+- Simpler approach: When on settings pages, the Header AI icon navigates to `/settings/ai-assistant` with the current context as route state
+- The `AISettingsRoute` already reads `context` from `location.state` and passes it to `AISettingsContent`
+- Just need to derive the context from the current pathname in the Header and pass it
+
+### Recommended Approach (Option 3 - simpler)
+
+**File: `src/components/Header.tsx`** (line ~232)
+- Derive settings context from `location.pathname` (same logic as in `Settings.tsx` lines 274-285)
+- Pass it as route state: `navigate('/settings/ai-assistant', { state: { context } })`
+
+**File: `src/components/settings/AISettingsContent.tsx`**
+- Add `workforceSuggestionChips` and `accountSuggestionChips` arrays
+- Add entries to `contextChipsMap` for `workforce` and `account`
 
 ### Technical Details
-
-**Data Sources**:
-- **Sent messages**: Query `kds_messages` table filtered by `linked_order_id` matching `selectedGuest.id`
-- **Kitchen replies**: Query `notifications` table where `title LIKE 'Kitchen Reply - Order #X'` to get reply text, parsed from the `body` field
-
-**New Component**: `src/components/OrderMessageThread.tsx`
-- Props: `orderId`, `orderNumber`, `open`, `onOpenChange`
-- Fetches kds_messages for the order + notifications for kitchen replies
-- Renders chat-style thread with timestamps and metadata
-- Realtime subscription on both tables for live updates
-
-**Files Changed**:
-1. **Create** `src/components/OrderMessageThread.tsx` - Chat thread popup component
-2. **Edit** `src/pages/Tickets.tsx` - Add message icon with red dot in desktop order panel header (line ~3393) and mobile panel header (line ~2170), add state for thread dialog, wire up data queries
-
-**Icon Behavior**:
-- Always visible in header if order has any kds_messages
-- Red dot appears when there are unread kitchen reply notifications for that order
-- Click opens the `OrderMessageThread` popup
-- Clicking the thread marks related notifications as read
+- The `contextChipsMap` already handles: menu, system, payments, end-of-day, guest-book, support, network, hardware, notifications, reports
+- Need to add: workforce, account
+- Manual typing in the chat will continue to work for any settings action regardless of which tab suggestions are shown - the edge function handles all settings operations
 

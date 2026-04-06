@@ -19,6 +19,7 @@ interface KitchenReply {
   body: string;
   created_at: string;
   is_read: boolean;
+  version: string | null;
 }
 
 interface ThreadMessage {
@@ -59,7 +60,7 @@ export default function OrderMessageThread({ orderId, orderNumber, open, onOpenC
     const fetchReplies = async () => {
       const { data } = await (supabase as any)
         .from("notifications")
-        .select("id, body, created_at, is_read")
+        .select("id, body, created_at, is_read, version")
         .like("title", `%Order #${orderNumber}%`)
         .eq("category", "kitchen")
         .order("created_at", { ascending: true });
@@ -91,7 +92,7 @@ export default function OrderMessageThread({ orderId, orderNumber, open, onOpenC
       .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () => {
         (supabase as any)
           .from("notifications")
-          .select("id, body, created_at, is_read")
+          .select("id, body, created_at, is_read, version")
           .like("title", `%Order #${orderNumber}%`)
           .eq("category", "kitchen")
           .order("created_at", { ascending: true })
@@ -139,6 +140,7 @@ export default function OrderMessageThread({ orderId, orderNumber, open, onOpenC
         type: "reply",
         text: r.body,
         sender: "Kitchen",
+        device: r.version || "KDS",
         timestamp: r.created_at,
         isRead: r.is_read,
       });

@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useMemo } from "react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, Search, Plus, Phone, Mail, Star, Calendar, UtensilsCrossed, Car, AlertTriangle, ClipboardList, MessageSquare, Tag, Archive, ArrowDownAZ, X, Pencil, Clock, Users, ChevronRight, Info } from "lucide-react";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -1442,9 +1442,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
                 <Search className="w-4 h-4 text-neutral-500" />
                 <input type="text" placeholder="Search" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-sm" />
-              </div>
-              <div className="overflow-visible flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32 }}>
-                <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai'))} />
               </div>
             </div>
             {/* List */}

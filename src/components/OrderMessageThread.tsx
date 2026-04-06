@@ -92,7 +92,7 @@ export default function OrderMessageThread({ orderId, orderNumber, open, onOpenC
       .on("postgres_changes", { event: "*", schema: "public", table: "notifications" }, () => {
         (supabase as any)
           .from("notifications")
-          .select("id, body, created_at, is_read")
+          .select("id, body, created_at, is_read, version")
           .like("title", `%Order #${orderNumber}%`)
           .eq("category", "kitchen")
           .order("created_at", { ascending: true })

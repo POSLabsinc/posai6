@@ -19,6 +19,7 @@ interface KitchenReply {
   body: string;
   created_at: string;
   is_read: boolean;
+  version: string | null;
 }
 
 interface ThreadMessage {

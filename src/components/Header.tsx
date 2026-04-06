@@ -232,20 +232,12 @@ const Header = () => {
           <div className="overflow-visible flex items-center justify-center">
             <AnimatedAIIcon size={20} onClick={() => {
               const path = location.pathname;
-              let context = 'generic';
-              if (path.includes('/settings/system')) context = 'system';
-              else if (path.includes('/settings/menu')) context = 'menu';
-              else if (path.includes('/settings/payments')) context = 'payments';
-              else if (path.includes('/settings/end-of-day')) context = 'end-of-day';
-              else if (path.includes('/settings/guest-book')) context = 'guest-book';
-              else if (path.includes('/settings/support')) context = 'support';
-              else if (path.includes('/settings/network')) context = 'network';
-              else if (path.includes('/settings/hardware')) context = 'hardware';
-              else if (path.includes('/settings/notifications')) context = 'notifications';
-              else if (path.includes('/settings/reports')) context = 'reports';
-              else if (path.includes('/settings/workforce')) context = 'workforce';
-              else if (path.includes('/settings/account')) context = 'account';
-              navigate('/settings/ai-assistant', { state: { context } });
+              if (path.startsWith('/settings') && path !== '/settings/ai-assistant') {
+                window.dispatchEvent(new CustomEvent('open-settings-ai-chat'));
+              } else {
+                let context = 'generic';
+                navigate('/settings/ai-assistant', { state: { context } });
+              }
             }} />
           </div>
 

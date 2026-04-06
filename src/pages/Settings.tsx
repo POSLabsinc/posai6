@@ -282,6 +282,7 @@ const getContentForRoute = (
       : pathname.startsWith('/settings/hardware') ? 'hardware'
       : pathname.startsWith('/settings/notifications') ? 'notifications'
       : pathname.startsWith('/settings/reports') ? 'reports'
+      : (pathname === '/settings/account' || pathname === '/settings' || pathname.startsWith('/settings/account/')) ? 'account'
       : undefined;
     return <AISettingsContent showHeader={true} onBack={() => setShowAIChat(false)} context={aiContext} />;
   }
@@ -569,6 +570,13 @@ const Settings = () => {
   const [shiftCurrentWeek, setShiftCurrentWeek] = useState<Date>(new Date());
   const [shiftCurrentDate, setShiftCurrentDate] = useState<Date>(new Date());
   const [shiftCurrentMonth, setShiftCurrentMonth] = useState<Date>(new Date());
+
+  // Listen for Header AI icon click to open inline AI chat
+  useEffect(() => {
+    const handleOpenAI = () => setShowAIChat(true);
+    window.addEventListener('open-settings-ai-chat', handleOpenAI);
+    return () => window.removeEventListener('open-settings-ai-chat', handleOpenAI);
+  }, []);
 
   // Reset shift expanded when navigating away
   useEffect(() => {

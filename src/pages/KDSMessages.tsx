@@ -122,7 +122,7 @@ const KDSMessages = () => {
         title: `Kitchen Reply${contextParts ? ` - ${contextParts}` : ""}`,
         preview: previewParts,
         headline: `Reply to: ${originalMsg.employee_name}`,
-        body: `Kitchen replied: "${replyText}"${contextParts ? ` (${contextParts})` : ""}. Original message: "${originalMsg.message_text}"`,
+        body: replyText,
         bullets: [],
         version: "KDS",
         version_date: new Date().toISOString().slice(0, 10),

@@ -277,6 +277,13 @@ const Orders = () => {
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
 
+  // Listen for header AI icon click
+  useEffect(() => {
+    const handleOpenAI = () => setIsAIChatOpen(true);
+    window.addEventListener('open-order-ai-chat', handleOpenAI);
+    return () => window.removeEventListener('open-order-ai-chat', handleOpenAI);
+  }, []);
+
   // Dynamic arrived-at time based on when the order screen was opened
   const [arrivedAt] = useState(() => {
     const now = new Date();

@@ -93,15 +93,15 @@ const CSS = `
 }
 
 .sci-key-clockin {
-  background: linear-gradient(145deg, #22c55e, #16a34a);
-  box-shadow: 0 4px 0 #15803d, 0 6px 12px rgba(34,197,94,0.3), inset 0 1px 0 rgba(255,255,255,0.15);
-  color: white;
+  background: linear-gradient(145deg, #ffffff, #e5e5e5);
+  box-shadow: 0 4px 0 #d4d4d4, 0 6px 12px rgba(255,255,255,0.2), inset 0 1px 0 rgba(255,255,255,0.5);
+  color: #000000;
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.5px;
 }
 .sci-key-clockin:active {
-  box-shadow: 0 1px 0 #15803d, 0 2px 4px rgba(34,197,94,0.2);
+  box-shadow: 0 1px 0 #d4d4d4, 0 2px 4px rgba(255,255,255,0.1);
 }
 
 .sci-key-clockout {

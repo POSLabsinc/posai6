@@ -32,6 +32,8 @@ interface ClosedSessionData {
 
 const DRAWER_OPTIONS = ["Point of Sale 1", "Point of Sale 2", "Point of Sale 3", "Main Drawer"];
 
+const formatCurrency = (amount: number) => `$${amount.toFixed(2)}`;
+
 const CashManagementContent = ({
   showHeader = true,
   onBack,
@@ -226,32 +228,36 @@ const CashManagementContent = ({
             
             <CollapsibleContent className="mt-3 animate-in slide-in-from-top-2 duration-200">
               <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-                <Table>
+                <Table className="min-w-[1080px]">
                   <TableHeader>
                     <TableRow className="border-neutral-700/50 hover:bg-transparent">
-                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase">Field</TableHead>
-                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right">Value</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Drawer</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Closed At</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Starting Cash</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Sales</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Refunds</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Paid In/Out</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Expected</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Closing Balance</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Difference</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {[
-                      { label: 'Drawer', value: lastClosedSession.drawer, isInfo: true },
-                      { label: 'Closed At', value: formatDateTime(lastClosedSession.closedAt), isInfo: true },
-                      { label: 'Starting Cash', value: `$${lastClosedSession.startingCash.toFixed(2)}` },
-                      { label: 'Cash Sales', value: `$${lastClosedSession.cashSales.toFixed(2)}` },
-                      { label: 'Cash Refunds', value: `$${lastClosedSession.cashRefunds.toFixed(2)}` },
-                      { label: 'Paid In/Out', value: `${lastClosedSession.paidInOut < 0 ? '-' : ''}$${Math.abs(lastClosedSession.paidInOut).toFixed(2)}` },
-                      { label: 'Expected In Drawer', value: `$${lastClosedSession.expectedInDrawer.toFixed(2)}` },
-                      { label: 'Closing Balance', value: `$${lastClosedSession.closingBalance.toFixed(2)}`, isBold: true },
-                      { label: 'Difference', value: `${lastClosedSession.difference >= 0 ? '' : '-'}$${Math.abs(lastClosedSession.difference).toFixed(2)}`, isBold: true, colorClass: lastClosedSession.difference === 0 ? '' : lastClosedSession.difference > 0 ? 'text-green-500' : 'text-red-500' },
-                    ].map((row) => (
-                      <TableRow key={row.label} className="border-neutral-700/50 hover:bg-neutral-700/20">
-                        <TableCell className="text-foreground text-sm font-medium py-3">{row.label}</TableCell>
-                        <TableCell className={`text-right text-sm py-3 ${row.isInfo ? 'text-neutral-400' : row.colorClass || 'text-foreground'} ${row.isBold ? 'font-medium' : ''}`}>
-                          {row.value}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    <TableRow className="border-neutral-700/50 hover:bg-neutral-700/20">
+                      <TableCell className="text-foreground text-sm font-medium py-3 whitespace-nowrap">{lastClosedSession.drawer}</TableCell>
+                      <TableCell className="text-neutral-400 text-sm py-3 whitespace-nowrap">{formatDateTime(lastClosedSession.closedAt)}</TableCell>
+                      <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.startingCash)}</TableCell>
+                      <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.cashSales)}</TableCell>
+                      <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.cashRefunds)}</TableCell>
+                      <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">
+                        {`${lastClosedSession.paidInOut < 0 ? '-' : ''}${formatCurrency(Math.abs(lastClosedSession.paidInOut))}`}
+                      </TableCell>
+                      <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.expectedInDrawer)}</TableCell>
+                      <TableCell className="text-foreground text-sm font-medium py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.closingBalance)}</TableCell>
+                      <TableCell className={`text-sm font-medium py-3 text-right whitespace-nowrap ${lastClosedSession.difference === 0 ? 'text-foreground' : lastClosedSession.difference > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                        {`${lastClosedSession.difference >= 0 ? '' : '-'}${formatCurrency(Math.abs(lastClosedSession.difference))}`}
+                      </TableCell>
+                    </TableRow>
                   </TableBody>
                 </Table>
               </div>

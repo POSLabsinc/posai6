@@ -714,7 +714,7 @@ export const ClockInOverlay = ({
 
       <div className="space-y-2 pt-4 mt-auto">
         <button onClick={handleMoodSubmit} disabled={!selectedEmotion} className="w-full h-12 md:h-14 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 disabled:bg-emerald-500/50 disabled:cursor-not-allowed rounded-xl text-white text-base md:text-lg font-bold transition-colors">
-          {isClockOut ? "Submit & Done" : "Submit & Enter POS"}
+{isClockOut ? "Submit & Done" : "Submit & Enter Point of Sale"}
         </button>
         <button onClick={handleMoodSkip} className="w-full h-10 bg-transparent hover:bg-white/5 rounded-lg text-white/60 hover:text-white/80 text-sm font-medium transition-colors">
           Skip
@@ -751,7 +751,7 @@ export const ClockInOverlay = ({
 
           <div className="relative">
             <button
-              onClick={() => setShowSummaryRevenueCenterDropdown(!showSummaryRevenueCenterDropdown)}
+              onClick={() => { setShowSummaryRevenueCenterDropdown(!showSummaryRevenueCenterDropdown); setShowSummaryJobTypeDropdown(false); }}
               className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
@@ -804,7 +804,7 @@ export const ClockInOverlay = ({
 
           <div className="relative">
             <button
-              onClick={() => setShowSummaryJobTypeDropdown(!showSummaryJobTypeDropdown)}
+              onClick={() => { setShowSummaryJobTypeDropdown(!showSummaryJobTypeDropdown); setShowSummaryRevenueCenterDropdown(false); }}
               className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
@@ -866,7 +866,7 @@ export const ClockInOverlay = ({
 
       <div className="pt-4 mt-auto">
         <button onClick={handleEnterPOSFromSummary} className="w-full h-12 md:h-14 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 rounded-xl text-white text-base md:text-lg font-bold transition-colors">
-          Enter POS
+          Enter Point of Sale
         </button>
       </div>
     </motion.div>;
@@ -1369,7 +1369,7 @@ export const ClockInOverlay = ({
           onClick={handleMoodSubmit}
           className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 rounded-xl text-white text-lg font-bold transition-colors"
         >
-          {isClockOut ? "Submit & Done" : "Submit & Enter POS"}
+          {isClockOut ? "Submit & Done" : "Submit & Enter Point of Sale"}
         </button>
         
         {/* Skip button */}

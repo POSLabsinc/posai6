@@ -405,7 +405,7 @@ export const StandaloneClockInScreen = ({
 
       <button onClick={onEnterPOS}
         className="sci-key sci-key-clockin h-[52px] w-full mt-3 text-sm font-bold">
-        Enter POS
+        Enter Point of Sale
       </button>
       <button onClick={resetToPin} className="text-white/40 text-xs flex items-center gap-1 hover:text-white/60">
         <ArrowLeft className="w-3 h-3" /> Switch User

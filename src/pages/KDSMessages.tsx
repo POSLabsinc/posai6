@@ -127,7 +127,7 @@ const KDSMessages = () => {
         version: "KDS",
         version_date: new Date().toISOString().slice(0, 10),
         time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        category: "team",
+        category: "kitchen",
         has_update: false,
         is_read: false,
         footer: null,

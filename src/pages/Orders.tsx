@@ -2395,7 +2395,7 @@ const Orders = () => {
             }}>
               <img src={searchIcon} alt="Search" className="w-full h-full object-contain" />
             </button>
-            <AnimatedAIIcon size={16} onClick={() => setIsAIChatOpen(prev => !prev)} />
+            
           </div>}
           {showInlineCustomization && selectedItemForCustomization || isSearchMode ? <div className="w-8" /> : null}
         </div>

@@ -283,9 +283,8 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
             )}
             <button className="p-1 active:opacity-70 transition-opacity">
               <Mic className="w-5 h-5 text-muted-foreground" />
-            </button>
+           </button>
           </div>
-          <AnimatedAIIcon onClick={handleAIClick} size={24} />
         </div>
       </div>
     </div>
@@ -321,7 +320,6 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
               <Mic className="w-5 h-5 text-muted-foreground" />
             </button>
           </div>
-          <AnimatedAIIcon onClick={handleAIClick} size={28} />
         </div>
 
         {/* User Profile Card */}

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Coffee, LogOut, FlaskConical, ChefHat, ShoppingBag, Bell as BellIcon } from "lucide-react";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import dinnerIcon from "@/assets/icons/dinner.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import localHostIcon from "@/assets/icons/local-host.png";
@@ -138,6 +139,7 @@ const Header = () => {
 
 
 
+
   const handleClockOut = () => {
     // Just close the overlay - ClockOutOverlay resets to PIN screen internally
     setShowClockOut(false);
@@ -225,6 +227,10 @@ const Header = () => {
               </button>
             </div>
           )}
+
+          <div className="overflow-visible flex items-center justify-center">
+            <AnimatedAIIcon size={20} onClick={() => navigate('/settings/ai-assistant')} />
+          </div>
 
           <button className="relative p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors">
             <img src={localHostIcon} alt="Local Host" className="w-4 md:w-5 h-4 md:h-5" />

@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Coffee, LogOut, FlaskConical, ChefHat, ShoppingBag, Bell as BellIcon } from "lucide-react";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import dinnerIcon from "@/assets/icons/dinner.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import localHostIcon from "@/assets/icons/local-host.png";

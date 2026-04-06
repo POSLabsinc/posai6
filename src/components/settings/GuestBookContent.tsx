@@ -1443,9 +1443,6 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
                 <input type="text" placeholder="Search" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-sm" />
               </div>
-              <div className="overflow-visible flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32 }}>
-                <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-              </div>
             </div>
             {/* List */}
             <div className="flex-1 overflow-y-auto px-2 pb-4 scrollbar-hide">

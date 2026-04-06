@@ -571,6 +571,13 @@ const Settings = () => {
   const [shiftCurrentDate, setShiftCurrentDate] = useState<Date>(new Date());
   const [shiftCurrentMonth, setShiftCurrentMonth] = useState<Date>(new Date());
 
+  // Listen for Header AI icon click to open inline AI chat
+  useEffect(() => {
+    const handleOpenAI = () => setShowAIChat(true);
+    window.addEventListener('open-settings-ai-chat', handleOpenAI);
+    return () => window.removeEventListener('open-settings-ai-chat', handleOpenAI);
+  }, []);
+
   // Reset shift expanded when navigating away
   useEffect(() => {
     if (location.pathname !== '/settings/workforce/shift') {

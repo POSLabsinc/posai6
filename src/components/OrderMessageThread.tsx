@@ -60,7 +60,7 @@ export default function OrderMessageThread({ orderId, orderNumber, open, onOpenC
     const fetchReplies = async () => {
       const { data } = await (supabase as any)
         .from("notifications")
-        .select("id, body, created_at, is_read")
+        .select("id, body, created_at, is_read, version")
         .like("title", `%Order #${orderNumber}%`)
         .eq("category", "kitchen")
         .order("created_at", { ascending: true });

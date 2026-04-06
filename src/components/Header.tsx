@@ -234,6 +234,10 @@ const Header = () => {
               const path = location.pathname;
               if (path.startsWith('/settings') && path !== '/settings/ai-assistant') {
                 window.dispatchEvent(new CustomEvent('open-settings-ai-chat'));
+              } else if (path.startsWith('/orders')) {
+                window.dispatchEvent(new CustomEvent('open-order-ai-chat'));
+              } else if (path.startsWith('/tickets')) {
+                window.dispatchEvent(new CustomEvent('open-ticket-ai-chat'));
               } else {
                 let context = 'generic';
                 navigate('/settings/ai-assistant', { state: { context } });

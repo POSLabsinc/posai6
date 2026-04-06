@@ -826,6 +826,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false); // Mobile filters bottom sheet
   const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false); // Receipt options dialog
   const [isAIChatOpen, setIsAIChatOpen] = useState(false); // AI chat panel visibility
+
+  // Listen for header AI icon click
+  useEffect(() => {
+    const handleOpenAI = () => setIsAIChatOpen(true);
+    window.addEventListener('open-ticket-ai-chat', handleOpenAI);
+    return () => window.removeEventListener('open-ticket-ai-chat', handleOpenAI);
+  }, []);
+
   const [isDiscountDialogOpen, setIsDiscountDialogOpen] = useState(false); // Discount dialog
   const [showDiscountMpin, setShowDiscountMpin] = useState(false); // MPIN gate for discount
   const [showRefundConfirmation, setShowRefundConfirmation] = useState(false); // Refund confirmation dialog

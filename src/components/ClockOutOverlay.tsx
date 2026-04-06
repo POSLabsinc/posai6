@@ -1546,7 +1546,7 @@ export const ClockOutOverlay = ({
       className="relative z-10 grid grid-cols-12 w-full h-full"
     >
       {/* Left Info Panel - 4 columns */}
-      <div className="col-span-4 flex flex-col justify-center items-start px-10 lg:px-16 bg-gradient-to-br from-black/30 to-transparent">
+      <div className="col-span-5 flex flex-col justify-center items-start pl-20 lg:pl-28 xl:pl-36 pr-10 bg-gradient-to-br from-black/30 to-transparent">
         {/* Date - Large */}
         <p className="text-white text-xl lg:text-2xl font-semibold mb-4 tracking-wide">
           {format(currentTime, "EEEE, MMMM d, yyyy")}

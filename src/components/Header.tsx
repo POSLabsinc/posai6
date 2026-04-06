@@ -229,7 +229,23 @@ const Header = () => {
           )}
 
           <div className="overflow-visible flex items-center justify-center">
-            <AnimatedAIIcon size={20} onClick={() => navigate('/settings/ai-assistant')} />
+            <AnimatedAIIcon size={20} onClick={() => {
+              const path = location.pathname;
+              let context = 'generic';
+              if (path.includes('/settings/system')) context = 'system';
+              else if (path.includes('/settings/menu')) context = 'menu';
+              else if (path.includes('/settings/payments')) context = 'payments';
+              else if (path.includes('/settings/end-of-day')) context = 'end-of-day';
+              else if (path.includes('/settings/guest-book')) context = 'guest-book';
+              else if (path.includes('/settings/support')) context = 'support';
+              else if (path.includes('/settings/network')) context = 'network';
+              else if (path.includes('/settings/hardware')) context = 'hardware';
+              else if (path.includes('/settings/notifications')) context = 'notifications';
+              else if (path.includes('/settings/reports')) context = 'reports';
+              else if (path.includes('/settings/workforce')) context = 'workforce';
+              else if (path.includes('/settings/account')) context = 'account';
+              navigate('/settings/ai-assistant', { state: { context } });
+            }} />
           </div>
 
           <button className="relative p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors">

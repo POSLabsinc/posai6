@@ -1684,7 +1684,7 @@ export const ClockInOverlay = ({
                 </AnimatePresence>
               </div>
             </motion.div> : showJobSelection && validatedEmployee ? (
-              <div className="w-full max-w-[540px]">
+              <div className="w-full max-w-[620px]">
                 {renderJobSelection()}
               </div>
             ) : showFingerprintScan ? (

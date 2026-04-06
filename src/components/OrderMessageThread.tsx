@@ -140,6 +140,7 @@ export default function OrderMessageThread({ orderId, orderNumber, open, onOpenC
         type: "reply",
         text: r.body,
         sender: "Kitchen",
+        device: r.version || "KDS",
         timestamp: r.created_at,
         isRead: r.is_read,
       });

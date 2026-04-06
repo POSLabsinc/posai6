@@ -138,6 +138,7 @@ const Header = () => {
   }, [showNotifPopover]);
 
 
+          <AnimatedAIIcon size={20} onClick={() => navigate('/settings/ai-assistant')} />
 
   const handleClockOut = () => {
     // Just close the overlay - ClockOutOverlay resets to PIN screen internally

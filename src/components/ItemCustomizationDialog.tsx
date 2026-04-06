@@ -1418,7 +1418,7 @@ export const ItemCustomizationDialog = ({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent 
-          className={`bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full overflow-hidden rounded-2xl flex flex-col ${
+          className={`bg-neutral-900 border-neutral-700 p-0 max-w-lg w-[95vw] md:w-full overflow-hidden rounded-2xl flex flex-col ${
             currentView === 'mpin' ? 'h-auto' : 'max-h-[90vh]'
           }`}
         >

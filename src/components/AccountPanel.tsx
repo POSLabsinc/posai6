@@ -185,9 +185,6 @@ const AccountPanel = ({
       {/* Header - only shown in tablet view */}
       {showHeader && <div className="flex items-center justify-center py-4 relative">
           <h1 className="text-base font-medium text-foreground">Account</h1>
-          <div className="absolute right-4 overflow-visible">
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-          </div>
         </div>}
 
       {/* Content */}

@@ -1,42 +1,44 @@
 
 
-## Plan: Context-Aware AI Assistant Suggestions Based on Active Settings Tab
+## Plan: Fix Context-Aware AI Suggestions Per Settings Tab
 
 ### Problem
-The AI assistant already has context-based suggestion chips defined for most sidebar tabs (system, payments, menu, etc.), but two things need fixing:
-1. **Missing `workforce` context chips** - no suggestion chips defined for the Workforce tab
-2. **Header AI icon doesn't pass context** - clicking the AI icon from the header navigates to `/settings/ai-assistant` without passing the current settings context, so suggestions default to generic ones
-3. The context mapping needs to work seamlessly so that when the AI assistant opens from any settings screen, it shows relevant suggestions for that tab
+The Header's AI icon always navigates to `/settings/ai-assistant` route with a one-time context from `location.state`. This means:
+- Context is set once and never updates when switching tabs
+- Sidebar tab clicks navigate away from the AI assistant entirely
+- The Settings page already has a working inline AI chat mode (`showAIChat`) that dynamically derives context from the current pathname, but the Header bypasses it
 
-### What Changes
+### Solution
+Instead of navigating to a separate `/settings/ai-assistant` route from the Header, trigger the Settings page's inline AI chat mode when the user is on any settings page. This reuses the existing `getContentForRoute` logic that already maps pathnames to correct context.
 
-**1. Add missing context chip sets** (`src/components/settings/AISettingsContent.tsx`)
-- Add `workforceSuggestionChips` array with relevant prompts (e.g., "View employees", "Manage shifts", "Time tracking settings", "Roles and permissions")
-- Add `accountSuggestionChips` for the Account tab (e.g., "Personal info", "Restaurant info", "Security settings")
-- Register both in `contextChipsMap`
+### Changes
 
-**2. Fix Header AI icon to use in-page AI chat instead of route navigation** (`src/components/Header.tsx`)
-- When on a `/settings/*` route, clicking the AI icon should trigger `showAIChat` state in the Settings page rather than navigating to `/settings/ai-assistant`
-- This ensures the context (current pathname) is used to pick the right suggestion chips
-- For non-settings pages, keep existing behavior (navigate to `/settings/ai-assistant`)
+**1. Store AI chat state globally** (new approach)
+- Use a lightweight global event or a shared ref/context so the Header can tell the Settings page to open its inline AI chat
+- Option: Use a custom event `open-settings-ai-chat` that the Settings page listens for
 
-**3. Alternatively, pass context via route state** (`src/components/Header.tsx` + `src/components/routes/AISettingsRoute.tsx`)
-- Simpler approach: When on settings pages, the Header AI icon navigates to `/settings/ai-assistant` with the current context as route state
-- The `AISettingsRoute` already reads `context` from `location.state` and passes it to `AISettingsContent`
-- Just need to derive the context from the current pathname in the Header and pass it
+**2. Edit `src/components/Header.tsx`**
+- When on a `/settings/*` path (but not `/settings/ai-assistant`), dispatch a custom event instead of navigating
+- For non-settings paths, keep current navigation behavior
 
-### Recommended Approach (Option 3 - simpler)
+**3. Edit `src/pages/Settings.tsx`**
+- Listen for the custom event and call `setShowAIChat(true)` when received
+- The existing `getContentForRoute` already derives the correct context from `location.pathname` (lines 274-285), so suggestions will automatically match the active tab
 
-**File: `src/components/Header.tsx`** (line ~232)
-- Derive settings context from `location.pathname` (same logic as in `Settings.tsx` lines 274-285)
-- Pass it as route state: `navigate('/settings/ai-assistant', { state: { context } })`
+**4. Edit `src/pages/Settings.tsx` - `getContentForRoute`**
+- Add missing `account` context mapping (currently missing from lines 274-285, but exists in the Header and `contextChipsMap`)
 
-**File: `src/components/settings/AISettingsContent.tsx`**
-- Add `workforceSuggestionChips` and `accountSuggestionChips` arrays
-- Add entries to `contextChipsMap` for `workforce` and `account`
+### How It Works After Fix
+1. User is on `/settings/system` and clicks AI icon in Header
+2. Header dispatches `open-settings-ai-chat` event
+3. Settings page receives event, sets `showAIChat = true`
+4. `getContentForRoute` sees `pathname = /settings/system`, sets `aiContext = 'system'`
+5. AI assistant shows system-specific suggestions
+6. User clicks "Payments" in sidebar - navigates to `/settings/payments`, `showAIChat` resets
+7. User clicks AI icon again - now shows payments suggestions
 
 ### Technical Details
-- The `contextChipsMap` already handles: menu, system, payments, end-of-day, guest-book, support, network, hardware, notifications, reports
-- Need to add: workforce, account
-- Manual typing in the chat will continue to work for any settings action regardless of which tab suggestions are shown - the edge function handles all settings operations
+- Custom DOM event pattern keeps components decoupled without adding a new context provider
+- No new dependencies needed
+- Existing `contextChipsMap` already has all tab mappings (system, menu, payments, workforce, account, etc.)
 

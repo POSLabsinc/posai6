@@ -1588,7 +1588,7 @@ export const ClockInOverlay = ({
           y: -20
         }} transition={{
           duration: 0.25
-        }} className="w-full max-w-[540px] flex flex-col max-h-full">
+}} className="w-full max-w-[620px] flex flex-col max-h-full">
               {/* Back button - shown above header when mood check-in is active */}
               {showMoodCheckIn && (
                 <div className="self-start mb-3">

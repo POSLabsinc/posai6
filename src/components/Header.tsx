@@ -228,6 +228,10 @@ const Header = () => {
             </div>
           )}
 
+          <div className="overflow-visible flex items-center justify-center">
+            <AnimatedAIIcon size={20} onClick={() => navigate('/settings/ai-assistant')} />
+          </div>
+
           <button className="relative p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors">
             <img src={localHostIcon} alt="Local Host" className="w-4 md:w-5 h-4 md:h-5" />
             <span className="absolute -top-0.5 md:-top-1 -right-0.5 md:-right-1 w-2 md:w-2.5 h-2 md:h-2.5 bg-amber-500 rounded-full border border-sidebar" />

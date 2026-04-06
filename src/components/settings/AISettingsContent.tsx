@@ -248,6 +248,20 @@ const reportsSuggestionChips: SuggestionChip[] = [
   { label: "This month", icon: <ExternalLink className="w-3.5 h-3.5" />, prompt: "Generate this month's sales report" },
 ];
 
+const workforceSuggestionChips: SuggestionChip[] = [
+  { label: "View employees", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all employees" },
+  { label: "Manage shifts", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show me shift schedules" },
+  { label: "Roles and permissions", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Show me employee roles and permissions" },
+  { label: "Time tracking", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show time tracking settings" },
+];
+
+const accountSuggestionChips: SuggestionChip[] = [
+  { label: "Restaurant info", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me restaurant information" },
+  { label: "Security settings", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Show me security settings" },
+  { label: "Business hours", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show me business hours configuration" },
+  { label: "Profile settings", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Show my profile settings" },
+];
+
 const contextChipsMap: Record<string, SuggestionChip[]> = {
   menu: menuSuggestionChips,
   system: systemSuggestionChips,
@@ -259,6 +273,8 @@ const contextChipsMap: Record<string, SuggestionChip[]> = {
   hardware: hardwareSuggestionChips,
   notifications: notificationsSuggestionChips,
   reports: reportsSuggestionChips,
+  workforce: workforceSuggestionChips,
+  account: accountSuggestionChips,
 };
 
 const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsContentProps) => {

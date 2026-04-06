@@ -1369,7 +1369,7 @@ export const ClockInOverlay = ({
           onClick={handleMoodSubmit}
           className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 rounded-xl text-white text-lg font-bold transition-colors"
         >
-          {isClockOut ? "Submit & Done" : "Submit & Enter POS"}
+          {isClockOut ? "Submit & Done" : "Submit & Enter Point of Sale"}
         </button>
         
         {/* Skip button */}

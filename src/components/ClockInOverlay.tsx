@@ -1402,7 +1402,7 @@ export const ClockInOverlay = ({
         transition={{ duration: 0.25, ease: "easeOut" }}
         className={`relative z-10 flex justify-center w-full h-full p-4 pb-6 overflow-y-auto ${showCenteredLayout ? 'items-center' : 'items-start pt-8'}`}
       >
-        <div className="w-full max-w-[420px] bg-black/60 backdrop-blur-xl rounded-2xl p-5 flex flex-col max-h-[calc(100vh-56px)]">
+        <div className="w-full max-w-[560px] bg-black/60 backdrop-blur-xl rounded-2xl p-5 flex flex-col max-h-[calc(100vh-56px)]">
           <AnimatePresence mode="wait">
             {clockInSummary ? (
               <motion.div
@@ -1684,7 +1684,7 @@ export const ClockInOverlay = ({
                 </AnimatePresence>
               </div>
             </motion.div> : showJobSelection && validatedEmployee ? (
-              <div className="w-full max-w-[540px]">
+              <div className="w-full max-w-[620px]">
                 {renderJobSelection()}
               </div>
             ) : showFingerprintScan ? (

@@ -152,8 +152,8 @@ const CSS = `
 .sci-bounce { animation: sci-bounce 0.3s ease; }
 
 @keyframes sci-pulse-green {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(34,197,94,0.4); }
-  50% { box-shadow: 0 0 20px 6px rgba(34,197,94,0.2); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.3); }
+  50% { box-shadow: 0 0 20px 6px rgba(255,255,255,0.15); }
 }
 .sci-pulse-green { animation: sci-pulse-green 2s infinite; }
 `;

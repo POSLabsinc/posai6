@@ -751,7 +751,7 @@ export const ClockInOverlay = ({
 
           <div className="relative">
             <button
-              onClick={() => setShowSummaryRevenueCenterDropdown(!showSummaryRevenueCenterDropdown)}
+              onClick={() => { setShowSummaryRevenueCenterDropdown(!showSummaryRevenueCenterDropdown); setShowSummaryJobTypeDropdown(false); }}
               className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">

@@ -56,6 +56,7 @@ function getTimeAgo(dateStr: string): string {
 
 const Header = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   useApp();
   const [session, setSession] = useState<SessionData | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());

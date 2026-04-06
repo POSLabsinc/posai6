@@ -282,6 +282,7 @@ const getContentForRoute = (
       : pathname.startsWith('/settings/hardware') ? 'hardware'
       : pathname.startsWith('/settings/notifications') ? 'notifications'
       : pathname.startsWith('/settings/reports') ? 'reports'
+      : (pathname === '/settings/account' || pathname === '/settings' || pathname.startsWith('/settings/account/')) ? 'account'
       : undefined;
     return <AISettingsContent showHeader={true} onBack={() => setShowAIChat(false)} context={aiContext} />;
   }

@@ -3431,9 +3431,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   <div className="relative">
                     <button
                       onClick={() => setShowMessageThread(prev => !prev)}
-                      className="p-1 rounded hover:bg-white/10 transition-colors relative"
+                      className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors relative"
                     >
-                      <MessageSquare className="w-4 h-4 text-orange-400" />
+                      <img src={messageKdsIcon} alt="Messages" className="w-4 h-4" style={{ filter: "brightness(0) saturate(100%) invert(62%) sepia(93%) saturate(1637%) hue-rotate(360deg) brightness(101%) contrast(97%)" }} />
                       {selectedOrderHasUnread && (
                         <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
                       )}

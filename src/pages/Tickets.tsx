@@ -338,12 +338,18 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   // Auto-select order from URL query param (e.g. from notification deep-link)
   useEffect(() => {
     const orderNumberParam = searchParams.get("orderNumber");
+    const openChatParam = searchParams.get("openChat");
     if (orderNumberParam && allOrders.length > 0) {
       const targetOrder = allOrders.find(o => String(o.orderNumber) === orderNumberParam);
       if (targetOrder) {
         setSelectedGuest(targetOrder);
-        // Clear the param so it doesn't re-trigger
+        // Auto-open chat box if openChat param is set
+        if (openChatParam === "true") {
+          setShowMessageThread(true);
+        }
+        // Clear the params so they don't re-trigger
         searchParams.delete("orderNumber");
+        searchParams.delete("openChat");
         setSearchParams(searchParams, { replace: true });
       }
     }

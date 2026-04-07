@@ -1,32 +1,34 @@
 
 
-## Plan: Settings Module Quick-Navigation Buttons
+## Plan: Hierarchical Settings Navigation Within AI Chat
 
 ### Problem
-When the user types "settings" or "go to settings", the AI returns a text list of settings modules. The user wants these modules to appear as tappable buttons (like the order quick-action buttons) that directly navigate to the relevant settings page.
+When a user selects a settings module button (e.g., "Menu") in the AI chat, it navigates to that settings page, leaving the chat. The user wants sub-options to appear as new buttons inline in the chat, allowing full drill-down without leaving the AI Assistant.
 
 ### Implementation
 
 **Modify `src/components/settings/AISettingsContent.tsx`:**
 
-1. **Add a settings navigation map** - Define a constant mapping settings module labels to their navigation paths:
-   - "Menu" -> `/settings/menu`
-   - "Products" -> `/settings/menu/products`
-   - "Categories" -> `/settings/menu/categories`
-   - "Modifiers" -> `/settings/menu/modifiers`
-   - "Add-ons" -> `/settings/menu/add-ons`
-   - "Discounts" -> `/settings/payments/discounts`
-   - "Taxes" -> `/settings/payments/taxes`
-   - "Gratuity" -> `/settings/payments/gratuity`
-   - "Service Charge" -> `/settings/payments/service-charge`
-   - "Appearance" -> `/settings/system/appearance`
-   - "Control Center" -> `/settings/system/control-center`
-   - "Checkout Options" -> `/settings/payments/checkout-options`
+1. **Replace flat SETTINGS_NAV_MAP with a hierarchical map** - Define a nested structure where each top-level module has children:
+   - "Menu" -> children: ["Products", "Categories", "Modifiers", "Add-ons", "Default Modifiers", "Groups", "Timed Pricing", "Inventory", "Menus"]
+   - "Payments" -> children: ["Discounts", "Taxes", "Gratuity", "Service Charge", "Checkout Options"]
+   - "System" -> children: ["Appearance", "Control Center"]
+   - "Workforce" -> children: ["Employee", "Shift", "Schedule Information"]
+   - "Hardware" -> children: ["Printer", "Card Reader", "Cash Register"]
+   - "Network" -> children: ["Servers", "AI Integration"]
+   - "Support" -> children: ["Feedback", "Contact", "About"]
+   - "Notifications" -> children: ["All Notifications"]
+   - Leaf nodes (no children) keep their navigation path for final navigation
 
-2. **Update the quick-reply click handler** - In the existing button onClick handler (around line 1782), add a check: if the reply label matches a key in the settings navigation map, call `onNavigate?.(path)` or `navigate(path)` directly instead of sending it as a message.
+2. **Update quick-reply click handler** - When a module button is clicked:
+   - If it has children: instead of navigating, inject a new assistant message with the sub-options as quickReplies (e.g., "You selected Menu. Choose a section:") plus a "Go to Menu" button to navigate directly if preferred
+   - If it is a leaf node (no children): navigate to the settings page as before
+   - Add a "Back" button in sub-option messages to go back to the parent level
 
-3. **Add settings-intent detection** - Similar to the order-intent detection, detect when the user asks about settings/navigation (e.g., "settings", "go to settings", "show me settings") and inject a welcome message with quickReplies containing all the settings module labels so they appear as buttons immediately.
+3. **Add leaf-node navigation mapping** - Keep a flat map for final leaf nodes that trigger actual navigation (e.g., "Products" -> `/settings/menu/products`, "Gratuity" -> `/settings/payments/gratuity`)
+
+4. **Add "Go to [Module]" direct navigation option** - Each sub-level includes a "Go to [Parent]" button that navigates to the parent module page for users who want to see the full settings UI
 
 ### Files to Modify
-- `src/components/settings/AISettingsContent.tsx` - Add settings nav map, update quick-reply handler, add settings-intent detection with auto-injected module buttons
+- `src/components/settings/AISettingsContent.tsx` - Replace flat nav map with hierarchical structure, update click handler logic
 

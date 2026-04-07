@@ -944,7 +944,7 @@ export const ClockInOverlay = ({
               <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </div>
             <div className="flex-1">
-              <p className="text-white/60 text-xs font-medium mb-0.5">Job Type</p>
+              <p className="text-white/60 text-xs font-medium mb-0.5">Role</p>
               <p className="text-white text-lg md:text-xl font-bold">
                 {clockOutSummary!.jobType}
               </p>

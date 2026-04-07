@@ -1,22 +1,32 @@
 
 
-## Plan: Show Order Quick-Action Buttons in Settings AI Chat
+## Plan: Settings Module Quick-Navigation Buttons
 
 ### Problem
-When the AI responds with order-related options, users must read text and type responses. Instead, options should appear as tappable buttons so users can quickly choose what they want.
+When the user types "settings" or "go to settings", the AI returns a text list of settings modules. The user wants these modules to appear as tappable buttons (like the order quick-action buttons) that directly navigate to the relevant settings page.
 
 ### Implementation
 
 **Modify `src/components/settings/AISettingsContent.tsx`:**
 
-1. **Show order quick-action buttons immediately when order mode activates** - Currently the order quick-action bar (Browse Menu, Order Type, Summary, Clear) only shows at the bottom. Make these buttons also appear inline as part of the assistant's first order-mode response message, so users see clickable options right away.
+1. **Add a settings navigation map** - Define a constant mapping settings module labels to their navigation paths:
+   - "Menu" -> `/settings/menu`
+   - "Products" -> `/settings/menu/products`
+   - "Categories" -> `/settings/menu/categories`
+   - "Modifiers" -> `/settings/menu/modifiers`
+   - "Add-ons" -> `/settings/menu/add-ons`
+   - "Discounts" -> `/settings/payments/discounts`
+   - "Taxes" -> `/settings/payments/taxes`
+   - "Gratuity" -> `/settings/payments/gratuity`
+   - "Service Charge" -> `/settings/payments/service-charge`
+   - "Appearance" -> `/settings/system/appearance`
+   - "Control Center" -> `/settings/system/control-center`
+   - "Checkout Options" -> `/settings/payments/checkout-options`
 
-2. **Add quick-reply buttons to order assistant messages** - When `handleOrderMessage` processes a response, parse the AI text for actionable options and attach them as `quickReplies` on the message. For example, after "What would you like to do?", add buttons like "Browse Menu", "Set Order Type", "Add Product", "View Summary".
+2. **Update the quick-reply click handler** - In the existing button onClick handler (around line 1782), add a check: if the reply label matches a key in the settings navigation map, call `onNavigate?.(path)` or `navigate(path)` directly instead of sending it as a message.
 
-3. **Auto-inject quick-reply buttons on order mode entry** - When order mode first activates (first order intent detected), the assistant welcome message should include quick-reply buttons: `["Browse Menu", "Order Type", "Add Product", "View Summary", "Go to Orders"]` so users can tap instead of type.
-
-4. **Map quick-reply button taps to actions** - Update the quick-reply click handler to detect order-specific button labels and trigger the corresponding action directly (e.g., "Browse Menu" calls `startOrderBrowse()`, "Order Type" toggles `setShowOrderTypes(true)`, "Go to Orders" calls `goToOrdersWithData()`) instead of sending them as text messages to the AI.
+3. **Add settings-intent detection** - Similar to the order-intent detection, detect when the user asks about settings/navigation (e.g., "settings", "go to settings", "show me settings") and inject a welcome message with quickReplies containing all the settings module labels so they appear as buttons immediately.
 
 ### Files to Modify
-- `src/components/settings/AISettingsContent.tsx` - Add quick-reply buttons to order messages, map button clicks to direct actions
+- `src/components/settings/AISettingsContent.tsx` - Add settings nav map, update quick-reply handler, add settings-intent detection with auto-injected module buttons
 

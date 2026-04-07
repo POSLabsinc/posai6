@@ -792,7 +792,7 @@ export const ClockInOverlay = ({
                           }`}
                         >
                           <Icon className="w-7 h-7 text-white" />
-                          <span className="text-[11px] font-medium text-center text-white">{center}</span>
+                          <span className="text-xs font-medium text-center text-white">{center}</span>
                         </button>
                       );
                     })}
@@ -852,7 +852,7 @@ export const ClockInOverlay = ({
                           ) : (
                             <Briefcase className="w-7 h-7 text-white" />
                           )}
-                          <span className="text-[11px] font-medium text-center text-white">{job}</span>
+                          <span className="text-xs font-medium text-center text-white">{job}</span>
                         </button>
                       );
                     })}
@@ -1190,7 +1190,7 @@ export const ClockInOverlay = ({
                           }`}
                         >
                           <Icon className="w-5 h-5 text-white" />
-                          <span className="text-[10px] font-medium text-center leading-tight text-white">{center}</span>
+                          <span className="text-xs font-medium text-center leading-tight text-white">{center}</span>
                         </button>
                       );
                     })}
@@ -1273,7 +1273,7 @@ export const ClockInOverlay = ({
               ) : (
                 <Briefcase className="w-12 h-12 text-white" />
               )}
-              <span className="text-white text-base font-medium">{job}</span>
+              <span className="text-white text-lg font-medium">{job}</span>
             </button>
           ))}
         </div>

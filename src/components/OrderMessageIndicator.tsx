@@ -1,5 +1,5 @@
-import { MessageSquare } from "lucide-react";
 import { useOrderMessageStatus } from "@/components/OrderMessageThread";
+import messageKdsIcon from "@/assets/icons/message-kds.svg";
 
 interface OrderMessageIndicatorProps {
   orderId: string;
@@ -13,7 +13,7 @@ export default function OrderMessageIndicator({ orderId, orderNumber }: OrderMes
 
   return (
     <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-orange-500/20 flex items-center justify-center">
-      <MessageSquare className="w-2.5 h-2.5 text-orange-400" />
+      <img src={messageKdsIcon} alt="KDS message" className="w-2.5 h-2.5 brightness-0 invert-[.6] sepia saturate-[10] hue-rotate-[15deg]" />
     </div>
   );
 }

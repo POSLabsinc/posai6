@@ -1255,7 +1255,7 @@ export const ClockInOverlay = ({
           Welcome, {validatedEmployee?.name}
         </h2>
         <p className="text-white/60 text-sm">
-          Select your role for this shift
+          Select your role
         </p>
       </div>
 

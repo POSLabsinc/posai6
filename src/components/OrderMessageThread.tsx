@@ -274,7 +274,6 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
             ref={suggestionsRef}
             className="absolute bottom-full left-0 right-0 mb-0 mx-3 rounded-lg overflow-hidden z-50 border border-white/10 max-h-[180px] overflow-y-auto scrollbar-none"
             style={{ background: '#2D2D2D', scrollbarWidth: 'none' }}
-            style={{ background: '#2D2D2D' }}
           >
             {filteredSuggestions.map((suggestion, index) => {
               const isRecent = savedSuggestions.some(s => s.toLowerCase() === suggestion.toLowerCase());

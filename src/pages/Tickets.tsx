@@ -2300,7 +2300,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           />
         </div>
       )}
-      {/* Inline Message Thread */}
+      {/* Floating Message Thread */}
       {showMessageThread && selectedGuest.id !== FALLBACK_SELECTED_GUEST_ID && (
         <OrderMessageThread
           orderId={selectedGuest.id}

@@ -168,7 +168,7 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
   };
 
   return (
-    <div className="border-t border-white/10 bg-[#1a1a1a] flex flex-col" style={{ maxHeight: "280px" }}>
+    <div className="absolute bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-[#1a1a1a] flex flex-col rounded-t-xl shadow-2xl shadow-black/50" style={{ maxHeight: "320px" }}>
       {/* Header */}
       <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 shrink-0">
         <div className="flex items-center gap-2">

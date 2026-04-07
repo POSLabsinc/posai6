@@ -629,12 +629,19 @@ const Settings = () => {
   // Full-screen mode: hide sidebar for Guest Book, Notifications, and expanded Shift
   if (!isMobile && (isGuestBook || isNotifications || isShiftExpanded)) {
     return (
-      <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden">
+      <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden relative">
         <div className="flex flex-1 h-full overflow-hidden">
           <div key={location.pathname} className="w-full h-full overflow-y-auto scrollbar-hide">
             {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded, { viewMode: shiftViewMode, setViewMode: setShiftViewMode, currentWeek: shiftCurrentWeek, setCurrentWeek: setShiftCurrentWeek, currentDate: shiftCurrentDate, setCurrentDate: setShiftCurrentDate, currentMonth: shiftCurrentMonth, setCurrentMonth: setShiftCurrentMonth })}
           </div>
         </div>
+        {showAIChat && !isMobile && (
+          <div className="absolute top-0 right-0 bottom-0 z-40 w-[350px] lg:w-[415px] p-[10px] pl-0">
+            <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-neutral-700/50">
+              <AISettingsContent showHeader={true} onBack={() => setShowAIChat(false)} context={aiContext} />
+            </div>
+          </div>
+        )}
       </div>
     );
   }

@@ -13,7 +13,7 @@ export default function OrderMessageIndicator({ orderId, orderNumber }: OrderMes
 
   return (
     <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-orange-500/20 flex items-center justify-center">
-      <img src={messageKdsIcon} alt="KDS message" className="w-2.5 h-2.5 brightness-0 invert-[.6] sepia saturate-[10] hue-rotate-[15deg]" />
+      <img src={messageKdsIcon} alt="KDS message" className="w-2.5 h-2.5" style={{ filter: "brightness(0) saturate(100%) invert(62%) sepia(88%) saturate(1640%) hue-rotate(360deg) brightness(101%) contrast(97%)" }} />
     </div>
   );
 }

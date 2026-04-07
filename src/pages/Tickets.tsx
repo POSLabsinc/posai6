@@ -6191,12 +6191,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         defaultLinkedOrderNumber={selectedGuest?.orderNumber}
       />
 
-      <OrderMessageThread
-        orderId={selectedGuest?.id || ""}
-        orderNumber={selectedGuest?.orderNumber || 0}
-        open={showMessageThread}
-        onOpenChange={setShowMessageThread}
-      />
+
     </>
   );
 };

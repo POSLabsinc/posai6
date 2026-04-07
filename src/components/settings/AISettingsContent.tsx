@@ -337,23 +337,112 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   const ORDER_QUICK_ACTIONS = ["Browse Menu", "Order Type", "View Summary", "Go to Orders"];
 
-  // Settings navigation map for quick-action buttons
-  const SETTINGS_NAV_MAP: Record<string, string> = {
-    "Menu": "/settings/menu",
+  // Hierarchical settings navigation map
+  const SETTINGS_HIERARCHY: Record<string, { path?: string; children?: string[] }> = {
+    "Menu": { path: "/settings/menu", children: ["Products", "Categories", "Modifiers", "Add-ons", "Default Modifiers", "Groups", "Menus"] },
+    "Payments": { path: "/settings/payments", children: ["Discounts", "Taxes", "Gratuity", "Service Charge", "Checkout Options", "Payment Methods", "Cash Management"] },
+    "System": { path: "/settings/system", children: ["Appearance", "Control Center"] },
+    "Workforce": { path: "/settings/workforce", children: ["Employee", "Shift", "Schedule Information"] },
+    "Hardware": { path: "/settings/hardware", children: ["Printer", "Card Reader", "Cash Register"] },
+    "Network": { path: "/settings/network", children: ["Servers", "AI Integration"] },
+    "Support": { path: "/settings/support", children: ["Feedback", "Contact", "About"] },
+    "Notifications": { path: "/settings/notifications" },
+  };
+
+  // Leaf node navigation paths
+  const SETTINGS_LEAF_NAV: Record<string, string> = {
     "Products": "/settings/menu/products",
     "Categories": "/settings/menu/categories",
     "Modifiers": "/settings/menu/modifiers",
     "Add-ons": "/settings/menu/add-ons",
+    "Default Modifiers": "/settings/menu/default-modifiers",
+    "Groups": "/settings/menu/groups",
+    "Menus": "/settings/menu/menus",
     "Discounts": "/settings/payments/discounts",
     "Taxes": "/settings/payments/taxes",
     "Gratuity": "/settings/payments/gratuity",
     "Service Charge": "/settings/payments/service-charge",
+    "Checkout Options": "/settings/payments/checkout-options",
+    "Payment Methods": "/settings/payments/payment-methods",
+    "Cash Management": "/settings/payments/cash-management",
     "Appearance": "/settings/system/appearance",
     "Control Center": "/settings/system/control-center",
-    "Checkout Options": "/settings/payments/checkout-options",
+    "Employee": "/settings/workforce/employee",
+    "Shift": "/settings/workforce/shift",
+    "Schedule Information": "/settings/workforce/schedule",
+    "Printer": "/settings/hardware/printer",
+    "Card Reader": "/settings/hardware/card-reader",
+    "Cash Register": "/settings/hardware/cash-register",
+    "Servers": "/settings/network/servers",
+    "AI Integration": "/settings/network/ai-integration",
+    "Feedback": "/settings/support/feedback",
+    "Contact": "/settings/support/contact",
+    "About": "/settings/support/about",
+    "Notifications": "/settings/notifications",
   };
 
-  const SETTINGS_QUICK_ACTIONS = Object.keys(SETTINGS_NAV_MAP);
+  const SETTINGS_QUICK_ACTIONS = Object.keys(SETTINGS_HIERARCHY);
+
+  // Helper to find parent of a child label
+  const findSettingsParent = (childLabel: string): string | null => {
+    for (const [parent, config] of Object.entries(SETTINGS_HIERARCHY)) {
+      if (config.children?.includes(childLabel)) return parent;
+    }
+    return null;
+  };
+
+  // Handle settings quick-reply clicks with drill-down
+  const handleSettingsQuickReply = (reply: string) => {
+    const hierarchy = SETTINGS_HIERARCHY[reply];
+    if (hierarchy?.children) {
+      // Has children - show sub-options inline
+      const subOptions = [...hierarchy.children, `Go to ${reply}`, "← Back"];
+      const assistantMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: `You selected **${reply}**. Choose a section:`,
+        timestamp: new Date(),
+        quickReplies: subOptions,
+      };
+      setMessages((prev) => [
+        ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined } : msg),
+        assistantMessage,
+      ]);
+      return true;
+    }
+    // Check "Go to X" pattern
+    const goToMatch = reply.match(/^Go to (.+)$/);
+    if (goToMatch) {
+      const target = goToMatch[1];
+      const targetHierarchy = SETTINGS_HIERARCHY[target];
+      if (targetHierarchy?.path) {
+        navigate(targetHierarchy.path);
+        return true;
+      }
+    }
+    // Check "Back" button
+    if (reply === "← Back") {
+      // Go back to top-level settings modules
+      const assistantMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: "Here are the available settings modules. Tap any to explore:",
+        timestamp: new Date(),
+        quickReplies: SETTINGS_QUICK_ACTIONS,
+      };
+      setMessages((prev) => [
+        ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined } : msg),
+        assistantMessage,
+      ]);
+      return true;
+    }
+    // Check leaf node
+    if (SETTINGS_LEAF_NAV[reply]) {
+      navigate(SETTINGS_LEAF_NAV[reply]);
+      return true;
+    }
+    return false;
+  };
 
   const SETTINGS_INTENT_KEYWORDS = ["settings", "go to settings", "show settings", "open settings", "setting", "show me settings", "navigate to settings", "modules"];
 

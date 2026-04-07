@@ -671,19 +671,6 @@ const Settings = () => {
     );
   }
 
-  const aiContext = location.pathname.startsWith('/settings/menu') ? 'menu'
-    : location.pathname.startsWith('/settings/system') ? 'system'
-    : location.pathname.startsWith('/settings/payments') ? 'payments'
-    : location.pathname === '/settings/end-of-day' ? 'end-of-day'
-    : location.pathname === '/settings/guest-book' ? 'guest-book'
-    : location.pathname.startsWith('/settings/workforce') ? 'workforce'
-    : location.pathname.startsWith('/settings/support') ? 'support'
-    : location.pathname.startsWith('/settings/network') ? 'network'
-    : location.pathname.startsWith('/settings/hardware') ? 'hardware'
-    : location.pathname.startsWith('/settings/notifications') ? 'notifications'
-    : location.pathname.startsWith('/settings/reports') ? 'reports'
-    : (location.pathname === '/settings/account' || location.pathname === '/settings' || location.pathname.startsWith('/settings/account/')) ? 'account'
-    : undefined;
 
   return (
     <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden relative">

@@ -913,6 +913,30 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const handleSendMessage = async (content: string, imageDataUrl?: string | null) => {
     if (!content.trim() && !imageDataUrl) return;
 
+    // Detect settings intent and show module buttons
+    if (!imageDataUrl && isSettingsIntent(content.trim())) {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: "user",
+        content: content.trim(),
+        timestamp: new Date(),
+      };
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "Here are the available settings modules. Tap any to navigate directly:",
+        timestamp: new Date(),
+        quickReplies: SETTINGS_QUICK_ACTIONS,
+      };
+      setMessages((prev) => [
+        ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined, multiSelect: undefined } : msg),
+        userMessage,
+        assistantMessage,
+      ]);
+      setInputValue("");
+      return;
+    }
+
     // Detect order intent and route to order chat
     if (!imageDataUrl && isOrderIntent(content.trim())) {
       handleOrderMessage(content.trim());

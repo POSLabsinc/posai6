@@ -1,5 +1,6 @@
 import { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { clearOrderMessages } from "@/utils/clearOrderMessages";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useWriteOffProcessor } from "@/hooks/useWriteOffProcessor";
@@ -5878,7 +5879,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             }));
             
             // Persist payment data to database
-            if (selectedGuest?.id) {
+             if (selectedGuest?.id) {
               updateOrder(selectedGuest.id, {
                 status: "PAID",
                 paymentType: primaryMethod,
@@ -5886,6 +5887,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 paidAmount: totalPaid.toFixed(2),
                 paymentStatus: "completed",
               } as any);
+              clearOrderMessages(selectedGuest.id);
             }
             
             // Mark the ticket as paid so CTA switches to "Add Tip" + "Close"

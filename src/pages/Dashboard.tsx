@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { clearOrderMessages } from "@/utils/clearOrderMessages";
 import { useRestaurantTables } from "@/hooks/use-restaurant-tables";
 import { useTableStatusSync } from "@/hooks/use-table-status-sync";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
@@ -2107,6 +2108,7 @@ const Dashboard = () => {
                 paidAmount: totalPaid.toFixed(2),
                 paymentStatus: "completed",
               } as any).catch(err => console.error('Failed to persist payment:', err));
+              clearOrderMessages(orderId);
             }
             
             // Update local state immediately

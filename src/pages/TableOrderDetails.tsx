@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from "react";
+import { clearOrderMessages } from "@/utils/clearOrderMessages";
 import { SettingsManager } from "@/lib/settingsManager";
 import { toast } from "sonner";
 import { useWriteOffProcessor } from "@/hooks/useWriteOffProcessor";
@@ -3373,6 +3374,7 @@ const TableOrderDetails = () => {
               total: currentSelectedGuest.total - appliedDiscount,
               discount: (currentSelectedGuest.discount || 0) + appliedDiscount,
             } as any);
+            clearOrderMessages(currentSelectedGuest.id);
           }
           
           const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();

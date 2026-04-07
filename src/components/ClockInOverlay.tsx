@@ -1273,7 +1273,7 @@ export const ClockInOverlay = ({
               ) : (
                 <Briefcase className="w-12 h-12 text-white" />
               )}
-              <span className="text-white text-base font-medium">{job}</span>
+              <span className="text-white text-lg font-medium">{job}</span>
             </button>
           ))}
         </div>

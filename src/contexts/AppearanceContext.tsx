@@ -21,7 +21,7 @@ interface AppearanceContextType {
 const AppearanceContext = createContext<AppearanceContextType | undefined>(undefined);
 
 const DARK_ICON_COLOR = '#212121';
-const DEFAULT_TEXT_SIZE = 16; // Default font size in pixels
+const DEFAULT_TEXT_SIZE = 14; // Default font size in pixels
 const MIN_TEXT_SIZE = 12;
 const MAX_TEXT_SIZE = 30;
 const DEFAULT_BRIGHTNESS = 100; // Default brightness percentage (100 = normal)

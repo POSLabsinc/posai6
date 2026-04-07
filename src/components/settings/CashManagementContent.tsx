@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { SettingsManager } from "@/lib/settingsManager";
 

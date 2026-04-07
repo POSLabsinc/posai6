@@ -197,14 +197,16 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
     try { return format(new Date(ts), "h:mm a"); } catch { return ""; }
   };
 
-  const handleSendReply = async () => {
-    if (!replyText.trim() || sending) return;
+  const handleSendReply = async (textOverride?: string) => {
+    const text = (textOverride || replyText).trim();
+    if (!text || sending) return;
     setSending(true);
+    setShowSuggestions(false);
     try {
       const msgId = crypto.randomUUID();
       await (supabase as any).from("kds_messages").insert({
         message_id: msgId,
-        message_text: replyText.trim(),
+        message_text: text,
         store_id: "default",
         terminal_id: "dashboard",
         terminal_name: "Dashboard",
@@ -216,12 +218,19 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
         link_type: "single",
         status: "pending",
       });
+      saveSuggestion(text);
       setReplyText("");
     } catch (e) {
       console.error("Failed to send reply:", e);
     } finally {
       setSending(false);
     }
+  };
+
+  const handleSelectSuggestion = (suggestion: string) => {
+    setReplyText(suggestion);
+    setShowSuggestions(false);
+    inputRef.current?.focus();
   };
 
   return (

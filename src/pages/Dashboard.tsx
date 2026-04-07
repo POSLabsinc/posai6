@@ -2108,6 +2108,7 @@ const Dashboard = () => {
                 paidAmount: totalPaid.toFixed(2),
                 paymentStatus: "completed",
               } as any).catch(err => console.error('Failed to persist payment:', err));
+              clearOrderMessages(orderId);
             }
             
             // Update local state immediately

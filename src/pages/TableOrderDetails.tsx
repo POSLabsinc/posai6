@@ -3374,6 +3374,7 @@ const TableOrderDetails = () => {
               total: currentSelectedGuest.total - appliedDiscount,
               discount: (currentSelectedGuest.discount || 0) + appliedDiscount,
             } as any);
+            clearOrderMessages(currentSelectedGuest.id);
           }
           
           const checkoutSettings = SettingsManager.getCheckoutOptionsSettings();

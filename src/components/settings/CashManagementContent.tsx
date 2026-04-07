@@ -216,53 +216,45 @@ const CashManagementContent = ({
           OPEN DRAWER
         </button>
 
-        {/* History Section - Collapsible */}
+        {/* History Section - Always visible */}
         {lastClosedSession && (
-          <Collapsible open={isHistoryOpen} onOpenChange={setIsHistoryOpen} className="mt-6">
-            <CollapsibleTrigger asChild>
-              <button className="w-full bg-neutral-800/60 rounded-full flex items-center justify-between py-3.5 px-4 active:opacity-70 transition-opacity">
-                <span className="text-foreground text-lg font-medium">History</span>
-                <ChevronDown className={`w-5 h-5 text-neutral-500 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
-              </button>
-            </CollapsibleTrigger>
-            
-            <CollapsibleContent className="mt-3 animate-in slide-in-from-top-2 duration-200">
-              <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-                <Table className="min-w-[1080px]">
-                  <TableHeader>
-                    <TableRow className="border-neutral-700/50 hover:bg-transparent">
-                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Drawer</TableHead>
-                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Closed At</TableHead>
-                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Starting Cash</TableHead>
-                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Sales</TableHead>
-                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Refunds</TableHead>
-                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Paid In/Out</TableHead>
-                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Expected</TableHead>
-                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Closing Balance</TableHead>
-                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Difference</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    <TableRow className="border-neutral-700/50 hover:bg-neutral-700/20">
-                      <TableCell className="text-foreground text-sm font-medium py-3 whitespace-nowrap">{lastClosedSession.drawer}</TableCell>
-                      <TableCell className="text-neutral-400 text-sm py-3 whitespace-nowrap">{formatDateTime(lastClosedSession.closedAt)}</TableCell>
-                      <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.startingCash)}</TableCell>
-                      <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.cashSales)}</TableCell>
-                      <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.cashRefunds)}</TableCell>
-                      <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">
-                        {`${lastClosedSession.paidInOut < 0 ? '-' : ''}${formatCurrency(Math.abs(lastClosedSession.paidInOut))}`}
-                      </TableCell>
-                      <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.expectedInDrawer)}</TableCell>
-                      <TableCell className="text-foreground text-sm font-medium py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.closingBalance)}</TableCell>
-                      <TableCell className={`text-sm font-medium py-3 text-right whitespace-nowrap ${lastClosedSession.difference === 0 ? 'text-foreground' : lastClosedSession.difference > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                        {`${lastClosedSession.difference >= 0 ? '' : '-'}${formatCurrency(Math.abs(lastClosedSession.difference))}`}
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
-              </div>
-            </CollapsibleContent>
-          </Collapsible>
+          <div className="mt-6">
+            <h3 className="text-foreground text-lg font-medium px-4 mb-3">History</h3>
+            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+              <Table className="min-w-[1080px]">
+                <TableHeader>
+                  <TableRow className="border-neutral-700/50 hover:bg-transparent">
+                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Drawer</TableHead>
+                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Closed At</TableHead>
+                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Starting Cash</TableHead>
+                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Sales</TableHead>
+                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Refunds</TableHead>
+                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Paid In/Out</TableHead>
+                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Expected</TableHead>
+                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Closing Balance</TableHead>
+                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Difference</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow className="border-neutral-700/50 hover:bg-neutral-700/20">
+                    <TableCell className="text-foreground text-sm font-medium py-3 whitespace-nowrap">{lastClosedSession.drawer}</TableCell>
+                    <TableCell className="text-neutral-400 text-sm py-3 whitespace-nowrap">{formatDateTime(lastClosedSession.closedAt)}</TableCell>
+                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.startingCash)}</TableCell>
+                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.cashSales)}</TableCell>
+                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.cashRefunds)}</TableCell>
+                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">
+                      {`${lastClosedSession.paidInOut < 0 ? '-' : ''}${formatCurrency(Math.abs(lastClosedSession.paidInOut))}`}
+                    </TableCell>
+                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.expectedInDrawer)}</TableCell>
+                    <TableCell className="text-foreground text-sm font-medium py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.closingBalance)}</TableCell>
+                    <TableCell className={`text-sm font-medium py-3 text-right whitespace-nowrap ${lastClosedSession.difference === 0 ? 'text-foreground' : lastClosedSession.difference > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                      {`${lastClosedSession.difference >= 0 ? '' : '-'}${formatCurrency(Math.abs(lastClosedSession.difference))}`}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </div>
+          </div>
         )}
       </div>
 

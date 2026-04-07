@@ -2186,7 +2186,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           <div className="flex items-center gap-2 text-xs">
             {selectedOrderHasMessages && (
               <button
-                onClick={() => setShowMessageThread(true)}
+                onClick={() => setShowMessageThread(prev => !prev)}
                 className="relative p-1 rounded hover:bg-white/10 transition-colors"
               >
                 <MessageSquare className="w-3.5 h-3.5 text-orange-400" />

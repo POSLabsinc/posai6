@@ -12,8 +12,8 @@ export default function OrderMessageIndicator({ orderId, orderNumber }: OrderMes
   if (!hasUnreadReply) return null;
 
   return (
-    <div className="absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-white flex items-center justify-center shadow-sm">
-      <MessageSquare className="w-2 h-2 text-orange-400" />
+    <div className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-orange-500/20 flex items-center justify-center">
+      <MessageSquare className="w-2.5 h-2.5 text-orange-400" />
     </div>
   );
 }

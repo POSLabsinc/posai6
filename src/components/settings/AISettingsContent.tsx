@@ -300,6 +300,203 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // ── Order mode state ──
+  const ORDER_INTENT_KEYWORDS = ["create order", "new order", "add product", "place order", "start order", "add to order", "order type", "browse menu", "show menu", "add burger", "add pizza", "add salad", "add drink", "add item"];
+  const [orderMode, setOrderMode] = useState(false);
+  const [orderBrowseActive, setOrderBrowseActive] = useState(false);
+  const [orderBrowseStep, setOrderBrowseStep] = useState<"menu" | "category" | "products">("menu");
+  const [orderSelectedMenu, setOrderSelectedMenu] = useState("");
+  const [orderSelectedCategory, setOrderSelectedCategory] = useState("");
+  const [orderItems, setOrderItems] = useState<{ name: string; price: number; qty: number }[]>([]);
+  const [orderType, setOrderType] = useState("DINE IN");
+  const [showOrderTypes, setShowOrderTypes] = useState(false);
+  const orderConversationRef = useRef<{ role: string; content: string }[]>([]);
+  const { menuList, menuCategories, loading: menusLoading } = useSupabaseMenus();
+  const [availableProducts, setAvailableProducts] = useState<{ id: string; name: string; price: number; category_name?: string }[]>([]);
+
+  // Fetch products for order browse
+  useEffect(() => {
+    if (!orderMode) return;
+    const fetchProducts = async () => {
+      const { data } = await supabase.from("products").select("id, name, price, category_id, categories(name)").eq("active", true).eq("archived", false).order("sort_order");
+      if (data) {
+        setAvailableProducts(data.map((p: any) => ({ id: p.id, name: p.name, price: p.price, category_name: p.categories?.name })));
+      }
+    };
+    fetchProducts();
+  }, [orderMode]);
+
+  const ORDER_TYPES = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE"];
+
+  const isOrderIntent = (text: string) => {
+    const lower = text.toLowerCase();
+    return ORDER_INTENT_KEYWORDS.some(kw => lower.includes(kw));
+  };
+
+  const ORDER_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/order-ai-chat`;
+
+  const handleOrderMessage = async (content: string) => {
+    if (!orderMode) setOrderMode(true);
+
+    const userMsg = { role: "user" as const, content };
+    orderConversationRef.current = [...orderConversationRef.current, userMsg];
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content,
+      timestamp: new Date(),
+    };
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue("");
+    setIsTyping(true);
+
+    try {
+      const orderContext = {
+        orderType,
+        guestName: "",
+        orderItems,
+        orderNotes: "",
+        availableProducts,
+      };
+
+      const resp = await fetch(ORDER_CHAT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        body: JSON.stringify({ messages: orderConversationRef.current, orderContext }),
+      });
+
+      if (!resp.ok || !resp.body) {
+        throw new Error("Failed to get response");
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "", assistantContent = "";
+      let toolCallMap: Record<number, { id: string; function: { name: string; arguments: string } }> = {};
+      let streamDone = false;
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") { streamDone = true; break; }
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const delta = parsed.choices?.[0]?.delta;
+            if (!delta) continue;
+            if (delta.content) {
+              assistantContent += delta.content;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                if (last?.role === "assistant" && last.id !== "welcome")
+                  return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantContent } : m);
+                return [...prev, { id: crypto.randomUUID(), role: "assistant", content: assistantContent, timestamp: new Date() }];
+              });
+            }
+            if (delta.tool_calls) {
+              for (const tc of delta.tool_calls) {
+                const idx = tc.index ?? 0;
+                if (!toolCallMap[idx]) toolCallMap[idx] = { id: tc.id || "", function: { name: tc.function?.name || "", arguments: "" } };
+                if (tc.function?.name) toolCallMap[idx].function.name = tc.function.name;
+                if (tc.function?.arguments) toolCallMap[idx].function.arguments += tc.function.arguments;
+              }
+            }
+          } catch { textBuffer = line + "\n" + textBuffer; break; }
+        }
+      }
+
+      // Process tool calls locally
+      const toolCalls = Object.values(toolCallMap);
+      if (toolCalls.length > 0) {
+        for (const tc of toolCalls) {
+          try {
+            const args = typeof tc.function.arguments === "string" ? JSON.parse(tc.function.arguments) : tc.function.arguments;
+            const fn = tc.function.name;
+            if (fn === "add_product" || fn === "add_product_with_modifiers") {
+              setOrderItems(prev => [...prev, { name: args.product_name, price: args.price || 0, qty: args.quantity || 1 }]);
+            } else if (fn === "remove_product") {
+              setOrderItems(prev => prev.filter(i => i.name.toLowerCase() !== args.product_name.toLowerCase()));
+            } else if (fn === "set_order_type") {
+              setOrderType(args.order_type);
+            } else if (fn === "clear_order") {
+              setOrderItems([]);
+            }
+          } catch (e) { console.error("Tool call error:", e); }
+        }
+        if (!assistantContent) {
+          const actionNames = toolCalls.map(tc => tc.function.name.replace(/_/g, " ")).join(", ");
+          assistantContent = `Done! Executed: ${actionNames}`;
+          setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: assistantContent, timestamp: new Date() }]);
+        }
+      }
+      if (assistantContent) orderConversationRef.current = [...orderConversationRef.current, { role: "assistant", content: assistantContent }];
+    } catch (e) {
+      console.error("Order chat error:", e);
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: "Sorry, I encountered an error. Please try again.", timestamp: new Date() }]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  // Order browse helpers
+  const startOrderBrowse = () => {
+    setOrderBrowseActive(true); setOrderBrowseStep("menu"); setOrderSelectedMenu(""); setOrderSelectedCategory("");
+    setShowOrderTypes(false);
+  };
+
+  const selectOrderMenu = (menu: string) => {
+    setOrderSelectedMenu(menu);
+    const cats = menuCategories[menu] || [];
+    if (cats.length === 1) { setOrderSelectedCategory(cats[0]); setOrderBrowseStep("products"); }
+    else if (cats.length > 0) setOrderBrowseStep("category");
+    else { setOrderSelectedCategory(""); setOrderBrowseStep("products"); }
+  };
+
+  const selectOrderCategory = (cat: string) => { setOrderSelectedCategory(cat); setOrderBrowseStep("products"); };
+
+  const getOrderBrowseProducts = () => {
+    if (orderSelectedCategory) return availableProducts.filter(p => p.category_name?.toLowerCase() === orderSelectedCategory.toLowerCase());
+    const cats = menuCategories[orderSelectedMenu] || [];
+    if (cats.length > 0) return availableProducts.filter(p => cats.some(c => c.toLowerCase() === (p.category_name || "").toLowerCase()));
+    return availableProducts;
+  };
+
+  const handleOrderQuickAdd = (product: { id: string; name: string; price: number }) => {
+    setOrderItems(prev => {
+      const existing = prev.find(i => i.name === product.name);
+      if (existing) return prev.map(i => i.name === product.name ? { ...i, qty: i.qty + 1 } : i);
+      return [...prev, { name: product.name, price: product.price, qty: 1 }];
+    });
+    toast({ title: "Added", description: `${product.name} added to order` });
+  };
+
+  const orderBrowseBack = () => {
+    if (orderBrowseStep === "products") {
+      const cats = menuCategories[orderSelectedMenu] || [];
+      if (cats.length > 1) { setOrderBrowseStep("category"); setOrderSelectedCategory(""); }
+      else { setOrderBrowseStep("menu"); setOrderSelectedMenu(""); }
+    } else if (orderBrowseStep === "category") { setOrderBrowseStep("menu"); setOrderSelectedMenu(""); }
+    else { setOrderBrowseActive(false); }
+  };
+
+  const orderTotal = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
+
+  const goToOrdersWithData = () => {
+    const params = new URLSearchParams();
+    if (orderItems.length > 0) params.set("orderItems", JSON.stringify(orderItems));
+    if (orderType) params.set("orderType", orderType);
+    navigate(`/orders${params.toString() ? `?${params.toString()}` : ""}`);
+  };
+
   const activeProvider = AI_PROVIDERS.find(p => p.id === selectedProvider) || AI_PROVIDERS[0];
   const activeModel = activeProvider.models.find(m => m.id === selectedModel) || activeProvider.models[0];
 

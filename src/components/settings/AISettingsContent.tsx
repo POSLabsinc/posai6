@@ -1919,8 +1919,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                           <button
                             key={reply}
                             onClick={() => {
-                              // Map settings module labels to navigation
-                              if (SETTINGS_NAV_MAP[reply]) { navigate(SETTINGS_NAV_MAP[reply]); return; }
+                              // Map settings module labels to hierarchical navigation
+                              if (handleSettingsQuickReply(reply)) return;
                               // Map order quick-action labels to direct actions
                               if (reply === "Browse Menu") { startOrderBrowse(); return; }
                               if (reply === "Order Type") { setShowOrderTypes(prev => !prev); return; }

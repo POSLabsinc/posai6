@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, MessageSquare, Send, Clock, AlertTriangle, FileText } from "lucide-react";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
+import { X, MessageSquare, Send, Clock, FileText } from "lucide-react";
 import { format } from "date-fns";
 
 const CHAT_SUGGESTIONS_KEY = 'chat-message-suggestions';
@@ -28,7 +29,6 @@ const DEFAULT_SUGGESTIONS = [
   'Remake needed',
   'Check temperature',
 ];
-
 
 interface SentMessage {
   id: string;
@@ -60,10 +60,11 @@ interface ThreadMessage {
 interface OrderMessageThreadProps {
   orderId: string;
   orderNumber: number;
+  open: boolean;
   onClose: () => void;
 }
 
-export default function OrderMessageThread({ orderId, orderNumber, onClose }: OrderMessageThreadProps) {
+export default function OrderMessageThread({ orderId, orderNumber, open, onClose }: OrderMessageThreadProps) {
   const [sentMessages, setSentMessages] = useState<SentMessage[]>([]);
   const [kitchenReplies, setKitchenReplies] = useState<KitchenReply[]>([]);
   const [replyText, setReplyText] = useState("");
@@ -74,7 +75,6 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
   const suggestionsRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Load saved suggestions
   useEffect(() => {
     const stored = localStorage.getItem(CHAT_SUGGESTIONS_KEY);
     if (stored) {
@@ -104,8 +104,9 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
       : allSuggestions;
     return filtered.slice(0, 6);
   }, [replyText, savedSuggestions]);
+
   useEffect(() => {
-    if (!orderId) return;
+    if (!orderId || !open) return;
 
     const fetchSent = async () => {
       const { data } = await (supabase as any)
@@ -128,10 +129,10 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
 
     fetchSent();
     fetchReplies();
-  }, [orderId, orderNumber]);
+  }, [orderId, orderNumber, open]);
 
-  // Realtime subscriptions
   useEffect(() => {
+    if (!open) return;
     const ch1 = supabase
       .channel(`thread-kds-${orderId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "kds_messages" }, () => {
@@ -161,9 +162,8 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
       supabase.removeChannel(ch1);
       supabase.removeChannel(ch2);
     };
-  }, [orderId, orderNumber]);
+  }, [orderId, orderNumber, open]);
 
-  // Mark replies as read
   useEffect(() => {
     if (kitchenReplies.length === 0) return;
     const unread = kitchenReplies.filter((r) => !r.is_read);
@@ -234,100 +234,107 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
   };
 
   return (
-    <div className="absolute top-full right-0 mt-1 z-[100] border border-white/10 bg-[#1a1a1a] flex flex-col rounded-xl shadow-2xl shadow-black/60" style={{ width: "350px", maxHeight: "400px" }}>
-      {/* Header */}
-      <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 shrink-0">
-        <div className="flex items-center gap-2">
-          <MessageSquare className="w-3.5 h-3.5 text-orange-400" />
-          <span className="text-white font-semibold text-xs">Messages</span>
+    <Sheet open={open} onOpenChange={(v) => { if (!v) onClose(); }}>
+      <SheetContent
+        side="right"
+        hideCloseButton
+        className="w-[350px] sm:max-w-[350px] p-0 bg-[#1a1a1a] border-l border-white/10 flex flex-col"
+      >
+        <VisuallyHidden><SheetTitle>Order Messages</SheetTitle></VisuallyHidden>
+        
+        {/* Header */}
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-2">
+            <MessageSquare className="w-4 h-4 text-orange-400" />
+            <span className="text-white font-semibold text-sm">Messages - Order #{orderNumber}</span>
+          </div>
+          <button onClick={onClose} className="text-white/50 hover:text-white">
+            <X className="w-4 h-4" />
+          </button>
         </div>
-        <button onClick={onClose} className="text-white/50 hover:text-white">
-          <X className="w-3.5 h-3.5" />
-        </button>
-      </div>
 
-      {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2 min-h-0 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
-        {thread.length === 0 && (
-          <p className="text-white/40 text-xs text-center py-4">No messages yet</p>
-        )}
-        {thread.map((msg) => (
-          <div key={msg.id} className={`flex ${msg.type === "sent" ? "justify-end" : "justify-start"}`}>
-            <div className={`max-w-[80%] rounded-lg px-2.5 py-1.5 ${msg.type === "sent" ? "bg-orange-600/80 text-white" : "bg-white/10 text-white"}`}>
-              <p className="text-xs leading-relaxed">{msg.text}</p>
-              <div className={`flex items-center gap-1 mt-0.5 text-[9px] ${msg.type === "sent" ? "text-white/60" : "text-white/40"}`}>
-                <span className="font-medium">{msg.sender}</span>
-                {msg.device && (<><span>·</span><span>{msg.device}</span></>)}
-                <span>·</span>
-                <span>{formatTime(msg.timestamp)}</span>
+        {/* Messages */}
+        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3 min-h-0 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
+          {thread.length === 0 && (
+            <p className="text-white/40 text-xs text-center py-8">No messages yet</p>
+          )}
+          {thread.map((msg) => (
+            <div key={msg.id} className={`flex ${msg.type === "sent" ? "justify-end" : "justify-start"}`}>
+              <div className={`max-w-[80%] rounded-lg px-3 py-2 ${msg.type === "sent" ? "bg-orange-600/80 text-white" : "bg-white/10 text-white"}`}>
+                <p className="text-xs leading-relaxed">{msg.text}</p>
+                <div className={`flex items-center gap-1 mt-1 text-[10px] ${msg.type === "sent" ? "text-white/60" : "text-white/40"}`}>
+                  <span className="font-medium">{msg.sender}</span>
+                  {msg.device && (<><span>·</span><span>{msg.device}</span></>)}
+                  <span>·</span>
+                  <span>{formatTime(msg.timestamp)}</span>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Reply Input with Suggestions */}
-      <div className="relative px-3 py-2 border-t border-white/10 shrink-0">
-        {/* Suggestions dropdown - appears above input */}
-        {showSuggestions && filteredSuggestions.length > 0 && (
-          <div
-            ref={suggestionsRef}
-            className="absolute bottom-full left-0 right-0 mb-0 mx-3 rounded-lg overflow-hidden z-50 border border-white/10 max-h-[180px] overflow-y-auto scrollbar-none"
-            style={{ background: '#2D2D2D', scrollbarWidth: 'none' }}
-          >
-            {filteredSuggestions.map((suggestion, index) => {
-              const isRecent = savedSuggestions.some(s => s.toLowerCase() === suggestion.toLowerCase());
-              return (
-                <button
-                  key={`${suggestion}-${index}`}
-                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/10 transition-colors text-left"
-                  onMouseDown={(e) => {
-                    e.preventDefault();
-                    handleSelectSuggestion(suggestion);
-                  }}
-                >
-                  {isRecent ? (
-                    <Clock className="w-3 h-3 text-white/40 flex-shrink-0" />
-                  ) : (
-                    <FileText className="w-3 h-3 text-white/40 flex-shrink-0" />
-                  )}
-                  <span className="flex-1 text-xs text-white truncate">{suggestion}</span>
-                  {isRecent && (
-                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-white/40">RECENT</span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
-        )}
-        <div className="flex gap-2">
-          <Input
-            ref={inputRef}
-            value={replyText}
-            onChange={(e) => {
-              setReplyText(e.target.value);
-              setShowSuggestions(true);
-            }}
-            onFocus={() => setShowSuggestions(true)}
-            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleSendReply();
-              if (e.key === "Escape") setShowSuggestions(false);
-            }}
-            placeholder="Type a reply..."
-            className="h-7 text-xs bg-white/5 border-white/10 text-white placeholder:text-white/30"
-          />
-          <Button
-            onClick={() => handleSendReply()}
-            disabled={!replyText.trim() || sending}
-            size="sm"
-            className="h-7 px-2 bg-orange-600 hover:bg-orange-700 text-white"
-          >
-            <Send className="w-3 h-3" />
-          </Button>
+          ))}
         </div>
-      </div>
-    </div>
+
+        {/* Reply Input with Suggestions */}
+        <div className="relative px-4 py-3 border-t border-white/10 shrink-0">
+          {showSuggestions && filteredSuggestions.length > 0 && (
+            <div
+              ref={suggestionsRef}
+              className="absolute bottom-full left-0 right-0 mb-0 mx-4 rounded-lg overflow-hidden z-50 border border-white/10 max-h-[180px] overflow-y-auto scrollbar-none"
+              style={{ background: '#2D2D2D', scrollbarWidth: 'none' }}
+            >
+              {filteredSuggestions.map((suggestion, index) => {
+                const isRecent = savedSuggestions.some(s => s.toLowerCase() === suggestion.toLowerCase());
+                return (
+                  <button
+                    key={`${suggestion}-${index}`}
+                    className="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/10 transition-colors text-left"
+                    onMouseDown={(e) => {
+                      e.preventDefault();
+                      handleSelectSuggestion(suggestion);
+                    }}
+                  >
+                    {isRecent ? (
+                      <Clock className="w-3 h-3 text-white/40 flex-shrink-0" />
+                    ) : (
+                      <FileText className="w-3 h-3 text-white/40 flex-shrink-0" />
+                    )}
+                    <span className="flex-1 text-xs text-white truncate">{suggestion}</span>
+                    {isRecent && (
+                      <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-white/40">RECENT</span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <Input
+              ref={inputRef}
+              value={replyText}
+              onChange={(e) => {
+                setReplyText(e.target.value);
+                setShowSuggestions(true);
+              }}
+              onFocus={() => setShowSuggestions(true)}
+              onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSendReply();
+                if (e.key === "Escape") setShowSuggestions(false);
+              }}
+              placeholder="Type a message..."
+              className="h-8 text-xs bg-white/5 border-white/10 text-white placeholder:text-white/30"
+            />
+            <Button
+              onClick={() => handleSendReply()}
+              disabled={!replyText.trim() || sending}
+              size="sm"
+              className="h-8 px-3 bg-orange-600 hover:bg-orange-700 text-white"
+            >
+              <Send className="w-3.5 h-3.5" />
+            </Button>
+          </div>
+        </div>
+      </SheetContent>
+    </Sheet>
   );
 }
 

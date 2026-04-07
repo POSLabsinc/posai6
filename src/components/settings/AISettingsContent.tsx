@@ -335,7 +335,10 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   const ORDER_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/order-ai-chat`;
 
+  const ORDER_QUICK_ACTIONS = ["Browse Menu", "Order Type", "View Summary", "Go to Orders"];
+
   const handleOrderMessage = async (content: string) => {
+    const isFirstEntry = !orderMode;
     if (!orderMode) setOrderMode(true);
 
     const userMsg = { role: "user" as const, content };

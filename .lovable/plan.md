@@ -1,44 +1,43 @@
 
 
-## Plan: Fix Context-Aware AI Suggestions Per Settings Tab
+## Plan: Inline Chat Box for Order Messages (Replace Popup)
 
-### Problem
-The Header's AI icon always navigates to `/settings/ai-assistant` route with a one-time context from `location.state`. This means:
-- Context is set once and never updates when switching tabs
-- Sidebar tab clicks navigate away from the AI assistant entirely
-- The Settings page already has a working inline AI chat mode (`showAIChat`) that dynamically derives context from the current pathname, but the Header bypasses it
+### What Changes
 
-### Solution
-Instead of navigating to a separate `/settings/ai-assistant` route from the Header, trigger the Settings page's inline AI chat mode when the user is on any settings page. This reuses the existing `getContentForRoute` logic that already maps pathnames to correct context.
+Replace the current popup/dialog that opens when clicking the MessageSquare icon in the order panel with an inline chat box that expands directly within the order panel. The chat box will also include a reply input so the user can send messages back to the kitchen from the same place.
 
-### Changes
+### Implementation Steps
 
-**1. Store AI chat state globally** (new approach)
-- Use a lightweight global event or a shared ref/context so the Header can tell the Settings page to open its inline AI chat
-- Option: Use a custom event `open-settings-ai-chat` that the Settings page listens for
+**1. Convert OrderMessageThread from Dialog to Inline Panel**
+- Remove Dialog/DialogContent wrapper
+- Make it a regular div component that renders inline when `open` is true
+- Add a text input + send button at the bottom for replying
+- Reply sends a new `kds_messages` record (same as MessageKitchenDialog logic)
+- Keep all existing data fetching, realtime subscriptions, and mark-as-read logic
 
-**2. Edit `src/components/Header.tsx`**
-- When on a `/settings/*` path (but not `/settings/ai-assistant`), dispatch a custom event instead of navigating
-- For non-settings paths, keep current navigation behavior
+**2. Embed Inline Chat in Order Panel (Tickets.tsx)**
+- In both order panel layouts (around lines 2186 and 3421), replace `setShowMessageThread(true)` with a toggle (`setShowMessageThread(prev => !prev)`)
+- Remove the `<OrderMessageThread>` from the bottom of the file (where it renders as a Dialog)
+- Instead, render the inline chat component directly within the order panel content area, below the order info header, when `showMessageThread` is true
+- The chat box will slide in/expand below the header, pushing order items down, or overlay on top of them
 
-**3. Edit `src/pages/Settings.tsx`**
-- Listen for the custom event and call `setShowAIChat(true)` when received
-- The existing `getContentForRoute` already derives the correct context from `location.pathname` (lines 274-285), so suggestions will automatically match the active tab
+**3. Reply Functionality in Inline Chat**
+- Add a text input and send button at the bottom of the inline chat
+- On send, insert a new row into `kds_messages` with:
+  - `conversation_id`: order ID
+  - `linked_order_id`: current order ID
+  - `linked_order_number`: current order number
+  - `role: "user"` / `employee_name` from current context
+  - `message_text`: the typed reply
+- The realtime subscription will automatically pick up the new message
 
-**4. Edit `src/pages/Settings.tsx` - `getContentForRoute`**
-- Add missing `account` context mapping (currently missing from lines 274-285, but exists in the Header and `contextChipsMap`)
+### Files to Modify
+- `src/components/OrderMessageThread.tsx` - Convert from Dialog to inline panel, add reply input
+- `src/pages/Tickets.tsx` - Embed inline chat in order panel, toggle behavior on icon click
 
-### How It Works After Fix
-1. User is on `/settings/system` and clicks AI icon in Header
-2. Header dispatches `open-settings-ai-chat` event
-3. Settings page receives event, sets `showAIChat = true`
-4. `getContentForRoute` sees `pathname = /settings/system`, sets `aiContext = 'system'`
-5. AI assistant shows system-specific suggestions
-6. User clicks "Payments" in sidebar - navigates to `/settings/payments`, `showAIChat` resets
-7. User clicks AI icon again - now shows payments suggestions
-
-### Technical Details
-- Custom DOM event pattern keeps components decoupled without adding a new context provider
-- No new dependencies needed
-- Existing `contextChipsMap` already has all tab mappings (system, menu, payments, workforce, account, etc.)
+### Visual Behavior
+- Click message icon: toggles the chat box open/closed in place
+- Chat box appears within the order panel with message bubbles and a reply input at the bottom
+- Same styling as current thread (orange bubbles for sent, neutral for kitchen replies)
+- Metadata (sender, device, time) shown below each bubble as before
 

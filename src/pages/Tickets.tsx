@@ -2130,7 +2130,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
 
   // Mobile Order Panel Component
   const MobileOrderPanel = () => (
-    <div className="fixed inset-0 z-50 bg-neutral-900 flex flex-col">
+    <div className="fixed inset-0 z-50 bg-neutral-900 flex flex-col relative">
       {/* Header - Back Button */}
       <div className="flex items-center p-3">
         <button 

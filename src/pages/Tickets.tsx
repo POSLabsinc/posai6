@@ -3226,6 +3226,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       <div className="relative w-12 h-[58px] bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
                         <span className="text-lg font-bold text-white truncate max-w-full px-0.5">{String(guest.orderNumber || 0)}</span>
                         <span className="text-[10px] text-gray-400 truncate max-w-full px-0.5">000</span>
+                        <OrderMessageIndicator orderId={guest.id} orderNumber={guest.orderNumber || 0} />
                       </div>
                     </div>
 

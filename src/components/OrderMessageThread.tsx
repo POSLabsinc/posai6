@@ -247,7 +247,7 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2 min-h-0">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2 min-h-0 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
         {thread.length === 0 && (
           <p className="text-white/40 text-xs text-center py-4">No messages yet</p>
         )}

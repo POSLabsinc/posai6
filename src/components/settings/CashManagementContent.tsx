@@ -219,7 +219,7 @@ const CashManagementContent = ({
         {/* History Section - Always visible */}
         {lastClosedSession && (
           <div className="mt-6">
-            <h3 className="text-foreground text-lg font-medium px-4 mb-3">History</h3>
+            <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">History</h2>
             <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
               <Table className="min-w-[1080px]">
                 <TableHeader>

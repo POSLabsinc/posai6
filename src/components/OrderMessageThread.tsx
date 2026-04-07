@@ -1,10 +1,33 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, MessageSquare, Send } from "lucide-react";
+import { X, MessageSquare, Send, Clock, AlertTriangle, FileText } from "lucide-react";
 import { format } from "date-fns";
+
+const CHAT_SUGGESTIONS_KEY = 'chat-message-suggestions';
+
+const DEFAULT_SUGGESTIONS = [
+  'Rush this order',
+  'Hold this order',
+  'Fire this order',
+  '86 this item',
+  'Make it priority',
+  'Customer waiting',
+  'Allergic to nuts',
+  'Allergic to dairy',
+  'Allergic to gluten',
+  'No onions',
+  'Extra sauce',
+  'Well done',
+  'On the side',
+  'Light on salt',
+  'Double portion',
+  'Customer complaint',
+  'Remake needed',
+  'Check temperature',
+];
 
 
 interface SentMessage {
@@ -45,8 +68,42 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
   const [kitchenReplies, setKitchenReplies] = useState<KitchenReply[]>([]);
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [savedSuggestions, setSavedSuggestions] = useState<string[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
+  // Load saved suggestions
+  useEffect(() => {
+    const stored = localStorage.getItem(CHAT_SUGGESTIONS_KEY);
+    if (stored) {
+      try { setSavedSuggestions(JSON.parse(stored)); } catch { setSavedSuggestions([]); }
+    }
+  }, []);
+
+  const saveSuggestion = useCallback((text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    setSavedSuggestions(prev => {
+      const filtered = prev.filter(s => s.toLowerCase() !== trimmed.toLowerCase());
+      const updated = [trimmed, ...filtered].slice(0, 30);
+      localStorage.setItem(CHAT_SUGGESTIONS_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const filteredSuggestions = useMemo(() => {
+    const search = replyText.toLowerCase().trim();
+    const allSuggestions = [
+      ...savedSuggestions,
+      ...DEFAULT_SUGGESTIONS.filter(d => !savedSuggestions.some(s => s.toLowerCase() === d.toLowerCase())),
+    ];
+    const filtered = search
+      ? allSuggestions.filter(s => s.toLowerCase().includes(search))
+      : allSuggestions;
+    return filtered.slice(0, 6);
+  }, [replyText, savedSuggestions]);
   useEffect(() => {
     if (!orderId) return;
 
@@ -140,14 +197,16 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
     try { return format(new Date(ts), "h:mm a"); } catch { return ""; }
   };
 
-  const handleSendReply = async () => {
-    if (!replyText.trim() || sending) return;
+  const handleSendReply = async (textOverride?: string) => {
+    const text = (textOverride || replyText).trim();
+    if (!text || sending) return;
     setSending(true);
+    setShowSuggestions(false);
     try {
       const msgId = crypto.randomUUID();
       await (supabase as any).from("kds_messages").insert({
         message_id: msgId,
-        message_text: replyText.trim(),
+        message_text: text,
         store_id: "default",
         terminal_id: "dashboard",
         terminal_name: "Dashboard",
@@ -159,12 +218,19 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
         link_type: "single",
         status: "pending",
       });
+      saveSuggestion(text);
       setReplyText("");
     } catch (e) {
       console.error("Failed to send reply:", e);
     } finally {
       setSending(false);
     }
+  };
+
+  const handleSelectSuggestion = (suggestion: string) => {
+    setReplyText(suggestion);
+    setShowSuggestions(false);
+    inputRef.current?.focus();
   };
 
   return (
@@ -200,23 +266,66 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
         ))}
       </div>
 
-      {/* Reply Input */}
-      <div className="px-3 py-2 border-t border-white/10 flex gap-2 shrink-0">
-        <Input
-          value={replyText}
-          onChange={(e) => setReplyText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSendReply()}
-          placeholder="Type a reply..."
-          className="h-7 text-xs bg-white/5 border-white/10 text-white placeholder:text-white/30"
-        />
-        <Button
-          onClick={handleSendReply}
-          disabled={!replyText.trim() || sending}
-          size="sm"
-          className="h-7 px-2 bg-orange-600 hover:bg-orange-700 text-white"
-        >
-          <Send className="w-3 h-3" />
-        </Button>
+      {/* Reply Input with Suggestions */}
+      <div className="relative px-3 py-2 border-t border-white/10 shrink-0">
+        {/* Suggestions dropdown - appears above input */}
+        {showSuggestions && filteredSuggestions.length > 0 && (
+          <div
+            ref={suggestionsRef}
+            className="absolute bottom-full left-0 right-0 mb-0 mx-3 rounded-lg overflow-hidden z-50 border border-white/10 max-h-[180px] overflow-y-auto"
+            style={{ background: '#2D2D2D' }}
+          >
+            {filteredSuggestions.map((suggestion, index) => {
+              const isRecent = savedSuggestions.some(s => s.toLowerCase() === suggestion.toLowerCase());
+              return (
+                <button
+                  key={`${suggestion}-${index}`}
+                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/10 transition-colors text-left"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSelectSuggestion(suggestion);
+                  }}
+                >
+                  {isRecent ? (
+                    <Clock className="w-3 h-3 text-white/40 flex-shrink-0" />
+                  ) : (
+                    <FileText className="w-3 h-3 text-white/40 flex-shrink-0" />
+                  )}
+                  <span className="flex-1 text-xs text-white truncate">{suggestion}</span>
+                  {isRecent && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-white/40">RECENT</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <div className="flex gap-2">
+          <Input
+            ref={inputRef}
+            value={replyText}
+            onChange={(e) => {
+              setReplyText(e.target.value);
+              setShowSuggestions(true);
+            }}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSendReply();
+              if (e.key === "Escape") setShowSuggestions(false);
+            }}
+            placeholder="Type a reply..."
+            className="h-7 text-xs bg-white/5 border-white/10 text-white placeholder:text-white/30"
+          />
+          <Button
+            onClick={() => handleSendReply()}
+            disabled={!replyText.trim() || sending}
+            size="sm"
+            className="h-7 px-2 bg-orange-600 hover:bg-orange-700 text-white"
+          >
+            <Send className="w-3 h-3" />
+          </Button>
+        </div>
       </div>
     </div>
   );

@@ -1779,7 +1779,14 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                         message.quickReplies.map((reply) => (
                           <button
                             key={reply}
-                            onClick={() => handleSendMessage(reply)}
+                            onClick={() => {
+                              // Map order quick-action labels to direct actions
+                              if (reply === "Browse Menu") { startOrderBrowse(); return; }
+                              if (reply === "Order Type") { setShowOrderTypes(prev => !prev); return; }
+                              if (reply === "View Summary") { handleOrderMessage("Show me the current order summary"); return; }
+                              if (reply === "Go to Orders") { goToOrdersWithData(); return; }
+                              handleSendMessage(reply);
+                            }}
                             disabled={isTyping}
                             className="px-4 py-2.5 rounded-full bg-neutral-800/80 text-sm text-foreground border border-neutral-600/50 active:opacity-70 active:scale-95 transition-all hover:bg-neutral-700/80 disabled:opacity-40 font-medium"
                           >

@@ -792,7 +792,7 @@ export const ClockInOverlay = ({
                           }`}
                         >
                           <Icon className="w-7 h-7 text-white" />
-                          <span className="text-[11px] font-medium text-center text-white">{center}</span>
+                          <span className="text-xs font-medium text-center text-white">{center}</span>
                         </button>
                       );
                     })}

@@ -51,7 +51,7 @@ const CashManagementContent = ({
   });
   const [lastClosingBalance, setLastClosingBalance] = useState<number>(0);
   const [lastClosedSession, setLastClosedSession] = useState<ClosedSessionData | null>(null);
-  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  
   const drawerRef = useRef<HTMLButtonElement>(null);
   const hasAmount = openingCash.trim() !== "" && parseFloat(openingCash) >= 0;
 

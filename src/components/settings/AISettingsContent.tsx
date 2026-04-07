@@ -1821,6 +1821,103 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         )}
       </div>
 
+      {/* Order Browse Mode Overlay */}
+      {orderMode && orderBrowseActive && (
+        <div className="flex-shrink-0 border-t border-neutral-800 max-h-[40%] flex flex-col">
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-neutral-800 flex-shrink-0">
+            <button onClick={orderBrowseBack} className="p-1 rounded-lg hover:bg-neutral-800 transition-colors">
+              <ArrowLeft className="w-4 h-4 text-neutral-400" />
+            </button>
+            <span className="text-xs font-medium text-neutral-300">
+              {orderBrowseStep === "menu" && "Select Menu"}
+              {orderBrowseStep === "category" && orderSelectedMenu}
+              {orderBrowseStep === "products" && (orderSelectedCategory || orderSelectedMenu)}
+            </span>
+            <button onClick={() => setOrderBrowseActive(false)} className="ml-auto p-1 rounded-lg hover:bg-neutral-800 transition-colors">
+              <X className="w-3.5 h-3.5 text-neutral-500" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto scrollbar-hide px-3 py-2 space-y-1.5">
+            {orderBrowseStep === "menu" && menuList.map(menu => (
+              <button key={menu} onClick={() => selectOrderMenu(menu)}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#252525] hover:bg-[#303030] text-sm text-neutral-200 transition-colors">
+                <span>{menu}</span>
+                <span className="text-xs text-neutral-500">{menuCategories[menu]?.length || 0} categories</span>
+              </button>
+            ))}
+            {orderBrowseStep === "category" && menuCategories[orderSelectedMenu]?.map(cat => (
+              <button key={cat} onClick={() => selectOrderCategory(cat)}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#252525] hover:bg-[#303030] text-sm text-neutral-200 transition-colors">
+                <span>{cat}</span>
+              </button>
+            ))}
+            {orderBrowseStep === "products" && (
+              getOrderBrowseProducts().length > 0 ? (
+                getOrderBrowseProducts().map(product => (
+                  <div key={product.id} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#252525] hover:bg-[#303030] transition-colors">
+                    <div>
+                      <p className="text-sm text-neutral-200">{product.name}</p>
+                      <p className="text-xs text-neutral-500">${product.price.toFixed(2)}</p>
+                    </div>
+                    <button onClick={() => handleOrderQuickAdd(product)}
+                      className="w-7 h-7 rounded-lg bg-orange-500 hover:bg-orange-400 flex items-center justify-center transition-colors flex-shrink-0">
+                      <Plus className="w-3.5 h-3.5 text-white" />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-neutral-500 text-center py-4">No products in this category</p>
+              )
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Order Type Selector */}
+      {orderMode && showOrderTypes && !orderBrowseActive && (
+        <div className="px-4 pt-2 flex-shrink-0 border-t border-neutral-800">
+          <p className="text-xs text-neutral-400 mb-1.5">Select order type:</p>
+          <div className="flex flex-wrap gap-1.5 pb-2">
+            {ORDER_TYPES.map(type => (
+              <button key={type} onClick={() => { setShowOrderTypes(false); setOrderType(type); handleOrderMessage(`Change order type to ${type}`); }}
+                disabled={isTyping}
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40 ${
+                  orderType === type ? "bg-primary text-primary-foreground" : "bg-[#252525] hover:bg-[#303030] text-neutral-300"
+                }`}>{type}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Order Quick Actions */}
+      {orderMode && !orderBrowseActive && (
+        <div className="px-4 pt-2 flex-shrink-0">
+          <div className="flex gap-1.5 pb-2 overflow-x-auto scrollbar-hide">
+            {[
+              { icon: ShoppingCart, label: "Browse Menu", action: () => startOrderBrowse() },
+              { icon: UtensilsCrossed, label: "Order Type", action: () => setShowOrderTypes(prev => !prev) },
+              { icon: FileText, label: "Summary", action: () => handleOrderMessage("Show me the current order summary") },
+              { icon: Trash2, label: "Clear", action: () => { setOrderItems([]); handleOrderMessage("Clear the entire order"); } },
+            ].map(btn => (
+              <button key={btn.label} onClick={btn.action} disabled={isTyping}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#252525] hover:bg-[#303030] text-neutral-300 text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40">
+                <btn.icon className="w-3 h-3" /> {btn.label}
+              </button>
+            ))}
+          </div>
+          {/* Mini order summary */}
+          {orderItems.length > 0 && (
+            <div className="flex items-center justify-between pb-2">
+              <span className="text-xs text-neutral-400">{orderItems.reduce((s, i) => s + i.qty, 0)} products, ${orderTotal.toFixed(2)}</span>
+              <button onClick={goToOrdersWithData}
+                className="text-xs font-medium text-primary hover:underline">
+                Go to Orders →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Input Area */}
       <div className="flex-shrink-0 p-4 border-t border-neutral-800">
         {/* Image preview */}

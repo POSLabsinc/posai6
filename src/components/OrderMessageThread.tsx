@@ -68,8 +68,42 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
   const [kitchenReplies, setKitchenReplies] = useState<KitchenReply[]>([]);
   const [replyText, setReplyText] = useState("");
   const [sending, setSending] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [savedSuggestions, setSavedSuggestions] = useState<string[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const suggestionsRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
+  // Load saved suggestions
+  useEffect(() => {
+    const stored = localStorage.getItem(CHAT_SUGGESTIONS_KEY);
+    if (stored) {
+      try { setSavedSuggestions(JSON.parse(stored)); } catch { setSavedSuggestions([]); }
+    }
+  }, []);
+
+  const saveSuggestion = useCallback((text: string) => {
+    const trimmed = text.trim();
+    if (!trimmed) return;
+    setSavedSuggestions(prev => {
+      const filtered = prev.filter(s => s.toLowerCase() !== trimmed.toLowerCase());
+      const updated = [trimmed, ...filtered].slice(0, 30);
+      localStorage.setItem(CHAT_SUGGESTIONS_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  const filteredSuggestions = useMemo(() => {
+    const search = replyText.toLowerCase().trim();
+    const allSuggestions = [
+      ...savedSuggestions,
+      ...DEFAULT_SUGGESTIONS.filter(d => !savedSuggestions.some(s => s.toLowerCase() === d.toLowerCase())),
+    ];
+    const filtered = search
+      ? allSuggestions.filter(s => s.toLowerCase().includes(search))
+      : allSuggestions;
+    return filtered.slice(0, 6);
+  }, [replyText, savedSuggestions]);
   useEffect(() => {
     if (!orderId) return;
 

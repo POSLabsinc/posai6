@@ -229,6 +229,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       const { data: orders, error: ordersErr } = await supabase
         .from('ticket_orders')
         .select('*')
+        .not('status', 'in', '("PAID","COMPLETED","CANCELLED")')
         .order('created_at', { ascending: false });
 
       if (ordersErr) throw ordersErr;

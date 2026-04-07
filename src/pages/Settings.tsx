@@ -623,6 +623,20 @@ const Settings = () => {
     }
   };
 
+  const aiContext = location.pathname.startsWith('/settings/menu') ? 'menu'
+    : location.pathname.startsWith('/settings/system') ? 'system'
+    : location.pathname.startsWith('/settings/payments') ? 'payments'
+    : location.pathname === '/settings/end-of-day' ? 'end-of-day'
+    : location.pathname === '/settings/guest-book' ? 'guest-book'
+    : location.pathname.startsWith('/settings/workforce') ? 'workforce'
+    : location.pathname.startsWith('/settings/support') ? 'support'
+    : location.pathname.startsWith('/settings/network') ? 'network'
+    : location.pathname.startsWith('/settings/hardware') ? 'hardware'
+    : location.pathname.startsWith('/settings/notifications') ? 'notifications'
+    : location.pathname.startsWith('/settings/reports') ? 'reports'
+    : (location.pathname === '/settings/account' || location.pathname === '/settings' || location.pathname.startsWith('/settings/account/')) ? 'account'
+    : undefined;
+
   const isGuestBook = location.pathname === '/settings/guest-book';
   const isNotifications = location.pathname.startsWith('/settings/notifications/all') || location.pathname.startsWith('/settings/notifications/detail/');
 
@@ -635,7 +649,7 @@ const Settings = () => {
             {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded, { viewMode: shiftViewMode, setViewMode: setShiftViewMode, currentWeek: shiftCurrentWeek, setCurrentWeek: setShiftCurrentWeek, currentDate: shiftCurrentDate, setCurrentDate: setShiftCurrentDate, currentMonth: shiftCurrentMonth, setCurrentMonth: setShiftCurrentMonth })}
           </div>
         </div>
-        {showAIChat && !isMobile && (
+        {showAIChat && (
           <div className="absolute top-0 right-0 bottom-0 z-40 w-[350px] lg:w-[415px] p-[10px] pl-0">
             <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-neutral-700/50">
               <AISettingsContent showHeader={true} onBack={() => setShowAIChat(false)} context={aiContext} />

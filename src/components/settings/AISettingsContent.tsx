@@ -880,6 +880,17 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const handleSendMessage = async (content: string, imageDataUrl?: string | null) => {
     if (!content.trim() && !imageDataUrl) return;
 
+    // Detect order intent and route to order chat
+    if (!imageDataUrl && isOrderIntent(content.trim())) {
+      handleOrderMessage(content.trim());
+      return;
+    }
+    // If already in order mode, continue routing to order chat
+    if (orderMode && !imageDataUrl) {
+      handleOrderMessage(content.trim());
+      return;
+    }
+
     const userMessage: Message = {
       id: Date.now().toString(),
       role: "user",

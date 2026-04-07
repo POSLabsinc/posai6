@@ -1,10 +1,33 @@
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { X, MessageSquare, Send } from "lucide-react";
+import { X, MessageSquare, Send, Clock, AlertTriangle, FileText } from "lucide-react";
 import { format } from "date-fns";
+
+const CHAT_SUGGESTIONS_KEY = 'chat-message-suggestions';
+
+const DEFAULT_SUGGESTIONS = [
+  'Rush this order',
+  'Hold this order',
+  'Fire this order',
+  '86 this item',
+  'Make it priority',
+  'Customer waiting',
+  'Allergic to nuts',
+  'Allergic to dairy',
+  'Allergic to gluten',
+  'No onions',
+  'Extra sauce',
+  'Well done',
+  'On the side',
+  'Light on salt',
+  'Double portion',
+  'Customer complaint',
+  'Remake needed',
+  'Check temperature',
+];
 
 
 interface SentMessage {

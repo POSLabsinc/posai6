@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { X, MessageSquare, Send } from "lucide-react";
 import { format } from "date-fns";
-import { v4 as uuidv4 } from "crypto";
+
 
 interface SentMessage {
   id: string;

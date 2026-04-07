@@ -266,23 +266,66 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
         ))}
       </div>
 
-      {/* Reply Input */}
-      <div className="px-3 py-2 border-t border-white/10 flex gap-2 shrink-0">
-        <Input
-          value={replyText}
-          onChange={(e) => setReplyText(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && handleSendReply()}
-          placeholder="Type a reply..."
-          className="h-7 text-xs bg-white/5 border-white/10 text-white placeholder:text-white/30"
-        />
-        <Button
-          onClick={handleSendReply}
-          disabled={!replyText.trim() || sending}
-          size="sm"
-          className="h-7 px-2 bg-orange-600 hover:bg-orange-700 text-white"
-        >
-          <Send className="w-3 h-3" />
-        </Button>
+      {/* Reply Input with Suggestions */}
+      <div className="relative px-3 py-2 border-t border-white/10 shrink-0">
+        {/* Suggestions dropdown - appears above input */}
+        {showSuggestions && filteredSuggestions.length > 0 && (
+          <div
+            ref={suggestionsRef}
+            className="absolute bottom-full left-0 right-0 mb-0 mx-3 rounded-lg overflow-hidden z-50 border border-white/10 max-h-[180px] overflow-y-auto"
+            style={{ background: '#2D2D2D' }}
+          >
+            {filteredSuggestions.map((suggestion, index) => {
+              const isRecent = savedSuggestions.some(s => s.toLowerCase() === suggestion.toLowerCase());
+              return (
+                <button
+                  key={`${suggestion}-${index}`}
+                  className="w-full flex items-center gap-2 px-3 py-2 hover:bg-white/10 transition-colors text-left"
+                  onMouseDown={(e) => {
+                    e.preventDefault();
+                    handleSelectSuggestion(suggestion);
+                  }}
+                >
+                  {isRecent ? (
+                    <Clock className="w-3 h-3 text-white/40 flex-shrink-0" />
+                  ) : (
+                    <FileText className="w-3 h-3 text-white/40 flex-shrink-0" />
+                  )}
+                  <span className="flex-1 text-xs text-white truncate">{suggestion}</span>
+                  {isRecent && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/10 text-white/40">RECENT</span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        <div className="flex gap-2">
+          <Input
+            ref={inputRef}
+            value={replyText}
+            onChange={(e) => {
+              setReplyText(e.target.value);
+              setShowSuggestions(true);
+            }}
+            onFocus={() => setShowSuggestions(true)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 150)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") handleSendReply();
+              if (e.key === "Escape") setShowSuggestions(false);
+            }}
+            placeholder="Type a reply..."
+            className="h-7 text-xs bg-white/5 border-white/10 text-white placeholder:text-white/30"
+          />
+          <Button
+            onClick={() => handleSendReply()}
+            disabled={!replyText.trim() || sending}
+            size="sm"
+            className="h-7 px-2 bg-orange-600 hover:bg-orange-700 text-white"
+          >
+            <Send className="w-3 h-3" />
+          </Button>
+        </div>
       </div>
     </div>
   );

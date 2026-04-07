@@ -238,7 +238,7 @@ export default function OrderMessageThread({ orderId, orderNumber, open, onClose
       <SheetContent
         side="right"
         hideCloseButton
-        className="w-[380px] sm:max-w-[380px] p-0 bg-[#1a1a1a] border-l border-white/10 flex flex-col"
+        className="w-[440px] sm:max-w-[440px] p-0 bg-[#1a1a1a] border-l border-white/10 flex flex-col"
       >
         <VisuallyHidden><SheetTitle>Order Messages</SheetTitle></VisuallyHidden>
         

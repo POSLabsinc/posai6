@@ -311,13 +311,14 @@ const Header = () => {
                              setShowNotifPopover(false);
                              const title = (n.title || "").toLowerCase();
                              const isKitchenOrOrder = title.includes("kitchen reply") || title.includes("new order") || title.includes("order received") || title.includes("order cancelled") || title.includes("instruction");
-                             if (isKitchenOrOrder) {
-                               const orderMatch = (n.title || "").match(/Order\s*#(\d+)/i) || (n.preview || "").match(/Order\s*#(\d+)/i);
-                               if (orderMatch) {
-                                 navigate(`/tickets?orderNumber=${orderMatch[1]}`);
-                                 return;
-                               }
-                             }
+                              if (isKitchenOrOrder) {
+                                const orderMatch = (n.title || "").match(/Order\s*#(\d+)/i) || (n.preview || "").match(/Order\s*#(\d+)/i);
+                                if (orderMatch) {
+                                  const isKitchenReply = title.includes("kitchen reply");
+                                  navigate(`/tickets?orderNumber=${orderMatch[1]}${isKitchenReply ? "&openChat=true" : ""}`);
+                                  return;
+                                }
+                              }
                              navigate("/settings/notifications/all");
                            }}
                           className={`w-full flex items-start gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left ${!n.is_read ? "bg-white/[0.03]" : ""}`}

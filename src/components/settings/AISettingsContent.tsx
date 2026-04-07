@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap, Printer } from "lucide-react";
+import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap, Printer, ShoppingCart, UtensilsCrossed, Users, FileText, Trash2, StickyNote, ArrowLeft, Plus, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useTheme } from "next-themes";
@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { supabase } from "@/integrations/supabase/client";
+import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
 
 // AI Provider definitions for in-chat model switching
 interface AIProviderModel {
@@ -298,6 +299,203 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // ── Order mode state ──
+  const ORDER_INTENT_KEYWORDS = ["create order", "new order", "add product", "place order", "start order", "add to order", "order type", "browse menu", "show menu", "add burger", "add pizza", "add salad", "add drink", "add item"];
+  const [orderMode, setOrderMode] = useState(false);
+  const [orderBrowseActive, setOrderBrowseActive] = useState(false);
+  const [orderBrowseStep, setOrderBrowseStep] = useState<"menu" | "category" | "products">("menu");
+  const [orderSelectedMenu, setOrderSelectedMenu] = useState("");
+  const [orderSelectedCategory, setOrderSelectedCategory] = useState("");
+  const [orderItems, setOrderItems] = useState<{ name: string; price: number; qty: number }[]>([]);
+  const [orderType, setOrderType] = useState("DINE IN");
+  const [showOrderTypes, setShowOrderTypes] = useState(false);
+  const orderConversationRef = useRef<{ role: string; content: string }[]>([]);
+  const { menuList, menuCategories, loading: menusLoading } = useSupabaseMenus();
+  const [availableProducts, setAvailableProducts] = useState<{ id: string; name: string; price: number; category_name?: string }[]>([]);
+
+  // Fetch products for order browse
+  useEffect(() => {
+    if (!orderMode) return;
+    const fetchProducts = async () => {
+      const { data } = await supabase.from("products").select("id, name, price, category_id, categories(name)").eq("active", true).eq("archived", false).order("sort_order");
+      if (data) {
+        setAvailableProducts(data.map((p: any) => ({ id: p.id, name: p.name, price: p.price, category_name: p.categories?.name })));
+      }
+    };
+    fetchProducts();
+  }, [orderMode]);
+
+  const ORDER_TYPES = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE"];
+
+  const isOrderIntent = (text: string) => {
+    const lower = text.toLowerCase();
+    return ORDER_INTENT_KEYWORDS.some(kw => lower.includes(kw));
+  };
+
+  const ORDER_CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/order-ai-chat`;
+
+  const handleOrderMessage = async (content: string) => {
+    if (!orderMode) setOrderMode(true);
+
+    const userMsg = { role: "user" as const, content };
+    orderConversationRef.current = [...orderConversationRef.current, userMsg];
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content,
+      timestamp: new Date(),
+    };
+    setMessages(prev => [...prev, userMessage]);
+    setInputValue("");
+    setIsTyping(true);
+
+    try {
+      const orderContext = {
+        orderType,
+        guestName: "",
+        orderItems,
+        orderNotes: "",
+        availableProducts,
+      };
+
+      const resp = await fetch(ORDER_CHAT_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}` },
+        body: JSON.stringify({ messages: orderConversationRef.current, orderContext }),
+      });
+
+      if (!resp.ok || !resp.body) {
+        throw new Error("Failed to get response");
+      }
+
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let textBuffer = "", assistantContent = "";
+      let toolCallMap: Record<number, { id: string; function: { name: string; arguments: string } }> = {};
+      let streamDone = false;
+
+      while (!streamDone) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        textBuffer += decoder.decode(value, { stream: true });
+        let newlineIndex: number;
+        while ((newlineIndex = textBuffer.indexOf("\n")) !== -1) {
+          let line = textBuffer.slice(0, newlineIndex);
+          textBuffer = textBuffer.slice(newlineIndex + 1);
+          if (line.endsWith("\r")) line = line.slice(0, -1);
+          if (line.startsWith(":") || line.trim() === "") continue;
+          if (!line.startsWith("data: ")) continue;
+          const jsonStr = line.slice(6).trim();
+          if (jsonStr === "[DONE]") { streamDone = true; break; }
+          try {
+            const parsed = JSON.parse(jsonStr);
+            const delta = parsed.choices?.[0]?.delta;
+            if (!delta) continue;
+            if (delta.content) {
+              assistantContent += delta.content;
+              setMessages(prev => {
+                const last = prev[prev.length - 1];
+                if (last?.role === "assistant" && last.id !== "welcome")
+                  return prev.map((m, i) => i === prev.length - 1 ? { ...m, content: assistantContent } : m);
+                return [...prev, { id: crypto.randomUUID(), role: "assistant", content: assistantContent, timestamp: new Date() }];
+              });
+            }
+            if (delta.tool_calls) {
+              for (const tc of delta.tool_calls) {
+                const idx = tc.index ?? 0;
+                if (!toolCallMap[idx]) toolCallMap[idx] = { id: tc.id || "", function: { name: tc.function?.name || "", arguments: "" } };
+                if (tc.function?.name) toolCallMap[idx].function.name = tc.function.name;
+                if (tc.function?.arguments) toolCallMap[idx].function.arguments += tc.function.arguments;
+              }
+            }
+          } catch { textBuffer = line + "\n" + textBuffer; break; }
+        }
+      }
+
+      // Process tool calls locally
+      const toolCalls = Object.values(toolCallMap);
+      if (toolCalls.length > 0) {
+        for (const tc of toolCalls) {
+          try {
+            const args = typeof tc.function.arguments === "string" ? JSON.parse(tc.function.arguments) : tc.function.arguments;
+            const fn = tc.function.name;
+            if (fn === "add_product" || fn === "add_product_with_modifiers") {
+              setOrderItems(prev => [...prev, { name: args.product_name, price: args.price || 0, qty: args.quantity || 1 }]);
+            } else if (fn === "remove_product") {
+              setOrderItems(prev => prev.filter(i => i.name.toLowerCase() !== args.product_name.toLowerCase()));
+            } else if (fn === "set_order_type") {
+              setOrderType(args.order_type);
+            } else if (fn === "clear_order") {
+              setOrderItems([]);
+            }
+          } catch (e) { console.error("Tool call error:", e); }
+        }
+        if (!assistantContent) {
+          const actionNames = toolCalls.map(tc => tc.function.name.replace(/_/g, " ")).join(", ");
+          assistantContent = `Done! Executed: ${actionNames}`;
+          setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: assistantContent, timestamp: new Date() }]);
+        }
+      }
+      if (assistantContent) orderConversationRef.current = [...orderConversationRef.current, { role: "assistant", content: assistantContent }];
+    } catch (e) {
+      console.error("Order chat error:", e);
+      setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: "Sorry, I encountered an error. Please try again.", timestamp: new Date() }]);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
+  // Order browse helpers
+  const startOrderBrowse = () => {
+    setOrderBrowseActive(true); setOrderBrowseStep("menu"); setOrderSelectedMenu(""); setOrderSelectedCategory("");
+    setShowOrderTypes(false);
+  };
+
+  const selectOrderMenu = (menu: string) => {
+    setOrderSelectedMenu(menu);
+    const cats = menuCategories[menu] || [];
+    if (cats.length === 1) { setOrderSelectedCategory(cats[0]); setOrderBrowseStep("products"); }
+    else if (cats.length > 0) setOrderBrowseStep("category");
+    else { setOrderSelectedCategory(""); setOrderBrowseStep("products"); }
+  };
+
+  const selectOrderCategory = (cat: string) => { setOrderSelectedCategory(cat); setOrderBrowseStep("products"); };
+
+  const getOrderBrowseProducts = () => {
+    if (orderSelectedCategory) return availableProducts.filter(p => p.category_name?.toLowerCase() === orderSelectedCategory.toLowerCase());
+    const cats = menuCategories[orderSelectedMenu] || [];
+    if (cats.length > 0) return availableProducts.filter(p => cats.some(c => c.toLowerCase() === (p.category_name || "").toLowerCase()));
+    return availableProducts;
+  };
+
+  const handleOrderQuickAdd = (product: { id: string; name: string; price: number }) => {
+    setOrderItems(prev => {
+      const existing = prev.find(i => i.name === product.name);
+      if (existing) return prev.map(i => i.name === product.name ? { ...i, qty: i.qty + 1 } : i);
+      return [...prev, { name: product.name, price: product.price, qty: 1 }];
+    });
+    toast({ title: "Added", description: `${product.name} added to order` });
+  };
+
+  const orderBrowseBack = () => {
+    if (orderBrowseStep === "products") {
+      const cats = menuCategories[orderSelectedMenu] || [];
+      if (cats.length > 1) { setOrderBrowseStep("category"); setOrderSelectedCategory(""); }
+      else { setOrderBrowseStep("menu"); setOrderSelectedMenu(""); }
+    } else if (orderBrowseStep === "category") { setOrderBrowseStep("menu"); setOrderSelectedMenu(""); }
+    else { setOrderBrowseActive(false); }
+  };
+
+  const orderTotal = orderItems.reduce((s, i) => s + i.price * i.qty, 0);
+
+  const goToOrdersWithData = () => {
+    const params = new URLSearchParams();
+    if (orderItems.length > 0) params.set("orderItems", JSON.stringify(orderItems));
+    if (orderType) params.set("orderType", orderType);
+    navigate(`/orders${params.toString() ? `?${params.toString()}` : ""}`);
+  };
 
   const activeProvider = AI_PROVIDERS.find(p => p.id === selectedProvider) || AI_PROVIDERS[0];
   const activeModel = activeProvider.models.find(m => m.id === selectedModel) || activeProvider.models[0];
@@ -681,6 +879,17 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   const handleSendMessage = async (content: string, imageDataUrl?: string | null) => {
     if (!content.trim() && !imageDataUrl) return;
+
+    // Detect order intent and route to order chat
+    if (!imageDataUrl && isOrderIntent(content.trim())) {
+      handleOrderMessage(content.trim());
+      return;
+    }
+    // If already in order mode, continue routing to order chat
+    if (orderMode && !imageDataUrl) {
+      handleOrderMessage(content.trim());
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -1611,6 +1820,103 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           </>
         )}
       </div>
+
+      {/* Order Browse Mode Overlay */}
+      {orderMode && orderBrowseActive && (
+        <div className="flex-shrink-0 border-t border-neutral-800 max-h-[40%] flex flex-col">
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-neutral-800 flex-shrink-0">
+            <button onClick={orderBrowseBack} className="p-1 rounded-lg hover:bg-neutral-800 transition-colors">
+              <ArrowLeft className="w-4 h-4 text-neutral-400" />
+            </button>
+            <span className="text-xs font-medium text-neutral-300">
+              {orderBrowseStep === "menu" && "Select Menu"}
+              {orderBrowseStep === "category" && orderSelectedMenu}
+              {orderBrowseStep === "products" && (orderSelectedCategory || orderSelectedMenu)}
+            </span>
+            <button onClick={() => setOrderBrowseActive(false)} className="ml-auto p-1 rounded-lg hover:bg-neutral-800 transition-colors">
+              <X className="w-3.5 h-3.5 text-neutral-500" />
+            </button>
+          </div>
+          <div className="flex-1 overflow-y-auto scrollbar-hide px-3 py-2 space-y-1.5">
+            {orderBrowseStep === "menu" && menuList.map(menu => (
+              <button key={menu} onClick={() => selectOrderMenu(menu)}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#252525] hover:bg-[#303030] text-sm text-neutral-200 transition-colors">
+                <span>{menu}</span>
+                <span className="text-xs text-neutral-500">{menuCategories[menu]?.length || 0} categories</span>
+              </button>
+            ))}
+            {orderBrowseStep === "category" && menuCategories[orderSelectedMenu]?.map(cat => (
+              <button key={cat} onClick={() => selectOrderCategory(cat)}
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#252525] hover:bg-[#303030] text-sm text-neutral-200 transition-colors">
+                <span>{cat}</span>
+              </button>
+            ))}
+            {orderBrowseStep === "products" && (
+              getOrderBrowseProducts().length > 0 ? (
+                getOrderBrowseProducts().map(product => (
+                  <div key={product.id} className="flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#252525] hover:bg-[#303030] transition-colors">
+                    <div>
+                      <p className="text-sm text-neutral-200">{product.name}</p>
+                      <p className="text-xs text-neutral-500">${product.price.toFixed(2)}</p>
+                    </div>
+                    <button onClick={() => handleOrderQuickAdd(product)}
+                      className="w-7 h-7 rounded-lg bg-orange-500 hover:bg-orange-400 flex items-center justify-center transition-colors flex-shrink-0">
+                      <Plus className="w-3.5 h-3.5 text-white" />
+                    </button>
+                  </div>
+                ))
+              ) : (
+                <p className="text-xs text-neutral-500 text-center py-4">No products in this category</p>
+              )
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Order Type Selector */}
+      {orderMode && showOrderTypes && !orderBrowseActive && (
+        <div className="px-4 pt-2 flex-shrink-0 border-t border-neutral-800">
+          <p className="text-xs text-neutral-400 mb-1.5">Select order type:</p>
+          <div className="flex flex-wrap gap-1.5 pb-2">
+            {ORDER_TYPES.map(type => (
+              <button key={type} onClick={() => { setShowOrderTypes(false); setOrderType(type); handleOrderMessage(`Change order type to ${type}`); }}
+                disabled={isTyping}
+                className={`px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40 ${
+                  orderType === type ? "bg-primary text-primary-foreground" : "bg-[#252525] hover:bg-[#303030] text-neutral-300"
+                }`}>{type}</button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Order Quick Actions */}
+      {orderMode && !orderBrowseActive && (
+        <div className="px-4 pt-2 flex-shrink-0">
+          <div className="flex gap-1.5 pb-2 overflow-x-auto scrollbar-hide">
+            {[
+              { icon: ShoppingCart, label: "Browse Menu", action: () => startOrderBrowse() },
+              { icon: UtensilsCrossed, label: "Order Type", action: () => setShowOrderTypes(prev => !prev) },
+              { icon: FileText, label: "Summary", action: () => handleOrderMessage("Show me the current order summary") },
+              { icon: Trash2, label: "Clear", action: () => { setOrderItems([]); handleOrderMessage("Clear the entire order"); } },
+            ].map(btn => (
+              <button key={btn.label} onClick={btn.action} disabled={isTyping}
+                className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#252525] hover:bg-[#303030] text-neutral-300 text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40">
+                <btn.icon className="w-3 h-3" /> {btn.label}
+              </button>
+            ))}
+          </div>
+          {/* Mini order summary */}
+          {orderItems.length > 0 && (
+            <div className="flex items-center justify-between pb-2">
+              <span className="text-xs text-neutral-400">{orderItems.reduce((s, i) => s + i.qty, 0)} products, ${orderTotal.toFixed(2)}</span>
+              <button onClick={goToOrdersWithData}
+                className="text-xs font-medium text-primary hover:underline">
+                Go to Orders →
+              </button>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Input Area */}
       <div className="flex-shrink-0 p-4 border-t border-neutral-800">

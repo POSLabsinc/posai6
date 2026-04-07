@@ -337,6 +337,32 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   const ORDER_QUICK_ACTIONS = ["Browse Menu", "Order Type", "View Summary", "Go to Orders"];
 
+  // Settings navigation map for quick-action buttons
+  const SETTINGS_NAV_MAP: Record<string, string> = {
+    "Menu": "/settings/menu",
+    "Products": "/settings/menu/products",
+    "Categories": "/settings/menu/categories",
+    "Modifiers": "/settings/menu/modifiers",
+    "Add-ons": "/settings/menu/add-ons",
+    "Discounts": "/settings/payments/discounts",
+    "Taxes": "/settings/payments/taxes",
+    "Gratuity": "/settings/payments/gratuity",
+    "Service Charge": "/settings/payments/service-charge",
+    "Appearance": "/settings/system/appearance",
+    "Control Center": "/settings/system/control-center",
+    "Checkout Options": "/settings/payments/checkout-options",
+  };
+
+  const SETTINGS_QUICK_ACTIONS = Object.keys(SETTINGS_NAV_MAP);
+
+  const SETTINGS_INTENT_KEYWORDS = ["settings", "go to settings", "show settings", "open settings", "setting", "show me settings", "navigate to settings", "modules"];
+
+  const isSettingsIntent = (text: string) => {
+    const lower = text.toLowerCase().trim();
+    // Only match if it's a settings navigation request, not a specific settings action
+    return SETTINGS_INTENT_KEYWORDS.some(kw => lower.includes(kw)) && !isOrderIntent(lower);
+  };
+
   const handleOrderMessage = async (content: string) => {
     const isFirstEntry = !orderMode;
     if (!orderMode) setOrderMode(true);

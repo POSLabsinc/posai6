@@ -3476,6 +3476,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               />
             </div>
           )}
+          {/* Inline Message Thread */}
+          {showMessageThread && selectedGuest.id !== FALLBACK_SELECTED_GUEST_ID && (
+            <OrderMessageThread
+              orderId={selectedGuest.id}
+              orderNumber={selectedGuest.orderNumber || 0}
+              onClose={() => setShowMessageThread(false)}
+            />
+          )}
           {/* Order Items */}
           <ScrollArea className="flex-1 px-4">
             <div className="py-2 space-y-2">

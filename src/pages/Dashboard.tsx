@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect, useCallback } from "react";
+import { clearOrderMessages } from "@/utils/clearOrderMessages";
 import { useRestaurantTables } from "@/hooks/use-restaurant-tables";
 import { useTableStatusSync } from "@/hooks/use-table-status-sync";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";

@@ -2186,7 +2186,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           <div className="flex items-center gap-2 text-xs">
             {selectedOrderHasMessages && (
               <button
-                onClick={() => setShowMessageThread(true)}
+                onClick={() => setShowMessageThread(prev => !prev)}
                 className="relative p-1 rounded hover:bg-white/10 transition-colors"
               >
                 <MessageSquare className="w-3.5 h-3.5 text-orange-400" />
@@ -2299,6 +2299,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
             disabled={true}
           />
         </div>
+      )}
+      {/* Inline Message Thread */}
+      {showMessageThread && selectedGuest.id !== FALLBACK_SELECTED_GUEST_ID && (
+        <OrderMessageThread
+          orderId={selectedGuest.id}
+          orderNumber={selectedGuest.orderNumber || 0}
+          onClose={() => setShowMessageThread(false)}
+        />
       )}
       {/* Order Items */}
       <ScrollArea className="flex-1 px-3">
@@ -3420,7 +3428,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               <div className="flex items-center gap-2">
                 {selectedOrderHasMessages && (
                   <button
-                    onClick={() => setShowMessageThread(true)}
+                    onClick={() => setShowMessageThread(prev => !prev)}
                     className="relative p-1 rounded hover:bg-white/10 transition-colors"
                   >
                     <MessageSquare className="w-4 h-4 text-orange-400" />
@@ -3467,6 +3475,14 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 disabled={true}
               />
             </div>
+          )}
+          {/* Inline Message Thread */}
+          {showMessageThread && selectedGuest.id !== FALLBACK_SELECTED_GUEST_ID && (
+            <OrderMessageThread
+              orderId={selectedGuest.id}
+              orderNumber={selectedGuest.orderNumber || 0}
+              onClose={() => setShowMessageThread(false)}
+            />
           )}
           {/* Order Items */}
           <ScrollArea className="flex-1 px-4">
@@ -6175,12 +6191,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
         defaultLinkedOrderNumber={selectedGuest?.orderNumber}
       />
 
-      <OrderMessageThread
-        orderId={selectedGuest?.id || ""}
-        orderNumber={selectedGuest?.orderNumber || 0}
-        open={showMessageThread}
-        onOpenChange={setShowMessageThread}
-      />
+
     </>
   );
 };

@@ -1,9 +1,11 @@
 import { useState, useEffect, useRef, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, MessageSquare } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { X, MessageSquare, Send } from "lucide-react";
 import { format } from "date-fns";
+
 
 interface SentMessage {
   id: string;
@@ -35,18 +37,18 @@ interface ThreadMessage {
 interface OrderMessageThreadProps {
   orderId: string;
   orderNumber: number;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
+  onClose: () => void;
 }
 
-export default function OrderMessageThread({ orderId, orderNumber, open, onOpenChange }: OrderMessageThreadProps) {
+export default function OrderMessageThread({ orderId, orderNumber, onClose }: OrderMessageThreadProps) {
   const [sentMessages, setSentMessages] = useState<SentMessage[]>([]);
   const [kitchenReplies, setKitchenReplies] = useState<KitchenReply[]>([]);
+  const [replyText, setReplyText] = useState("");
+  const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Fetch sent messages for this order
   useEffect(() => {
-    if (!open || !orderId) return;
+    if (!orderId) return;
 
     const fetchSent = async () => {
       const { data } = await (supabase as any)
@@ -69,12 +71,10 @@ export default function OrderMessageThread({ orderId, orderNumber, open, onOpenC
 
     fetchSent();
     fetchReplies();
-  }, [open, orderId, orderNumber]);
+  }, [orderId, orderNumber]);
 
   // Realtime subscriptions
   useEffect(() => {
-    if (!open) return;
-
     const ch1 = supabase
       .channel(`thread-kds-${orderId}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "kds_messages" }, () => {
@@ -104,108 +104,121 @@ export default function OrderMessageThread({ orderId, orderNumber, open, onOpenC
       supabase.removeChannel(ch1);
       supabase.removeChannel(ch2);
     };
-  }, [open, orderId, orderNumber]);
+  }, [orderId, orderNumber]);
 
-  // Mark replies as read when opening
+  // Mark replies as read
   useEffect(() => {
-    if (!open || kitchenReplies.length === 0) return;
+    if (kitchenReplies.length === 0) return;
     const unread = kitchenReplies.filter((r) => !r.is_read);
     if (unread.length === 0) return;
-
     Promise.all(
       unread.map((r) =>
         (supabase as any).from("notifications").update({ is_read: true }).eq("id", r.id)
       )
     );
-  }, [open, kitchenReplies]);
+  }, [kitchenReplies]);
 
-  // Build unified thread
   const thread: ThreadMessage[] = useMemo(() => {
     const items: ThreadMessage[] = [];
-
     sentMessages.forEach((m) => {
-      items.push({
-        id: m.id,
-        type: "sent",
-        text: m.message_text,
-        sender: m.employee_name,
-        device: m.terminal_name,
-        timestamp: m.created_at,
-      });
+      items.push({ id: m.id, type: "sent", text: m.message_text, sender: m.employee_name, device: m.terminal_name, timestamp: m.created_at });
     });
-
     kitchenReplies.forEach((r) => {
-      items.push({
-        id: r.id,
-        type: "reply",
-        text: r.body,
-        sender: "Kitchen",
-        device: r.version || "KDS",
-        timestamp: r.created_at,
-        isRead: r.is_read,
-      });
+      items.push({ id: r.id, type: "reply", text: r.body, sender: "Kitchen", device: r.version || "KDS", timestamp: r.created_at, isRead: r.is_read });
     });
-
     items.sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
     return items;
   }, [sentMessages, kitchenReplies]);
 
-  // Auto-scroll to bottom
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [thread.length, open]);
+  }, [thread.length]);
 
   const formatTime = (ts: string) => {
+    try { return format(new Date(ts), "h:mm a"); } catch { return ""; }
+  };
+
+  const handleSendReply = async () => {
+    if (!replyText.trim() || sending) return;
+    setSending(true);
     try {
-      return format(new Date(ts), "h:mm a");
-    } catch {
-      return "";
+      const msgId = crypto.randomUUID();
+      await (supabase as any).from("kds_messages").insert({
+        message_id: msgId,
+        message_text: replyText.trim(),
+        store_id: "default",
+        terminal_id: "dashboard",
+        terminal_name: "Dashboard",
+        employee_id: "dashboard-user",
+        employee_name: "You",
+        employee_role: "Manager",
+        linked_order_id: orderId,
+        linked_order_number: orderNumber,
+        link_type: "single",
+        status: "pending",
+      });
+      setReplyText("");
+    } catch (e) {
+      console.error("Failed to send reply:", e);
+    } finally {
+      setSending(false);
     }
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-[#1E1E1E] border-neutral-700 p-0 max-w-md w-[95vw] sm:w-[400px] rounded-2xl overflow-hidden" hideCloseButton>
-        <DialogTitle className="sr-only">Message Thread - Order #{orderNumber}</DialogTitle>
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-          <div className="flex items-center gap-2">
-            <MessageSquare className="w-4 h-4 text-orange-400" />
-            <span className="text-white font-semibold text-sm">Messages - Order #{orderNumber}</span>
-          </div>
-          <button onClick={() => onOpenChange(false)} className="text-white/50 hover:text-white">
-            <X className="w-4 h-4" />
-          </button>
+    <div className="border-t border-white/10 bg-[#1a1a1a] flex flex-col" style={{ maxHeight: "280px" }}>
+      {/* Header */}
+      <div className="flex items-center justify-between px-3 py-2 border-b border-white/10 shrink-0">
+        <div className="flex items-center gap-2">
+          <MessageSquare className="w-3.5 h-3.5 text-orange-400" />
+          <span className="text-white font-semibold text-xs">Messages</span>
         </div>
+        <button onClick={onClose} className="text-white/50 hover:text-white">
+          <X className="w-3.5 h-3.5" />
+        </button>
+      </div>
 
-        {/* Messages */}
-        <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3 max-h-[400px] min-h-[200px]">
-          {thread.length === 0 && (
-            <p className="text-white/40 text-sm text-center py-8">No messages yet</p>
-          )}
-          {thread.map((msg) => (
-            <div key={msg.id} className={`flex ${msg.type === "sent" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[80%] rounded-xl px-3 py-2 ${msg.type === "sent" ? "bg-orange-600/80 text-white" : "bg-white/10 text-white"}`}>
-                <p className="text-sm leading-relaxed">{msg.text}</p>
-                <div className={`flex items-center gap-1.5 mt-1 text-[10px] ${msg.type === "sent" ? "text-white/60" : "text-white/40"}`}>
-                  <span className="font-medium">{msg.sender}</span>
-                  {msg.device && (
-                    <>
-                      <span>·</span>
-                      <span>{msg.device}</span>
-                    </>
-                  )}
-                  <span>·</span>
-                  <span>{formatTime(msg.timestamp)}</span>
-                </div>
+      {/* Messages */}
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2 min-h-0">
+        {thread.length === 0 && (
+          <p className="text-white/40 text-xs text-center py-4">No messages yet</p>
+        )}
+        {thread.map((msg) => (
+          <div key={msg.id} className={`flex ${msg.type === "sent" ? "justify-end" : "justify-start"}`}>
+            <div className={`max-w-[80%] rounded-lg px-2.5 py-1.5 ${msg.type === "sent" ? "bg-orange-600/80 text-white" : "bg-white/10 text-white"}`}>
+              <p className="text-xs leading-relaxed">{msg.text}</p>
+              <div className={`flex items-center gap-1 mt-0.5 text-[9px] ${msg.type === "sent" ? "text-white/60" : "text-white/40"}`}>
+                <span className="font-medium">{msg.sender}</span>
+                {msg.device && (<><span>·</span><span>{msg.device}</span></>)}
+                <span>·</span>
+                <span>{formatTime(msg.timestamp)}</span>
               </div>
             </div>
-          ))}
-        </div>
-      </DialogContent>
-    </Dialog>
+          </div>
+        ))}
+      </div>
+
+      {/* Reply Input */}
+      <div className="px-3 py-2 border-t border-white/10 flex gap-2 shrink-0">
+        <Input
+          value={replyText}
+          onChange={(e) => setReplyText(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && handleSendReply()}
+          placeholder="Type a reply..."
+          className="h-7 text-xs bg-white/5 border-white/10 text-white placeholder:text-white/30"
+        />
+        <Button
+          onClick={handleSendReply}
+          disabled={!replyText.trim() || sending}
+          size="sm"
+          className="h-7 px-2 bg-orange-600 hover:bg-orange-700 text-white"
+        >
+          <Send className="w-3 h-3" />
+        </Button>
+      </div>
+    </div>
   );
 }
 

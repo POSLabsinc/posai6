@@ -441,6 +441,10 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           setMessages(prev => [...prev, { id: crypto.randomUUID(), role: "assistant", content: assistantContent, timestamp: new Date() }]);
         }
       }
+      // Attach quick-reply buttons to the last assistant message
+      setMessages(prev => prev.map((m, i) => 
+        i === prev.length - 1 && m.role === "assistant" ? { ...m, quickReplies: ORDER_QUICK_ACTIONS } : m
+      ));
       if (assistantContent) orderConversationRef.current = [...orderConversationRef.current, { role: "assistant", content: assistantContent }];
     } catch (e) {
       console.error("Order chat error:", e);

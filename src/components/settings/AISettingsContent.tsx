@@ -337,6 +337,32 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   const ORDER_QUICK_ACTIONS = ["Browse Menu", "Order Type", "View Summary", "Go to Orders"];
 
+  // Settings navigation map for quick-action buttons
+  const SETTINGS_NAV_MAP: Record<string, string> = {
+    "Menu": "/settings/menu",
+    "Products": "/settings/menu/products",
+    "Categories": "/settings/menu/categories",
+    "Modifiers": "/settings/menu/modifiers",
+    "Add-ons": "/settings/menu/add-ons",
+    "Discounts": "/settings/payments/discounts",
+    "Taxes": "/settings/payments/taxes",
+    "Gratuity": "/settings/payments/gratuity",
+    "Service Charge": "/settings/payments/service-charge",
+    "Appearance": "/settings/system/appearance",
+    "Control Center": "/settings/system/control-center",
+    "Checkout Options": "/settings/payments/checkout-options",
+  };
+
+  const SETTINGS_QUICK_ACTIONS = Object.keys(SETTINGS_NAV_MAP);
+
+  const SETTINGS_INTENT_KEYWORDS = ["settings", "go to settings", "show settings", "open settings", "setting", "show me settings", "navigate to settings", "modules"];
+
+  const isSettingsIntent = (text: string) => {
+    const lower = text.toLowerCase().trim();
+    // Only match if it's a settings navigation request, not a specific settings action
+    return SETTINGS_INTENT_KEYWORDS.some(kw => lower.includes(kw)) && !isOrderIntent(lower);
+  };
+
   const handleOrderMessage = async (content: string) => {
     const isFirstEntry = !orderMode;
     if (!orderMode) setOrderMode(true);
@@ -886,6 +912,30 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   const handleSendMessage = async (content: string, imageDataUrl?: string | null) => {
     if (!content.trim() && !imageDataUrl) return;
+
+    // Detect settings intent and show module buttons
+    if (!imageDataUrl && isSettingsIntent(content.trim())) {
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: "user",
+        content: content.trim(),
+        timestamp: new Date(),
+      };
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: "Here are the available settings modules. Tap any to navigate directly:",
+        timestamp: new Date(),
+        quickReplies: SETTINGS_QUICK_ACTIONS,
+      };
+      setMessages((prev) => [
+        ...prev.map((msg) => msg.role === "assistant" ? { ...msg, quickReplies: undefined, multiSelect: undefined } : msg),
+        userMessage,
+        assistantMessage,
+      ]);
+      setInputValue("");
+      return;
+    }
 
     // Detect order intent and route to order chat
     if (!imageDataUrl && isOrderIntent(content.trim())) {
@@ -1780,6 +1830,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                           <button
                             key={reply}
                             onClick={() => {
+                              // Map settings module labels to navigation
+                              if (SETTINGS_NAV_MAP[reply]) { navigate(SETTINGS_NAV_MAP[reply]); return; }
                               // Map order quick-action labels to direct actions
                               if (reply === "Browse Menu") { startOrderBrowse(); return; }
                               if (reply === "Order Type") { setShowOrderTypes(prev => !prev); return; }

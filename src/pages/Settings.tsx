@@ -269,23 +269,7 @@ const getContentForRoute = (
   },
   isMobile?: boolean
 ) => {
-  // If AI chat is active, show it in the right panel
-  if (showAIChat) {
-    const aiContext = pathname.startsWith('/settings/menu') ? 'menu'
-      : pathname.startsWith('/settings/system') ? 'system'
-      : pathname.startsWith('/settings/payments') ? 'payments'
-      : pathname === '/settings/end-of-day' ? 'end-of-day'
-      : pathname === '/settings/guest-book' ? 'guest-book'
-      : pathname.startsWith('/settings/workforce') ? 'workforce'
-      : pathname.startsWith('/settings/support') ? 'support'
-      : pathname.startsWith('/settings/network') ? 'network'
-      : pathname.startsWith('/settings/hardware') ? 'hardware'
-      : pathname.startsWith('/settings/notifications') ? 'notifications'
-      : pathname.startsWith('/settings/reports') ? 'reports'
-      : (pathname === '/settings/account' || pathname === '/settings' || pathname.startsWith('/settings/account/')) ? 'account'
-      : undefined;
-    return <AISettingsContent showHeader={true} onBack={() => setShowAIChat(false)} context={aiContext} />;
-  }
+  // AI chat is now rendered as an overlay panel, not replacing content
   
   if (pathname === '/settings/account' || pathname === '/settings') {
     return <AccountPanel showHeader={true} onAIClick={() => setShowAIChat(true)} />;
@@ -666,8 +650,22 @@ const Settings = () => {
     );
   }
 
+  const aiContext = location.pathname.startsWith('/settings/menu') ? 'menu'
+    : location.pathname.startsWith('/settings/system') ? 'system'
+    : location.pathname.startsWith('/settings/payments') ? 'payments'
+    : location.pathname === '/settings/end-of-day' ? 'end-of-day'
+    : location.pathname === '/settings/guest-book' ? 'guest-book'
+    : location.pathname.startsWith('/settings/workforce') ? 'workforce'
+    : location.pathname.startsWith('/settings/support') ? 'support'
+    : location.pathname.startsWith('/settings/network') ? 'network'
+    : location.pathname.startsWith('/settings/hardware') ? 'hardware'
+    : location.pathname.startsWith('/settings/notifications') ? 'notifications'
+    : location.pathname.startsWith('/settings/reports') ? 'reports'
+    : (location.pathname === '/settings/account' || location.pathname === '/settings' || location.pathname.startsWith('/settings/account/')) ? 'account'
+    : undefined;
+
   return (
-    <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden">
+    <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden relative">
 
       {/* Left Panel - Settings Navigation with independent scroll */}
       <div className="w-full md:w-[260px] lg:w-[300px] md:flex-shrink-0 md:bg-surface md:rounded-2xl h-full overflow-hidden">
@@ -683,6 +681,15 @@ const Settings = () => {
         <div className="flex flex-1 h-full overflow-hidden">
           <div key={location.pathname} className="w-full h-full overflow-y-auto scrollbar-hide">
             {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded, { viewMode: shiftViewMode, setViewMode: setShiftViewMode, currentWeek: shiftCurrentWeek, setCurrentWeek: setShiftCurrentWeek, currentDate: shiftCurrentDate, setCurrentDate: setShiftCurrentDate, currentMonth: shiftCurrentMonth, setCurrentMonth: setShiftCurrentMonth })}
+          </div>
+        </div>
+      )}
+
+      {/* AI Chat Panel - Right side overlay */}
+      {showAIChat && !isMobile && (
+        <div className="absolute top-0 right-0 bottom-0 z-40 w-[350px] lg:w-[415px] p-[10px] pl-0">
+          <div className="w-full h-full rounded-2xl overflow-hidden shadow-2xl border border-neutral-700/50">
+            <AISettingsContent showHeader={true} onBack={() => setShowAIChat(false)} context={aiContext} />
           </div>
         </div>
       )}

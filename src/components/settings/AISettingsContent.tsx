@@ -1013,7 +1013,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: "assistant",
-        content: "Here are the available settings modules. Tap any to navigate directly:",
+        content: "Here are the available settings modules. Tap any to explore:",
         timestamp: new Date(),
         quickReplies: SETTINGS_QUICK_ACTIONS,
       };

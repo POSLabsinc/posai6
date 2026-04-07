@@ -198,7 +198,8 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
     if (isKitchenOrOrder) {
       const orderMatch = notification.title.match(/Order\s*#(\d+)/i) || notification.preview.match(/Order\s*#(\d+)/i) || notification.body.match(/Order\s*#(\d+)/i);
       if (orderMatch) {
-        navigate(`/tickets?orderNumber=${orderMatch[1]}`);
+        const isKitchenReply = title.includes("kitchen reply");
+        navigate(`/tickets?orderNumber=${orderMatch[1]}${isKitchenReply ? "&openChat=true" : ""}`);
         return;
       }
     }

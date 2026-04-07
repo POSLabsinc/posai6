@@ -247,7 +247,7 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
       </div>
 
       {/* Messages */}
-      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2 min-h-0">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 space-y-2 min-h-0 scrollbar-none" style={{ scrollbarWidth: 'none' }}>
         {thread.length === 0 && (
           <p className="text-white/40 text-xs text-center py-4">No messages yet</p>
         )}
@@ -272,8 +272,8 @@ export default function OrderMessageThread({ orderId, orderNumber, onClose }: Or
         {showSuggestions && filteredSuggestions.length > 0 && (
           <div
             ref={suggestionsRef}
-            className="absolute bottom-full left-0 right-0 mb-0 mx-3 rounded-lg overflow-hidden z-50 border border-white/10 max-h-[180px] overflow-y-auto"
-            style={{ background: '#2D2D2D' }}
+            className="absolute bottom-full left-0 right-0 mb-0 mx-3 rounded-lg overflow-hidden z-50 border border-white/10 max-h-[180px] overflow-y-auto scrollbar-none"
+            style={{ background: '#2D2D2D', scrollbarWidth: 'none' }}
           >
             {filteredSuggestions.map((suggestion, index) => {
               const isRecent = savedSuggestions.some(s => s.toLowerCase() === suggestion.toLowerCase());

@@ -6194,14 +6194,6 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       />
 
 
-      {/* Floating Message Thread - rendered at top level for fixed positioning */}
-      {showMessageThread && selectedGuest.id !== FALLBACK_SELECTED_GUEST_ID && (
-        <OrderMessageThread
-          orderId={selectedGuest.id}
-          orderNumber={selectedGuest.orderNumber || 0}
-          onClose={() => setShowMessageThread(false)}
-        />
-      )}
     </>
   );
 };

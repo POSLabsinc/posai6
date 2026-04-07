@@ -269,23 +269,7 @@ const getContentForRoute = (
   },
   isMobile?: boolean
 ) => {
-  // If AI chat is active, show it in the right panel
-  if (showAIChat) {
-    const aiContext = pathname.startsWith('/settings/menu') ? 'menu'
-      : pathname.startsWith('/settings/system') ? 'system'
-      : pathname.startsWith('/settings/payments') ? 'payments'
-      : pathname === '/settings/end-of-day' ? 'end-of-day'
-      : pathname === '/settings/guest-book' ? 'guest-book'
-      : pathname.startsWith('/settings/workforce') ? 'workforce'
-      : pathname.startsWith('/settings/support') ? 'support'
-      : pathname.startsWith('/settings/network') ? 'network'
-      : pathname.startsWith('/settings/hardware') ? 'hardware'
-      : pathname.startsWith('/settings/notifications') ? 'notifications'
-      : pathname.startsWith('/settings/reports') ? 'reports'
-      : (pathname === '/settings/account' || pathname === '/settings' || pathname.startsWith('/settings/account/')) ? 'account'
-      : undefined;
-    return <AISettingsContent showHeader={true} onBack={() => setShowAIChat(false)} context={aiContext} />;
-  }
+  // AI chat is now rendered as an overlay panel, not replacing content
   
   if (pathname === '/settings/account' || pathname === '/settings') {
     return <AccountPanel showHeader={true} onAIClick={() => setShowAIChat(true)} />;

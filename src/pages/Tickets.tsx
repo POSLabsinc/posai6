@@ -2203,13 +2203,12 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full" />
                   )}
                 </button>
-                {showMessageThread && selectedGuest.id !== FALLBACK_SELECTED_GUEST_ID && (
-                  <OrderMessageThread
-                    orderId={selectedGuest.id}
-                    orderNumber={selectedGuest.orderNumber || 0}
-                    onClose={() => setShowMessageThread(false)}
-                  />
-                )}
+                <OrderMessageThread
+                  orderId={selectedGuest.id}
+                  orderNumber={selectedGuest.orderNumber || 0}
+                  open={showMessageThread && selectedGuest.id !== FALLBACK_SELECTED_GUEST_ID}
+                  onClose={() => setShowMessageThread(false)}
+                />
               </div>
             )}
             <img src={runnerIcon} alt="Runner" className="w-4 h-4" />

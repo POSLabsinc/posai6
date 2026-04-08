@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import Settings from "@/pages/Settings";
 import EndOfDayContent from "@/components/settings/EndOfDayContent";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 const EndOfDayRoute = () => {
   const isMobile = useIsMobile();
@@ -12,7 +11,6 @@ const EndOfDayRoute = () => {
   if (isMobile) {
     return (
       <div className="h-screen bg-background overflow-hidden flex flex-col">
-        {/* Mobile Header with back button and AI icon */}
         <div className="flex items-center justify-between px-4 py-3 overflow-visible shrink-0">
           <button
             onClick={() => navigate('/settings')}
@@ -20,7 +18,7 @@ const EndOfDayRoute = () => {
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai', { state: { context: 'end-of-day' } })} />
+          <div style={{ width: 40, height: 40 }} />
         </div>
         <div className="flex-1 overflow-auto relative">
           <EndOfDayContent

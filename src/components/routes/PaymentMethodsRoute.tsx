@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import Settings from "@/pages/Settings";
 import PaymentMethodsContent from "@/components/settings/PaymentMethodsContent";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 const PaymentMethodsRoute = () => {
   const isMobile = useIsMobile();
@@ -12,7 +11,6 @@ const PaymentMethodsRoute = () => {
   if (isMobile) {
     return (
       <div className="h-full flex flex-col overflow-hidden bg-background">
-        {/* Mobile header with back, title + info icon, and AI icon */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800/50">
           <button
             onClick={() => navigate('/settings/payments')}
@@ -23,9 +21,7 @@ const PaymentMethodsRoute = () => {
           <div className="flex items-center gap-1.5">
             <span className="text-base font-medium text-foreground">Payment Methods</span>
           </div>
-          <div className="flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
-          </div>
+          <div style={{ width: 40, height: 40 }} />
         </div>
         <div className="flex-1 overflow-hidden">
           <PaymentMethodsContent showHeader={false} />

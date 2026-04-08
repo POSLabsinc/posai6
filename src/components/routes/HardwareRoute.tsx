@@ -1,9 +1,7 @@
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
 import Settings from "@/pages/Settings";
 import HardwareContent from "@/components/settings/HardwareContent";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 const HardwareRoute = () => {
   const isMobile = useIsMobile();

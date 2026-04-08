@@ -962,92 +962,147 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       };
 
       return (
-        <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 md:p-8 bg-background">
+        <div className="min-h-screen w-full flex flex-col items-center pt-12 p-4 md:p-8 bg-background">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-md flex flex-col items-center"
+            className="w-full max-w-4xl flex flex-col items-center"
           >
             {/* POS AI Logo */}
             <motion.img
               src={eatosLogo}
               alt="POS AI"
-              className="w-32 h-auto mb-6"
+              className="w-32 h-auto mb-8"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
             />
 
-            {/* Success Check */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 }}
-              className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6"
-            >
-              <CheckCircle2 className="w-8 h-8 text-primary" />
-            </motion.div>
-
+            {/* Title */}
             <motion.h1
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.15 }}
-              className="text-2xl font-bold text-foreground mb-2"
+              transition={{ delay: 0.1 }}
+              className="text-2xl md:text-3xl font-bold text-foreground mb-12"
             >
               Device Verified
             </motion.h1>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-sm text-foreground/50 mb-8 text-center"
-            >
-              Give this device a name to identify it easily.
-            </motion.p>
-
+            {/* Two Column Layout */}
             <motion.div
-              initial={{ opacity: 0, y: 10 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-              className="w-full space-y-4"
+              transition={{ delay: 0.15 }}
+              className="flex flex-col md:flex-row gap-0 w-full"
             >
-              <div className="relative">
-                <Monitor className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
-                <Input
-                  type="text"
-                  placeholder="e.g. Front Counter, Bar Terminal"
-                  value={deviceName}
-                  onChange={(e) => {
-                    setDeviceName(e.target.value);
-                    setDeviceNameError("");
-                  }}
-                  className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.05] border-foreground/[0.1] focus:border-primary/40"
-                  autoFocus
-                />
+              {/* Left Side: Steps & Details */}
+              <div className="flex-1 pr-0 md:pr-10 pb-8 md:pb-0">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <CheckCircle2 className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-primary">Activation Complete</p>
+                    <p className="text-xs text-foreground/40">Your device has been verified successfully</p>
+                  </div>
+                </div>
+
+                <ul className="text-sm text-foreground/60 leading-relaxed space-y-4 list-none">
+                  <li className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-primary">1</span>
+                    </span>
+                    <span>Give your device a unique name to identify it across your locations.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-foreground/[0.06] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-foreground/40">2</span>
+                    </span>
+                    <span>Use names like "Front Counter", "Bar Terminal", or "Drive-Through" for easy identification.</span>
+                  </li>
+                  <li className="flex items-start gap-3">
+                    <span className="w-6 h-6 rounded-full bg-foreground/[0.06] flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <span className="text-xs font-bold text-foreground/40">3</span>
+                    </span>
+                    <span>You can change the device name later from settings.</span>
+                  </li>
+                </ul>
               </div>
 
-              {deviceNameError && (
-                <motion.div
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/20"
-                >
-                  <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
-                  <p className="text-xs text-destructive">{deviceNameError}</p>
-                </motion.div>
-              )}
+              {/* Divider */}
+              <div className="hidden md:flex flex-col items-center px-2">
+                <div className="w-px flex-1 bg-foreground/10" />
+              </div>
+              <div className="md:hidden w-full h-px bg-foreground/10 my-4" />
 
-              <Button
-                onClick={handleSetDeviceName}
-                disabled={!deviceName.trim()}
-                className="w-full h-14 text-base font-medium rounded-2xl"
-                size="lg"
+              {/* Right Side: Device Name Input */}
+              <div className="flex-1 pl-0 md:pl-10">
+                <p className="text-sm font-medium text-primary/70 mb-1">Final Step</p>
+                <h2 className="text-xl font-bold text-foreground mb-6">Name Your Device</h2>
+
+                <div className="space-y-4">
+                  <p className="text-sm text-foreground/60 mb-3">
+                    Give this device a name to identify it easily
+                  </p>
+
+                  <div className="relative">
+                    <Monitor className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                    <Input
+                      type="text"
+                      placeholder="e.g. Front Counter, Bar Terminal"
+                      value={deviceName}
+                      onChange={(e) => {
+                        setDeviceName(e.target.value);
+                        setDeviceNameError("");
+                      }}
+                      className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.05] border-foreground/[0.1] focus:border-primary/40"
+                      autoFocus
+                    />
+                  </div>
+
+                  {deviceNameError && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/20"
+                    >
+                      <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                      <p className="text-xs text-destructive">{deviceNameError}</p>
+                    </motion.div>
+                  )}
+
+                  <Button
+                    onClick={handleSetDeviceName}
+                    disabled={!deviceName.trim()}
+                    className="w-full h-14 text-base font-medium rounded-2xl"
+                    size="lg"
+                  >
+                    Continue
+                  </Button>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Help Link */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+              className="mt-8 text-center"
+            >
+              <button
+                onClick={() => setShowContactAdmin(true)}
+                className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
               >
-                Continue
-              </Button>
+                Need help?
+              </button>
             </motion.div>
           </motion.div>
+
+          <ContactAdminDialog 
+            open={showContactAdmin} 
+            onOpenChange={setShowContactAdmin}
+          />
         </div>
       );
     }

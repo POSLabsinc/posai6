@@ -290,6 +290,14 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
     }
   }, [resetResendCooldown]);
 
+  // Owner verification resend cooldown timer
+  useEffect(() => {
+    if (ownerResendCooldown > 0) {
+      const timer = setTimeout(() => setOwnerResendCooldown(ownerResendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [ownerResendCooldown]);
+
   // Reset OTP timer (5 minute countdown)
   useEffect(() => {
     if (resetOtpTimer > 0) {

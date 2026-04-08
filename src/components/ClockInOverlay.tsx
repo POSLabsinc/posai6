@@ -775,7 +775,7 @@ export const ClockInOverlay = ({
               className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                {(() => { const Icon = REVENUE_CENTER_ICONS[clockInSummary!.revenueCenter] || MapPin; return <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />; })()}
+                {(() => { const Icon = REVENUE_CENTER_ICONS[clockInSummary!.revenueCenter] || MapPin; return <Icon className={`w-5 h-5 md:w-6 md:h-6 ${REVENUE_CENTER_COLORS[clockInSummary!.revenueCenter] || 'text-white'}`} />; })()}
               </div>
               <div className="flex-1 text-left">
                 <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>

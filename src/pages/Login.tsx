@@ -7110,24 +7110,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                               </motion.div>
                             )}
 
-                            <Button
-                              onClick={handleExistingUserVerifyCode}
-                              disabled={existingUserVerificationCode.length !== 6 || existingUserVerifyingCode}
-                              className="w-full h-14 text-base font-medium rounded-2xl"
-                              size="lg"
-                            >
-                              {existingUserVerifyingCode ? (
-                                <>
-                                  <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                                  Verifying...
-                                </>
-                              ) : (
-                                <>
-                                  <ShieldCheck className="w-5 h-5 mr-2" />
-                                  Sign In
-                                </>
-                              )}
-                            </Button>
+                            {existingUserVerifyingCode && (
+                              <div className="flex items-center justify-center gap-2 py-3">
+                                <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                                <span className="text-sm text-foreground/60">Verifying...</span>
+                              </div>
+                            )}
 
                             <div className="flex items-center justify-between pt-1">
                               <button

@@ -112,14 +112,14 @@ const REVENUE_CENTER_ICONS: Record<string, React.ComponentType<any>> = {
   "Takeout Counter": ShoppingBag,
 };
 
-// Revenue center icon colors
+// Revenue center icon colors (inline styles to prevent Tailwind purging)
 const REVENUE_CENTER_COLORS: Record<string, string> = {
-  "Dine Center": "text-amber-400",
-  "Main Hall": "text-blue-400",
-  "Outdoor Patio": "text-emerald-400",
-  "Private Dining": "text-purple-400",
-  "Bar Area": "text-pink-400",
-  "Takeout Counter": "text-cyan-400",
+  "Dine Center": "#fbbf24",
+  "Main Hall": "#60a5fa",
+  "Outdoor Patio": "#34d399",
+  "Private Dining": "#c084fc",
+  "Bar Area": "#f472b6",
+  "Takeout Counter": "#22d3ee",
 };
 
 // Job type icons mapping

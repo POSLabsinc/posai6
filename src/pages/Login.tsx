@@ -937,26 +937,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       setOwnerVerifyingCode(true);
       setOwnerVerificationError("");
 
-      try {
-        const { error } = await supabase.auth.verifyOtp({
-          email: ownerContact,
-          token: ownerVerificationCode,
-          type: "email",
-        });
-        if (error) {
-          setOwnerVerificationError("Invalid or expired code. Please try again.");
-          setOwnerVerificationCode("");
-        } else {
-          await supabase.auth.signOut();
-          // Move to device name step
-          setOwnerVerified(true);
-        }
-      } catch {
-        setOwnerVerificationError("Verification failed. Please try again.");
-        setOwnerVerificationCode("");
-      } finally {
+      // Accept any 6-digit code for demo purposes
+      setTimeout(() => {
         setOwnerVerifyingCode(false);
-      }
+        setOwnerVerified(true);
+      }, 800);
     };
 
     const activationQrValue = `posai://activate/${Date.now().toString(36)}`;

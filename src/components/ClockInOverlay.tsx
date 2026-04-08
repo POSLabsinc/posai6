@@ -112,6 +112,16 @@ const REVENUE_CENTER_ICONS: Record<string, React.ComponentType<any>> = {
   "Takeout Counter": ShoppingBag,
 };
 
+// Revenue center icon colors
+const REVENUE_CENTER_COLORS: Record<string, string> = {
+  "Dine Center": "text-amber-400",
+  "Main Hall": "text-blue-400",
+  "Outdoor Patio": "text-emerald-400",
+  "Private Dining": "text-purple-400",
+  "Bar Area": "text-pink-400",
+  "Takeout Counter": "text-cyan-400",
+};
+
 // Job type icons mapping
 const JOB_TYPE_ICONS: Record<string, string | null> = {
   "Server": serverIcon,
@@ -120,6 +130,16 @@ const JOB_TYPE_ICONS: Record<string, string | null> = {
   "Manager": managerIcon,
   "Barista": baristaIcon,
   "Runner": runnerIcon
+};
+
+// Job type icon colors (CSS filter hue values)
+const JOB_TYPE_COLORS: Record<string, string> = {
+  "Server": "brightness(0) saturate(100%) invert(78%) sepia(60%) saturate(500%) hue-rotate(80deg) brightness(95%)",
+  "Bartender": "brightness(0) saturate(100%) invert(60%) sepia(80%) saturate(500%) hue-rotate(280deg) brightness(95%)",
+  "Host": "brightness(0) saturate(100%) invert(65%) sepia(60%) saturate(500%) hue-rotate(180deg) brightness(95%)",
+  "Manager": "brightness(0) saturate(100%) invert(75%) sepia(70%) saturate(500%) hue-rotate(10deg) brightness(95%)",
+  "Barista": "brightness(0) saturate(100%) invert(60%) sepia(60%) saturate(400%) hue-rotate(340deg) brightness(100%)",
+  "Runner": "brightness(0) saturate(100%) invert(70%) sepia(50%) saturate(500%) hue-rotate(150deg) brightness(95%)",
 };
 export const ClockInOverlay = ({
   isOpen,
@@ -755,7 +775,7 @@ export const ClockInOverlay = ({
               className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                {(() => { const Icon = REVENUE_CENTER_ICONS[clockInSummary!.revenueCenter] || MapPin; return <Icon className="w-5 h-5 md:w-6 md:h-6 text-white" />; })()}
+                {(() => { const Icon = REVENUE_CENTER_ICONS[clockInSummary!.revenueCenter] || MapPin; return <Icon className={`w-5 h-5 md:w-6 md:h-6 ${REVENUE_CENTER_COLORS[clockInSummary!.revenueCenter] || 'text-white'}`} />; })()}
               </div>
               <div className="flex-1 text-left">
                 <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
@@ -809,7 +829,7 @@ export const ClockInOverlay = ({
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
                 {JOB_TYPE_ICONS[clockInSummary!.jobType] ? (
-                  <img src={JOB_TYPE_ICONS[clockInSummary!.jobType]!} alt={clockInSummary!.jobType} className="w-5 h-5 md:w-6 md:h-6" style={{ filter: 'invert(1) brightness(2)' }} />
+                  <img src={JOB_TYPE_ICONS[clockInSummary!.jobType]!} alt={clockInSummary!.jobType} className="w-5 h-5 md:w-6 md:h-6" style={{ filter: JOB_TYPE_COLORS[clockInSummary!.jobType] || 'invert(1) brightness(2)' }} />
                 ) : (
                   <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-white" />
                 )}
@@ -848,7 +868,7 @@ export const ClockInOverlay = ({
                           }`}
                         >
                           {JOB_TYPE_ICONS[job] ? (
-                            <img src={JOB_TYPE_ICONS[job]!} alt={job} className="w-7 h-7" style={{ filter: 'invert(1) brightness(2)' }} />
+                            <img src={JOB_TYPE_ICONS[job]!} alt={job} className="w-7 h-7" style={{ filter: JOB_TYPE_COLORS[job] || 'invert(1) brightness(2)' }} />
                           ) : (
                             <Briefcase className="w-7 h-7 text-white" />
                           )}
@@ -1189,7 +1209,7 @@ export const ClockInOverlay = ({
                               : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
                           }`}
                         >
-                          <Icon className="w-5 h-5 text-white" />
+                          <Icon className={`w-5 h-5 ${REVENUE_CENTER_COLORS[center] || 'text-white'}`} />
                           <span className="text-xs font-medium text-center leading-tight text-white">{center}</span>
                         </button>
                       );
@@ -1269,7 +1289,7 @@ export const ClockInOverlay = ({
               className="bg-white/10 hover:bg-white/20 active:bg-white/30 backdrop-blur-sm rounded-xl p-4 flex flex-col items-center gap-2 transition-all min-h-[100px]"
             >
               {JOB_TYPE_ICONS[job] ? (
-                <img src={JOB_TYPE_ICONS[job]!} alt={job} className="w-12 h-12 invert brightness-0 filter" style={{ filter: 'invert(1) brightness(2)' }} />
+                <img src={JOB_TYPE_ICONS[job]!} alt={job} className="w-12 h-12" style={{ filter: JOB_TYPE_COLORS[job] || 'invert(1) brightness(2)' }} />
               ) : (
                 <Briefcase className="w-12 h-12 text-white" />
               )}

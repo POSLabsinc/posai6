@@ -6761,8 +6761,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       }}
                       className="w-full flex items-center gap-4 p-4 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all group"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <KeyRound className="w-5 h-5 text-primary" />
+                      <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                        <KeyRound className="w-5 h-5 text-amber-400" />
                       </div>
                       <div className="text-left flex-1">
                         <p className="text-sm font-semibold text-foreground">Activate with Code</p>

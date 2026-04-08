@@ -1089,7 +1089,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             {/* Option 1: QR Code */}
             <div className="flex-1 pr-0 md:pr-10 pb-8 md:pb-0">
               <p className="text-sm font-medium text-primary/70 mb-1">Option 1</p>
-              <h2 className="text-xl font-bold text-foreground mb-6">Scan this QR code</h2>
+              <h2 className="text-xl font-bold text-foreground mb-6">Scan to Activate</h2>
               
               <div className="flex flex-row items-start gap-6">
                 <div className="bg-foreground rounded-2xl p-5 flex-shrink-0">

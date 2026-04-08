@@ -6713,7 +6713,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           >
             {/* Left: QR Code - centered */}
             <div className="flex-1 pr-0 md:pr-10 pb-8 md:pb-0 flex flex-col items-center text-center">
-              <h2 className="text-xl font-bold text-foreground mb-6">Scan to Sign In</h2>
+              <h2 className="text-xl font-bold text-foreground mb-6">Scan QR Code</h2>
               
               <div className="bg-foreground rounded-2xl p-6 inline-block mb-5">
                 <QRCodeSVG

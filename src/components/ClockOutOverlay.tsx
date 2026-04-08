@@ -24,6 +24,7 @@ import hostIcon from "@/assets/icons/jobs/host.svg";
 import managerIcon from "@/assets/icons/jobs/manager.svg";
 import baristaIcon from "@/assets/icons/jobs/barista.svg";
 import runnerIcon from "@/assets/icons/jobs/runner.svg";
+import { REVENUE_CENTERS, RevenueCenterIcon } from "@/components/RevenueCenterIcon";
 
 interface ClockOutOverlayProps {
   isOpen: boolean;
@@ -135,7 +136,7 @@ const EMOTION_TAGS: Record<EmotionKey, string[]> = {
 
 const ENABLE_MOOD_CHECKIN = true;
 const PIN_LENGTH = 4;
-const revenueCenters = ["Dine Center", "Main Hall", "Outdoor Patio", "Private Dining", "Bar Area", "Takeout Counter"];
+const revenueCenters = REVENUE_CENTERS;
 
 export const ClockOutOverlay = ({
   isOpen,
@@ -940,7 +941,7 @@ export const ClockOutOverlay = ({
             {/* Revenue Center */}
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <MapPin className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                <RevenueCenterIcon center={clockOutSummary.revenueCenter} className="w-5 h-5 md:w-6 md:h-6" />
               </div>
               <div className="flex-1">
                 <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
@@ -1101,7 +1102,7 @@ export const ClockOutOverlay = ({
             {/* Revenue Center */}
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <MapPin className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                <RevenueCenterIcon center={clockInSummary.revenueCenter} className="w-5 h-5 md:w-6 md:h-6" />
               </div>
               <div className="flex-1">
                 <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
@@ -1280,7 +1281,12 @@ export const ClockOutOverlay = ({
                         }} 
                         className={`w-full px-4 py-3.5 text-left text-sm hover:bg-neutral-100 flex items-center justify-between ${selectedRevenueCenter === center ? "bg-neutral-100" : ""}`}
                       >
-                        <span className="text-black font-medium">{center}</span>
+                        <div className="flex items-center gap-3">
+                          <div className="w-8 h-8 rounded-lg bg-neutral-100 flex items-center justify-center">
+                            <RevenueCenterIcon center={center} className="w-4 h-4" />
+                          </div>
+                          <span className="text-black font-medium">{center}</span>
+                        </div>
                         {selectedRevenueCenter === center && <Check className="w-4 h-4 text-emerald-500" />}
                       </button>
                     ))}

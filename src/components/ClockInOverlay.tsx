@@ -24,6 +24,7 @@ import hostIcon from "@/assets/icons/jobs/host.svg";
 import managerIcon from "@/assets/icons/jobs/manager.svg";
 import baristaIcon from "@/assets/icons/jobs/barista.svg";
 import runnerIcon from "@/assets/icons/jobs/runner.svg";
+import { REVENUE_CENTERS, RevenueCenterIcon } from "@/components/RevenueCenterIcon";
 interface ClockInOverlayProps {
   isOpen: boolean;
   onClose: () => void;
@@ -100,27 +101,7 @@ const EMOTION_TAGS: Record<EmotionKey, string[]> = {
 // Merchant config flag (would come from settings in production)
 const ENABLE_MOOD_CHECKIN = true;
 const PIN_LENGTH = 4;
-const revenueCenters = ["Dine Center", "Main Hall", "Outdoor Patio", "Private Dining", "Bar Area", "Takeout Counter"];
-
-// Revenue center icons mapping
-const REVENUE_CENTER_ICONS: Record<string, React.ComponentType<any>> = {
-  "Dine Center": UtensilsCrossed,
-  "Main Hall": MapPin,
-  "Outdoor Patio": TreePine,
-  "Private Dining": Lock,
-  "Bar Area": Wine,
-  "Takeout Counter": ShoppingBag,
-};
-
-// Revenue center icon colors (inline styles to prevent Tailwind purging)
-const REVENUE_CENTER_COLORS: Record<string, string> = {
-  "Dine Center": "#fbbf24",
-  "Main Hall": "#60a5fa",
-  "Outdoor Patio": "#34d399",
-  "Private Dining": "#c084fc",
-  "Bar Area": "#f472b6",
-  "Takeout Counter": "#22d3ee",
-};
+const revenueCenters = REVENUE_CENTERS;
 
 // Job type icons mapping
 const JOB_TYPE_ICONS: Record<string, string | null> = {
@@ -775,7 +756,7 @@ export const ClockInOverlay = ({
               className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                {(() => { const Icon = REVENUE_CENTER_ICONS[clockInSummary!.revenueCenter] || MapPin; return <Icon className="w-5 h-5 md:w-6 md:h-6" style={{ color: REVENUE_CENTER_COLORS[clockInSummary!.revenueCenter] || '#ffffff' }} />; })()}
+                <RevenueCenterIcon center={clockInSummary!.revenueCenter} className="w-5 h-5 md:w-6 md:h-6" />
               </div>
               <div className="flex-1 text-left">
                 <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
@@ -796,7 +777,6 @@ export const ClockInOverlay = ({
                 >
                   <div className="grid grid-cols-3 gap-2">
                     {revenueCenters.map(center => {
-                      const Icon = REVENUE_CENTER_ICONS[center] || MapPin;
                       const isSelected = clockInSummary!.revenueCenter === center;
                       return (
                         <button
@@ -811,7 +791,7 @@ export const ClockInOverlay = ({
                               : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
                           }`}
                         >
-                          <Icon className="w-7 h-7 text-white" />
+                          <RevenueCenterIcon center={center} className="w-7 h-7" />
                           <span className="text-xs font-medium text-center text-white">{center}</span>
                         </button>
                       );
@@ -948,7 +928,7 @@ export const ClockInOverlay = ({
           {/* Revenue Center */}
           <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4">
             <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-              <MapPin className="w-5 h-5 md:w-6 md:h-6 text-white" />
+              <RevenueCenterIcon center={clockOutSummary!.revenueCenter} className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div className="flex-1">
               <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
@@ -1194,7 +1174,6 @@ export const ClockInOverlay = ({
                   <p className="text-white/60 text-xs font-medium mb-2 text-center">Select Revenue Center</p>
                   <div className="grid grid-cols-3 gap-2">
                     {revenueCenters.map(center => {
-                      const Icon = REVENUE_CENTER_ICONS[center] || MapPin;
                       const isSelected = selectedRevenueCenter === center;
                       return (
                         <button 
@@ -1209,7 +1188,7 @@ export const ClockInOverlay = ({
                               : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
                           }`}
                         >
-                          <Icon className="w-5 h-5" style={{ color: REVENUE_CENTER_COLORS[center] || '#ffffff' }} />
+                          <RevenueCenterIcon center={center} className="w-5 h-5" />
                           <span className="text-xs font-medium text-center leading-tight text-white">{center}</span>
                         </button>
                       );

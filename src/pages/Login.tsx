@@ -1136,7 +1136,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   >
                     <div>
                       <p className="text-sm text-foreground/60 mb-3">
-                        Enter your email or phone number:
+                        Enter your email or mobile number to activate:
                       </p>
                       {(() => {
                         const isPhone = /^[\d(+]/.test(ownerContact.trim()) && !ownerContact.includes('@');

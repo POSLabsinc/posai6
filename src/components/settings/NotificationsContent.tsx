@@ -158,10 +158,6 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
           </p>
         </div>
 
-        {/* AI Assistant Icon - hidden on mobile (shown in page wrapper) */}
-        <div className="hidden md:flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-        </div>
 
         {/* All Notifications Section */}
         <div className="mb-6">

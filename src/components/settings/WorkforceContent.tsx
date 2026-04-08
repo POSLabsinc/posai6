@@ -75,9 +75,6 @@ const WorkforceContent = ({
           </p>
         </div>
 
-        <div className="hidden md:flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate("/settings/ai"))} />
-        </div>
 
         {options.map((option, index) => (
           <div key={option.label}>

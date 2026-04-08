@@ -54,9 +54,6 @@ const HardwareContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: H
           </p>
         </div>
 
-        <div className="hidden md:flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-        </div>
 
         {/* Hardware Navigation Row */}
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-6">

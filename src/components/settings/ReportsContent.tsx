@@ -147,10 +147,6 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
           <p className="text-muted-foreground text-sm mt-1 w-full">Concise overview of key sales metrics, including revenue, units sold, and trends over a specified period.</p>
         </div>
 
-        {/* AI Assistant Icon */}
-        <div className="flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-        </div>
 
         {/* Date & Time Filters */}
         <div className="mb-6">

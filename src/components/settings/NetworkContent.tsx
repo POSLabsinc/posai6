@@ -49,9 +49,6 @@ const NetworkContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: Ne
           </p>
         </div>
 
-        <div className="hidden md:flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-        </div>
 
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
           <button

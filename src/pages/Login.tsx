@@ -1107,7 +1107,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             {/* Option 2: Email/Phone Verification */}
             <div className="flex-1 pl-0 md:pl-10">
               <p className="text-sm font-medium text-primary/70 mb-1">Option 2</p>
-              <h2 className="text-xl font-bold text-foreground mb-6">Verify with owner account</h2>
+              <h2 className="text-xl font-bold text-foreground mb-6">Verify Account</h2>
 
               <AnimatePresence mode="wait">
                 {!ownerCodeSent ? (
@@ -1120,22 +1120,50 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   >
                     <div>
                       <p className="text-sm text-foreground/60 mb-3">
-                        Enter the owner's email or phone number:
+                        Enter your email or phone number:
                       </p>
-                      <div className="relative">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
-                        <Input
-                          type="text"
-                          placeholder="Email or phone number"
-                          value={ownerContact}
-                          onChange={(e) => {
-                            setOwnerContact(e.target.value);
-                            setOwnerVerificationError("");
-                          }}
-                          className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.05] border-foreground/[0.1] focus:border-primary/40"
-                          disabled={ownerSendingCode}
-                        />
-                      </div>
+                      {(() => {
+                        const isPhone = /^[\d(+]/.test(ownerContact.trim()) && !ownerContact.includes('@');
+                        const detectedCountry = (() => {
+                          if (!isPhone) return null;
+                          const digits = ownerContact.replace(/\D/g, '');
+                          if (digits.startsWith('91') && digits.length > 2) return { flag: '🇮🇳', dialCode: '+91' };
+                          if (digits.startsWith('44') && digits.length > 2) return { flag: '🇬🇧', dialCode: '+44' };
+                          if (digits.startsWith('61') && digits.length > 2) return { flag: '🇦🇺', dialCode: '+61' };
+                          if (digits.startsWith('49') && digits.length > 2) return { flag: '🇩🇪', dialCode: '+49' };
+                          if (digits.startsWith('33') && digits.length > 2) return { flag: '🇫🇷', dialCode: '+33' };
+                          if (digits.startsWith('86') && digits.length > 2) return { flag: '🇨🇳', dialCode: '+86' };
+                          if (digits.startsWith('81') && digits.length > 2) return { flag: '🇯🇵', dialCode: '+81' };
+                          if (digits.startsWith('55') && digits.length > 2) return { flag: '🇧🇷', dialCode: '+55' };
+                          if (digits.startsWith('52') && digits.length > 2) return { flag: '🇲🇽', dialCode: '+52' };
+                          if (digits.startsWith('971') && digits.length > 3) return { flag: '🇦🇪', dialCode: '+971' };
+                          return { flag: '🇺🇸', dialCode: '+1' };
+                        })();
+                        return (
+                          <div className="relative flex items-center">
+                            {isPhone && detectedCountry && (
+                              <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 z-10 pointer-events-none">
+                                <span className="text-lg">{detectedCountry.flag}</span>
+                                <span className="text-sm font-medium text-foreground/60">{detectedCountry.dialCode}</span>
+                              </div>
+                            )}
+                            {!isPhone && (
+                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30 z-10 pointer-events-none" />
+                            )}
+                            <Input
+                              type="text"
+                              placeholder="Email or phone number"
+                              value={ownerContact}
+                              onChange={(e) => {
+                                setOwnerContact(e.target.value);
+                                setOwnerVerificationError("");
+                              }}
+                              className={`${isPhone && detectedCountry ? 'pl-[5.5rem]' : 'pl-12'} h-14 text-base rounded-2xl bg-foreground/[0.05] border-foreground/[0.1] focus:border-primary/40`}
+                              disabled={ownerSendingCode}
+                            />
+                          </div>
+                        );
+                      })()}
                     </div>
 
                     {ownerVerificationError && (
@@ -1163,7 +1191,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       ) : (
                         <>
                           <Send className="w-5 h-5 mr-2" />
-                          Send Verification Code
+                          Send Code
                         </>
                       )}
                     </Button>

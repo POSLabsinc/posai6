@@ -1123,7 +1123,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             {/* Option 2: Email/Phone Verification */}
             <div className="flex-1 pl-0 md:pl-10">
               <p className="text-sm font-medium text-primary/70 mb-1">Option 2</p>
-              <h2 className="text-xl font-bold text-foreground mb-6">Verify Account</h2>
+              <h2 className="text-xl font-bold text-foreground mb-6">Activate</h2>
 
               <AnimatePresence mode="wait">
                 {!ownerCodeSent ? (

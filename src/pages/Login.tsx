@@ -1091,7 +1091,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.1 }}
-            className="text-2xl md:text-3xl font-bold text-foreground mb-8"
+            className="text-2xl md:text-3xl font-bold text-foreground mb-12"
           >
             Activate Device
           </motion.h1>

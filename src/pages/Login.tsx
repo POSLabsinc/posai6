@@ -141,6 +141,9 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
   const [ownerVerifyingCode, setOwnerVerifyingCode] = useState(false);
   const [ownerVerificationError, setOwnerVerificationError] = useState("");
   const [ownerResendCooldown, setOwnerResendCooldown] = useState(0);
+  const [ownerVerified, setOwnerVerified] = useState(false);
+  const [deviceName, setDeviceName] = useState("");
+  const [deviceNameError, setDeviceNameError] = useState("");
   
   // Demo mode states
   const [showDemoMode, setShowDemoMode] = useState(false);

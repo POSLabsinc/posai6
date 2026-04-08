@@ -112,6 +112,16 @@ const REVENUE_CENTER_ICONS: Record<string, React.ComponentType<any>> = {
   "Takeout Counter": ShoppingBag,
 };
 
+// Revenue center icon colors
+const REVENUE_CENTER_COLORS: Record<string, string> = {
+  "Dine Center": "text-amber-400",
+  "Main Hall": "text-blue-400",
+  "Outdoor Patio": "text-emerald-400",
+  "Private Dining": "text-purple-400",
+  "Bar Area": "text-pink-400",
+  "Takeout Counter": "text-cyan-400",
+};
+
 // Job type icons mapping
 const JOB_TYPE_ICONS: Record<string, string | null> = {
   "Server": serverIcon,

@@ -6715,27 +6715,18 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <div className="flex-1 pr-0 md:pr-10 pb-8 md:pb-0">
               <h2 className="text-xl font-bold text-foreground mb-6">Scan to Sign In</h2>
               
-              <div className="flex flex-row items-start gap-6">
-                <div className="bg-foreground rounded-2xl p-5 flex-shrink-0">
-                  <QRCodeSVG
-                    value={existingUserQrValue}
-                    size={200}
-                    bgColor="hsl(0 0% 100%)"
-                    fgColor="hsl(0 0% 0%)"
-                    level="M"
-                  />
-                </div>
-                <ul className="text-sm text-foreground/60 leading-relaxed space-y-3 list-none pt-2">
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary mt-0.5">•</span>
-                    <span>Got a link via email or text? Tap it, then scan the code to sign in instantly.</span>
-                  </li>
-                  <li className="flex items-start gap-2">
-                    <span className="text-primary mt-0.5">•</span>
-                    <span>No link? Scan the code, then enter your email and code to sign in.</span>
-                  </li>
-                </ul>
+              <div className="bg-foreground rounded-2xl p-6 inline-block mb-5">
+                <QRCodeSVG
+                  value={existingUserQrValue}
+                  size={280}
+                  bgColor="hsl(0 0% 100%)"
+                  fgColor="hsl(0 0% 0%)"
+                  level="M"
+                />
               </div>
+              <p className="text-sm text-foreground/60 leading-relaxed max-w-sm">
+                Scan directly with your phone camera. You will be asked to enter your email, password to verify.
+              </p>
             </div>
 
             {/* Divider */}

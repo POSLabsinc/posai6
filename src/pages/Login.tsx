@@ -150,7 +150,21 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
   const [deviceName, setDeviceName] = useState("");
   const [deviceNameError, setDeviceNameError] = useState("");
   
-  // Demo mode states
+  // Existing user sign-in states (reusing same activate device UI)
+  const [existingUserContact, setExistingUserContact] = useState("");
+  const [existingUserContactType, setExistingUserContactType] = useState<"email" | "phone">("email");
+  const [existingUserSelectedCountry, setExistingUserSelectedCountry] = useState(countryCodes[0]);
+  const [showExistingUserCountryPicker, setShowExistingUserCountryPicker] = useState(false);
+  const [existingUserCountrySearch, setExistingUserCountrySearch] = useState("");
+  const existingUserCountryRef = useRef<HTMLDivElement>(null);
+  const [existingUserCodeSent, setExistingUserCodeSent] = useState(false);
+  const [existingUserSendingCode, setExistingUserSendingCode] = useState(false);
+  const [existingUserVerificationCode, setExistingUserVerificationCode] = useState("");
+  const [existingUserVerifyingCode, setExistingUserVerifyingCode] = useState(false);
+  const [existingUserVerificationError, setExistingUserVerificationError] = useState("");
+  const [existingUserResendCooldown, setExistingUserResendCooldown] = useState(0);
+  const [existingUserVerified, setExistingUserVerified] = useState(false);
+  
   const [showDemoMode, setShowDemoMode] = useState(false);
   const [selectedDemoBusinessType, setSelectedDemoBusinessType] = useState<string | null>(null);
   const [isLoadingDemo, setIsLoadingDemo] = useState(false);

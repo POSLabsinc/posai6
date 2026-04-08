@@ -866,7 +866,7 @@ export const ClockInOverlay = ({
 
       <div className="pt-4 mt-auto">
         <button onClick={handleEnterPOSFromSummary} className="w-full h-12 md:h-14 bg-white hover:bg-gray-100 active:bg-gray-200 rounded-xl text-black text-base md:text-lg font-bold transition-colors">
-          Enter Point of Sale
+          Continue
         </button>
       </div>
     </motion.div>;

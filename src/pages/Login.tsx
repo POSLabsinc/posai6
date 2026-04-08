@@ -6701,7 +6701,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             transition={{ delay: 0.1 }}
             className="text-2xl md:text-3xl font-bold text-foreground mb-12"
           >
-            Point of Sale
+            Sign In
           </motion.h1>
 
           {/* Two Column Layout */}

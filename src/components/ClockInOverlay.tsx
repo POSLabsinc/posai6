@@ -112,14 +112,14 @@ const REVENUE_CENTER_ICONS: Record<string, React.ComponentType<any>> = {
   "Takeout Counter": ShoppingBag,
 };
 
-// Revenue center icon colors
+// Revenue center icon colors (inline styles to prevent Tailwind purging)
 const REVENUE_CENTER_COLORS: Record<string, string> = {
-  "Dine Center": "text-amber-400",
-  "Main Hall": "text-blue-400",
-  "Outdoor Patio": "text-emerald-400",
-  "Private Dining": "text-purple-400",
-  "Bar Area": "text-pink-400",
-  "Takeout Counter": "text-cyan-400",
+  "Dine Center": "#fbbf24",
+  "Main Hall": "#60a5fa",
+  "Outdoor Patio": "#34d399",
+  "Private Dining": "#c084fc",
+  "Bar Area": "#f472b6",
+  "Takeout Counter": "#22d3ee",
 };
 
 // Job type icons mapping
@@ -775,7 +775,7 @@ export const ClockInOverlay = ({
               className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
             >
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                {(() => { const Icon = REVENUE_CENTER_ICONS[clockInSummary!.revenueCenter] || MapPin; return <Icon className={`w-5 h-5 md:w-6 md:h-6 ${REVENUE_CENTER_COLORS[clockInSummary!.revenueCenter] || 'text-white'}`} />; })()}
+                {(() => { const Icon = REVENUE_CENTER_ICONS[clockInSummary!.revenueCenter] || MapPin; return <Icon className="w-5 h-5 md:w-6 md:h-6" style={{ color: REVENUE_CENTER_COLORS[clockInSummary!.revenueCenter] || '#ffffff' }} />; })()}
               </div>
               <div className="flex-1 text-left">
                 <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
@@ -1209,7 +1209,7 @@ export const ClockInOverlay = ({
                               : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
                           }`}
                         >
-                          <Icon className={`w-5 h-5 ${REVENUE_CENTER_COLORS[center] || 'text-white'}`} />
+                          <Icon className="w-5 h-5" style={{ color: REVENUE_CENTER_COLORS[center] || '#ffffff' }} />
                           <span className="text-xs font-medium text-center leading-tight text-white">{center}</span>
                         </button>
                       );

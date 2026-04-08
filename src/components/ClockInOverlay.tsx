@@ -868,7 +868,7 @@ export const ClockInOverlay = ({
                           }`}
                         >
                           {JOB_TYPE_ICONS[job] ? (
-                            <img src={JOB_TYPE_ICONS[job]!} alt={job} className="w-7 h-7" style={{ filter: 'invert(1) brightness(2)' }} />
+                            <img src={JOB_TYPE_ICONS[job]!} alt={job} className="w-7 h-7" style={{ filter: JOB_TYPE_COLORS[job] || 'invert(1) brightness(2)' }} />
                           ) : (
                             <Briefcase className="w-7 h-7 text-white" />
                           )}

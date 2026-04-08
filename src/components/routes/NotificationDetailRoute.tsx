@@ -2,7 +2,6 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import NotificationDetailContent from "@/components/settings/NotificationDetailContent";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import Settings from "@/pages/Settings";
 import BottomNavigation from "@/components/BottomNavigation";
 
@@ -20,7 +19,7 @@ const NotificationDetailRoute = () => {
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai', { state: { context: 'notifications' } })} />
+          <div style={{ width: 40, height: 40 }} />
         </div>
         <div className="flex-1 overflow-hidden">
           <NotificationDetailContent

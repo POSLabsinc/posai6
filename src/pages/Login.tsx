@@ -6859,8 +6859,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                                 setInvitedUser({
                                   name: "Demo User",
                                   email: existingUserContact,
-                                  role: "Manager",
-                                  avatarColor: "bg-primary/20"
+                                  role: "Manager"
                                 });
                               }, 500);
                             }}

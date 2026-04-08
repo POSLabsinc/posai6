@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Plus, Search, Archive, Mic } from "lucide-react";
-import expandArrowsIcon from "@/assets/icons/expand-arrows.svg";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
@@ -155,10 +154,10 @@ const ScheduleInformationContent = ({
         {/* Table Header */}
         <div className="bg-[#252525] rounded-t-2xl overflow-hidden">
           <div className="grid grid-cols-4 px-5 py-3 border-b border-neutral-700/50">
-            <span className="text-sm font-medium text-foreground cursor-pointer select-none inline-flex items-center gap-1.5">Name <img src={expandArrowsIcon} alt="" className="w-3 h-3 opacity-40 shrink-0" /></span>
-            <span className="text-sm font-medium text-foreground cursor-pointer select-none inline-flex items-center gap-1.5">Start Date <img src={expandArrowsIcon} alt="" className="w-3 h-3 opacity-40 shrink-0" /></span>
-            <span className="text-sm font-medium text-foreground cursor-pointer select-none inline-flex items-center gap-1.5">End Date <img src={expandArrowsIcon} alt="" className="w-3 h-3 opacity-40 shrink-0" /></span>
-            <span className="text-sm font-medium text-foreground text-right cursor-pointer select-none inline-flex items-center justify-end gap-1.5">Days <img src={expandArrowsIcon} alt="" className="w-3 h-3 opacity-40 shrink-0" /></span>
+            <span className="text-sm font-medium text-foreground">Name</span>
+            <span className="text-sm font-medium text-foreground">Start Date</span>
+            <span className="text-sm font-medium text-foreground">End Date</span>
+            <span className="text-sm font-medium text-foreground text-right">Days</span>
           </div>
 
           {loading ? (

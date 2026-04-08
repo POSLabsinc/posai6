@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import Settings from "@/pages/Settings";
 import NetworkContent from "@/components/settings/NetworkContent";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 const NetworkRoute = () => {
   const isMobile = useIsMobile();
@@ -12,7 +11,6 @@ const NetworkRoute = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background">
-        {/* Mobile Header with back button and AI icon */}
         <div className="flex items-center justify-between px-4 py-3 overflow-visible">
           <button
             onClick={() => navigate('/settings')}
@@ -20,7 +18,7 @@ const NetworkRoute = () => {
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai', { state: { context: 'network' } })} />
+          <div style={{ width: 40, height: 40 }} />
         </div>
         <NetworkContent
           showHeader={false}

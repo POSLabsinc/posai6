@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
 
-// Import custom icons
 import systemIcon from "@/assets/icons/settings-system.png";
 import appearanceIcon from "@/assets/icons/appearance.png";
 import controlCenterIcon from "@/assets/icons/control-center.png";
@@ -45,7 +43,6 @@ const SystemSettings = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="px-4 pt-4 pb-8 max-w-2xl mx-auto">
-        {/* Back Button and AI icon row */}
         <div className="flex items-center justify-between mb-6 overflow-visible">
           <button
             type="button"
@@ -54,25 +51,17 @@ const SystemSettings = () => {
           >
             <ChevronLeft className="w-6 h-6 text-foreground" />
           </button>
-          <div className="md:hidden">
-            <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
-          </div>
+          <div style={{ width: 40, height: 40 }} />
         </div>
 
-        {/* Header Card */}
         <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4">
-          {/* System Icon */}
           <div 
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
             style={{ backgroundColor: getIconBgColor("#34A885") }}
           >
             <img src={systemIcon} alt="System" className="w-7 h-7 object-contain" />
           </div>
-
-          {/* Title */}
           <h1 className="text-xl font-semibold text-foreground mb-2">System</h1>
-
-          {/* Description with Learn more/less */}
           <p className="text-base text-neutral-400 leading-relaxed w-full">
             {showMore 
               ? "These settings allow you to manage and personalize your Point of Sale environment while maintaining stable system performance and functionality. Configure essential controls and preferences to ensure smooth daily operations without impacting core system behavior."
@@ -87,7 +76,6 @@ const SystemSettings = () => {
           </p>
         </div>
 
-        {/* Appearance Card - Individual rounded-full */}
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">
           <SettingsOption
             icon={appearanceIcon}
@@ -101,7 +89,6 @@ const SystemSettings = () => {
           Customize theme, icons, text size, brightness, fonts, and presets.
         </p>
 
-        {/* Control Center Card - Individual rounded-full */}
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">
           <SettingsOption
             icon={controlCenterIcon}
@@ -115,7 +102,6 @@ const SystemSettings = () => {
           Manage app restart, security, display, and operational controls.
         </p>
 
-        {/* AI Integration Card - Individual rounded-full */}
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">
           <SettingsOption
             icon={aiIntegrationIcon}

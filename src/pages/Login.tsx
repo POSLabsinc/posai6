@@ -131,6 +131,16 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
   const [activationCodeSent, setActivationCodeSent] = useState(false);
   const [activationSendingCode, setActivationSendingCode] = useState(false);
   
+  // Device activation - QR/Email verification states
+  const [ownerContact, setOwnerContact] = useState("");
+  const [ownerContactType, setOwnerContactType] = useState<"email" | "phone">("email");
+  const [ownerCodeSent, setOwnerCodeSent] = useState(false);
+  const [ownerSendingCode, setOwnerSendingCode] = useState(false);
+  const [ownerVerificationCode, setOwnerVerificationCode] = useState("");
+  const [ownerVerifyingCode, setOwnerVerifyingCode] = useState(false);
+  const [ownerVerificationError, setOwnerVerificationError] = useState("");
+  const [ownerResendCooldown, setOwnerResendCooldown] = useState(0);
+  
   // Demo mode states
   const [showDemoMode, setShowDemoMode] = useState(false);
   const [selectedDemoBusinessType, setSelectedDemoBusinessType] = useState<string | null>(null);

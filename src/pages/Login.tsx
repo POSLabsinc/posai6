@@ -6664,14 +6664,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       setTimeout(() => {
         setExistingUserVerifyingCode(false);
-        setExistingUserVerified(true);
-        setInvitedUser({
-          name: "Alex Johnson",
-          email: existingUserContact,
-          role: "Server"
-        });
-        setPersonalActivationApproach("manual");
-        setShowPersonalPinEntry(true);
+        // Store device session and navigate to main dashboard with clock-in pinpad
+        localStorage.setItem("pos_device_session", JSON.stringify({
+          deviceId: `device_${Date.now()}`,
+          deviceName: "POS Terminal",
+          activatedAt: new Date().toISOString(),
+          trustedAt: new Date().toISOString(),
+        }));
+        navigate("/");
       }, 500);
     };
 

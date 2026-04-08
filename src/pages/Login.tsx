@@ -6780,8 +6780,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       }}
                       className="w-full flex items-center gap-4 p-4 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.05] hover:bg-foreground/[0.08] transition-all group"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-foreground/[0.08] flex items-center justify-center flex-shrink-0">
-                        <Link2 className="w-5 h-5 text-foreground/70" />
+                      <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                        <Link2 className="w-5 h-5 text-blue-400" />
                       </div>
                       <div className="text-left flex-1">
                         <p className="text-sm font-semibold text-foreground">Sign in with Link</p>

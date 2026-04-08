@@ -151,7 +151,12 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
   const [deviceNameError, setDeviceNameError] = useState("");
   
   // Existing user sign-in states (reusing same activate device UI)
+  const [existingUserSignInTab, setExistingUserSignInTab] = useState<"code" | "link">("code");
   const [existingUserContact, setExistingUserContact] = useState("");
+  const [existingUserLinkContact, setExistingUserLinkContact] = useState("");
+  const [existingUserLinkSent, setExistingUserLinkSent] = useState(false);
+  const [existingUserLinkSending, setExistingUserLinkSending] = useState(false);
+  const [existingUserLinkResendCooldown, setExistingUserLinkResendCooldown] = useState(0);
   const [existingUserContactType, setExistingUserContactType] = useState<"email" | "phone">("email");
   const [existingUserSelectedCountry, setExistingUserSelectedCountry] = useState(countryCodes[0]);
   const [showExistingUserCountryPicker, setShowExistingUserCountryPicker] = useState(false);

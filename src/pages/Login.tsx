@@ -152,6 +152,7 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
   
   // Existing user sign-in states (reusing same activate device UI)
   const [existingUserSignInTab, setExistingUserSignInTab] = useState<"code" | "link">("code");
+  const [existingUserSelectedOption, setExistingUserSelectedOption] = useState<"code" | "link" | "demo" | null>(null);
   const [existingUserContact, setExistingUserContact] = useState("");
   const [existingUserLinkContact, setExistingUserLinkContact] = useState("");
   const [existingUserLinkSent, setExistingUserLinkSent] = useState(false);

@@ -1329,6 +1329,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                             e.preventDefault();
                             const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
                             setOwnerVerificationCode(pasted);
+                            if (pasted.length === 6) {
+                              setTimeout(() => handleOwnerVerifyCode(), 300);
+                            }
                           }}
                           className={`w-12 h-14 text-center text-xl font-bold rounded-xl border-2 bg-foreground/[0.03] focus:outline-none focus:border-primary transition-all ${
                             ownerVerificationCode[i]

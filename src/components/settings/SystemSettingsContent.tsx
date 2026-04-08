@@ -87,9 +87,6 @@ const SystemSettingsContent = ({
           </p>
         </div>
 
-        <div className="hidden md:flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-        </div>
 
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">
           <SettingsOption icon={appearanceIcon} iconBgColor="#525252" label="Appearance" onClick={() => onNavigate?.('/settings/system/appearance')} showDivider={false} />

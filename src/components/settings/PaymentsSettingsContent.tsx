@@ -101,9 +101,6 @@ const PaymentsSettingsContent = ({
           </p>
         </div>
 
-        <div className="hidden md:flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-        </div>
 
         <div className="space-y-4">
           <SettingsOption icon={taxesIcon} iconBgColor="#AF1DFF" label="Taxes" description="Manage tax rates for different categories, set up tax exemptions, and configure tax-inclusive or exclusive pricing." onClick={() => onNavigate?.('/settings/payments/taxes')} />

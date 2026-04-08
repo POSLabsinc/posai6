@@ -50,10 +50,6 @@ const OrdersSettingsContent = ({
       {showHeader && onBack && !isMobile}
 
       <div className={`${showHeader ? 'pt-2' : 'pt-0'} px-6 pb-8`}>
-        {/* AI Icon row */}
-        <div className="flex justify-end mb-2 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
-        </div>
         {/* Header Card */}
         <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{

@@ -201,10 +201,6 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
           </p>
         </div>
 
-        {/* AI Assistant Icon - hidden on mobile (shown in page wrapper) */}
-        <div className="hidden md:flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-        </div>
 
         {/* Start End Of Day button */}
         <button

@@ -175,10 +175,6 @@ const MenuSettingsContent = ({
           </p>
         </div>
 
-        {/* AI Assistant Icon - hidden on mobile (shown in page wrapper) */}
-        <div className="hidden md:flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => onNavigate?.('/settings/ai'))} />
-        </div>
 
         {/* Menu Items List */}
         <div className="space-y-4 mb-4">

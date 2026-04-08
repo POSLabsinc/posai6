@@ -321,6 +321,14 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
     }
   }, [ownerResendCooldown]);
 
+  // Existing user resend cooldown timer
+  useEffect(() => {
+    if (existingUserResendCooldown > 0) {
+      const timer = setTimeout(() => setExistingUserResendCooldown(existingUserResendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [existingUserResendCooldown]);
+
   // Reset OTP timer (5 minute countdown)
   useEffect(() => {
     if (resetOtpTimer > 0) {

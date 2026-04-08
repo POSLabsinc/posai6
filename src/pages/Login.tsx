@@ -6659,7 +6659,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     };
 
     const handleExistingUserVerifyCode = async () => {
-      if (existingUserVerificationCode.length !== 6) {
+      const codeDigits = existingUserVerificationCode.replace(/\D/g, '');
+      if (codeDigits.length !== 6) {
         setExistingUserVerificationError("Please enter the 6-digit code");
         return;
       }
@@ -6669,7 +6670,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       setTimeout(() => {
         setExistingUserVerifyingCode(false);
         setExistingUserVerified(true);
-        // Set invited user and proceed to PIN entry
         setInvitedUser({
           name: "Alex Johnson",
           email: existingUserContact,
@@ -6677,7 +6677,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         });
         setPersonalActivationApproach("manual");
         setShowPersonalPinEntry(true);
-      }, 800);
+      }, 500);
     };
 
     const existingUserQrValue = `posai://signin/${Date.now().toString(36)}`;
@@ -7058,12 +7058,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                                   onChange={(e) => {
                                     const value = e.target.value.replace(/\D/g, '');
                                     if (value) {
-                                      const newCode = existingUserVerificationCode.split('');
+                                      const newCode = Array.from({ length: 6 }, (_, idx) => existingUserVerificationCode[idx] || '');
                                       newCode[i] = value[value.length - 1];
-                                      const joined = newCode.join('').slice(0, 6);
+                                      const joined = newCode.join('');
                                       setExistingUserVerificationCode(joined);
                                       setExistingUserVerificationError("");
-                                      if (joined.length === 6) {
+                                      if (joined.replace(/\s/g, '').length === 6) {
                                         setTimeout(() => handleExistingUserVerifyCode(), 300);
                                       } else {
                                         const nextInput = (e.target as HTMLElement).nextElementSibling as HTMLInputElement;

@@ -1527,7 +1527,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   };
 
   return (
-    <div className="h-full flex flex-col overflow-hidden">
+    <div className="h-full flex flex-col overflow-hidden bg-[#131316]">
       {/* Header with Provider Selector */}
       {showHeader && onBack && (
         <div className="flex-shrink-0 px-4 py-3 border-b border-neutral-800/50 flex items-center justify-between">

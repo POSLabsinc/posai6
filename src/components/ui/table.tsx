@@ -1,6 +1,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import expandArrowsIcon from "@/assets/icons/expand-arrows.svg";
 
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
@@ -41,16 +42,28 @@ const TableRow = React.forwardRef<HTMLTableRowElement, React.HTMLAttributes<HTML
 );
 TableRow.displayName = "TableRow";
 
-const TableHead = React.forwardRef<HTMLTableCellElement, React.ThHTMLAttributes<HTMLTableCellElement>>(
-  ({ className, ...props }, ref) => (
+interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
+  sortable?: boolean;
+}
+
+const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
+  ({ className, sortable = true, children, ...props }, ref) => (
     <th
       ref={ref}
       className={cn(
         "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+        sortable && "cursor-pointer select-none",
         className,
       )}
       {...props}
-    />
+    >
+      <span className="inline-flex items-center gap-1.5">
+        {children}
+        {sortable && (
+          <img src={expandArrowsIcon} alt="" className="w-3 h-3 opacity-40 shrink-0" />
+        )}
+      </span>
+    </th>
   ),
 );
 TableHead.displayName = "TableHead";

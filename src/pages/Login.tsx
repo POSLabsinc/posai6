@@ -1108,7 +1108,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-0.5">•</span>
-                    <span>No link? Scan the code with your mobile camera, then enter your email and the code to activate the device.</span>
+                    <span>No link? Scan the code, then enter your email and code to activate the device.</span>
                   </li>
                 </ul>
               </div>

@@ -135,6 +135,10 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
   // Device activation - QR/Email verification states
   const [ownerContact, setOwnerContact] = useState("");
   const [ownerContactType, setOwnerContactType] = useState<"email" | "phone">("email");
+  const [ownerSelectedCountry, setOwnerSelectedCountry] = useState(countryCodes[0]);
+  const [showOwnerCountryPicker, setShowOwnerCountryPicker] = useState(false);
+  const [ownerCountrySearch, setOwnerCountrySearch] = useState("");
+  const ownerCountryRef = useRef<HTMLDivElement>(null);
   const [ownerCodeSent, setOwnerCodeSent] = useState(false);
   const [ownerSendingCode, setOwnerSendingCode] = useState(false);
   const [ownerVerificationCode, setOwnerVerificationCode] = useState("");

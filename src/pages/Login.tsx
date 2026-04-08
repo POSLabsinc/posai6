@@ -555,6 +555,17 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
     }, 2500);
   }, [postClockOutPolicy, toast]);
 
+  // Close country picker on outside click
+  useEffect(() => {
+    const handleClick = (e: MouseEvent) => {
+      if (ownerCountryRef.current && !ownerCountryRef.current.contains(e.target as Node)) {
+        setShowOwnerCountryPicker(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
 
   // QR Scanner handlers
   const startQRScanner = useCallback(async () => {

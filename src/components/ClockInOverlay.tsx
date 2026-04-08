@@ -714,7 +714,7 @@ export const ClockInOverlay = ({
 
       <div className="space-y-2 pt-4 mt-auto">
         <button onClick={handleMoodSubmit} disabled={!selectedEmotion} className="w-full h-12 md:h-14 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 disabled:bg-emerald-500/50 disabled:cursor-not-allowed rounded-xl text-white text-base md:text-lg font-bold transition-colors">
-{isClockOut ? "Submit & Done" : "Submit & Enter Point of Sale"}
+{isClockOut ? "Submit & Done" : "Submit & Continue"}
         </button>
         <button onClick={handleMoodSkip} className="w-full h-10 bg-transparent hover:bg-white/5 rounded-lg text-white/60 hover:text-white/80 text-sm font-medium transition-colors">
           Skip
@@ -866,7 +866,7 @@ export const ClockInOverlay = ({
 
       <div className="pt-4 mt-auto">
         <button onClick={handleEnterPOSFromSummary} className="w-full h-12 md:h-14 bg-white hover:bg-gray-100 active:bg-gray-200 rounded-xl text-black text-base md:text-lg font-bold transition-colors">
-          Enter Point of Sale
+          Continue
         </button>
       </div>
     </motion.div>;
@@ -1369,7 +1369,7 @@ export const ClockInOverlay = ({
           onClick={handleMoodSubmit}
           className="w-full h-14 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 rounded-xl text-white text-lg font-bold transition-colors"
         >
-          {isClockOut ? "Submit & Done" : "Submit & Enter Point of Sale"}
+          {isClockOut ? "Submit & Done" : "Submit & Continue"}
         </button>
         
         {/* Skip button */}

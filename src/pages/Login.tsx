@@ -857,7 +857,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="w-full flex gap-4"
+            className="w-full max-w-2xl mx-auto flex gap-4"
           >
             {/* New User */}
             <button
@@ -865,7 +865,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 setPendingDeviceType("company");
                 setShowSplash(true);
               }}
-              className="flex-1 flex items-center gap-4 p-5 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
+              className="flex-1 flex items-center gap-4 p-6 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group min-h-[120px]"
             >
               <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center flex-shrink-0 group-hover:bg-foreground/[0.1] transition-colors">
                 <UserPlus className="w-6 h-6 text-foreground/60" />

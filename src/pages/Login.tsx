@@ -7255,6 +7255,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               Need help?
             </button>
           </motion.div>
+        </motion.div>
 
         <ContactAdminDialog 
           open={showContactAdmin} 

@@ -1129,27 +1129,86 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       </p>
                       {(() => {
                         const isPhone = /^[\d(+]/.test(ownerContact.trim()) && !ownerContact.includes('@');
-                        const detectedCountry = (() => {
-                          if (!isPhone) return null;
-                          const digits = ownerContact.replace(/\D/g, '');
-                          if (digits.startsWith('91') && digits.length > 2) return { flag: '🇮🇳', dialCode: '+91' };
-                          if (digits.startsWith('44') && digits.length > 2) return { flag: '🇬🇧', dialCode: '+44' };
-                          if (digits.startsWith('61') && digits.length > 2) return { flag: '🇦🇺', dialCode: '+61' };
-                          if (digits.startsWith('49') && digits.length > 2) return { flag: '🇩🇪', dialCode: '+49' };
-                          if (digits.startsWith('33') && digits.length > 2) return { flag: '🇫🇷', dialCode: '+33' };
-                          if (digits.startsWith('86') && digits.length > 2) return { flag: '🇨🇳', dialCode: '+86' };
-                          if (digits.startsWith('81') && digits.length > 2) return { flag: '🇯🇵', dialCode: '+81' };
-                          if (digits.startsWith('55') && digits.length > 2) return { flag: '🇧🇷', dialCode: '+55' };
-                          if (digits.startsWith('52') && digits.length > 2) return { flag: '🇲🇽', dialCode: '+52' };
-                          if (digits.startsWith('971') && digits.length > 3) return { flag: '🇦🇪', dialCode: '+971' };
-                          return { flag: '🇺🇸', dialCode: '+1' };
-                        })();
+                        
+                        const formatPhoneForCountry = (digits: string, dialCode: string) => {
+                          if (dialCode === '+1') {
+                            if (digits.length <= 3) return `(${digits}`;
+                            if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                            return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+                          }
+                          if (dialCode === '+44') {
+                            if (digits.length <= 4) return digits;
+                            if (digits.length <= 7) return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+                            return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7, 11)}`;
+                          }
+                          if (dialCode === '+91') {
+                            if (digits.length <= 5) return digits;
+                            return `${digits.slice(0, 5)} ${digits.slice(5, 10)}`;
+                          }
+                          if (digits.length <= 4) return digits;
+                          if (digits.length <= 7) return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+                          return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7, 12)}`;
+                        };
+
                         return (
                           <div className="relative flex items-center">
-                            {isPhone && detectedCountry && (
-                              <div className="absolute left-3 top-1/2 -translate-y-1/2 flex items-center gap-1.5 z-10 pointer-events-none">
-                                <span className="text-lg">{detectedCountry.flag}</span>
-                                <span className="text-sm font-medium text-foreground/60">{detectedCountry.dialCode}</span>
+                            {isPhone && (
+                              <div ref={ownerCountryRef} className="relative">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setShowOwnerCountryPicker(!showOwnerCountryPicker);
+                                    setOwnerCountrySearch("");
+                                  }}
+                                  className="h-14 px-3 rounded-l-2xl border border-r-0 border-foreground/[0.1] bg-foreground/[0.05] flex items-center gap-1.5 hover:bg-foreground/[0.08] transition-colors"
+                                >
+                                  <span className="text-lg">{ownerSelectedCountry.flag}</span>
+                                  <span className="text-sm font-medium text-foreground/70">{ownerSelectedCountry.dialCode}</span>
+                                  <ChevronDown className="w-3.5 h-3.5 text-foreground/40" />
+                                </button>
+                                {showOwnerCountryPicker && (
+                                  <div className="absolute top-full left-0 mt-1 w-64 bg-[#252525] border border-foreground/[0.1] rounded-xl shadow-xl z-50 overflow-hidden">
+                                    <div className="p-2 border-b border-foreground/[0.08]">
+                                      <div className="flex items-center gap-2 bg-foreground/[0.06] rounded-lg px-3 py-2">
+                                        <Search className="w-4 h-4 text-foreground/40" />
+                                        <input
+                                          type="text"
+                                          value={ownerCountrySearch}
+                                          onChange={(e) => setOwnerCountrySearch(e.target.value)}
+                                          placeholder="Search country..."
+                                          className="flex-1 bg-transparent text-foreground text-sm placeholder:text-foreground/40 outline-none"
+                                          autoFocus
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="max-h-48 overflow-y-auto">
+                                      {countryCodes
+                                        .filter(c =>
+                                          c.name.toLowerCase().includes(ownerCountrySearch.toLowerCase()) ||
+                                          c.dialCode.includes(ownerCountrySearch) ||
+                                          c.code.toLowerCase().includes(ownerCountrySearch.toLowerCase())
+                                        )
+                                        .map((country) => (
+                                          <button
+                                            key={country.code}
+                                            type="button"
+                                            onClick={() => {
+                                              setOwnerSelectedCountry(country);
+                                              setShowOwnerCountryPicker(false);
+                                              setOwnerContact("");
+                                            }}
+                                            className={`w-full flex items-center gap-3 px-4 py-2.5 hover:bg-foreground/[0.06] transition-colors text-left ${
+                                              ownerSelectedCountry.code === country.code ? 'bg-foreground/[0.06]' : ''
+                                            }`}
+                                          >
+                                            <span className="text-lg">{country.flag}</span>
+                                            <span className="text-foreground text-sm flex-1">{country.name}</span>
+                                            <span className="text-foreground/40 text-sm">{country.dialCode}</span>
+                                          </button>
+                                        ))}
+                                    </div>
+                                  </div>
+                                )}
                               </div>
                             )}
                             {!isPhone && (
@@ -1157,13 +1216,18 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                             )}
                             <Input
                               type="text"
-                              placeholder="Email or phone number"
-                              value={ownerContact}
+                              placeholder={isPhone ? "Phone number" : "Email or phone number"}
+                              value={isPhone ? formatPhoneForCountry(ownerContact.replace(/\D/g, ''), ownerSelectedCountry.dialCode) : ownerContact}
                               onChange={(e) => {
-                                setOwnerContact(e.target.value);
+                                const val = e.target.value;
+                                if (isPhone || (/^[\d(+]/.test(val.trim()) && !val.includes('@'))) {
+                                  setOwnerContact(val.replace(/\D/g, '').slice(0, 15));
+                                } else {
+                                  setOwnerContact(val);
+                                }
                                 setOwnerVerificationError("");
                               }}
-                              className={`${isPhone && detectedCountry ? 'pl-[5.5rem]' : 'pl-12'} h-14 text-base rounded-2xl bg-foreground/[0.05] border-foreground/[0.1] focus:border-primary/40`}
+                              className={`${isPhone ? 'rounded-l-none rounded-r-2xl' : 'pl-12 rounded-2xl'} h-14 text-base bg-foreground/[0.05] border-foreground/[0.1] focus:border-primary/40 flex-1`}
                               disabled={ownerSendingCode}
                             />
                           </div>

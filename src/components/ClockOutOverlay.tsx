@@ -1131,7 +1131,7 @@ export const ClockOutOverlay = ({
             onClick={handleEnterPOSFromSummary}
             className="w-full h-12 md:h-14 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 rounded-xl text-white text-base md:text-lg font-bold transition-colors"
           >
-            Enter Point of Sale
+            Continue
           </button>
         </div>
       </motion.div>

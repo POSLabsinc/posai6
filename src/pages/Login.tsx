@@ -1360,7 +1360,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       ) : (
                         <>
                           <ShieldCheck className="w-5 h-5 mr-2" />
-                          Verify & Activate
+                          Activate
                         </>
                       )}
                     </Button>

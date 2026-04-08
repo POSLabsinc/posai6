@@ -893,40 +893,22 @@ const handlePinComplete = useCallback((enteredPin: string) => {
   // Company Device - Activation Approach Choice Screen (QR Code + Email/Phone Verification)
   if (deviceType === "company" && showDeviceSetup && !activationApproach) {
     const handleOwnerSendCode = async () => {
-      const isEmail = ownerContact.includes("@");
-      const isPhone = /^\+?\d{7,}$/.test(ownerContact.replace(/[\s()-]/g, ""));
-      if (!isEmail && !isPhone) {
+      if (!ownerContact.trim()) {
         setOwnerVerificationError("Please enter a valid email or phone number");
         return;
       }
       setOwnerSendingCode(true);
       setOwnerVerificationError("");
+      const isEmail = ownerContact.includes("@");
       setOwnerContactType(isEmail ? "email" : "phone");
 
-      try {
-        if (isEmail) {
-          const { error } = await supabase.auth.signInWithOtp({
-            email: ownerContact,
-            options: { shouldCreateUser: false },
-          });
-          if (error) {
-            setOwnerVerificationError(error.message);
-          } else {
-            setOwnerCodeSent(true);
-            setOwnerResendCooldown(60);
-            toast({ title: "Verification code sent", description: `Check ${ownerContact} for your code` });
-          }
-        } else {
-          // Phone flow
-          setOwnerCodeSent(true);
-          setOwnerResendCooldown(60);
-          toast({ title: "Verification code sent", description: `Check your phone for the code` });
-        }
-      } catch {
-        setOwnerVerificationError("Failed to send code. Try again.");
-      } finally {
+      // Accept any input for demo purposes
+      setTimeout(() => {
+        setOwnerCodeSent(true);
+        setOwnerResendCooldown(60);
         setOwnerSendingCode(false);
-      }
+        toast({ title: "Verification code sent", description: `Check ${isEmail ? ownerContact : "your phone"} for your code` });
+      }, 800);
     };
 
     const handleOwnerVerifyCode = async () => {

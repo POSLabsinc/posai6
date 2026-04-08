@@ -1209,7 +1209,7 @@ export const ClockInOverlay = ({
                               : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
                           }`}
                         >
-                          <Icon className="w-5 h-5 text-white" />
+                          <Icon className={`w-5 h-5 ${REVENUE_CENTER_COLORS[center] || 'text-white'}`} />
                           <span className="text-xs font-medium text-center leading-tight text-white">{center}</span>
                         </button>
                       );

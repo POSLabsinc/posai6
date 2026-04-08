@@ -6659,11 +6659,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     };
 
     const handleExistingUserVerifyCode = async () => {
-      const codeDigits = existingUserVerificationCode.replace(/\D/g, '');
-      if (codeDigits.length !== 6) {
-        setExistingUserVerificationError("Please enter the 6-digit code");
-        return;
-      }
       setExistingUserVerifyingCode(true);
       setExistingUserVerificationError("");
 

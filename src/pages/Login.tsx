@@ -6794,10 +6794,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       onClick={() => {
                         setExistingUserSelectedOption("demo");
                       }}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-primary/20 bg-primary/[0.04] hover:bg-primary/[0.08] transition-all"
+                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] hover:bg-emerald-500/[0.08] transition-all"
                     >
-                      <FlaskConical className="w-4.5 h-4.5 text-primary" />
-                      <span className="text-sm font-semibold text-primary">Try Demo Mode</span>
+                      <FlaskConical className="w-4.5 h-4.5 text-emerald-400" />
+                      <span className="text-sm font-semibold text-emerald-400">Try Demo Mode</span>
                     </button>
                   </motion.div>
                 ) : existingUserSelectedOption === "demo" ? (

@@ -961,8 +961,116 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
     const activationQrValue = `posai://activate/${Date.now().toString(36)}`;
 
+    // Device Name step after OTP verified
+    if (ownerVerified) {
+      const handleSetDeviceName = () => {
+        if (!deviceName.trim()) {
+          setDeviceNameError("Please enter a device name");
+          return;
+        }
+        // Trust the device and go to PIN pad
+        localStorage.setItem("pos_device_session", JSON.stringify({
+          deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+          deviceType: "company",
+          deviceName: deviceName.trim(),
+          trustedAt: new Date().toISOString(),
+        }));
+        navigate("/");
+      };
+
+      return (
+        <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 md:p-8 bg-background">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="w-full max-w-md flex flex-col items-center"
+          >
+            {/* POS AI Logo */}
+            <motion.img
+              src={eatosLogo}
+              alt="POS AI"
+              className="w-32 h-auto mb-6"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.4 }}
+            />
+
+            {/* Success Check */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: 0.1 }}
+              className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mb-6"
+            >
+              <CheckCircle2 className="w-8 h-8 text-primary" />
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.15 }}
+              className="text-2xl font-bold text-foreground mb-2"
+            >
+              Device Verified
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              className="text-sm text-foreground/50 mb-8 text-center"
+            >
+              Give this device a name to identify it easily.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.25 }}
+              className="w-full space-y-4"
+            >
+              <div className="relative">
+                <Monitor className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                <Input
+                  type="text"
+                  placeholder="e.g. Front Counter, Bar Terminal"
+                  value={deviceName}
+                  onChange={(e) => {
+                    setDeviceName(e.target.value);
+                    setDeviceNameError("");
+                  }}
+                  className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.05] border-foreground/[0.1] focus:border-primary/40"
+                  autoFocus
+                />
+              </div>
+
+              {deviceNameError && (
+                <motion.div
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/20"
+                >
+                  <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                  <p className="text-xs text-destructive">{deviceNameError}</p>
+                </motion.div>
+              )}
+
+              <Button
+                onClick={handleSetDeviceName}
+                disabled={!deviceName.trim()}
+                className="w-full h-14 text-base font-medium rounded-2xl"
+                size="lg"
+              >
+                Continue
+              </Button>
+            </motion.div>
+          </motion.div>
+        </div>
+      );
+    }
+
     return (
-      <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 md:p-8 bg-background">
+      <div className="min-h-screen w-full flex flex-col items-center pt-12 p-4 md:p-8 bg-background">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

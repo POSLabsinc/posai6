@@ -974,7 +974,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           <motion.img
             src={eatosLogo}
             alt="POS AI"
-            className="w-20 h-auto mb-8"
+            className="w-32 h-auto mb-8"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}

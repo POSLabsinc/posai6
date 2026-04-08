@@ -7058,12 +7058,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                                   onChange={(e) => {
                                     const value = e.target.value.replace(/\D/g, '');
                                     if (value) {
-                                      const newCode = existingUserVerificationCode.split('');
+                                      const newCode = Array.from({ length: 6 }, (_, idx) => existingUserVerificationCode[idx] || '');
                                       newCode[i] = value[value.length - 1];
-                                      const joined = newCode.join('').slice(0, 6);
+                                      const joined = newCode.join('');
                                       setExistingUserVerificationCode(joined);
                                       setExistingUserVerificationError("");
-                                      if (joined.length === 6) {
+                                      if (joined.replace(/\s/g, '').length === 6) {
                                         setTimeout(() => handleExistingUserVerifyCode(), 300);
                                       } else {
                                         const nextInput = (e.target as HTMLElement).nextElementSibling as HTMLInputElement;

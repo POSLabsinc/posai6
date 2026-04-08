@@ -964,29 +964,21 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     const activationQrValue = `posai://activate/${Date.now().toString(36)}`;
 
     return (
-      <div className="min-h-screen w-full flex items-center justify-center p-4 md:p-8" style={{ background: 'linear-gradient(135deg, hsl(230 40% 12%), hsl(250 35% 18%), hsl(230 40% 12%))' }}>
+      <div className="min-h-screen w-full flex flex-col items-center justify-center p-4 md:p-8 bg-background">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-full max-w-4xl"
+          className="w-full max-w-4xl flex flex-col items-center"
         >
-          {/* Back Button */}
-          <motion.button
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            onClick={() => {
-              setDeviceType(null);
-              setShowDeviceSetup(false);
-              setOwnerContact("");
-              setOwnerCodeSent(false);
-              setOwnerVerificationCode("");
-              setOwnerVerificationError("");
-            }}
-            className="mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back</span>
-          </motion.button>
+          {/* POS AI Logo */}
+          <motion.img
+            src={eatosLogo}
+            alt="POS AI"
+            className="w-20 h-auto mb-8"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          />
 
           {/* Title */}
           <motion.h1

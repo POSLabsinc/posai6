@@ -6761,8 +6761,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       }}
                       className="w-full flex items-center gap-4 p-4 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all group"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <KeyRound className="w-5 h-5 text-primary" />
+                      <div className="w-12 h-12 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                        <KeyRound className="w-5 h-5 text-amber-400" />
                       </div>
                       <div className="text-left flex-1">
                         <p className="text-sm font-semibold text-foreground">Activate with Code</p>
@@ -6780,8 +6780,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       }}
                       className="w-full flex items-center gap-4 p-4 rounded-2xl border border-foreground/[0.12] bg-foreground/[0.05] hover:bg-foreground/[0.08] transition-all group"
                     >
-                      <div className="w-12 h-12 rounded-xl bg-foreground/[0.08] flex items-center justify-center flex-shrink-0">
-                        <Link2 className="w-5 h-5 text-foreground/70" />
+                      <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                        <Link2 className="w-5 h-5 text-blue-400" />
                       </div>
                       <div className="text-left flex-1">
                         <p className="text-sm font-semibold text-foreground">Sign in with Link</p>
@@ -6794,10 +6794,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       onClick={() => {
                         setExistingUserSelectedOption("demo");
                       }}
-                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-primary/20 bg-primary/[0.04] hover:bg-primary/[0.08] transition-all"
+                      className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.04] hover:bg-emerald-500/[0.08] transition-all"
                     >
-                      <FlaskConical className="w-4.5 h-4.5 text-primary" />
-                      <span className="text-sm font-semibold text-primary">Try Demo Mode</span>
+                      <FlaskConical className="w-4.5 h-4.5 text-emerald-400" />
+                      <span className="text-sm font-semibold text-emerald-400">Try Demo Mode</span>
                     </button>
                   </motion.div>
                 ) : existingUserSelectedOption === "demo" ? (

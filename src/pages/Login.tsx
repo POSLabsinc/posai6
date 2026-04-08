@@ -1306,8 +1306,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                               const joined = newCode.join('').slice(0, 6);
                               setOwnerVerificationCode(joined);
                               setOwnerVerificationError("");
-                              const nextInput = (e.target as HTMLElement).nextElementSibling as HTMLInputElement;
-                              if (nextInput && value) nextInput.focus();
+                              if (joined.length === 6) {
+                                setTimeout(() => handleOwnerVerifyCode(), 300);
+                              } else {
+                                const nextInput = (e.target as HTMLElement).nextElementSibling as HTMLInputElement;
+                                if (nextInput && value) nextInput.focus();
+                              }
                             }
                           }}
                           onKeyDown={(e) => {
@@ -1325,6 +1329,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                             e.preventDefault();
                             const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
                             setOwnerVerificationCode(pasted);
+                            if (pasted.length === 6) {
+                              setTimeout(() => handleOwnerVerifyCode(), 300);
+                            }
                           }}
                           className={`w-12 h-14 text-center text-xl font-bold rounded-xl border-2 bg-foreground/[0.03] focus:outline-none focus:border-primary transition-all ${
                             ownerVerificationCode[i]

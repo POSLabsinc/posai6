@@ -840,7 +840,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             transition={{ delay: 0.1 }}
             className="text-xl font-semibold text-foreground mb-2"
           >
-            Welcome to eatOS
+            Welcome to POSAI Kitchen Display
           </motion.h1>
           
           <motion.p
@@ -849,7 +849,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             transition={{ delay: 0.15 }}
             className="text-sm text-foreground/50 mb-10 text-center"
           >
-            Select your device type to continue
+            Select a scenario to preview the login flow
           </motion.p>
 
           {/* Device Options */}
@@ -857,46 +857,46 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className="w-full space-y-4"
+            className="w-full flex gap-4"
           >
-            {/* Company Device */}
+            {/* New User */}
             <button
               onClick={() => {
                 setPendingDeviceType("company");
                 setShowSplash(true);
               }}
-              className="w-full flex items-center gap-5 p-5 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
+              className="flex-1 flex items-center gap-4 p-5 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
             >
-              <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
-                <Monitor className="w-7 h-7 text-primary" />
+              <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center flex-shrink-0 group-hover:bg-foreground/[0.1] transition-colors">
+                <UserPlus className="w-6 h-6 text-foreground/60" />
               </div>
               <div className="flex-1 text-left">
                 <p className="text-base font-semibold text-foreground mb-0.5">
-                  Company Device
+                  New User
                 </p>
                 <p className="text-sm text-foreground/50">
-                  Shared POS / Tablet / Restaurant Computer
+                  First time activating this device
                 </p>
               </div>
             </button>
 
-            {/* Personal Device */}
+            {/* Existing User */}
             <button
               onClick={() => {
                 setPendingDeviceType("personal");
                 setShowSplash(true);
               }}
-              className="w-full flex items-center gap-5 p-5 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
+              className="flex-1 flex items-center gap-4 p-5 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
             >
-              <div className="w-14 h-14 rounded-2xl bg-secondary/50 flex items-center justify-center flex-shrink-0 group-hover:bg-secondary/70 transition-colors">
-                <Smartphone className="w-7 h-7 text-foreground/70" />
+              <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center flex-shrink-0 group-hover:bg-foreground/[0.1] transition-colors">
+                <ChevronRight className="w-6 h-6 text-foreground/60" />
               </div>
               <div className="flex-1 text-left">
                 <p className="text-base font-semibold text-foreground mb-0.5">
-                  Personal Device
+                  Existing User
                 </p>
                 <p className="text-sm text-foreground/50">
-                  Mobile / Personal Browser
+                  Device already activated - sign in with PIN
                 </p>
               </div>
             </button>

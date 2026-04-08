@@ -1089,7 +1089,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             {/* Option 1: QR Code */}
             <div className="flex-1 pr-0 md:pr-10 pb-8 md:pb-0">
               <p className="text-sm font-medium text-primary/70 mb-1">Option 1</p>
-              <h2 className="text-xl font-bold text-foreground mb-6">Scan this QR code</h2>
+              <h2 className="text-xl font-bold text-foreground mb-6">Scan to Activate</h2>
               
               <div className="flex flex-row items-start gap-6">
                 <div className="bg-foreground rounded-2xl p-5 flex-shrink-0">
@@ -1123,7 +1123,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             {/* Option 2: Email/Phone Verification */}
             <div className="flex-1 pl-0 md:pl-10">
               <p className="text-sm font-medium text-primary/70 mb-1">Option 2</p>
-              <h2 className="text-xl font-bold text-foreground mb-6">Verify Account</h2>
+              <h2 className="text-xl font-bold text-foreground mb-6">Activate</h2>
 
               <AnimatePresence mode="wait">
                 {!ownerCodeSent ? (
@@ -1288,36 +1288,52 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       Enter the 6-digit code sent to <span className="text-foreground font-medium">{ownerContact}</span>
                     </p>
 
-                    {/* Code boxes */}
+                    {/* Code input boxes */}
                     <div className="flex justify-center gap-2">
                       {Array.from({ length: 6 }).map((_, i) => (
-                        <div
+                        <input
                           key={i}
-                          className={`w-12 h-14 rounded-xl border-2 flex items-center justify-center text-xl font-bold transition-all ${
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={ownerVerificationCode[i] || ""}
+                          autoFocus={i === 0}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            if (value) {
+                              const newCode = ownerVerificationCode.split('');
+                              newCode[i] = value[value.length - 1];
+                              const joined = newCode.join('').slice(0, 6);
+                              setOwnerVerificationCode(joined);
+                              setOwnerVerificationError("");
+                              const nextInput = (e.target as HTMLElement).nextElementSibling as HTMLInputElement;
+                              if (nextInput && value) nextInput.focus();
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Backspace') {
+                              if (!ownerVerificationCode[i]) {
+                                const prevInput = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
+                                if (prevInput) prevInput.focus();
+                              }
+                              const newCode = ownerVerificationCode.split('');
+                              newCode[i] = '';
+                              setOwnerVerificationCode(newCode.join(''));
+                            }
+                          }}
+                          onPaste={(e) => {
+                            e.preventDefault();
+                            const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+                            setOwnerVerificationCode(pasted);
+                          }}
+                          className={`w-12 h-14 text-center text-xl font-bold rounded-xl border-2 bg-foreground/[0.03] focus:outline-none focus:border-primary transition-all ${
                             ownerVerificationCode[i]
                               ? "border-primary/40 bg-primary/5 text-foreground"
-                              : i === ownerVerificationCode.length
-                                ? "border-primary/30 bg-foreground/[0.03]"
-                                : "border-foreground/[0.1] bg-foreground/[0.03] text-foreground/30"
+                              : "border-foreground/[0.1] text-foreground/30"
                           }`}
-                        >
-                          {ownerVerificationCode[i] || ""}
-                        </div>
+                        />
                       ))}
                     </div>
-
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      autoFocus
-                      value={ownerVerificationCode}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, "").slice(0, 6);
-                        setOwnerVerificationCode(val);
-                        setOwnerVerificationError("");
-                      }}
-                      className="sr-only"
-                    />
 
                     {ownerVerificationError && (
                       <motion.div
@@ -1344,7 +1360,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       ) : (
                         <>
                           <ShieldCheck className="w-5 h-5 mr-2" />
-                          Verify & Activate
+                          Activate
                         </>
                       )}
                     </Button>

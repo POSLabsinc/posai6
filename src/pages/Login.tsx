@@ -865,13 +865,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 setPendingDeviceType("company");
                 setShowSplash(true);
               }}
-              className="flex-1 flex items-center gap-4 p-6 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group min-h-[120px]"
+              className="flex-1 flex flex-col items-center justify-center gap-3 p-8 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group min-h-[160px]"
             >
-              <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center flex-shrink-0 group-hover:bg-foreground/[0.1] transition-colors">
-                <UserPlus className="w-6 h-6 text-foreground/60" />
+              <div className="w-14 h-14 rounded-xl bg-foreground/[0.06] flex items-center justify-center group-hover:bg-foreground/[0.1] transition-colors">
+                <UserPlus className="w-7 h-7 text-foreground/60" />
               </div>
-              <div className="flex-1 text-left">
-                <p className="text-base font-semibold text-foreground mb-0.5">
+              <div className="text-center">
+                <p className="text-base font-semibold text-foreground mb-1">
                   New User
                 </p>
                 <p className="text-sm text-foreground/50">
@@ -886,13 +886,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 setPendingDeviceType("personal");
                 setShowSplash(true);
               }}
-              className="flex-1 flex items-center gap-4 p-6 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group min-h-[120px]"
+              className="flex-1 flex flex-col items-center justify-center gap-3 p-8 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group min-h-[160px]"
             >
-              <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center flex-shrink-0 group-hover:bg-foreground/[0.1] transition-colors">
-                <ChevronRight className="w-6 h-6 text-foreground/60" />
+              <div className="w-14 h-14 rounded-xl bg-foreground/[0.06] flex items-center justify-center group-hover:bg-foreground/[0.1] transition-colors">
+                <ChevronRight className="w-7 h-7 text-foreground/60" />
               </div>
-              <div className="flex-1 text-left">
-                <p className="text-base font-semibold text-foreground mb-0.5">
+              <div className="text-center">
+                <p className="text-base font-semibold text-foreground mb-1">
                   Existing User
                 </p>
                 <p className="text-sm text-foreground/50">

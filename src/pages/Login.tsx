@@ -6624,169 +6624,431 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     );
   }
 
-  // Personal Device - Sign-In Method Choice Screen
+  // Personal Device - Sign-In Screen (Same UI as New User Activate Device)
   if (deviceType === "personal" && !showClockIn && !showPersonalPinEntry && !personalActivationApproach && activationMethod !== "link") {
-    // When AI chat is open, show it in the right panel alongside PersonalDeviceAuthPanel
-    if (showAIChat) {
-      return (
-        <div className="fixed inset-0 login-bg flex overflow-hidden">
-          <div className="absolute inset-0 gradient-mesh opacity-30" />
-          
-          {/* Left Panel - Tablet/Desktop only */}
-          <div className="hidden md:block relative z-10">
-            <PersonalDeviceAuthPanel currentScreen="link-device" invitedUser={null} />
-          </div>
-          
-          {/* Right Panel - AI Chat */}
-          <div className="relative z-10 flex-1 flex h-full">
-            <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} deviceType="personal" onAccountCreated={() => { setActivationMethod("signup"); setSignupStep("business"); }} />
-          </div>
-        </div>
-      );
-    }
+    const handleExistingUserSendCode = async () => {
+      if (!existingUserContact.trim()) {
+        setExistingUserVerificationError("Please enter a valid email or phone number");
+        return;
+      }
+      setExistingUserSendingCode(true);
+      setExistingUserVerificationError("");
+      const isEmail = existingUserContact.includes("@");
+      setExistingUserContactType(isEmail ? "email" : "phone");
+
+      setTimeout(() => {
+        setExistingUserCodeSent(true);
+        setExistingUserResendCooldown(60);
+        setExistingUserSendingCode(false);
+        toast({ title: "Verification code sent", description: `Check ${isEmail ? existingUserContact : "your phone"} for your code` });
+      }, 800);
+    };
+
+    const handleExistingUserVerifyCode = async () => {
+      if (existingUserVerificationCode.length !== 6) {
+        setExistingUserVerificationError("Please enter the 6-digit code");
+        return;
+      }
+      setExistingUserVerifyingCode(true);
+      setExistingUserVerificationError("");
+
+      setTimeout(() => {
+        setExistingUserVerifyingCode(false);
+        setExistingUserVerified(true);
+        // Set invited user and proceed to PIN entry
+        setInvitedUser({
+          name: "Alex Johnson",
+          email: existingUserContact,
+          role: "Server"
+        });
+        setPersonalActivationApproach("manual");
+        setShowPersonalPinEntry(true);
+      }, 800);
+    };
+
+    const existingUserQrValue = `posai://signin/${Date.now().toString(36)}`;
 
     return (
-      <div className="fixed inset-0 login-bg flex overflow-hidden">
-        <div className="absolute inset-0 gradient-mesh opacity-30" />
-        
-        {/* Left Panel - Tablet/Desktop only */}
-        <div className="hidden md:block relative z-10">
-          <PersonalDeviceAuthPanel currentScreen="link-device" invitedUser={null} />
-        </div>
-        
-        {/* Right Panel - Content */}
-        <div className="relative z-10 flex-1 flex items-center justify-center p-6">
-          <motion.div 
+      <div className="min-h-screen w-full flex flex-col items-center pt-12 p-4 md:p-8 bg-background">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-4xl flex flex-col items-center"
+        >
+          {/* Back Button */}
+          <motion.button
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            onClick={() => setDeviceType(null)}
+            className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="w-4 h-4" />
+            <span>Back</span>
+          </motion.button>
+
+          {/* POS AI Logo */}
+          <motion.img
+            src={eatosLogo}
+            alt="POS AI"
+            className="w-32 h-auto mb-8"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          />
+
+          {/* Title */}
+          <motion.h1
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="w-full max-w-md flex flex-col items-center"
+            transition={{ delay: 0.1 }}
+            className="text-2xl md:text-3xl font-bold text-foreground mb-12"
           >
-            {/* Back Button */}
-            <motion.button
-              initial={{ opacity: 0, x: -10 }}
-              animate={{ opacity: 1, x: 0 }}
-              onClick={() => setDeviceType(null)}
-              className="self-start mb-3 md:mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back</span>
-            </motion.button>
+            Sign In
+          </motion.h1>
 
-            {/* Setup Icon */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: 0.1 }}
-              className="w-12 h-12 md:w-20 md:h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-3 md:mb-6 border border-primary/20"
-            >
-              <ShieldCheck className="w-6 h-6 md:w-10 md:h-10 text-primary" />
-            </motion.div>
+          {/* Two Column Layout */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.15 }}
+            className="flex flex-col md:flex-row gap-0"
+          >
+            {/* Option 1: QR Code */}
+            <div className="flex-1 pr-0 md:pr-10 pb-8 md:pb-0">
+              <p className="text-sm font-medium text-primary/70 mb-1">Option 1</p>
+              <h2 className="text-xl font-bold text-foreground mb-6">Scan to Sign In</h2>
+              
+              <div className="flex flex-row items-start gap-6">
+                <div className="bg-foreground rounded-2xl p-5 flex-shrink-0">
+                  <QRCodeSVG
+                    value={existingUserQrValue}
+                    size={200}
+                    bgColor="hsl(0 0% 100%)"
+                    fgColor="hsl(0 0% 0%)"
+                    level="M"
+                  />
+                </div>
+                <ul className="text-sm text-foreground/60 leading-relaxed space-y-3 list-none pt-2">
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span>Got a link via email or text? Tap it, then scan the code to sign in instantly.</span>
+                  </li>
+                  <li className="flex items-start gap-2">
+                    <span className="text-primary mt-0.5">•</span>
+                    <span>No link? Scan the code, then enter your email and code to sign in.</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
 
-            {/* Title */}
-            <motion.h1
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.15 }}
-              className="text-xl md:text-2xl font-semibold text-foreground mb-2 text-center"
-            >
-              Welcome Back
-            </motion.h1>
-            
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-sm text-foreground/50 mb-4 md:mb-8 text-center max-w-xs leading-relaxed"
-            >
-              Choose how you'd like to sign in to your device
-            </motion.p>
+            {/* Divider */}
+            <div className="hidden md:flex flex-col items-center px-2">
+              <div className="w-px flex-1 bg-foreground/10" />
+            </div>
+            <div className="md:hidden w-full h-px bg-foreground/10 my-4" />
 
-            {/* Sign-In Options */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.25 }}
-              className="w-full flex gap-4"
-            >
-              {/* Sign in with Email/Phone */}
-              <button
-                onClick={() => setPersonalActivationApproach("manual")}
-                className="flex-1 flex flex-col items-center justify-center gap-3 p-6 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group min-h-[140px]"
-              >
-                <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center group-hover:bg-foreground/[0.1] transition-colors">
-                  <Mail className="w-6 h-6 text-foreground/60" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-semibold text-foreground mb-0.5">
-                    Email / Phone
-                  </p>
-                  <p className="text-xs text-foreground/50">
-                    Sign in with credentials
-                  </p>
-                </div>
-              </button>
+            {/* Option 2: Email/Phone Verification */}
+            <div className="flex-1 pl-0 md:pl-10">
+              <p className="text-sm font-medium text-primary/70 mb-1">Option 2</p>
+              <h2 className="text-xl font-bold text-foreground mb-6">Sign In</h2>
 
-              {/* Sign in with Link */}
-              <button
-                onClick={() => setActivationMethod("link")}
-                className="flex-1 flex flex-col items-center justify-center gap-3 p-6 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group min-h-[140px]"
-              >
-                <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center group-hover:bg-foreground/[0.1] transition-colors">
-                  <Link2 className="w-6 h-6 text-foreground/60" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-semibold text-foreground mb-0.5">
-                    Magic Link
-                  </p>
-                  <p className="text-xs text-foreground/50">
-                    Sign in via email link
-                  </p>
-                </div>
-              </button>
+              <AnimatePresence mode="wait">
+                {!existingUserCodeSent ? (
+                  <motion.div
+                    key="contact-input"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <p className="text-sm text-foreground/60 mb-3">
+                        Enter your email or mobile number to sign in
+                      </p>
+                      {(() => {
+                        const isPhone = /^[\d(+]/.test(existingUserContact.trim()) && !existingUserContact.includes('@');
+                        
+                        const formatPhoneForCountry = (digits: string, dialCode: string) => {
+                          if (dialCode === '+1') {
+                            if (digits.length <= 3) return `(${digits}`;
+                            if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                            return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+                          }
+                          if (dialCode === '+44') {
+                            if (digits.length <= 4) return digits;
+                            if (digits.length <= 7) return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+                            return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7, 11)}`;
+                          }
+                          if (dialCode === '+91') {
+                            if (digits.length <= 5) return digits;
+                            return `${digits.slice(0, 5)} ${digits.slice(5, 10)}`;
+                          }
+                          if (digits.length <= 4) return digits;
+                          if (digits.length <= 7) return `${digits.slice(0, 4)} ${digits.slice(4)}`;
+                          return `${digits.slice(0, 4)} ${digits.slice(4, 7)} ${digits.slice(7, 12)}`;
+                        };
 
-              {/* Sign in with QR */}
-              <button
-                onClick={() => {
-                  setPersonalActivationApproach("manual");
-                  setTimeout(() => setShowQRScanner(true), 100);
-                }}
-                className="flex-1 flex flex-col items-center justify-center gap-3 p-6 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group min-h-[140px]"
-              >
-                <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center group-hover:bg-foreground/[0.1] transition-colors">
-                  <ScanLine className="w-6 h-6 text-foreground/60" />
-                </div>
-                <div className="text-center">
-                  <p className="text-sm font-semibold text-foreground mb-0.5">
-                    Scan QR
-                  </p>
-                  <p className="text-xs text-foreground/50">
-                    Use QR code to sign in
-                  </p>
-                </div>
-              </button>
-            </motion.div>
+                        return (
+                          <div className="relative flex items-center">
+                            {isPhone && (
+                              <div ref={existingUserCountryRef} className="relative">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setShowExistingUserCountryPicker(!showExistingUserCountryPicker);
+                                    setExistingUserCountrySearch("");
+                                  }}
+                                  className="h-14 px-3 rounded-l-2xl border border-r-0 border-foreground/[0.1] bg-foreground/[0.05] flex items-center gap-1.5 hover:bg-foreground/[0.08] transition-colors"
+                                >
+                                  <span className="text-lg">{existingUserSelectedCountry.flag}</span>
+                                  <span className="text-sm font-medium text-foreground/70">{existingUserSelectedCountry.dialCode}</span>
+                                  <ChevronDown className="w-3.5 h-3.5 text-foreground/40" />
+                                </button>
+                                {showExistingUserCountryPicker && (
+                                  <div className="absolute top-full left-0 mt-1 w-64 bg-[#252525] border border-foreground/[0.1] rounded-xl shadow-xl z-50 overflow-hidden">
+                                    <div className="p-2 border-b border-foreground/[0.08]">
+                                      <div className="flex items-center gap-2 bg-foreground/[0.06] rounded-lg px-3 py-2">
+                                        <Search className="w-4 h-4 text-foreground/40" />
+                                        <input
+                                          type="text"
+                                          value={existingUserCountrySearch}
+                                          onChange={(e) => setExistingUserCountrySearch(e.target.value)}
+                                          placeholder="Search country..."
+                                          className="flex-1 bg-transparent text-foreground text-sm placeholder:text-foreground/40 outline-none"
+                                          autoFocus
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="max-h-48 overflow-y-auto">
+                                      {countryCodes
+                                        .filter(c =>
+                                          c.name.toLowerCase().includes(existingUserCountrySearch.toLowerCase()) ||
+                                          c.dialCode.includes(existingUserCountrySearch) ||
+                                          c.code.toLowerCase().includes(existingUserCountrySearch.toLowerCase())
+                                        )
+                                        .map((country) => (
+                                          <button
+                                            key={country.code}
+                                            type="button"
+                                            onClick={() => {
+                                              setExistingUserSelectedCountry(country);
+                                              setShowExistingUserCountryPicker(false);
+                                              setExistingUserContact("");
+                                            }}
+                                            className={`w-full flex items-center gap-3 px-4 py-2.5 hover:bg-foreground/[0.06] transition-colors text-left ${
+                                              existingUserSelectedCountry.code === country.code ? 'bg-foreground/[0.06]' : ''
+                                            }`}
+                                          >
+                                            <span className="text-lg">{country.flag}</span>
+                                            <span className="text-foreground text-sm flex-1">{country.name}</span>
+                                            <span className="text-foreground/40 text-sm">{country.dialCode}</span>
+                                          </button>
+                                        ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            {!isPhone && (
+                              <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30 z-10 pointer-events-none" />
+                            )}
+                            <Input
+                              type="text"
+                              placeholder={isPhone ? "Phone number" : "Email or phone number"}
+                              value={isPhone ? formatPhoneForCountry(existingUserContact.replace(/\D/g, ''), existingUserSelectedCountry.dialCode) : existingUserContact}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (isPhone || (/^[\d(+]/.test(val.trim()) && !val.includes('@'))) {
+                                  setExistingUserContact(val.replace(/\D/g, '').slice(0, 15));
+                                } else {
+                                  setExistingUserContact(val);
+                                }
+                                setExistingUserVerificationError("");
+                              }}
+                              className={`${isPhone ? 'rounded-l-none rounded-r-2xl' : 'pl-12 rounded-2xl'} h-14 text-base bg-foreground/[0.05] border-foreground/[0.1] focus:border-primary/40 flex-1`}
+                              disabled={existingUserSendingCode}
+                            />
+                          </div>
+                        );
+                      })()}
+                    </div>
 
-            {/* Help Link */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.35 }}
-              className="mt-4 md:mt-8"
-            >
-              <button
-                onClick={() => setShowContactAdmin(true)}
-                className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
-              >
-                Need help?
-              </button>
-            </motion.div>
+                    {existingUserVerificationError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/20"
+                      >
+                        <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                        <p className="text-xs text-destructive">{existingUserVerificationError}</p>
+                      </motion.div>
+                    )}
+
+                    <Button
+                      onClick={handleExistingUserSendCode}
+                      disabled={!existingUserContact.trim() || existingUserSendingCode}
+                      className="w-full h-14 text-base font-medium rounded-2xl"
+                      size="lg"
+                    >
+                      {existingUserSendingCode ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                          Sending Code...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-5 h-5 mr-2" />
+                          Send Code
+                        </>
+                      )}
+                    </Button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="otp-input"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-4"
+                  >
+                    <p className="text-sm text-foreground/60 mb-1">
+                      Enter the 6-digit code sent to <span className="text-foreground font-medium">{existingUserContact}</span>
+                    </p>
+
+                    {/* Code input boxes */}
+                    <div className="flex justify-center gap-2">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <input
+                          key={i}
+                          type="text"
+                          inputMode="numeric"
+                          maxLength={1}
+                          value={existingUserVerificationCode[i] || ""}
+                          autoFocus={i === 0}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '');
+                            if (value) {
+                              const newCode = existingUserVerificationCode.split('');
+                              newCode[i] = value[value.length - 1];
+                              const joined = newCode.join('').slice(0, 6);
+                              setExistingUserVerificationCode(joined);
+                              setExistingUserVerificationError("");
+                              if (joined.length === 6) {
+                                setTimeout(() => handleExistingUserVerifyCode(), 300);
+                              } else {
+                                const nextInput = (e.target as HTMLElement).nextElementSibling as HTMLInputElement;
+                                if (nextInput && value) nextInput.focus();
+                              }
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Backspace') {
+                              if (!existingUserVerificationCode[i]) {
+                                const prevInput = (e.target as HTMLElement).previousElementSibling as HTMLInputElement;
+                                if (prevInput) prevInput.focus();
+                              }
+                              const newCode = existingUserVerificationCode.split('');
+                              newCode[i] = '';
+                              setExistingUserVerificationCode(newCode.join(''));
+                            }
+                          }}
+                          onPaste={(e) => {
+                            e.preventDefault();
+                            const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6);
+                            setExistingUserVerificationCode(pasted);
+                            if (pasted.length === 6) {
+                              setTimeout(() => handleExistingUserVerifyCode(), 300);
+                            }
+                          }}
+                          className={`w-12 h-14 text-center text-xl font-bold rounded-xl border-2 bg-foreground/[0.03] focus:outline-none focus:border-primary transition-all ${
+                            existingUserVerificationCode[i]
+                              ? "border-primary/40 bg-primary/5 text-foreground"
+                              : "border-foreground/[0.1] text-foreground/30"
+                          }`}
+                        />
+                      ))}
+                    </div>
+
+                    {existingUserVerificationError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/20"
+                      >
+                        <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                        <p className="text-xs text-destructive">{existingUserVerificationError}</p>
+                      </motion.div>
+                    )}
+
+                    <Button
+                      onClick={handleExistingUserVerifyCode}
+                      disabled={existingUserVerificationCode.length !== 6 || existingUserVerifyingCode}
+                      className="w-full h-14 text-base font-medium rounded-2xl"
+                      size="lg"
+                    >
+                      {existingUserVerifyingCode ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                          Verifying...
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-5 h-5 mr-2" />
+                          Sign In
+                        </>
+                      )}
+                    </Button>
+
+                    {/* Resend / Change */}
+                    <div className="flex items-center justify-between pt-1">
+                      <button
+                        onClick={() => {
+                          setExistingUserCodeSent(false);
+                          setExistingUserVerificationCode("");
+                          setExistingUserVerificationError("");
+                        }}
+                        className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
+                      >
+                        Change contact
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (existingUserResendCooldown > 0) return;
+                          setExistingUserResendCooldown(60);
+                          handleExistingUserSendCode();
+                        }}
+                        disabled={existingUserResendCooldown > 0 || existingUserSendingCode}
+                        className="text-xs text-primary hover:text-primary/80 transition-colors disabled:text-foreground/30 disabled:cursor-not-allowed"
+                      >
+                        {existingUserResendCooldown > 0 ? `Resend in ${existingUserResendCooldown}s` : "Resend code"}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </motion.div>
 
-          <ContactAdminDialog 
-            open={showContactAdmin} 
-            onOpenChange={setShowContactAdmin} 
-          />
-        </div>
+          {/* Help Link */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mt-8 text-center"
+          >
+            <button
+              onClick={() => setShowContactAdmin(true)}
+              className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
+            >
+              Need help?
+            </button>
+          </motion.div>
+        </motion.div>
+
+        <ContactAdminDialog 
+          open={showContactAdmin} 
+          onOpenChange={setShowContactAdmin} 
+        />
       </div>
     );
   }

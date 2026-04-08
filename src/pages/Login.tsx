@@ -6746,9 +6746,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     exit={{ opacity: 0, y: -10 }}
                     className="space-y-4"
                   >
-                    <div className="mb-5">
-                      <h2 className="text-xl font-bold text-foreground mb-1.5">Sign in to your device</h2>
-                      <p className="text-sm text-foreground/50">Choose a method below to access your POS terminal</p>
+                    <div className="mb-5 text-center">
+                      <h2 className="text-xl font-bold text-foreground mb-1.5">Other Sign In Options</h2>
+                      <p className="text-sm text-foreground/50">Choose a method below to access your terminal</p>
                     </div>
                     <button
                       onClick={() => {

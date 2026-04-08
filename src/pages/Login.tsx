@@ -6709,10 +6709,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15 }}
-            className="flex flex-col md:flex-row gap-0"
+            className="flex flex-col md:flex-row gap-0 w-full"
           >
-            {/* Left: QR Code */}
-            <div className="flex-1 pr-0 md:pr-10 pb-8 md:pb-0">
+            {/* Left: QR Code - centered */}
+            <div className="flex-1 pr-0 md:pr-10 pb-8 md:pb-0 flex flex-col items-center text-center">
               <h2 className="text-xl font-bold text-foreground mb-6">Scan to Sign In</h2>
               
               <div className="bg-foreground rounded-2xl p-6 inline-block mb-5">
@@ -6724,7 +6724,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   level="M"
                 />
               </div>
-              <p className="text-sm text-foreground/60 leading-relaxed max-w-sm">
+              <p className="text-sm text-foreground/60 leading-relaxed max-w-xs">
                 Scan directly with your phone camera. You will be asked to enter your email, password to verify.
               </p>
             </div>
@@ -6736,7 +6736,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <div className="md:hidden w-full h-px bg-foreground/10 my-4" />
 
             {/* Right: Sign-in Options */}
-            <div className="flex-1 pl-0 md:pl-10">
+            <div className="flex-[1.3] pl-0 md:pl-10">
               <AnimatePresence mode="wait">
                 {!existingUserSelectedOption ? (
                   <motion.div
@@ -6744,9 +6744,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
-                    className="space-y-3"
+                    className="space-y-4"
                   >
-                    {/* Activate with Code */}
+                    <div className="mb-5">
+                      <h2 className="text-xl font-bold text-foreground mb-1.5">Sign in to your device</h2>
+                      <p className="text-sm text-foreground/50">Choose a method below to access your POS terminal</p>
+                    </div>
                     <button
                       onClick={() => {
                         setExistingUserSelectedOption("code");

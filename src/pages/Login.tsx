@@ -1306,8 +1306,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                               const joined = newCode.join('').slice(0, 6);
                               setOwnerVerificationCode(joined);
                               setOwnerVerificationError("");
-                              const nextInput = (e.target as HTMLElement).nextElementSibling as HTMLInputElement;
-                              if (nextInput && value) nextInput.focus();
+                              if (joined.length === 6) {
+                                setTimeout(() => handleOwnerVerifyCode(), 300);
+                              } else {
+                                const nextInput = (e.target as HTMLElement).nextElementSibling as HTMLInputElement;
+                                if (nextInput && value) nextInput.focus();
+                              }
                             }
                           }}
                           onKeyDown={(e) => {

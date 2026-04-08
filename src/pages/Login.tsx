@@ -1002,7 +1002,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <p className="text-sm font-medium text-primary/70 mb-1">Option 1</p>
               <h2 className="text-xl font-bold text-foreground mb-6">Scan this QR code</h2>
               
-              <div className="flex flex-col items-center gap-5">
+              <div className="flex flex-row items-start gap-6">
                 <div className="bg-foreground rounded-2xl p-5 flex-shrink-0">
                   <QRCodeSVG
                     value={activationQrValue}
@@ -1012,7 +1012,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     level="M"
                   />
                 </div>
-                <ul className="text-sm text-foreground/60 leading-relaxed space-y-3 list-none">
+                <ul className="text-sm text-foreground/60 leading-relaxed space-y-3 list-none pt-2">
                   <li className="flex items-start gap-2">
                     <span className="text-primary mt-0.5">•</span>
                     <span>Got a link via email or text? Tap it, then scan the code to activate instantly.</span>

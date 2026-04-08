@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, UtensilsCrossed, Zap, Users, Truck, ShieldCheck, ArrowLeft, Delete, Loader2, Clock, MapPin, Briefcase, CheckCircle2, Monitor, Smartphone, KeyRound, AlertCircle, Send, ShieldX, Mail, MessageSquare, RefreshCw, Lock, Eye, EyeOff, Sun, Moon, Sunrise, Sunset, Fingerprint, ScanFace, Phone, X, ScanLine, Camera, HelpCircle, Info, FlaskConical, Timer, Wine, ChefHat, Sparkles, Link2, UserPlus, ChevronDown, ChevronLeft, LayoutGrid, CreditCard, BarChart3, Settings, ChevronRight, Building2 } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
+import { QRCodeSVG } from "qrcode.react";
 import {
   Dialog,
   DialogContent,
@@ -130,6 +131,16 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
   const [activationContactType, setActivationContactType] = useState<"email" | "phone">("email");
   const [activationCodeSent, setActivationCodeSent] = useState(false);
   const [activationSendingCode, setActivationSendingCode] = useState(false);
+  
+  // Device activation - QR/Email verification states
+  const [ownerContact, setOwnerContact] = useState("");
+  const [ownerContactType, setOwnerContactType] = useState<"email" | "phone">("email");
+  const [ownerCodeSent, setOwnerCodeSent] = useState(false);
+  const [ownerSendingCode, setOwnerSendingCode] = useState(false);
+  const [ownerVerificationCode, setOwnerVerificationCode] = useState("");
+  const [ownerVerifyingCode, setOwnerVerifyingCode] = useState(false);
+  const [ownerVerificationError, setOwnerVerificationError] = useState("");
+  const [ownerResendCooldown, setOwnerResendCooldown] = useState(0);
   
   // Demo mode states
   const [showDemoMode, setShowDemoMode] = useState(false);
@@ -279,6 +290,14 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
       return () => clearTimeout(timer);
     }
   }, [resetResendCooldown]);
+
+  // Owner verification resend cooldown timer
+  useEffect(() => {
+    if (ownerResendCooldown > 0) {
+      const timer = setTimeout(() => setOwnerResendCooldown(ownerResendCooldown - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [ownerResendCooldown]);
 
   // Reset OTP timer (5 minute countdown)
   useEffect(() => {
@@ -868,33 +887,88 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     );
   }
 
-  // Company Device - Activation Approach Choice Screen (AI vs Manual)
+  // Company Device - Activation Approach Choice Screen (QR Code + Email/Phone Verification)
   if (deviceType === "company" && showDeviceSetup && !activationApproach) {
-    // When AI chat is open, show it in the right panel
-    if (showAIChat) {
-      return (
-        <DeviceSetupLayout variant="setup" fullWidthRight leftPanelContent={{
-            icon: <Sparkles className="w-6 h-6 text-primary" />,
-            title: "AI-Powered Setup",
-            description: "Let our AI assistant guide you through device activation and account setup in minutes.",
-            features: ["Conversational setup flow", "Smart auto-configuration", "Instant device pairing"]
-          }}>
-          <DeviceSetupAIChat open={true} onClose={() => setShowAIChat(false)} deviceType="company" onAccountCreated={() => { setActivationMethod("signup"); setSignupStep("business"); }} />
-        </DeviceSetupLayout>
-      );
-    }
+    const handleOwnerSendCode = async () => {
+      const isEmail = ownerContact.includes("@");
+      const isPhone = /^\+?\d{7,}$/.test(ownerContact.replace(/[\s()-]/g, ""));
+      if (!isEmail && !isPhone) {
+        setOwnerVerificationError("Please enter a valid email or phone number");
+        return;
+      }
+      setOwnerSendingCode(true);
+      setOwnerVerificationError("");
+      setOwnerContactType(isEmail ? "email" : "phone");
+
+      try {
+        if (isEmail) {
+          const { error } = await supabase.auth.signInWithOtp({
+            email: ownerContact,
+            options: { shouldCreateUser: false },
+          });
+          if (error) {
+            setOwnerVerificationError(error.message);
+          } else {
+            setOwnerCodeSent(true);
+            setOwnerResendCooldown(60);
+            toast({ title: "Verification code sent", description: `Check ${ownerContact} for your code` });
+          }
+        } else {
+          // Phone flow
+          setOwnerCodeSent(true);
+          setOwnerResendCooldown(60);
+          toast({ title: "Verification code sent", description: `Check your phone for the code` });
+        }
+      } catch {
+        setOwnerVerificationError("Failed to send code. Try again.");
+      } finally {
+        setOwnerSendingCode(false);
+      }
+    };
+
+    const handleOwnerVerifyCode = async () => {
+      if (ownerVerificationCode.length !== 6) {
+        setOwnerVerificationError("Please enter the 6-digit code");
+        return;
+      }
+      setOwnerVerifyingCode(true);
+      setOwnerVerificationError("");
+
+      try {
+        const { error } = await supabase.auth.verifyOtp({
+          email: ownerContact,
+          token: ownerVerificationCode,
+          type: "email",
+        });
+        if (error) {
+          setOwnerVerificationError("Invalid or expired code. Please try again.");
+          setOwnerVerificationCode("");
+        } else {
+          await supabase.auth.signOut();
+          // Trust the device and navigate
+          localStorage.setItem("pos_device_session", JSON.stringify({
+            deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            deviceType: "company",
+            trustedAt: new Date().toISOString(),
+          }));
+          navigate("/");
+        }
+      } catch {
+        setOwnerVerificationError("Verification failed. Please try again.");
+        setOwnerVerificationCode("");
+      } finally {
+        setOwnerVerifyingCode(false);
+      }
+    };
+
+    const activationQrValue = `posai://activate/${Date.now().toString(36)}`;
 
     return (
-      <DeviceSetupLayout variant="setup" leftPanelContent={{
-          icon: <Monitor className="w-6 h-6 text-primary" />,
-          title: "Device Setup",
-          description: "Connect this device to your business to start taking orders and managing your restaurant.",
-          features: ["Quick 2-minute setup", "Secure device pairing", "Automatic sync with your account"]
-        }}>
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="relative w-full flex flex-col items-center"
+      <div className="min-h-screen w-full flex items-center justify-center p-4 md:p-8" style={{ background: 'linear-gradient(135deg, hsl(230 40% 12%), hsl(250 35% 18%), hsl(230 40% 12%))' }}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="w-full max-w-4xl"
         >
           {/* Back Button */}
           <motion.button
@@ -903,102 +977,234 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             onClick={() => {
               setDeviceType(null);
               setShowDeviceSetup(false);
+              setOwnerContact("");
+              setOwnerCodeSent(false);
+              setOwnerVerificationCode("");
+              setOwnerVerificationError("");
             }}
-            className="self-start mb-3 md:mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+            className="mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
           </motion.button>
 
-          {/* Logo - only show on mobile */}
-          <motion.img
-            src={eatosLogo}
-            alt="POS AI"
-            className="w-16 h-auto mb-3 md:hidden"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.4 }}
-          />
-
-          {/* Setup Icon */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: 0.1 }}
-            className="w-12 h-12 md:w-20 md:h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-3 md:mb-6 border border-primary/20"
-          >
-            <Monitor className="w-6 h-6 md:w-10 md:h-10 text-primary" />
-          </motion.div>
-
           {/* Title */}
           <motion.h1
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.15 }}
-            className="text-xl md:text-2xl font-semibold text-foreground mb-2 text-center"
+            transition={{ delay: 0.1 }}
+            className="text-2xl md:text-3xl font-bold text-foreground mb-8"
           >
-            Activate This Device
+            Activate Device
           </motion.h1>
-          
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.2 }}
-            className="text-sm text-foreground/50 mb-4 md:mb-8 text-center max-w-xs leading-relaxed"
-          >
-            Choose how you'd like to set up and activate this device.
-          </motion.p>
 
-          {/* Activation Approach Options */}
+          {/* Two Column Layout */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="w-full space-y-2 md:space-y-3"
+            transition={{ delay: 0.15 }}
+            className="flex flex-col md:flex-row gap-0"
           >
-            {/* Activate with AI */}
-            <button
-              onClick={() => setShowAIChat(true)}
-              className="w-full flex items-center gap-4 p-4 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
-                <AnimatedAIIcon size={24} />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-[15px] font-semibold text-foreground mb-0.5">
-                  Activate with AI
+            {/* Option 1: QR Code */}
+            <div className="flex-1 pr-0 md:pr-10 pb-8 md:pb-0">
+              <p className="text-sm font-medium text-primary/70 mb-1">Option 1</p>
+              <h2 className="text-xl font-bold text-foreground mb-6">Scan this QR code</h2>
+              
+              <div className="flex items-start gap-5">
+                <div className="bg-foreground rounded-2xl p-4 flex-shrink-0">
+                  <QRCodeSVG
+                    value={activationQrValue}
+                    size={140}
+                    bgColor="hsl(0 0% 100%)"
+                    fgColor="hsl(0 0% 0%)"
+                    level="M"
+                  />
+                </div>
+                <p className="text-sm text-foreground/60 leading-relaxed pt-2">
+                  On your mobile phone, open the camera or the QR scanner app and point to this code.
                 </p>
-                <p className="text-sm text-foreground/50">
-                  Let our AI assistant guide you through setup
-                </p>
               </div>
-            </button>
+            </div>
 
-            {/* Activate Manually */}
-            <button
-              onClick={() => setActivationApproach("manual")}
-              className="w-full flex items-center gap-4 p-4 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
-            >
-              <div className="w-12 h-12 rounded-xl bg-secondary/50 flex items-center justify-center flex-shrink-0 group-hover:bg-secondary/70 transition-colors">
-                <Monitor className="w-6 h-6 text-foreground/70" />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-[15px] font-semibold text-foreground mb-0.5">
-                  Activate Manually
-                </p>
-                <p className="text-sm text-foreground/50">
-                  Use a code or sign-in link to activate
-                </p>
-              </div>
-            </button>
+            {/* Divider */}
+            <div className="hidden md:flex flex-col items-center px-2">
+              <div className="w-px flex-1 bg-foreground/10" />
+            </div>
+            <div className="md:hidden w-full h-px bg-foreground/10 my-4" />
+
+            {/* Option 2: Email/Phone Verification */}
+            <div className="flex-1 pl-0 md:pl-10">
+              <p className="text-sm font-medium text-primary/70 mb-1">Option 2</p>
+              <h2 className="text-xl font-bold text-foreground mb-6">Verify with owner account</h2>
+
+              <AnimatePresence mode="wait">
+                {!ownerCodeSent ? (
+                  <motion.div
+                    key="contact-input"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <p className="text-sm text-foreground/60 mb-3">
+                        Enter the owner's email or phone number:
+                      </p>
+                      <div className="relative">
+                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-foreground/30" />
+                        <Input
+                          type="text"
+                          placeholder="Email or phone number"
+                          value={ownerContact}
+                          onChange={(e) => {
+                            setOwnerContact(e.target.value);
+                            setOwnerVerificationError("");
+                          }}
+                          className="pl-12 h-14 text-base rounded-2xl bg-foreground/[0.05] border-foreground/[0.1] focus:border-primary/40"
+                          disabled={ownerSendingCode}
+                        />
+                      </div>
+                    </div>
+
+                    {ownerVerificationError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/20"
+                      >
+                        <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                        <p className="text-xs text-destructive">{ownerVerificationError}</p>
+                      </motion.div>
+                    )}
+
+                    <Button
+                      onClick={handleOwnerSendCode}
+                      disabled={!ownerContact.trim() || ownerSendingCode}
+                      className="w-full h-14 text-base font-medium rounded-2xl"
+                      size="lg"
+                    >
+                      {ownerSendingCode ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                          Sending Code...
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-5 h-5 mr-2" />
+                          Send Verification Code
+                        </>
+                      )}
+                    </Button>
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="otp-input"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
+                    className="space-y-4"
+                  >
+                    <p className="text-sm text-foreground/60 mb-1">
+                      Enter the 6-digit code sent to <span className="text-foreground font-medium">{ownerContact}</span>
+                    </p>
+
+                    {/* Code boxes */}
+                    <div className="flex justify-center gap-2">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-12 h-14 rounded-xl border-2 flex items-center justify-center text-xl font-bold transition-all ${
+                            ownerVerificationCode[i]
+                              ? "border-primary/40 bg-primary/5 text-foreground"
+                              : i === ownerVerificationCode.length
+                                ? "border-primary/30 bg-foreground/[0.03]"
+                                : "border-foreground/[0.1] bg-foreground/[0.03] text-foreground/30"
+                          }`}
+                        >
+                          {ownerVerificationCode[i] || ""}
+                        </div>
+                      ))}
+                    </div>
+
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      autoFocus
+                      value={ownerVerificationCode}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "").slice(0, 6);
+                        setOwnerVerificationCode(val);
+                        setOwnerVerificationError("");
+                      }}
+                      className="sr-only"
+                    />
+
+                    {ownerVerificationError && (
+                      <motion.div
+                        initial={{ opacity: 0, y: -5 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="flex items-center gap-2 px-3 py-2 rounded-xl bg-destructive/10 border border-destructive/20"
+                      >
+                        <AlertCircle className="w-4 h-4 text-destructive flex-shrink-0" />
+                        <p className="text-xs text-destructive">{ownerVerificationError}</p>
+                      </motion.div>
+                    )}
+
+                    <Button
+                      onClick={handleOwnerVerifyCode}
+                      disabled={ownerVerificationCode.length !== 6 || ownerVerifyingCode}
+                      className="w-full h-14 text-base font-medium rounded-2xl"
+                      size="lg"
+                    >
+                      {ownerVerifyingCode ? (
+                        <>
+                          <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                          Verifying...
+                        </>
+                      ) : (
+                        <>
+                          <ShieldCheck className="w-5 h-5 mr-2" />
+                          Verify & Activate
+                        </>
+                      )}
+                    </Button>
+
+                    {/* Resend / Change */}
+                    <div className="flex items-center justify-between pt-1">
+                      <button
+                        onClick={() => {
+                          setOwnerCodeSent(false);
+                          setOwnerVerificationCode("");
+                          setOwnerVerificationError("");
+                        }}
+                        className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors"
+                      >
+                        Change contact
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (ownerResendCooldown > 0) return;
+                          setOwnerResendCooldown(60);
+                          handleOwnerSendCode();
+                        }}
+                        disabled={ownerResendCooldown > 0 || ownerSendingCode}
+                        className="text-xs text-primary hover:text-primary/80 transition-colors disabled:text-foreground/30 disabled:cursor-not-allowed"
+                      >
+                        {ownerResendCooldown > 0 ? `Resend in ${ownerResendCooldown}s` : "Resend code"}
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </motion.div>
 
           {/* Help Link */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.35 }}
-            className="mt-4 md:mt-8"
+            transition={{ delay: 0.3 }}
+            className="mt-8 text-center"
           >
             <button
               onClick={() => setShowContactAdmin(true)}
@@ -1013,7 +1219,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
         />
-      </DeviceSetupLayout>
+      </div>
     );
   }
 

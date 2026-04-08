@@ -948,13 +948,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           setOwnerVerificationCode("");
         } else {
           await supabase.auth.signOut();
-          // Trust the device and navigate
-          localStorage.setItem("pos_device_session", JSON.stringify({
-            deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
-            deviceType: "company",
-            trustedAt: new Date().toISOString(),
-          }));
-          navigate("/");
+          // Move to device name step
+          setOwnerVerified(true);
         }
       } catch {
         setOwnerVerificationError("Verification failed. Please try again.");

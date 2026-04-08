@@ -6602,8 +6602,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     );
   }
 
-  // Personal Device - Activation Approach Choice Screen (AI vs Manual)
-  if (deviceType === "personal" && !showClockIn && !showPersonalPinEntry && !personalActivationApproach) {
+  // Personal Device - Sign-In Method Choice Screen
+  if (deviceType === "personal" && !showClockIn && !showPersonalPinEntry && !personalActivationApproach && activationMethod !== "link") {
     // When AI chat is open, show it in the right panel alongside PersonalDeviceAuthPanel
     if (showAIChat) {
       return (
@@ -6637,7 +6637,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="w-full max-w-sm flex flex-col items-center"
+            className="w-full max-w-md flex flex-col items-center"
           >
             {/* Back Button */}
             <motion.button
@@ -6657,7 +6657,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               transition={{ delay: 0.1 }}
               className="w-12 h-12 md:w-20 md:h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-3 md:mb-6 border border-primary/20"
             >
-              <Smartphone className="w-6 h-6 md:w-10 md:h-10 text-primary" />
+              <ShieldCheck className="w-6 h-6 md:w-10 md:h-10 text-primary" />
             </motion.div>
 
             {/* Title */}
@@ -6667,7 +6667,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               transition={{ delay: 0.15 }}
               className="text-xl md:text-2xl font-semibold text-foreground mb-2 text-center"
             >
-              Link Your Device
+              Welcome Back
             </motion.h1>
             
             <motion.p
@@ -6676,52 +6676,72 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               transition={{ delay: 0.2 }}
               className="text-sm text-foreground/50 mb-4 md:mb-8 text-center max-w-xs leading-relaxed"
             >
-              Choose how you'd like to link and set up this personal device.
+              Choose how you'd like to sign in to your device
             </motion.p>
 
-            {/* Activation Approach Options */}
+            {/* Sign-In Options */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.25 }}
-              className="w-full space-y-2 md:space-y-3"
+              className="w-full flex gap-4"
             >
-              {/* Activate with AI */}
-              <button
-                onClick={() => setShowAIChat(true)}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
-              >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/15 transition-colors">
-                  <AnimatedAIIcon size={24} />
-                </div>
-                <div className="flex-1 text-left">
-                  <p className="text-[15px] font-semibold text-foreground mb-0.5">
-                    Link with AI
-                  </p>
-                  <p className="text-sm text-foreground/50">
-                    Let our AI assistant guide you through setup
-                  </p>
-                </div>
-              </button>
-
-              {/* Activate Manually */}
+              {/* Sign in with Email/Phone */}
               <button
                 onClick={() => setPersonalActivationApproach("manual")}
-                className="w-full flex items-center gap-4 p-4 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
+                className="flex-1 flex flex-col items-center justify-center gap-3 p-6 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group min-h-[140px]"
               >
-                <div className="w-12 h-12 rounded-xl bg-secondary/50 flex items-center justify-center flex-shrink-0 group-hover:bg-secondary/70 transition-colors">
-                  <Smartphone className="w-6 h-6 text-foreground/70" />
+                <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center group-hover:bg-foreground/[0.1] transition-colors">
+                  <Mail className="w-6 h-6 text-foreground/60" />
                 </div>
-                <div className="flex-1 text-left">
-                  <p className="text-[15px] font-semibold text-foreground mb-0.5">
-                    Link Manually
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-foreground mb-0.5">
+                    Email / Phone
                   </p>
-                  <p className="text-sm text-foreground/50">
-                    Use a code or scan QR to link your device
+                  <p className="text-xs text-foreground/50">
+                    Sign in with credentials
                   </p>
                 </div>
               </button>
 
+              {/* Sign in with Link */}
+              <button
+                onClick={() => setActivationMethod("link")}
+                className="flex-1 flex flex-col items-center justify-center gap-3 p-6 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group min-h-[140px]"
+              >
+                <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center group-hover:bg-foreground/[0.1] transition-colors">
+                  <Link2 className="w-6 h-6 text-foreground/60" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-foreground mb-0.5">
+                    Magic Link
+                  </p>
+                  <p className="text-xs text-foreground/50">
+                    Sign in via email link
+                  </p>
+                </div>
+              </button>
+
+              {/* Sign in with QR */}
+              <button
+                onClick={() => {
+                  setPersonalActivationApproach("manual");
+                  setTimeout(() => setShowQRScanner(true), 100);
+                }}
+                className="flex-1 flex flex-col items-center justify-center gap-3 p-6 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group min-h-[140px]"
+              >
+                <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center group-hover:bg-foreground/[0.1] transition-colors">
+                  <ScanLine className="w-6 h-6 text-foreground/60" />
+                </div>
+                <div className="text-center">
+                  <p className="text-sm font-semibold text-foreground mb-0.5">
+                    Scan QR
+                  </p>
+                  <p className="text-xs text-foreground/50">
+                    Use QR code to sign in
+                  </p>
+                </div>
+              </button>
             </motion.div>
 
             {/* Help Link */}

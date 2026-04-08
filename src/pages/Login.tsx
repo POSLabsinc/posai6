@@ -7252,7 +7252,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               onClick={() => setShowContactAdmin(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
-        </motion.div>
+              Need help?
+            </button>
+          </motion.div>
 
         <ContactAdminDialog 
           open={showContactAdmin} 

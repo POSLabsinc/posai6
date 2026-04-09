@@ -1086,84 +1086,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               Need Help?
             </button>
 
-            {/* Other Options - Right */}
-            <div className="flex flex-col items-end">
-              <button
-                onClick={() => setShowOtherOptions(!showOtherOptions)}
-                className="flex items-center gap-2 text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
-              >
-                Other options
-                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showOtherOptions ? 'rotate-180' : ''}`} />
-              </button>
-
-              <AnimatePresence>
-                {showOtherOptions && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: 'auto' }}
-                    exit={{ opacity: 0, height: 0 }}
-                    transition={{ duration: 0.2 }}
-                    className="overflow-hidden"
-                  >
-                    <div className="flex flex-col sm:flex-row gap-3 mt-4">
-                      {/* Activate with Code */}
-                      <button
-                        onClick={() => {
-                          setPendingDeviceType("personal");
-                          setShowSplash(true);
-                          setExistingUserSelectedOption("code");
-                        }}
-                        className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
-                      >
-                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                          <KeyRound className="w-4.5 h-4.5 text-amber-400" />
-                        </div>
-                        <div className="text-left">
-                          <p className="text-sm font-semibold text-foreground">Activate with Code</p>
-                          <p className="text-xs text-foreground/40">Enter a code from your admin</p>
-                        </div>
-                      </button>
-
-                      {/* Sign in with Link */}
-                      <button
-                        onClick={() => {
-                          setPendingDeviceType("personal");
-                          setShowSplash(true);
-                          setExistingUserSelectedOption("link");
-                        }}
-                        className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
-                      >
-                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                          <Link2 className="w-4.5 h-4.5 text-blue-400" />
-                        </div>
-                        <div className="text-left">
-                          <p className="text-sm font-semibold text-foreground">Sign in with Link</p>
-                          <p className="text-xs text-foreground/40">Get a magic link via email or SMS</p>
-                        </div>
-                      </button>
-
-                      {/* Try Demo Mode */}
-                      <button
-                        onClick={() => {
-                          setPendingDeviceType("personal");
-                          setShowSplash(true);
-                          setExistingUserSelectedOption("demo");
-                        }}
-                        className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] hover:bg-emerald-500/[0.06] transition-all"
-                      >
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                          <FlaskConical className="w-4.5 h-4.5 text-emerald-400" />
-                        </div>
-                        <div className="text-left">
-                          <p className="text-sm font-semibold text-foreground">Try Demo Mode</p>
-                          <p className="text-xs text-foreground/40">Explore with sample data</p>
-                        </div>
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            {/* Try another way - Right */}
+            <button
+              onClick={() => setShowOtherOptions(!showOtherOptions)}
+              className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+            >
+              Try another way
+            </button>
           </motion.div>
         </div>
 

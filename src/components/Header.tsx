@@ -453,7 +453,7 @@ const Header = () => {
         </div>
       )}
 
-
+      <ClockOutOverlay
         isOpen={showClockOut}
         onClose={() => {
           setShowClockOut(false);

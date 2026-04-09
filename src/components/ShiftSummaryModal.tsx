@@ -501,33 +501,23 @@ export default function ShiftSummaryModal({
         </div>
 
         {/* Bottom summary row */}
-        <div className="flex items-center justify-between px-6 pb-3 shrink-0">
-          <div className="flex items-center gap-6">
-            <div>
-              <p className="text-[10px] text-neutral-500 uppercase">Total</p>
-              <p className="text-2xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-neutral-500 uppercase">Cash Drop</p>
-              <p className="text-2xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-neutral-500 uppercase">Pay In</p>
-              <p className="text-lg font-bold text-emerald-400">$ {totalPayIn.toFixed(2)}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-neutral-500 uppercase">Pay Out</p>
-              <p className="text-lg font-bold text-red-400">$ {totalPayOut.toFixed(2)}</p>
-            </div>
+        <div className="flex items-center px-6 pb-3 shrink-0 gap-6">
+          <div>
+            <p className="text-[10px] text-neutral-500 uppercase">Total</p>
+            <p className="text-2xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/15 rounded-lg">
-              <div className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span className="text-xs text-emerald-300 font-medium">{paidOrders.length} Closed Checks</span>
-            </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/15 rounded-lg">
-              <div className="w-2 h-2 rounded-full bg-amber-400" />
-              <span className="text-xs text-amber-300 font-medium">{pendingOrders.length} Pending</span>
+          <div>
+            <p className="text-[10px] text-neutral-500 uppercase">Cash Drop</p>
+            <p className="text-2xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-neutral-500 uppercase">Pay In</p>
+            <p className="text-lg font-bold text-emerald-400">$ {totalPayIn.toFixed(2)}</p>
+          </div>
+          <div>
+            <p className="text-[10px] text-neutral-500 uppercase">Pay Out</p>
+            <p className="text-lg font-bold text-red-400">$ {totalPayOut.toFixed(2)}</p>
+          </div>
             </div>
           </div>
         </div>

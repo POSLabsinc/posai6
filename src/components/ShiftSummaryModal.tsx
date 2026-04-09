@@ -518,8 +518,6 @@ export default function ShiftSummaryModal({
             <p className="text-[10px] text-neutral-500 uppercase">Pay Out</p>
             <p className="text-lg font-bold text-red-400">$ {totalPayOut.toFixed(2)}</p>
           </div>
-            </div>
-          </div>
         </div>
 
         {/* Transaction table */}

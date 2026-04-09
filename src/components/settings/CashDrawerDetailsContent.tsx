@@ -60,6 +60,7 @@ const CashDrawerDetailsContent = ({
   const [drawerPosition, setDrawerPosition] = useState<DropdownPosition>({ top: 0, right: 0 });
   const [showEndDrawerPopup, setShowEndDrawerPopup] = useState(false);
   const [actualInDrawer, setActualInDrawer] = useState("");
+  const [differenceReason, setDifferenceReason] = useState("");
   const [transactions, setTransactions] = useState<CashTransaction[]>([]);
   const [selectedLogDate, setSelectedLogDate] = useState<Date>(new Date());
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
@@ -115,6 +116,8 @@ const CashDrawerDetailsContent = ({
   const actualAmount = actualInDrawer ? parseFloat(actualInDrawer) : 0;
   const difference = actualAmount - expectedInDrawer;
   const hasActualAmount = actualInDrawer.trim() !== "";
+  const hasDifference = hasActualAmount && difference !== 0;
+  const canConfirmEndDrawer = hasActualAmount && (!hasDifference || differenceReason.trim().length > 0);
   
   // Get session start date for filtering
   const sessionStartDate = new Date(drawerSession.sessionStartTime);
@@ -446,15 +449,34 @@ const CashDrawerDetailsContent = ({
                   {difference >= 0 ? '' : '-'}${Math.abs(difference).toFixed(2)}
                 </span>
               </div>
+
+              {/* Reason for Difference - mandatory when there's a mismatch */}
+              {hasDifference && (
+                <div className="pt-2">
+                  <span className="text-neutral-400 text-base block mb-2">
+                    Reason for Difference <span className="text-red-500">*</span>
+                  </span>
+                  <textarea
+                    placeholder="Enter reason for the balance difference..."
+                    value={differenceReason}
+                    onChange={(e) => setDifferenceReason(e.target.value)}
+                    maxLength={500}
+                    className="w-full bg-neutral-800/60 rounded-xl px-4 py-3 text-foreground text-sm outline-none placeholder:text-neutral-500 resize-none min-h-[80px]"
+                  />
+                  {differenceReason.trim().length === 0 && (
+                    <p className="text-red-500 text-xs mt-1.5 px-1">A reason is required when the balance does not match</p>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Confirm Button */}
             <div className="px-6 pb-6 pt-2">
               <button 
                 onClick={handleConfirmEndDrawer}
-                disabled={!hasActualAmount}
+                disabled={!canConfirmEndDrawer}
                 className={`w-full py-4 rounded-xl text-base font-semibold transition-all ${
-                  hasActualAmount 
+                  canConfirmEndDrawer 
                     ? 'bg-neutral-600 text-foreground active:opacity-70' 
                     : 'bg-neutral-600/50 text-foreground/50'
                 }`}

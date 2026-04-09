@@ -1,5 +1,5 @@
-import { useState, useCallback, useMemo } from "react";
-import { Mail, Phone, Send, Loader2, ExternalLink, MessageSquare } from "lucide-react";
+import { useState, useCallback } from "react";
+import { Mail, Phone, Send, Loader2, ExternalLink, MessageSquare, Monitor, ScanLine, KeyRound, UserPlus, LogIn, ChevronRight, ArrowLeft, HelpCircle, CheckCircle2, Smartphone } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -17,6 +17,8 @@ interface ContactAdminDialogProps {
   restaurantName?: string;
 }
 
+type HelpView = "main" | "activation" | "signin" | "contact";
+
 const ContactAdminDialog = ({
   open,
   onOpenChange,
@@ -26,11 +28,10 @@ const ContactAdminDialog = ({
 }: ContactAdminDialogProps) => {
   const { toast } = useToast();
   const [isSendingRequest, setIsSendingRequest] = useState(false);
+  const [view, setView] = useState<HelpView>("main");
 
   const handleSendAdminRequest = useCallback(() => {
     setIsSendingRequest(true);
-    
-    // Simulate sending request to admin
     setTimeout(() => {
       setIsSendingRequest(false);
       onOpenChange(false);
@@ -41,112 +42,249 @@ const ContactAdminDialog = ({
     }, 1500);
   }, [toast, onOpenChange]);
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[320px] rounded-[20px] p-0 border-0 bg-[#2C2C2E]/95 backdrop-blur-xl shadow-2xl overflow-hidden gap-0">
-        <DialogHeader className="pt-6 pb-4 px-6 space-y-3 flex flex-col items-center">
-          <div className="w-14 h-14 rounded-2xl overflow-hidden">
-            <img 
-              src={restaurantLogo} 
-              alt={restaurantName} 
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <div className="space-y-1">
-            <DialogTitle className="text-[17px] font-semibold text-white text-center tracking-[-0.4px]">
-              Contact Admin
-            </DialogTitle>
-            <p className="text-[13px] text-[#EBEBF599] text-center leading-[18px] tracking-[-0.08px]">
-              Reach out to your administrator for assistance with account setup.
-            </p>
-          </div>
-        </DialogHeader>
-        
-        <div className="px-6 pb-4 space-y-3">
-          {/* Admin Email - Click to email */}
-          <a
-            href={`mailto:${adminEmail}?subject=Account%20Setup%20Assistance`}
-            className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] transition-colors group cursor-pointer"
-          >
-            <div className="w-9 h-9 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-              <Mail className="w-4 h-4 text-blue-400" />
+  const handleClose = useCallback((val: boolean) => {
+    if (!val) setView("main");
+    onOpenChange(val);
+  }, [onOpenChange]);
+
+  const activationSteps = [
+    {
+      icon: <Monitor className="w-4 h-4 text-amber-400" />,
+      iconBg: "bg-amber-500/20",
+      title: "Select New User",
+      description: "On the welcome screen, tap \"New User\" to begin the device activation process.",
+    },
+    {
+      icon: <ScanLine className="w-4 h-4 text-blue-400" />,
+      iconBg: "bg-blue-500/20",
+      title: "Scan QR Code or Enter Details",
+      description: "Scan the QR code with your phone, or tap \"Try another way\" to enter your email or phone number manually.",
+    },
+    {
+      icon: <KeyRound className="w-4 h-4 text-purple-400" />,
+      iconBg: "bg-purple-500/20",
+      title: "Verify with OTP",
+      description: "Enter the 6-digit verification code sent to your email or phone. The device will activate automatically once verified.",
+    },
+    {
+      icon: <Smartphone className="w-4 h-4 text-emerald-400" />,
+      iconBg: "bg-emerald-500/20",
+      title: "Name Your Device",
+      description: "Give your device a name (e.g., \"Front Counter\") to identify it. Tap \"Continue\" to complete activation.",
+    },
+  ];
+
+  const signinSteps = [
+    {
+      icon: <LogIn className="w-4 h-4 text-blue-400" />,
+      iconBg: "bg-blue-500/20",
+      title: "Select Existing User",
+      description: "On the welcome screen, tap \"Existing User\" to access the sign-in options.",
+    },
+    {
+      icon: <KeyRound className="w-4 h-4 text-amber-400" />,
+      iconBg: "bg-amber-500/20",
+      title: "Choose Sign-In Method",
+      description: "Pick one: \"Activate with Code\" (enter a device code), \"Sign in with Link\" (email/phone link), or \"Try Demo Mode\" for a quick tour.",
+    },
+    {
+      icon: <ScanLine className="w-4 h-4 text-purple-400" />,
+      iconBg: "bg-purple-500/20",
+      title: "Complete Verification",
+      description: "Enter the required code or scan the QR code. Any 6-digit code is accepted in demo mode for instant access.",
+    },
+    {
+      icon: <UserPlus className="w-4 h-4 text-emerald-400" />,
+      iconBg: "bg-emerald-500/20",
+      title: "Clock In with PIN",
+      description: "After verification, you will be taken to the PIN pad. Enter your employee PIN to clock in and start your shift.",
+    },
+  ];
+
+  const renderSteps = (steps: typeof activationSteps) => (
+    <div className="px-5 pb-5 space-y-3">
+      {steps.map((step, i) => (
+        <div key={i} className="flex gap-3 items-start">
+          <div className="flex flex-col items-center gap-1 pt-0.5">
+            <div className={`w-8 h-8 rounded-full ${step.iconBg} flex items-center justify-center flex-shrink-0`}>
+              {step.icon}
             </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-[#EBEBF599] uppercase tracking-wide">Email</p>
-              <p className="text-[15px] text-white truncate">{adminEmail}</p>
-            </div>
-            <ExternalLink className="w-4 h-4 text-[#EBEBF599] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-          </a>
-          
-          {/* Admin Phone - Click to call */}
-          <a
-            href={`tel:${adminPhone.replace(/[^0-9+]/g, '')}`}
-            className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] transition-colors group cursor-pointer"
-          >
-            <div className="w-9 h-9 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
-              <Phone className="w-4 h-4 text-green-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-[#EBEBF599] uppercase tracking-wide">Call</p>
-              <p className="text-[15px] text-white">{adminPhone}</p>
-            </div>
-            <ExternalLink className="w-4 h-4 text-[#EBEBF599] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-          </a>
-          
-          {/* Admin SMS - Click to text */}
-          <a
-            href={`sms:${adminPhone.replace(/[^0-9+]/g, '')}?body=Hi,%20I%20need%20assistance%20with%20account%20setup.`}
-            className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] transition-colors group cursor-pointer"
-          >
-            <div className="w-9 h-9 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
-              <MessageSquare className="w-4 h-4 text-purple-400" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-[#EBEBF599] uppercase tracking-wide">Text Message</p>
-              <p className="text-[15px] text-white">{adminPhone}</p>
-            </div>
-            <ExternalLink className="w-4 h-4 text-[#EBEBF599] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-          </a>
-          
-          {/* WhatsApp - Click to message */}
-          <a
-            href={`https://wa.me/${adminPhone.replace(/[^0-9]/g, '')}?text=Hi,%20I%20need%20assistance%20with%20account%20setup.`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] transition-colors group cursor-pointer"
-          >
-            <div className="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-              <svg className="w-4 h-4 text-emerald-400" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-              </svg>
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[11px] text-[#EBEBF599] uppercase tracking-wide">WhatsApp</p>
-              <p className="text-[15px] text-white">{adminPhone}</p>
-            </div>
-            <ExternalLink className="w-4 h-4 text-[#EBEBF599] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-          </a>
-        </div>
-        
-        <div className="border-t border-[#545458]/50 flex flex-col">
-          <button
-            onClick={handleSendAdminRequest}
-            disabled={isSendingRequest}
-            className="h-12 flex items-center justify-center gap-2 text-[17px] font-semibold text-[#FF9500] hover:bg-[#545458]/30 transition-colors disabled:opacity-50"
-          >
-            {isSendingRequest ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              <>
-                <Send className="w-4 h-4" />
-                Send Request to Admin
-              </>
+            {i < steps.length - 1 && (
+              <div className="w-[1.5px] h-6 bg-white/10 rounded-full" />
             )}
-          </button>
+          </div>
+          <div className="flex-1 min-w-0 pb-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-semibold text-white/30 uppercase tracking-wider">Step {i + 1}</span>
+            </div>
+            <p className="text-[14px] font-semibold text-white mt-0.5">{step.title}</p>
+            <p className="text-[12px] text-white/50 leading-[17px] mt-0.5">{step.description}</p>
+          </div>
         </div>
+      ))}
+    </div>
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={handleClose}>
+      <DialogContent className="max-w-[360px] rounded-[20px] p-0 border-0 bg-[#2C2C2E]/95 backdrop-blur-xl shadow-2xl overflow-hidden gap-0">
+        {/* Header */}
+        <DialogHeader className="pt-5 pb-3 px-5 space-y-2 flex flex-col items-center">
+          {view !== "main" && (
+            <button
+              onClick={() => setView("main")}
+              className="absolute left-4 top-4 text-white/50 hover:text-white transition-colors"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+          )}
+          <div className="w-12 h-12 rounded-2xl overflow-hidden">
+            <img src={restaurantLogo} alt={restaurantName} className="w-full h-full object-cover" />
+          </div>
+          <DialogTitle className="text-[17px] font-semibold text-white text-center tracking-[-0.4px]">
+            {view === "main" && "Need Help?"}
+            {view === "activation" && "How to Activate"}
+            {view === "signin" && "How to Sign In"}
+            {view === "contact" && "Contact Admin"}
+          </DialogTitle>
+          <p className="text-[12px] text-[#EBEBF599] text-center leading-[16px] tracking-[-0.08px]">
+            {view === "main" && "Choose a topic below to get started."}
+            {view === "activation" && "Follow these steps to activate your device."}
+            {view === "signin" && "Follow these steps to sign in to your device."}
+            {view === "contact" && "Reach out to your administrator for help."}
+          </p>
+        </DialogHeader>
+
+        {/* Main Menu */}
+        {view === "main" && (
+          <div className="px-5 pb-5 space-y-2">
+            <button
+              onClick={() => setView("activation")}
+              className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.10] transition-colors text-left"
+            >
+              <div className="w-9 h-9 rounded-full bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                <Monitor className="w-4 h-4 text-amber-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-semibold text-white">Device Activation</p>
+                <p className="text-[11px] text-white/40">Step-by-step guide for new devices</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-white/20 flex-shrink-0" />
+            </button>
+
+            <button
+              onClick={() => setView("signin")}
+              className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.10] transition-colors text-left"
+            >
+              <div className="w-9 h-9 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                <LogIn className="w-4 h-4 text-blue-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-semibold text-white">Sign In Guide</p>
+                <p className="text-[11px] text-white/40">How to sign in to an existing device</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-white/20 flex-shrink-0" />
+            </button>
+
+            <button
+              onClick={() => setView("contact")}
+              className="w-full flex items-center gap-3 p-3.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.10] transition-colors text-left"
+            >
+              <div className="w-9 h-9 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+                <HelpCircle className="w-4 h-4 text-emerald-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-semibold text-white">Contact Admin</p>
+                <p className="text-[11px] text-white/40">Get help from your administrator</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-white/20 flex-shrink-0" />
+            </button>
+          </div>
+        )}
+
+        {/* Activation Steps */}
+        {view === "activation" && renderSteps(activationSteps)}
+
+        {/* Sign In Steps */}
+        {view === "signin" && renderSteps(signinSteps)}
+
+        {/* Contact Admin */}
+        {view === "contact" && (
+          <>
+            <div className="px-5 pb-4 space-y-2.5">
+              <a
+                href={`mailto:${adminEmail}?subject=Account%20Setup%20Assistance`}
+                className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] transition-colors group cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                  <Mail className="w-4 h-4 text-blue-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] text-[#EBEBF599] uppercase tracking-wide">Email</p>
+                  <p className="text-[14px] text-white truncate">{adminEmail}</p>
+                </div>
+                <ExternalLink className="w-4 h-4 text-[#EBEBF599] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+              </a>
+              <a
+                href={`tel:${adminPhone.replace(/[^0-9+]/g, '')}`}
+                className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] transition-colors group cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-full bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                  <Phone className="w-4 h-4 text-green-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] text-[#EBEBF599] uppercase tracking-wide">Call</p>
+                  <p className="text-[14px] text-white">{adminPhone}</p>
+                </div>
+                <ExternalLink className="w-4 h-4 text-[#EBEBF599] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+              </a>
+              <a
+                href={`sms:${adminPhone.replace(/[^0-9+]/g, '')}?body=Hi,%20I%20need%20assistance%20with%20account%20setup.`}
+                className="flex items-center gap-3 p-3 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] transition-colors group cursor-pointer"
+              >
+                <div className="w-9 h-9 rounded-full bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                  <MessageSquare className="w-4 h-4 text-purple-400" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] text-[#EBEBF599] uppercase tracking-wide">Text Message</p>
+                  <p className="text-[14px] text-white">{adminPhone}</p>
+                </div>
+                <ExternalLink className="w-4 h-4 text-[#EBEBF599] opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+              </a>
+            </div>
+            <div className="border-t border-[#545458]/50 flex flex-col">
+              <button
+                onClick={handleSendAdminRequest}
+                disabled={isSendingRequest}
+                className="h-12 flex items-center justify-center gap-2 text-[17px] font-semibold text-[#FF9500] hover:bg-[#545458]/30 transition-colors disabled:opacity-50"
+              >
+                {isSendingRequest ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send Request to Admin
+                  </>
+                )}
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Footer for step views */}
+        {(view === "activation" || view === "signin") && (
+          <div className="border-t border-[#545458]/50 flex flex-col">
+            <button
+              onClick={() => setView("contact")}
+              className="h-11 flex items-center justify-center gap-2 text-[15px] font-medium text-[#FF9500] hover:bg-[#545458]/30 transition-colors"
+            >
+              Still need help? Contact Admin
+            </button>
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );

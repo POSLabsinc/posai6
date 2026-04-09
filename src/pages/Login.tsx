@@ -43,7 +43,10 @@ const Login = () => {
   const { toast } = useToast();
   const [deviceType, setDeviceType] = useState<DeviceType>(null);
   const [showSplash, setShowSplash] = useState(false);
+  const [showInitialSplash, setShowInitialSplash] = useState(true);
   const [pendingDeviceType, setPendingDeviceType] = useState<DeviceType>(null);
+  const [userType, setUserType] = useState<"new" | "existing" | null>(null);
+  const [showDeviceConnected, setShowDeviceConnected] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<typeof locationEmployees[0] | null>(null);
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState("");

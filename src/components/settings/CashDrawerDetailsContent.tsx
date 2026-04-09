@@ -116,6 +116,8 @@ const CashDrawerDetailsContent = ({
   const actualAmount = actualInDrawer ? parseFloat(actualInDrawer) : 0;
   const difference = actualAmount - expectedInDrawer;
   const hasActualAmount = actualInDrawer.trim() !== "";
+  const hasDifference = hasActualAmount && difference !== 0;
+  const canConfirmEndDrawer = hasActualAmount && (!hasDifference || differenceReason.trim().length > 0);
   
   // Get session start date for filtering
   const sessionStartDate = new Date(drawerSession.sessionStartTime);

@@ -24,6 +24,7 @@ import ServiceChargeContent from "@/components/settings/ServiceChargeContent";
 import CashManagementContent from "@/components/settings/CashManagementContent";
 import CashDrawerDetailsContent from "@/components/settings/CashDrawerDetailsContent";
 import PayInOutContent from "@/components/settings/PayInOutContent";
+import ServerCashHistoryContent from "@/components/settings/ServerCashHistoryContent";
 import CheckoutOptionsContent from "@/components/settings/CheckoutOptionsContent";
 
 import MenuSettingsContent from "@/components/settings/MenuSettingsContent";
@@ -333,6 +334,9 @@ const getContentForRoute = (
   }
   if (pathname === '/settings/payments/cash-management/pay-in-out') {
     return <PayInOutContent showHeader={true} onBack={() => navigate('/settings/payments/cash-management/details')} />;
+  }
+  if (pathname === '/settings/payments/cash-management/server-history') {
+    return <ServerCashHistoryContent showHeader={true} onBack={() => navigate('/settings/payments/cash-management')} />;
   }
   if (pathname === '/settings/payments/checkout-options') {
     return <CheckoutOptionsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;

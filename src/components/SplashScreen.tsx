@@ -4,9 +4,10 @@ import eatosLogo from "@/assets/icons/posai-logo.png";
 interface SplashScreenProps {
   onComplete: () => void;
   duration?: number;
+  variant?: "default" | "brand";
 }
 
-export function SplashScreen({ onComplete, duration = 2000 }: SplashScreenProps) {
+export function SplashScreen({ onComplete, duration = 2000, variant = "default" }: SplashScreenProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [isFading, setIsFading] = useState(false);
   const onCompleteRef = useRef(onComplete);
@@ -31,12 +32,18 @@ export function SplashScreen({ onComplete, duration = 2000 }: SplashScreenProps)
 
   if (!isVisible) return null;
 
+  const isBrand = variant === "brand";
+
   return (
     <div
       className={`fixed inset-0 z-[9999] flex items-center justify-center transition-opacity duration-500 ${
         isFading ? "opacity-0" : "opacity-100"
       }`}
-      style={{ backgroundColor: "#131316" }}
+      style={{
+        background: isBrand
+          ? "linear-gradient(160deg, #DF1683 0%, #a8115f 40%, #4a4a4a 80%, #2d2d2d 100%)"
+          : "#131316",
+      }}
     >
       <div className="flex flex-col items-center justify-center" style={{ animation: "fadeIn 0.5s ease-in" }}>
         <img

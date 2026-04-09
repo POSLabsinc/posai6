@@ -824,16 +824,16 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     );
   }
 
-  // Splash Screen - shown when tapping Company or Personal Device
+  // Splash Screen - shown when tapping New User or Existing User
   if (showSplash) {
     return (
       <SplashScreen
         duration={2500}
+        variant="brand"
         onComplete={() => {
           setShowSplash(false);
           if (pendingDeviceType === "company") {
-            setDeviceType("company");
-            setShowDeviceSetup(true);
+            setUserType("new");
           } else if (pendingDeviceType === "personal") {
             setDeviceType("personal");
           }
@@ -921,7 +921,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             transition={{ delay: 0.3 }}
           >
             <button
-              onClick={() => setUserType("new")}
+              onClick={() => {
+                setPendingDeviceType("company");
+                setShowSplash(true);
+              }}
               className="flex flex-col items-center gap-3 px-6 py-6 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
             >
               <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">

@@ -124,11 +124,24 @@ const CashManagementContent = ({
     const entries: CashLogEntry[] = [];
     let balance = 0;
 
+    // Get the clocked-in employee name
+    const getEmployeeName = () => {
+      try {
+        const session = localStorage.getItem('pos_session');
+        if (session) {
+          const parsed = JSON.parse(session);
+          return parsed.employeeName || 'Guest';
+        }
+      } catch {}
+      return 'Guest';
+    };
+    const employeeName = getEmployeeName();
+
     // Starting Cash entry
     balance = lastClosedSession.startingCash;
     entries.push({
       time: format(new Date(lastClosedSession.closedAt), 'hh:mm a'),
-      name: "System",
+      name: employeeName,
       reason: "Starting Cash",
       payIn: lastClosedSession.startingCash,
       payOut: 0,

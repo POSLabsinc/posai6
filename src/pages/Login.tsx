@@ -824,16 +824,16 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     );
   }
 
-  // Splash Screen - shown when tapping Company or Personal Device
+  // Splash Screen - shown when tapping New User or Existing User
   if (showSplash) {
     return (
       <SplashScreen
         duration={2500}
+        variant="brand"
         onComplete={() => {
           setShowSplash(false);
           if (pendingDeviceType === "company") {
-            setDeviceType("company");
-            setShowDeviceSetup(true);
+            setUserType("new");
           } else if (pendingDeviceType === "personal") {
             setDeviceType("personal");
           }

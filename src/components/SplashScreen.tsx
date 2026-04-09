@@ -41,7 +41,7 @@ export function SplashScreen({ onComplete, duration = 2000, variant = "default" 
       }`}
       style={{
         background: isBrand
-          ? "linear-gradient(160deg, #DF1683 0%, #a8115f 40%, #4a4a4a 80%, #2d2d2d 100%)"
+          ? "#DF1683"
           : "#131316",
       }}
     >

@@ -1123,10 +1123,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <button
                     onClick={() => {
                       setShowDeviceConnected(true);
+                      setDeviceName("Point of Sale");
                       setTimeout(() => {
                         setShowDeviceConnected(false);
-                        setDeviceType("company");
-                        setShowDeviceSetup(true);
+                        setOwnerVerified(true);
                       }, 2500);
                     }}
                     className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"

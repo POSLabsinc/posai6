@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Coffee, LogOut, FlaskConical, ChefHat, ShoppingBag, Bell as BellIcon, Clock, Timer, X } from "lucide-react";
+import { Coffee, LogOut, FlaskConical, ChefHat, ShoppingBag, Bell as BellIcon, Clock, Timer, X, CreditCard, Banknote, Receipt, Printer } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import dinnerIcon from "@/assets/icons/dinner.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -156,6 +156,7 @@ const Header = () => {
   };
 
   const [showProfilePopup, setShowProfilePopup] = useState(false);
+  const [showShiftSummary, setShowShiftSummary] = useState(false);
   const employeeName = session?.employeeName || "Guest";
   const employeeRole = session?.employeeRole || "Server";
   const initials = getInitials(employeeName);
@@ -165,6 +166,14 @@ const Header = () => {
   const clockInTime = session?.loginTime
     ? new Date(session.loginTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     : "--:--";
+  const clockInDate = session?.loginTime
+    ? new Date(session.loginTime).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
+    : "";
+  const totalHours = (() => {
+    if (!session?.loginTime) return "0.0";
+    const diff = Date.now() - new Date(session.loginTime).getTime();
+    return (diff / 3600000).toFixed(1);
+  })();
   const durationStr = (() => {
     if (!session?.loginTime) return "0h 0m";
     const diff = Date.now() - new Date(session.loginTime).getTime();
@@ -177,6 +186,22 @@ const Header = () => {
     const end = new Date(new Date(session.loginTime).getTime() + 8 * 3600000);
     return end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   })();
+
+  // Mock shift transaction data
+  const shiftTransactions = [
+    { id: 1, time: "09:15 AM", type: "Cash", qty: 1, amount: 24.50, tip: 4.00 },
+    { id: 2, time: "09:42 AM", type: "Card", qty: 2, amount: 38.75, tip: 6.50 },
+    { id: 3, time: "10:05 AM", type: "Card", qty: 1, amount: 15.00, tip: 2.00 },
+    { id: 4, time: "10:30 AM", type: "Cash", qty: 3, amount: 46.00, tip: 8.34 },
+    { id: 5, time: "11:12 AM", type: "Card", qty: 1, amount: 30.61, tip: 0.00 },
+  ];
+  const totalCardSales = shiftTransactions.filter(t => t.type === "Card").reduce((s, t) => s + t.amount, 0);
+  const totalCashSales = shiftTransactions.filter(t => t.type === "Cash").reduce((s, t) => s + t.amount, 0);
+  const totalTips = shiftTransactions.reduce((s, t) => s + t.tip, 0);
+  const overallTotal = shiftTransactions.reduce((s, t) => s + t.amount + t.tip, 0);
+  const totalCashDrop = totalCashSales;
+  const closedChecks = shiftTransactions.length;
+  const pendingChecks = 0;
 
   return (
     <>
@@ -386,14 +411,10 @@ const Header = () => {
         </div>
       </header>
       {/* Employee Profile Popup */}
-      {showProfilePopup && (
+      {showProfilePopup && !showShiftSummary && (
         <div className="fixed inset-0 z-[9998] flex items-center justify-center">
-          {/* Dim overlay */}
           <div className="absolute inset-0 bg-black/60" onClick={() => setShowProfilePopup(false)} />
-          
-          {/* Popup card */}
-          <div className="relative z-10 w-[340px] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden">
-            {/* Close button */}
+          <div className="relative z-10 w-[360px] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden">
             <button
               onClick={() => setShowProfilePopup(false)}
               className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
@@ -401,32 +422,39 @@ const Header = () => {
               <X className="w-4 h-4 text-neutral-400" />
             </button>
 
-            {/* Top section */}
             <div className="flex flex-col items-center pt-8 pb-5 px-6">
-              <Avatar className="w-16 h-16 border-2 border-indigo-500/40">
+              <Avatar className="w-16 h-16 border-2 border-white/20">
                 <AvatarImage src="" alt={employeeName} />
-                <AvatarFallback className="text-lg font-semibold bg-indigo-600 text-white">{initials}</AvatarFallback>
+                <AvatarFallback className="text-lg font-semibold bg-neutral-700 text-white">{initials}</AvatarFallback>
               </Avatar>
               <h3 className="mt-3 text-lg font-semibold text-white">{employeeName}</h3>
-              <span className="mt-1 text-xs px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full font-medium uppercase tracking-wide">{employeeRole}</span>
+              <span className="mt-1 text-xs px-3 py-1 bg-white/10 text-neutral-300 rounded-full font-medium uppercase tracking-wide">{employeeRole}</span>
               
-              {/* Clock-in time large */}
-              <div className="mt-4 flex items-center gap-2">
-                <Clock className="w-4 h-4 text-neutral-500" />
-                <span className="text-sm text-neutral-400">Clocked in at</span>
+              {/* Clock-in info */}
+              <div className="mt-5 flex items-center gap-6">
+                <div className="text-center">
+                  <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Clocked In</p>
+                  <p className="text-2xl font-bold text-white mt-0.5">{clockInTime}</p>
+                  {clockInDate && <p className="text-[10px] text-neutral-500 mt-0.5">{clockInDate}</p>}
+                </div>
+                <div className="w-px h-10 bg-white/10" />
+                <div className="text-center">
+                  <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Hours</p>
+                  <p className="text-2xl font-bold text-white mt-0.5">{totalHours}h</p>
+                  <p className="text-[10px] text-neutral-500 mt-0.5">{durationStr}</p>
+                </div>
               </div>
-              <span className="text-3xl font-bold text-white mt-1">{clockInTime}</span>
             </div>
 
             {/* Stats row */}
             <div className="grid grid-cols-3 gap-2 px-5 pb-5">
               <div className="bg-white/5 rounded-xl p-3 text-center">
-                <Timer className="w-4 h-4 text-indigo-400 mx-auto mb-1" />
+                <Timer className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
                 <p className="text-sm font-semibold text-white">{durationStr}</p>
                 <p className="text-[10px] text-neutral-500 mt-0.5">Duration</p>
               </div>
               <div className="bg-white/5 rounded-xl p-3 text-center">
-                <Clock className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
+                <Clock className="w-4 h-4 text-amber-400 mx-auto mb-1" />
                 <p className="text-sm font-semibold text-white">{shiftEndStr}</p>
                 <p className="text-[10px] text-neutral-500 mt-0.5">Shift End</p>
               </div>
@@ -440,14 +468,136 @@ const Header = () => {
             {/* View Shift Summary button */}
             <div className="px-5 pb-5">
               <button
-                onClick={() => {
-                  setShowProfilePopup(false);
-                  navigate("/settings/workforce");
-                }}
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-colors"
+                onClick={() => setShowShiftSummary(true)}
+                className="w-full py-3 bg-white/10 hover:bg-white/15 text-white text-sm font-semibold rounded-xl transition-colors"
               >
                 View Shift Summary
               </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Shift Summary Full Modal */}
+      {showShiftSummary && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/70" onClick={() => { setShowShiftSummary(false); setShowProfilePopup(false); }} />
+          <div className="relative z-10 w-[720px] max-h-[85vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            {/* Header */}
+            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
+              <div className="flex items-center gap-3">
+                <Avatar className="w-10 h-10 border border-white/20">
+                  <AvatarFallback className="text-sm font-semibold bg-neutral-700 text-white">{initials}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <h2 className="text-base font-bold text-white">SHIFT SUMMARY</h2>
+                  <p className="text-xs text-neutral-400">{employeeName} - {employeeRole}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <button className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/15 transition-colors">
+                  <Printer className="w-4 h-4 text-neutral-300" />
+                </button>
+                <button
+                  onClick={() => { setShowShiftSummary(false); setShowProfilePopup(false); }}
+                  className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+                >
+                  <X className="w-4 h-4 text-neutral-400" />
+                </button>
+              </div>
+            </div>
+
+            {/* Shift info bar */}
+            <div className="flex items-center gap-4 px-6 py-3 bg-white/[0.03] border-b border-white/10 shrink-0 text-xs text-neutral-400">
+              <span>{clockInDate}</span>
+              <span>{clockInTime} - now</span>
+              <span>Total: {totalHours}h</span>
+            </div>
+
+            {/* Key metrics */}
+            <div className="grid grid-cols-3 gap-3 px-6 py-4 shrink-0">
+              <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
+                <div className="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+                  <CreditCard className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Card Sales</p>
+                  <p className="text-xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
+                <div className="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center">
+                  <Banknote className="w-5 h-5 text-amber-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Cash Sales</p>
+                  <p className="text-xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
+                <div className="w-10 h-10 rounded-lg bg-purple-500/15 flex items-center justify-center">
+                  <Receipt className="w-5 h-5 text-purple-400" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Tips</p>
+                  <p className="text-xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Bottom summary row */}
+            <div className="flex items-center justify-between px-6 pb-3 shrink-0">
+              <div className="flex items-center gap-6">
+                <div>
+                  <p className="text-[10px] text-neutral-500 uppercase">Total</p>
+                  <p className="text-2xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-neutral-500 uppercase">Cash Drop</p>
+                  <p className="text-2xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-emerald-500/15 rounded-lg">
+                  <div className="w-2 h-2 rounded-full bg-emerald-400" />
+                  <span className="text-xs text-emerald-300 font-medium">{closedChecks} Closed Checks</span>
+                </div>
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-amber-500/15 rounded-lg">
+                  <div className="w-2 h-2 rounded-full bg-amber-400" />
+                  <span className="text-xs text-amber-300 font-medium">{pendingChecks} Pending</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Transaction table */}
+            <div className="flex-1 overflow-auto px-6 pb-4">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-white/10 text-left">
+                    <th className="py-2 text-xs font-semibold text-neutral-400 uppercase">Type</th>
+                    <th className="py-2 text-xs font-semibold text-neutral-400 uppercase">Time</th>
+                    <th className="py-2 text-xs font-semibold text-neutral-400 uppercase text-right">Quantity</th>
+                    <th className="py-2 text-xs font-semibold text-neutral-400 uppercase text-right">Amount</th>
+                    <th className="py-2 text-xs font-semibold text-neutral-400 uppercase text-right">Tip</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {shiftTransactions.map(tx => (
+                    <tr key={tx.id} className="border-b border-white/5 hover:bg-white/[0.03] transition-colors">
+                      <td className="py-2.5">
+                        <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${tx.type === "Cash" ? "text-amber-300" : "text-emerald-300"}`}>
+                          {tx.type === "Cash" ? <Banknote className="w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
+                          {tx.type}
+                        </span>
+                      </td>
+                      <td className="py-2.5 text-xs text-neutral-400">{tx.time}</td>
+                      <td className="py-2.5 text-xs text-neutral-300 text-right">{tx.qty}</td>
+                      <td className="py-2.5 text-xs text-white font-medium text-right">$ {tx.amount.toFixed(2)}</td>
+                      <td className="py-2.5 text-xs text-neutral-300 text-right">$ {tx.tip.toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>

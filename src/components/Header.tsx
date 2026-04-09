@@ -190,7 +190,10 @@ const Header = () => {
             <img src={switchUserIcon} alt="Clock Out" className="w-4 md:w-5 h-4 md:h-5" />
           </button>
 
-          <div className="flex items-center gap-1 md:gap-2 bg-white/10 pl-0 pr-2 md:pr-3 rounded-full">
+          <button
+            onClick={() => setShowProfilePopup(true)}
+            className="flex items-center gap-1 md:gap-2 bg-white/10 pl-0 pr-2 md:pr-3 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
+          >
             <Avatar className="w-6 md:w-8 h-6 md:h-8 border-0">
               <AvatarImage src="" alt={employeeName} />
               <AvatarFallback className="text-xs bg-sidebar-accent text-sidebar-foreground">{initials}</AvatarFallback>
@@ -212,7 +215,11 @@ const Header = () => {
             <img src={dinnerIcon} alt="Dinner" className="hidden md:block w-4 h-4" />
 
             <span className="hidden md:inline text-sm">Dinner Service (9:00 PM)</span>
-          </div>
+
+            {/* Clock-in time */}
+            <div className="hidden md:block w-px h-4 bg-sidebar-foreground/30 mx-1" />
+            <span className="hidden md:inline text-xs text-neutral-400">Clocked in {clockInTime}</span>
+          </button>
         </div>
 
         {/* Right Section */}

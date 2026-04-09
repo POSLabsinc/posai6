@@ -43,7 +43,10 @@ const Login = () => {
   const { toast } = useToast();
   const [deviceType, setDeviceType] = useState<DeviceType>(null);
   const [showSplash, setShowSplash] = useState(false);
+  const [showInitialSplash, setShowInitialSplash] = useState(true);
   const [pendingDeviceType, setPendingDeviceType] = useState<DeviceType>(null);
+  const [userType, setUserType] = useState<"new" | "existing" | null>(null);
+  const [showDeviceConnected, setShowDeviceConnected] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState<typeof locationEmployees[0] | null>(null);
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState("");
@@ -809,6 +812,18 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     setPersonalPinError("");
   }, []);
 
+  // Initial Splash Screen on page load
+  if (showInitialSplash) {
+    return (
+      <SplashScreen
+        duration={2500}
+        onComplete={() => {
+          setShowInitialSplash(false);
+        }}
+      />
+    );
+  }
+
   // Splash Screen - shown when tapping Company or Personal Device
   if (showSplash) {
     return (
@@ -828,20 +843,131 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     );
   }
 
-  // Device Activation Screen (Spotify-style pairing)
-  if (!deviceType) {
+  // Device Connected Animation (after QR scan)
+  if (showDeviceConnected) {
+    return (
+      <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh opacity-30" />
+        <motion.div
+          className="relative z-10 flex flex-col items-center"
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+        >
+          <motion.div
+            className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center mb-6"
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
+          >
+            <CheckCircle2 className="w-10 h-10 text-emerald-400" />
+          </motion.div>
+          <motion.h2
+            className="text-2xl font-bold text-foreground mb-2"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.4 }}
+          >
+            Device Connected
+          </motion.h2>
+          <motion.p
+            className="text-sm text-foreground/50"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.6 }}
+          >
+            Redirecting to sign in...
+          </motion.p>
+        </motion.div>
+      </div>
+    );
+  }
+
+  // Welcome Screen - New User / Existing User selection
+  if (!deviceType && !userType) {
+    return (
+      <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh opacity-30" />
+        <div className="relative z-10 flex flex-col items-center text-center max-w-md px-8">
+          <motion.img
+            src={eatosLogo}
+            alt="POS AI"
+            className="w-32 h-auto mb-8"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          />
+          <motion.h1
+            className="text-3xl md:text-4xl font-bold text-foreground mb-3"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+          >
+            Welcome to Point of Sale
+          </motion.h1>
+          <motion.p
+            className="text-base text-foreground/50 mb-12"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            Set up a new device or sign in to an existing account
+          </motion.p>
+
+          <motion.div
+            className="flex flex-col gap-4 w-full max-w-sm"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <button
+              onClick={() => setUserType("new")}
+              className="flex flex-col items-center gap-3 px-6 py-6 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
+            >
+              <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
+                <UserPlus className="w-5 h-5 text-blue-400" />
+              </div>
+              <div className="text-center">
+                <p className="text-base font-semibold text-foreground">New User</p>
+                <p className="text-xs text-foreground/40 mt-1">Activate a new device</p>
+              </div>
+            </button>
+
+            <button
+              onClick={() => {
+                setPendingDeviceType("personal");
+                setShowSplash(true);
+              }}
+              className="flex flex-col items-center gap-3 px-6 py-6 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
+            >
+              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                <User className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div className="text-center">
+                <p className="text-base font-semibold text-foreground">Existing User</p>
+                <p className="text-xs text-foreground/40 mt-1">Sign in to your account</p>
+              </div>
+            </button>
+          </motion.div>
+        </div>
+      </div>
+    );
+  }
+
+  // Device Activation Screen (Spotify-style pairing) - Only for New Users
+  if (!deviceType && userType === "new") {
     const activationQrValue = `posai://activate/${Date.now().toString(36)}`;
 
     return (
       <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 gradient-mesh opacity-30" />
         
-        <div className="relative z-10 w-full max-w-5xl px-8 flex flex-col">
-          {/* Logo + Title */}
+        <div className="relative z-10 w-full max-w-5xl px-8 flex flex-col items-center">
+          {/* Logo + Title - Centered */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-10"
+            className="mb-10 text-center flex flex-col items-center"
           >
             <motion.img
               src={eatosLogo}
@@ -872,7 +998,17 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Scan this QR code</h2>
               
               <div className="flex items-start gap-6">
-                <div className="bg-foreground rounded-2xl p-5 flex-shrink-0">
+                <button
+                  onClick={() => {
+                    setShowDeviceConnected(true);
+                    setTimeout(() => {
+                      setShowDeviceConnected(false);
+                      setDeviceType("company");
+                      setShowDeviceSetup(true);
+                    }, 2500);
+                  }}
+                  className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                >
                   <QRCodeSVG
                     value={activationQrValue}
                     size={180}
@@ -880,7 +1016,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     fgColor="hsl(0 0% 0%)"
                     level="M"
                   />
-                </div>
+                </button>
                 <p className="text-sm text-foreground/50 leading-relaxed pt-2">
                   On your mobile phone, open the camera or the QR scanner app and point to this code.
                 </p>
@@ -931,97 +1067,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             </div>
           </motion.div>
 
-          {/* Other Options (collapsible) */}
+          {/* Footer: Need Help (left) + Other Options (right) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="mt-10"
+            className="mt-10 w-full flex items-start justify-between"
           >
-            <button
-              onClick={() => setShowOtherOptions(!showOtherOptions)}
-              className="flex items-center gap-2 text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
-            >
-              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showOtherOptions ? 'rotate-180' : ''}`} />
-              Other options
-            </button>
-
-            <AnimatePresence>
-              {showOtherOptions && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  <div className="flex flex-col sm:flex-row gap-3 mt-4 max-w-xl">
-                    {/* Activate with Code */}
-                    <button
-                      onClick={() => {
-                        setPendingDeviceType("personal");
-                        setShowSplash(true);
-                        setExistingUserSelectedOption("code");
-                      }}
-                      className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
-                        <KeyRound className="w-4.5 h-4.5 text-amber-400" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-sm font-semibold text-foreground">Activate with Code</p>
-                        <p className="text-xs text-foreground/40">Enter a code from your admin</p>
-                      </div>
-                    </button>
-
-                    {/* Sign in with Link */}
-                    <button
-                      onClick={() => {
-                        setPendingDeviceType("personal");
-                        setShowSplash(true);
-                        setExistingUserSelectedOption("link");
-                      }}
-                      className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                        <Link2 className="w-4.5 h-4.5 text-blue-400" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-sm font-semibold text-foreground">Sign in with Link</p>
-                        <p className="text-xs text-foreground/40">Get a magic link via email or SMS</p>
-                      </div>
-                    </button>
-
-                    {/* Try Demo Mode */}
-                    <button
-                      onClick={() => {
-                        setPendingDeviceType("personal");
-                        setShowSplash(true);
-                        setExistingUserSelectedOption("demo");
-                      }}
-                      className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] hover:bg-emerald-500/[0.06] transition-all"
-                    >
-                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
-                        <FlaskConical className="w-4.5 h-4.5 text-emerald-400" />
-                      </div>
-                      <div className="text-left">
-                        <p className="text-sm font-semibold text-foreground">Try Demo Mode</p>
-                        <p className="text-xs text-foreground/40">Explore with sample data</p>
-                      </div>
-                    </button>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-
-          {/* Need Help */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.4 }}
-            className="mt-8"
-          >
+            {/* Need Help - Left */}
             <button
               onClick={() => setShowContactAdmin(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors flex items-center gap-1.5"
@@ -1029,6 +1082,85 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <HelpCircle className="w-4 h-4" />
               Need Help?
             </button>
+
+            {/* Other Options - Right */}
+            <div className="flex flex-col items-end">
+              <button
+                onClick={() => setShowOtherOptions(!showOtherOptions)}
+                className="flex items-center gap-2 text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+              >
+                Other options
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showOtherOptions ? 'rotate-180' : ''}`} />
+              </button>
+
+              <AnimatePresence>
+                {showOtherOptions && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="flex flex-col sm:flex-row gap-3 mt-4">
+                      {/* Activate with Code */}
+                      <button
+                        onClick={() => {
+                          setPendingDeviceType("personal");
+                          setShowSplash(true);
+                          setExistingUserSelectedOption("code");
+                        }}
+                        className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center flex-shrink-0">
+                          <KeyRound className="w-4.5 h-4.5 text-amber-400" />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm font-semibold text-foreground">Activate with Code</p>
+                          <p className="text-xs text-foreground/40">Enter a code from your admin</p>
+                        </div>
+                      </button>
+
+                      {/* Sign in with Link */}
+                      <button
+                        onClick={() => {
+                          setPendingDeviceType("personal");
+                          setShowSplash(true);
+                          setExistingUserSelectedOption("link");
+                        }}
+                        className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                          <Link2 className="w-4.5 h-4.5 text-blue-400" />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm font-semibold text-foreground">Sign in with Link</p>
+                          <p className="text-xs text-foreground/40">Get a magic link via email or SMS</p>
+                        </div>
+                      </button>
+
+                      {/* Try Demo Mode */}
+                      <button
+                        onClick={() => {
+                          setPendingDeviceType("personal");
+                          setShowSplash(true);
+                          setExistingUserSelectedOption("demo");
+                        }}
+                        className="flex items-center gap-3 px-5 py-3.5 rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.03] hover:bg-emerald-500/[0.06] transition-all"
+                      >
+                        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center flex-shrink-0">
+                          <FlaskConical className="w-4.5 h-4.5 text-emerald-400" />
+                        </div>
+                        <div className="text-left">
+                          <p className="text-sm font-semibold text-foreground">Try Demo Mode</p>
+                          <p className="text-xs text-foreground/40">Explore with sample data</p>
+                        </div>
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </motion.div>
         </div>
 

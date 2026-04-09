@@ -60,6 +60,7 @@ const CashDrawerDetailsContent = ({
   const [drawerPosition, setDrawerPosition] = useState<DropdownPosition>({ top: 0, right: 0 });
   const [showEndDrawerPopup, setShowEndDrawerPopup] = useState(false);
   const [actualInDrawer, setActualInDrawer] = useState("");
+  const [differenceReason, setDifferenceReason] = useState("");
   const [transactions, setTransactions] = useState<CashTransaction[]>([]);
   const [selectedLogDate, setSelectedLogDate] = useState<Date>(new Date());
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);

@@ -985,9 +985,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         navigate("/");
       };
 
-      // Initialize device name suggestion
+      // Initialize device name suggestion if not already set
       if (!deviceName) {
-        setTimeout(() => setDeviceName(getAutoDeviceName()), 0);
+        setTimeout(() => setDeviceName("Point of Sale"), 0);
       }
 
       return (

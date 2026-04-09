@@ -1045,6 +1045,17 @@ export class SettingsManager {
     return data || null;
   }
 
+  static async getAllClosedSessions(): Promise<any[]> {
+    const deviceId = getPerDeviceId();
+    const { data } = await (supabase as any).from("cash_drawer_sessions")
+      .select("*")
+      .eq("device_id", deviceId)
+      .eq("status", "closed")
+      .order("closed_at", { ascending: false })
+      .limit(50);
+    return data || [];
+  }
+
   static async addCashTransaction(sessionId: string, transaction: {
     type: 'pay_in' | 'pay_out';
     amount: number;

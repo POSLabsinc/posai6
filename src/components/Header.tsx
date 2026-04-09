@@ -188,21 +188,6 @@ const Header = () => {
     return end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   })();
 
-  // Mock shift transaction data
-  const shiftTransactions = [
-    { id: 1, time: "09:15 AM", type: "Cash", qty: 1, amount: 24.50, tip: 4.00 },
-    { id: 2, time: "09:42 AM", type: "Card", qty: 2, amount: 38.75, tip: 6.50 },
-    { id: 3, time: "10:05 AM", type: "Card", qty: 1, amount: 15.00, tip: 2.00 },
-    { id: 4, time: "10:30 AM", type: "Cash", qty: 3, amount: 46.00, tip: 8.34 },
-    { id: 5, time: "11:12 AM", type: "Card", qty: 1, amount: 30.61, tip: 0.00 },
-  ];
-  const totalCardSales = shiftTransactions.filter(t => t.type === "Card").reduce((s, t) => s + t.amount, 0);
-  const totalCashSales = shiftTransactions.filter(t => t.type === "Cash").reduce((s, t) => s + t.amount, 0);
-  const totalTips = shiftTransactions.reduce((s, t) => s + t.tip, 0);
-  const overallTotal = shiftTransactions.reduce((s, t) => s + t.amount + t.tip, 0);
-  const totalCashDrop = totalCashSales;
-  const closedChecks = shiftTransactions.length;
-  const pendingChecks = 0;
 
   return (
     <>

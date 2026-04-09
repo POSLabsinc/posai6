@@ -25,6 +25,9 @@ interface CashTransaction {
   reason: string;
   payIn: number;
   payOut: number;
+  cash: number;
+  card: number;
+  tips: number;
   note?: string;
   timestamp: number;
   date: string; // YYYY-MM-DD format for easy filtering
@@ -124,38 +127,62 @@ const CashDrawerDetailsContent = ({
   const sessionStartDateString = format(sessionStartDate, 'yyyy-MM-dd');
   const selectedDateString = format(selectedLogDate, 'yyyy-MM-dd');
   
-  // Build cash log entries filtered by selected date
+  // Get the clocked-in employee name
+  const getEmployeeName = () => {
+    try {
+      const session = localStorage.getItem('pos_session');
+      if (session) {
+        const parsed = JSON.parse(session);
+        return parsed.employeeName || 'Guest';
+      }
+    } catch {}
+    return 'Guest';
+  };
+
+  // Build cash log entries filtered by selected date with running balance
   const filteredCashLogEntries = (() => {
-    const entries: Array<{ time: string; name: string; reason: string; payIn: number; payOut: number }> = [];
+    const entries: Array<{ time: string; name: string; reason: string; payIn: number; payOut: number; cash: number; card: number; tips: number; runningBalance: number }> = [];
+    let balance = 0;
     
     // Include Starting Cash only on the session start date
     if (selectedDateString === sessionStartDateString) {
       const startTime = format(sessionStartDate, 'hh:mm a');
+      balance = startingCash;
       entries.push({ 
         time: startTime, 
-        name: "Rohan", 
+        name: getEmployeeName(), 
         reason: "Starting Cash", 
         payIn: startingCash, 
-        payOut: 0 
+        payOut: 0,
+        cash: startingCash,
+        card: 0,
+        tips: 0,
+        runningBalance: balance,
       });
     }
     
     // Filter transactions by selected date
     const filteredTransactions = transactions
       .filter(t => {
-        // Use date field if available, otherwise derive from timestamp
         const txDate = t.date || format(new Date(t.timestamp), 'yyyy-MM-dd');
         return txDate === selectedDateString;
-      })
-      .map(t => ({
+      });
+    
+    filteredTransactions.forEach(t => {
+      balance += t.payIn - t.payOut;
+      entries.push({
         time: t.time,
-        name: t.name,
+        name: t.name || getEmployeeName(),
         reason: t.reason,
         payIn: t.payIn,
-        payOut: t.payOut
-      }));
+        payOut: t.payOut,
+        cash: t.cash || t.payIn,
+        card: t.card || 0,
+        tips: t.tips || 0,
+        runningBalance: balance,
+      });
+    });
     
-    entries.push(...filteredTransactions);
     return entries;
   })();
 
@@ -324,25 +351,43 @@ const CashDrawerDetailsContent = ({
 
         {/* Cash Log Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-5 py-3.5 px-4 border-b border-neutral-700/50">
-            <span className="text-neutral-400 text-sm font-medium">Time</span>
-            <span className="text-neutral-400 text-sm font-medium">Name</span>
-            <span className="text-neutral-400 text-sm font-medium">Reason</span>
-            <span className="text-neutral-400 text-sm font-medium text-right">Pay In</span>
-            <span className="text-neutral-400 text-sm font-medium text-right">Pay Out</span>
-          </div>
-          
-          {/* Table Rows */}
-          {filteredCashLogEntries.map((entry, index) => (
-            <div key={index} className="grid grid-cols-5 py-3.5 px-4">
-              <span className="text-foreground text-sm">{entry.time}</span>
-              <span className="text-foreground text-sm">{entry.name}</span>
-              <span className="text-foreground text-sm">{entry.reason}</span>
-              <span className="text-foreground text-sm text-right">${entry.payIn.toFixed(2)}</span>
-              <span className="text-foreground text-sm text-right">${entry.payOut.toFixed(2)}</span>
+          <div className="overflow-x-auto">
+            <div className="min-w-[800px]">
+              {/* Table Header */}
+              <div className="grid grid-cols-9 py-3.5 px-4 border-b border-neutral-700/50">
+                <span className="text-neutral-400 text-sm font-medium">Time</span>
+                <span className="text-neutral-400 text-sm font-medium">Name</span>
+                <span className="text-neutral-400 text-sm font-medium">Reason</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Pay In</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Pay Out</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Cash</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Card</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Tips</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Balance</span>
+              </div>
+              
+              {/* Table Rows */}
+              {filteredCashLogEntries.length > 0 ? (
+                filteredCashLogEntries.map((entry, index) => (
+                  <div key={index} className="grid grid-cols-9 py-3.5 px-4 border-b border-neutral-700/20 last:border-0">
+                    <span className="text-foreground text-sm">{entry.time}</span>
+                    <span className="text-foreground text-sm">{entry.name}</span>
+                    <span className="text-foreground text-sm">{entry.reason}</span>
+                    <span className="text-foreground text-sm text-right">${entry.payIn.toFixed(2)}</span>
+                    <span className="text-foreground text-sm text-right">${entry.payOut.toFixed(2)}</span>
+                    <span className="text-foreground text-sm text-right">${entry.cash.toFixed(2)}</span>
+                    <span className="text-foreground text-sm text-right">${entry.card.toFixed(2)}</span>
+                    <span className="text-foreground text-sm text-right">${entry.tips.toFixed(2)}</span>
+                    <span className="text-foreground text-sm text-right font-medium">${entry.runningBalance.toFixed(2)}</span>
+                  </div>
+                ))
+              ) : (
+                <div className="py-8 text-center text-neutral-500 text-sm">
+                  No cash log entries for this date
+                </div>
+              )}
             </div>
-          ))}
+          </div>
         </div>
       </div>
 

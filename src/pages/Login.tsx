@@ -989,153 +989,144 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </motion.div>
 
           <AnimatePresence mode="wait">
-            {!showOtherOptions ? (
-              /* Two-column layout - QR + Browser */
-              <motion.div
-                key="main-options"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ delay: 0.15 }}
-                className="flex flex-col md:flex-row gap-0 w-full"
-              >
-                {/* Option 1: QR Code */}
-                <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0">
-                  <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
-                  <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Scan this QR code</h2>
-                  
-                  <div className="flex items-start gap-6">
-                    <button
-                      onClick={() => {
-                        setShowDeviceConnected(true);
-                        setTimeout(() => {
-                          setShowDeviceConnected(false);
-                          setDeviceType("company");
-                          setShowDeviceSetup(true);
-                        }, 2500);
-                      }}
-                      className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
-                    >
-                      <QRCodeSVG
-                        value={activationQrValue}
-                        size={180}
-                        bgColor="hsl(0 0% 100%)"
-                        fgColor="hsl(0 0% 0%)"
-                        level="M"
-                      />
-                    </button>
-                    <p className="text-sm text-foreground/50 leading-relaxed pt-2">
-                      On your mobile phone, open the camera or the QR scanner app and point to this code.
+            {/* Two-column layout - QR on left, right side toggles between Browser and Activate with Code */}
+            <motion.div
+              key={showOtherOptions ? "code-view" : "browser-view"}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ delay: 0.15 }}
+              className="flex flex-col md:flex-row gap-0 w-full"
+            >
+              {/* Left: QR Code (always visible) */}
+              <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0">
+                <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
+                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Scan this QR code</h2>
+                
+                <div className="flex items-start gap-6">
+                  <button
+                    onClick={() => {
+                      setShowDeviceConnected(true);
+                      setTimeout(() => {
+                        setShowDeviceConnected(false);
+                        setDeviceType("company");
+                        setShowDeviceSetup(true);
+                      }, 2500);
+                    }}
+                    className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                  >
+                    <QRCodeSVG
+                      value={activationQrValue}
+                      size={180}
+                      bgColor="hsl(0 0% 100%)"
+                      fgColor="hsl(0 0% 0%)"
+                      level="M"
+                    />
+                  </button>
+                  <p className="text-sm text-foreground/50 leading-relaxed pt-2">
+                    On your mobile phone, open the camera or the QR scanner app and point to this code.
+                  </p>
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="hidden md:flex flex-col items-center px-4">
+                <div className="w-px flex-1 bg-foreground/10" />
+              </div>
+              <div className="md:hidden w-full h-px bg-foreground/10 my-6" />
+
+              {/* Right side */}
+              <div className="flex-[1.2] pl-0 md:pl-12">
+                {!showOtherOptions ? (
+                  /* Option 2: Browser pairing */
+                  <>
+                    <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
+                    <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Use a browser</h2>
+                    
+                    <div className="space-y-6">
+                      <div className="flex items-start gap-4">
+                        <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
+                        <div>
+                          <p className="text-sm text-foreground/70 mb-2">Go to this link:</p>
+                          <div className="inline-block px-5 py-2.5 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]">
+                            <span className="text-base font-semibold text-foreground tracking-wide">posai.com/pair</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-start gap-4">
+                        <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
+                        <div>
+                          <p className="text-sm text-foreground/70 mb-3">When asked, enter this code:</p>
+                          <div className="flex gap-2">
+                            {generatedDeviceCode.split('').map((char, i) => (
+                              <div
+                                key={i}
+                                className="w-12 h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center"
+                              >
+                                <span className="text-xl font-bold text-foreground">{char}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </>
+                ) : !activationCodeSent ? (
+                  /* Activate with Code - email/phone input */
+                  <>
+                    <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
+                    <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">Activate with Code</h2>
+                    <p className="text-sm text-foreground/50 mb-6">
+                      Enter your email or mobile number to receive a code
                     </p>
-                  </div>
-                </div>
 
-                {/* Divider */}
-                <div className="hidden md:flex flex-col items-center px-4">
-                  <div className="w-px flex-1 bg-foreground/10" />
-                </div>
-                <div className="md:hidden w-full h-px bg-foreground/10 my-6" />
-
-                {/* Option 2: Browser */}
-                <div className="flex-[1.2] pl-0 md:pl-12">
-                  <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
-                  <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Use a browser</h2>
-                  
-                  <div className="space-y-6">
-                    <div className="flex items-start gap-4">
-                      <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
-                      <div>
-                        <p className="text-sm text-foreground/70 mb-2">Go to this link:</p>
-                        <div className="inline-block px-5 py-2.5 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]">
-                          <span className="text-base font-semibold text-foreground tracking-wide">posai.com/pair</span>
+                    <div className="space-y-4">
+                      <div className="relative">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30">
+                          <Mail className="w-5 h-5" />
                         </div>
+                        <input
+                          type="text"
+                          placeholder="Email or phone number"
+                          value={activationContactValue}
+                          onChange={(e) => setActivationContactValue(e.target.value)}
+                          className="w-full h-14 pl-12 pr-4 rounded-2xl bg-foreground/[0.04] border border-foreground/[0.08] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/20 transition-colors text-base"
+                        />
                       </div>
+                      <button
+                        onClick={() => {
+                          if (!activationContactValue.trim()) return;
+                          setActivationSendingCode(true);
+                          setTimeout(() => {
+                            setActivationCodeSent(true);
+                            setActivationSendingCode(false);
+                            toast({ title: "Verification code sent", description: `Check ${activationContactValue} for your code` });
+                          }, 800);
+                        }}
+                        disabled={!activationContactValue.trim() || activationSendingCode}
+                        className="w-full h-14 rounded-2xl bg-foreground/[0.08] hover:bg-foreground/[0.12] text-foreground font-semibold text-base flex items-center justify-center gap-2 transition-colors disabled:opacity-40"
+                      >
+                        {activationSendingCode ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <>
+                            <Send className="w-5 h-5" />
+                            Send Code
+                          </>
+                        )}
+                      </button>
                     </div>
-
-                    <div className="flex items-start gap-4">
-                      <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
-                      <div>
-                        <p className="text-sm text-foreground/70 mb-3">When asked, enter this code:</p>
-                        <div className="flex gap-2">
-                          {generatedDeviceCode.split('').map((char, i) => (
-                            <div
-                              key={i}
-                              className="w-12 h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center"
-                            >
-                              <span className="text-xl font-bold text-foreground">{char}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </motion.div>
-            ) : (
-              /* Activate with Code - inline form */
-              <motion.div
-                key="activate-code"
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                className="w-full max-w-lg"
-              >
-                <button
-                  onClick={() => setShowOtherOptions(false)}
-                  className="flex items-center gap-1.5 text-sm text-foreground/40 hover:text-foreground/60 transition-colors mb-6"
-                >
-                  <ArrowLeft className="w-4 h-4" />
-                  Back to options
-                </button>
-
-                <h2 className="text-2xl font-bold text-foreground mb-2">Activate with Code</h2>
-                <p className="text-sm text-foreground/50 mb-8">
-                  Enter your email or mobile number to receive a code
-                </p>
-
-                {!activationCodeSent ? (
-                  <div className="space-y-4">
-                    <div className="relative">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30">
-                        <Mail className="w-5 h-5" />
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="Email or phone number"
-                        value={activationContactValue}
-                        onChange={(e) => setActivationContactValue(e.target.value)}
-                        className="w-full h-14 pl-12 pr-4 rounded-2xl bg-foreground/[0.04] border border-foreground/[0.08] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/20 transition-colors text-base"
-                      />
-                    </div>
-                    <button
-                      onClick={() => {
-                        if (!activationContactValue.trim()) return;
-                        setActivationSendingCode(true);
-                        setTimeout(() => {
-                          setActivationCodeSent(true);
-                          setActivationSendingCode(false);
-                          toast({ title: "Verification code sent", description: `Check ${activationContactValue} for your code` });
-                        }, 800);
-                      }}
-                      disabled={!activationContactValue.trim() || activationSendingCode}
-                      className="w-full h-14 rounded-2xl bg-foreground/[0.08] hover:bg-foreground/[0.12] text-foreground font-semibold text-base flex items-center justify-center gap-2 transition-colors disabled:opacity-40"
-                    >
-                      {activationSendingCode ? (
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                      ) : (
-                        <>
-                          <Send className="w-5 h-5" />
-                          Send Code
-                        </>
-                      )}
-                    </button>
-                  </div>
+                  </>
                 ) : (
-                  <div className="space-y-4">
-                    <p className="text-sm text-foreground/50">
+                  /* OTP entry */
+                  <>
+                    <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Verification</p>
+                    <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">Enter Code</h2>
+                    <p className="text-sm text-foreground/50 mb-6">
                       Enter the 6-digit code sent to <span className="font-semibold text-foreground">{activationContactValue}</span>
                     </p>
-                    <div className="flex justify-center gap-2">
+                    <div className="flex gap-2 mb-4">
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div
                           key={i}
@@ -1160,11 +1151,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         const val = e.target.value.replace(/\D/g, '').slice(0, 6);
                         setActivationCode(val);
                         if (val.length === 6) {
+                          // Show device connected animation, then go to device name step
                           setShowDeviceConnected(true);
                           setTimeout(() => {
                             setShowDeviceConnected(false);
-                            setDeviceType("company");
-                            setShowDeviceSetup(true);
+                            setOwnerVerified(true);
                           }, 2500);
                         }
                       }}
@@ -1183,10 +1174,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       </button>
                       <span className="text-foreground/30">Resend in 55s</span>
                     </div>
-                  </div>
+                  </>
                 )}
-              </motion.div>
-            )}
+              </div>
+            </motion.div>
           </AnimatePresence>
 
           {/* Footer: Need Help (left) + Other Options (right) */}

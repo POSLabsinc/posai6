@@ -466,7 +466,7 @@ const CashManagementContent = ({
       {/* Drawer Dropdown Overlay */}
       {showDrawerDropdown && (
         <div className="fixed inset-0 z-50 animate-in fade-in duration-200" onClick={() => setShowDrawerDropdown(false)}>
-          <div className="fixed bg-neutral-800 rounded-xl overflow-hidden shadow-2xl min-w-[160px] animate-in zoom-in-95 duration-200" style={{
+          <div className="fixed bg-neutral-800 rounded-xl overflow-hidden shadow-2xl w-[200px] animate-in zoom-in-95 duration-200" style={{
             top: drawerPosition.top,
             right: drawerPosition.right
           }} onClick={e => e.stopPropagation()}>

@@ -155,10 +155,28 @@ const Header = () => {
     navigate("/login");
   };
 
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
   const employeeName = session?.employeeName || "Guest";
   const employeeRole = session?.employeeRole || "Server";
   const initials = getInitials(employeeName);
   const formattedTime = currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  // Compute clock-in time and duration
+  const clockInTime = session?.loginTime
+    ? new Date(session.loginTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    : "--:--";
+  const durationStr = (() => {
+    if (!session?.loginTime) return "0h 0m";
+    const diff = Date.now() - new Date(session.loginTime).getTime();
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    return `${h}h ${m}m`;
+  })();
+  const shiftEndStr = (() => {
+    if (!session?.loginTime) return "--:--";
+    const end = new Date(new Date(session.loginTime).getTime() + 8 * 3600000);
+    return end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  })();
 
   return (
     <>

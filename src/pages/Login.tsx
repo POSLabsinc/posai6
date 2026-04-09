@@ -1140,7 +1140,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     />
                   </button>
                   <p className="text-sm text-foreground/50 leading-relaxed pt-2">
-                    On your mobile phone, open the camera or the QR scanner app and point to this code.
+                    {showOtherOptions
+                      ? "Scan directly with your phone camera. You will be asked to enter your email, and code to verify."
+                      : "On your mobile phone, open the camera or the QR scanner app and point to this code."}
                   </p>
                 </div>
               </div>

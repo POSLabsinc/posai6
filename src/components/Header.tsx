@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Coffee, LogOut, FlaskConical, ChefHat, ShoppingBag, Bell as BellIcon } from "lucide-react";
+import { Coffee, LogOut, FlaskConical, ChefHat, ShoppingBag, Bell as BellIcon, Clock, Timer, X } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import dinnerIcon from "@/assets/icons/dinner.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -155,10 +155,28 @@ const Header = () => {
     navigate("/login");
   };
 
+  const [showProfilePopup, setShowProfilePopup] = useState(false);
   const employeeName = session?.employeeName || "Guest";
   const employeeRole = session?.employeeRole || "Server";
   const initials = getInitials(employeeName);
   const formattedTime = currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+
+  // Compute clock-in time and duration
+  const clockInTime = session?.loginTime
+    ? new Date(session.loginTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    : "--:--";
+  const durationStr = (() => {
+    if (!session?.loginTime) return "0h 0m";
+    const diff = Date.now() - new Date(session.loginTime).getTime();
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    return `${h}h ${m}m`;
+  })();
+  const shiftEndStr = (() => {
+    if (!session?.loginTime) return "--:--";
+    const end = new Date(new Date(session.loginTime).getTime() + 8 * 3600000);
+    return end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  })();
 
   return (
     <>
@@ -172,7 +190,10 @@ const Header = () => {
             <img src={switchUserIcon} alt="Clock Out" className="w-4 md:w-5 h-4 md:h-5" />
           </button>
 
-          <div className="flex items-center gap-1 md:gap-2 bg-white/10 pl-0 pr-2 md:pr-3 rounded-full">
+          <button
+            onClick={() => setShowProfilePopup(true)}
+            className="flex items-center gap-1 md:gap-2 bg-white/10 pl-0 pr-2 md:pr-3 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
+          >
             <Avatar className="w-6 md:w-8 h-6 md:h-8 border-0">
               <AvatarImage src="" alt={employeeName} />
               <AvatarFallback className="text-xs bg-sidebar-accent text-sidebar-foreground">{initials}</AvatarFallback>
@@ -194,7 +215,11 @@ const Header = () => {
             <img src={dinnerIcon} alt="Dinner" className="hidden md:block w-4 h-4" />
 
             <span className="hidden md:inline text-sm">Dinner Service (9:00 PM)</span>
-          </div>
+
+            {/* Clock-in time */}
+            <div className="hidden md:block w-px h-4 bg-sidebar-foreground/30 mx-1" />
+            <span className="hidden md:inline text-xs text-neutral-400">Clocked in {clockInTime}</span>
+          </button>
         </div>
 
         {/* Right Section */}
@@ -360,6 +385,73 @@ const Header = () => {
           <span className="text-xs md:text-sm font-medium">{formattedTime}</span>
         </div>
       </header>
+      {/* Employee Profile Popup */}
+      {showProfilePopup && (
+        <div className="fixed inset-0 z-[9998] flex items-center justify-center">
+          {/* Dim overlay */}
+          <div className="absolute inset-0 bg-black/60" onClick={() => setShowProfilePopup(false)} />
+          
+          {/* Popup card */}
+          <div className="relative z-10 w-[340px] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden">
+            {/* Close button */}
+            <button
+              onClick={() => setShowProfilePopup(false)}
+              className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+            >
+              <X className="w-4 h-4 text-neutral-400" />
+            </button>
+
+            {/* Top section */}
+            <div className="flex flex-col items-center pt-8 pb-5 px-6">
+              <Avatar className="w-16 h-16 border-2 border-indigo-500/40">
+                <AvatarImage src="" alt={employeeName} />
+                <AvatarFallback className="text-lg font-semibold bg-indigo-600 text-white">{initials}</AvatarFallback>
+              </Avatar>
+              <h3 className="mt-3 text-lg font-semibold text-white">{employeeName}</h3>
+              <span className="mt-1 text-xs px-3 py-1 bg-indigo-500/20 text-indigo-300 rounded-full font-medium uppercase tracking-wide">{employeeRole}</span>
+              
+              {/* Clock-in time large */}
+              <div className="mt-4 flex items-center gap-2">
+                <Clock className="w-4 h-4 text-neutral-500" />
+                <span className="text-sm text-neutral-400">Clocked in at</span>
+              </div>
+              <span className="text-3xl font-bold text-white mt-1">{clockInTime}</span>
+            </div>
+
+            {/* Stats row */}
+            <div className="grid grid-cols-3 gap-2 px-5 pb-5">
+              <div className="bg-white/5 rounded-xl p-3 text-center">
+                <Timer className="w-4 h-4 text-indigo-400 mx-auto mb-1" />
+                <p className="text-sm font-semibold text-white">{durationStr}</p>
+                <p className="text-[10px] text-neutral-500 mt-0.5">Duration</p>
+              </div>
+              <div className="bg-white/5 rounded-xl p-3 text-center">
+                <Clock className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
+                <p className="text-sm font-semibold text-white">{shiftEndStr}</p>
+                <p className="text-[10px] text-neutral-500 mt-0.5">Shift End</p>
+              </div>
+              <div className="bg-white/5 rounded-xl p-3 text-center">
+                <Coffee className="w-4 h-4 text-orange-400 mx-auto mb-1" />
+                <p className="text-sm font-semibold text-white">{isOnBreak ? "Active" : "0m"}</p>
+                <p className="text-[10px] text-neutral-500 mt-0.5">Break Taken</p>
+              </div>
+            </div>
+
+            {/* View Shift Summary button */}
+            <div className="px-5 pb-5">
+              <button
+                onClick={() => {
+                  setShowProfilePopup(false);
+                  navigate("/settings/workforce");
+                }}
+                className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold rounded-xl transition-colors"
+              >
+                View Shift Summary
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ClockOutOverlay
         isOpen={showClockOut}

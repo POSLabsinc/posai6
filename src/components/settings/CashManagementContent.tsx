@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, User } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -215,23 +215,6 @@ const CashManagementContent = ({
         <button onClick={handleStartDrawer} disabled={!hasAmount} className={`w-full py-4 rounded-full text-base font-semibold tracking-wide transition-all ${hasAmount ? 'bg-neutral-600 text-white active:opacity-70' : 'border border-neutral-600 text-foreground opacity-50'}`}>
           OPEN DRAWER
         </button>
-
-        {/* Server Cash History */}
-        <div className="mt-6">
-          <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Server Activity</h2>
-          <button
-            onClick={() => navigate('/settings/payments/cash-management/server-history')}
-            className="w-full bg-neutral-800/60 rounded-2xl overflow-hidden flex items-center justify-between py-3.5 px-4 active:opacity-70 transition-opacity"
-          >
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-neutral-700/60 flex items-center justify-center">
-                <User className="w-4 h-4 text-foreground/60" />
-              </div>
-              <span className="text-foreground text-base font-medium">Server Cash History</span>
-            </div>
-            <ChevronRight className="w-4 h-4 text-neutral-500" />
-          </button>
-        </div>
 
         {/* History Section - Always visible */}
         {lastClosedSession && (

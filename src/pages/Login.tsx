@@ -983,7 +983,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
               Activate this device
             </h1>
-            <p className="text-base text-foreground/50 max-w-lg">
+            <p className="text-base text-foreground/50 whitespace-nowrap">
               To start using this Point of Sale, activate your device using one of the options below
             </p>
           </motion.div>

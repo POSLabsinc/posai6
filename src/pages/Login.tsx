@@ -171,6 +171,11 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
   const [existingUserResendCooldown, setExistingUserResendCooldown] = useState(0);
   const [existingUserVerified, setExistingUserVerified] = useState(false);
   
+  const [showOtherOptions, setShowOtherOptions] = useState(false);
+  const [generatedDeviceCode] = useState(() => {
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+  });
   const [showDemoMode, setShowDemoMode] = useState(false);
   const [selectedDemoBusinessType, setSelectedDemoBusinessType] = useState<string | null>(null);
   const [isLoadingDemo, setIsLoadingDemo] = useState(false);

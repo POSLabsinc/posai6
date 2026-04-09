@@ -7,7 +7,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 
 interface ContactAdminDialogProps {
   open: boolean;
@@ -138,14 +137,11 @@ const ContactAdminDialog = ({
               <ArrowLeft className="w-5 h-5" />
             </button>
           )}
-          <div className="w-12 h-12 rounded-2xl overflow-hidden">
-            <img src={restaurantLogo} alt={restaurantName} className="w-full h-full object-cover" />
-          </div>
           <DialogTitle className="text-[17px] font-semibold text-white text-center tracking-[-0.4px]">
             {view === "main" && "Need Help?"}
             {view === "activation" && "How to Activate"}
             {view === "signin" && "How to Sign In"}
-            {view === "contact" && "Contact Admin"}
+            {view === "contact" && "Contact"}
           </DialogTitle>
           <p className="text-[12px] text-[#EBEBF599] text-center leading-[16px] tracking-[-0.08px]">
             {view === "main" && "Choose a topic below to get started."}

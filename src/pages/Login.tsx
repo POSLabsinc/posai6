@@ -7123,17 +7123,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <div className="flex items-start gap-6">
                   <button
                     onClick={() => {
-                      setShowDeviceConnected(true);
-                      setTimeout(() => {
-                        setShowDeviceConnected(false);
-                        localStorage.setItem("pos_device_session", JSON.stringify({
-                          deviceId: `device_${Date.now()}`,
-                          deviceName: "POS Terminal",
-                          activatedAt: new Date().toISOString(),
-                          trustedAt: new Date().toISOString(),
-                        }));
-                        navigate("/");
-                      }, 2500);
+                      localStorage.setItem("pos_device_session", JSON.stringify({
+                        deviceId: `device_${Date.now()}`,
+                        deviceName: "POS Terminal",
+                        activatedAt: new Date().toISOString(),
+                        trustedAt: new Date().toISOString(),
+                      }));
+                      navigate("/");
                     }}
                     className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                   >
@@ -7283,11 +7279,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         setExistingUserVerificationCode(val);
                         setExistingUserVerificationError("");
                         if (val.length === 6) {
-                          setShowDeviceConnected(true);
-                          setTimeout(() => {
-                            setShowDeviceConnected(false);
-                            handleExistingUserVerifyCode();
-                          }, 2500);
+                          handleExistingUserVerifyCode();
                         }
                       }}
                       className="sr-only"

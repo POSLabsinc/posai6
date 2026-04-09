@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { X, Camera, Car, ChevronUp, ChevronDown, ChevronLeft, MapPin, Calendar as CalendarIcon, Upload, Plus, Trash2 } from "lucide-react";
+import { X, Camera, ChevronLeft, MapPin, Calendar as CalendarIcon, Upload, Plus, Trash2, ChevronRight, Car, ChevronUp, ChevronDown, Crosshair } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { cn, formatPhoneNumber } from "@/lib/utils";
 import addGuestIcon from "@/assets/icons/add-guest.svg";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface AddGuestFormProps {
   onClose: () => void;
@@ -38,6 +39,7 @@ interface GuestFormData {
   address: string;
   vehicles: VehicleEntry[];
   profilePhoto: string | null;
+  note: string;
 }
 
 const vehicleTypes = ["Sedan", "SUV", "Truck", "Van", "Coupe", "Hatchback", "Convertible", "Wagon"];
@@ -53,10 +55,13 @@ const vehicleBrands: Record<string, string[]> = {
   "Wagon": ["Volvo", "Audi", "BMW", "Mercedes", "Subaru"],
 };
 
+const NOTE_MAX = 250;
+
 const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuestFormProps) => {
   const [showVehicleDetails, setShowVehicleDetails] = useState(false);
   const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { getIconBgColor } = useAppearance();
   const [formData, setFormData] = useState<GuestFormData>({
     firstName: "",
     middleName: "",
@@ -69,6 +74,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     address: "",
     vehicles: [{ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" }],
     profilePhoto: null,
+    note: "",
   });
 
   const handleAddVehicle = () => {
@@ -127,6 +133,9 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
       setFormData((prev) => ({ ...prev, [field]: formatPhoneNumber(value) }));
       return;
     }
+    if (field === "note") {
+      if (value.length > NOTE_MAX) return;
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -151,7 +160,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
       const fullName = [formData.firstName, formData.middleName, formData.lastName].filter(Boolean).join(" ");
       const initials = `${formData.firstName.charAt(0)}${formData.lastName.charAt(0)}`.toUpperCase();
       
-      // Combine all vehicles into strings
       const vehicleStrs = formData.vehicles
         .filter(v => v.vehicleColor || v.vehicleBrand || v.vehicleType)
         .map(v => [v.vehicleColor, v.vehicleBrand, v.vehicleType].filter(Boolean).join(" "));
@@ -175,6 +183,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
         avatar_url: formData.profilePhoto || null,
         initials,
         is_archived: false,
+        notes_general: formData.note || "",
       };
 
       const { error } = await (supabase as any).from("guests").insert(guestRow);
@@ -202,416 +211,331 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     else onClose();
   };
 
-  return (
-    <div 
-      className="flex flex-col h-full rounded-lg overflow-hidden"
-      style={{ 
-        background: '#252525',
-        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
-      }}
+  // iOS-style row component
+  const FormRow = ({ label, value, placeholder, onClick, children }: {
+    label: string;
+    value?: string;
+    placeholder?: string;
+    onClick?: () => void;
+    children?: React.ReactNode;
+  }) => (
+    <div
+      className="flex items-center justify-between px-4 py-3 min-h-[44px] cursor-pointer"
+      onClick={onClick}
     >
-      {/* Back Header for embedded mode */}
-      {hideHeader && onBack && (
-        <div className="relative flex items-center h-14 px-4 border-b border-border flex-shrink-0">
-          <button
-            onClick={handleBack}
-            className="absolute left-4 w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted transition-colors"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
-          <h2 className="w-full text-center text-base font-semibold text-foreground">Add New Guest</h2>
+      <span className="text-sm font-medium text-foreground">{label}</span>
+      {children ? children : (
+        <div className="flex items-center gap-1">
+          <span className={`text-sm ${value ? 'text-foreground' : 'text-neutral-500'}`}>
+            {value || placeholder || ''}
+          </span>
+          <ChevronRight className="w-4 h-4 text-neutral-500" />
         </div>
       )}
-      {/* Fixed Header */}
+    </div>
+  );
+
+  const Divider = () => <div className="h-px bg-white/5 mx-4" />;
+
+  // Date picker row
+  const DateRow = ({ label, value, field, fromYear, toYear, disableFuture }: {
+    label: string;
+    value: string;
+    field: keyof GuestFormData;
+    fromYear: number;
+    toYear: number;
+    disableFuture?: boolean;
+  }) => (
+    <Popover>
+      <PopoverTrigger asChild>
+        <div className="flex items-center justify-between px-4 py-3 min-h-[44px] cursor-pointer">
+          <span className="text-sm font-medium text-foreground">{label}</span>
+          <div className="flex items-center gap-1">
+            <span className={`text-sm ${value ? 'text-foreground' : 'text-neutral-500'}`}>
+              {value || "MM / DD / YYYY"}
+            </span>
+            <ChevronRight className="w-4 h-4 text-neutral-500" />
+          </div>
+        </div>
+      </PopoverTrigger>
+      <PopoverContent className="w-auto p-0 bg-neutral-800 border-white/10" align="end">
+        <Calendar
+          mode="single"
+          selected={value ? new Date(value) : undefined}
+          onSelect={(date) => handleInputChange(field, date ? format(date, "MM/dd/yyyy") : "")}
+          disabled={disableFuture ? (date) => date > new Date() : undefined}
+          initialFocus
+          className={cn("p-3 pointer-events-auto")}
+          captionLayout="dropdown-buttons"
+          fromYear={fromYear}
+          toYear={toYear}
+        />
+      </PopoverContent>
+    </Popover>
+  );
+
+  // Input row (inline editing)
+  const InputRow = ({ label, value, field, placeholder, type, required }: {
+    label: string;
+    value: string;
+    field: keyof GuestFormData;
+    placeholder: string;
+    type?: string;
+    required?: boolean;
+  }) => (
+    <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+      <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">
+        {label} {required && <span className="text-red-400">*</span>}
+      </span>
+      <input
+        type={type || "text"}
+        value={value}
+        onChange={(e) => handleInputChange(field, e.target.value)}
+        placeholder={placeholder}
+        className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
+      />
+    </div>
+  );
+
+  return (
+    <div className="flex flex-col h-full bg-[#F0F0F0] dark:bg-background overflow-hidden">
+      {/* Back Header */}
+      {hideHeader && onBack && (
+        <div className="flex items-center h-12 px-4 flex-shrink-0">
+          <button
+            onClick={handleBack}
+            className="flex items-center gap-1 text-foreground hover:opacity-70 transition-opacity"
+          >
+            <ChevronLeft className="w-5 h-5" />
+            <span className="text-sm font-medium">Back</span>
+          </button>
+        </div>
+      )}
+
+      {/* Fixed Header (non-embedded mode) */}
       {!hideHeader && (
-        <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center justify-between p-4 border-b border-white/10 flex-shrink-0">
           <div className="flex items-center gap-2">
             <img src={addGuestIcon} alt="" className="w-5 h-5" />
-            <h2 className="text-lg font-semibold text-white">Add Guest</h2>
+            <h2 className="text-lg font-semibold text-foreground">Add Guest</h2>
           </div>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-white/10 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5 text-white/70" />
+          <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full transition-colors">
+            <X className="w-5 h-5 text-foreground/70" />
           </button>
         </div>
       )}
 
       {/* Scrollable Content */}
-      <div 
-        className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide" 
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
-        {/* Profile Photo */}
-        <div className="flex flex-col items-center gap-2 py-2">
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileUpload}
-            accept="image/*"
-            className="hidden"
-          />
-          <Popover open={photoMenuOpen} onOpenChange={setPhotoMenuOpen}>
-            <PopoverTrigger asChild>
-              <div className="w-16 h-16 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-transparent hover:border-white/50 transition-colors cursor-pointer overflow-hidden">
-                {formData.profilePhoto ? (
-                  <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
-                ) : (
-                  <Camera className="w-6 h-6 text-white/50" />
-                )}
+      <div className="flex-1 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        {/* Info Header Card - matching other settings screens */}
+        <div className="px-4 pt-4 pb-2">
+          <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-center text-center">
+            <div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3"
+              style={{ backgroundColor: getIconBgColor('#F9900E') }}
+            >
+              <img src={addGuestIcon} alt="" className="w-6 h-6 object-contain" />
+            </div>
+            <h3 className="text-lg font-semibold text-foreground mb-1">New Guest</h3>
+            <p className="text-sm text-neutral-400 leading-relaxed max-w-lg">
+              Guests will only be added to your guestbook if required fields (Name, Email, or Phone) are completed;
+              otherwise, only the customer name will be used as a generic guest name for the order.
+            </p>
+          </div>
+        </div>
+
+        {/* Profile Photo + Form Fields */}
+        <div className="px-4 py-4">
+          <div className="flex gap-5">
+            {/* Avatar */}
+            <div className="flex flex-col items-center flex-shrink-0">
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleFileUpload}
+                accept="image/*"
+                className="hidden"
+              />
+              <Popover open={photoMenuOpen} onOpenChange={setPhotoMenuOpen}>
+                <PopoverTrigger asChild>
+                  <div className="relative">
+                    <div className="w-24 h-24 rounded-full bg-neutral-200 dark:bg-neutral-700 flex items-center justify-center overflow-hidden cursor-pointer">
+                      {formData.profilePhoto ? (
+                        <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                          <path d="M20 20c4.42 0 8-3.58 8-8s-3.58-8-8-8-8 3.58-8 8 3.58 8 8 8zm0 4c-5.34 0-16 2.68-16 8v4h32v-4c0-5.32-10.66-8-16-8z" fill="currentColor" className="text-neutral-400 dark:text-neutral-500" />
+                        </svg>
+                      )}
+                    </div>
+                    <button className="absolute bottom-0 right-0 w-7 h-7 rounded-full bg-white dark:bg-neutral-600 border-2 border-[#F0F0F0] dark:border-background flex items-center justify-center shadow-sm">
+                      <Camera className="w-3.5 h-3.5 text-neutral-600 dark:text-neutral-300" />
+                    </button>
+                  </div>
+                </PopoverTrigger>
+                <PopoverContent className="w-40 p-1 bg-neutral-800 border-white/10" align="center">
+                  <button
+                    onClick={handleCameraCapture}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-foreground text-sm hover:bg-white/10 rounded transition-colors"
+                  >
+                    <Camera className="w-4 h-4" /> Camera
+                  </button>
+                  <button
+                    onClick={handleUploadFromSystem}
+                    className="flex items-center gap-2 w-full px-3 py-2 text-foreground text-sm hover:bg-white/10 rounded transition-colors"
+                  >
+                    <Upload className="w-4 h-4" /> Upload
+                  </button>
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Two column iOS-style card groups */}
+            <div className="flex-1 grid grid-cols-2 gap-4 min-w-0">
+              {/* Left Card - Contact Info */}
+              <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden">
+                <InputRow label="First Name" value={formData.firstName} field="firstName" placeholder="Enter" required />
+                <Divider />
+                <InputRow label="Last Name" value={formData.lastName} field="lastName" placeholder="Enter" required />
+                <Divider />
+                <InputRow label="Phone Number" value={formData.phoneNumber} field="phoneNumber" placeholder="+1 (XXX) XXX-XXXX" type="tel" required />
+                <Divider />
+                <InputRow label="Email" value={formData.email} field="email" placeholder="email@example.com" type="email" required />
               </div>
-            </PopoverTrigger>
-            <PopoverContent className="w-40 p-1 bg-neutral-800 border-white/10" align="center">
-              <button
-                onClick={handleCameraCapture}
-                className="flex items-center gap-2 w-full px-3 py-2 text-white text-sm hover:bg-white/10 rounded transition-colors"
-              >
-                <Camera className="w-4 h-4" />
-                Camera
-              </button>
-              <button
-                onClick={handleUploadFromSystem}
-                className="flex items-center gap-2 w-full px-3 py-2 text-white text-sm hover:bg-white/10 rounded transition-colors"
-              >
-                <Upload className="w-4 h-4" />
-                Upload from system
-              </button>
-            </PopoverContent>
-          </Popover>
-          <span className="text-white/50 text-xs">Profile Photo</span>
-        </div>
 
-        {/* Name Fields */}
-        <div className={compact ? "grid grid-cols-2 gap-3" : "grid grid-cols-3 gap-3"}>
-          <div>
-            <label className="text-sm text-white/70 mb-1 block">
-              First Name <span className="text-primary">*</span>
-            </label>
-            <Input
-              value={formData.firstName}
-              onChange={(e) => handleInputChange("firstName", e.target.value)}
-              placeholder="Enter first name"
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-white/70 mb-1 block">Middle Name</label>
-            <Input
-              value={formData.middleName}
-              onChange={(e) => handleInputChange("middleName", e.target.value)}
-              placeholder="Enter middle name"
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-            />
-          </div>
-          {!compact && (
-            <div>
-              <label className="text-sm text-white/70 mb-1 block">
-                Last Name <span className="text-primary">*</span>
-              </label>
-              <Input
-                value={formData.lastName}
-                onChange={(e) => handleInputChange("lastName", e.target.value)}
-                placeholder="Enter last name"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-              />
+              {/* Right Card - Dates */}
+              <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden">
+                <DateRow label="Date of Birth" value={formData.dateOfBirth} field="dateOfBirth" fromYear={1920} toYear={new Date().getFullYear()} disableFuture />
+                <Divider />
+                <DateRow label="Customer Since" value={formData.customerSince} field="customerSince" fromYear={1950} toYear={new Date().getFullYear()} />
+                <Divider />
+                <DateRow label="Anniversary" value={formData.anniversary} field="anniversary" fromYear={1950} toYear={new Date().getFullYear() + 5} />
+              </div>
             </div>
-          )}
-        </div>
-
-        {/* Compact: Last Name & Email row */}
-        {compact && (
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="text-sm text-white/70 mb-1 block">
-                Last Name <span className="text-primary">*</span>
-              </label>
-              <Input
-                value={formData.lastName}
-                onChange={(e) => handleInputChange("lastName", e.target.value)}
-                placeholder="Enter last name"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-              />
-            </div>
-            <div>
-              <label className="text-sm text-white/70 mb-1 block">
-                Email <span className="text-primary">*</span>
-              </label>
-              <Input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                placeholder="Enter email"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-              />
-            </div>
-          </div>
-        )}
-
-        {/* Email & Phone & Customer Since */}
-        <div className={compact ? "grid grid-cols-2 gap-3" : "grid grid-cols-3 gap-3"}>
-          {!compact && (
-            <div>
-              <label className="text-sm text-white/70 mb-1 block">
-                Email <span className="text-primary">*</span>
-              </label>
-              <Input
-                type="email"
-                value={formData.email}
-                onChange={(e) => handleInputChange("email", e.target.value)}
-                placeholder="Enter email"
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-              />
-            </div>
-          )}
-
-          <div>
-            <label className="text-sm text-white/70 mb-1 block">
-              Phone Number <span className="text-primary">*</span>
-            </label>
-            <Input
-              type="tel"
-              value={formData.phoneNumber}
-              onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-              placeholder="(XXX) XXX-XXXX"
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-            />
-          </div>
-          <div>
-            <label className="text-sm text-white/70 mb-1 block">Customer Since</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white pl-9 relative",
-                    !formData.customerSince && "text-white/40"
-                  )}
-                >
-                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                  {formData.customerSince || "MM/DD/YYYY"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-neutral-800 border-white/10" align="start">
-                <Calendar
-                  mode="single"
-                  selected={formData.customerSince ? new Date(formData.customerSince) : undefined}
-                  onSelect={(date) => handleInputChange("customerSince", date ? format(date, "MM/dd/yyyy") : "")}
-                  initialFocus
-                  className={cn("p-3 pointer-events-auto")}
-                  captionLayout="dropdown-buttons"
-                  fromYear={1950}
-                  toYear={new Date().getFullYear()}
-                />
-              </PopoverContent>
-            </Popover>
           </div>
         </div>
 
-        {/* Date of Birth, Anniversary & Address */}
-        <div className={compact ? "grid grid-cols-2 gap-3" : "grid grid-cols-3 gap-3"}>
-          <div>
-            <label className="text-sm text-white/70 mb-1 block">Date of Birth</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white pl-9 relative",
-                    !formData.dateOfBirth && "text-white/40"
-                  )}
-                >
-                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                  {formData.dateOfBirth || "MM/DD/YYYY"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-neutral-800 border-white/10" align="start">
-                <Calendar
-                  mode="single"
-                  selected={formData.dateOfBirth ? new Date(formData.dateOfBirth) : undefined}
-                  onSelect={(date) => handleInputChange("dateOfBirth", date ? format(date, "MM/dd/yyyy") : "")}
-                  disabled={(date) => date > new Date()}
-                  initialFocus
-                  className={cn("p-3 pointer-events-auto")}
-                  captionLayout="dropdown-buttons"
-                  fromYear={1920}
-                  toYear={new Date().getFullYear()}
-                />
-              </PopoverContent>
-            </Popover>
+        {/* Note Section */}
+        <div className="px-4 pb-3">
+          <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2 px-1">Note</p>
+          <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden">
+            <div className="relative">
+              <textarea
+                value={formData.note}
+                onChange={(e) => handleInputChange("note", e.target.value)}
+                placeholder="Optional"
+                maxLength={NOTE_MAX}
+                rows={2}
+                className="w-full px-4 py-3 text-sm bg-transparent text-foreground placeholder:text-neutral-500 outline-none resize-none"
+              />
+              <span className="absolute bottom-2 right-4 text-xs text-neutral-500">
+                {NOTE_MAX - (formData.note?.length || 0)}
+              </span>
+            </div>
           </div>
-          <div>
-            <label className="text-sm text-white/70 mb-1 block">Anniversary</label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white pl-9 relative",
-                    !formData.anniversary && "text-white/40"
-                  )}
-                >
-                  <CalendarIcon className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-                  {formData.anniversary || "MM/DD/YYYY"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-neutral-800 border-white/10" align="start">
-                <Calendar
-                  mode="single"
-                  selected={formData.anniversary ? new Date(formData.anniversary) : undefined}
-                  onSelect={(date) => handleInputChange("anniversary", date ? format(date, "MM/dd/yyyy") : "")}
-                  initialFocus
-                  className={cn("p-3 pointer-events-auto")}
-                  captionLayout="dropdown-buttons"
-                  fromYear={1950}
-                  toYear={new Date().getFullYear() + 5}
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-          {!compact && (
-            <div>
-              <label className="text-sm text-white/70 mb-1 block">Address</label>
-              <div className="relative">
-                <Input
+        </div>
+
+        {/* Address Section */}
+        <div className="px-4 pb-3">
+          <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2 px-1">Address</p>
+          <div className="flex gap-3">
+            <div className="flex-1 bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden">
+              <div className="flex items-center px-4 py-3">
+                <MapPin className="w-4 h-4 text-neutral-500 mr-3 flex-shrink-0" />
+                <input
                   value={formData.address}
                   onChange={(e) => handleInputChange("address", e.target.value)}
-                  placeholder="Search for an address..."
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pl-9"
+                  placeholder="Search Address"
+                  className="flex-1 text-sm bg-transparent text-foreground placeholder:text-neutral-500 outline-none"
                 />
-                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
               </div>
+            </div>
+            <button className="w-11 h-11 rounded-2xl bg-white dark:bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
+              <Crosshair className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
+        </div>
+
+        {/* Vehicle Section */}
+        <div className="px-4 pb-6">
+          <button
+            onClick={() => setShowVehicleDetails(!showVehicleDetails)}
+            className="flex items-center gap-2 px-4 py-3 bg-neutral-900 dark:bg-neutral-800 text-foreground rounded-2xl text-sm font-medium hover:opacity-80 transition-opacity"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add vehicle</span>
+          </button>
+
+          {showVehicleDetails && (
+            <div className="mt-3 space-y-3">
+              {formData.vehicles.map((vehicle, index) => (
+                <div key={index} className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-neutral-500 uppercase">Vehicle {index + 1}</span>
+                    {formData.vehicles.length > 1 && (
+                      <button onClick={() => handleRemoveVehicle(index)} className="text-red-400 hover:text-red-300">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-neutral-500 mb-1 block">Type</label>
+                      <Select value={vehicle.vehicleType} onValueChange={(v) => handleVehicleChange(index, "vehicleType", v)}>
+                        <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-neutral-800 border-white/10">
+                          {vehicleTypes.map(t => <SelectItem key={t} value={t} className="text-foreground">{t}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-neutral-500 mb-1 block">Color</label>
+                      <Select value={vehicle.vehicleColor} onValueChange={(v) => handleVehicleChange(index, "vehicleColor", v)}>
+                        <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10">
+                          <SelectValue placeholder="Select" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-neutral-800 border-white/10">
+                          {vehicleColors.map(c => <SelectItem key={c} value={c} className="text-foreground">{c}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs text-neutral-500 mb-1 block">Brand</label>
+                      <Select value={vehicle.vehicleBrand} onValueChange={(v) => handleVehicleChange(index, "vehicleBrand", v)} disabled={!vehicle.vehicleType}>
+                        <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10 disabled:opacity-50">
+                          <SelectValue placeholder={vehicle.vehicleType ? "Select" : "Type first"} />
+                        </SelectTrigger>
+                        <SelectContent className="bg-neutral-800 border-white/10">
+                          {(vehicle.vehicleType && vehicleBrands[vehicle.vehicleType] || []).map(b => <SelectItem key={b} value={b} className="text-foreground">{b}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-xs text-neutral-500 mb-1 block">License Plate</label>
+                      <input
+                        value={vehicle.licensePlate}
+                        onChange={(e) => handleVehicleChange(index, "licensePlate", e.target.value.toUpperCase())}
+                        placeholder="Enter"
+                        className="w-full h-10 px-3 text-sm bg-neutral-100 dark:bg-neutral-700/50 rounded-xl text-foreground placeholder:text-neutral-500 outline-none uppercase"
+                      />
+                    </div>
+                  </div>
+                </div>
+              ))}
+              <button
+                onClick={handleAddVehicle}
+                className="flex items-center gap-2 text-primary text-sm hover:text-primary/80 transition-colors px-1"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Add another vehicle</span>
+              </button>
             </div>
           )}
         </div>
-
-        {/* Compact: Address full width */}
-        {compact && (
-          <div>
-            <label className="text-sm text-white/70 mb-1 block">Address</label>
-            <div className="relative">
-              <Input
-                value={formData.address}
-                onChange={(e) => handleInputChange("address", e.target.value)}
-                placeholder="Search for an address..."
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pl-9"
-              />
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-            </div>
-          </div>
-        )}
-
-
-        {/* Add Vehicle Details */}
-        <button
-          onClick={() => setShowVehicleDetails(!showVehicleDetails)}
-          className="flex items-center gap-2 text-primary text-sm hover:text-primary/80 transition-colors"
-        >
-          <Car className="w-4 h-4" />
-          <span>{showVehicleDetails ? 'Hide vehicle details' : 'Add vehicle details'}</span>
-          {showVehicleDetails ? (
-            <ChevronUp className="w-4 h-4" />
-          ) : (
-            <ChevronDown className="w-4 h-4" />
-          )}
-        </button>
-
-        {showVehicleDetails && (
-          <div className="space-y-4">
-            {formData.vehicles.map((vehicle, index) => (
-              <div key={index} className="space-y-3 p-3 rounded-lg border border-white/10 bg-white/5">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-white/60 font-medium">Vehicle {index + 1}</span>
-                  {formData.vehicles.length > 1 && (
-                    <button
-                      onClick={() => handleRemoveVehicle(index)}
-                      className="w-6 h-6 rounded-full flex items-center justify-center hover:bg-red-500/20 transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                    </button>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-white/60 mb-1 block">Vehicle Type</label>
-                    <Select
-                      value={vehicle.vehicleType}
-                      onValueChange={(value) => handleVehicleChange(index, "vehicleType", value)}
-                    >
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                        <SelectValue placeholder="Select type" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-neutral-800 border-white/10">
-                        {vehicleTypes.map((type) => (
-                          <SelectItem key={type} value={type} className="text-white hover:bg-white/10">
-                            {type}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-white/60 mb-1 block">Vehicle Color</label>
-                    <Select
-                      value={vehicle.vehicleColor}
-                      onValueChange={(value) => handleVehicleChange(index, "vehicleColor", value)}
-                    >
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white">
-                        <SelectValue placeholder="Select color" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-neutral-800 border-white/10">
-                        {vehicleColors.map((color) => (
-                          <SelectItem key={color} value={color} className="text-white hover:bg-white/10">
-                            {color}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="text-xs text-white/60 mb-1 block">Vehicle Brand</label>
-                    <Select
-                      value={vehicle.vehicleBrand}
-                      onValueChange={(value) => handleVehicleChange(index, "vehicleBrand", value)}
-                      disabled={!vehicle.vehicleType}
-                    >
-                      <SelectTrigger className="bg-white/10 border-white/20 text-white disabled:opacity-50">
-                        <SelectValue placeholder={vehicle.vehicleType ? "Select brand" : "Select type first"} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-neutral-800 border-white/10">
-                        {(vehicle.vehicleType && vehicleBrands[vehicle.vehicleType] || []).map((brand) => (
-                          <SelectItem key={brand} value={brand} className="text-white hover:bg-white/10">
-                            {brand}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div>
-                    <label className="text-xs text-white/60 mb-1 block">License Plate</label>
-                    <Input
-                      value={vehicle.licensePlate}
-                      onChange={(e) => handleVehicleChange(index, "licensePlate", e.target.value.toUpperCase())}
-                      placeholder="Enter license plate"
-                      className="bg-white/10 border-white/20 text-white placeholder:text-white/40 uppercase"
-                    />
-                  </div>
-                </div>
-              </div>
-            ))}
-
-            <button
-              onClick={handleAddVehicle}
-              className="flex items-center gap-2 text-primary text-sm hover:text-primary/80 transition-colors"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Add another vehicle</span>
-            </button>
-          </div>
-        )}
       </div>
 
       {/* Footer buttons for compact/order mode */}
@@ -620,7 +544,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
           <Button
             variant="outline"
             onClick={onClose}
-            className="flex-1 bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+            className="flex-1 bg-white/10 border-white/20 text-foreground hover:bg-white/20"
           >
             Cancel
           </Button>
@@ -633,7 +557,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
           </Button>
         </div>
       )}
-
     </div>
   );
 };

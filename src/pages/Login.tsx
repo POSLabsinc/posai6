@@ -1314,10 +1314,19 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
             {/* Try another way - Right */}
             <button
-              onClick={() => setShowOtherOptions(!showOtherOptions)}
+              onClick={() => {
+                if (showOtherOptions) {
+                  setShowOtherOptions(false);
+                  setActivationCodeSent(false);
+                  setActivationCode("");
+                  setActivationContactValue("");
+                } else {
+                  setShowOtherOptions(true);
+                }
+              }}
               className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
             >
-              Try another way
+              {showOtherOptions ? "Back to options" : "Try another way"}
             </button>
           </motion.div>
         </div>

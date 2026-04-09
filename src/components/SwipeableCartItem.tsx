@@ -246,32 +246,6 @@ const SwipeableCartItem = ({
           No Tax
         </button>
         
-        {/* Order Type Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="px-2 h-6 flex items-center gap-0.5 rounded-full transition-colors text-[10px] font-medium text-black"
-              style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-            >
-              {itemOrderType}
-              <ChevronDown className="w-2.5 h-2.5" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent 
-            className="bg-neutral-800 border-neutral-700 z-50 min-w-[100px]"
-            align="start"
-          >
-            {ORDER_TYPES.map((type) => (
-              <DropdownMenuItem
-                key={type}
-                onClick={() => onOrderTypeChange?.(type)}
-                className="text-white hover:bg-neutral-700 cursor-pointer text-xs"
-              >
-                {type}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       {/* Right side action buttons (revealed when swiping left) */}

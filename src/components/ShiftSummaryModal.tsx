@@ -395,8 +395,8 @@ export default function ShiftSummaryModal({
             <button className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/15 transition-colors">
               <Printer className="w-4 h-4 text-neutral-300" />
             </button>
-            <button onClick={onClose} className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-              <X className="w-4 h-4 text-neutral-400" />
+            <button onClick={onClose} className="w-8 h-8 rounded-sm flex items-center justify-center opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+              <X className="h-4 w-4 text-neutral-300" />
             </button>
           </div>
         </div>
@@ -501,40 +501,40 @@ export default function ShiftSummaryModal({
         </div>
 
         {/* Bottom summary row */}
-        <div className="flex items-center px-6 pb-3 shrink-0 gap-6">
+        <div className="flex items-center px-6 py-3 shrink-0 gap-8 border-b border-white/10">
           <div>
-            <p className="text-[10px] text-neutral-500 uppercase">Total</p>
-            <p className="text-2xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
+            <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Total</p>
+            <p className="text-2xl font-bold text-white mt-0.5">$ {overallTotal.toFixed(2)}</p>
           </div>
           <div>
-            <p className="text-[10px] text-neutral-500 uppercase">Cash Drop</p>
-            <p className="text-2xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+            <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Cash Drop</p>
+            <p className="text-2xl font-bold text-white mt-0.5">$ {totalCashDrop.toFixed(2)}</p>
           </div>
           <div>
-            <p className="text-[10px] text-neutral-500 uppercase">Pay In</p>
-            <p className="text-lg font-bold text-emerald-400">$ {totalPayIn.toFixed(2)}</p>
+            <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Pay In</p>
+            <p className="text-xl font-bold text-emerald-400 mt-0.5">$ {totalPayIn.toFixed(2)}</p>
           </div>
           <div>
-            <p className="text-[10px] text-neutral-500 uppercase">Pay Out</p>
-            <p className="text-lg font-bold text-red-400">$ {totalPayOut.toFixed(2)}</p>
+            <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Pay Out</p>
+            <p className="text-xl font-bold text-red-400 mt-0.5">$ {totalPayOut.toFixed(2)}</p>
           </div>
         </div>
 
         {/* Transaction table */}
-        <div className="flex-1 overflow-auto px-6 pb-4">
+        <div className="flex-1 overflow-auto px-6 py-3">
           {loading ? (
             <p className="text-xs text-neutral-500 py-8 text-center">Loading transactions...</p>
           ) : unifiedRows.length === 0 ? (
             <p className="text-xs text-neutral-500 py-8 text-center">No transactions found for the selected filters</p>
           ) : (
             <table className="w-full text-sm">
-              <thead className="sticky top-0 bg-[#1C1C1E]">
+              <thead className="sticky top-0 bg-[#1C1C1E] z-10">
                 <tr className="border-b border-white/10 text-left">
-                  <th className="py-2 text-xs font-semibold text-neutral-400 uppercase">Type</th>
-                  <th className="py-2 text-xs font-semibold text-neutral-400 uppercase">Time</th>
-                  <th className="py-2 text-xs font-semibold text-neutral-400 uppercase">Check / Reason</th>
-                  <th className="py-2 text-xs font-semibold text-neutral-400 uppercase text-right">Amount</th>
-                  <th className="py-2 text-xs font-semibold text-neutral-400 uppercase text-right">Tip</th>
+                  <th className="py-3 pr-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Type</th>
+                  <th className="py-3 pr-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Time</th>
+                  <th className="py-3 pr-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Check / Reason</th>
+                  <th className="py-3 pl-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider text-right">Amount</th>
+                  <th className="py-3 pl-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider text-right">Tip</th>
                 </tr>
               </thead>
               <tbody>
@@ -551,25 +551,25 @@ export default function ShiftSummaryModal({
                       onClick={() => isOrder && row.raw && openCheckDetail(row.raw)}
                       className={`border-b border-white/5 transition-colors ${isOrder ? "hover:bg-white/[0.05] cursor-pointer" : ""}`}
                     >
-                      <td className="py-2.5">
-                        <span className={`inline-flex items-center gap-1.5 text-xs font-medium ${
+                      <td className="py-3 pr-4">
+                        <span className={`inline-flex items-center gap-2 text-xs font-medium ${
                           isPayIn ? "text-emerald-300" : isPayOut ? "text-red-300" : isCash ? "text-amber-300" : "text-emerald-300"
                         }`}>
                           {isPayIn ? <ArrowDownLeft className="w-3.5 h-3.5" /> : isPayOut ? <ArrowUpRight className="w-3.5 h-3.5" /> : isCash ? <Banknote className="w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
                           {row.paymentType}
                         </span>
                       </td>
-                      <td className="py-2.5 text-xs text-neutral-400">{formatTime(row.time)}</td>
-                      <td className="py-2.5">
+                      <td className="py-3 pr-4 text-xs text-neutral-400">{formatTime(row.time)}</td>
+                      <td className="py-3 pr-4">
                         <span className={`text-xs font-medium ${isPending ? "text-amber-300" : isPayIn || isPayOut ? "text-neutral-400" : "text-white"}`}>
-                          {isOrder ? row.checkNumber : row.checkNumber}
+                          {row.checkNumber}
                           {isPending && <span className="ml-1.5 text-[10px] text-amber-400">(pending)</span>}
                         </span>
                       </td>
-                      <td className={`py-2.5 text-xs font-medium text-right ${isPayIn ? "text-emerald-300" : isPayOut ? "text-red-300" : "text-white"}`}>
+                      <td className={`py-3 pl-4 text-xs font-medium text-right ${isPayIn ? "text-emerald-300" : isPayOut ? "text-red-300" : "text-white"}`}>
                         {isPayOut ? "-" : ""}$ {row.amount.toFixed(2)}
                       </td>
-                      <td className="py-2.5 text-xs text-neutral-300 text-right">
+                      <td className="py-3 pl-4 text-xs text-neutral-300 text-right">
                         {isOrder ? `$ ${row.tip.toFixed(2)}` : "-"}
                       </td>
                     </tr>

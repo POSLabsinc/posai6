@@ -888,17 +888,17 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     return (
       <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 gradient-mesh opacity-30" />
-        <div className="relative z-10 flex flex-col items-center text-center max-w-md px-8">
+        <div className="relative z-10 flex flex-col items-center text-center w-full max-w-2xl px-8">
           <motion.img
             src={eatosLogo}
             alt="POS AI"
-            className="w-32 h-auto mb-8"
+            className="w-28 h-auto mb-6"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
           />
           <motion.h1
-            className="text-3xl md:text-4xl font-bold text-foreground mb-3"
+            className="text-2xl md:text-3xl font-bold text-foreground mb-2"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1 }}
@@ -906,16 +906,16 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             Welcome to Point of Sale
           </motion.h1>
           <motion.p
-            className="text-base text-foreground/50 mb-12"
+            className="text-sm text-foreground/40 mb-10"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
           >
-            Set up a new device or sign in to an existing account
+            Select a scenario to preview the login flow
           </motion.p>
 
           <motion.div
-            className="flex flex-col gap-4 w-full max-w-sm"
+            className="grid grid-cols-2 gap-4 w-full max-w-xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -925,14 +925,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 setPendingDeviceType("company");
                 setShowSplash(true);
               }}
-              className="flex flex-col items-center gap-3 px-6 py-6 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
+              className="flex items-center gap-4 px-5 py-5 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04] hover:bg-foreground/[0.07] transition-all text-left"
             >
-              <div className="w-12 h-12 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <UserPlus className="w-5 h-5 text-blue-400" />
+              <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center flex-shrink-0">
+                <UserPlus className="w-5 h-5 text-foreground/50" />
               </div>
-              <div className="text-center">
-                <p className="text-base font-semibold text-foreground">New User</p>
-                <p className="text-xs text-foreground/40 mt-1">Activate a new device</p>
+              <div>
+                <p className="text-sm font-semibold text-foreground">New User</p>
+                <p className="text-xs text-foreground/40 mt-0.5">First time activating this device</p>
               </div>
             </button>
 
@@ -941,14 +941,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 setPendingDeviceType("personal");
                 setShowSplash(true);
               }}
-              className="flex flex-col items-center gap-3 px-6 py-6 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] transition-all"
+              className="flex items-center gap-4 px-5 py-5 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04] hover:bg-foreground/[0.07] transition-all text-left"
             >
-              <div className="w-12 h-12 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-                <User className="w-5 h-5 text-emerald-400" />
+              <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center flex-shrink-0">
+                <LogIn className="w-5 h-5 text-foreground/50" />
               </div>
-              <div className="text-center">
-                <p className="text-base font-semibold text-foreground">Existing User</p>
-                <p className="text-xs text-foreground/40 mt-1">Sign in to your account</p>
+              <div>
+                <p className="text-sm font-semibold text-foreground">Existing User</p>
+                <p className="text-xs text-foreground/40 mt-0.5">Device already activated - sign in with PIN</p>
               </div>
             </button>
           </motion.div>

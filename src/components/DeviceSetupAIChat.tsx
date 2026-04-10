@@ -654,6 +654,24 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
     }
   }, [currentStep]);
 
+  // Browser connected: after 5 seconds show "Device is connected" then ask for device name
+  useEffect(() => {
+    if (currentStep === "chat-browser-connected") {
+      const timer = setTimeout(() => {
+        const connectedMsg: Message = {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: "All set! Your device is now activated.\n\nWhat would you like to name this device?\n\nSuggested: **Rustic Table POS 1**"
+        };
+        setMessages((prev) => [...prev, connectedMsg]);
+        setChatDeviceName("Rustic Table POS 1");
+        setCurrentStep("chat-device-name");
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep]);
+
   // Invite code input handlers (personal device)
   const handleInviteCodeInput = useCallback((index: number, value: string) => {
     if (value.length > 1) value = value.slice(-1);

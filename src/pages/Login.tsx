@@ -7348,7 +7348,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mt-10 w-full flex items-start justify-between"
           >
             <button
-              onClick={() => setShowContactAdmin(true)}
+              onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors flex items-center gap-1.5"
             >
               <HelpCircle className="w-4 h-4" />
@@ -7377,6 +7377,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="existing"
         />
       </div>
     );

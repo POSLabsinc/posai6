@@ -26,7 +26,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "chat-qr-options" | "chat-qr-scanning" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner" | "returning-contact" | "returning-email" | "returning-phone" | "new-contact" | "new-email" | "new-phone" | "new-not-found" | "new-checking" | "create-fullname" | "create-confirm-email" | "create-email" | "create-phone" | "create-otp" | "create-otp-verifying" | "create-password" | "create-device-pin" | "create-country" | "create-business" | "create-creating" | "create-success" | "license-request" | "license-submitted";
+type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "chat-qr-options" | "chat-qr-scanning" | "chat-browser" | "chat-browser-connected" | "chat-device-name" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner" | "returning-contact" | "returning-email" | "returning-phone" | "new-contact" | "new-email" | "new-phone" | "new-not-found" | "new-checking" | "create-fullname" | "create-confirm-email" | "create-email" | "create-phone" | "create-otp" | "create-otp-verifying" | "create-password" | "create-device-pin" | "create-country" | "create-business" | "create-creating" | "create-success" | "license-request" | "license-submitted";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -170,6 +170,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
   const [createDevicePin, setCreateDevicePin] = useState("");
   const [createDevicePinError, setCreateDevicePinError] = useState("");
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [chatDeviceName, setChatDeviceName] = useState("Rustic Table POS 1");
 
   useEffect(() => {
     if (open && scrollRef.current) {
@@ -653,6 +654,24 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
     }
   }, [currentStep]);
 
+  // Browser connected: after 5 seconds show "Device is connected" then ask for device name
+  useEffect(() => {
+    if (currentStep === "chat-browser-connected") {
+      const timer = setTimeout(() => {
+        const connectedMsg: Message = {
+          id: Date.now().toString(),
+          role: "assistant",
+          content: "All set! Your device is now activated.\n\nWhat would you like to name this device?\n\nSuggested: **Rustic Table POS 1**"
+        };
+        setMessages((prev) => [...prev, connectedMsg]);
+        setChatDeviceName("Rustic Table POS 1");
+        setCurrentStep("chat-device-name");
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [currentStep]);
+
   // Invite code input handlers (personal device)
   const handleInviteCodeInput = useCallback((index: number, value: string) => {
     if (value.length > 1) value = value.slice(-1);
@@ -1070,9 +1089,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                     <button
                       onClick={() => {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Use browser instead" };
-                        setMessages(prev => [...prev, userMsg]);
-                        setCurrentStep("chat");
-                        streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Use browser instead" }]);
+                        const assistantMsg: Message = {
+                          id: (Date.now() + 1).toString(),
+                          role: "assistant",
+                          content: "No problem! You can activate this device using any browser.\n\n**Step 1:** Open this link on your phone or computer:\n**posai.com/pair**\n\n**Step 2:** Enter the code shown below.\n\nLet me know once you've entered the code."
+                        };
+                        setMessages(prev => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("chat-browser");
                       }}
                       className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
@@ -1135,6 +1158,127 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                         Need help
                       </button>
                     </div>
+                  </motion.div>
+                )}
+
+                {/* Browser activation flow */}
+                {currentStep === "chat-browser" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex flex-col items-center gap-4 pl-7 pt-4 pb-4"
+                  >
+                    <div className="rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] p-5 w-full max-w-xs text-center space-y-3">
+                      <div className="flex items-center justify-center gap-2 text-foreground/60">
+                        <Globe className="w-4 h-4" />
+                        <span className="text-xs font-medium uppercase tracking-wide">Activation URL</span>
+                      </div>
+                      <p className="text-lg font-bold text-primary">posai.com/pair</p>
+                      <div className="h-px bg-foreground/[0.08]" />
+                      <div className="flex items-center justify-center gap-2 text-foreground/60">
+                        <Key className="w-4 h-4" />
+                        <span className="text-xs font-medium uppercase tracking-wide">Activation Code</span>
+                      </div>
+                      <div className="flex items-center justify-center gap-2">
+                        {["Z", "6", "5", "J", "2", "U"].map((char, i) => (
+                          <span key={i} className="w-10 h-12 flex items-center justify-center rounded-xl border border-foreground/[0.12] bg-foreground/[0.05] text-lg font-bold text-foreground tracking-widest">
+                            {char}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Done, I entered the code" };
+                          const assistantMsg: Message = {
+                            id: (Date.now() + 1).toString(),
+                            role: "assistant",
+                            content: "Great, verifying your device..."
+                          };
+                          setMessages(prev => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("chat-browser-connected");
+                        }}
+                        className="px-4 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        Done
+                      </button>
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Need help with browser activation" };
+                          setMessages(prev => [...prev, userMsg]);
+                          setCurrentStep("chat");
+                          streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Need help with browser activation" }]);
+                        }}
+                        className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        Need help
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Browser connected - verifying then showing connected */}
+                {currentStep === "chat-browser-connected" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex flex-col items-center gap-3 pl-7 pt-4 pb-4"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin text-primary" />
+                      <span className="text-sm text-foreground/60 font-medium">Verifying device...</span>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Device name step */}
+                {currentStep === "chat-device-name" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex flex-col gap-3 pl-7 pt-4 pb-4 w-full max-w-sm"
+                  >
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={chatDeviceName}
+                        onChange={(e) => setChatDeviceName(e.target.value)}
+                        className="w-full px-4 py-3 rounded-xl border border-foreground/[0.12] bg-foreground/[0.03] text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
+                        placeholder="Enter device name"
+                      />
+                      <Pencil className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                    </div>
+                    <button
+                      onClick={() => {
+                        const name = chatDeviceName.trim() || "Rustic Table POS 1";
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: name };
+                        const assistantMsg: Message = {
+                          id: (Date.now() + 1).toString(),
+                          role: "assistant",
+                          content: `Your device is ready!\n\nYou can now start taking orders.`
+                        };
+                        setMessages(prev => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("chat");
+
+                        // Save session and redirect after brief delay
+                        setTimeout(() => {
+                          localStorage.setItem("pos_device_session", JSON.stringify({
+                            deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+                            deviceType: "company",
+                            deviceName: name,
+                            trustedAt: new Date().toISOString(),
+                          }));
+                          window.location.href = "/";
+                        }, 2500);
+                      }}
+                      className="px-4 py-2.5 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-[1.01] active:scale-[0.99]"
+                    >
+                      Continue
+                    </button>
                   </motion.div>
                 )}
 

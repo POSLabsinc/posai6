@@ -1,0 +1,1 @@
+ALTER TABLE public.cash_drawer_sessions ADD COLUMN closing_reason text;

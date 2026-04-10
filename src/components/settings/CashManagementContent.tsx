@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { SettingsManager } from "@/lib/settingsManager";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CashManagementContentProps {
   showHeader?: boolean;
@@ -31,6 +32,7 @@ interface ClosedSessionData {
   cashRefunds: number;
   paidInOut: number;
   closedAt: number;
+  closingReason?: string;
 }
 
 interface CashLogEntry {
@@ -44,6 +46,8 @@ interface CashLogEntry {
   tips: number;
   runningBalance: number;
 }
+
+type FilterTab = 'history' | 'cashlog';
 
 const DRAWER_OPTIONS = ["Point of Sale 1", "Point of Sale 2", "Point of Sale 3", "Main Drawer"];
 
@@ -66,9 +70,11 @@ const CashManagementContent = ({
   });
   const [lastClosingBalance, setLastClosingBalance] = useState<number>(0);
   const [lastClosedSession, setLastClosedSession] = useState<ClosedSessionData | null>(null);
+  const [allClosedSessions, setAllClosedSessions] = useState<ClosedSessionData[]>([]);
   const [selectedLogDate, setSelectedLogDate] = useState<Date>(new Date());
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   const [cashLogEntries, setCashLogEntries] = useState<CashLogEntry[]>([]);
+  const [activeFilter, setActiveFilter] = useState<FilterTab>('history');
   
   const drawerRef = useRef<HTMLButtonElement>(null);
   const hasAmount = openingCash.trim() !== "" && parseFloat(openingCash) >= 0;
@@ -81,143 +87,219 @@ const CashManagementContent = ({
         setLastClosingBalance(parseFloat(savedBalance));
       }
       
-      const lastSession = await SettingsManager.getLastClosedSession();
-      if (lastSession) {
-        setLastClosingBalance(Number(lastSession.closing_cash) || 0);
-        setLastClosedSession({
-          drawer: lastSession.drawer_name,
-          closingBalance: Number(lastSession.closing_cash) || 0,
-          startingCash: Number(lastSession.starting_cash) || 0,
-          expectedInDrawer: Number(lastSession.expected_in_drawer) || 0,
-          difference: Number(lastSession.difference) || 0,
-          cashSales: Number(lastSession.cash_sales) || 0,
-          cashRefunds: Number(lastSession.cash_refunds) || 0,
+      // Load all closed sessions from DB
+      const deviceId = localStorage.getItem('pos_device_id') || 'default';
+      const { data: sessions } = await (supabase as any).from("cash_drawer_sessions")
+        .select("*")
+        .eq("status", "closed")
+        .order("closed_at", { ascending: false })
+        .limit(50);
+      
+      if (sessions && sessions.length > 0) {
+        const mapped: ClosedSessionData[] = sessions.map((s: any) => ({
+          drawer: s.drawer_name,
+          closingBalance: Number(s.closing_cash) || 0,
+          startingCash: Number(s.starting_cash) || 0,
+          expectedInDrawer: Number(s.expected_in_drawer) || 0,
+          difference: Number(s.difference) || 0,
+          cashSales: Number(s.cash_sales) || 0,
+          cashRefunds: Number(s.cash_refunds) || 0,
           paidInOut: 0,
-          closedAt: new Date(lastSession.closed_at).getTime(),
-        });
+          closedAt: new Date(s.closed_at).getTime(),
+          closingReason: s.closing_reason || undefined,
+        }));
+        setAllClosedSessions(mapped);
+        setLastClosedSession(mapped[0]);
+        setLastClosingBalance(mapped[0].closingBalance);
       } else {
         const savedSession = localStorage.getItem('lastClosedSession');
         if (savedSession) {
-          setLastClosedSession(JSON.parse(savedSession));
+          const parsed = JSON.parse(savedSession);
+          setLastClosedSession(parsed);
+          setAllClosedSessions([parsed]);
         }
       }
     };
     loadData();
   }, []);
 
-  // Build cash log entries from closed session data
+  // Build cash log entries from closed session data and real transactions
   useEffect(() => {
-    if (!lastClosedSession) {
-      setCashLogEntries([]);
-      return;
-    }
+    const loadCashLog = async () => {
+      const selectedDateStr = format(selectedLogDate, 'yyyy-MM-dd');
+      
+      // Load transactions from DB for this date
+      const startOfDay = new Date(selectedLogDate);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(selectedLogDate);
+      endOfDay.setHours(23, 59, 59, 999);
+      
+      const { data: dbTransactions } = await (supabase as any).from("cash_transactions")
+        .select("*")
+        .gte("created_at", startOfDay.toISOString())
+        .lte("created_at", endOfDay.toISOString())
+        .order("created_at", { ascending: true });
+      
+      // Load orders for the same date to get cash/card/tips data
+      const { data: dayOrders } = await (supabase as any).from("orders")
+        .select("*")
+        .gte("created_at", startOfDay.toISOString())
+        .lte("created_at", endOfDay.toISOString())
+        .eq("status", "completed")
+        .order("created_at", { ascending: true });
 
-    const sessionDate = format(new Date(lastClosedSession.closedAt), 'yyyy-MM-dd');
-    const selectedDateStr = format(selectedLogDate, 'yyyy-MM-dd');
+      const entries: CashLogEntry[] = [];
+      let balance = 0;
 
-    if (sessionDate !== selectedDateStr) {
-      setCashLogEntries([]);
-      return;
-    }
+      // Get the clocked-in employee name
+      const getEmployeeName = () => {
+        try {
+          const session = localStorage.getItem('pos_session');
+          if (session) {
+            const parsed = JSON.parse(session);
+            return parsed.employeeName || 'Guest';
+          }
+        } catch {}
+        return 'Guest';
+      };
 
-    const entries: CashLogEntry[] = [];
-    let balance = 0;
-
-    // Get the clocked-in employee name
-    const getEmployeeName = () => {
-      try {
-        const session = localStorage.getItem('pos_session');
-        if (session) {
-          const parsed = JSON.parse(session);
-          return parsed.employeeName || 'Guest';
-        }
-      } catch {}
-      return 'Guest';
-    };
-    const employeeName = getEmployeeName();
-
-    // Starting Cash entry
-    balance = lastClosedSession.startingCash;
-    entries.push({
-      time: format(new Date(lastClosedSession.closedAt), 'hh:mm a'),
-      name: employeeName,
-      reason: "Starting Cash",
-      payIn: lastClosedSession.startingCash,
-      payOut: 0,
-      cash: lastClosedSession.startingCash,
-      card: 0,
-      tips: 0,
-      runningBalance: balance,
-    });
-
-    // Cash Sales entry
-    if (lastClosedSession.cashSales > 0) {
-      balance += lastClosedSession.cashSales;
-      entries.push({
-        time: format(new Date(lastClosedSession.closedAt), 'hh:mm a'),
-        name: "Sales",
-        reason: "Cash Sales",
-        payIn: lastClosedSession.cashSales,
-        payOut: 0,
-        cash: lastClosedSession.cashSales,
-        card: 0,
-        tips: 0,
-        runningBalance: balance,
+      // Find the session that was active on this date
+      const matchingSession = allClosedSessions.find(s => {
+        const sessionDate = format(new Date(s.closedAt), 'yyyy-MM-dd');
+        return sessionDate === selectedDateStr;
       });
-    }
 
-    // Cash Refunds entry
-    if (lastClosedSession.cashRefunds > 0) {
-      balance -= lastClosedSession.cashRefunds;
-      entries.push({
-        time: format(new Date(lastClosedSession.closedAt), 'hh:mm a'),
-        name: "Refund",
-        reason: "Cash Refunds",
-        payIn: 0,
-        payOut: lastClosedSession.cashRefunds,
-        cash: 0,
-        card: 0,
-        tips: 0,
-        runningBalance: balance,
-      });
-    }
+      // Opening Cash entry
+      if (matchingSession) {
+        balance = matchingSession.startingCash;
+        entries.push({
+          time: format(new Date(matchingSession.closedAt), 'hh:mm a'),
+          name: getEmployeeName(),
+          reason: "Opening Cash",
+          payIn: matchingSession.startingCash,
+          payOut: 0,
+          cash: matchingSession.startingCash,
+          card: 0,
+          tips: 0,
+          runningBalance: balance,
+        });
+      }
 
-    // Paid In/Out entry
-    if (lastClosedSession.paidInOut !== 0) {
-      balance += lastClosedSession.paidInOut;
-      entries.push({
-        time: format(new Date(lastClosedSession.closedAt), 'hh:mm a'),
-        name: "Manager",
-        reason: lastClosedSession.paidInOut > 0 ? "Paid In" : "Paid Out",
-        payIn: lastClosedSession.paidInOut > 0 ? lastClosedSession.paidInOut : 0,
-        payOut: lastClosedSession.paidInOut < 0 ? Math.abs(lastClosedSession.paidInOut) : 0,
-        cash: 0,
-        card: 0,
-        tips: 0,
-        runningBalance: balance,
-      });
-    }
-
-    // Also load transactions from localStorage if available
-    const savedTx = localStorage.getItem('closedSessionTransactions');
-    if (savedTx) {
-      try {
-        const txList = JSON.parse(savedTx) as Array<{ time: string; name: string; reason: string; payIn: number; payOut: number }>;
-        txList.forEach(tx => {
-          balance += tx.payIn - tx.payOut;
+      // Add order-based entries (employee transactions with cash/card/tips)
+      if (dayOrders && dayOrders.length > 0) {
+        dayOrders.forEach((order: any) => {
+          const cashAmount = order.payment_type === 'cash' ? Number(order.total) : 0;
+          const cardAmount = order.payment_type !== 'cash' ? Number(order.total) : 0;
+          const tipAmount = Number(order.tip_amount) || 0;
+          
+          if (cashAmount > 0) {
+            balance += cashAmount;
+          }
+          
           entries.push({
-            ...tx,
-            cash: tx.payIn,
+            time: format(new Date(order.created_at), 'hh:mm a'),
+            name: order.employee_name || getEmployeeName(),
+            reason: order.payment_type === 'cash' ? 'Cash Sale' : 'Card Sale',
+            payIn: cashAmount > 0 ? cashAmount : 0,
+            payOut: 0,
+            cash: cashAmount,
+            card: cardAmount,
+            tips: tipAmount,
+            runningBalance: balance,
+          });
+        });
+      }
+
+      // Add pay in/out transactions from DB
+      if (dbTransactions && dbTransactions.length > 0) {
+        dbTransactions.forEach((t: any) => {
+          const payIn = t.type === 'pay_in' ? Number(t.amount) : 0;
+          const payOut = t.type === 'pay_out' ? Number(t.amount) : 0;
+          balance += payIn - payOut;
+          entries.push({
+            time: format(new Date(t.created_at), 'hh:mm a'),
+            name: t.employee_name || getEmployeeName(),
+            reason: t.reason,
+            payIn,
+            payOut,
+            cash: payIn,
             card: 0,
             tips: 0,
             runningBalance: balance,
           });
         });
-      } catch {}
-    }
+      }
 
-    setCashLogEntries(entries);
-  }, [lastClosedSession, selectedLogDate]);
+      // If no DB data, fall back to localStorage-based entries
+      if (entries.length === 0 && lastClosedSession) {
+        const sessionDate = format(new Date(lastClosedSession.closedAt), 'yyyy-MM-dd');
+        if (sessionDate === selectedDateStr) {
+          const employeeName = getEmployeeName();
+          balance = lastClosedSession.startingCash;
+          entries.push({
+            time: format(new Date(lastClosedSession.closedAt), 'hh:mm a'),
+            name: employeeName,
+            reason: "Opening Cash",
+            payIn: lastClosedSession.startingCash,
+            payOut: 0,
+            cash: lastClosedSession.startingCash,
+            card: 0,
+            tips: 0,
+            runningBalance: balance,
+          });
+
+          if (lastClosedSession.cashSales > 0) {
+            balance += lastClosedSession.cashSales;
+            entries.push({
+              time: format(new Date(lastClosedSession.closedAt), 'hh:mm a'),
+              name: "Sales",
+              reason: "Cash Sales",
+              payIn: lastClosedSession.cashSales,
+              payOut: 0,
+              cash: lastClosedSession.cashSales,
+              card: 0,
+              tips: 0,
+              runningBalance: balance,
+            });
+          }
+
+          if (lastClosedSession.cashRefunds > 0) {
+            balance -= lastClosedSession.cashRefunds;
+            entries.push({
+              time: format(new Date(lastClosedSession.closedAt), 'hh:mm a'),
+              name: "Refund",
+              reason: "Cash Refunds",
+              payIn: 0,
+              payOut: lastClosedSession.cashRefunds,
+              cash: 0,
+              card: 0,
+              tips: 0,
+              runningBalance: balance,
+            });
+          }
+
+          if (lastClosedSession.paidInOut !== 0) {
+            balance += lastClosedSession.paidInOut;
+            entries.push({
+              time: format(new Date(lastClosedSession.closedAt), 'hh:mm a'),
+              name: "Manager",
+              reason: lastClosedSession.paidInOut > 0 ? "Paid In" : "Paid Out",
+              payIn: lastClosedSession.paidInOut > 0 ? lastClosedSession.paidInOut : 0,
+              payOut: lastClosedSession.paidInOut < 0 ? Math.abs(lastClosedSession.paidInOut) : 0,
+              cash: 0,
+              card: 0,
+              tips: 0,
+              runningBalance: balance,
+            });
+          }
+        }
+      }
+
+      setCashLogEntries(entries);
+    };
+    
+    loadCashLog();
+  }, [lastClosedSession, allClosedSessions, selectedLogDate]);
 
   const formattedLogDate = format(selectedLogDate, 'MM/dd/yyyy');
 
@@ -299,7 +381,7 @@ const CashManagementContent = ({
           </p>
         </div>
 
-        {/* Starting Cash */}
+        {/* Start New Drawer */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Start New Drawer</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <button ref={drawerRef} onClick={handleOpenDrawerDropdown} className="w-full flex items-center justify-between py-3.5 px-4 active:opacity-70 transition-opacity">
@@ -342,121 +424,160 @@ const CashManagementContent = ({
           OPEN DRAWER
         </button>
 
+        {/* Filter Tabs */}
+        <div className="mt-6 flex gap-3 mb-4">
+          <button
+            onClick={() => setActiveFilter('history')}
+            className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+              activeFilter === 'history'
+                ? 'bg-foreground text-background'
+                : 'bg-neutral-800/60 text-neutral-400 hover:text-foreground'
+            }`}
+          >
+            History
+          </button>
+          <button
+            onClick={() => setActiveFilter('cashlog')}
+            className={`px-5 py-2 rounded-full text-sm font-medium transition-all ${
+              activeFilter === 'cashlog'
+                ? 'bg-foreground text-background'
+                : 'bg-neutral-800/60 text-neutral-400 hover:text-foreground'
+            }`}
+          >
+            Cash Log
+          </button>
+        </div>
+
         {/* History Section */}
-        {lastClosedSession && (
-          <div className="mt-6">
-            <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">History</h2>
+        {activeFilter === 'history' && allClosedSessions.length > 0 && (
+          <div>
             <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-              <Table className="min-w-[1080px]">
-                <TableHeader>
-                  <TableRow className="border-neutral-700/50 hover:bg-transparent">
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Drawer</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Closed At</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Starting Cash</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Sales</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Refunds</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Paid In/Out</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Expected</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Closing Balance</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Difference</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow className="border-neutral-700/50 hover:bg-neutral-700/20">
-                    <TableCell className="text-foreground text-sm font-medium py-3 whitespace-nowrap">{lastClosedSession.drawer}</TableCell>
-                    <TableCell className="text-neutral-400 text-sm py-3 whitespace-nowrap">{formatDateTime(lastClosedSession.closedAt)}</TableCell>
-                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.startingCash)}</TableCell>
-                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.cashSales)}</TableCell>
-                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.cashRefunds)}</TableCell>
-                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">
-                      {`${lastClosedSession.paidInOut < 0 ? '-' : ''}${formatCurrency(Math.abs(lastClosedSession.paidInOut))}`}
-                    </TableCell>
-                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.expectedInDrawer)}</TableCell>
-                    <TableCell className="text-foreground text-sm font-medium py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.closingBalance)}</TableCell>
-                    <TableCell className={`text-sm font-medium py-3 text-right whitespace-nowrap ${lastClosedSession.difference === 0 ? 'text-foreground' : lastClosedSession.difference > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {`${lastClosedSession.difference >= 0 ? '' : '-'}${formatCurrency(Math.abs(lastClosedSession.difference))}`}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+              <div className="overflow-x-auto">
+                <Table className="min-w-[1200px]">
+                  <TableHeader>
+                    <TableRow className="border-neutral-700/50 hover:bg-transparent">
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Drawer</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Closed At</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Opening Cash</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Sales</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Refunds</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Paid In/Out</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Expected</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Closing Balance</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Difference</TableHead>
+                      <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Reason</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {allClosedSessions.map((session, idx) => (
+                      <TableRow key={idx} className="border-neutral-700/50 hover:bg-neutral-700/20">
+                        <TableCell className="text-foreground text-sm font-medium py-3 whitespace-nowrap">{session.drawer}</TableCell>
+                        <TableCell className="text-neutral-400 text-sm py-3 whitespace-nowrap">{formatDateTime(session.closedAt)}</TableCell>
+                        <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(session.startingCash)}</TableCell>
+                        <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(session.cashSales)}</TableCell>
+                        <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(session.cashRefunds)}</TableCell>
+                        <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">
+                          {`${session.paidInOut < 0 ? '-' : ''}${formatCurrency(Math.abs(session.paidInOut))}`}
+                        </TableCell>
+                        <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(session.expectedInDrawer)}</TableCell>
+                        <TableCell className="text-foreground text-sm font-medium py-3 text-right whitespace-nowrap">{formatCurrency(session.closingBalance)}</TableCell>
+                        <TableCell className={`text-sm font-medium py-3 text-right whitespace-nowrap ${session.difference === 0 ? 'text-foreground' : session.difference > 0 ? 'text-green-500' : 'text-red-500'}`}>
+                          {`${session.difference >= 0 ? '' : '-'}${formatCurrency(Math.abs(session.difference))}`}
+                        </TableCell>
+                        <TableCell className="text-neutral-400 text-sm py-3 whitespace-nowrap max-w-[200px] truncate">
+                          {session.closingReason || '-'}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Cash Log Section */}
-        <div className="mt-6">
-          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
-            <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-              <PopoverTrigger asChild>
-                <button className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity">
-                  <span className="text-foreground text-lg font-medium">Cash Log</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-neutral-400">{formattedLogDate}</span>
-                    <ChevronRight className="w-5 h-5 text-neutral-500" />
-                  </div>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700" align="end">
-                <Calendar
-                  mode="single"
-                  selected={selectedLogDate}
-                  onSelect={(date) => {
-                    if (date) {
-                      setSelectedLogDate(date);
-                      setIsDatePickerOpen(false);
-                    }
-                  }}
-                  initialFocus
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
+        {activeFilter === 'history' && allClosedSessions.length === 0 && (
+          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden py-8 text-center text-neutral-500 text-sm">
+            No drawer history available
           </div>
+        )}
 
-          {/* Cash Log Table */}
-          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[800px]">
-                <thead>
-                  <tr className="border-b border-neutral-700/50">
-                    <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Time</th>
-                    <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Name</th>
-                    <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Reason</th>
-                    <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay In</th>
-                    <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay Out</th>
-                    <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash</th>
-                    <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card</th>
-                    <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Tips</th>
-                    <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Balance</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cashLogEntries.length > 0 ? (
-                    cashLogEntries.map((entry, index) => (
-                      <tr key={index} className="border-b border-neutral-700/30 last:border-0">
-                        <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.time}</td>
-                        <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.name}</td>
-                        <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.reason}</td>
-                        <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payIn)}</td>
-                        <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payOut)}</td>
-                        <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cash)}</td>
-                        <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.card)}</td>
-                        <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.tips)}</td>
-                        <td className="text-foreground text-sm font-medium py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.runningBalance)}</td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan={9} className="text-neutral-500 text-sm py-8 text-center">
-                        No cash log entries for this date
-                      </td>
+        {/* Cash Log Section */}
+        {activeFilter === 'cashlog' && (
+          <div>
+            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
+              <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity">
+                    <span className="text-foreground text-lg font-medium">Cash Log</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-neutral-400">{formattedLogDate}</span>
+                      <ChevronRight className="w-5 h-5 text-neutral-500" />
+                    </div>
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700" align="end">
+                  <Calendar
+                    mode="single"
+                    selected={selectedLogDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        setSelectedLogDate(date);
+                        setIsDatePickerOpen(false);
+                      }
+                    }}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Cash Log Table */}
+            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[800px]">
+                  <thead>
+                    <tr className="border-b border-neutral-700/50">
+                      <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Time</th>
+                      <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Name</th>
+                      <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Reason</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay In</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay Out</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Tips</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Balance</th>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {cashLogEntries.length > 0 ? (
+                      cashLogEntries.map((entry, index) => (
+                        <tr key={index} className="border-b border-neutral-700/30 last:border-0">
+                          <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.time}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.name}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.reason}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payIn)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payOut)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cash)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.card)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.tips)}</td>
+                          <td className="text-foreground text-sm font-medium py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.runningBalance)}</td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={9} className="text-neutral-500 text-sm py-8 text-center">
+                          No cash log entries for this date
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* Drawer Dropdown Overlay */}

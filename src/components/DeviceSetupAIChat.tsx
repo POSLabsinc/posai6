@@ -1263,13 +1263,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                     <div className="rounded-2xl border border-foreground/[0.08] bg-foreground/[0.03] p-5 w-full max-w-xs text-center space-y-3">
                       <div className="flex items-center justify-center gap-2 text-foreground/60">
                         <Globe className="w-4 h-4" />
-                        <span className="text-xs font-medium uppercase tracking-wide">Activation URL</span>
+                        <span className="text-xs font-medium uppercase tracking-wide">{isSignIn ? "Sign-in URL" : "Activation URL"}</span>
                       </div>
                       <p className="text-lg font-bold text-primary">posai.com/pair</p>
                       <div className="h-px bg-foreground/[0.08]" />
                       <div className="flex items-center justify-center gap-2 text-foreground/60">
                         <Key className="w-4 h-4" />
-                        <span className="text-xs font-medium uppercase tracking-wide">Activation Code</span>
+                        <span className="text-xs font-medium uppercase tracking-wide">{isSignIn ? "Sign-in Code" : "Activation Code"}</span>
                       </div>
                       <div className="flex items-center justify-center gap-2">
                         {["Z", "6", "5", "J", "2", "U"].map((char, i) => (

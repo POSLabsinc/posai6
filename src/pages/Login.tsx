@@ -1086,86 +1086,102 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <div className="fixed inset-0 login-bg flex overflow-hidden">
           <div className="absolute inset-0 gradient-mesh opacity-30" />
           
-          <div className="relative z-10 flex w-full h-full">
-            {/* Left Panel - Activation Options */}
+          {/* Mobile: Full-screen AI chat */}
+          <div className="relative z-10 flex w-full h-full md:hidden">
+            <div className="flex-1 h-full">
+              <DeviceSetupAIChat
+                open={true}
+                onClose={() => setShowAIChat(false)}
+                deviceType="company"
+              />
+            </div>
+          </div>
+
+          {/* Desktop/Tablet: 50/50 split */}
+          <div className="relative z-10 hidden md:flex w-full h-full">
+            {/* Left Panel - Brand + Activation Options */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3 }}
-              className="w-[280px] lg:w-[320px] h-full border-r border-foreground/[0.08] flex flex-col p-5 shrink-0"
+              className="w-1/2 h-full border-r border-foreground/[0.08] flex flex-col items-center justify-center p-8 lg:p-12"
             >
-              {/* Header */}
-              <div className="flex items-center gap-3 mb-6">
-                <button
-                  onClick={() => setShowAIChat(false)}
-                  className="p-2 rounded-xl hover:bg-foreground/[0.06] transition-colors"
-                >
-                  <ArrowLeft className="w-4 h-4 text-foreground/50" />
-                </button>
-                <img src={eatosLogo} alt="POS AI" className="w-8 h-auto" />
-                <span className="text-sm font-semibold text-foreground">Activation</span>
-              </div>
+              <div className="w-full max-w-md flex flex-col items-center">
+                {/* Brand */}
+                <motion.img
+                  src={eatosLogo}
+                  alt="POS AI"
+                  className="w-20 lg:w-24 h-auto mb-4"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                />
+                <h1 className="text-xl lg:text-2xl font-bold text-foreground mb-1 text-center">
+                  Activate this device
+                </h1>
+                <p className="text-sm text-foreground/50 text-center mb-8">
+                  Choose a method below, or let AI guide you through the process
+                </p>
 
-              <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider mb-3 px-1">Activation Methods</p>
+                {/* Activation Options */}
+                <div className="w-full flex flex-col gap-2.5">
+                  <button
+                    onClick={() => { setShowAIChat(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium transition-all border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-foreground/[0.06] flex items-center justify-center shrink-0">
+                      <ScanLine className="w-4.5 h-4.5 text-foreground/50" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground/80">Scan QR Code</p>
+                      <p className="text-xs text-foreground/40">Use your phone camera</p>
+                    </div>
+                  </button>
 
-              {/* Option buttons */}
-              <div className="flex flex-col gap-2">
-                <button
-                  onClick={() => { setShowAIChat(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium transition-all border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-foreground/[0.06] flex items-center justify-center shrink-0">
-                    <ScanLine className="w-4 h-4 text-foreground/50" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground/80">Scan QR Code</p>
-                    <p className="text-xs text-foreground/40">Use your phone camera</p>
-                  </div>
-                </button>
+                  <button
+                    onClick={() => { setShowAIChat(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium transition-all border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-foreground/[0.06] flex items-center justify-center shrink-0">
+                      <Globe className="w-4.5 h-4.5 text-foreground/50" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground/80">Use a Browser</p>
+                      <p className="text-xs text-foreground/40">Visit posai.com/pair</p>
+                    </div>
+                  </button>
 
-                <button
-                  onClick={() => { setShowAIChat(false); }}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium transition-all border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-foreground/[0.06] flex items-center justify-center shrink-0">
-                    <Globe className="w-4 h-4 text-foreground/50" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground/80">Use a Browser</p>
-                    <p className="text-xs text-foreground/40">Visit posai.com/pair</p>
-                  </div>
-                </button>
+                  <button
+                    onClick={() => { setShowAIChat(false); setShowOtherOptions(true); }}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium transition-all border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-foreground/[0.06] flex items-center justify-center shrink-0">
+                      <Mail className="w-4.5 h-4.5 text-foreground/50" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground/80">Email / Phone</p>
+                      <p className="text-xs text-foreground/40">Receive activation code</p>
+                    </div>
+                  </button>
 
-                <button
-                  onClick={() => { setShowAIChat(false); setShowOtherOptions(true); }}
-                  className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium transition-all border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-foreground/[0.06] flex items-center justify-center shrink-0">
-                    <Mail className="w-4 h-4 text-foreground/50" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground/80">Email / Phone</p>
-                    <p className="text-xs text-foreground/40">Receive activation code</p>
-                  </div>
-                </button>
-
-                {/* Active AI option */}
-                <div className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium border border-primary/30 bg-primary/[0.08] text-foreground">
-                  <div className="w-8 h-8 rounded-lg bg-primary/[0.15] flex items-center justify-center shrink-0">
-                    <img src={aiColorfulIcon} alt="AI" className="w-4 h-4" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-foreground">Activate with AI</p>
-                    <p className="text-xs text-primary/70">AI-guided setup</p>
+                  {/* Active AI option */}
+                  <div className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium border border-primary/30 bg-primary/[0.08] text-foreground">
+                    <div className="w-9 h-9 rounded-lg bg-primary/[0.15] flex items-center justify-center shrink-0">
+                      <img src={aiColorfulIcon} alt="AI" className="w-4.5 h-4.5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Activate with AI</p>
+                      <p className="text-xs text-primary/70">AI-guided setup</p>
+                    </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Footer */}
-              <div className="mt-auto pt-4">
-                <button onClick={() => setShowTutorialOverlay(true)} className="text-xs text-foreground/30 hover:text-foreground/50 transition-colors">
-                  Need Help?
-                </button>
+                {/* Footer */}
+                <div className="mt-8">
+                  <button onClick={() => setShowTutorialOverlay(true)} className="text-xs text-foreground/30 hover:text-foreground/50 transition-colors">
+                    Need Help?
+                  </button>
+                </div>
               </div>
             </motion.div>
 
@@ -1174,7 +1190,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.3, delay: 0.1 }}
-              className="flex-1 h-full"
+              className="w-1/2 h-full"
             >
               <DeviceSetupAIChat
                 open={true}

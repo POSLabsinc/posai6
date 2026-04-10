@@ -263,6 +263,68 @@ const accountSuggestionChips: SuggestionChip[] = [
   { label: "Profile settings", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Show my profile settings" },
 ];
 
+// Sub-route suggestion chips for System sub-pages
+const systemAppearanceChips: SuggestionChip[] = [
+  { label: "Change theme", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Change the app theme" },
+  { label: "Adjust text size", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Adjust text size settings" },
+  { label: "Toggle bold text", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Toggle bold text on or off" },
+  { label: "Icon style", icon: <Sparkles className="w-3.5 h-3.5" />, prompt: "Change icon style settings" },
+];
+
+const systemControlCenterChips: SuggestionChip[] = [
+  { label: "Toggle KDS", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Toggle KDS display settings" },
+  { label: "Set auto-lock", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Configure auto-lock timer" },
+  { label: "Force clock-in", icon: <Check className="w-3.5 h-3.5" />, prompt: "Enable or disable force clock-in" },
+  { label: "Debug mode", icon: <Zap className="w-3.5 h-3.5" />, prompt: "Toggle debug mode" },
+];
+
+// Sub-route suggestion chips for Payments sub-pages
+const paymentsTaxesChips: SuggestionChip[] = [
+  { label: "Add new tax", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new tax rate" },
+  { label: "View active taxes", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all active taxes" },
+  { label: "Change tax type", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Change a tax type setting" },
+  { label: "Tax exemptions", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Configure tax exemptions" },
+];
+
+const paymentsGratuityChips: SuggestionChip[] = [
+  { label: "Set tip presets", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Configure tip preset amounts" },
+  { label: "Auto-gratuity rules", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Set auto-gratuity rules for large parties" },
+  { label: "Enable/disable tips", icon: <Check className="w-3.5 h-3.5" />, prompt: "Enable or disable tips" },
+  { label: "Tip on receipt", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show or hide tips on receipt" },
+];
+
+const paymentsDiscountsChips: SuggestionChip[] = [
+  { label: "Add discount", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new discount" },
+  { label: "View active discounts", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all active discounts" },
+  { label: "Set PIN requirement", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Require manager PIN for discounts" },
+  { label: "Discount schedule", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Configure discount schedules" },
+];
+
+const paymentsServiceChargeChips: SuggestionChip[] = [
+  { label: "Add service charge", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new service charge" },
+  { label: "View charges", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show all service charges" },
+  { label: "Auto-apply rules", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Configure auto-apply rules for service charges" },
+];
+
+const paymentsCheckoutChips: SuggestionChip[] = [
+  { label: "Toggle quick amounts", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Toggle quick amount buttons at checkout" },
+  { label: "Split check", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Enable or disable split check" },
+  { label: "Signature settings", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Configure signature requirements" },
+  { label: "Receipt options", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Configure receipt options" },
+];
+
+const paymentsMethodsChips: SuggestionChip[] = [
+  { label: "Enable/disable methods", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Enable or disable payment methods" },
+  { label: "View active methods", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show all active payment methods" },
+  { label: "Reorder methods", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Change the order of payment methods" },
+];
+
+const paymentsCashMgmtChips: SuggestionChip[] = [
+  { label: "Cash drawer setup", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Configure cash drawer settings" },
+  { label: "Pay in/out", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Manage pay-ins and pay-outs" },
+  { label: "Reconciliation", icon: <Eye className="w-3.5 h-3.5" />, prompt: "View cash reconciliation settings" },
+];
+
 const contextChipsMap: Record<string, SuggestionChip[]> = {
   menu: menuSuggestionChips,
   system: systemSuggestionChips,
@@ -276,6 +338,17 @@ const contextChipsMap: Record<string, SuggestionChip[]> = {
   reports: reportsSuggestionChips,
   workforce: workforceSuggestionChips,
   account: accountSuggestionChips,
+  // System sub-routes
+  'system-appearance': systemAppearanceChips,
+  'system-control-center': systemControlCenterChips,
+  // Payments sub-routes
+  'payments-taxes': paymentsTaxesChips,
+  'payments-gratuity': paymentsGratuityChips,
+  'payments-discounts': paymentsDiscountsChips,
+  'payments-service-charge': paymentsServiceChargeChips,
+  'payments-checkout-options': paymentsCheckoutChips,
+  'payments-payment-methods': paymentsMethodsChips,
+  'payments-cash-management': paymentsCashMgmtChips,
 };
 
 const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsContentProps) => {
@@ -325,6 +398,47 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     };
     fetchProducts();
   }, [orderMode]);
+
+  // Context-to-welcome mapping for auto-welcome messages
+  const contextWelcomeMap: Record<string, { title: string; description: string; children?: string[] }> = {
+    system: { title: "System", description: "Here you can configure system-level settings. Choose a section:", children: ["Appearance", "Control Center", "AI Integration"] },
+    payments: { title: "Payments", description: "Manage all payment configurations. Choose a section:", children: ["Taxes", "Gratuity", "Discounts", "Service Charge", "Payment Methods", "Cash Management", "Checkout Options"] },
+    'system-appearance': { title: "Appearance", description: "Customize the look and feel of your Point of Sale:" },
+    'system-control-center': { title: "Control Center", description: "Manage operational controls and system behavior:" },
+    'payments-taxes': { title: "Taxes", description: "Manage tax rates, exemptions, and pricing modes:" },
+    'payments-gratuity': { title: "Gratuity", description: "Configure tip presets, auto-gratuity, and distribution:" },
+    'payments-discounts': { title: "Discounts", description: "Create and manage discounts, eligibility, and tracking:" },
+    'payments-service-charge': { title: "Service Charge", description: "Configure automatic service charges and surcharges:" },
+    'payments-checkout-options': { title: "Checkout Options", description: "Customize checkout flow, receipts, and signatures:" },
+    'payments-payment-methods': { title: "Payment Methods", description: "Configure accepted payment types and visibility:" },
+    'payments-cash-management': { title: "Cash Management", description: "Track cash drawers, pay-ins/outs, and reconciliation:" },
+  };
+
+  const prevContextRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (!context || context === prevContextRef.current) return;
+    prevContextRef.current = context;
+    const welcomeInfo = contextWelcomeMap[context];
+    if (!welcomeInfo) return;
+
+    const chips = contextChipsMap[context];
+    const quickReplies = welcomeInfo.children
+      ? welcomeInfo.children
+      : chips?.map(c => c.label) || [];
+
+    const welcomeMsg: Message = {
+      id: `welcome-${context}-${Date.now()}`,
+      role: "assistant",
+      content: `You're in **${welcomeInfo.title}** settings. ${welcomeInfo.description}`,
+      timestamp: new Date(),
+      quickReplies: quickReplies.length > 0 ? quickReplies : undefined,
+    };
+
+    setMessages(prev => {
+      const filtered = prev.filter(m => !m.id.startsWith('welcome-'));
+      return [...filtered, welcomeMsg];
+    });
+  }, [context]);
 
   const ORDER_TYPES = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE"];
 

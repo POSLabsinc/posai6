@@ -1340,10 +1340,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                           {activationSendingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-5 h-5" />Send Code</>}
                         </button>
                       </div>
-                      <button onClick={() => { setShowOtherOptions(false); setActivationCodeSent(false); setActivationCode(""); setActivationContactValue(""); }}
-                        className="mt-4 text-sm text-foreground/40 hover:text-foreground/60 transition-colors">
-                        Back to options
-                      </button>
+                      <div className="mt-8 flex flex-col gap-3">
+                        <button onClick={() => { setShowOtherOptions(false); setActivationCodeSent(false); setActivationCode(""); setActivationContactValue(""); }}
+                          className="w-full py-3 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.04] hover:bg-foreground/[0.08] text-sm text-foreground/60 hover:text-foreground/80 transition-all flex items-center justify-center gap-2">
+                          <Globe className="w-4 h-4" />
+                          Activate via browser
+                        </button>
+                      </div>
                     </>
                   ) : (
                     <>
@@ -7621,6 +7624,19 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         )}
                       </button>
                     </div>
+                    <div className="mt-8 flex flex-col gap-3">
+                      <button onClick={() => {
+                        setExistingUserSelectedOption(null);
+                        setExistingUserCodeSent(false);
+                        setExistingUserVerificationCode("");
+                        setExistingUserVerificationError("");
+                        setExistingUserContact("");
+                      }}
+                        className="w-full py-3 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.04] hover:bg-foreground/[0.08] text-sm text-foreground/60 hover:text-foreground/80 transition-all flex items-center justify-center gap-2">
+                        <Globe className="w-4 h-4" />
+                        Sign in via browser
+                      </button>
+                    </div>
                   </>
                 ) : (
                   /* OTP entry */
@@ -7717,21 +7733,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             transition={{ delay: 0.3 }}
             className="mt-6 w-full flex flex-col items-center gap-3"
           >
-            {showExistingOtherOptions && (
-              <button
-                onClick={() => {
-                  setExistingUserSelectedOption(null);
-                  setExistingUserCodeSent(false);
-                  setExistingUserVerificationCode("");
-                  setExistingUserVerificationError("");
-                  setExistingUserContact("");
-                  setExistingUserSelectedOption(null);
-                }}
-                className="px-6 py-2.5 rounded-full border border-foreground/[0.12] bg-foreground/[0.05] text-sm text-foreground/60 hover:text-foreground/80 hover:bg-foreground/[0.08] transition-all"
-              >
-                Back to options
-              </button>
-            )}
             <button
               onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"

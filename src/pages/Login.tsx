@@ -7203,13 +7203,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
                         <div>
                           <p className="text-sm text-foreground/70 mb-3">When asked, enter this code:</p>
-                          <div className="flex gap-2">
+                          <div className="flex gap-1.5 sm:gap-2">
                             {generatedDeviceCode.split('').map((char, i) => (
                               <div
                                 key={i}
-                                className="w-12 h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center"
+                                className="w-10 sm:w-12 h-12 sm:h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center"
                               >
-                                <span className="text-xl font-bold text-foreground">{char}</span>
+                                <span className="text-lg sm:text-xl font-bold text-foreground">{char}</span>
                               </div>
                             ))}
                           </div>

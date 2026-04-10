@@ -660,19 +660,40 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
   useEffect(() => {
     if (currentStep === "chat-browser-connected" || currentStep === "chat-qr-verifying" || currentStep === "chat-email-phone-verifying") {
       const timer = setTimeout(() => {
-        const connectedMsg: Message = {
-          id: Date.now().toString(),
-          role: "assistant",
-          content: "All set! Your device is now activated.\n\nWhat would you like to name this device?\n\nSuggested: **Rustic Table POS 1**"
-        };
-        setMessages((prev) => [...prev, connectedMsg]);
-        setChatDeviceName("Rustic Table POS 1");
-        setCurrentStep("chat-device-name");
+        if (isSignIn) {
+          // Sign-in mode: verify and redirect to clock-in
+          const successMsg: Message = {
+            id: Date.now().toString(),
+            role: "assistant",
+            content: "✅ Identity verified successfully!\n\nYou're now signed in. Redirecting you..."
+          };
+          setMessages((prev) => [...prev, successMsg]);
+          setCurrentStep("chat");
+          setTimeout(() => {
+            localStorage.setItem("pos_device_session", JSON.stringify({
+              deviceId: `device_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+              deviceType: "company",
+              deviceName: "POS Terminal",
+              trustedAt: new Date().toISOString(),
+            }));
+            window.location.href = "/";
+          }, 2000);
+        } else {
+          // Activation mode: ask for device name
+          const connectedMsg: Message = {
+            id: Date.now().toString(),
+            role: "assistant",
+            content: "All set! Your device is now activated.\n\nWhat would you like to name this device?\n\nSuggested: **Rustic Table POS 1**"
+          };
+          setMessages((prev) => [...prev, connectedMsg]);
+          setChatDeviceName("Rustic Table POS 1");
+          setCurrentStep("chat-device-name");
+        }
       }, 5000);
 
       return () => clearTimeout(timer);
     }
-  }, [currentStep]);
+  }, [currentStep, isSignIn]);
 
   // Invite code input handlers (personal device)
   const handleInviteCodeInput = useCallback((index: number, value: string) => {

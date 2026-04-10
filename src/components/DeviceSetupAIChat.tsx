@@ -1044,6 +1044,100 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                   )}
                 </div>
 
+                {/* AI Chat QR Options - shown after AI suggests QR */}
+                {currentStep === "chat-qr-options" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, ease: "easeOut" }}
+                    className="flex flex-wrap gap-2 pl-7 pt-3 pb-2"
+                  >
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, scan QR" };
+                        const assistantMsg: Message = {
+                          id: (Date.now() + 1).toString(),
+                          role: "assistant",
+                          content: "Great!\n\nPlease use your phone or tablet to scan the QR code shown on this screen.\n\nOnce scanned, a link will open on your phone. Just follow the steps there.\n\nI'll wait here while you complete it on your phone..."
+                        };
+                        setMessages(prev => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("chat-qr-scanning");
+                      }}
+                      className="px-4 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      Yes, scan QR
+                    </button>
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Use browser instead" };
+                        setMessages(prev => [...prev, userMsg]);
+                        setCurrentStep("chat");
+                        streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Use browser instead" }]);
+                      }}
+                      className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      Use browser instead
+                    </button>
+                    <button
+                      onClick={() => {
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Send code to email/phone" };
+                        setMessages(prev => [...prev, userMsg]);
+                        setCurrentStep("chat");
+                        streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Send code to email/phone" }]);
+                      }}
+                      className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+                    >
+                      Send code to email/phone
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* QR Code display after user selects scan QR */}
+                {currentStep === "chat-qr-scanning" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex flex-col items-center gap-4 pl-7 pt-4 pb-4"
+                  >
+                    <div className="bg-white p-4 rounded-2xl shadow-lg">
+                      <QRCodeSVG
+                        value="https://posai.com/pair?device=activate"
+                        size={200}
+                        bgColor="#FFFFFF"
+                        fgColor="#000000"
+                        level="M"
+                        includeMargin={false}
+                      />
+                    </div>
+                    <p className="text-xs text-foreground/40 text-center">Scan with your phone camera</p>
+                    <div className="flex gap-2 pt-1">
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Done, I scanned it" };
+                          setMessages(prev => [...prev, userMsg]);
+                          setCurrentStep("chat");
+                          streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Done, I scanned it" }]);
+                        }}
+                        className="px-4 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        Done
+                      </button>
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Having trouble scanning" };
+                          setMessages(prev => [...prev, userMsg]);
+                          setCurrentStep("chat");
+                          streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Having trouble scanning" }]);
+                        }}
+                        className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        Need help
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
                 {/* Step-based action buttons */}
                 {currentStep === "activation-methods" && !isLoading && (
                   <motion.div

@@ -1185,7 +1185,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </div>
 
           {showTutorialOverlay && (
-            <DeviceSetupTutorialOverlay onClose={() => setShowTutorialOverlay(false)} />
+            <DeviceSetupTutorialOverlay open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} variant="new" />
           )}
         </div>
       );

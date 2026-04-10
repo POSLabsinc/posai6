@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, ChevronDown, Calendar, Clock, Filter, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, ChevronDown, Calendar, Clock, Filter, ArrowUpRight, ArrowDownLeft, Timer } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { InlineDatePicker } from "@/components/ui/inline-date-picker";
@@ -203,18 +203,9 @@ export default function ShiftSummaryModal({
       status: o.status,
       raw: o,
     }));
-    const cashRows: UnifiedRow[] = cashTxs.map(c => ({
-      id: c.id,
-      kind: c.type === "pay_in" ? "pay_in" : "pay_out",
-      paymentType: c.type === "pay_in" ? "Pay In" : "Pay Out",
-      time: c.created_at,
-      checkNumber: c.reason,
-      amount: Number(c.amount),
-      tip: 0,
-      status: c.type,
-    }));
-    return [...orderRows, ...cashRows].sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-  }, [ticketOrders, cashTxs]);
+    // Only show order rows in the transaction table (Pay In/Pay Out removed)
+    return orderRows.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+  }, [ticketOrders]);
 
   // Metrics
   const paidOrders = useMemo(() => ticketOrders.filter(o => o.status === "PAID" || o.payment_status === "completed"), [ticketOrders]);
@@ -465,12 +456,12 @@ export default function ShiftSummaryModal({
         {/* Shift info bar */}
         <div className="flex items-center gap-4 px-6 py-2.5 bg-white/[0.03] border-b border-white/10 shrink-0 text-xs text-neutral-400">
           <span>{clockInDate}</span>
-          <span>{clockInTime} - now</span>
-          <span>Total: {totalHours}h</span>
+          <span>{clockInTime || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - now</span>
+          <span>Total: {totalHours || "0.0"}h</span>
         </div>
 
-        {/* Key metrics */}
-        <div className="grid grid-cols-3 gap-3 px-6 py-4 shrink-0">
+        {/* Key metrics - 4 cards */}
+        <div className="grid grid-cols-4 gap-3 px-6 py-4 shrink-0">
           <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
             <div className="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center">
               <CreditCard className="w-5 h-5 text-emerald-400" />
@@ -498,9 +489,18 @@ export default function ShiftSummaryModal({
               <p className="text-xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
+          <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
+            <div className="w-10 h-10 rounded-lg bg-blue-500/15 flex items-center justify-center">
+              <Timer className="w-5 h-5 text-blue-400" />
+            </div>
+            <div>
+              <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Cash Time</p>
+              <p className="text-xl font-bold text-white">{totalHours || "0.0"}h</p>
+            </div>
+          </div>
         </div>
 
-        {/* Bottom summary row */}
+        {/* Bottom summary row - without Pay In / Pay Out */}
         <div className="flex items-center px-6 py-3 shrink-0 gap-8 border-b border-white/10">
           <div>
             <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Total</p>
@@ -509,14 +509,6 @@ export default function ShiftSummaryModal({
           <div>
             <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Cash Drop</p>
             <p className="text-2xl font-bold text-white mt-0.5">$ {totalCashDrop.toFixed(2)}</p>
-          </div>
-          <div>
-            <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Pay In</p>
-            <p className="text-xl font-bold text-emerald-400 mt-0.5">$ {totalPayIn.toFixed(2)}</p>
-          </div>
-          <div>
-            <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Pay Out</p>
-            <p className="text-xl font-bold text-red-400 mt-0.5">$ {totalPayOut.toFixed(2)}</p>
           </div>
         </div>
 
@@ -540,37 +532,32 @@ export default function ShiftSummaryModal({
               <tbody>
                 {unifiedRows.map(row => {
                   const isCash = row.paymentType.toLowerCase() === "cash";
-                  const isPayIn = row.kind === "pay_in";
-                  const isPayOut = row.kind === "pay_out";
-                  const isOrder = row.kind === "order";
-                  const isPending = isOrder && row.status !== "PAID" && row.status !== "CANCELLED";
+                  const isPending = row.status !== "PAID" && row.status !== "CANCELLED";
 
                   return (
                     <tr
                       key={row.id}
-                      onClick={() => isOrder && row.raw && openCheckDetail(row.raw)}
-                      className={`border-b border-white/5 transition-colors ${isOrder ? "hover:bg-white/[0.05] cursor-pointer" : ""}`}
+                      onClick={() => row.raw && openCheckDetail(row.raw)}
+                      className="border-b border-white/5 transition-colors hover:bg-white/[0.05] cursor-pointer"
                     >
                       <td className="py-3 pr-4">
-                        <span className={`inline-flex items-center gap-2 text-xs font-medium ${
-                          isPayIn ? "text-emerald-300" : isPayOut ? "text-red-300" : isCash ? "text-amber-300" : "text-emerald-300"
-                        }`}>
-                          {isPayIn ? <ArrowDownLeft className="w-3.5 h-3.5" /> : isPayOut ? <ArrowUpRight className="w-3.5 h-3.5" /> : isCash ? <Banknote className="w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
+                        <span className={`inline-flex items-center gap-2 text-xs font-medium ${isCash ? "text-amber-300" : "text-emerald-300"}`}>
+                          {isCash ? <Banknote className="w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
                           {row.paymentType}
                         </span>
                       </td>
                       <td className="py-3 pr-4 text-xs text-neutral-400">{formatTime(row.time)}</td>
                       <td className="py-3 pr-4">
-                        <span className={`text-xs font-medium ${isPending ? "text-amber-300" : isPayIn || isPayOut ? "text-neutral-400" : "text-white"}`}>
+                        <span className={`text-xs font-medium ${isPending ? "text-amber-300" : "text-white"}`}>
                           {row.checkNumber}
                           {isPending && <span className="ml-1.5 text-[10px] text-amber-400">(pending)</span>}
                         </span>
                       </td>
-                      <td className={`py-3 pl-4 text-xs font-medium text-right ${isPayIn ? "text-emerald-300" : isPayOut ? "text-red-300" : "text-white"}`}>
-                        {isPayOut ? "-" : ""}$ {row.amount.toFixed(2)}
+                      <td className="py-3 pl-4 text-xs font-medium text-right text-white">
+                        $ {row.amount.toFixed(2)}
                       </td>
                       <td className="py-3 pl-4 text-xs text-neutral-300 text-right">
-                        {isOrder ? `$ ${row.tip.toFixed(2)}` : "-"}
+                        $ {row.tip.toFixed(2)}
                       </td>
                     </tr>
                   );

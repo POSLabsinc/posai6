@@ -1232,8 +1232,8 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                   </motion.div>
                 )}
 
-                {/* Browser connected - verifying then showing connected */}
-                {currentStep === "chat-browser-connected" && !isLoading && (
+                {/* Verifying spinner - shared for QR, browser, email/phone */}
+                {(currentStep === "chat-browser-connected" || currentStep === "chat-qr-verifying" || currentStep === "chat-email-phone-verifying") && !isLoading && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1253,7 +1253,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="flex flex-col gap-3 pl-7 pt-4 pb-4 w-full max-w-sm"
+                    className="flex flex-col gap-3 pl-7 pt-4 pb-4 w-full"
                   >
                     <div className="relative">
                       <input

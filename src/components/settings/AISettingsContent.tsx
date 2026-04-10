@@ -399,6 +399,47 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     fetchProducts();
   }, [orderMode]);
 
+  // Context-to-welcome mapping for auto-welcome messages
+  const contextWelcomeMap: Record<string, { title: string; description: string; children?: string[] }> = {
+    system: { title: "System", description: "Here you can configure system-level settings. Choose a section:", children: ["Appearance", "Control Center", "AI Integration"] },
+    payments: { title: "Payments", description: "Manage all payment configurations. Choose a section:", children: ["Taxes", "Gratuity", "Discounts", "Service Charge", "Payment Methods", "Cash Management", "Checkout Options"] },
+    'system-appearance': { title: "Appearance", description: "Customize the look and feel of your Point of Sale:" },
+    'system-control-center': { title: "Control Center", description: "Manage operational controls and system behavior:" },
+    'payments-taxes': { title: "Taxes", description: "Manage tax rates, exemptions, and pricing modes:" },
+    'payments-gratuity': { title: "Gratuity", description: "Configure tip presets, auto-gratuity, and distribution:" },
+    'payments-discounts': { title: "Discounts", description: "Create and manage discounts, eligibility, and tracking:" },
+    'payments-service-charge': { title: "Service Charge", description: "Configure automatic service charges and surcharges:" },
+    'payments-checkout-options': { title: "Checkout Options", description: "Customize checkout flow, receipts, and signatures:" },
+    'payments-payment-methods': { title: "Payment Methods", description: "Configure accepted payment types and visibility:" },
+    'payments-cash-management': { title: "Cash Management", description: "Track cash drawers, pay-ins/outs, and reconciliation:" },
+  };
+
+  const prevContextRef = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (!context || context === prevContextRef.current) return;
+    prevContextRef.current = context;
+    const welcomeInfo = contextWelcomeMap[context];
+    if (!welcomeInfo) return;
+
+    const chips = contextChipsMap[context];
+    const quickReplies = welcomeInfo.children
+      ? welcomeInfo.children
+      : chips?.map(c => c.label) || [];
+
+    const welcomeMsg: Message = {
+      id: `welcome-${context}-${Date.now()}`,
+      role: "assistant",
+      content: `You're in **${welcomeInfo.title}** settings. ${welcomeInfo.description}`,
+      timestamp: new Date(),
+      quickReplies: quickReplies.length > 0 ? quickReplies : undefined,
+    };
+
+    setMessages(prev => {
+      const filtered = prev.filter(m => !m.id.startsWith('welcome-'));
+      return [...filtered, welcomeMsg];
+    });
+  }, [context]);
+
   const ORDER_TYPES = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE"];
 
   const isOrderIntent = (text: string) => {

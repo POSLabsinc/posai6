@@ -46,7 +46,7 @@ const SettingsItem = ({ iconSrc, label, iconBgColor, onClick, isActive, tourId }
     <button
       onClick={onClick}
       data-tour={tourId}
-      className={`flex items-center gap-4 w-full py-3 px-3 active:opacity-70 transition-all rounded-full ${isActive ? 'bg-surface-elevated dark:bg-neutral-700/60 text-foreground' : ''}`}
+      className={`flex items-center gap-4 w-full py-3 px-3 active:opacity-70 transition-all rounded-full settings-nav-item ${isActive ? 'settings-nav-active text-foreground' : ''}`}
     >
       <div 
         className={`${containerSize} rounded-lg flex items-center justify-center transition-all`}

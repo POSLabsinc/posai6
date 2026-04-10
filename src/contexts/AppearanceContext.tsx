@@ -91,21 +91,55 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
     return saved ? parseInt(saved, 10) : DEFAULT_BRIGHTNESS;
   });
 
+  // Hydrate from database on mount (overrides localStorage with DB values)
+  useEffect(() => {
+    const hydrate = async () => {
+      const [dbTextSize, dbBoldText, dbBrightness, dbIconStyle, dbIconSize] = await Promise.all([
+        loadPreference('textSize'),
+        loadPreference('boldText'),
+        loadPreference('brightness'),
+        loadPreference('iconStyle'),
+        loadPreference('iconSize'),
+      ]);
+      if (dbTextSize) {
+        const parsed = parseInt(dbTextSize, 10);
+        if (!isNaN(parsed)) { setTextSize(parsed); localStorage.setItem('textSize', dbTextSize); }
+      }
+      if (dbBoldText !== null) {
+        setBoldText(dbBoldText === 'true');
+        localStorage.setItem('boldText', dbBoldText);
+      }
+      if (dbBrightness) {
+        const parsed = parseInt(dbBrightness, 10);
+        if (!isNaN(parsed)) { setBrightnessState(parsed); localStorage.setItem('brightness', dbBrightness); }
+      }
+      if (dbIconStyle) {
+        setIconStyle(dbIconStyle as IconStyle);
+        localStorage.setItem('iconStyle', dbIconStyle);
+      }
+      if (dbIconSize) {
+        setIconSize(dbIconSize as IconSize);
+        localStorage.setItem('iconSize', dbIconSize);
+      }
+    };
+    hydrate();
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('iconStyle', iconStyle);
+    savePreference('iconStyle', iconStyle);
   }, [iconStyle]);
 
   useEffect(() => {
     localStorage.setItem('iconSize', iconSize);
+    savePreference('iconSize', iconSize);
   }, [iconSize]);
 
   useEffect(() => {
     localStorage.setItem('textSize', textSize.toString());
-    // Apply text size globally by setting the root font-size on html element
-    // This affects all rem-based Tailwind sizing since rem is based on html font-size
+    savePreference('textSize', textSize.toString());
     const scaleFactor = textSize / DEFAULT_TEXT_SIZE;
     document.documentElement.style.fontSize = `${textSize}px`;
-    // Also set CSS variable for components that use it directly
     document.documentElement.style.setProperty('--app-font-size', `${textSize}px`);
     document.documentElement.style.setProperty('--app-font-scale', scaleFactor.toString());
   }, [textSize]);

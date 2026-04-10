@@ -35,7 +35,7 @@ import DeviceSetupAIChat from "@/components/DeviceSetupAIChat";
 import BusinessSearchOnboarding from "@/components/BusinessSearchOnboarding";
 import MerchantOnboarding from "@/components/MerchantOnboarding";
 import { countryCodes } from "@/components/CountryCodeSelector";
-import DeviceSetupTutorialOverlay from "@/components/DeviceSetupTutorialOverlay";
+import DeviceSetupHelpCard from "@/components/DeviceSetupHelpCard";
 
 
 import { revenueCenters, employeePinMapping, locationEmployees, getRoleIcon, getRoleBadgeStyle, getTimeOfDayInfo, PIN_LENGTH, DeviceType } from "@/data/loginData";

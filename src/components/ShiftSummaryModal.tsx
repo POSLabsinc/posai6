@@ -611,7 +611,15 @@ export default function ShiftSummaryModal({
               <AvatarFallback className="text-sm font-semibold bg-neutral-700 text-white">{initials}</AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-lg font-bold text-white tracking-wide">SHIFT SUMMARY</h2>
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-bold text-white tracking-wide">SHIFT SUMMARY</h2>
+                <div className="flex items-center gap-1.5 text-sm text-neutral-400">
+                  <Clock className="w-4 h-4" />
+                  <span>{clockInTime || "--:--"} - now</span>
+                  <span className="mx-1">|</span>
+                  <span>Total: {totalHours || "0.0"}h</span>
+                </div>
+              </div>
               <p className="text-sm text-neutral-400">{employeeName} - {employeeRole}</p>
             </div>
           </div>
@@ -736,15 +744,8 @@ export default function ShiftSummaryModal({
           </div>
         </div>
 
-        {/* Shift time bar */}
-        <div className="flex items-center gap-6 px-6 py-4 bg-white/[0.04] border-b border-white/10 shrink-0">
-          <div className="flex items-center gap-2">
-            <Clock className="w-5 h-5 text-neutral-400" />
-            <span className="text-lg font-semibold text-white">{clockInTime || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - now</span>
-          </div>
-          <div className="h-5 w-px bg-white/10" />
-          <span className="text-lg font-semibold text-white">Total: {totalHours || "0.0"}h</span>
-        </div>
+
+
 
         {/* Key metrics - 4 cards */}
         <div className="grid grid-cols-4 gap-3 px-6 py-4 shrink-0">
@@ -786,7 +787,7 @@ export default function ShiftSummaryModal({
           </div>
         </div>
 
-        {/* Bottom summary row - Total and Tips Payable only (no Cash Drop) */}
+        {/* Bottom summary row */}
         <div className="flex items-center px-6 py-3 shrink-0 gap-8 border-b border-white/10">
           <div>
             <p className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Total</p>

@@ -7458,6 +7458,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <p className="text-sm sm:text-base text-foreground/50 text-center max-w-md md:max-w-none">
               To access this Point of Sale, sign in using one of the options below
             </p>
+            <button
+              onClick={() => setShowSignInAIChat(true)}
+              className="mt-4 px-6 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
+              <span>Sign in with AI</span>
+            </button>
           </motion.div>
 
           <div className="mt-4 sm:mt-6 md:mt-8" />
@@ -7550,6 +7557,17 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                           </div>
                         </div>
                       </div>
+                    </div>
+                    {/* Additional options below Option 2 */}
+                    <div className="mt-8 flex flex-col gap-3">
+                      <button onClick={() => {
+                        setExistingUserSelectedOption("code");
+                        setShowExistingOtherOptions(true);
+                      }}
+                        className="w-full py-3 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.04] hover:bg-foreground/[0.08] text-sm text-foreground/60 hover:text-foreground/80 transition-all flex items-center justify-center gap-2">
+                        <Mail className="w-4 h-4" />
+                        Sign in via email / phone
+                      </button>
                     </div>
                   </>
                 ) : !existingUserCodeSent ? (
@@ -7693,36 +7711,28 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Footer: Try another way (centered button) + Need Help */}
+          {/* Footer */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
             className="mt-6 w-full flex flex-col items-center gap-3"
           >
-            <button
-              onClick={() => {
-                if (showExistingOtherOptions) {
+            {showExistingOtherOptions && (
+              <button
+                onClick={() => {
                   setExistingUserSelectedOption(null);
                   setExistingUserCodeSent(false);
                   setExistingUserVerificationCode("");
                   setExistingUserVerificationError("");
                   setExistingUserContact("");
-                } else {
-                  setExistingUserSelectedOption("code");
-                }
-              }}
-              className="px-6 py-2.5 rounded-full border border-foreground/[0.12] bg-foreground/[0.05] text-sm text-foreground/60 hover:text-foreground/80 hover:bg-foreground/[0.08] transition-all"
-            >
-              {showExistingOtherOptions ? "Back to options" : "Sign in via email / phone"}
-            </button>
-            <button
-              onClick={() => setShowSignInAIChat(true)}
-              className="px-6 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
-              <span>Sign in with AI</span>
-            </button>
+                  setShowExistingOtherOptions(false);
+                }}
+                className="px-6 py-2.5 rounded-full border border-foreground/[0.12] bg-foreground/[0.05] text-sm text-foreground/60 hover:text-foreground/80 hover:bg-foreground/[0.08] transition-all"
+              >
+                Back to options
+              </button>
+            )}
             <button
               onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"

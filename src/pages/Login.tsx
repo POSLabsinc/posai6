@@ -1106,6 +1106,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             </p>
           </motion.div>
 
+          <div className="mt-8" />
+
           <AnimatePresence mode="wait">
             {/* Two-column layout - QR on left, right side toggles between Browser and Activate with Code */}
             <motion.div
@@ -7122,6 +7124,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               To access this Point of Sale, sign in using one of the options below
             </p>
           </motion.div>
+
+          <div className="mt-8" />
 
           <AnimatePresence mode="wait">
             <motion.div

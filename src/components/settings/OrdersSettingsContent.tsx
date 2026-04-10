@@ -1,6 +1,7 @@
 import { ChevronLeft } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useState, useEffect, useCallback } from "react";
 import { SettingsManager, OrdersSettings } from "@/lib/settingsManager";

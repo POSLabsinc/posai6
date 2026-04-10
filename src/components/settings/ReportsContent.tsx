@@ -6,6 +6,7 @@ import { format } from "date-fns";
 import ManagerPinScreen from "@/components/ManagerPinScreen";
 import BottomNavigation from "@/components/BottomNavigation";
 import settingsReportsIcon from "@/assets/icons/settings-reports.png";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { InlineDatePicker } from "@/components/ui/inline-date-picker";
 import { InlineTimePicker } from "@/components/ui/inline-time-picker";
 import { cn } from "@/lib/utils";

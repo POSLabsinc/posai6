@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronRight, ChevronLeft, Pencil, Search, LocateFixed } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import roleIcon from "@/assets/icons/role-icon.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import SettingsIcon from "@/components/settings/SettingsIcon";
@@ -141,6 +142,9 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
             </button>
           )}
           <h1 className="text-base font-medium text-foreground">Personal Information</h1>
+          <div className="absolute right-4 hidden md:flex overflow-visible">
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
 

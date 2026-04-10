@@ -1,5 +1,6 @@
 import { ChevronLeft, Check } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useThemePresets, themePresets } from "@/contexts/ThemePresetsContext";
 
 // Theme descriptions for the preview section
@@ -37,6 +38,9 @@ const ThemePresets = () => {
           <ChevronLeft className="w-4 h-4 text-foreground" />
         </button>
         <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Theme Presets</h1>
+        <div className="md:hidden overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
+        </div>
       </div>
 
       {/* Scrollable Content */}

@@ -5,6 +5,7 @@ import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContex
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useMenuPreferences } from "@/hooks/useMenuPreferences";
 import { SettingsManager } from "@/lib/settingsManager";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import {
   Select,
   SelectContent,

@@ -969,7 +969,11 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                   >
                     <button
                       onClick={() => {
-                        setShowOnboarding(true);
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, I'm new" };
+                        const newMessages = [userMsg];
+                        setMessages(newMessages);
+                        setCurrentStep("chat");
+                        streamChat(newMessages);
                       }}
                       className="px-5 py-2 rounded-full text-lg font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >

@@ -532,37 +532,32 @@ export default function ShiftSummaryModal({
               <tbody>
                 {unifiedRows.map(row => {
                   const isCash = row.paymentType.toLowerCase() === "cash";
-                  const isPayIn = row.kind === "pay_in";
-                  const isPayOut = row.kind === "pay_out";
-                  const isOrder = row.kind === "order";
-                  const isPending = isOrder && row.status !== "PAID" && row.status !== "CANCELLED";
+                  const isPending = row.status !== "PAID" && row.status !== "CANCELLED";
 
                   return (
                     <tr
                       key={row.id}
-                      onClick={() => isOrder && row.raw && openCheckDetail(row.raw)}
-                      className={`border-b border-white/5 transition-colors ${isOrder ? "hover:bg-white/[0.05] cursor-pointer" : ""}`}
+                      onClick={() => row.raw && openCheckDetail(row.raw)}
+                      className="border-b border-white/5 transition-colors hover:bg-white/[0.05] cursor-pointer"
                     >
                       <td className="py-3 pr-4">
-                        <span className={`inline-flex items-center gap-2 text-xs font-medium ${
-                          isPayIn ? "text-emerald-300" : isPayOut ? "text-red-300" : isCash ? "text-amber-300" : "text-emerald-300"
-                        }`}>
-                          {isPayIn ? <ArrowDownLeft className="w-3.5 h-3.5" /> : isPayOut ? <ArrowUpRight className="w-3.5 h-3.5" /> : isCash ? <Banknote className="w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
+                        <span className={`inline-flex items-center gap-2 text-xs font-medium ${isCash ? "text-amber-300" : "text-emerald-300"}`}>
+                          {isCash ? <Banknote className="w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
                           {row.paymentType}
                         </span>
                       </td>
                       <td className="py-3 pr-4 text-xs text-neutral-400">{formatTime(row.time)}</td>
                       <td className="py-3 pr-4">
-                        <span className={`text-xs font-medium ${isPending ? "text-amber-300" : isPayIn || isPayOut ? "text-neutral-400" : "text-white"}`}>
+                        <span className={`text-xs font-medium ${isPending ? "text-amber-300" : "text-white"}`}>
                           {row.checkNumber}
                           {isPending && <span className="ml-1.5 text-[10px] text-amber-400">(pending)</span>}
                         </span>
                       </td>
-                      <td className={`py-3 pl-4 text-xs font-medium text-right ${isPayIn ? "text-emerald-300" : isPayOut ? "text-red-300" : "text-white"}`}>
-                        {isPayOut ? "-" : ""}$ {row.amount.toFixed(2)}
+                      <td className="py-3 pl-4 text-xs font-medium text-right text-white">
+                        $ {row.amount.toFixed(2)}
                       </td>
                       <td className="py-3 pl-4 text-xs text-neutral-300 text-right">
-                        {isOrder ? `$ ${row.tip.toFixed(2)}` : "-"}
+                        $ {row.tip.toFixed(2)}
                       </td>
                     </tr>
                   );

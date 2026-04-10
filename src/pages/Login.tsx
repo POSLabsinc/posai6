@@ -112,6 +112,7 @@ const Login = () => {
   // Contact admin dialog state
   const [showContactAdmin, setShowContactAdmin] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
+  const [showSignInAIChat, setShowSignInAIChat] = useState(false);
   const [showTutorialOverlay, setShowTutorialOverlay] = useState(false);
   
   // Company Device - First-time device setup state

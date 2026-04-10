@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, ChevronDown, Calendar, DollarSign, Users, Share2, FileText, Mail, MessageSquare, Download, RotateCcw } from "lucide-react";
+import { useState, useEffect, useMemo, useCallback } from "react";
+import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, Calendar, DollarSign, Users, Share2, FileText, Mail, MessageSquare, Download, RotateCcw, Clock } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { OverlayTimePicker } from "@/components/ui/overlay-time-picker";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 interface ShiftSummaryModalProps {
@@ -132,11 +133,9 @@ export default function ShiftSummaryModal({
   const [filterRevenueCenter, setFilterRevenueCenter] = useState<string | null>(null);
   const [activePreset, setActivePreset] = useState<DatePreset>("today");
 
-  // Share dropdown
-  const [showShareMenu, setShowShareMenu] = useState(false);
-
-  // Date preset dropdown
-  const [showDatePresetMenu, setShowDatePresetMenu] = useState(false);
+  // Time picker overlay state
+  const [showTimeFromPicker, setShowTimeFromPicker] = useState(false);
+  const [showTimeToPicker, setShowTimeToPicker] = useState(false);
 
   const [ticketOrders, setTicketOrders] = useState<TicketOrder[]>([]);
   const [cashTxs, setCashTxs] = useState<CashTx[]>([]);
@@ -147,9 +146,8 @@ export default function ShiftSummaryModal({
   const [orderItems, setOrderItems] = useState<OrderItemRow[]>([]);
   const [loadingItems, setLoadingItems] = useState(false);
 
-  const hasActiveFilters = filterEmployee || filterRevenueCenter || activePreset !== "today";
+  const hasActiveFilters = filterEmployee || filterRevenueCenter || activePreset !== "today" || filterTimeFrom !== "00:00" || filterTimeTo !== "23:59";
 
-  // Fetch employee list
   useEffect(() => {
     if (!open) return;
     (async () => {
@@ -161,7 +159,6 @@ export default function ShiftSummaryModal({
     })();
   }, [open]);
 
-  // Build ISO range
   const startISO = useMemo(() => {
     const d = new Date(filterDateFrom);
     const [h, m] = filterTimeFrom.split(":").map(Number);
@@ -176,7 +173,6 @@ export default function ShiftSummaryModal({
     return d.toISOString();
   }, [filterDateTo, filterTimeTo]);
 
-  // Fetch ticket_orders
   const fetchData = useCallback(async () => {
     if (!open) return;
     setLoading(true);
@@ -188,12 +184,8 @@ export default function ShiftSummaryModal({
       .lte("created_at", endISO)
       .order("created_at", { ascending: false });
 
-    if (filterEmployee) {
-      orderQuery = orderQuery.eq("server", filterEmployee);
-    }
-    if (filterRevenueCenter) {
-      orderQuery = orderQuery.ilike("order_type", filterRevenueCenter);
-    }
+    if (filterEmployee) orderQuery = orderQuery.eq("server", filterEmployee);
+    if (filterRevenueCenter) orderQuery = orderQuery.ilike("order_type", filterRevenueCenter);
 
     let cashQuery = supabase
       .from("cash_transactions")
@@ -202,9 +194,7 @@ export default function ShiftSummaryModal({
       .lte("created_at", endISO)
       .order("created_at", { ascending: false });
 
-    if (filterEmployee) {
-      cashQuery = cashQuery.eq("employee_name", filterEmployee);
-    }
+    if (filterEmployee) cashQuery = cashQuery.eq("employee_name", filterEmployee);
 
     const [ordersRes, cashRes] = await Promise.all([orderQuery, cashQuery]);
     setTicketOrders((ordersRes.data as any) || []);
@@ -214,28 +204,17 @@ export default function ShiftSummaryModal({
 
   useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Realtime subscriptions
   useEffect(() => {
     if (!open) return;
-    const ch1 = supabase
-      .channel("shift-ticket-orders")
-      .on("postgres_changes", { event: "*", schema: "public", table: "ticket_orders" }, () => fetchData())
-      .subscribe();
-    const ch2 = supabase
-      .channel("shift-cash-txs")
-      .on("postgres_changes", { event: "*", schema: "public", table: "cash_transactions" }, () => fetchData())
-      .subscribe();
-    return () => {
-      supabase.removeChannel(ch1);
-      supabase.removeChannel(ch2);
-    };
+    const ch1 = supabase.channel("shift-ticket-orders").on("postgres_changes", { event: "*", schema: "public", table: "ticket_orders" }, () => fetchData()).subscribe();
+    const ch2 = supabase.channel("shift-cash-txs").on("postgres_changes", { event: "*", schema: "public", table: "cash_transactions" }, () => fetchData()).subscribe();
+    return () => { supabase.removeChannel(ch1); supabase.removeChannel(ch2); };
   }, [open, fetchData]);
 
-  // Unified rows
   const unifiedRows = useMemo<UnifiedRow[]>(() => {
-    const orderRows: UnifiedRow[] = ticketOrders.map(o => ({
+    return ticketOrders.map(o => ({
       id: o.id,
-      kind: "order",
+      kind: "order" as const,
       paymentType: o.payment_type || "N/A",
       time: o.created_at,
       checkNumber: o.order_number,
@@ -243,16 +222,19 @@ export default function ShiftSummaryModal({
       tip: Number(o.tip),
       status: o.status,
       raw: o,
-    }));
-    return orderRows.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+    })).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
   }, [ticketOrders]);
 
   // Metrics
   const paidOrders = useMemo(() => ticketOrders.filter(o => o.status === "PAID" || o.payment_status === "completed"), [ticketOrders]);
-  const totalCardSales = useMemo(() => paidOrders.filter(o => { const pt = (o.payment_type || "").toLowerCase(); return pt === "card" || pt === "credit"; }).reduce((s, o) => s + Number(o.total), 0), [paidOrders]);
+  const totalCardSales = useMemo(() => paidOrders.filter(o => { const pt = (o.payment_type || "").toLowerCase(); return pt !== "cash"; }).reduce((s, o) => s + Number(o.total), 0), [paidOrders]);
   const totalCashSales = useMemo(() => paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + Number(o.total), 0), [paidOrders]);
   const totalTips = useMemo(() => paidOrders.reduce((s, o) => s + Number(o.tip), 0), [paidOrders]);
+
+  // Tips Payable = Total Tips - Cash Tips (what needs to be paid out from card tips)
   const totalCashTips = useMemo(() => paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + Number(o.tip), 0), [paidOrders]);
+  const tipsPayable = totalTips - totalCashTips;
+
   const overallTotal = useMemo(() => paidOrders.reduce((s, o) => s + Number(o.total) + Number(o.tip), 0), [paidOrders]);
 
   const totalPayIn = useMemo(() => cashTxs.filter(c => c.type === "pay_in").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
@@ -261,32 +243,43 @@ export default function ShiftSummaryModal({
 
   const initials = getInitials(employeeName);
 
-  // Handle date preset selection
+  // Aggregate by payment type for table
+  const paymentTypeSummary = useMemo(() => {
+    const map = new Map<string, { qty: number; amount: number; tips: number; totalTips: number }>();
+    paidOrders.forEach(o => {
+      const pt = o.payment_type || "N/A";
+      const existing = map.get(pt) || { qty: 0, amount: 0, tips: 0, totalTips: 0 };
+      map.set(pt, {
+        qty: existing.qty + 1,
+        amount: existing.amount + Number(o.total),
+        tips: existing.tips + Number(o.tip),
+        totalTips: existing.totalTips + Number(o.tip),
+      });
+    });
+    return Array.from(map.entries()).map(([type, data]) => ({ type, ...data }));
+  }, [paidOrders]);
+
   const handlePresetSelect = (preset: DatePreset) => {
     setActivePreset(preset);
-    if (preset === "custom") {
-      setShowDatePresetMenu(false);
-      return;
-    }
+    if (preset === "custom") return;
     const { from, to } = applyDatePreset(preset);
     setFilterDateFrom(from);
     setFilterDateTo(to);
-    setShowDatePresetMenu(false);
   };
 
   const clearAllFilters = () => {
     setFilterEmployee(null);
     setFilterRevenueCenter(null);
     setActivePreset("today");
+    setFilterTimeFrom("00:00");
+    setFilterTimeTo("23:59");
     const { from, to } = applyDatePreset("today");
     setFilterDateFrom(from);
     setFilterDateTo(to);
   };
 
-  // Handle share actions
   const handleShare = (action: string) => {
-    setShowShareMenu(false);
-    const reportText = `Shift Summary - ${employeeName}\nTotal: $${overallTotal.toFixed(2)}\nCard Sales: $${totalCardSales.toFixed(2)}\nCash Sales: $${totalCashSales.toFixed(2)}\nTips: $${totalTips.toFixed(2)}\nCash Drop: $${totalCashDrop.toFixed(2)}`;
+    const reportText = `Shift Summary - ${employeeName}\nTotal: $${overallTotal.toFixed(2)}\nCard Sales: $${totalCardSales.toFixed(2)}\nCash Sales: $${totalCashSales.toFixed(2)}\nTips: $${totalTips.toFixed(2)}\nTips Payable: $${tipsPayable.toFixed(2)}\nCash Drop: $${totalCashDrop.toFixed(2)}`;
 
     switch (action) {
       case "pdf": {
@@ -313,11 +306,11 @@ export default function ShiftSummaryModal({
               <div class="metric"><div class="metric-label">Total Card Sales</div><div class="metric-value">$${totalCardSales.toFixed(2)}</div></div>
               <div class="metric"><div class="metric-label">Total Cash Sales</div><div class="metric-value">$${totalCashSales.toFixed(2)}</div></div>
               <div class="metric"><div class="metric-label">Total Tips</div><div class="metric-value">$${totalTips.toFixed(2)}</div></div>
-              <div class="metric"><div class="metric-label">Total Cash Tips</div><div class="metric-value">$${totalCashTips.toFixed(2)}</div></div>
+              <div class="metric"><div class="metric-label">Tips Payable</div><div class="metric-value">$${tipsPayable.toFixed(2)}</div></div>
             </div>
             <table>
-              <thead><tr><th>Type</th><th>Time</th><th>Check</th><th class="text-right">Amount</th><th class="text-right">Tip</th></tr></thead>
-              <tbody>${unifiedRows.map(r => `<tr><td>${r.paymentType}</td><td>${formatTime(r.time)}</td><td>${r.checkNumber}</td><td class="text-right">$${r.amount.toFixed(2)}</td><td class="text-right">$${r.tip.toFixed(2)}</td></tr>`).join("")}</tbody>
+              <thead><tr><th>Type</th><th>Qty</th><th class="text-right">Amount</th><th class="text-right">Tip</th><th class="text-right">Total Tips</th></tr></thead>
+              <tbody>${paymentTypeSummary.map(r => `<tr><td>${r.type}</td><td>${r.qty}</td><td class="text-right">$${r.amount.toFixed(2)}</td><td class="text-right">$${r.tips.toFixed(2)}</td><td class="text-right">$${r.totalTips.toFixed(2)}</td></tr>`).join("")}</tbody>
             </table>
             </body></html>
           `);
@@ -342,8 +335,8 @@ export default function ShiftSummaryModal({
       }
       case "download": {
         const csvRows = [
-          ["Type", "Time", "Check/Reason", "Amount", "Tip"],
-          ...unifiedRows.map(r => [r.paymentType, formatTime(r.time), String(r.checkNumber), r.amount.toFixed(2), r.tip.toFixed(2)])
+          ["Type", "Quantity", "Amount", "Tips", "Total Tips"],
+          ...paymentTypeSummary.map(r => [r.type, String(r.qty), r.amount.toFixed(2), r.tips.toFixed(2), r.totalTips.toFixed(2)])
         ];
         const csvContent = csvRows.map(r => r.join(",")).join("\n");
         const blob = new Blob([csvContent], { type: "text/csv" });
@@ -358,7 +351,6 @@ export default function ShiftSummaryModal({
     }
   };
 
-  // Fetch order items for check detail
   const openCheckDetail = async (order: TicketOrder) => {
     setSelectedOrder(order);
     setLoadingItems(true);
@@ -488,7 +480,7 @@ export default function ShiftSummaryModal({
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative z-10 w-[900px] max-h-[92vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative z-10 w-[960px] max-h-[92vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
@@ -501,14 +493,11 @@ export default function ShiftSummaryModal({
             </div>
           </div>
           <div className="flex items-center gap-1.5">
-            {/* Revenue Center Filter - ticket screen style */}
+            {/* Revenue Center */}
             <Popover>
               <PopoverTrigger asChild>
-                <button
-                  className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${filterRevenueCenter ? 'ring-2 ring-white/50' : ''}`}
-                  style={{ background: "rgba(100, 100, 100, 0.4)" }}
-                >
-                  <DollarSign className="w-4.5 h-4.5 text-white" />
+                <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${filterRevenueCenter ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                  <DollarSign className="w-[18px] h-[18px] text-white" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
@@ -519,27 +508,18 @@ export default function ShiftSummaryModal({
               </PopoverContent>
             </Popover>
 
-            {/* Date/Calendar Filter - ticket screen style */}
+            {/* Date/Calendar */}
             <Popover>
               <PopoverTrigger asChild>
-                <button
-                  className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${activePreset !== "today" ? 'ring-2 ring-white/50' : ''}`}
-                  style={{ background: "rgba(100, 100, 100, 0.4)" }}
-                >
-                  <Calendar className="w-4.5 h-4.5 text-white" />
+                <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${activePreset !== "today" ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                  <Calendar className="w-[18px] h-[18px] text-white" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
                 <div className="p-2 border-b border-white/10">
                   <div className="grid grid-cols-3 gap-1">
                     {DATE_PRESETS.map(p => (
-                      <button
-                        key={p.key}
-                        onClick={() => handlePresetSelect(p.key)}
-                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activePreset === p.key ? "bg-white text-black" : "text-white hover:bg-white/10"}`}
-                      >
-                        {p.label}
-                      </button>
+                      <button key={p.key} onClick={() => handlePresetSelect(p.key)} className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activePreset === p.key ? "bg-white text-black" : "text-white hover:bg-white/10"}`}>{p.label}</button>
                     ))}
                   </div>
                 </div>
@@ -549,14 +529,35 @@ export default function ShiftSummaryModal({
               </PopoverContent>
             </Popover>
 
-            {/* Employee Filter - ticket screen style */}
+            {/* Time Filter */}
             <Popover>
               <PopoverTrigger asChild>
-                <button
-                  className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${filterEmployee ? 'ring-2 ring-white/50' : ''}`}
-                  style={{ background: "rgba(100, 100, 100, 0.4)" }}
-                >
-                  <Users className="w-4.5 h-4.5 text-white" />
+                <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${(filterTimeFrom !== "00:00" || filterTimeTo !== "23:59") ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                  <Clock className="w-[18px] h-[18px] text-white" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-56 p-3 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
+                <div className="text-xs text-white/50 mb-3 px-1">Time Range</div>
+                <div className="space-y-3">
+                  <div className="relative">
+                    <label className="text-xs text-neutral-400 mb-1 block">From</label>
+                    <button onClick={() => { setShowTimeFromPicker(!showTimeFromPicker); setShowTimeToPicker(false); }} className="w-full text-left px-3 py-2 bg-neutral-700 rounded-lg text-sm text-white hover:bg-neutral-600 transition-colors">{filterTimeFrom}</button>
+                    <OverlayTimePicker isOpen={showTimeFromPicker} onClose={() => setShowTimeFromPicker(false)} selectedTime={filterTimeFrom} onTimeChange={(t) => { setFilterTimeFrom(t); setShowTimeFromPicker(false); }} />
+                  </div>
+                  <div className="relative">
+                    <label className="text-xs text-neutral-400 mb-1 block">To</label>
+                    <button onClick={() => { setShowTimeToPicker(!showTimeToPicker); setShowTimeFromPicker(false); }} className="w-full text-left px-3 py-2 bg-neutral-700 rounded-lg text-sm text-white hover:bg-neutral-600 transition-colors">{filterTimeTo}</button>
+                    <OverlayTimePicker isOpen={showTimeToPicker} onClose={() => setShowTimeToPicker(false)} selectedTime={filterTimeTo} onTimeChange={(t) => { setFilterTimeTo(t); setShowTimeToPicker(false); }} />
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Employee */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${filterEmployee ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                  <Users className="w-[18px] h-[18px] text-white" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000] max-h-[280px] overflow-y-auto" align="end">
@@ -571,37 +572,21 @@ export default function ShiftSummaryModal({
             {/* Share */}
             <Popover>
               <PopoverTrigger asChild>
-                <button
-                  className="p-2.5 rounded-xl hover:bg-white/10 transition-colors"
-                  style={{ background: "rgba(100, 100, 100, 0.4)" }}
-                >
-                  <Share2 className="w-4.5 h-4.5 text-white" />
+                <button className="p-2.5 rounded-xl hover:bg-white/10 transition-colors" style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                  <Share2 className="w-[18px] h-[18px] text-white" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-[180px] p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
-                <button onClick={() => handleShare("pdf")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg">
-                  <FileText className="w-4 h-4" /> Export as PDF
-                </button>
-                <button onClick={() => handleShare("email")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg">
-                  <Mail className="w-4 h-4" /> Send via Email
-                </button>
-                <button onClick={() => handleShare("text")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg">
-                  <MessageSquare className="w-4 h-4" /> Share via Text
-                </button>
-                <button onClick={() => handleShare("download")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg">
-                  <Download className="w-4 h-4" /> Download CSV
-                </button>
+                <button onClick={() => handleShare("pdf")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg"><FileText className="w-4 h-4" /> Export as PDF</button>
+                <button onClick={() => handleShare("email")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg"><Mail className="w-4 h-4" /> Send via Email</button>
+                <button onClick={() => handleShare("text")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg"><MessageSquare className="w-4 h-4" /> Share via Text</button>
+                <button onClick={() => handleShare("download")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg"><Download className="w-4 h-4" /> Download CSV</button>
               </PopoverContent>
             </Popover>
 
             {/* Print */}
-            <button
-              onClick={() => handleShare("pdf")}
-              className="p-2.5 rounded-xl hover:bg-white/10 transition-colors"
-              style={{ background: "rgba(100, 100, 100, 0.4)" }}
-              title="Print"
-            >
-              <Printer className="w-4.5 h-4.5 text-white" />
+            <button onClick={() => handleShare("pdf")} className="p-2.5 rounded-xl hover:bg-white/10 transition-colors" style={{ background: "rgba(100, 100, 100, 0.4)" }} title="Print">
+              <Printer className="w-[18px] h-[18px] text-white" />
             </button>
 
             {/* Clear Filters */}
@@ -612,7 +597,7 @@ export default function ShiftSummaryModal({
             )}
 
             {/* AI Icon */}
-            <div className="flex items-center justify-center" style={{ width: 40, height: 40 }}>
+            <div className="flex items-center justify-center rounded-xl" style={{ width: 40, height: 40, background: "rgba(100, 100, 100, 0.4)" }}>
               <AnimatedAIIcon size={18} />
             </div>
 
@@ -623,11 +608,14 @@ export default function ShiftSummaryModal({
           </div>
         </div>
 
-        {/* Shift info bar */}
-        <div className="flex items-center gap-5 px-6 py-3 bg-white/[0.03] border-b border-white/10 shrink-0 text-sm text-neutral-400">
-          <span>{clockInDate}</span>
-          <span>{clockInTime || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - now</span>
-          <span>Total: {totalHours || "0.0"}h</span>
+        {/* Shift time bar - larger and more prominent */}
+        <div className="flex items-center gap-6 px-6 py-4 bg-white/[0.04] border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-2">
+            <Clock className="w-5 h-5 text-neutral-400" />
+            <span className="text-lg font-semibold text-white">{clockInTime || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - now</span>
+          </div>
+          <div className="h-5 w-px bg-white/10" />
+          <span className="text-lg font-semibold text-white">Total: {totalHours || "0.0"}h</span>
         </div>
 
         {/* Key metrics - 4 cards */}
@@ -637,7 +625,7 @@ export default function ShiftSummaryModal({
               <CreditCard className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <p className="text-xs text-neutral-500 uppercase tracking-wide">Total Card Sales</p>
+              <p className="text-[11px] text-neutral-500 uppercase tracking-wide font-medium">Total Card Sale</p>
               <p className="text-xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
             </div>
           </div>
@@ -646,7 +634,7 @@ export default function ShiftSummaryModal({
               <Banknote className="w-5 h-5 text-amber-400" />
             </div>
             <div>
-              <p className="text-xs text-neutral-500 uppercase tracking-wide">Total Cash Sales</p>
+              <p className="text-[11px] text-neutral-500 uppercase tracking-wide font-medium">Total Cash Sales</p>
               <p className="text-xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
             </div>
           </div>
@@ -655,7 +643,7 @@ export default function ShiftSummaryModal({
               <Receipt className="w-5 h-5 text-purple-400" />
             </div>
             <div>
-              <p className="text-xs text-neutral-500 uppercase tracking-wide">Total Tips</p>
+              <p className="text-[11px] text-neutral-500 uppercase tracking-wide font-medium">Total Tips</p>
               <p className="text-xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
@@ -664,13 +652,13 @@ export default function ShiftSummaryModal({
               <Banknote className="w-5 h-5 text-blue-400" />
             </div>
             <div>
-              <p className="text-xs text-neutral-500 uppercase tracking-wide">Total Cash Tips</p>
-              <p className="text-xl font-bold text-white">$ {totalCashTips.toFixed(2)}</p>
+              <p className="text-[11px] text-neutral-500 uppercase tracking-wide font-medium">Tips Payable</p>
+              <p className="text-xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
             </div>
           </div>
         </div>
 
-        {/* Bottom summary row */}
+        {/* Bottom summary row with Tips Payable */}
         <div className="flex items-center px-6 py-3 shrink-0 gap-8 border-b border-white/10">
           <div>
             <p className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Total</p>
@@ -680,59 +668,52 @@ export default function ShiftSummaryModal({
             <p className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Cash Drop</p>
             <p className="text-2xl font-bold text-white mt-0.5">$ {totalCashDrop.toFixed(2)}</p>
           </div>
+          <div>
+            <p className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Tips Payable</p>
+            <p className="text-2xl font-bold text-white mt-0.5">$ {tipsPayable.toFixed(2)}</p>
+          </div>
         </div>
 
-        {/* Transaction table */}
+        {/* Data table - Type, Qty, Amount, Tips, Total Tips */}
         <div className="flex-1 overflow-auto px-6 py-3">
           {loading ? (
             <p className="text-sm text-neutral-500 py-8 text-center">Loading transactions...</p>
-          ) : unifiedRows.length === 0 ? (
+          ) : paymentTypeSummary.length === 0 ? (
             <p className="text-sm text-neutral-500 py-8 text-center">No transactions found for the selected filters</p>
           ) : (
-            <table className="w-full text-sm">
+            <table className="w-full text-[15px]">
               <thead className="sticky top-0 bg-[#1C1C1E] z-10">
-                <tr className="border-b border-white/10 text-left">
-                  <th className="py-3 pr-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Type</th>
-                  <th className="py-3 pr-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Time</th>
-                  <th className="py-3 pr-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Check / Reason</th>
-                  <th className="py-3 pl-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider text-right">Amount</th>
-                  <th className="py-3 pl-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider text-right">Tip</th>
+                <tr className="border-b-2 border-white/10 text-left">
+                  <th className="py-3 pr-4 text-xs font-bold text-amber-600 uppercase tracking-wider">Type</th>
+                  <th className="py-3 pr-4 text-xs font-bold text-amber-600 uppercase tracking-wider">Qty</th>
+                  <th className="py-3 pr-4 text-xs font-bold text-amber-600 uppercase tracking-wider text-right">Amount</th>
+                  <th className="py-3 pr-4 text-xs font-bold text-amber-600 uppercase tracking-wider text-right">Tip</th>
+                  <th className="py-3 pl-4 text-xs font-bold text-amber-600 uppercase tracking-wider text-right">Total Tips</th>
                 </tr>
               </thead>
               <tbody>
-                {unifiedRows.map(row => {
-                  const isCash = row.paymentType.toLowerCase() === "cash";
-                  const isPending = row.status !== "PAID" && row.status !== "CANCELLED";
-
-                  return (
-                    <tr
-                      key={row.id}
-                      onClick={() => row.raw && openCheckDetail(row.raw)}
-                      className="border-b border-white/5 transition-colors hover:bg-white/[0.05] cursor-pointer"
-                    >
-                      <td className="py-3 pr-4">
-                        <span className={`inline-flex items-center gap-2 text-sm font-medium ${isCash ? "text-amber-300" : "text-emerald-300"}`}>
-                          {isCash ? <Banknote className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
-                          {row.paymentType}
-                        </span>
-                      </td>
-                      <td className="py-3 pr-4 text-sm text-neutral-400">{formatTime(row.time)}</td>
-                      <td className="py-3 pr-4">
-                        <span className={`text-sm font-medium ${isPending ? "text-amber-300" : "text-white"}`}>
-                          {row.checkNumber}
-                          {isPending && <span className="ml-1.5 text-xs text-amber-400">(pending)</span>}
-                        </span>
-                      </td>
-                      <td className="py-3 pl-4 text-sm font-medium text-right text-white">
-                        $ {row.amount.toFixed(2)}
-                      </td>
-                      <td className="py-3 pl-4 text-sm text-neutral-300 text-right">
-                        $ {row.tip.toFixed(2)}
-                      </td>
-                    </tr>
-                  );
-                })}
+                {paymentTypeSummary.map(row => (
+                  <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
+                    <td className="py-3.5 pr-4 text-[15px] font-medium text-white">{row.type}</td>
+                    <td className="py-3.5 pr-4 text-[15px] text-neutral-300">{row.qty}</td>
+                    <td className="py-3.5 pr-4 text-[15px] font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
+                    <td className="py-3.5 pr-4 text-[15px] text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
+                    <td className="py-3.5 pl-4 text-[15px] font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
+                  </tr>
+                ))}
               </tbody>
+              <tfoot>
+                <tr className="bg-neutral-800/50">
+                  <td colSpan={2} className="py-3.5 pr-4 text-[15px] font-bold text-white">Total</td>
+                  <td className="py-3.5 pr-4 text-[15px] font-bold text-white text-right">$ {overallTotal.toFixed(2)}</td>
+                  <td className="py-3.5 pr-4 text-[15px] font-bold text-white text-right" colSpan={2}>$ {totalTips.toFixed(2)}</td>
+                </tr>
+                <tr className="bg-neutral-800/30">
+                  <td colSpan={2} className="py-3.5 pr-4 text-[15px] font-bold text-white">Cash Drop</td>
+                  <td className="py-3.5 pr-4" colSpan={1}></td>
+                  <td className="py-3.5 pl-4 text-[15px] font-bold text-white text-right" colSpan={2}>$ {totalCashDrop.toFixed(2)}</td>
+                </tr>
+              </tfoot>
             </table>
           )}
         </div>

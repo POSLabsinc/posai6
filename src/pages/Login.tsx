@@ -2074,10 +2074,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
         />
-        <DeviceSetupTutorialOverlay
+        <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
-          variant="new"
         />
       </div>
     );
@@ -5225,10 +5224,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
         />
-        <DeviceSetupTutorialOverlay
+        <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
-          variant="new"
         />
 
 
@@ -7745,10 +7743,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
         />
-        <DeviceSetupTutorialOverlay
+        <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
-          variant="existing"
         />
       </div>
     );

@@ -882,17 +882,72 @@ All colors MUST be HSL.
   --custom-hover-color: #1C1C1C;
 }
 
-/* Apply selection color to common interactive patterns */
+/* ── Selection color: applied globally ── */
+
+/* Sidebar selected items */
 .bg-sidebar-accent {
   background-color: var(--custom-hover-color) !important;
 }
+.bg-sidebar-accent.text-sidebar-accent-foreground {
+  background-color: color-mix(in srgb, var(--custom-selection-color) 20%, transparent) !important;
+  border-color: var(--custom-selection-color) !important;
+}
 
+/* Radix active tabs */
 [data-state="active"] {
   border-color: var(--custom-selection-color);
 }
 
-/* Selected sidebar items */
-.bg-sidebar-accent.text-sidebar-accent-foreground {
-  background-color: color-mix(in srgb, var(--custom-selection-color) 20%, transparent) !important;
+/* Radix checked switches & checkboxes */
+[data-state="checked"] {
+  background-color: var(--custom-selection-color) !important;
   border-color: var(--custom-selection-color) !important;
+}
+
+/* Radix selected radio items */
+[data-state="checked"].bg-primary,
+[role="radio"][data-state="checked"] {
+  background-color: var(--custom-selection-color) !important;
+  border-color: var(--custom-selection-color) !important;
+}
+
+/* Primary buttons & badges */
+.bg-primary {
+  background-color: var(--custom-selection-color) !important;
+}
+.border-primary {
+  border-color: var(--custom-selection-color) !important;
+}
+.text-primary {
+  color: var(--custom-selection-color) !important;
+}
+
+/* Ring / focus states */
+.ring-primary,
+.focus\:ring-primary:focus {
+  --tw-ring-color: var(--custom-selection-color) !important;
+}
+
+/* Accent backgrounds (selected cards, rows) */
+.bg-accent {
+  background-color: color-mix(in srgb, var(--custom-selection-color) 12%, transparent) !important;
+}
+
+/* Settings active nav items */
+.bg-orange-500\/20,
+.bg-orange-500\/10 {
+  background-color: color-mix(in srgb, var(--custom-selection-color) 15%, transparent) !important;
+}
+.text-orange-400,
+.text-orange-500 {
+  color: var(--custom-selection-color) !important;
+}
+.border-orange-500,
+.border-orange-400 {
+  border-color: var(--custom-selection-color) !important;
+}
+
+/* Progress bars & sliders */
+.bg-primary\/20 {
+  background-color: color-mix(in srgb, var(--custom-selection-color) 20%, transparent) !important;
 }

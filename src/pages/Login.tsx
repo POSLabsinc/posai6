@@ -1202,7 +1202,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </div>
 
           {showTutorialOverlay && (
-            <DeviceSetupTutorialOverlay open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} variant="new" />
+            <DeviceSetupHelpCard open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} />
           )}
         </div>
       );
@@ -7430,7 +7430,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </div>
 
           {showTutorialOverlay && (
-            <DeviceSetupTutorialOverlay open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} variant="existing" />
+            <DeviceSetupHelpCard open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} />
           )}
         </div>
       );

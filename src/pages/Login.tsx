@@ -1852,7 +1852,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mt-8 text-center"
           >
             <button
-              onClick={() => setShowContactAdmin(true)}
+              onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need help?
@@ -1863,6 +1863,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="new"
         />
       </div>
     );
@@ -4998,7 +5003,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mt-2 md:mt-4"
           >
             <button
-              onClick={() => setShowContactAdmin(true)}
+              onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need help?
@@ -5009,6 +5014,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="new"
         />
 
 

@@ -13,13 +13,19 @@ serve(async (req) => {
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `You are a shift performance analyst for a Point of Sale system. Analyze the shift data provided and give actionable insights in 3-5 bullet points. Focus on:
+    const userQuestion = shiftData?.userQuestion;
+
+    const systemPrompt = `You are a shift performance analyst for a Point of Sale system. Analyze the shift data provided and give actionable insights. Focus on:
 - Sales performance (card vs cash breakdown)
 - Tips analysis (which payment types generate best tips)
 - Recommendations for improving performance
 - Any notable patterns or concerns
 
-Keep each bullet point to 1-2 sentences. Be concise and actionable. Use dollar amounts when referencing numbers. Do not use em dashes. Use plain language suitable for restaurant staff.`;
+Keep responses concise and actionable. Use dollar amounts when referencing numbers. Do not use em dashes. Use plain language suitable for restaurant staff.${userQuestion ? "\n\nThe user has a specific question. Answer it based on the shift data provided." : " Provide 3-5 bullet points of insights."}`;
+
+    const userContent = userQuestion
+      ? `Here is the shift data:\n${JSON.stringify(shiftData, null, 2)}\n\nUser question: ${userQuestion}`
+      : `Analyze this shift summary data:\n${JSON.stringify(shiftData, null, 2)}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -31,7 +37,7 @@ Keep each bullet point to 1-2 sentences. Be concise and actionable. Use dollar a
         model: "google/gemini-3-flash-preview",
         messages: [
           { role: "system", content: systemPrompt },
-          { role: "user", content: `Analyze this shift summary data:\n${JSON.stringify(shiftData, null, 2)}` },
+          { role: "user", content: userContent },
         ],
         stream: false,
       }),

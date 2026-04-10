@@ -35,7 +35,7 @@ import DeviceSetupAIChat from "@/components/DeviceSetupAIChat";
 import BusinessSearchOnboarding from "@/components/BusinessSearchOnboarding";
 import MerchantOnboarding from "@/components/MerchantOnboarding";
 import { countryCodes } from "@/components/CountryCodeSelector";
-import DeviceSetupTutorialOverlay from "@/components/DeviceSetupTutorialOverlay";
+import DeviceSetupHelpCard from "@/components/DeviceSetupHelpCard";
 
 
 import { revenueCenters, employeePinMapping, locationEmployees, getRoleIcon, getRoleBadgeStyle, getTimeOfDayInfo, PIN_LENGTH, DeviceType } from "@/data/loginData";
@@ -1202,7 +1202,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </div>
 
           {showTutorialOverlay && (
-            <DeviceSetupTutorialOverlay open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} variant="new" />
+            <DeviceSetupHelpCard open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} />
           )}
         </div>
       );
@@ -1550,10 +1550,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
         />
-        <DeviceSetupTutorialOverlay
+        <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
-          variant="new"
         />
       </div>
     );
@@ -2075,10 +2074,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
         />
-        <DeviceSetupTutorialOverlay
+        <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
-          variant="new"
         />
       </div>
     );
@@ -5226,10 +5224,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
         />
-        <DeviceSetupTutorialOverlay
+        <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
-          variant="new"
         />
 
 
@@ -7430,7 +7427,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </div>
 
           {showTutorialOverlay && (
-            <DeviceSetupTutorialOverlay open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} variant="existing" />
+            <DeviceSetupHelpCard open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} />
           )}
         </div>
       );
@@ -7746,10 +7743,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
         />
-        <DeviceSetupTutorialOverlay
+        <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
-          variant="existing"
         />
       </div>
     );

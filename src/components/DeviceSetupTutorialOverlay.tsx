@@ -1,91 +1,83 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft, QrCode, Globe, KeyRound, MessageSquare } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, QrCode, Globe, KeyRound, MessageSquare, Smartphone } from "lucide-react";
 
 interface TutorialStep {
   title: string;
   description: string;
   icon: React.ReactNode;
   highlightArea: { top: string; left: string; width: string; height: string };
-  arrowFrom: { x: string; y: string };
-  arrowTo: { x: string; y: string };
+  tooltipPosition: "top" | "bottom" | "left" | "right";
+  tooltipOffset?: { x?: string; y?: string };
   arrowDirection: "left" | "right" | "down" | "up";
 }
 
 const newUserSteps: TutorialStep[] = [
   {
     title: "Scan the QR Code",
-    description: "Use your phone or tablet camera to scan the QR code displayed on the left side of the screen.",
-    icon: <QrCode className="w-6 h-6" />,
-    highlightArea: { top: "22%", left: "8%", width: "38%", height: "52%" },
-    arrowFrom: { x: "52%", y: "48%" },
-    arrowTo: { x: "46%", y: "48%" },
-    arrowDirection: "left",
-  },
-  {
-    title: "Follow the Link",
-    description: "After scanning, tap the link that appears on your mobile device. You will be guided through the activation steps.",
-    icon: <Globe className="w-6 h-6" />,
-    highlightArea: { top: "55%", left: "8%", width: "38%", height: "12%" },
-    arrowFrom: { x: "52%", y: "62%" },
-    arrowTo: { x: "46%", y: "62%" },
-    arrowDirection: "left",
-  },
-  {
-    title: "Or Use a Browser",
-    description: "Alternatively, visit the displayed URL on any browser and enter the pairing code shown on the right side.",
-    icon: <Globe className="w-6 h-6" />,
-    highlightArea: { top: "22%", left: "54%", width: "38%", height: "52%" },
-    arrowFrom: { x: "48%", y: "48%" },
-    arrowTo: { x: "54%", y: "48%" },
+    description: "Point your phone camera at this QR code. A link will appear on your device to begin activation.",
+    icon: <QrCode className="w-5 h-5" />,
+    highlightArea: { top: "25%", left: "10%", width: "34%", height: "45%" },
+    tooltipPosition: "right",
     arrowDirection: "right",
   },
   {
-    title: "Try Another Way",
-    description: "If QR or browser pairing is not available, tap 'Try another way' at the bottom to activate using an email or phone code.",
-    icon: <KeyRound className="w-6 h-6" />,
-    highlightArea: { top: "78%", left: "30%", width: "40%", height: "8%" },
-    arrowFrom: { x: "50%", y: "73%" },
-    arrowTo: { x: "50%", y: "78%" },
+    title: "Follow Mobile Instructions",
+    description: "After scanning, tap the link on your phone and follow the guided steps to complete activation.",
+    icon: <Smartphone className="w-5 h-5" />,
+    highlightArea: { top: "72%", left: "10%", width: "34%", height: "10%" },
+    tooltipPosition: "top",
     arrowDirection: "down",
   },
   {
-    title: "Need More Help?",
-    description: "If you are still stuck, contact your manager or admin. They can generate an activation code from the Admin Portal.",
-    icon: <MessageSquare className="w-6 h-6" />,
-    highlightArea: { top: "86%", left: "35%", width: "30%", height: "6%" },
-    arrowFrom: { x: "50%", y: "82%" },
-    arrowTo: { x: "50%", y: "86%" },
+    title: "Or Use a Browser",
+    description: "Visit the URL shown here on any device and enter the pairing code to connect.",
+    icon: <Globe className="w-5 h-5" />,
+    highlightArea: { top: "25%", left: "56%", width: "34%", height: "45%" },
+    tooltipPosition: "left",
+    arrowDirection: "left",
+  },
+  {
+    title: "Try Another Way",
+    description: "Prefer email or phone verification? Tap here to activate using an OTP code instead.",
+    icon: <KeyRound className="w-5 h-5" />,
+    highlightArea: { top: "85%", left: "32%", width: "36%", height: "6%" },
+    tooltipPosition: "top",
+    arrowDirection: "down",
+  },
+  {
+    title: "Still Need Help?",
+    description: "Contact your manager or admin for an activation code from the Admin Portal.",
+    icon: <MessageSquare className="w-5 h-5" />,
+    highlightArea: { top: "92%", left: "38%", width: "24%", height: "5%" },
+    tooltipPosition: "top",
     arrowDirection: "down",
   },
 ];
 
 const existingUserSteps: TutorialStep[] = [
   {
-    title: "Scan the QR Code",
-    description: "Point your phone or tablet camera at the QR code to sign in quickly.",
-    icon: <QrCode className="w-6 h-6" />,
-    highlightArea: { top: "18%", left: "25%", width: "50%", height: "40%" },
-    arrowFrom: { x: "50%", y: "62%" },
-    arrowTo: { x: "50%", y: "58%" },
+    title: "Scan to Sign In",
+    description: "Point your phone camera at the QR code for quick, secure sign-in.",
+    icon: <QrCode className="w-5 h-5" />,
+    highlightArea: { top: "20%", left: "25%", width: "50%", height: "40%" },
+    tooltipPosition: "bottom",
     arrowDirection: "up",
   },
   {
-    title: "Try Another Way",
-    description: "Tap 'Try another way' to see additional sign-in options like activation code or demo mode.",
-    icon: <KeyRound className="w-6 h-6" />,
-    highlightArea: { top: "72%", left: "25%", width: "50%", height: "8%" },
-    arrowFrom: { x: "50%", y: "68%" },
-    arrowTo: { x: "50%", y: "72%" },
+    title: "Other Sign-In Options",
+    description: "Tap here for additional methods like activation code or demo mode.",
+    icon: <KeyRound className="w-5 h-5" />,
+    highlightArea: { top: "72%", left: "28%", width: "44%", height: "7%" },
+    tooltipPosition: "top",
     arrowDirection: "down",
   },
   {
-    title: "Contact Support",
-    description: "If you cannot sign in, tap 'Need Help?' to get assistance from your administrator.",
-    icon: <MessageSquare className="w-6 h-6" />,
-    highlightArea: { top: "82%", left: "25%", width: "50%", height: "6%" },
-    arrowFrom: { x: "50%", y: "78%" },
-    arrowTo: { x: "50%", y: "82%" },
+    title: "Get Support",
+    description: "Need help signing in? Tap here to contact your administrator.",
+    icon: <MessageSquare className="w-5 h-5" />,
+    highlightArea: { top: "82%", left: "35%", width: "30%", height: "5%" },
+    tooltipPosition: "top",
     arrowDirection: "down",
   },
 ];
@@ -118,6 +110,108 @@ const DeviceSetupTutorialOverlay = ({ open, onClose, variant }: Props) => {
 
   const step = steps[currentStep];
 
+  // Calculate tooltip card position based on highlight and direction
+  const getTooltipStyle = (): React.CSSProperties => {
+    const h = step.highlightArea;
+    switch (step.tooltipPosition) {
+      case "right":
+        return {
+          top: h.top,
+          left: `calc(${h.left} + ${h.width} + 24px)`,
+          maxWidth: "320px",
+        };
+      case "left":
+        return {
+          top: h.top,
+          right: `calc(100% - ${h.left} + 24px)`,
+          maxWidth: "320px",
+        };
+      case "top":
+        return {
+          bottom: `calc(100% - ${h.top} + 16px)`,
+          left: `calc(${h.left} + ${h.width} / 2)`,
+          transform: "translateX(-50%)",
+          maxWidth: "340px",
+        };
+      case "bottom":
+        return {
+          top: `calc(${h.top} + ${h.height} + 16px)`,
+          left: `calc(${h.left} + ${h.width} / 2)`,
+          transform: "translateX(-50%)",
+          maxWidth: "340px",
+        };
+      default:
+        return {};
+    }
+  };
+
+  // Arrow SVG pointing from tooltip toward highlighted area
+  const renderArrow = () => {
+    const h = step.highlightArea;
+    const dir = step.arrowDirection;
+
+    const arrowSize = 28;
+    let style: React.CSSProperties = { position: "absolute" as const, zIndex: 20 };
+
+    if (dir === "right") {
+      // Arrow on the right edge of highlight pointing left (toward highlight)
+      style = {
+        ...style,
+        top: `calc(${h.top} + ${h.height} / 2 - ${arrowSize / 2}px)`,
+        left: `calc(${h.left} + ${h.width} + 4px)`,
+      };
+    } else if (dir === "left") {
+      style = {
+        ...style,
+        top: `calc(${h.top} + ${h.height} / 2 - ${arrowSize / 2}px)`,
+        left: `calc(${h.left} - ${arrowSize + 4}px)`,
+      };
+    } else if (dir === "down") {
+      style = {
+        ...style,
+        top: `calc(${h.top} - ${arrowSize + 4}px)`,
+        left: `calc(${h.left} + ${h.width} / 2 - ${arrowSize / 2}px)`,
+      };
+    } else {
+      style = {
+        ...style,
+        top: `calc(${h.top} + ${h.height} + 4px)`,
+        left: `calc(${h.left} + ${h.width} / 2 - ${arrowSize / 2}px)`,
+      };
+    }
+
+    const paths: Record<string, string> = {
+      right: "M4 14L20 14M20 14L14 8M20 14L14 20",
+      left: "M24 14L8 14M8 14L14 8M8 14L14 20",
+      down: "M14 4L14 20M14 20L8 14M14 20L20 14",
+      up: "M14 24L14 8M14 8L8 14M14 8L20 14",
+    };
+
+    return (
+      <motion.div
+        key={`arrow-${currentStep}`}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.35, duration: 0.3 }}
+        style={style}
+      >
+        <motion.div
+          animate={
+            dir === "left" ? { x: [0, -6, 0] }
+            : dir === "right" ? { x: [0, 6, 0] }
+            : dir === "down" ? { y: [0, 6, 0] }
+            : { y: [0, -6, 0] }
+          }
+          transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
+        >
+          <svg width={arrowSize} height={arrowSize} viewBox="0 0 28 28" fill="none">
+            <path d={paths[dir]} stroke="hsl(var(--primary))" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </motion.div>
+      </motion.div>
+    );
+  };
+
   return (
     <AnimatePresence>
       {open && (
@@ -128,138 +222,112 @@ const DeviceSetupTutorialOverlay = ({ open, onClose, variant }: Props) => {
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[10000] pointer-events-auto"
         >
-          {/* Dimmed background with cutout highlight */}
-          <div className="absolute inset-0">
-            {/* Full dim overlay */}
-            <div className="absolute inset-0 bg-black/70 backdrop-blur-[2px]" />
-            
-            {/* Highlighted cutout area */}
-            <motion.div
-              key={currentStep}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4, ease: "easeOut" }}
-              className="absolute rounded-2xl border-2 border-primary/60 shadow-[0_0_0_4px_rgba(var(--primary-rgb,59,130,246),0.15),0_0_30px_rgba(var(--primary-rgb,59,130,246),0.2)]"
-              style={{
-                top: step.highlightArea.top,
-                left: step.highlightArea.left,
-                width: step.highlightArea.width,
-                height: step.highlightArea.height,
-                boxShadow: `0 0 0 9999px rgba(0,0,0,0.7), 0 0 30px rgba(59,130,246,0.3)`,
-              }}
-            />
-          </div>
+          {/* Full dim overlay */}
+          <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" />
 
-          {/* Arrow indicator */}
+          {/* Cutout highlight */}
           <motion.div
-            key={`arrow-${currentStep}`}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.3 }}
-            className="absolute z-10"
-            style={{ left: step.arrowFrom.x, top: step.arrowFrom.y }}
+            key={currentStep}
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            className="absolute rounded-xl"
+            style={{
+              top: step.highlightArea.top,
+              left: step.highlightArea.left,
+              width: step.highlightArea.width,
+              height: step.highlightArea.height,
+              boxShadow: `0 0 0 9999px rgba(0,0,0,0.75)`,
+              border: "2px solid hsl(var(--primary) / 0.5)",
+            }}
           >
+            {/* Pulse ring */}
             <motion.div
-              animate={
-                step.arrowDirection === "left"
-                  ? { x: [0, -8, 0] }
-                  : step.arrowDirection === "right"
-                  ? { x: [0, 8, 0] }
-                  : step.arrowDirection === "down"
-                  ? { y: [0, 8, 0] }
-                  : { y: [0, -8, 0] }
-              }
-              transition={{ repeat: Infinity, duration: 1.2, ease: "easeInOut" }}
-            >
-              <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
-                {step.arrowDirection === "left" && (
-                  <path d="M30 20H10M10 20L18 12M10 20L18 28" stroke="hsl(var(--primary))" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                )}
-                {step.arrowDirection === "right" && (
-                  <path d="M10 20H30M30 20L22 12M30 20L22 28" stroke="hsl(var(--primary))" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                )}
-                {step.arrowDirection === "down" && (
-                  <path d="M20 10V30M20 30L12 22M20 30L28 22" stroke="hsl(var(--primary))" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                )}
-                {step.arrowDirection === "up" && (
-                  <path d="M20 30V10M20 10L12 18M20 10L28 18" stroke="hsl(var(--primary))" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                )}
-              </svg>
-            </motion.div>
+              className="absolute inset-0 rounded-xl border border-primary/30"
+              animate={{ scale: [1, 1.03, 1], opacity: [0.5, 0, 0.5] }}
+              transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+            />
           </motion.div>
 
-          {/* Instruction card - positioned at bottom center */}
+          {/* Arrow */}
+          {renderArrow()}
+
+          {/* Tooltip card near the highlight */}
           <motion.div
-            key={`card-${currentStep}`}
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15, duration: 0.35 }}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 w-full max-w-lg px-4"
+            key={`tooltip-${currentStep}`}
+            initial={{ opacity: 0, y: step.tooltipPosition === "top" ? 12 : step.tooltipPosition === "bottom" ? -12 : 0, x: step.tooltipPosition === "left" ? 12 : step.tooltipPosition === "right" ? -12 : 0 }}
+            animate={{ opacity: 1, y: 0, x: 0 }}
+            transition={{ delay: 0.15, duration: 0.3, ease: "easeOut" }}
+            className="absolute z-20"
+            style={getTooltipStyle()}
           >
-            <div className="bg-card/95 backdrop-blur-xl border border-foreground/10 rounded-2xl p-6 shadow-2xl">
-              {/* Close button */}
+            <div className="bg-card/95 backdrop-blur-xl border border-foreground/10 rounded-2xl p-5 shadow-2xl">
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-lg bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 text-primary">
+                  {step.icon}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="text-sm font-semibold text-foreground mb-1">
+                    {step.title}
+                  </h3>
+                  <p className="text-xs text-foreground/55 leading-relaxed">
+                    {step.description}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Bottom navigation bar */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.3 }}
+            className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30"
+          >
+            <div className="flex items-center gap-3 bg-card/90 backdrop-blur-xl border border-foreground/10 rounded-full px-2 py-2 shadow-2xl">
+              {/* Close */}
               <button
                 onClick={onClose}
-                className="absolute top-4 right-4 text-foreground/40 hover:text-foreground/70 transition-colors"
+                className="w-9 h-9 rounded-full flex items-center justify-center text-foreground/40 hover:text-foreground/70 hover:bg-foreground/5 transition-colors"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4" />
               </button>
 
-              {/* Step indicator dots */}
-              <div className="flex items-center justify-center gap-1.5 mb-4">
+              {/* Previous */}
+              <button
+                onClick={handlePrev}
+                disabled={currentStep === 0}
+                className="w-9 h-9 rounded-full flex items-center justify-center text-foreground/40 hover:text-foreground/70 hover:bg-foreground/5 transition-colors disabled:opacity-0 disabled:pointer-events-none"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+
+              {/* Step dots */}
+              <div className="flex items-center gap-1.5 px-2">
                 {steps.map((_, i) => (
                   <button
                     key={i}
                     onClick={() => setCurrentStep(i)}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
+                    className={`rounded-full transition-all duration-300 ${
                       i === currentStep
-                        ? "w-6 bg-primary"
+                        ? "w-5 h-2 bg-primary"
                         : i < currentStep
-                        ? "w-1.5 bg-primary/40"
-                        : "w-1.5 bg-foreground/15"
+                        ? "w-2 h-2 bg-primary/40"
+                        : "w-2 h-2 bg-foreground/15"
                     }`}
                   />
                 ))}
               </div>
 
-              {/* Icon + content */}
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center flex-shrink-0 text-primary">
-                  {step.icon}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-base font-semibold text-foreground mb-1">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm text-foreground/60 leading-relaxed">
-                    {step.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* Navigation */}
-              <div className="flex items-center justify-between mt-5 pt-4 border-t border-foreground/[0.06]">
-                <button
-                  onClick={handlePrev}
-                  disabled={currentStep === 0}
-                  className="flex items-center gap-1.5 text-sm text-foreground/40 hover:text-foreground/70 transition-colors disabled:opacity-0 disabled:pointer-events-none"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                  Previous
-                </button>
-
-                <span className="text-xs text-foreground/30 font-medium">
-                  {currentStep + 1} of {steps.length}
-                </span>
-
-                <button
-                  onClick={handleNext}
-                  className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors"
-                >
-                  {currentStep === steps.length - 1 ? "Done" : "Next"}
-                  {currentStep < steps.length - 1 && <ChevronRight className="w-4 h-4" />}
-                </button>
-              </div>
+              {/* Next / Done */}
+              <button
+                onClick={handleNext}
+                className="flex items-center gap-1 px-4 py-2 rounded-full bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/90 transition-colors"
+              >
+                {currentStep === steps.length - 1 ? "Done" : "Next"}
+                {currentStep < steps.length - 1 && <ChevronRight className="w-3.5 h-3.5" />}
+              </button>
             </div>
           </motion.div>
         </motion.div>

@@ -33,6 +33,52 @@ const FeedbackContent = ({ showHeader = true, onBack, onAIClick }: FeedbackConte
             </button>
         }
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Feedback</h1>
+        </div>
+      }
+
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
+        <div className="mb-4">
+          <p className="text-base text-neutral-400 leading-relaxed">
+            Manage feedback and error monitoring tools to improve app quality and user experience.
+          </p>
+        </div>
+
+        
+
+
+
+        <div className="mb-4">
+          <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
+            User Feedback
+          </h2>
+          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+            {/* Sentry */}
+            <div className="flex items-center justify-between py-3.5 px-4">
+              <div className="flex items-center gap-4">
+                <SettingsIcon bgColor="#FFFFFF">
+                  <Bug className={`${getIconSizeClass()} text-neutral-800`} />
+                </SettingsIcon>
+                <span className="text-foreground text-lg font-medium">Sentry</span>
+              </div>
+              <Switch checked={sentryEnabled} onCheckedChange={(val) => {
+                setSentryEnabled(val);
+                if (val) setInstabugEnabled(false);
+              }} />
+            </div>
+            <div className="h-px bg-neutral-700/50 mx-4" />
+            {/* Instabug */}
+            <div className="flex items-center justify-between py-3.5 px-4">
+              <div className="flex items-center gap-4">
+                <SettingsIcon bgColor="#CF0064">
+                  <MessageCircle className={`${getIconSizeClass()} text-white`} />
+                </SettingsIcon>
+                <span className="text-foreground text-lg font-medium">Instabug</span>
+              </div>
+              <Switch checked={instabugEnabled} onCheckedChange={(val) => {
+                setInstabugEnabled(val);
+                if (val) setSentryEnabled(false);
+              }} />
+            </div>
           </div>
           <p className="text-sm text-neutral-400 px-1 mt-2">
             Error monitoring and performance tracking in real-time.

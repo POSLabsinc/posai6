@@ -58,6 +58,11 @@ const NotificationDetailContent = ({ showHeader = true, onBack, onAIClick, notif
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2 truncate max-w-[60%]">
             {notification.title}
           </h1>
+        </div>
+      )}
+      <div className="flex-1 overflow-y-auto scrollbar-hide">
+        <NotificationDetailView notification={notification} />
+      </div>
     </div>
   );
 };

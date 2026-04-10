@@ -188,6 +188,133 @@ const AddMenuContent = ({
           <div className="w-12 h-12" />
         )}
         <h1 className="text-lg font-semibold text-foreground">Add Menu</h1>
+      </div>
+
+      {/* Form */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
+        {/* Menu Name */}
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-3">
+          <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
+            <span className="text-foreground text-base font-medium">Menu Name</span>
+            <div className="flex items-center gap-1">
+              <input
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="Enter Name"
+                className="bg-transparent text-right text-muted-foreground placeholder:text-muted-foreground outline-none text-base w-32"
+                onClick={(e) => e.stopPropagation()}
+              />
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </button>
+        </div>
+
+        {/* Keep Menu Active Group */}
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-3 divide-y divide-neutral-700/40">
+          {SCHEDULE_CHANNELS.map(({ key, label, desc }) => (
+            <div key={key}>
+              {/* Toggle Row */}
+              <div className="w-full flex items-center justify-between py-4 px-4">
+                <div className="flex-1 mr-3">
+                  <span className="text-foreground text-base font-medium">{label}</span>
+                  <p className="text-muted-foreground text-xs mt-0.5">{desc}</p>
+                </div>
+                <Switch
+                  checked={activeChannels[key]}
+                  onCheckedChange={(v) => setActiveChannels((prev) => ({ ...prev, [key]: v }))}
+                />
+              </div>
+
+              {/* Schedule Section (expanded when active) */}
+              {activeChannels[key] && (
+                <MenuScheduleSection
+                  startDate={schedules[key].startDate}
+                  endDate={schedules[key].endDate}
+                  onStartDateChange={(d) => updateSchedule(key, { startDate: d })}
+                  onEndDateChange={(d) => updateSchedule(key, { endDate: d })}
+                  startDateSet={schedules[key].startDateSet}
+                  endDateSet={schedules[key].endDateSet}
+                  onStartDateSetChange={(v) => updateSchedule(key, { startDateSet: v })}
+                  onEndDateSetChange={(v) => updateSchedule(key, { endDateSet: v })}
+                  daySchedules={schedules[key].daySchedules}
+                  onDaySchedulesChange={(s) => updateSchedule(key, { daySchedules: s })}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+
+        {/* Categories */}
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
+          <button
+            className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
+            onClick={() => setShowCategoriesSheet(true)}
+          >
+            <span className="text-foreground text-base font-medium">Categories</span>
+            <div className="flex items-center gap-1">
+              <span className="text-muted-foreground text-base">{formatSelection(selectedCategories, "0")}</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </button>
+        </div>
+        <p className="text-muted-foreground text-xs px-1 mt-1 mb-3">Select which categories appear in this menu.</p>
+
+        {/* Organize */}
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
+          <button
+            className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
+            onClick={() => selectedCategories.length > 0 ? setShowOrganizeScreen(true) : toast("Select categories first")}
+          >
+            <span className="text-foreground text-base font-medium">Organize</span>
+            <div className="flex items-center gap-1">
+              <span className="text-muted-foreground text-base">Organize Categories</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </button>
+        </div>
+        <p className="text-muted-foreground text-xs px-1 mt-1 mb-3">Reorder and arrange categories within this menu.</p>
+
+        {/* Revenue Centers */}
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
+          <button
+            className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
+            onClick={() => setShowRevenueCentersSheet(true)}
+          >
+            <span className="text-foreground text-base font-medium">Revenue Centers</span>
+            <div className="flex items-center gap-1">
+              <span className="text-muted-foreground text-base">{formatSelection(selectedRevenueCenters, "None")}</span>
+              <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </button>
+        </div>
+        <p className="text-muted-foreground text-xs px-1 mt-1 mb-6">Assign this menu to specific revenue centers.</p>
+      </div>
+
+      {/* Categories Sheet */}
+      <MultiSelectSheet
+        isOpen={showCategoriesSheet}
+        onClose={(selected) => {
+          setSelectedCategories(selected);
+          setShowCategoriesSheet(false);
+        }}
+        title="Select Categories"
+        options={allCategories}
+        initialSelected={selectedCategories}
+      />
+
+      {/* Revenue Centers Sheet */}
+      <MultiSelectSheet
+        isOpen={showRevenueCentersSheet}
+        onClose={(selected) => {
+          setSelectedRevenueCenters(selected);
+          setShowRevenueCentersSheet(false);
+        }}
+        title="Select Revenue Centers"
+        options={["Full Service", "Quick Service"]}
+        initialSelected={selectedRevenueCenters}
+      />
+    </div>
   );
 };
 

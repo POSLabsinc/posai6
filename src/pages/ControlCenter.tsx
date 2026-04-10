@@ -15,6 +15,13 @@ const ControlCenter = () => {
           <ChevronLeft className="w-4 h-4 text-foreground" />
         </button>
         <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Control center</h1>
+      </div>
+      <div className="flex-1 overflow-y-auto">
+        <ControlCenterContent
+          showHeader={false}
+          onBack={() => navigate('/settings/system')}
+        />
+      </div>
     </div>
   );
 };

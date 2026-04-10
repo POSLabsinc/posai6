@@ -157,6 +157,56 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
           )}
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Gratuity</h1>
         </div>
+      )}
+      <div className="px-6 pb-28 pt-0">
+        {/* Description */}
+        <div className="mb-4 px-1">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Set up tip options and automatic gratuity rules for your transactions.
+          </p>
+        </div>
+
+        {/* Enable Tip - Single Row */}
+         <div className="bg-neutral-800/60 rounded-full mb-1">
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-base font-medium">Enable Tip</span>
+             <Switch 
+              checked={settings.enableTip}
+              onCheckedChange={handleRestricted}
+            />
+          </div>
+        </div>
+         <p className="text-neutral-500 text-sm px-1 mb-6">
+           Show tip selection screen during checkout. When disabled, customers won't be prompted to add gratuity.
+         </p>
+
+        {/* Display Options Section */}
+        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Display Options</h2>
+         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
+          <div className="flex items-center justify-between py-3.5 px-4">
+             <span className="text-foreground text-base font-medium">Show Gratuity On Receipt</span>
+             <Switch 
+              checked={settings.showOnReceipt}
+              onCheckedChange={handleRestricted}
+            />
+          </div>
+          <div className="h-px bg-neutral-700/50 mx-4" />
+          <div className="flex items-center justify-between py-3.5 px-4">
+             <span className="text-foreground text-base font-medium">Allow Custom Gratuity</span>
+             <Switch 
+              checked={settings.allowCustom}
+              onCheckedChange={handleRestricted}
+            />
+          </div>
+          <div className="h-px bg-neutral-700/50 mx-4" />
+          <div className="flex items-center justify-between py-3.5 px-4">
+             <span className="text-foreground text-base font-medium">Disable Tip On Customer Facing Display</span>
+             <Switch 
+              checked={settings.disableTipOnCFD}
+              onCheckedChange={handleRestricted}
+            />
+          </div>
+        </div>
 
         {/* Gratuity Presets */}
         <div 

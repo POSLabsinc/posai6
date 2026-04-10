@@ -19,6 +19,12 @@ const EmployeeRoute = () => {
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
         </div>
+        <div className="flex-1 overflow-auto relative">
+          <EmployeeContent
+            showHeader={false}
+            onBack={() => navigate("/settings/workforce")}
+          />
+        </div>
       </div>
     );
   }

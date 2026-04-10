@@ -281,6 +281,52 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
             <Mic className="w-5 h-5 text-neutral-500 mr-2" />
           </div>
         </div>
+
+        {/* Archive Confirmation Dialog */}
+        <AlertDialog open={!!discountToArchive} onOpenChange={() => setDiscountToArchive(null)}>
+          <AlertDialogContent className="bg-neutral-800 border-neutral-700">
+            <AlertDialogHeader>
+              <AlertDialogTitle className="text-foreground">
+                {discountToArchive?.archived ? "Restore Discount" : "Archive Discount"}
+              </AlertDialogTitle>
+              <AlertDialogDescription className="text-neutral-400">
+                {discountToArchive?.archived 
+                  ? `Are you sure you want to restore "${discountToArchive?.name}"? It will appear in your active discounts list.`
+                  : `Are you sure you want to archive "${discountToArchive?.name}"? You can restore it later from the archive.`
+                }
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-neutral-700 text-foreground border-neutral-600 hover:bg-neutral-600">
+                Cancel
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmArchiveDiscount}
+                className="bg-primary text-primary-foreground hover:bg-primary/90"
+              >
+                {discountToArchive?.archived ? "Restore" : "Archive"}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+    );
+  }
+
+  // Desktop/Tablet Layout
+  return (
+    <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
+      {/* Back Button */}
+      {onBack && (
+        <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
+          <button
+            onClick={onBack}
+            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+          >
+            <ChevronLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">{showArchived ? "Archived Discounts" : "Discounts"}</h1>
+        </div>
       )}
 
       <div className="px-6 pt-4 pb-8">

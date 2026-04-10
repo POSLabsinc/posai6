@@ -61,7 +61,102 @@ const CashRegisterContent = ({ showHeader = true, onBack, onAIClick }: CashRegis
             </button>
           )}
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Cash Register</h1>
-          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+        </div>
+      )}
+
+      <div className="px-6 pb-28">
+        <div className="mb-4 px-1 pt-2">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Administer the cash drawer to ensure smooth handling of your payments.
+          </p>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-3 mb-6">
+          <button className="flex-1 bg-neutral-800/60 rounded-full py-3.5 px-4 flex items-center justify-center gap-2 active:opacity-70 transition-opacity">
+            <Search className="w-4 h-4 text-foreground" />
+            <span className="text-foreground text-base font-medium">Detect</span>
+          </button>
+          <button
+            onClick={() => setShowAddForm(true)}
+            className="flex-1 bg-neutral-800/60 rounded-full py-3.5 px-4 flex items-center justify-center gap-2 active:opacity-70 transition-opacity"
+          >
+            <Plus className="w-4 h-4 text-foreground" />
+            <span className="text-foreground text-base font-medium">Add New</span>
+          </button>
+        </div>
+
+        {/* Add New Form */}
+        {showAddForm && (
+          <div className="mb-6">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-semibold text-neutral-400 tracking-wider">
+                Add New Cash Drawer
+              </p>
+              <button
+                onClick={() => { setShowAddForm(false); setNewName(""); setNewModel(""); }}
+                className="text-xs text-neutral-500 active:opacity-70"
+              >
+                Cancel
+              </button>
+            </div>
+            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-3">
+              <div className="py-3.5 px-4 flex items-center justify-between">
+                <span className="text-foreground text-sm font-medium">Name</span>
+                <input
+                  type="text"
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  placeholder="Enter Name"
+                  maxLength={100}
+                  className="bg-transparent text-right text-sm text-neutral-400 placeholder:text-neutral-600 outline-none w-1/2"
+                />
+              </div>
+              <div className="h-px bg-neutral-700/50 mx-4" />
+              <button
+                onClick={() => setShowModelPicker(true)}
+                className="w-full py-3.5 px-4 flex items-center justify-between active:opacity-70 transition-opacity"
+              >
+                <span className="text-foreground text-sm font-medium">Drawer Model</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-neutral-500 text-sm">{newModel || "Please Select Model"}</span>
+                  <ChevronRight className="w-4 h-4 text-neutral-500" />
+                </div>
+              </button>
+            </div>
+            <button
+              onClick={() => {
+                if (newName.trim() && newModel) {
+                  const newDevice: DrawerDevice = {
+                    id: String(Date.now()),
+                    name: newName.trim(),
+                    type: newModel,
+                    serial: Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2),
+                  };
+                  setDrawers(prev => [...prev, newDevice]);
+                  setShowAddForm(false);
+                  setNewName("");
+                  setNewModel("");
+                }
+              }}
+              disabled={!newName.trim() || !newModel}
+              className={`w-full rounded-full py-3.5 px-4 flex items-center justify-center transition-opacity ${
+                newName.trim() && newModel
+                  ? 'bg-foreground active:opacity-70'
+                  : 'bg-neutral-700/50 opacity-50'
+              }`}
+            >
+              <span className={`text-base font-medium ${newName.trim() && newModel ? 'text-background' : 'text-neutral-400'}`}>
+                Save
+              </span>
+            </button>
+          </div>
+        )}
+
+        {/* Model Picker Overlay */}
+        {showModelPicker && (
+          <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center">
+            <div className="absolute inset-0 bg-black/50" onClick={() => setShowModelPicker(false)} />
             <div className="relative bg-neutral-900 rounded-t-2xl md:rounded-2xl w-full md:max-w-sm overflow-hidden">
               <div className="py-4 px-6 border-b border-neutral-700/50">
                 <p className="text-foreground text-base font-semibold text-center">Select Drawer Model</p>

@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Check, Sun } from "lucide-react";
-
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useTheme } from "next-themes";
@@ -157,7 +156,6 @@ const AppearanceSettings = () => {
             <ChevronLeft className="w-4 h-4 text-foreground" />
           </button>
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Appearance</h1>
-          <div className="w-10 h-10" />
         </div>
 
         {/* App Theme Section */}

@@ -31,11 +31,11 @@ import { DeviceSetupLayout } from "@/components/DeviceSetupLayout";
 import { PersonalDeviceAuthPanel } from "@/components/PersonalDeviceAuthPanel";
 import { SplashScreen } from "@/components/SplashScreen";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-
+import DeviceSetupAIChat from "@/components/DeviceSetupAIChat";
 import BusinessSearchOnboarding from "@/components/BusinessSearchOnboarding";
 import MerchantOnboarding from "@/components/MerchantOnboarding";
 import { countryCodes } from "@/components/CountryCodeSelector";
-
+import DeviceSetupTutorialOverlay from "@/components/DeviceSetupTutorialOverlay";
 
 
 import { revenueCenters, employeePinMapping, locationEmployees, getRoleIcon, getRoleBadgeStyle, getTimeOfDayInfo, PIN_LENGTH, DeviceType } from "@/data/loginData";
@@ -111,6 +111,8 @@ const Login = () => {
   
   // Contact admin dialog state
   const [showContactAdmin, setShowContactAdmin] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(false);
+  const [showTutorialOverlay, setShowTutorialOverlay] = useState(false);
   
   // Company Device - First-time device setup state
   const [showDeviceSetup, setShowDeviceSetup] = useState(false);
@@ -1079,6 +1081,131 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         </div>
       );
     }
+    if (showAIChat) {
+      return (
+        <div className="fixed inset-0 login-bg flex overflow-hidden">
+          <div className="absolute inset-0 gradient-mesh opacity-30" />
+          
+          {/* Mobile: Full-screen AI chat */}
+          <div className="relative z-10 flex w-full h-full md:hidden">
+            <div className="flex-1 h-full">
+              <DeviceSetupAIChat
+                open={true}
+                onClose={() => setShowAIChat(false)}
+                deviceType="company"
+              />
+            </div>
+          </div>
+
+          {/* Desktop/Tablet: 50/50 split */}
+          <div className="relative z-10 hidden md:flex w-full h-full">
+            {/* Left Panel - Brand + Activation Options */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+              className="w-1/2 h-full border-r border-foreground/[0.08] flex flex-col items-center justify-center p-8 lg:p-12"
+            >
+              <div className="w-full max-w-md flex flex-col items-center">
+                {/* Brand */}
+                <motion.img
+                  src={eatosLogo}
+                  alt="POS AI"
+                  className="w-20 lg:w-24 h-auto mb-4"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.4 }}
+                />
+                <h1 className="text-xl lg:text-2xl font-bold text-foreground mb-1 text-center">
+                  Activate this device
+                </h1>
+                <p className="text-sm text-foreground/50 text-center mb-8">
+                  Choose a method below, or let AI guide you through the process
+                </p>
+
+                {/* Activation Options */}
+                <div className="w-full flex flex-col gap-2.5">
+                  <button
+                    onClick={() => { setShowAIChat(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium transition-all border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-foreground/[0.06] flex items-center justify-center shrink-0">
+                      <ScanLine className="w-4.5 h-4.5 text-foreground/50" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground/80">Scan QR Code</p>
+                      <p className="text-xs text-foreground/40">Use your phone camera</p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => { setShowAIChat(false); }}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium transition-all border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-foreground/[0.06] flex items-center justify-center shrink-0">
+                      <Globe className="w-4.5 h-4.5 text-foreground/50" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground/80">Use a Browser</p>
+                      <p className="text-xs text-foreground/40">Visit posai.com/pair</p>
+                    </div>
+                  </button>
+
+                  <button
+                    onClick={() => { setShowAIChat(false); setShowOtherOptions(true); }}
+                    className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium transition-all border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground"
+                  >
+                    <div className="w-9 h-9 rounded-lg bg-foreground/[0.06] flex items-center justify-center shrink-0">
+                      <Mail className="w-4.5 h-4.5 text-foreground/50" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground/80">Email / Phone</p>
+                      <p className="text-xs text-foreground/40">Receive activation code</p>
+                    </div>
+                  </button>
+
+                  {/* Active AI option */}
+                  <div className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium border border-primary/30 bg-primary/[0.08] text-foreground">
+                    <div className="w-9 h-9 rounded-lg bg-primary/[0.15] flex items-center justify-center shrink-0">
+                      <img src={aiColorfulIcon} alt="AI" className="w-4.5 h-4.5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Activate with AI</p>
+                      <p className="text-xs text-primary/70">AI-guided setup</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer */}
+                <div className="mt-8">
+                  <button onClick={() => setShowTutorialOverlay(true)} className="text-xs text-foreground/30 hover:text-foreground/50 transition-colors">
+                    Need Help?
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+
+            {/* Right Panel - AI Chat */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3, delay: 0.1 }}
+              className="w-1/2 h-full"
+            >
+              <DeviceSetupAIChat
+                open={true}
+                onClose={() => setShowAIChat(false)}
+                deviceType="company"
+              />
+            </motion.div>
+          </div>
+
+          {showTutorialOverlay && (
+            <DeviceSetupTutorialOverlay open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} variant="new" />
+          )}
+        </div>
+      );
+    }
 
     return (
       <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-auto">
@@ -1105,6 +1232,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <p className="text-sm sm:text-base text-foreground/50 text-center max-w-md md:max-w-none">
               To start using this Point of Sale, activate your device using one of the options below
             </p>
+            <button
+              onClick={() => setShowAIChat(true)}
+              className="mt-4 px-6 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
+              <span>Activate with AI</span>
+            </button>
           </motion.div>
 
           <div className="mt-4 sm:mt-6 md:mt-8" />
@@ -1237,7 +1371,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
             {/* Desktop footer */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-6 w-full flex flex-col items-center gap-3">
-              <button className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors">Need Help?</button>
+              <button onClick={() => setShowTutorialOverlay(true)} className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors">Need Help?</button>
             </motion.div>
           </div>
 
@@ -1403,7 +1537,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
             {/* Mobile footer */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-6 flex flex-col items-center gap-3">
-              <button className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors">Need Help?</button>
+              <button onClick={() => setShowTutorialOverlay(true)} className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors">Need Help?</button>
             </motion.div>
           </div>
         </div>
@@ -1411,6 +1545,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="new"
         />
       </div>
     );
@@ -1920,7 +2059,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mt-8 text-center"
           >
             <button
-              onClick={() => {}}
+              onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need help?
@@ -1931,6 +2070,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="new"
         />
       </div>
     );
@@ -5066,7 +5210,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mt-2 md:mt-4"
           >
             <button
-              onClick={() => {}}
+              onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need help?
@@ -5077,6 +5221,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="new"
         />
 
 
@@ -7438,7 +7587,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               {showExistingOtherOptions ? "Back to options" : "Sign in via email / phone"}
             </button>
             <button
-              onClick={() => {}}
+              onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need Help?
@@ -7449,6 +7598,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="existing"
         />
       </div>
     );

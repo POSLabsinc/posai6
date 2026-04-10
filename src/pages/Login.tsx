@@ -5604,7 +5604,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   className="w-16 h-16 rounded-2xl overflow-hidden"
                 >
                   <img 
-                    src={restaurantLogo} 
+                    src={localStorage.getItem('partnerLogoUrl') || restaurantLogo} 
                     alt="The Rustic Table" 
                     className="w-full h-full object-cover"
                   />
@@ -8289,7 +8289,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 className="w-16 h-16 rounded-2xl overflow-hidden"
               >
                 <img 
-                  src={restaurantLogo} 
+                  src={localStorage.getItem('partnerLogoUrl') || restaurantLogo} 
                   alt="The Rustic Table" 
                   className="w-full h-full object-cover"
                 />

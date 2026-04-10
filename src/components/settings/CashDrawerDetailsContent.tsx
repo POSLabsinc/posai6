@@ -224,6 +224,7 @@ const CashDrawerDetailsContent = ({
           cashRefunds,
           expectedInDrawer,
           difference,
+          closingReason: differenceReason.trim() || undefined,
         });
       }
 

@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, Calendar, DollarSign, Users, Share2, FileText, Mail, MessageSquare, Download, RotateCcw, Clock } from "lucide-react";
+import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, Calendar, DollarSign, Users, Share2, FileText, Mail, MessageSquare, Download, RotateCcw, Clock, Sparkles, Send, Phone } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { OverlayTimePicker } from "@/components/ui/overlay-time-picker";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import ReactMarkdown from "react-markdown";
 
 interface ShiftSummaryModalProps {
   open: boolean;
@@ -133,7 +134,6 @@ export default function ShiftSummaryModal({
   const [filterRevenueCenter, setFilterRevenueCenter] = useState<string | null>(null);
   const [activePreset, setActivePreset] = useState<DatePreset>("today");
 
-  // Time picker overlay state
   const [showTimeFromPicker, setShowTimeFromPicker] = useState(false);
   const [showTimeToPicker, setShowTimeToPicker] = useState(false);
 
@@ -145,6 +145,16 @@ export default function ShiftSummaryModal({
   const [selectedOrder, setSelectedOrder] = useState<TicketOrder | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItemRow[]>([]);
   const [loadingItems, setLoadingItems] = useState(false);
+
+  // Share popup state
+  const [sharePopup, setSharePopup] = useState<"email" | "text" | null>(null);
+  const [shareInput, setShareInput] = useState("");
+  const [shareSending, setShareSending] = useState(false);
+
+  // AI Insights state
+  const [showAIInsights, setShowAIInsights] = useState(false);
+  const [aiInsights, setAiInsights] = useState<string | null>(null);
+  const [aiLoading, setAiLoading] = useState(false);
 
   const hasActiveFilters = filterEmployee || filterRevenueCenter || activePreset !== "today" || filterTimeFrom !== "00:00" || filterTimeTo !== "23:59";
 
@@ -230,20 +240,17 @@ export default function ShiftSummaryModal({
   const totalCardSales = useMemo(() => paidOrders.filter(o => { const pt = (o.payment_type || "").toLowerCase(); return pt !== "cash"; }).reduce((s, o) => s + Number(o.total), 0), [paidOrders]);
   const totalCashSales = useMemo(() => paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + Number(o.total), 0), [paidOrders]);
   const totalTips = useMemo(() => paidOrders.reduce((s, o) => s + Number(o.tip), 0), [paidOrders]);
-
-  // Tips Payable = Total Tips - Cash Tips (what needs to be paid out from card tips)
   const totalCashTips = useMemo(() => paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + Number(o.tip), 0), [paidOrders]);
   const tipsPayable = totalTips - totalCashTips;
 
   const overallTotal = useMemo(() => paidOrders.reduce((s, o) => s + Number(o.total) + Number(o.tip), 0), [paidOrders]);
-
   const totalPayIn = useMemo(() => cashTxs.filter(c => c.type === "pay_in").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
   const totalPayOut = useMemo(() => cashTxs.filter(c => c.type === "pay_out").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
   const totalCashDrop = totalCashSales + totalPayIn - totalPayOut;
 
   const initials = getInitials(employeeName);
 
-  // Aggregate by payment type for table
+  // Aggregate by payment type
   const paymentTypeSummary = useMemo(() => {
     const map = new Map<string, { qty: number; amount: number; tips: number; totalTips: number }>();
     paidOrders.forEach(o => {
@@ -278,9 +285,11 @@ export default function ShiftSummaryModal({
     setFilterDateTo(to);
   };
 
-  const handleShare = (action: string) => {
-    const reportText = `Shift Summary - ${employeeName}\nTotal: $${overallTotal.toFixed(2)}\nCard Sales: $${totalCardSales.toFixed(2)}\nCash Sales: $${totalCashSales.toFixed(2)}\nTips: $${totalTips.toFixed(2)}\nTips Payable: $${tipsPayable.toFixed(2)}\nCash Drop: $${totalCashDrop.toFixed(2)}`;
+  const buildReportText = () => {
+    return `Shift Summary - ${employeeName}\nDate: ${formatDateDisplay(filterDateFrom)}\nTotal: $${overallTotal.toFixed(2)}\nCard Sales: $${totalCardSales.toFixed(2)}\nCash Sales: $${totalCashSales.toFixed(2)}\nTips: $${totalTips.toFixed(2)}\nTips Payable: $${tipsPayable.toFixed(2)}\n\nBreakdown:\n${paymentTypeSummary.map(r => `${r.type}: ${r.qty} orders, $${r.amount.toFixed(2)}, Tips: $${r.totalTips.toFixed(2)}`).join("\n")}`;
+  };
 
+  const handleShare = (action: string) => {
     switch (action) {
       case "pdf": {
         const printWindow = window.open("", "_blank");
@@ -301,7 +310,7 @@ export default function ShiftSummaryModal({
               .text-right { text-align: right; }
             </style></head><body>
             <h1>Shift Summary</h1>
-            <h2>${employeeName} - ${employeeRole} | ${formatDateDisplay(filterDateFrom)} to ${formatDateDisplay(filterDateTo)}</h2>
+            <h2>${employeeName} - ${employeeRole} | ${formatDateDisplay(filterDateFrom)}</h2>
             <div class="metrics">
               <div class="metric"><div class="metric-label">Total Card Sales</div><div class="metric-value">$${totalCardSales.toFixed(2)}</div></div>
               <div class="metric"><div class="metric-label">Total Cash Sales</div><div class="metric-value">$${totalCashSales.toFixed(2)}</div></div>
@@ -319,20 +328,14 @@ export default function ShiftSummaryModal({
         }
         break;
       }
-      case "email": {
-        const subject = encodeURIComponent(`Shift Summary - ${employeeName}`);
-        const body = encodeURIComponent(reportText);
-        window.open(`mailto:?subject=${subject}&body=${body}`);
+      case "email":
+        setSharePopup("email");
+        setShareInput("");
         break;
-      }
-      case "text": {
-        if (navigator.share) {
-          navigator.share({ title: "Shift Summary", text: reportText }).catch(() => {});
-        } else {
-          navigator.clipboard.writeText(reportText);
-        }
+      case "text":
+        setSharePopup("text");
+        setShareInput("");
         break;
-      }
       case "download": {
         const csvRows = [
           ["Type", "Quantity", "Amount", "Tips", "Total Tips"],
@@ -348,6 +351,63 @@ export default function ShiftSummaryModal({
         URL.revokeObjectURL(url);
         break;
       }
+    }
+  };
+
+  const handleSendShare = () => {
+    if (!shareInput.trim()) return;
+    const reportText = buildReportText();
+    setShareSending(true);
+
+    if (sharePopup === "email") {
+      const subject = encodeURIComponent(`Shift Summary - ${employeeName}`);
+      const body = encodeURIComponent(reportText);
+      window.open(`mailto:${encodeURIComponent(shareInput)}?subject=${subject}&body=${body}`);
+    } else if (sharePopup === "text") {
+      const smsBody = encodeURIComponent(reportText);
+      window.open(`sms:${shareInput}?body=${smsBody}`);
+    }
+
+    setTimeout(() => {
+      setShareSending(false);
+      setSharePopup(null);
+      setShareInput("");
+    }, 500);
+  };
+
+  // AI Insights
+  const fetchAIInsights = async () => {
+    setShowAIInsights(true);
+    setAiLoading(true);
+    setAiInsights(null);
+    try {
+      const shiftData = {
+        employee: employeeName,
+        role: employeeRole,
+        totalHours,
+        totalCardSales,
+        totalCashSales,
+        totalTips,
+        tipsPayable,
+        totalCashTips,
+        overallTotal,
+        totalCashDrop,
+        orderCount: paidOrders.length,
+        paymentBreakdown: paymentTypeSummary,
+        dateRange: `${formatDateDisplay(filterDateFrom)} to ${formatDateDisplay(filterDateTo)}`,
+      };
+
+      const { data, error } = await supabase.functions.invoke("shift-insights", {
+        body: { shiftData },
+      });
+
+      if (error) throw error;
+      setAiInsights(data?.insights || "No insights available at this time.");
+    } catch (e: any) {
+      console.error("AI insights error:", e);
+      setAiInsights("Unable to generate insights. Please try again later.");
+    } finally {
+      setAiLoading(false);
     }
   };
 
@@ -370,6 +430,104 @@ export default function ShiftSummaryModal({
   };
 
   if (!open) return null;
+
+  // Share email/text popup
+  if (sharePopup) {
+    const isEmail = sharePopup === "email";
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/70" onClick={() => setSharePopup(null)} />
+        <div className="relative z-10 w-[440px] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
+                {isEmail ? <Mail className="w-5 h-5 text-white" /> : <Phone className="w-5 h-5 text-white" />}
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">{isEmail ? "Send via Email" : "Send via Text"}</h2>
+                <p className="text-sm text-neutral-400">Share shift summary</p>
+              </div>
+            </div>
+            <button onClick={() => setSharePopup(null)} className="w-9 h-9 rounded-sm flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity">
+              <X className="h-5 w-5 text-neutral-300" />
+            </button>
+          </div>
+
+          <div className="px-6 py-6">
+            <label className="text-sm font-medium text-neutral-300 mb-2 block">
+              {isEmail ? "Email Address" : "Phone Number"}
+            </label>
+            <div className="flex gap-3">
+              <input
+                type={isEmail ? "email" : "tel"}
+                value={shareInput}
+                onChange={e => setShareInput(e.target.value)}
+                onKeyDown={e => e.key === "Enter" && handleSendShare()}
+                placeholder={isEmail ? "Enter email address" : "Enter phone number"}
+                className="flex-1 px-4 py-3 bg-neutral-800 border border-white/10 rounded-xl text-base text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-white/20"
+                autoFocus
+              />
+              <button
+                onClick={handleSendShare}
+                disabled={!shareInput.trim() || shareSending}
+                className="px-5 py-3 bg-white text-black font-semibold rounded-xl hover:bg-neutral-200 transition-colors disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-2 text-base"
+              >
+                <Send className="w-4 h-4" />
+                Send
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // AI Insights popup
+  if (showAIInsights) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/70" onClick={() => setShowAIInsights(false)} />
+        <div className="relative z-10 w-[540px] max-h-[80vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 shrink-0">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-purple-500/15 flex items-center justify-center">
+                <Sparkles className="w-5 h-5 text-purple-400" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">AI Shift Insights</h2>
+                <p className="text-sm text-neutral-400">{employeeName} - {formatDateDisplay(filterDateFrom)}</p>
+              </div>
+            </div>
+            <button onClick={() => setShowAIInsights(false)} className="w-9 h-9 rounded-sm flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity">
+              <X className="h-5 w-5 text-neutral-300" />
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-auto px-6 py-5">
+            {aiLoading ? (
+              <div className="flex flex-col items-center justify-center py-12 gap-3">
+                <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
+                <p className="text-base text-neutral-400">Analyzing shift data...</p>
+              </div>
+            ) : aiInsights ? (
+              <div className="prose prose-invert prose-sm max-w-none text-base leading-relaxed">
+                <ReactMarkdown>{aiInsights}</ReactMarkdown>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="px-6 py-4 border-t border-white/10 shrink-0 flex justify-end gap-3">
+            <button onClick={fetchAIInsights} disabled={aiLoading} className="px-4 py-2.5 bg-white/10 text-white rounded-xl text-sm font-medium hover:bg-white/15 transition-colors disabled:opacity-40">
+              Regenerate
+            </button>
+            <button onClick={() => setShowAIInsights(false)} className="px-4 py-2.5 bg-white text-black rounded-xl text-sm font-medium hover:bg-neutral-200 transition-colors">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   // Check detail view
   if (selectedOrder) {
@@ -596,10 +754,15 @@ export default function ShiftSummaryModal({
               </button>
             )}
 
-            {/* AI Icon */}
-            <div className="flex items-center justify-center rounded-xl" style={{ width: 40, height: 40, background: "rgba(100, 100, 100, 0.4)" }}>
+            {/* AI Icon - functional */}
+            <button
+              onClick={fetchAIInsights}
+              className="flex items-center justify-center rounded-xl hover:bg-white/15 transition-colors"
+              style={{ width: 40, height: 40, background: "rgba(100, 100, 100, 0.4)" }}
+              title="AI Insights"
+            >
               <AnimatedAIIcon size={18} />
-            </div>
+            </button>
 
             {/* Close */}
             <button onClick={onClose} className="w-9 h-9 rounded-sm flex items-center justify-center opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none">
@@ -608,7 +771,7 @@ export default function ShiftSummaryModal({
           </div>
         </div>
 
-        {/* Shift time bar - larger and more prominent */}
+        {/* Shift time bar */}
         <div className="flex items-center gap-6 px-6 py-4 bg-white/[0.04] border-b border-white/10 shrink-0">
           <div className="flex items-center gap-2">
             <Clock className="w-5 h-5 text-neutral-400" />
@@ -658,15 +821,11 @@ export default function ShiftSummaryModal({
           </div>
         </div>
 
-        {/* Bottom summary row with Tips Payable */}
+        {/* Bottom summary row - Total and Tips Payable only (no Cash Drop) */}
         <div className="flex items-center px-6 py-3 shrink-0 gap-8 border-b border-white/10">
           <div>
             <p className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Total</p>
             <p className="text-2xl font-bold text-white mt-0.5">$ {overallTotal.toFixed(2)}</p>
-          </div>
-          <div>
-            <p className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Cash Drop</p>
-            <p className="text-2xl font-bold text-white mt-0.5">$ {totalCashDrop.toFixed(2)}</p>
           </div>
           <div>
             <p className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Tips Payable</p>
@@ -674,21 +833,21 @@ export default function ShiftSummaryModal({
           </div>
         </div>
 
-        {/* Data table - Type, Qty, Amount, Tips, Total Tips */}
+        {/* Data table */}
         <div className="flex-1 overflow-auto px-6 py-3">
           {loading ? (
-            <p className="text-sm text-neutral-500 py-8 text-center">Loading transactions...</p>
+            <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
           ) : paymentTypeSummary.length === 0 ? (
-            <p className="text-sm text-neutral-500 py-8 text-center">No transactions found for the selected filters</p>
+            <p className="text-base text-neutral-500 py-8 text-center">No transactions found for the selected filters</p>
           ) : (
             <table className="w-full text-[15px]">
               <thead className="sticky top-0 bg-[#1C1C1E] z-10">
                 <tr className="border-b-2 border-white/10 text-left">
-                  <th className="py-3 pr-4 text-xs font-bold text-amber-600 uppercase tracking-wider">Type</th>
-                  <th className="py-3 pr-4 text-xs font-bold text-amber-600 uppercase tracking-wider">Qty</th>
-                  <th className="py-3 pr-4 text-xs font-bold text-amber-600 uppercase tracking-wider text-right">Amount</th>
-                  <th className="py-3 pr-4 text-xs font-bold text-amber-600 uppercase tracking-wider text-right">Tip</th>
-                  <th className="py-3 pl-4 text-xs font-bold text-amber-600 uppercase tracking-wider text-right">Total Tips</th>
+                  <th className="py-3 pr-4 text-xs font-bold text-white/60 uppercase tracking-wider">Type</th>
+                  <th className="py-3 pr-4 text-xs font-bold text-white/60 uppercase tracking-wider">Qty</th>
+                  <th className="py-3 pr-4 text-xs font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
+                  <th className="py-3 pr-4 text-xs font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
+                  <th className="py-3 pl-4 text-xs font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
                 </tr>
               </thead>
               <tbody>
@@ -707,11 +866,6 @@ export default function ShiftSummaryModal({
                   <td colSpan={2} className="py-3.5 pr-4 text-[15px] font-bold text-white">Total</td>
                   <td className="py-3.5 pr-4 text-[15px] font-bold text-white text-right">$ {overallTotal.toFixed(2)}</td>
                   <td className="py-3.5 pr-4 text-[15px] font-bold text-white text-right" colSpan={2}>$ {totalTips.toFixed(2)}</td>
-                </tr>
-                <tr className="bg-neutral-800/30">
-                  <td colSpan={2} className="py-3.5 pr-4 text-[15px] font-bold text-white">Cash Drop</td>
-                  <td className="py-3.5 pr-4" colSpan={1}></td>
-                  <td className="py-3.5 pl-4 text-[15px] font-bold text-white text-right" colSpan={2}>$ {totalCashDrop.toFixed(2)}</td>
                 </tr>
               </tfoot>
             </table>

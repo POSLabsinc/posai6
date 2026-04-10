@@ -170,6 +170,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
   const [createDevicePin, setCreateDevicePin] = useState("");
   const [createDevicePinError, setCreateDevicePinError] = useState("");
   const [showOnboarding, setShowOnboarding] = useState(false);
+  const [chatDeviceName, setChatDeviceName] = useState("Rustic Table POS 1");
 
   useEffect(() => {
     if (open && scrollRef.current) {

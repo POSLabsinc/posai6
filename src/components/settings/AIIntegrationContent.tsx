@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Eye, EyeOff, Trash2, RefreshCw, Info, BookOp
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -236,6 +237,114 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
             AI Integration
           </h1>
           <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate("/settings/ai"))} />
+          </div>
+        </div>
+      )}
+
+      <div className="pt-0 px-6 pb-28">
+        {/* Description */}
+        <p className="text-sm text-neutral-400 leading-relaxed mb-6 md:text-balance">
+          Configure external AI providers using your own API keys. AI-powered features across the platform will use this integration when enabled.
+        </p>
+
+        {/* Enable/Disable Toggle */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-semibold text-neutral-400 tracking-wider">
+              AI Integration
+            </span>
+            <Switch
+              checked={enabled}
+              onCheckedChange={handleToggleEnabled}
+              className="data-[state=checked]:bg-green-500"
+            />
+          </div>
+        </div>
+
+        {/* Connection Status */}
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-base font-medium">Status</span>
+            <span className={`text-base font-medium ${STATUS_LABELS[status].color}`}>
+              {STATUS_LABELS[status].label}
+            </span>
+          </div>
+        </div>
+
+        {/* Provider Selection */}
+        <div className="mb-4">
+          <span className="text-sm font-semibold text-neutral-400 tracking-wider block mb-3">
+            AI Provider
+          </span>
+          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+            {PROVIDERS.map((p, index) => (
+              <div key={p.id}>
+                <button
+                  onClick={() => handleProviderChange(p.id)}
+                  className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
+                >
+                  <span className="text-foreground text-base font-medium">{p.name}</span>
+                  {provider === p.id && (
+                    <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                      <span className="text-white text-xs">✓</span>
+                    </div>
+                  )}
+                </button>
+                {index < PROVIDERS.length - 1 && <div className="h-px bg-neutral-700/50 mx-4" />}
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* API Key */}
+        {provider && (
+          <div className="mb-4">
+            <span className="text-sm font-semibold text-neutral-400 tracking-wider block mb-3">
+              API Key
+            </span>
+            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden p-4">
+              {hasSavedKey && !apiKey ? (
+                <div className="flex items-center justify-between">
+                  <span className="text-neutral-400 text-base font-mono">
+                    {maskKey("sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")}
+                  </span>
+                  <button
+                    onClick={() => setHasSavedKey(false)}
+                    className="text-sm text-primary font-medium active:opacity-70"
+                  >
+                    Update
+                  </button>
+                </div>
+              ) : (
+                <div className="relative">
+                  <Input
+                    type={showKey ? "text" : "password"}
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    placeholder={provider === "openai" ? "sk-..." : provider === "maya" ? "maya-..." : "AIza..."}
+                    className="bg-neutral-700/50 border-neutral-600 text-foreground pr-10 font-mono text-sm"
+                  />
+                  <button
+                    onClick={() => setShowKey(!showKey)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 active:opacity-70"
+                  >
+                    {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Test Connection Button */}
+        {provider && (
+          <button
+            onClick={handleTestConnection}
+            disabled={isTesting}
+            className="w-full bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-foreground font-semibold py-3.5 rounded-2xl text-sm tracking-wide transition-colors mb-4 flex items-center justify-center gap-2"
+          >
+            <RefreshCw className={`w-4 h-4 ${isTesting ? "animate-spin" : ""}`} />
             {isTesting ? "Testing..." : "Test Connection"}
           </button>
         )}

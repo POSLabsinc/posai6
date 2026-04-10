@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight, Plus, Search, Mic, Clock, Trash2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
@@ -118,6 +119,143 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
             <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
               <h1 className="text-base font-medium text-foreground">Timed Pricing</h1>
             </div>
+            <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+              <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate("/settings/ai", { state: { context: "menu" } }))} />
+            </div>
+          </div>
+        )}
+
+        <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
+          <div className="mt-4 mb-4 px-1">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Configure time-based pricing rules to automatically adjust product prices during happy hours, peak times, late night specials, or any custom schedule you define.
+            </p>
+          </div>
+
+          <section className="mt-6 flex items-center gap-2 lg:gap-4">
+            <div className="flex-1 min-w-0 rounded-full bg-neutral-800/60 px-5 py-3 flex items-center gap-3">
+              <Search className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
+              <input type="text" placeholder="Search rules" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-[hsl(var(--text-subtle))] outline-none text-[15px]" />
+              <Mic className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
+            </div>
+            <button onClick={() => navigate('/settings/menu/timed-pricing/add')} className="h-12 rounded-full px-5 lg:px-10 flex-shrink-0 flex items-center justify-center gap-2 bg-neutral-800/60 text-foreground active:opacity-70 transition-opacity">
+              <Plus className="h-5 w-5" />
+              <span className="text-[15px] font-semibold">Add</span>
+            </button>
+          </section>
+
+          <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
+            <div className="grid grid-cols-[1.5fr_1fr_1fr_1.2fr_32px] items-center px-8 py-4 border-b border-neutral-700/50">
+              <span className="text-sm font-medium text-muted-foreground">Timed Pricing Name</span>
+              <span className="text-sm font-medium text-muted-foreground">Start Date</span>
+              <span className="text-sm font-medium text-muted-foreground">End Date</span>
+              <span className="text-sm font-medium text-muted-foreground text-right">Days</span>
+              <span />
+            </div>
+
+            {filteredRules.length > 0 ? (
+              filteredRules.map((rule, index) => (
+                <div key={rule.id}>
+                  {index > 0 && <div className="h-px bg-neutral-700/30" />}
+                  <button onClick={() => navigate(`/settings/menu/timed-pricing/edit/${rule.id}`)} className="grid grid-cols-[1.5fr_1fr_1fr_1.2fr_32px] items-center px-8 py-5 w-full hover:bg-neutral-700/20 transition-colors cursor-pointer">
+                    <span className="text-[15px] text-foreground text-left">{rule.name}</span>
+                    <span className="text-[15px] text-muted-foreground">{rule.startTime}</span>
+                    <span className="text-[15px] text-muted-foreground">{rule.endTime}</span>
+                    <span className="text-[15px] text-muted-foreground text-right">{rule.days.length === 7 ? "Mon, Tue, Wed, Thu, Fri, Sat, Sun" : rule.days.join(", ")}</span>
+                    <ChevronRight className="w-5 h-5 text-muted-foreground justify-self-end" />
+                  </button>
+                </div>
+              ))
+            ) : (
+              <div className="px-8 py-10 text-center text-[hsl(var(--text-subtle))]">No pricing rules found</div>
+            )}
+          </section>
+
+        </div>
+
+        <DeleteDialog rule={ruleToDelete} onCancel={() => setRuleToDelete(null)} onConfirm={confirmDelete} />
+      </div>
+    );
+  }
+
+  // Mobile
+  return (
+    <div className="h-full flex flex-col overflow-hidden bg-background">
+      {showHeader && (
+        <div className="flex items-center justify-center py-4 px-4 relative">
+          {onBack && (
+            <button onClick={onBack} className="absolute left-4 w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center active:opacity-70 transition-opacity">
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+          <h1 className="text-lg font-semibold text-foreground">Timed Pricing</h1>
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
+        <div className="flex gap-3 mb-4">
+          <button onClick={() => navigate('/settings/menu/timed-pricing/add')} className="flex-1 py-4 bg-neutral-800 rounded-full flex items-center justify-center gap-2 active:opacity-70 transition-opacity">
+            <Plus className="w-5 h-5 text-foreground" />
+            <span className="text-foreground font-medium text-base">Add Rule</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-3 gap-3 mb-4">
+          <div className="bg-neutral-800/60 rounded-2xl p-4 text-center">
+            <p className="text-xl font-semibold text-foreground">{rules.filter((r) => r.type === "happy_hour" && r.enabled).length}</p>
+            <p className="text-xs text-muted-foreground mt-1">Happy Hours</p>
+          </div>
+          <div className="bg-neutral-800/60 rounded-2xl p-4 text-center">
+            <p className="text-xl font-semibold text-foreground">{rules.filter((r) => r.type === "peak_time" && r.enabled).length}</p>
+            <p className="text-xs text-muted-foreground mt-1">Peak Times</p>
+          </div>
+          <div className="bg-neutral-800/60 rounded-2xl p-4 text-center">
+            <p className="text-xl font-semibold text-foreground">{rules.filter((r) => r.enabled).length}/{rules.length}</p>
+            <p className="text-xs text-muted-foreground mt-1">Active</p>
+          </div>
+        </div>
+
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          {filteredRules.length > 0 ? (
+            filteredRules.map((rule, index) => (
+              <div key={rule.id}>
+                {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
+                <button onClick={() => navigate(`/settings/menu/timed-pricing/edit/${rule.id}`)} className="flex items-center justify-between py-4 px-4 w-full active:opacity-70 transition-opacity">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0" style={{ backgroundColor: typeColors[rule.type] + "22" }}>
+                      <Clock className="w-5 h-5" style={{ color: typeColors[rule.type] }} />
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-foreground text-base font-medium truncate">{rule.name}</p>
+                      <p className="text-muted-foreground text-xs">{rule.startTime} – {rule.endTime} · {rule.days.length === 7 ? "Every day" : rule.days.join(", ")}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 flex-shrink-0">
+                    <span className="text-sm font-medium" style={{ color: rule.adjustment < 0 ? "#34C759" : "#FF9500" }}>
+                      {rule.adjustment > 0 ? "+" : ""}{rule.adjustment}%
+                    </span>
+                    <Switch checked={rule.enabled} onCheckedChange={(checked) => handleToggle(rule.id, checked)} />
+                  </div>
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="py-8 text-center text-muted-foreground">No pricing rules found</div>
+          )}
+        </div>
+      </div>
+
+      <div className="px-4 pb-6 pt-2">
+        <div className="bg-neutral-800/60 rounded-full flex items-center px-4 py-3">
+          <Search className="w-5 h-5 text-neutral-500 mr-3" />
+          <input type="text" placeholder="Search" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-base" />
+          <Mic className="w-5 h-5 text-neutral-500 mr-2" />
+          <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate("/settings/ai", { state: { context: "menu" } }))} />
+        </div>
+      </div>
+
+      <DeleteDialog rule={ruleToDelete} onCancel={() => setRuleToDelete(null)} onConfirm={confirmDelete} />
+    </div>
   );
 };
 

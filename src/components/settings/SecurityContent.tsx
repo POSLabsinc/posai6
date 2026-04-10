@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight, Delete } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useToast } from "@/hooks/use-toast";
 import {
   Dialog,
@@ -259,6 +260,75 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
             </button>
           )}
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Security</h1>
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
+        </div>
+      )}
+
+      {/* Content */}
+      <div className={`flex flex-col items-center ${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-8`}>
+        <div className="w-full">
+          {/* Password Section - Read Only Notice */}
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
+              Password
+            </h2>
+            <div className="bg-neutral-800/40 rounded-full overflow-hidden">
+              <div className="py-4 px-5">
+                <p className="text-foreground text-base font-medium">Password Management</p>
+                <p className="text-neutral-400 text-sm mt-1">
+                  Password changes are restricted to the Manager Dashboard for security purposes.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Two Factor Authentication Section */}
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
+              Two Factor Authentication
+            </h2>
+            <div className="bg-neutral-800/40 rounded-full overflow-hidden">
+              <div className="flex items-center justify-between w-full py-4 px-5">
+                <span className="text-foreground text-base font-medium">Two Factor Authentication</span>
+                <Switch
+                  checked={twoFactorEnabled}
+                  onCheckedChange={setTwoFactorEnabled}
+                />
+              </div>
+            </div>
+            <p className="text-xs text-neutral-500 mt-3 px-2">
+              Enable two factor authentication to add an extra layer of security to your account.
+            </p>
+          </div>
+
+          {/* PIN Settings Section */}
+          <div className="mb-6">
+            <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
+              PIN Settings
+            </h2>
+            <div className="bg-neutral-800/40 rounded-full overflow-hidden">
+              <button 
+                onClick={() => setPinDialogOpen(true)}
+                className="flex items-center justify-between w-full py-4 px-5 active:opacity-70 transition-opacity"
+              >
+                <span className="text-foreground text-base font-medium">Change Pin</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-neutral-400 text-base tracking-wider">••••</span>
+                  <ChevronRight className="w-5 h-5 text-neutral-500" />
+                </div>
+              </button>
+            </div>
+            <p className="text-xs text-neutral-500 mt-3 px-2">
+              Your PIN is used for Point of Sale access, clock-in, clock-out, and authorization prompts. Changes take effect immediately.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <ChangePinDialog open={pinDialogOpen} onOpenChange={setPinDialogOpen} />
+    </div>
   );
 };
 

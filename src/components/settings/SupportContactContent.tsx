@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ChevronRight, ChevronLeft, RefreshCw } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
@@ -82,6 +83,67 @@ const SupportContactContent = ({
           }
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Support</h1>
           <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
+        </div>
+        }
+
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
+        <div className="mb-4">
+          <p className="text-base text-neutral-400 leading-relaxed">
+            Get help through live chat, contact our team, share your live PIN for remote assistance, or upload logs for troubleshooting.
+          </p>
+        </div>
+
+        
+
+
+
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          <SettingsOption
+              icon={null}
+              iconSrc={chatIcon}
+              iconBgColor="#007AFF"
+              label="Chat"
+              onClick={() => setChatOpen(true)}
+              showDivider={true} />
+
+          <SettingsOption
+              icon={null}
+              iconSrc={contactUsIcon}
+              iconBgColor="#FFFFFF"
+              label="Contact Us"
+              showDivider={true} />
+
+          <SettingsOption
+              icon={
+              <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="2" y1="12" x2="22" y2="12" />
+                <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+              }
+              iconBgColor="#606060"
+              label="Live Pin"
+              rightContent={
+              <div className="flex items-center gap-2">
+                <RefreshCw className="w-4 h-4 text-neutral-400" />
+                <span className="text-neutral-400 text-base font-medium">G448656</span>
+              </div>
+              }
+              showDivider={true} />
+
+          <SettingsOption
+              icon={null}
+              iconSrc={uploadLogsIcon}
+              iconBgColor="#606060"
+              label="Upload Logs"
+              showDivider={false} />
+
+        </div>
+      </div>
+    </div>
+    <SupportChatWidget open={chatOpen} onClose={() => setChatOpen(false)} />
     </>);
 
 };

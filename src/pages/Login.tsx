@@ -7278,11 +7278,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <p className="text-sm text-foreground/50 mb-6">
                       Enter the 6-digit code sent to <span className="font-semibold text-foreground">{existingUserContact}</span>
                     </p>
-                    <div className="flex gap-2 mb-4">
+                    <div className="flex gap-1.5 sm:gap-2 mb-4">
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div
                           key={i}
-                          className={`w-12 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all ${
+                          className={`w-10 sm:w-12 h-12 sm:h-14 rounded-xl border-2 flex items-center justify-center text-xl sm:text-2xl font-bold transition-all ${
                             existingUserVerificationCode[i]
                               ? "border-primary bg-primary/5 text-foreground"
                               : i === existingUserVerificationCode.length

@@ -7717,6 +7717,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               {showExistingOtherOptions ? "Back to options" : "Sign in via email / phone"}
             </button>
             <button
+              onClick={() => setShowSignInAIChat(true)}
+              className="px-6 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
+              <span>Sign in with AI</span>
+            </button>
+            <button
               onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >

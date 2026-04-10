@@ -34,6 +34,7 @@ import DeviceSetupAIChat from "@/components/DeviceSetupAIChat";
 import BusinessSearchOnboarding from "@/components/BusinessSearchOnboarding";
 import MerchantOnboarding from "@/components/MerchantOnboarding";
 import { countryCodes } from "@/components/CountryCodeSelector";
+import DeviceSetupTutorialOverlay from "@/components/DeviceSetupTutorialOverlay";
 
 
 import { revenueCenters, employeePinMapping, locationEmployees, getRoleIcon, getRoleBadgeStyle, getTimeOfDayInfo, PIN_LENGTH, DeviceType } from "@/data/loginData";
@@ -110,6 +111,7 @@ const Login = () => {
   // Contact admin dialog state
   const [showContactAdmin, setShowContactAdmin] = useState(false);
   const [showAIChat, setShowAIChat] = useState(false);
+  const [showTutorialOverlay, setShowTutorialOverlay] = useState(false);
   
   // Company Device - First-time device setup state
   const [showDeviceSetup, setShowDeviceSetup] = useState(false);
@@ -1325,7 +1327,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               {showOtherOptions ? "Back to options" : "Try another way"}
             </button>
             <button
-              onClick={() => setShowContactAdmin(true)}
+              onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need Help?
@@ -1336,6 +1338,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="new"
         />
       </div>
     );
@@ -1845,7 +1852,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mt-8 text-center"
           >
             <button
-              onClick={() => setShowContactAdmin(true)}
+              onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need help?
@@ -1856,6 +1863,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="new"
         />
       </div>
     );
@@ -4991,7 +5003,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mt-2 md:mt-4"
           >
             <button
-              onClick={() => setShowContactAdmin(true)}
+              onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need help?
@@ -5002,6 +5014,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="new"
         />
 
 
@@ -7341,7 +7358,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mt-10 w-full flex items-start justify-between"
           >
             <button
-              onClick={() => setShowContactAdmin(true)}
+              onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors flex items-center gap-1.5"
             >
               <HelpCircle className="w-4 h-4" />
@@ -7370,6 +7387,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="existing"
         />
       </div>
     );

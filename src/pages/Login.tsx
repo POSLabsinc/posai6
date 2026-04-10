@@ -1086,17 +1086,17 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-10 text-center flex flex-col items-center"
+            className="mb-4 text-center flex flex-col items-center"
           >
             <motion.img
               src={eatosLogo}
               alt="POS AI"
-              className="w-28 h-auto mb-6"
+              className="w-28 h-auto mb-3"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
             />
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
               Activate this device
             </h1>
             <p className="text-base text-foreground/50 whitespace-nowrap">
@@ -1117,7 +1117,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               {/* Left: QR Code (always visible) */}
               <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0">
                 <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
-                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Point the camera on your phone or tablet at the QR code.</h2>
+                <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Point the camera on your phone or tablet at the QR code.</h2>
                 
                 <div className="flex flex-col items-center text-center gap-5">
                   <button
@@ -1163,7 +1163,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   /* Option 2: Browser pairing */
                   <>
                     <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
-                    <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Use a browser</h2>
+                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Use a browser</h2>
                     
                     <div className="space-y-6">
                       <div className="flex items-start gap-4">
@@ -1307,7 +1307,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="mt-10 w-full flex flex-col items-center gap-3"
+            className="mt-6 w-full flex flex-col items-center gap-3"
           >
             <button
               onClick={() => {

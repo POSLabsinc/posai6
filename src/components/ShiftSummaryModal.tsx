@@ -1,8 +1,10 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, ChevronDown, Calendar, Clock, Filter, ArrowUpRight, ArrowDownLeft, Timer, Share2, Sparkles, FileText, Mail, MessageSquare, Download, Users } from "lucide-react";
+import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, ChevronDown, Calendar, DollarSign, Users, Share2, FileText, Mail, MessageSquare, Download, RotateCcw } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
-import { InlineDatePicker } from "@/components/ui/inline-date-picker";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 interface ShiftSummaryModalProps {
   open: boolean;
@@ -53,7 +55,7 @@ interface OrderItemRow {
 
 type UnifiedRow = {
   id: string;
-  kind: "order" | "pay_in" | "pay_out";
+  kind: "order";
   paymentType: string;
   time: string;
   checkNumber: number | string;
@@ -116,36 +118,25 @@ function applyDatePreset(preset: DatePreset): { from: Date; to: Date } {
   }
 }
 
+const REVENUE_CENTERS = ["Dine-In", "Take Out", "Delivery", "Drive Thru"];
+
 export default function ShiftSummaryModal({
   open, onClose, employeeName, employeeRole, clockInTime, clockInDate, totalHours
 }: ShiftSummaryModalProps) {
   const today = new Date();
   const [filterDateFrom, setFilterDateFrom] = useState(today);
   const [filterDateTo, setFilterDateTo] = useState(today);
-  const [filterEmployee, setFilterEmployee] = useState("all");
+  const [filterEmployee, setFilterEmployee] = useState<string | null>(null);
   const [filterTimeFrom, setFilterTimeFrom] = useState("00:00");
   const [filterTimeTo, setFilterTimeTo] = useState("23:59");
-  const [filterRevenueCenter, setFilterRevenueCenter] = useState("all");
-  const [showFilters, setShowFilters] = useState(false);
+  const [filterRevenueCenter, setFilterRevenueCenter] = useState<string | null>(null);
   const [activePreset, setActivePreset] = useState<DatePreset>("today");
 
   // Share dropdown
   const [showShareMenu, setShowShareMenu] = useState(false);
-  const shareRef = useRef<HTMLButtonElement>(null);
-
-  // Employee dropdown
-  const [showEmployeeMenu, setShowEmployeeMenu] = useState(false);
-  const employeeMenuRef = useRef<HTMLButtonElement>(null);
 
   // Date preset dropdown
   const [showDatePresetMenu, setShowDatePresetMenu] = useState(false);
-  const datePresetRef = useRef<HTMLButtonElement>(null);
-
-  // Date picker state
-  const [showFromPicker, setShowFromPicker] = useState(false);
-  const [showToPicker, setShowToPicker] = useState(false);
-  const fromBtnRef = useRef<HTMLButtonElement>(null);
-  const toBtnRef = useRef<HTMLButtonElement>(null);
 
   const [ticketOrders, setTicketOrders] = useState<TicketOrder[]>([]);
   const [cashTxs, setCashTxs] = useState<CashTx[]>([]);
@@ -155,6 +146,8 @@ export default function ShiftSummaryModal({
   const [selectedOrder, setSelectedOrder] = useState<TicketOrder | null>(null);
   const [orderItems, setOrderItems] = useState<OrderItemRow[]>([]);
   const [loadingItems, setLoadingItems] = useState(false);
+
+  const hasActiveFilters = filterEmployee || filterRevenueCenter || activePreset !== "today";
 
   // Fetch employee list
   useEffect(() => {
@@ -195,10 +188,10 @@ export default function ShiftSummaryModal({
       .lte("created_at", endISO)
       .order("created_at", { ascending: false });
 
-    if (filterEmployee !== "all") {
+    if (filterEmployee) {
       orderQuery = orderQuery.eq("server", filterEmployee);
     }
-    if (filterRevenueCenter !== "all") {
+    if (filterRevenueCenter) {
       orderQuery = orderQuery.ilike("order_type", filterRevenueCenter);
     }
 
@@ -209,7 +202,7 @@ export default function ShiftSummaryModal({
       .lte("created_at", endISO)
       .order("created_at", { ascending: false });
 
-    if (filterEmployee !== "all") {
+    if (filterEmployee) {
       cashQuery = cashQuery.eq("employee_name", filterEmployee);
     }
 
@@ -256,14 +249,10 @@ export default function ShiftSummaryModal({
 
   // Metrics
   const paidOrders = useMemo(() => ticketOrders.filter(o => o.status === "PAID" || o.payment_status === "completed"), [ticketOrders]);
-
-  const totalCardSales = useMemo(() => paidOrders.filter(o => {
-    const pt = (o.payment_type || "").toLowerCase();
-    return pt === "card" || pt === "credit";
-  }).reduce((s, o) => s + Number(o.total), 0), [paidOrders]);
-
+  const totalCardSales = useMemo(() => paidOrders.filter(o => { const pt = (o.payment_type || "").toLowerCase(); return pt === "card" || pt === "credit"; }).reduce((s, o) => s + Number(o.total), 0), [paidOrders]);
   const totalCashSales = useMemo(() => paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + Number(o.total), 0), [paidOrders]);
   const totalTips = useMemo(() => paidOrders.reduce((s, o) => s + Number(o.tip), 0), [paidOrders]);
+  const totalCashTips = useMemo(() => paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + Number(o.tip), 0), [paidOrders]);
   const overallTotal = useMemo(() => paidOrders.reduce((s, o) => s + Number(o.total) + Number(o.tip), 0), [paidOrders]);
 
   const totalPayIn = useMemo(() => cashTxs.filter(c => c.type === "pay_in").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
@@ -277,13 +266,21 @@ export default function ShiftSummaryModal({
     setActivePreset(preset);
     if (preset === "custom") {
       setShowDatePresetMenu(false);
-      setShowFilters(true);
       return;
     }
     const { from, to } = applyDatePreset(preset);
     setFilterDateFrom(from);
     setFilterDateTo(to);
     setShowDatePresetMenu(false);
+  };
+
+  const clearAllFilters = () => {
+    setFilterEmployee(null);
+    setFilterRevenueCenter(null);
+    setActivePreset("today");
+    const { from, to } = applyDatePreset("today");
+    setFilterDateFrom(from);
+    setFilterDateTo(to);
   };
 
   // Handle share actions
@@ -299,15 +296,15 @@ export default function ShiftSummaryModal({
             <html><head><title>Shift Summary</title>
             <style>
               body { font-family: 'Montserrat', sans-serif; padding: 40px; color: #333; }
-              h1 { font-size: 20px; margin-bottom: 4px; }
-              h2 { font-size: 14px; color: #666; margin-bottom: 24px; }
+              h1 { font-size: 22px; margin-bottom: 4px; }
+              h2 { font-size: 15px; color: #666; margin-bottom: 24px; }
               .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
               .metric { border: 1px solid #eee; border-radius: 8px; padding: 16px; }
-              .metric-label { font-size: 11px; color: #999; text-transform: uppercase; }
-              .metric-value { font-size: 22px; font-weight: 700; margin-top: 4px; }
-              table { width: 100%; border-collapse: collapse; font-size: 13px; }
-              th { text-align: left; border-bottom: 2px solid #eee; padding: 8px 4px; color: #999; font-size: 11px; text-transform: uppercase; }
-              td { padding: 8px 4px; border-bottom: 1px solid #f5f5f5; }
+              .metric-label { font-size: 12px; color: #999; text-transform: uppercase; }
+              .metric-value { font-size: 24px; font-weight: 700; margin-top: 4px; }
+              table { width: 100%; border-collapse: collapse; font-size: 14px; }
+              th { text-align: left; border-bottom: 2px solid #eee; padding: 10px 4px; color: #999; font-size: 12px; text-transform: uppercase; }
+              td { padding: 10px 4px; border-bottom: 1px solid #f5f5f5; }
               .text-right { text-align: right; }
             </style></head><body>
             <h1>Shift Summary</h1>
@@ -316,7 +313,7 @@ export default function ShiftSummaryModal({
               <div class="metric"><div class="metric-label">Total Card Sales</div><div class="metric-value">$${totalCardSales.toFixed(2)}</div></div>
               <div class="metric"><div class="metric-label">Total Cash Sales</div><div class="metric-value">$${totalCashSales.toFixed(2)}</div></div>
               <div class="metric"><div class="metric-label">Total Tips</div><div class="metric-value">$${totalTips.toFixed(2)}</div></div>
-              <div class="metric"><div class="metric-label">Total</div><div class="metric-value">$${overallTotal.toFixed(2)}</div></div>
+              <div class="metric"><div class="metric-label">Total Cash Tips</div><div class="metric-value">$${totalCashTips.toFixed(2)}</div></div>
             </div>
             <table>
               <thead><tr><th>Type</th><th>Time</th><th>Check</th><th class="text-right">Amount</th><th class="text-right">Tip</th></tr></thead>
@@ -380,13 +377,6 @@ export default function ShiftSummaryModal({
     setLoadingItems(false);
   };
 
-  // Date picker position helper
-  const getPickerPosition = (ref: React.RefObject<HTMLButtonElement>) => {
-    if (!ref.current) return { top: 200, right: 200 };
-    const rect = ref.current.getBoundingClientRect();
-    return { top: rect.bottom + 4, right: window.innerWidth - rect.right };
-  };
-
   if (!open) return null;
 
   // Check detail view
@@ -394,74 +384,74 @@ export default function ShiftSummaryModal({
     return (
       <div className="fixed inset-0 z-[9999] flex items-center justify-center">
         <div className="absolute inset-0 bg-black/70" onClick={() => setSelectedOrder(null)} />
-        <div className="relative z-10 w-[520px] max-h-[80vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
+        <div className="relative z-10 w-[580px] max-h-[85vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+          <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 shrink-0">
             <div className="flex items-center gap-3">
-              <button onClick={() => setSelectedOrder(null)} className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/15 transition-colors">
-                <ChevronLeft className="w-4 h-4 text-neutral-300" />
+              <button onClick={() => setSelectedOrder(null)} className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/15 transition-colors">
+                <ChevronLeft className="w-5 h-5 text-neutral-300" />
               </button>
               <div>
-                <h2 className="text-sm font-bold text-white">Check #{selectedOrder.order_number}</h2>
-                <p className="text-[11px] text-neutral-500">{new Date(selectedOrder.created_at).toLocaleString()}</p>
+                <h2 className="text-base font-bold text-white">Check #{selectedOrder.order_number}</h2>
+                <p className="text-xs text-neutral-500">{new Date(selectedOrder.created_at).toLocaleString()}</p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium uppercase ${
+              <span className={`text-xs px-2.5 py-1 rounded-full font-medium uppercase ${
                 selectedOrder.status === "PAID" ? "bg-emerald-500/15 text-emerald-300"
                   : selectedOrder.status === "CANCELLED" ? "bg-red-500/15 text-red-300"
                   : "bg-amber-500/15 text-amber-300"
               }`}>
                 {selectedOrder.status}
               </span>
-              <button onClick={() => setSelectedOrder(null)} className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-                <X className="w-4 h-4 text-neutral-400" />
+              <button onClick={() => setSelectedOrder(null)} className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+                <X className="w-5 h-5 text-neutral-400" />
               </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 px-5 py-4 border-b border-white/10 shrink-0">
+          <div className="grid grid-cols-3 gap-3 px-6 py-4 border-b border-white/10 shrink-0">
             <div>
-              <p className="text-[10px] text-neutral-500 uppercase">Type</p>
+              <p className="text-xs text-neutral-500 uppercase">Type</p>
               <p className="text-sm text-white font-medium">{selectedOrder.order_type}</p>
             </div>
             <div>
-              <p className="text-[10px] text-neutral-500 uppercase">Payment</p>
+              <p className="text-xs text-neutral-500 uppercase">Payment</p>
               <p className="text-sm text-white font-medium flex items-center gap-1">
-                {(selectedOrder.payment_type || "").toLowerCase() === "cash" ? <Banknote className="w-3.5 h-3.5 text-amber-400" /> : <CreditCard className="w-3.5 h-3.5 text-emerald-400" />}
+                {(selectedOrder.payment_type || "").toLowerCase() === "cash" ? <Banknote className="w-4 h-4 text-amber-400" /> : <CreditCard className="w-4 h-4 text-emerald-400" />}
                 {selectedOrder.payment_type || "N/A"}
               </p>
             </div>
             <div>
-              <p className="text-[10px] text-neutral-500 uppercase">Guest</p>
+              <p className="text-xs text-neutral-500 uppercase">Guest</p>
               <p className="text-sm text-white font-medium">{selectedOrder.name || "Guest"}</p>
             </div>
           </div>
 
-          <div className="flex-1 overflow-auto px-5 py-3">
-            <p className="text-xs font-semibold text-neutral-400 uppercase mb-2">Products</p>
+          <div className="flex-1 overflow-auto px-6 py-4">
+            <p className="text-xs font-semibold text-neutral-400 uppercase mb-3">Products</p>
             {loadingItems ? (
-              <p className="text-xs text-neutral-500 py-4 text-center">Loading...</p>
+              <p className="text-sm text-neutral-500 py-4 text-center">Loading...</p>
             ) : orderItems.length === 0 ? (
-              <p className="text-xs text-neutral-500 py-4 text-center">No products found</p>
+              <p className="text-sm text-neutral-500 py-4 text-center">No products found</p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-white/10 text-left">
-                    <th className="py-2 text-[10px] font-semibold text-neutral-500 uppercase">Product</th>
-                    <th className="py-2 text-[10px] font-semibold text-neutral-500 uppercase">Category</th>
-                    <th className="py-2 text-[10px] font-semibold text-neutral-500 uppercase text-right">Qty</th>
-                    <th className="py-2 text-[10px] font-semibold text-neutral-500 uppercase text-right">Price</th>
-                    <th className="py-2 text-[10px] font-semibold text-neutral-500 uppercase text-right">Total</th>
+                    <th className="py-2.5 text-xs font-semibold text-neutral-500 uppercase">Product</th>
+                    <th className="py-2.5 text-xs font-semibold text-neutral-500 uppercase">Category</th>
+                    <th className="py-2.5 text-xs font-semibold text-neutral-500 uppercase text-right">Qty</th>
+                    <th className="py-2.5 text-xs font-semibold text-neutral-500 uppercase text-right">Price</th>
+                    <th className="py-2.5 text-xs font-semibold text-neutral-500 uppercase text-right">Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {orderItems.map(item => (
                     <tr key={item.id} className="border-b border-white/5">
-                      <td className="py-2 text-xs text-white">{item.item_name}</td>
-                      <td className="py-2 text-xs text-neutral-400">{item.category}</td>
-                      <td className="py-2 text-xs text-neutral-300 text-right">{item.quantity}</td>
-                      <td className="py-2 text-xs text-neutral-300 text-right">$ {Number(item.unit_price).toFixed(2)}</td>
-                      <td className="py-2 text-xs text-white font-medium text-right">$ {Number(item.total_price).toFixed(2)}</td>
+                      <td className="py-2.5 text-sm text-white">{item.item_name}</td>
+                      <td className="py-2.5 text-sm text-neutral-400">{item.category}</td>
+                      <td className="py-2.5 text-sm text-neutral-300 text-right">{item.quantity}</td>
+                      <td className="py-2.5 text-sm text-neutral-300 text-right">$ {Number(item.unit_price).toFixed(2)}</td>
+                      <td className="py-2.5 text-sm text-white font-medium text-right">$ {Number(item.total_price).toFixed(2)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -469,24 +459,24 @@ export default function ShiftSummaryModal({
             )}
           </div>
 
-          <div className="px-5 py-4 border-t border-white/10 shrink-0 space-y-1.5">
-            <div className="flex justify-between text-xs text-neutral-400">
+          <div className="px-6 py-4 border-t border-white/10 shrink-0 space-y-2">
+            <div className="flex justify-between text-sm text-neutral-400">
               <span>Subtotal</span><span>$ {Number(selectedOrder.subtotal).toFixed(2)}</span>
             </div>
             {Number(selectedOrder.discount) > 0 && (
-              <div className="flex justify-between text-xs text-red-400">
+              <div className="flex justify-between text-sm text-red-400">
                 <span>Discount</span><span>-$ {Number(selectedOrder.discount).toFixed(2)}</span>
               </div>
             )}
-            <div className="flex justify-between text-xs text-neutral-400">
+            <div className="flex justify-between text-sm text-neutral-400">
               <span>Tax</span><span>$ {Number(selectedOrder.tax).toFixed(2)}</span>
             </div>
             {Number(selectedOrder.tip) > 0 && (
-              <div className="flex justify-between text-xs text-emerald-400">
+              <div className="flex justify-between text-sm text-emerald-400">
                 <span>Tip</span><span>$ {Number(selectedOrder.tip).toFixed(2)}</span>
               </div>
             )}
-            <div className="flex justify-between text-sm font-bold text-white pt-1 border-t border-white/10">
+            <div className="flex justify-between text-base font-bold text-white pt-2 border-t border-white/10">
               <span>Total</span><span>$ {Number(selectedOrder.total).toFixed(2)}</span>
             </div>
           </div>
@@ -498,209 +488,143 @@ export default function ShiftSummaryModal({
   return (
     <div className="fixed inset-0 z-[9999] flex items-center justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative z-10 w-[780px] max-h-[88vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div className="relative z-10 w-[900px] max-h-[92vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3">
-            <Avatar className="w-10 h-10 border border-white/20">
+            <Avatar className="w-11 h-11 border border-white/20">
               <AvatarFallback className="text-sm font-semibold bg-neutral-700 text-white">{initials}</AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-base font-bold text-white">SHIFT SUMMARY</h2>
-              <p className="text-xs text-neutral-400">{employeeName} - {employeeRole}</p>
+              <h2 className="text-lg font-bold text-white tracking-wide">SHIFT SUMMARY</h2>
+              <p className="text-sm text-neutral-400">{employeeName} - {employeeRole}</p>
             </div>
           </div>
           <div className="flex items-center gap-1.5">
-            {/* Date Preset */}
-            <div className="relative">
-              <button
-                ref={datePresetRef}
-                onClick={() => { setShowDatePresetMenu(v => !v); setShowShareMenu(false); setShowEmployeeMenu(false); }}
-                className={`h-9 rounded-lg flex items-center gap-1.5 px-3 transition-colors text-xs font-medium ${showDatePresetMenu ? "bg-white/20 text-white" : "bg-white/10 hover:bg-white/15 text-neutral-300"}`}
-              >
-                <Calendar className="w-3.5 h-3.5" />
-                {DATE_PRESETS.find(p => p.key === activePreset)?.label || "Today"}
-                <ChevronDown className="w-3 h-3 opacity-50" />
-              </button>
-              {showDatePresetMenu && (
-                <>
-                  <div className="fixed inset-0 z-[100]" onClick={() => setShowDatePresetMenu(false)} />
-                  <div className="absolute right-0 top-full mt-1 z-[101] w-[160px] bg-neutral-800 border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+            {/* Revenue Center Filter - ticket screen style */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${filterRevenueCenter ? 'ring-2 ring-white/50' : ''}`}
+                  style={{ background: "rgba(100, 100, 100, 0.4)" }}
+                >
+                  <DollarSign className="w-4.5 h-4.5 text-white" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
+                <div className="text-xs text-white/50 mb-2 px-2">Revenue Center</div>
+                {REVENUE_CENTERS.map(rc => (
+                  <button key={rc} onClick={() => setFilterRevenueCenter(filterRevenueCenter === rc ? null : rc)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterRevenueCenter === rc ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{rc}</button>
+                ))}
+              </PopoverContent>
+            </Popover>
+
+            {/* Date/Calendar Filter - ticket screen style */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${activePreset !== "today" ? 'ring-2 ring-white/50' : ''}`}
+                  style={{ background: "rgba(100, 100, 100, 0.4)" }}
+                >
+                  <Calendar className="w-4.5 h-4.5 text-white" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
+                <div className="p-2 border-b border-white/10">
+                  <div className="grid grid-cols-3 gap-1">
                     {DATE_PRESETS.map(p => (
                       <button
                         key={p.key}
                         onClick={() => handlePresetSelect(p.key)}
-                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors ${activePreset === p.key ? "text-white bg-white/10 font-medium" : "text-neutral-400 hover:bg-white/5 hover:text-white"}`}
+                        className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activePreset === p.key ? "bg-white text-black" : "text-white hover:bg-white/10"}`}
                       >
                         {p.label}
                       </button>
                     ))}
                   </div>
-                </>
-              )}
-            </div>
+                </div>
+                {activePreset === "custom" && (
+                  <CalendarComponent mode="single" selected={filterDateFrom} onSelect={(d) => { if (d) { setFilterDateFrom(d); setFilterDateTo(d); } }} className="pointer-events-auto bg-neutral-800 text-white" />
+                )}
+              </PopoverContent>
+            </Popover>
 
-            {/* Employee Filter */}
-            <div className="relative">
-              <button
-                ref={employeeMenuRef}
-                onClick={() => { setShowEmployeeMenu(v => !v); setShowShareMenu(false); setShowDatePresetMenu(false); }}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${showEmployeeMenu || filterEmployee !== "all" ? "bg-white/20" : "bg-white/10 hover:bg-white/15"}`}
-                title="Employee Filter"
-              >
-                <Users className="w-4 h-4 text-neutral-300" />
-              </button>
-              {showEmployeeMenu && (
-                <>
-                  <div className="fixed inset-0 z-[100]" onClick={() => setShowEmployeeMenu(false)} />
-                  <div className="absolute right-0 top-full mt-1 z-[101] w-[180px] bg-neutral-800 border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150 max-h-[280px] overflow-y-auto scrollbar-hide">
-                    <button
-                      onClick={() => { setFilterEmployee("all"); setShowEmployeeMenu(false); }}
-                      className={`w-full text-left px-4 py-2.5 text-xs transition-colors ${filterEmployee === "all" ? "text-white bg-white/10 font-medium" : "text-neutral-400 hover:bg-white/5 hover:text-white"}`}
-                    >
-                      All Employees
-                    </button>
-                    {employees.map(e => (
-                      <button
-                        key={e}
-                        onClick={() => { setFilterEmployee(e); setShowEmployeeMenu(false); }}
-                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors ${filterEmployee === e ? "text-white bg-white/10 font-medium" : "text-neutral-400 hover:bg-white/5 hover:text-white"}`}
-                      >
-                        {e}
-                      </button>
-                    ))}
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Filter toggle */}
-            <button
-              onClick={() => setShowFilters(v => !v)}
-              className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${showFilters ? "bg-white/20" : "bg-white/10 hover:bg-white/15"}`}
-              title="Advanced Filters"
-            >
-              <Filter className="w-4 h-4 text-neutral-300" />
-            </button>
-
-            {/* AI Icon */}
-            <button
-              className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/15 transition-colors"
-              title="AI Insights"
-            >
-              <Sparkles className="w-4 h-4 text-amber-400" />
-            </button>
+            {/* Employee Filter - ticket screen style */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${filterEmployee ? 'ring-2 ring-white/50' : ''}`}
+                  style={{ background: "rgba(100, 100, 100, 0.4)" }}
+                >
+                  <Users className="w-4.5 h-4.5 text-white" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000] max-h-[280px] overflow-y-auto" align="end">
+                <div className="text-xs text-white/50 mb-2 px-2">Employee</div>
+                <button onClick={() => setFilterEmployee(null)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${!filterEmployee ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>All Employees</button>
+                {employees.map(e => (
+                  <button key={e} onClick={() => setFilterEmployee(filterEmployee === e ? null : e)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterEmployee === e ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{e}</button>
+                ))}
+              </PopoverContent>
+            </Popover>
 
             {/* Share */}
-            <div className="relative">
-              <button
-                ref={shareRef}
-                onClick={() => { setShowShareMenu(v => !v); setShowDatePresetMenu(false); setShowEmployeeMenu(false); }}
-                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${showShareMenu ? "bg-white/20" : "bg-white/10 hover:bg-white/15"}`}
-                title="Share"
-              >
-                <Share2 className="w-4 h-4 text-neutral-300" />
-              </button>
-              {showShareMenu && (
-                <>
-                  <div className="fixed inset-0 z-[100]" onClick={() => setShowShareMenu(false)} />
-                  <div className="absolute right-0 top-full mt-1 z-[101] w-[180px] bg-neutral-800 border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150">
-                    <button onClick={() => handleShare("pdf")} className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-neutral-300 hover:bg-white/5 hover:text-white transition-colors">
-                      <FileText className="w-3.5 h-3.5" /> Export as PDF
-                    </button>
-                    <button onClick={() => handleShare("email")} className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-neutral-300 hover:bg-white/5 hover:text-white transition-colors">
-                      <Mail className="w-3.5 h-3.5" /> Send via Email
-                    </button>
-                    <button onClick={() => handleShare("text")} className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-neutral-300 hover:bg-white/5 hover:text-white transition-colors">
-                      <MessageSquare className="w-3.5 h-3.5" /> Share via Text
-                    </button>
-                    <button onClick={() => handleShare("download")} className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-neutral-300 hover:bg-white/5 hover:text-white transition-colors">
-                      <Download className="w-3.5 h-3.5" /> Download CSV
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className="p-2.5 rounded-xl hover:bg-white/10 transition-colors"
+                  style={{ background: "rgba(100, 100, 100, 0.4)" }}
+                >
+                  <Share2 className="w-4.5 h-4.5 text-white" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[180px] p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
+                <button onClick={() => handleShare("pdf")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg">
+                  <FileText className="w-4 h-4" /> Export as PDF
+                </button>
+                <button onClick={() => handleShare("email")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg">
+                  <Mail className="w-4 h-4" /> Send via Email
+                </button>
+                <button onClick={() => handleShare("text")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg">
+                  <MessageSquare className="w-4 h-4" /> Share via Text
+                </button>
+                <button onClick={() => handleShare("download")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg">
+                  <Download className="w-4 h-4" /> Download CSV
+                </button>
+              </PopoverContent>
+            </Popover>
 
             {/* Print */}
             <button
               onClick={() => handleShare("pdf")}
-              className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/15 transition-colors"
+              className="p-2.5 rounded-xl hover:bg-white/10 transition-colors"
+              style={{ background: "rgba(100, 100, 100, 0.4)" }}
               title="Print"
             >
-              <Printer className="w-4 h-4 text-neutral-300" />
+              <Printer className="w-4.5 h-4.5 text-white" />
             </button>
 
+            {/* Clear Filters */}
+            {hasActiveFilters && (
+              <button onClick={clearAllFilters} className="p-2.5 rounded-xl hover:bg-white/10 transition-colors" style={{ background: "rgba(239, 68, 68, 0.4)" }}>
+                <RotateCcw className="w-4 h-4 text-white" />
+              </button>
+            )}
+
+            {/* AI Icon */}
+            <div className="flex items-center justify-center" style={{ width: 40, height: 40 }}>
+              <AnimatedAIIcon size={18} />
+            </div>
+
             {/* Close */}
-            <button onClick={onClose} className="w-8 h-8 rounded-sm flex items-center justify-center opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-              <X className="h-4 w-4 text-neutral-300" />
+            <button onClick={onClose} className="w-9 h-9 rounded-sm flex items-center justify-center opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none">
+              <X className="h-5 w-5 text-neutral-300" />
             </button>
           </div>
         </div>
 
-        {/* Advanced Filters */}
-        {showFilters && (
-          <div className="px-6 py-3 border-b border-white/10 shrink-0 bg-white/[0.02]">
-            <div className="flex items-end gap-3 flex-wrap">
-              {/* From Date */}
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-neutral-500 uppercase">From</label>
-                <button
-                  ref={fromBtnRef}
-                  onClick={() => { setShowFromPicker(true); setActivePreset("custom"); }}
-                  className="bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white outline-none hover:border-white/30 w-[140px] text-left flex items-center gap-2"
-                >
-                  <Calendar className="w-3.5 h-3.5 text-neutral-400" />
-                  {formatDateDisplay(filterDateFrom)}
-                </button>
-              </div>
-              {/* To Date */}
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-neutral-500 uppercase">To</label>
-                <button
-                  ref={toBtnRef}
-                  onClick={() => { setShowToPicker(true); setActivePreset("custom"); }}
-                  className="bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white outline-none hover:border-white/30 w-[140px] text-left flex items-center gap-2"
-                >
-                  <Calendar className="w-3.5 h-3.5 text-neutral-400" />
-                  {formatDateDisplay(filterDateTo)}
-                </button>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-neutral-500 uppercase">Start Time</label>
-                <input type="time" value={filterTimeFrom} onChange={e => setFilterTimeFrom(e.target.value)}
-                  className="bg-white/10 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-white/30 w-[110px]" />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-neutral-500 uppercase">End Time</label>
-                <input type="time" value={filterTimeTo} onChange={e => setFilterTimeTo(e.target.value)}
-                  className="bg-white/10 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-white/30 w-[110px]" />
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-neutral-500 uppercase">Employee</label>
-                <select value={filterEmployee} onChange={e => setFilterEmployee(e.target.value)}
-                  className="bg-white/10 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-white/30 w-[140px] appearance-none">
-                  <option value="all" className="bg-neutral-800">All Employees</option>
-                  {employees.map(e => <option key={e} value={e} className="bg-neutral-800">{e}</option>)}
-                </select>
-              </div>
-              <div className="flex flex-col gap-1">
-                <label className="text-[10px] text-neutral-500 uppercase">Revenue Center</label>
-                <select value={filterRevenueCenter} onChange={e => setFilterRevenueCenter(e.target.value)}
-                  className="bg-white/10 border border-white/10 rounded-lg px-2.5 py-1.5 text-xs text-white outline-none focus:border-white/30 w-[130px] appearance-none">
-                  <option value="all" className="bg-neutral-800">All</option>
-                  <option value="Dine-In" className="bg-neutral-800">Dine-In</option>
-                  <option value="Take Out" className="bg-neutral-800">Take Out</option>
-                  <option value="Delivery" className="bg-neutral-800">Delivery</option>
-                  <option value="Drive Thru" className="bg-neutral-800">Drive Thru</option>
-                </select>
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Shift info bar */}
-        <div className="flex items-center gap-4 px-6 py-2.5 bg-white/[0.03] border-b border-white/10 shrink-0 text-xs text-neutral-400">
+        <div className="flex items-center gap-5 px-6 py-3 bg-white/[0.03] border-b border-white/10 shrink-0 text-sm text-neutral-400">
           <span>{clockInDate}</span>
           <span>{clockInTime || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - now</span>
           <span>Total: {totalHours || "0.0"}h</span>
@@ -709,39 +633,39 @@ export default function ShiftSummaryModal({
         {/* Key metrics - 4 cards */}
         <div className="grid grid-cols-4 gap-3 px-6 py-4 shrink-0">
           <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
-            <div className="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center">
+            <div className="w-11 h-11 rounded-lg bg-emerald-500/15 flex items-center justify-center">
               <CreditCard className="w-5 h-5 text-emerald-400" />
             </div>
             <div>
-              <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Card Sales</p>
+              <p className="text-xs text-neutral-500 uppercase tracking-wide">Total Card Sales</p>
               <p className="text-xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
-            <div className="w-10 h-10 rounded-lg bg-amber-500/15 flex items-center justify-center">
+            <div className="w-11 h-11 rounded-lg bg-amber-500/15 flex items-center justify-center">
               <Banknote className="w-5 h-5 text-amber-400" />
             </div>
             <div>
-              <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Cash Sales</p>
+              <p className="text-xs text-neutral-500 uppercase tracking-wide">Total Cash Sales</p>
               <p className="text-xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
-            <div className="w-10 h-10 rounded-lg bg-purple-500/15 flex items-center justify-center">
+            <div className="w-11 h-11 rounded-lg bg-purple-500/15 flex items-center justify-center">
               <Receipt className="w-5 h-5 text-purple-400" />
             </div>
             <div>
-              <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Tips</p>
+              <p className="text-xs text-neutral-500 uppercase tracking-wide">Total Tips</p>
               <p className="text-xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/15 flex items-center justify-center">
-              <Timer className="w-5 h-5 text-blue-400" />
+            <div className="w-11 h-11 rounded-lg bg-blue-500/15 flex items-center justify-center">
+              <Banknote className="w-5 h-5 text-blue-400" />
             </div>
             <div>
-              <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Cash Time</p>
-              <p className="text-xl font-bold text-white">{totalHours || "0.0"}h</p>
+              <p className="text-xs text-neutral-500 uppercase tracking-wide">Total Cash Tips</p>
+              <p className="text-xl font-bold text-white">$ {totalCashTips.toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -749,11 +673,11 @@ export default function ShiftSummaryModal({
         {/* Bottom summary row */}
         <div className="flex items-center px-6 py-3 shrink-0 gap-8 border-b border-white/10">
           <div>
-            <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Total</p>
+            <p className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Total</p>
             <p className="text-2xl font-bold text-white mt-0.5">$ {overallTotal.toFixed(2)}</p>
           </div>
           <div>
-            <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Cash Drop</p>
+            <p className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Cash Drop</p>
             <p className="text-2xl font-bold text-white mt-0.5">$ {totalCashDrop.toFixed(2)}</p>
           </div>
         </div>
@@ -761,18 +685,18 @@ export default function ShiftSummaryModal({
         {/* Transaction table */}
         <div className="flex-1 overflow-auto px-6 py-3">
           {loading ? (
-            <p className="text-xs text-neutral-500 py-8 text-center">Loading transactions...</p>
+            <p className="text-sm text-neutral-500 py-8 text-center">Loading transactions...</p>
           ) : unifiedRows.length === 0 ? (
-            <p className="text-xs text-neutral-500 py-8 text-center">No transactions found for the selected filters</p>
+            <p className="text-sm text-neutral-500 py-8 text-center">No transactions found for the selected filters</p>
           ) : (
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-[#1C1C1E] z-10">
                 <tr className="border-b border-white/10 text-left">
-                  <th className="py-3 pr-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Type</th>
-                  <th className="py-3 pr-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Time</th>
-                  <th className="py-3 pr-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider">Check / Reason</th>
-                  <th className="py-3 pl-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider text-right">Amount</th>
-                  <th className="py-3 pl-4 text-[11px] font-semibold text-neutral-400 uppercase tracking-wider text-right">Tip</th>
+                  <th className="py-3 pr-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Type</th>
+                  <th className="py-3 pr-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Time</th>
+                  <th className="py-3 pr-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider">Check / Reason</th>
+                  <th className="py-3 pl-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider text-right">Amount</th>
+                  <th className="py-3 pl-4 text-xs font-semibold text-neutral-400 uppercase tracking-wider text-right">Tip</th>
                 </tr>
               </thead>
               <tbody>
@@ -787,22 +711,22 @@ export default function ShiftSummaryModal({
                       className="border-b border-white/5 transition-colors hover:bg-white/[0.05] cursor-pointer"
                     >
                       <td className="py-3 pr-4">
-                        <span className={`inline-flex items-center gap-2 text-xs font-medium ${isCash ? "text-amber-300" : "text-emerald-300"}`}>
-                          {isCash ? <Banknote className="w-3.5 h-3.5" /> : <CreditCard className="w-3.5 h-3.5" />}
+                        <span className={`inline-flex items-center gap-2 text-sm font-medium ${isCash ? "text-amber-300" : "text-emerald-300"}`}>
+                          {isCash ? <Banknote className="w-4 h-4" /> : <CreditCard className="w-4 h-4" />}
                           {row.paymentType}
                         </span>
                       </td>
-                      <td className="py-3 pr-4 text-xs text-neutral-400">{formatTime(row.time)}</td>
+                      <td className="py-3 pr-4 text-sm text-neutral-400">{formatTime(row.time)}</td>
                       <td className="py-3 pr-4">
-                        <span className={`text-xs font-medium ${isPending ? "text-amber-300" : "text-white"}`}>
+                        <span className={`text-sm font-medium ${isPending ? "text-amber-300" : "text-white"}`}>
                           {row.checkNumber}
-                          {isPending && <span className="ml-1.5 text-[10px] text-amber-400">(pending)</span>}
+                          {isPending && <span className="ml-1.5 text-xs text-amber-400">(pending)</span>}
                         </span>
                       </td>
-                      <td className="py-3 pl-4 text-xs font-medium text-right text-white">
+                      <td className="py-3 pl-4 text-sm font-medium text-right text-white">
                         $ {row.amount.toFixed(2)}
                       </td>
-                      <td className="py-3 pl-4 text-xs text-neutral-300 text-right">
+                      <td className="py-3 pl-4 text-sm text-neutral-300 text-right">
                         $ {row.tip.toFixed(2)}
                       </td>
                     </tr>
@@ -813,22 +737,6 @@ export default function ShiftSummaryModal({
           )}
         </div>
       </div>
-
-      {/* iOS-style date pickers */}
-      <InlineDatePicker
-        isOpen={showFromPicker}
-        onClose={() => setShowFromPicker(false)}
-        selectedDate={filterDateFrom}
-        onDateChange={setFilterDateFrom}
-        position={getPickerPosition(fromBtnRef)}
-      />
-      <InlineDatePicker
-        isOpen={showToPicker}
-        onClose={() => setShowToPicker(false)}
-        selectedDate={filterDateTo}
-        onDateChange={setFilterDateTo}
-        position={getPickerPosition(toBtnRef)}
-      />
     </div>
   );
 }

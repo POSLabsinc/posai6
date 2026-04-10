@@ -7562,7 +7562,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <div className="mt-8 flex flex-col gap-3">
                       <button onClick={() => {
                         setExistingUserSelectedOption("code");
-                        setShowExistingOtherOptions(true);
                       }}
                         className="w-full py-3 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.04] hover:bg-foreground/[0.08] text-sm text-foreground/60 hover:text-foreground/80 transition-all flex items-center justify-center gap-2">
                         <Mail className="w-4 h-4" />
@@ -7726,7 +7725,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   setExistingUserVerificationCode("");
                   setExistingUserVerificationError("");
                   setExistingUserContact("");
-                  setShowExistingOtherOptions(false);
+                  setExistingUserSelectedOption(null);
                 }}
                 className="px-6 py-2.5 rounded-full border border-foreground/[0.12] bg-foreground/[0.05] text-sm text-foreground/60 hover:text-foreground/80 hover:bg-foreground/[0.08] transition-all"
               >

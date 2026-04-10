@@ -1105,21 +1105,70 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </motion.div>
 
           <AnimatePresence mode="wait">
-            {/* Two-column layout - QR on left, right side toggles between Browser and Activate with Code */}
-            <motion.div
-              key={showOtherOptions ? "code-view" : "browser-view"}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ delay: 0.15 }}
-              className="flex flex-col md:flex-row gap-0 w-full"
-            >
-              {/* Left: QR Code (always visible) */}
-              <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0">
-                <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
-                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Scan this QR code</h2>
-                
-                <div className="flex items-start gap-6">
+            {!showOtherOptions ? (
+              /* Default view: Centered QR code */
+              <motion.div
+                key="qr-view"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: 0.15 }}
+                className="flex flex-col items-center w-full"
+              >
+                <button
+                  onClick={() => {
+                    setShowDeviceConnected(true);
+                    setDeviceName("Point of Sale");
+                    setTimeout(() => {
+                      setShowDeviceConnected(false);
+                      setOwnerVerified(true);
+                    }, 2500);
+                  }}
+                  className="bg-foreground rounded-2xl p-5 cursor-pointer hover:opacity-90 transition-opacity mb-6"
+                >
+                  <QRCodeSVG
+                    value={activationQrValue}
+                    size={220}
+                    bgColor="hsl(0 0% 100%)"
+                    fgColor="hsl(0 0% 0%)"
+                    level="M"
+                  />
+                </button>
+
+                <p className="text-base text-foreground/70 text-center max-w-md mb-1.5">
+                  Point the camera on your phone or tablet at the QR code.
+                </p>
+                <p className="text-sm text-foreground/40 text-center max-w-sm mb-8">
+                  Tap the link that appears and follow the steps on your mobile device.
+                </p>
+
+                {/* OR Divider */}
+                <div className="flex items-center gap-4 w-full max-w-xs mb-6">
+                  <div className="flex-1 h-px bg-foreground/10" />
+                  <span className="text-xs font-medium text-foreground/30 uppercase tracking-wider">OR</span>
+                  <div className="flex-1 h-px bg-foreground/10" />
+                </div>
+
+                {/* Try another way */}
+                <button
+                  onClick={() => setShowOtherOptions(true)}
+                  className="text-sm font-medium text-foreground/50 hover:text-foreground/70 transition-colors"
+                >
+                  Try another way
+                </button>
+              </motion.div>
+            ) : (
+              /* Alternative options view: QR left + code/browser right */
+              <motion.div
+                key="code-view"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: 0.15 }}
+                className="flex flex-col md:flex-row gap-0 w-full"
+              >
+                {/* Left: QR Code */}
+                <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0 flex flex-col items-center justify-center">
                   <button
                     onClick={() => {
                       setShowDeviceConnected(true);
@@ -1129,7 +1178,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         setOwnerVerified(true);
                       }, 2500);
                     }}
-                    className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                    className="bg-foreground rounded-2xl p-5 cursor-pointer hover:opacity-90 transition-opacity mb-4"
                   >
                     <QRCodeSVG
                       value={activationQrValue}
@@ -1139,173 +1188,132 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       level="M"
                     />
                   </button>
-                  <p className="text-sm text-foreground/50 leading-relaxed pt-2">
-                    {showOtherOptions
-                      ? "Scan directly with your phone camera. You will be asked to enter your email, and code to verify."
-                      : "On your mobile phone, open the camera or the QR scanner app and point to this code."}
+                  <p className="text-sm text-foreground/50 text-center max-w-[220px]">
+                    Scan directly with your phone camera to activate.
                   </p>
                 </div>
-              </div>
 
-              {/* Divider */}
-              <div className="hidden md:flex flex-col items-center px-4">
-                <div className="w-px flex-1 bg-foreground/10" />
-              </div>
-              <div className="md:hidden w-full h-px bg-foreground/10 my-6" />
+                {/* Divider */}
+                <div className="hidden md:flex flex-col items-center px-4">
+                  <div className="w-px flex-1 bg-foreground/10" />
+                </div>
+                <div className="md:hidden w-full h-px bg-foreground/10 my-6" />
 
-              {/* Right side */}
-              <div className="flex-[1.2] pl-0 md:pl-12">
-                {!showOtherOptions ? (
-                  /* Option 2: Browser pairing */
-                  <>
-                    <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
-                    <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Use a browser</h2>
-                    
-                    <div className="space-y-6">
-                      <div className="flex items-start gap-4">
-                        <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
-                        <div>
-                          <p className="text-sm text-foreground/70 mb-2">Go to this link:</p>
-                          <div className="inline-block px-5 py-2.5 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]">
-                            <span className="text-base font-semibold text-foreground tracking-wide">posai.com/pair</span>
+                {/* Right side */}
+                <div className="flex-[1.2] pl-0 md:pl-12">
+                  {!activationCodeSent ? (
+                    <>
+                      <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
+                      <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">Activate with Code</h2>
+                      <p className="text-sm text-foreground/50 mb-6">
+                        Enter your email or mobile number to receive a code
+                      </p>
+
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30">
+                            <Mail className="w-5 h-5" />
                           </div>
+                          <input
+                            type="text"
+                            placeholder="Email or phone number"
+                            value={activationContactValue}
+                            onChange={(e) => setActivationContactValue(e.target.value)}
+                            className="w-full h-14 pl-12 pr-4 rounded-2xl bg-foreground/[0.04] border border-foreground/[0.08] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/20 transition-colors text-base"
+                          />
                         </div>
-                      </div>
-
-                      <div className="flex items-start gap-4">
-                        <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
-                        <div>
-                          <p className="text-sm text-foreground/70 mb-3">When asked, enter this code:</p>
-                          <div className="flex gap-2">
-                            {generatedDeviceCode.split('').map((char, i) => (
-                              <div
-                                key={i}
-                                className="w-12 h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center"
-                              >
-                                <span className="text-xl font-bold text-foreground">{char}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                ) : !activationCodeSent ? (
-                  /* Activate with Code - email/phone input */
-                  <>
-                    <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
-                    <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">Activate with Code</h2>
-                    <p className="text-sm text-foreground/50 mb-6">
-                      Enter your email or mobile number to receive a code
-                    </p>
-
-                    <div className="space-y-4">
-                      <div className="relative">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30">
-                          <Mail className="w-5 h-5" />
-                        </div>
-                        <input
-                          type="text"
-                          placeholder="Email or phone number"
-                          value={activationContactValue}
-                          onChange={(e) => setActivationContactValue(e.target.value)}
-                          className="w-full h-14 pl-12 pr-4 rounded-2xl bg-foreground/[0.04] border border-foreground/[0.08] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/20 transition-colors text-base"
-                        />
-                      </div>
-                      <button
-                        onClick={() => {
-                          if (!activationContactValue.trim()) return;
-                          setActivationSendingCode(true);
-                          setTimeout(() => {
-                            setActivationCodeSent(true);
-                            setActivationSendingCode(false);
-                            toast({ title: "Verification code sent", description: `Check ${activationContactValue} for your code` });
-                          }, 800);
-                        }}
-                        disabled={!activationContactValue.trim() || activationSendingCode}
-                        className="w-full h-14 rounded-2xl bg-foreground/[0.08] hover:bg-foreground/[0.12] text-foreground font-semibold text-base flex items-center justify-center gap-2 transition-colors disabled:opacity-40"
-                      >
-                        {activationSendingCode ? (
-                          <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                          <>
-                            <Send className="w-5 h-5" />
-                            Send Code
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  </>
-                ) : (
-                  /* OTP entry */
-                  <>
-                    <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Verification</p>
-                    <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">Enter Code</h2>
-                    <p className="text-sm text-foreground/50 mb-6">
-                      Enter the 6-digit code sent to <span className="font-semibold text-foreground">{activationContactValue}</span>
-                    </p>
-                    <div className="flex gap-2 mb-4">
-                      {Array.from({ length: 6 }).map((_, i) => (
-                        <div
-                          key={i}
-                          className={`w-12 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all ${
-                            activationCode[i]
-                              ? "border-primary bg-primary/5 text-foreground"
-                              : i === activationCode.length
-                                ? "border-primary/50 bg-foreground/[0.03]"
-                                : "border-foreground/10 bg-foreground/[0.03]"
-                          }`}
+                        <button
+                          onClick={() => {
+                            if (!activationContactValue.trim()) return;
+                            setActivationSendingCode(true);
+                            setTimeout(() => {
+                              setActivationCodeSent(true);
+                              setActivationSendingCode(false);
+                              toast({ title: "Verification code sent", description: `Check ${activationContactValue} for your code` });
+                            }, 800);
+                          }}
+                          disabled={!activationContactValue.trim() || activationSendingCode}
+                          className="w-full h-14 rounded-2xl bg-foreground/[0.08] hover:bg-foreground/[0.12] text-foreground font-semibold text-base flex items-center justify-center gap-2 transition-colors disabled:opacity-40"
                         >
-                          {activationCode[i] || ""}
-                        </div>
-                      ))}
-                    </div>
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      maxLength={6}
-                      value={activationCode}
-                      onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').slice(0, 6);
-                        setActivationCode(val);
-                        if (val.length === 6) {
-                          // Show device connected animation, then go to device name step
-                          setShowDeviceConnected(true);
-                          setTimeout(() => {
-                            setShowDeviceConnected(false);
-                            setOwnerVerified(true);
-                          }, 2500);
-                        }
-                      }}
-                      className="sr-only"
-                      autoFocus
-                    />
-                    <div className="flex items-center justify-between text-sm">
-                      <button
-                        onClick={() => {
-                          setActivationCodeSent(false);
-                          setActivationCode("");
+                          {activationSendingCode ? (
+                            <Loader2 className="w-5 h-5 animate-spin" />
+                          ) : (
+                            <>
+                              <Send className="w-5 h-5" />
+                              Send Code
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Verification</p>
+                      <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">Enter Code</h2>
+                      <p className="text-sm text-foreground/50 mb-6">
+                        Enter the 6-digit code sent to <span className="font-semibold text-foreground">{activationContactValue}</span>
+                      </p>
+                      <div className="flex gap-2 mb-4">
+                        {Array.from({ length: 6 }).map((_, i) => (
+                          <div
+                            key={i}
+                            className={`w-12 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all ${
+                              activationCode[i]
+                                ? "border-primary bg-primary/5 text-foreground"
+                                : i === activationCode.length
+                                  ? "border-primary/50 bg-foreground/[0.03]"
+                                  : "border-foreground/10 bg-foreground/[0.03]"
+                            }`}
+                          >
+                            {activationCode[i] || ""}
+                          </div>
+                        ))}
+                      </div>
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={6}
+                        value={activationCode}
+                        onChange={(e) => {
+                          const val = e.target.value.replace(/\D/g, '').slice(0, 6);
+                          setActivationCode(val);
+                          if (val.length === 6) {
+                            setShowDeviceConnected(true);
+                            setTimeout(() => {
+                              setShowDeviceConnected(false);
+                              setOwnerVerified(true);
+                            }, 2500);
+                          }
                         }}
-                        className="text-foreground/40 hover:text-foreground/60 transition-colors"
-                      >
-                        Change contact
-                      </button>
-                      <span className="text-foreground/30">Resend in 55s</span>
-                    </div>
-                  </>
-                )}
-              </div>
-            </motion.div>
+                        className="sr-only"
+                        autoFocus
+                      />
+                      <div className="flex items-center justify-between text-sm">
+                        <button
+                          onClick={() => {
+                            setActivationCodeSent(false);
+                            setActivationCode("");
+                          }}
+                          className="text-foreground/40 hover:text-foreground/60 transition-colors"
+                        >
+                          Change contact
+                        </button>
+                        <span className="text-foreground/30">Resend in 55s</span>
+                      </div>
+                    </>
+                  )}
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
 
-          {/* Footer: Need Help (left) + Other Options (right) */}
+          {/* Footer: Need Help (left) + Back (right, only when showing other options) */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
             className="mt-10 w-full flex items-start justify-between"
           >
-            {/* Need Help - Left */}
             <button
               onClick={() => setShowContactAdmin(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors flex items-center gap-1.5"
@@ -1314,22 +1322,19 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               Need Help?
             </button>
 
-            {/* Try another way - Right */}
-            <button
-              onClick={() => {
-                if (showOtherOptions) {
+            {showOtherOptions && (
+              <button
+                onClick={() => {
                   setShowOtherOptions(false);
                   setActivationCodeSent(false);
                   setActivationCode("");
                   setActivationContactValue("");
-                } else {
-                  setShowOtherOptions(true);
-                }
-              }}
-              className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
-            >
-              {showOtherOptions ? "Back to options" : "Try another way"}
-            </button>
+                }}
+                className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+              >
+                Back to QR code
+              </button>
+            )}
           </motion.div>
         </div>
 

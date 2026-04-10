@@ -13,6 +13,9 @@ export function SplashScreen({ onComplete, duration = 2000, variant = "default" 
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
+  const splashBgColor = localStorage.getItem('splashBgColor') || '#131316';
+  const partnerLogoUrl = localStorage.getItem('partnerLogoUrl') || '';
+
   useEffect(() => {
     const fadeTimer = setTimeout(() => {
       setIsFading(true);
@@ -42,12 +45,12 @@ export function SplashScreen({ onComplete, duration = 2000, variant = "default" 
       style={{
         background: isBrand
           ? "#DF1683"
-          : "#131316",
+          : splashBgColor,
       }}
     >
       <div className="flex flex-col items-center justify-center" style={{ animation: "fadeIn 0.5s ease-in" }}>
         <img
-          src={eatosLogo}
+          src={partnerLogoUrl || eatosLogo}
           alt="POS AI Logo"
           className="w-32 h-auto md:w-44 lg:w-52"
         />

@@ -7083,125 +7083,102 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden">
         <div className="absolute inset-0 gradient-mesh opacity-30" />
         
-        <div className="relative z-10 w-full max-w-5xl px-8 flex flex-col items-center">
-          {/* Logo + Title - Centered */}
-          <motion.div
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-10 text-center flex flex-col items-center"
-          >
-            <motion.img
-              src={eatosLogo}
-              alt="POS AI"
-              className="w-28 h-auto mb-6"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.4 }}
-            />
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
-              Sign in to your device
-            </h1>
-            <p className="text-base text-foreground/50 whitespace-nowrap">
-              To access this Point of Sale, sign in using one of the options below
-            </p>
-          </motion.div>
+        <div className="relative z-10 w-full max-w-lg px-6 flex flex-col items-center">
+          {/* Logo */}
+          <motion.img
+            src={eatosLogo}
+            alt="POS AI"
+            className="w-24 h-auto mb-10"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.4 }}
+          />
 
           <AnimatePresence mode="wait">
-            <motion.div
-              key={showExistingOtherOptions ? "code-view" : "browser-view"}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              transition={{ delay: 0.15 }}
-              className="flex flex-col md:flex-row gap-0 w-full"
-            >
-              {/* Left: QR Code (always visible) */}
-              <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0">
-                <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
-                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Scan this QR code</h2>
-                
-                <div className="flex items-start gap-6">
-                  <button
-                    onClick={() => {
-                      localStorage.setItem("pos_device_session", JSON.stringify({
-                        deviceId: `device_${Date.now()}`,
-                        deviceName: "POS Terminal",
-                        activatedAt: new Date().toISOString(),
-                        trustedAt: new Date().toISOString(),
-                      }));
-                      navigate("/");
-                    }}
-                    className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
-                  >
-                    <QRCodeSVG
-                      value={activationQrValueExisting}
-                      size={180}
-                      bgColor="hsl(0 0% 100%)"
-                      fgColor="hsl(0 0% 0%)"
-                      level="M"
-                    />
-                  </button>
-                  <p className="text-sm text-foreground/50 leading-relaxed pt-2">
-                    {showExistingOtherOptions
-                      ? "Scan directly with your phone camera. You will be asked to enter your email, and code to verify."
-                      : "On your mobile phone, open the camera or the QR scanner app and point to this code."}
-                  </p>
+            {!showExistingOtherOptions ? (
+              <motion.div
+                key="qr-view"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: 0.1 }}
+                className="flex flex-col items-center w-full"
+              >
+                {/* Title & Subtext */}
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2 text-center">
+                  Scan QR code
+                </h1>
+                <p className="text-sm text-foreground/50 mb-8 text-center max-w-sm">
+                  Point the camera on your phone or tablet at the QR code
+                </p>
+
+                {/* QR Code */}
+                <button
+                  onClick={() => {
+                    localStorage.setItem("pos_device_session", JSON.stringify({
+                      deviceId: `device_${Date.now()}`,
+                      deviceName: "POS Terminal",
+                      activatedAt: new Date().toISOString(),
+                      trustedAt: new Date().toISOString(),
+                    }));
+                    navigate("/");
+                  }}
+                  className="bg-foreground rounded-2xl p-6 cursor-pointer hover:opacity-90 transition-opacity mb-6"
+                >
+                  <QRCodeSVG
+                    value={activationQrValueExisting}
+                    size={220}
+                    bgColor="hsl(0 0% 100%)"
+                    fgColor="hsl(0 0% 0%)"
+                    level="M"
+                  />
+                </button>
+
+                <p className="text-sm text-foreground/40 text-center max-w-xs mb-10 leading-relaxed">
+                  Tap the link that appears and follow the steps on your mobile device
+                </p>
+
+                {/* OR Divider */}
+                <div className="flex items-center w-full max-w-xs mb-8">
+                  <div className="flex-1 h-px bg-foreground/10" />
+                  <span className="px-4 text-sm font-medium text-foreground/30 uppercase tracking-wider">or</span>
+                  <div className="flex-1 h-px bg-foreground/10" />
                 </div>
-              </div>
 
-              {/* Divider */}
-              <div className="hidden md:flex flex-col items-center px-4">
-                <div className="w-px flex-1 bg-foreground/10" />
-              </div>
-              <div className="md:hidden w-full h-px bg-foreground/10 my-6" />
+                {/* Try another way */}
+                <button
+                  onClick={() => setExistingUserSelectedOption("code")}
+                  className="px-6 py-3 rounded-2xl bg-foreground/[0.06] hover:bg-foreground/[0.1] border border-foreground/[0.08] text-sm font-medium text-foreground/60 hover:text-foreground/80 transition-all mb-6"
+                >
+                  Try another way
+                </button>
 
-              {/* Right side */}
-              <div className="flex-[1.2] pl-0 md:pl-12">
-                {!showExistingOtherOptions ? (
-                  /* Option 2: Browser pairing */
+                {/* Need Help */}
+                <button
+                  onClick={() => setShowContactAdmin(true)}
+                  className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors flex items-center gap-1.5"
+                >
+                  <HelpCircle className="w-4 h-4" />
+                  Need Help?
+                </button>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="code-view"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: 0.1 }}
+                className="flex flex-col items-center w-full"
+              >
+                {!existingUserCodeSent ? (
                   <>
-                    <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
-                    <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Use a browser</h2>
-                    
-                    <div className="space-y-6">
-                      <div className="flex items-start gap-4">
-                        <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
-                        <div>
-                          <p className="text-sm text-foreground/70 mb-2">Go to this link:</p>
-                          <div className="inline-block px-5 py-2.5 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]">
-                            <span className="text-base font-semibold text-foreground tracking-wide">posai.com/pair</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-4">
-                        <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
-                        <div>
-                          <p className="text-sm text-foreground/70 mb-3">When asked, enter this code:</p>
-                          <div className="flex gap-2">
-                            {generatedDeviceCode.split('').map((char, i) => (
-                              <div
-                                key={i}
-                                className="w-12 h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center"
-                              >
-                                <span className="text-xl font-bold text-foreground">{char}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                ) : !existingUserCodeSent ? (
-                  /* Sign in with Code - email/phone input */
-                  <>
-                    <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
-                    <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">Sign in with Code</h2>
-                    <p className="text-sm text-foreground/50 mb-6">
+                    <h1 className="text-2xl font-bold text-foreground mb-2 text-center">Sign in with Code</h1>
+                    <p className="text-sm text-foreground/50 mb-6 text-center">
                       Enter your email or mobile number to receive a code
                     </p>
 
-                    <div className="space-y-4">
+                    <div className="w-full max-w-sm space-y-4">
                       <div className="relative">
                         <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30">
                           <Mail className="w-5 h-5" />
@@ -7246,11 +7223,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     </div>
                   </>
                 ) : (
-                  /* OTP entry */
                   <>
-                    <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Verification</p>
-                    <h2 className="text-xl md:text-2xl font-bold text-foreground mb-2">Enter Code</h2>
-                    <p className="text-sm text-foreground/50 mb-6">
+                    <h1 className="text-2xl font-bold text-foreground mb-2 text-center">Enter Code</h1>
+                    <p className="text-sm text-foreground/50 mb-6 text-center">
                       Enter the 6-digit code sent to <span className="font-semibold text-foreground">{existingUserContact}</span>
                     </p>
                     <div className="flex gap-2 mb-4">
@@ -7304,7 +7279,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       </div>
                     )}
 
-                    <div className="flex items-center justify-between text-sm">
+                    <div className="flex items-center justify-between text-sm w-full max-w-sm">
                       <button
                         onClick={() => {
                           setExistingUserCodeSent(false);
@@ -7329,42 +7304,32 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     </div>
                   </>
                 )}
-              </div>
-            </motion.div>
+
+                {/* Back to QR */}
+                <div className="flex flex-col items-center mt-8 gap-4">
+                  <button
+                    onClick={() => {
+                      setExistingUserSelectedOption(null);
+                      setExistingUserCodeSent(false);
+                      setExistingUserVerificationCode("");
+                      setExistingUserVerificationError("");
+                      setExistingUserContact("");
+                    }}
+                    className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+                  >
+                    Back to QR code
+                  </button>
+                  <button
+                    onClick={() => setShowContactAdmin(true)}
+                    className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors flex items-center gap-1.5"
+                  >
+                    <HelpCircle className="w-4 h-4" />
+                    Need Help?
+                  </button>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
-
-          {/* Footer: Need Help (left) + Try another way (right) */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3 }}
-            className="mt-10 w-full flex items-start justify-between"
-          >
-            <button
-              onClick={() => setShowContactAdmin(true)}
-              className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors flex items-center gap-1.5"
-            >
-              <HelpCircle className="w-4 h-4" />
-              Need Help?
-            </button>
-
-            <button
-              onClick={() => {
-                if (showExistingOtherOptions) {
-                  setExistingUserSelectedOption(null);
-                  setExistingUserCodeSent(false);
-                  setExistingUserVerificationCode("");
-                  setExistingUserVerificationError("");
-                  setExistingUserContact("");
-                } else {
-                  setExistingUserSelectedOption("code");
-                }
-              }}
-              className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
-            >
-              {showExistingOtherOptions ? "Back to options" : "Try another way"}
-            </button>
-          </motion.div>
         </div>
 
         <ContactAdminDialog 

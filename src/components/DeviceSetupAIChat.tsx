@@ -960,10 +960,10 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                     className="text-center space-y-2"
                   >
                     <h2 className="text-xl font-semibold text-foreground tracking-tight">
-                      Set Up Your Device
+                      {isSignIn ? "Sign In" : "Set Up Your Device"}
                     </h2>
                     <p className="text-sm text-foreground/40 max-w-[260px] mx-auto leading-relaxed">
-                      Let AI guide you through a quick and easy device setup — step by step.
+                      {isSignIn ? "Let AI guide you through a quick and easy sign-in process." : "Let AI guide you through a quick and easy device setup — step by step."}
                     </p>
                   </motion.div>
                 </div>

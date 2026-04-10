@@ -1279,14 +1279,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 /* Browser selected: browser content on top, QR + email button at bottom */
                 <motion.div key="mobile-browser-active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   {/* Browser content at top */}
-                  <div className="p-4 rounded-2xl bg-foreground/[0.03] border border-foreground/[0.06] space-y-5 mb-6">
-                    <div className="flex items-center justify-between mb-1">
-                      <div className="flex items-center gap-2">
-                        <Monitor className="w-4 h-4 text-foreground/50" />
-                        <span className="text-sm font-semibold text-foreground">Use a browser</span>
-                      </div>
-                      <button onClick={() => setMobileActivationTab(null)} className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors">Back</button>
-                    </div>
+                  <div className="space-y-5 mb-6">
+                    <p className="text-sm font-semibold text-foreground text-center">Use a browser</p>
                     <div className="flex items-start gap-3">
                       <span className="text-base font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
                       <div>
@@ -1338,14 +1332,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 /* Email selected: email content on top, QR + browser button at bottom */
                 <motion.div key="mobile-email-active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   {/* Email content at top */}
-                  <div className="p-4 rounded-2xl bg-foreground/[0.03] border border-foreground/[0.06] mb-6">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <Mail className="w-4 h-4 text-foreground/50" />
-                        <span className="text-sm font-semibold text-foreground">Activate via email / phone</span>
-                      </div>
-                      <button onClick={() => { setMobileActivationTab(null); setActivationCodeSent(false); setActivationCode(""); setActivationContactValue(""); }} className="text-xs text-foreground/40 hover:text-foreground/60 transition-colors">Back</button>
-                    </div>
+                  <div className="mb-6">
+                    <p className="text-sm font-semibold text-foreground text-center mb-3">Activate via email / phone</p>
                     {!activationCodeSent ? (
                       <div className="space-y-4">
                         <p className="text-sm text-foreground/50">Enter your email or mobile number to receive a code</p>

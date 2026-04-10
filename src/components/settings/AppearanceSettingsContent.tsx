@@ -13,6 +13,7 @@ import ScheduleTypeSelector from "@/components/settings/ScheduleTypeSelector";
 import appearanceIcon from "@/assets/icons/appearance.png";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
 import POSThemePreview from "@/components/settings/POSThemePreview";
+import AdvancedCustomizationContent from "@/components/settings/AdvancedCustomizationContent";
 
 type ThemeOption = 'dark' | 'light';
 
@@ -343,9 +344,12 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
             <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
-        <p className="text-xs text-muted-foreground px-1">
+        <p className="text-xs text-muted-foreground px-1 mb-6">
           Choose from a variety of layout styles to customize your Point of Sale interface.
         </p>
+
+        {/* Advanced Customization */}
+        <AdvancedCustomizationContent />
       </div>
     </div>);
 

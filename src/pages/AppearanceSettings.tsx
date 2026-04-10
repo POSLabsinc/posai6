@@ -11,6 +11,7 @@ import ScheduleTimePicker from "@/components/settings/ScheduleTimePicker";
 import ScheduleTypeSelector from "@/components/settings/ScheduleTypeSelector";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
 import POSThemePreview from "@/components/settings/POSThemePreview";
+import AdvancedCustomizationContent from "@/components/settings/AdvancedCustomizationContent";
 
 type ThemeOption = 'dark' | 'light';
 
@@ -353,9 +354,12 @@ const AppearanceSettings = () => {
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>
         </div>
-        <p className="text-xs text-neutral-500 px-1">
+        <p className="text-xs text-neutral-500 px-1 mb-6">
           Select a font family to personalize the look and feel of your display.
         </p>
+
+        {/* Advanced Customization */}
+        <AdvancedCustomizationContent />
       </div>
     </div>
   );

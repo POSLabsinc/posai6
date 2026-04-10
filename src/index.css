@@ -875,3 +875,24 @@ All colors MUST be HSL.
 .app-bold-text * {
   font-weight: bold !important;
 }
+
+/* Advanced Customization - Selection & Hover color overrides */
+:root {
+  --custom-selection-color: #F97316;
+  --custom-hover-color: #1C1C1C;
+}
+
+/* Apply selection color to common interactive patterns */
+.bg-sidebar-accent {
+  background-color: var(--custom-hover-color) !important;
+}
+
+[data-state="active"] {
+  border-color: var(--custom-selection-color);
+}
+
+/* Selected sidebar items */
+.bg-sidebar-accent.text-sidebar-accent-foreground {
+  background-color: color-mix(in srgb, var(--custom-selection-color) 20%, transparent) !important;
+  border-color: var(--custom-selection-color) !important;
+}

@@ -6,6 +6,7 @@ import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
 import { useVoucherMode } from "@/contexts/VoucherModeContext";
 import { toast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 import homeIcon from "@/assets/icons/home-button.png";
 import dashboardIcon from "@/assets/icons/dashboard.png";
@@ -30,6 +31,7 @@ export function DraggableSidebar() {
   const { position, setIsDragging, isLocked, setIsLocked, isAnimating, hasSeenOnboarding, dismissOnboarding } = useSidebarPosition();
   const isHorizontal = position === 'top' || position === 'bottom';
   const { isVoucherMode, setIsVoucherMode } = useVoucherMode();
+  const { partnerLogoUrl } = useAppearance();
   const location = useLocation();
   const isOrdersVoucherMode = isVoucherMode && location.pathname === '/orders';
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -232,7 +234,7 @@ export function DraggableSidebar() {
 
           {/* Restaurant Logo */}
           <div className={`flex items-center justify-center ${isHorizontal ? 'h-full w-14' : 'w-full h-14'} shrink-0`}>
-            <img src={restaurantLogo} alt="Restaurant Logo" className="w-12 h-12 object-contain" />
+            <img src={partnerLogoUrl || restaurantLogo} alt="Restaurant Logo" className="w-12 h-12 object-contain" />
           </div>
 
           {/* Menu items */}

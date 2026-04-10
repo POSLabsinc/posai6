@@ -980,7 +980,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                       <AnimatedAIIcon size={18} />
                     </div>
                     <div className="max-w-[80%] rounded-2xl px-3.5 py-2.5 text-lg bg-foreground/[0.04] text-foreground">
-                      <p>Hi, How can I assist you today? Are you new here?</p>
+                      <p>{isSignIn ? "Welcome back! How can I help you sign in today?" : "Hi, How can I assist you today? Are you new here?"}</p>
                     </div>
                   </motion.div>
                   <motion.div

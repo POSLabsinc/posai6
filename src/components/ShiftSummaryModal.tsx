@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, Calendar, DollarSign, Users, Share2, FileText, Mail, MessageSquare, Download, RotateCcw, Clock, Sparkles, Send, Phone } from "lucide-react";
+import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, Calendar, DollarSign, Users, Share2, FileText, Mail, MessageSquare, Download, RotateCcw, Clock, Send, Phone } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { OverlayTimePicker } from "@/components/ui/overlay-time-picker";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import ReactMarkdown from "react-markdown";
+import ShiftAIChatPanel from "@/components/ShiftAIChatPanel";
 
 interface ShiftSummaryModalProps {
   open: boolean;

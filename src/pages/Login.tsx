@@ -1117,9 +1117,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               {/* Left: QR Code (always visible) */}
               <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0">
                 <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
-                <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Point the camera on your phone or tablet at the QR code.</h2>
+                <h2 className="text-lg md:text-xl font-bold text-foreground mb-6">Point the camera on your phone or tablet at the QR code.</h2>
                 
-                <div className="flex flex-col items-center text-center gap-5">
+                <div className="flex flex-col items-start gap-5">
                   <button
                     onClick={() => {
                       setShowDeviceConnected(true);
@@ -1139,7 +1139,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       level="M"
                     />
                   </button>
-                  <p className="text-sm text-foreground/50 leading-relaxed">
+                  <p className="text-sm text-foreground/50 leading-relaxed text-left">
                     Tap the link that appears and follow the steps on your mobile device.
                   </p>
                 </div>
@@ -1163,7 +1163,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   /* Option 2: Browser pairing */
                   <>
                     <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
-                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-4">Use a browser</h2>
+                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-6">Use a browser</h2>
                     
                     <div className="space-y-6">
                       <div className="flex items-start gap-4">

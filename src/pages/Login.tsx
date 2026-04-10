@@ -2,7 +2,7 @@ import { useCallback, useState, useEffect, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, UtensilsCrossed, Zap, Users, Truck, ShieldCheck, ArrowLeft, Delete, Loader2, Clock, MapPin, Briefcase, CheckCircle2, Monitor, Smartphone, KeyRound, AlertCircle, Send, ShieldX, Mail, MessageSquare, RefreshCw, Lock, Eye, EyeOff, Sun, Moon, Sunrise, Sunset, Fingerprint, ScanFace, Phone, X, ScanLine, Camera, HelpCircle, Info, FlaskConical, Timer, Wine, ChefHat, Sparkles, Link2, UserPlus, ChevronDown, ChevronLeft, LayoutGrid, CreditCard, BarChart3, Settings, ChevronRight, Building2, Search, LogIn } from "lucide-react";
+import { User, UtensilsCrossed, Zap, Users, Truck, ShieldCheck, ArrowLeft, Delete, Loader2, Clock, MapPin, Briefcase, CheckCircle2, Monitor, Globe, Smartphone, KeyRound, AlertCircle, Send, ShieldX, Mail, MessageSquare, RefreshCw, Lock, Eye, EyeOff, Sun, Moon, Sunrise, Sunset, Fingerprint, ScanFace, Phone, X, ScanLine, Camera, HelpCircle, Info, FlaskConical, Timer, Wine, ChefHat, Sparkles, Link2, UserPlus, ChevronDown, ChevronLeft, LayoutGrid, CreditCard, BarChart3, Settings, ChevronRight, Building2, Search, LogIn } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
 import { QRCodeSVG } from "qrcode.react";
 import {
@@ -1243,7 +1243,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <h2 className="text-lg font-bold text-foreground mb-3">Point the camera at the QR code</h2>
                     <button
                       onClick={() => { setShowDeviceConnected(true); setDeviceName("Rustic Table POS 1"); setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500); }}
-                      className="bg-foreground rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 w-full flex items-center justify-center"
+                      className="bg-foreground rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 self-center"
                     >
                       <QRCodeSVG value={activationQrValue} size={220} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                     </button>
@@ -1263,7 +1263,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <div className="flex gap-2">
                     <button onClick={() => setMobileActivationTab("browser")}
                       className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                      <Monitor className="w-4 h-4 mx-auto mb-1" />
+                      <Globe className="w-4 h-4 mx-auto mb-1" />
                       Use a browser
                     </button>
                     <button onClick={() => setMobileActivationTab("email")}
@@ -1384,7 +1384,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     </button>
                     <button onClick={() => setMobileActivationTab("browser")}
                       className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                      <Monitor className="w-4 h-4 mx-auto mb-1" />
+                      <Globe className="w-4 h-4 mx-auto mb-1" />
                       Use a browser
                     </button>
                   </div>

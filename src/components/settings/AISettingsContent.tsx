@@ -325,6 +325,54 @@ const paymentsCashMgmtChips: SuggestionChip[] = [
   { label: "Reconciliation", icon: <Eye className="w-3.5 h-3.5" />, prompt: "View cash reconciliation settings" },
 ];
 
+// Menu sub-route chips
+const menuProductsChips: SuggestionChip[] = [
+  { label: "Add product", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new product" },
+  { label: "View all products", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show all products" },
+  { label: "Archive a product", icon: <Trash2 className="w-3.5 h-3.5" />, prompt: "Archive a product" },
+  { label: "Search products", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Search for a product" },
+];
+
+const menuCategoriesChips: SuggestionChip[] = [
+  { label: "Add category", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new category" },
+  { label: "View categories", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show all categories" },
+  { label: "Reorder categories", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Reorder categories" },
+  { label: "Assign products", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Assign products to a category" },
+];
+
+const menuModifiersChips: SuggestionChip[] = [
+  { label: "Add modifier", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new modifier" },
+  { label: "View modifiers", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show all modifiers" },
+  { label: "Edit modifier groups", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Edit modifier groups" },
+  { label: "Set required modifiers", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Set required modifiers" },
+];
+
+const menuAddOnsChips: SuggestionChip[] = [
+  { label: "Add add-on", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new add-on" },
+  { label: "View add-ons", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show all add-ons" },
+  { label: "Set pricing", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Set add-on pricing" },
+  { label: "Assign to products", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Assign add-ons to products" },
+];
+
+const menuDefaultModifiersChips: SuggestionChip[] = [
+  { label: "View defaults", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show default modifiers" },
+  { label: "Set default modifiers", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Set default modifiers" },
+  { label: "Reset defaults", icon: <RotateCcw className="w-3.5 h-3.5" />, prompt: "Reset default modifiers" },
+];
+
+const menuGroupsChips: SuggestionChip[] = [
+  { label: "Add group", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new group" },
+  { label: "View groups", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show all groups" },
+  { label: "Assign products to group", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Assign products to a group" },
+];
+
+const menuMenusChips: SuggestionChip[] = [
+  { label: "Add menu", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new menu" },
+  { label: "View menus", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show all menus" },
+  { label: "Enable/disable menu", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Enable or disable a menu" },
+  { label: "Assign categories", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Assign categories to a menu" },
+];
+
 const contextChipsMap: Record<string, SuggestionChip[]> = {
   menu: menuSuggestionChips,
   system: systemSuggestionChips,
@@ -349,6 +397,14 @@ const contextChipsMap: Record<string, SuggestionChip[]> = {
   'payments-checkout-options': paymentsCheckoutChips,
   'payments-payment-methods': paymentsMethodsChips,
   'payments-cash-management': paymentsCashMgmtChips,
+  // Menu sub-routes
+  'menu-products': menuProductsChips,
+  'menu-categories': menuCategoriesChips,
+  'menu-modifiers': menuModifiersChips,
+  'menu-add-ons': menuAddOnsChips,
+  'menu-default-modifiers': menuDefaultModifiersChips,
+  'menu-groups': menuGroupsChips,
+  'menu-menus': menuMenusChips,
 };
 
 const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsContentProps) => {
@@ -403,6 +459,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const contextWelcomeMap: Record<string, { title: string; description: string; children?: string[] }> = {
     system: { title: "System", description: "Here you can configure system-level settings. Choose a section:", children: ["Appearance", "Control Center", "AI Integration"] },
     payments: { title: "Payments", description: "Manage all payment configurations. Choose a section:", children: ["Taxes", "Gratuity", "Discounts", "Service Charge", "Payment Methods", "Cash Management", "Checkout Options"] },
+    menu: { title: "Menu", description: "Manage your product catalog, categories, modifiers, and menus. Choose a section:", children: ["Products", "Categories", "Modifiers", "Add-ons", "Default Modifiers", "Groups", "Menus"] },
     'system-appearance': { title: "Appearance", description: "Customize the look and feel of your Point of Sale:" },
     'system-control-center': { title: "Control Center", description: "Manage operational controls and system behavior:" },
     'payments-taxes': { title: "Taxes", description: "Manage tax rates, exemptions, and pricing modes:" },
@@ -412,6 +469,13 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     'payments-checkout-options': { title: "Checkout Options", description: "Customize checkout flow, receipts, and signatures:" },
     'payments-payment-methods': { title: "Payment Methods", description: "Configure accepted payment types and visibility:" },
     'payments-cash-management': { title: "Cash Management", description: "Track cash drawers, pay-ins/outs, and reconciliation:" },
+    'menu-products': { title: "Products", description: "Add, edit, archive, and search your products:" },
+    'menu-categories': { title: "Categories", description: "Organize products into categories and control ordering:" },
+    'menu-modifiers': { title: "Modifiers", description: "Manage modifier groups and product customization options:" },
+    'menu-add-ons': { title: "Add-ons", description: "Configure extra options and assign them to products:" },
+    'menu-default-modifiers': { title: "Default Modifiers", description: "Set and manage default modifier presets:" },
+    'menu-groups': { title: "Groups", description: "Create groups to organize and manage products:" },
+    'menu-menus': { title: "Menus", description: "Create menus, assign categories, and manage schedules:" },
   };
 
   const prevContextRef = useRef<string | undefined>(undefined);

@@ -1263,7 +1263,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <div className="flex gap-2">
                     <button onClick={() => setMobileActivationTab("browser")}
                       className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                      <Monitor className="w-4 h-4 mx-auto mb-1" />
+                      <Globe className="w-4 h-4 mx-auto mb-1" />
                       Use a browser
                     </button>
                     <button onClick={() => setMobileActivationTab("email")}
@@ -1384,7 +1384,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     </button>
                     <button onClick={() => setMobileActivationTab("browser")}
                       className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                      <Monitor className="w-4 h-4 mx-auto mb-1" />
+                      <Globe className="w-4 h-4 mx-auto mb-1" />
                       Use a browser
                     </button>
                   </div>

@@ -170,17 +170,29 @@ export default function ShiftSummaryModal({
   }, [open]);
 
   const startISO = useMemo(() => {
-    const d = new Date(filterDateFrom);
-    const [h, m] = filterTimeFrom.split(":").map(Number);
-    d.setHours(h, m, 0, 0);
-    return d.toISOString();
+    try {
+      const d = filterDateFrom instanceof Date && !isNaN(filterDateFrom.getTime())
+        ? new Date(filterDateFrom.getTime())
+        : new Date();
+      const parts = (filterTimeFrom || "00:00").split(":").map(Number);
+      d.setHours(parts[0] || 0, parts[1] || 0, 0, 0);
+      return d.toISOString();
+    } catch {
+      return new Date().toISOString();
+    }
   }, [filterDateFrom, filterTimeFrom]);
 
   const endISO = useMemo(() => {
-    const d = new Date(filterDateTo);
-    const [h, m] = filterTimeTo.split(":").map(Number);
-    d.setHours(h, m, 59, 999);
-    return d.toISOString();
+    try {
+      const d = filterDateTo instanceof Date && !isNaN(filterDateTo.getTime())
+        ? new Date(filterDateTo.getTime())
+        : new Date();
+      const parts = (filterTimeTo || "23:59").split(":").map(Number);
+      d.setHours(parts[0] || 23, parts[1] || 59, 59, 999);
+      return d.toISOString();
+    } catch {
+      return new Date().toISOString();
+    }
   }, [filterDateTo, filterTimeTo]);
 
   const fetchData = useCallback(async () => {

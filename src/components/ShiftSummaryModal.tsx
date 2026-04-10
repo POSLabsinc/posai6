@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, ChevronDown, Calendar, Clock, Filter, ArrowUpRight, ArrowDownLeft } from "lucide-react";
+import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, ChevronDown, Calendar, Clock, Filter, ArrowUpRight, ArrowDownLeft, Timer } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { InlineDatePicker } from "@/components/ui/inline-date-picker";

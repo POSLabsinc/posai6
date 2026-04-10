@@ -1105,13 +1105,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <p className="text-sm sm:text-base text-foreground/50 text-center max-w-md md:max-w-none">
               To start using this Point of Sale, activate your device using one of the options below
             </p>
-            <button
-              onClick={() => setShowAIChat(true)}
-              className="mt-4 px-6 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
-              <span>Activate with AI</span>
-            </button>
           </motion.div>
 
           <div className="mt-4 sm:mt-6 md:mt-8" />
@@ -1244,7 +1237,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
             {/* Desktop footer */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-6 w-full flex flex-col items-center gap-3">
-              <button onClick={() => setShowTutorialOverlay(true)} className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors">Need Help?</button>
+              <button className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors">Need Help?</button>
             </motion.div>
           </div>
 
@@ -1410,7 +1403,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
             {/* Mobile footer */}
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-6 flex flex-col items-center gap-3">
-              <button onClick={() => setShowTutorialOverlay(true)} className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors">Need Help?</button>
+              <button className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors">Need Help?</button>
             </motion.div>
           </div>
         </div>
@@ -1418,11 +1411,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
-        />
-        <DeviceSetupTutorialOverlay
-          open={showTutorialOverlay}
-          onClose={() => setShowTutorialOverlay(false)}
-          variant="new"
         />
       </div>
     );
@@ -1932,7 +1920,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mt-8 text-center"
           >
             <button
-              onClick={() => setShowTutorialOverlay(true)}
+              onClick={() => {}}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need help?
@@ -1943,11 +1931,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
-        />
-        <DeviceSetupTutorialOverlay
-          open={showTutorialOverlay}
-          onClose={() => setShowTutorialOverlay(false)}
-          variant="new"
         />
       </div>
     );
@@ -5083,7 +5066,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mt-2 md:mt-4"
           >
             <button
-              onClick={() => setShowTutorialOverlay(true)}
+              onClick={() => {}}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need help?
@@ -5094,11 +5077,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
-        />
-        <DeviceSetupTutorialOverlay
-          open={showTutorialOverlay}
-          onClose={() => setShowTutorialOverlay(false)}
-          variant="new"
         />
 
 
@@ -7460,7 +7438,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               {showExistingOtherOptions ? "Back to options" : "Sign in via email / phone"}
             </button>
             <button
-              onClick={() => setShowTutorialOverlay(true)}
+              onClick={() => {}}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need Help?
@@ -7471,11 +7449,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
-        />
-        <DeviceSetupTutorialOverlay
-          open={showTutorialOverlay}
-          onClose={() => setShowTutorialOverlay(false)}
-          variant="existing"
         />
       </div>
     );

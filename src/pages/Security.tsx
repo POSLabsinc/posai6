@@ -1,7 +1,7 @@
 import { ChevronLeft, ChevronRight, Delete } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -251,9 +251,7 @@ const Security = () => {
           <ChevronLeft className="w-6 h-6 text-foreground" />
         </button>
         <h1 className="text-lg font-semibold text-foreground">Security</h1>
-        <div className="absolute right-0 md:hidden">
-          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
-        </div>
+        <div className="w-12 h-12" />
       </div>
 
       {/* Content */}

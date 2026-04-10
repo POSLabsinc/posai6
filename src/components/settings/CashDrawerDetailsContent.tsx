@@ -147,14 +147,14 @@ const CashDrawerDetailsContent = ({
     const entries: Array<{ time: string; name: string; reason: string; payIn: number; payOut: number; cash: number; card: number; tips: number; runningBalance: number }> = [];
     let balance = 0;
     
-    // Include Starting Cash only on the session start date
+    // Include Opening Cash only on the session start date
     if (selectedDateString === sessionStartDateString) {
       const startTime = format(sessionStartDate, 'hh:mm a');
       balance = startingCash;
       entries.push({ 
         time: startTime, 
         name: getEmployeeName(), 
-        reason: "Starting Cash", 
+        reason: "Opening Cash",
         payIn: startingCash, 
         payOut: 0,
         cash: startingCash,
@@ -274,8 +274,8 @@ const CashDrawerDetailsContent = ({
       )}
 
       <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
-        {/* Starting Cash Section */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Starting Cash</h2>
+        {/* Opening Cash Section */}
+        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Opening Cash</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <button
             ref={drawerRef}
@@ -442,9 +442,9 @@ const CashDrawerDetailsContent = ({
 
             {/* Content */}
             <div className="px-6 py-4 space-y-4">
-              {/* Starting Cash */}
+              {/* Opening Cash */}
               <div className="flex items-center justify-between">
-                <span className="text-neutral-400 text-base">Starting Cash</span>
+                <span className="text-neutral-400 text-base">Opening Cash</span>
                 <span className="text-foreground text-base">${startingCash.toFixed(2)}</span>
               </div>
 

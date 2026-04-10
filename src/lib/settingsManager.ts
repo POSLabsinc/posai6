@@ -1014,8 +1014,9 @@ export class SettingsManager {
     cashRefunds: number;
     expectedInDrawer: number;
     difference: number;
+    closingReason?: string;
   }): Promise<boolean> {
-    const { error } = await (supabase as any).from("cash_drawer_sessions").update({
+    const updateData: any = {
       status: 'closed',
       closed_at: new Date().toISOString(),
       closing_cash: closingData.closingCash,
@@ -1023,7 +1024,11 @@ export class SettingsManager {
       cash_refunds: closingData.cashRefunds,
       expected_in_drawer: closingData.expectedInDrawer,
       difference: closingData.difference,
-    }).eq("id", sessionId);
+    };
+    if (closingData.closingReason) {
+      updateData.closing_reason = closingData.closingReason;
+    }
+    const { error } = await (supabase as any).from("cash_drawer_sessions").update(updateData).eq("id", sessionId);
     if (error) {
       console.error("[SettingsManager] Failed to close cash drawer session:", error);
       return false;

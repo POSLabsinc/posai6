@@ -31,11 +31,11 @@ import { DeviceSetupLayout } from "@/components/DeviceSetupLayout";
 import { PersonalDeviceAuthPanel } from "@/components/PersonalDeviceAuthPanel";
 import { SplashScreen } from "@/components/SplashScreen";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import DeviceSetupAIChat from "@/components/DeviceSetupAIChat";
+
 import BusinessSearchOnboarding from "@/components/BusinessSearchOnboarding";
 import MerchantOnboarding from "@/components/MerchantOnboarding";
 import { countryCodes } from "@/components/CountryCodeSelector";
-import DeviceSetupTutorialOverlay from "@/components/DeviceSetupTutorialOverlay";
+
 
 
 import { revenueCenters, employeePinMapping, locationEmployees, getRoleIcon, getRoleBadgeStyle, getTimeOfDayInfo, PIN_LENGTH, DeviceType } from "@/data/loginData";
@@ -111,8 +111,6 @@ const Login = () => {
   
   // Contact admin dialog state
   const [showContactAdmin, setShowContactAdmin] = useState(false);
-  const [showAIChat, setShowAIChat] = useState(false);
-  const [showTutorialOverlay, setShowTutorialOverlay] = useState(false);
   
   // Company Device - First-time device setup state
   const [showDeviceSetup, setShowDeviceSetup] = useState(false);

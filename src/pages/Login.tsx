@@ -989,7 +989,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       // Initialize device name suggestion if not already set
       if (!deviceName) {
-        setTimeout(() => setDeviceName("Point of Sale"), 0);
+        setTimeout(() => setDeviceName("Rustic Table POS 1"), 0);
       }
 
       return (
@@ -1127,7 +1127,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <button
                     onClick={() => {
                       setShowDeviceConnected(true);
-                      setDeviceName("Point of Sale");
+                      setDeviceName("Rustic Table POS 1");
                       setTimeout(() => {
                         setShowDeviceConnected(false);
                         setOwnerVerified(true);

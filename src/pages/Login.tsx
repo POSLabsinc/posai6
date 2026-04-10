@@ -1107,9 +1107,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             </p>
             <button
               onClick={() => setShowAIChat(true)}
-              className="mt-4 px-6 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5"
+              className="mt-4 px-6 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
             >
-              <AnimatedAIIcon size={18} />
+              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
               <span>Activate with AI</span>
             </button>
           </motion.div>

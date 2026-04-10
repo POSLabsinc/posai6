@@ -1,7 +1,6 @@
 import { useState, useCallback } from "react";
 import { ChevronLeft, Search, LocateFixed, MapPin } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import aiColorfulIcon from "@/assets/icons/ai-colorful.png";
@@ -88,9 +87,6 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
             </button>
           )}
           <h1 className="text-base font-medium text-foreground">Restaurant Information</h1>
-          <div className="absolute right-4 hidden md:flex overflow-visible">
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-          </div>
         </div>
       )}
 

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Plus, Search, Mic, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 import { useAppearance } from "@/contexts/AppearanceContext";
@@ -115,9 +114,6 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
               <h1 className="text-base font-medium text-foreground">
                 {showArchived ? "Archived Add-Ons" : "Add-Ons"}
               </h1>
-            </div>
-            <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-              <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
             </div>
           </div>
         )}
@@ -325,7 +321,6 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
             className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-base"
           />
           <Mic className="w-5 h-5 text-neutral-500 mr-2" />
-          <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
         </div>
       </div>
 

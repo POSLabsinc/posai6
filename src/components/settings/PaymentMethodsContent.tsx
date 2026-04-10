@@ -3,7 +3,6 @@ import { ChevronLeft } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import paymentMethodsIcon from "@/assets/icons/payment-methods.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -120,9 +119,6 @@ const PaymentMethodsContent = ({ showHeader = true, onBack, onAIClick }: Payment
           )}
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
             <h1 className="text-base font-medium text-foreground">Payment Methods</h1>
-          </div>
-          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
           </div>
         </div>
       )}

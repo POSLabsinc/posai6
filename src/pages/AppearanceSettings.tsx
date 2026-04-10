@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Check, Sun } from "lucide-react";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useTheme } from "next-themes";
@@ -157,9 +156,6 @@ const AppearanceSettings = () => {
             <ChevronLeft className="w-4 h-4 text-foreground" />
           </button>
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Appearance</h1>
-          <div className="md:hidden overflow-visible flex items-center justify-center" style={{ width: 40, height: 40 }}>
-            <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
-          </div>
         </div>
 
         {/* App Theme Section */}

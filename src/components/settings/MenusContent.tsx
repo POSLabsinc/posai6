@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useMenus, deleteMenu, Menu } from "@/lib/menuStore";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,7 +59,6 @@ const MenusContent = ({
           <h1 className="text-base font-medium text-foreground">Menus</h1>
         </div>
         <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-          <AnimatedAIIcon
             size={24}
             onClick={onAIClick || (() => onNavigate?.("/settings/ai"))}
           />

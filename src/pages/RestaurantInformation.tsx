@@ -1,6 +1,5 @@
 import { ChevronLeft, ChevronRight, Search, LocateFixed } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import aiColorfulIcon from "@/assets/icons/ai-colorful.png";
@@ -80,9 +79,6 @@ const RestaurantInformation = () => {
             <ChevronLeft className="w-6 h-6 text-foreground" />
           </button>
           <h1 className="text-lg font-semibold text-foreground">Restaurant Information</h1>
-          <div className="absolute right-0 md:hidden">
-            <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
-          </div>
         </div>
 
         {/* Content */}

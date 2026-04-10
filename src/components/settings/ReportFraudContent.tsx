@@ -1,6 +1,5 @@
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 interface ReportFraudContentProps {
   showHeader?: boolean;
@@ -22,9 +21,6 @@ const ReportFraudContent = ({ showHeader = true, onBack, onAIClick }: ReportFrau
             </button>
           )}
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Report Fraud</h1>
-          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-          </div>
         </div>
       )}
       <div className="flex-1 overflow-hidden">

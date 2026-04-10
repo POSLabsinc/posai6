@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { ChevronLeft, Download, Loader2, CheckCheck, Search, Mic, CloudSun, ClipboardList, Megaphone, RefreshCw, Users, Sparkles, ShoppingCart, XCircle, Lock, AlertTriangle, CheckCircle, Package, Truck, ChefHat } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import eatosProfile from "@/assets/icons/eatos-profile.png";
 
 import filterListIcon from "@/assets/icons/filter-list.png";
@@ -224,9 +223,6 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
           className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-sm"
         />
         <Mic className="w-4 h-4 text-neutral-500 shrink-0" />
-      </div>
-      <div className="overflow-visible flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32 }}>
-        <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai'))} />
       </div>
     </div>
   );

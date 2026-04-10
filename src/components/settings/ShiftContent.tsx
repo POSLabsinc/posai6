@@ -5,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, addDays, subDays, addMonths, subMonths } from "date-fns";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useShiftCards, ShiftCardData } from "@/hooks/use-shift-cards";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ShiftCalendarView from "@/components/settings/ShiftCalendarView";
@@ -236,9 +235,6 @@ const ShiftContent = ({
               </button>
           }
             <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Shift</h1>
-            <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-              <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-            </div>
           </div>
         }
 

@@ -2,7 +2,6 @@ import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownAZ, Calendar as CalendarIcon, Archive, Mic, Check, Clock } from "lucide-react";
 import { format, differenceInMinutes } from "date-fns";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { CompactWheelDatePicker } from "@/components/ui/compact-wheel-date-picker";
 import { useEmployees, useArchiveEmployee, useAllEmployeeShiftsForDate } from "@/hooks/use-employees";
 import EmployeeExpanded from "@/components/settings/EmployeeExpanded";
@@ -85,9 +84,6 @@ const EmployeeContent = ({
               </button>
             )}
             <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Employees</h1>
-            <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-              <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-            </div>
           </div>
         )}
 

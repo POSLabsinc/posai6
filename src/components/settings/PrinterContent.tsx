@@ -1,7 +1,6 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import hardwarePrinterIcon from "@/assets/icons/hardware-printer.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
@@ -30,9 +29,6 @@ const PrinterContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: Pr
             </button>
           )}
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Printer</h1>
-          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-          </div>
         </div>
       )}
 

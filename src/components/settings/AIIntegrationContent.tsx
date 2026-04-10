@@ -3,7 +3,6 @@ import { ChevronLeft, ChevronRight, Eye, EyeOff, Trash2, RefreshCw, Info, BookOp
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -236,9 +235,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">
             AI Integration
           </h1>
-          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate("/settings/ai"))} />
-          </div>
         </div>
       )}
 

@@ -1,6 +1,5 @@
 import { ChevronLeft } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useNotifications } from "@/hooks/useNotifications";
 import { NotificationDetailView } from "@/components/settings/NotificationsListContent";
 import { Loader2 } from "lucide-react";
@@ -59,9 +58,6 @@ const NotificationDetailContent = ({ showHeader = true, onBack, onAIClick, notif
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2 truncate max-w-[60%]">
             {notification.title}
           </h1>
-          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-          </div>
         </div>
       )}
       <div className="flex-1 overflow-y-auto scrollbar-hide">

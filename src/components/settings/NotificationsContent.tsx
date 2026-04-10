@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { ChevronRight, ChevronLeft, Check, Bell, Volume2, BellRing } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import notificationsIcon from "@/assets/icons/settings-notifications.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePreference } from "@/hooks/usePreference";

@@ -177,6 +177,7 @@ const [activationMethod, setActivationMethod] = useState<"code" | "link" | "pass
   const [existingUserVerified, setExistingUserVerified] = useState(false);
   
   const [showOtherOptions, setShowOtherOptions] = useState(false);
+  const [mobileActivationTab, setMobileActivationTab] = useState<"browser" | "email" | null>(null);
   const [generatedDeviceCode] = useState(() => {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
     return Array.from({ length: 6 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');

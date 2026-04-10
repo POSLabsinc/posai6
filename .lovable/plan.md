@@ -1,40 +1,46 @@
 
 
-# Plan: Generate PDF Report of All Settings Functionality for AI Assistant
+# Plan: Context-Aware AI Assistant with Auto-Welcome Messages
 
-## Objective
-Create a comprehensive PDF document listing every setting module, its configurable options, and the natural language commands the AI Assistant can execute for each. This serves as a reference guide for both users and the AI Assistant.
+## What Changes
+When the user opens the AI Assistant while on the System or Payments settings page (or any sub-page), the assistant will automatically display a contextual welcome message with actionable quick-reply buttons showing what can be done in that section. When a sub-menu is selected, it drills down to show further options.
 
-## Report Structure
-The PDF will be organized by settings module with these sections:
+## Implementation
 
-1. **Cover Page** - "POS AI 6.0 - AI Assistant Settings Reference Guide"
-2. **Gratuity & Tips** - Enable/disable tips, presets, custom gratuity, show on receipt, auto-gratuity for large parties
-3. **Discounts** - Add, update, archive discounts; set PIN requirements; view active discounts
-4. **Taxes** - Add, update, archive taxes; change tax type (inclusive/exclusive); view active taxes
-5. **Service Charges** - Add, update, archive charges; set delivery fees; auto-apply for party sizes
-6. **Checkout Options** - 18 toggles (quick amounts, split check, tips, order type, guest name, receipts, signatures, payment sounds, hold & fire, etc.)
-7. **Menu Management** - Activate/deactivate menus; enable/disable channels (POS, Kiosk, Online); add new menus
-8. **Orders Settings** - 5 toggles (creation rules, order flow, hold & recall, sync, notifications)
-9. **Appearance** - Theme (dark/light/system), text size, bold text, brightness, icon style, icon size
-10. **Control Center** - KDS, debug mode, auto-lock timer, force clock-in, restart app, performance summary, built-in display, and more
-11. **Navigation Commands** - All "go to" / "open" navigation paths
-12. **Cash Management** - Drawer sessions, pay in/out, vouchers
-13. **Payment Methods** - Enable/disable individual payment methods
+### 1. Add auto-welcome message on context change
+In `src/components/settings/AISettingsContent.tsx`, add a `useEffect` that fires when the `context` prop is set and `messages` is empty. It will inject an initial assistant message with:
+- A contextual greeting (e.g., "You're in **System** settings. Here's what you can configure:")
+- Quick reply buttons matching the `SETTINGS_HIERARCHY` children for that context (e.g., System shows: Appearance, Control Center, AI Integration)
+- A "Go to System" navigation option
 
-Each section will include:
-- Setting name and description
-- Current default value
-- Example AI commands (what to say to the assistant)
-- Supported actions (view, enable, disable, add, update, archive)
+### 2. Define context-to-hierarchy mapping
+Add a mapping from context strings to their hierarchy keys:
+- `system` maps to `"System"` in `SETTINGS_HIERARCHY`
+- `payments` maps to `"Payments"` in `SETTINGS_HIERARCHY`
 
-## Technical Approach
-- Use Python `reportlab` to generate a professional PDF
-- Montserrat font (project standard)
-- Dark-themed design matching the POS brand (#131316 background, white text)
-- Output to `/mnt/documents/POS_AI_Settings_Reference_Guide.pdf`
-- Visual QA via `pdftoppm` before delivery
+This reuses the existing `SETTINGS_HIERARCHY` and `handleSettingsQuickReply` drill-down logic.
 
-## Files Changed
-No codebase changes. This is a standalone PDF artifact generated via script.
+### 3. Add sub-context chips for deeper pages
+Extend `contextChipsMap` with sub-route contexts (e.g., `system-appearance`, `payments-taxes`) so that when the user is on a sub-page, the AI shows relevant actions for that specific section.
+
+Update the `aiContext` derivation in `src/pages/Settings.tsx` to produce more granular context strings for sub-routes (e.g., `/settings/payments/taxes` produces `payments-taxes`).
+
+### 4. Add sub-route suggestion chip sets
+Create new chip sets for key sub-pages:
+- **Appearance**: "Change theme", "Adjust text size", "Toggle bold text", "Icon style"
+- **Control Center**: "Toggle KDS", "Set auto-lock", "Force clock-in", "Debug mode"
+- **Taxes**: "Add new tax", "View active taxes", "Change tax type"
+- **Discounts**: "Add discount", "View active discounts", "Set PIN requirement"
+- **Gratuity**: "Set tip presets", "Auto-gratuity rules", "Enable/disable tips"
+- **Checkout Options**: "Toggle quick amounts", "Split check", "Signature settings"
+- **Payment Methods**: "Enable/disable methods", "View active methods"
+
+### Files Modified
+1. **`src/components/settings/AISettingsContent.tsx`**
+   - Add `useEffect` for auto-welcome message based on context
+   - Add context-to-hierarchy mapping
+   - Add sub-route suggestion chip sets to `contextChipsMap`
+
+2. **`src/pages/Settings.tsx`**
+   - Refine `aiContext` derivation to produce granular sub-route contexts
 

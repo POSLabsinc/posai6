@@ -654,9 +654,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
     }
   }, [currentStep]);
 
-  // Browser connected: after 5 seconds show "Device is connected" then ask for device name
+  // Verification steps: after 5 seconds show "Device is connected" then ask for device name
   useEffect(() => {
-    if (currentStep === "chat-browser-connected") {
+    if (currentStep === "chat-browser-connected" || currentStep === "chat-qr-verifying" || currentStep === "chat-email-phone-verifying") {
       const timer = setTimeout(() => {
         const connectedMsg: Message = {
           id: Date.now().toString(),
@@ -1104,9 +1104,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                     <button
                       onClick={() => {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Send code to email/phone" };
-                        setMessages(prev => [...prev, userMsg]);
-                        setCurrentStep("chat");
-                        streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Send code to email/phone" }]);
+                        const assistantMsg: Message = {
+                          id: (Date.now() + 1).toString(),
+                          role: "assistant",
+                          content: "Sure! Please enter your email address or phone number below, and I'll send you a verification code."
+                        };
+                        setMessages(prev => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("chat-email-phone");
                       }}
                       className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
@@ -1138,9 +1142,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                       <button
                         onClick={() => {
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Done, I scanned it" };
-                          setMessages(prev => [...prev, userMsg]);
-                          setCurrentStep("chat");
-                          streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Done, I scanned it" }]);
+                          const assistantMsg: Message = {
+                            id: (Date.now() + 1).toString(),
+                            role: "assistant",
+                            content: "Great, verifying your device..."
+                          };
+                          setMessages(prev => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("chat-qr-verifying");
                         }}
                         className="px-4 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >
@@ -1150,8 +1158,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                         onClick={() => {
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Having trouble scanning" };
                           setMessages(prev => [...prev, userMsg]);
-                          setCurrentStep("chat");
-                          streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Having trouble scanning" }]);
+                          setCurrentStep("chat-qr-options");
+                          const assistantMsg: Message = {
+                            id: (Date.now() + 1).toString(),
+                            role: "assistant",
+                            content: "No worries! You can try another method:"
+                          };
+                          setMessages(prev => [...prev, assistantMsg]);
                         }}
                         className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >

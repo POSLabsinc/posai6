@@ -719,12 +719,12 @@ export default function ShiftSummaryModal({
               </button>
             )}
 
-            {/* AI Icon - functional */}
+            {/* AI Icon - opens chat */}
             <button
-              onClick={fetchAIInsights}
+              onClick={() => setShowAIChat(true)}
               className="flex items-center justify-center rounded-xl hover:bg-white/15 transition-colors"
               style={{ width: 40, height: 40, background: "rgba(100, 100, 100, 0.4)" }}
-              title="AI Insights"
+              title="AI Assistant"
             >
               <AnimatedAIIcon size={18} />
             </button>

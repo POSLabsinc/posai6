@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import eatosLogo from "@/assets/icons/posai-logo.png";
+import aiColorfulIcon from "@/assets/icons/ai-colorful.png";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";

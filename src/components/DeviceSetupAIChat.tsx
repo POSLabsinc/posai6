@@ -1071,9 +1071,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                     <button
                       onClick={() => {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Use browser instead" };
-                        setMessages(prev => [...prev, userMsg]);
-                        setCurrentStep("chat");
-                        streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Use browser instead" }]);
+                        const assistantMsg: Message = {
+                          id: (Date.now() + 1).toString(),
+                          role: "assistant",
+                          content: "No problem! You can activate this device using any browser.\n\n**Step 1:** Open this link on your phone or computer:\n**posai.com/pair**\n\n**Step 2:** Enter the code shown below.\n\nLet me know once you've entered the code."
+                        };
+                        setMessages(prev => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("chat-browser");
                       }}
                       className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >

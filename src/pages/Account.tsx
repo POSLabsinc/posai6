@@ -16,8 +16,6 @@ const Account = () => {
           <ChevronLeft className="w-6 h-6 text-foreground" />
         </button>
         <h1 className="text-lg font-semibold text-foreground">Account</h1>
-        <div className="absolute right-0">
-    </div>
   );
 };
 

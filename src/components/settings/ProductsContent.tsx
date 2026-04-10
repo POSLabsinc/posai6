@@ -91,8 +91,6 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick, onAdd }: Produc
                 {showArchived ? "Archived Products" : "Products"}
               </h1>
             </div>
-            <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-        </div>
       </div>
 
       {/* Archive Confirmation Dialog */}

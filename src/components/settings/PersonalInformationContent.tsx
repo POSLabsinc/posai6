@@ -141,8 +141,6 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
             </button>
           )}
           <h1 className="text-base font-medium text-foreground">Personal Information</h1>
-          <div className="absolute right-4 hidden md:flex overflow-visible">
-          </div>
         </div>
       )}
 

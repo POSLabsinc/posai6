@@ -142,8 +142,6 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
                 {showArchived ? "Archived Menus" : "Menu Items"}
               </h1>
             </div>
-            <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-        </div>
       </div>
 
       {/* Archive Confirmation Dialog */}

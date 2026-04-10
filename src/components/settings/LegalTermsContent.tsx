@@ -21,8 +21,6 @@ const LegalTermsContent = ({ showHeader = true, onBack, onAIClick }: LegalTermsC
             </button>
           )}
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Legal Terms</h1>
-          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-          </div>
         </div>
       )}
       <div className="flex-1 overflow-hidden">

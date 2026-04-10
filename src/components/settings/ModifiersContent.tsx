@@ -216,8 +216,6 @@ const ModifiersContent = ({ showHeader = true, onBack, onAIClick }: ModifiersCon
                 {showArchived ? "Archived Modifiers" : "Modifiers"}
               </h1>
             </div>
-            <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-        </div>
       </div>
 
       <AlertDialog open={!!itemToArchive} onOpenChange={() => setItemToArchive(null)}>

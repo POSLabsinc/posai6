@@ -87,8 +87,6 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
             </button>
           )}
           <h1 className="text-base font-medium text-foreground">Restaurant Information</h1>
-          <div className="absolute right-4 hidden md:flex overflow-visible">
-    </div>
   );
 };
 

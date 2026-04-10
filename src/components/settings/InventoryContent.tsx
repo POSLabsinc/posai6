@@ -118,8 +118,6 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
       <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
         <h1 className="text-base font-medium text-foreground">Inventory</h1>
       </div>
-      <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-      </div>
     </div>
   );
 

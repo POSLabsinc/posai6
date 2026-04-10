@@ -55,8 +55,6 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
             </button>
           )}
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Checkout Options</h1>
-          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-          </div>
         </div>
         <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">
           Display tax details separately for each item on the customer screen. Turn this off to show tax as a single total amount instead of a breakdown.

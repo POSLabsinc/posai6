@@ -224,8 +224,6 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
         />
         <Mic className="w-4 h-4 text-neutral-500 shrink-0" />
       </div>
-      <div className="overflow-visible flex items-center justify-center flex-shrink-0" style={{ width: 32, height: 32 }}>
-          </div>
         )}
         {searchBar}
         {iconFilterRow}

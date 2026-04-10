@@ -188,8 +188,6 @@ const AddMenuContent = ({
           <div className="w-12 h-12" />
         )}
         <h1 className="text-lg font-semibold text-foreground">Add Menu</h1>
-        <div className="absolute right-4 overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-    </div>
   );
 };
 

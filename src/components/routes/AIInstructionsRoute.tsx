@@ -17,8 +17,6 @@ const AIInstructionsRoute = () => {
         <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">
           AI Instructions
         </h1>
-        <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-        </div>
       </div>
 
       <div className="pt-0 px-6 pb-28">

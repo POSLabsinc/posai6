@@ -2,7 +2,6 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, ClipboardList, DoorOpen, Users, Wallet, AlertTriangle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
 import ManagerPinScreen from "@/components/ManagerPinScreen";

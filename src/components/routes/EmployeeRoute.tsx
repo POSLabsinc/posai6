@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import Settings from "@/pages/Settings";
 import EmployeeContent from "@/components/settings/EmployeeContent";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 const EmployeeRoute = () => {
   const isMobile = useIsMobile();
@@ -19,13 +18,6 @@ const EmployeeRoute = () => {
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <AnimatedAIIcon size={24} onClick={() => navigate("/settings/ai", { state: { context: "workforce" } })} />
-        </div>
-        <div className="flex-1 overflow-auto relative">
-          <EmployeeContent
-            showHeader={false}
-            onBack={() => navigate("/settings/workforce")}
-          />
         </div>
       </div>
     );

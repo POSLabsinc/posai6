@@ -1,7 +1,6 @@
 import AIRulesContent from "@/components/settings/AIRulesContent";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 const AIInstructionsRoute = () => {
   const navigate = useNavigate();
@@ -19,7 +18,6 @@ const AIInstructionsRoute = () => {
           AI Instructions
         </h1>
         <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-          <AnimatedAIIcon size={24} onClick={() => navigate("/settings/ai")} />
         </div>
       </div>
 

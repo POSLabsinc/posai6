@@ -3,7 +3,6 @@ import { ChevronLeft, ChevronRight, Pencil, Search, LocateFixed } from "lucide-r
 import roleIcon from "@/assets/icons/role-icon.png";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 interface InfoRowProps {
   label: string;
@@ -124,7 +123,6 @@ const PersonalInformation = () => {
         </button>
         <h1 className="text-lg font-semibold text-foreground">Personal Information</h1>
         <div className="absolute right-0 md:hidden">
-          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
         </div>
       </div>
 

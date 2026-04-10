@@ -2,7 +2,6 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Check, AlertCircle, RefreshCw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 interface ServerConnectionContentProps {
   showHeader?: boolean;
@@ -44,7 +43,6 @@ const ServerConnectionContent = ({ showHeader = true, onBack, onAIClick }: Serve
         }
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Server Connection</h1>
           <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
           </div>
         </div>
       }

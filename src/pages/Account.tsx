@@ -1,7 +1,6 @@
 import { ChevronLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AccountPanel from "@/components/AccountPanel";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 const Account = () => {
   const navigate = useNavigate();
@@ -18,12 +17,6 @@ const Account = () => {
         </button>
         <h1 className="text-lg font-semibold text-foreground">Account</h1>
         <div className="absolute right-0">
-          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
-        </div>
-      </div>
-
-      {/* Account Panel Content */}
-      <AccountPanel showHeader={false} />
     </div>
   );
 };

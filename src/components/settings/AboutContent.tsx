@@ -1,6 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import aboutIcon from "@/assets/icons/about.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -54,44 +53,6 @@ const AboutContent = ({ showHeader = true, onBack, onAIClick }: AboutContentProp
         }
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">About</h1>
           <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-          </div>
-        </div>
-      }
-
-      <div className="px-6 pb-28">
-        <div className="mb-4">
-          
-
-
-        </div>
-
-
-        {/* SOFTWARE Section */}
-        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">Software</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <InfoRow label="App Version" value="4.10.2" />
-          <InfoRow label="Flutter Version" value="FL.3.7.12" />
-          <InfoRow label="Build Date" value="BD.10.10.23" showDivider={false} />
-        </div>
-
-        {/* DEVICE Section */}
-        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">Device</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <InfoRow label="Device Name" value="Emulator POS 7 Stag" />
-          <InfoRow label="OS Name" value="Android" />
-          <InfoRow label="OS Version" value="9" />
-          <InfoRow label="Model Name" value="Asus_010QD" />
-          <InfoRow label="Serial Number" value="0097939B" />
-          <InfoRow label="Inbuilt Customer Facing Display" value="Not Connected" showDivider={false} />
-        </div>
-
-        {/* TERMS & POLICY Section */}
-        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">Terms & Policy</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          <InfoRow label="Privacy Policy" showChevron onClick={() => navigate('/settings/support/about/privacy-policy')} />
-          <InfoRow label="Legal Terms" showChevron onClick={() => navigate('/settings/support/about/legal-terms')} />
-          <InfoRow label="Report Fraud" showChevron onClick={() => navigate('/settings/support/about/report-fraud')} showDivider={false} />
         </div>
       </div>
     </div>);

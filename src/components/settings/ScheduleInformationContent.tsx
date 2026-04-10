@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Plus, Search, Archive, Mic } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 interface Schedule {
   id: string;
@@ -104,7 +103,6 @@ const ScheduleInformationContent = ({
               Schedule Information
             </h1>
             <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-              <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
             </div>
           </div>
         )}

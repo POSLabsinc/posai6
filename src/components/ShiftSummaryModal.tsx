@@ -203,18 +203,9 @@ export default function ShiftSummaryModal({
       status: o.status,
       raw: o,
     }));
-    const cashRows: UnifiedRow[] = cashTxs.map(c => ({
-      id: c.id,
-      kind: c.type === "pay_in" ? "pay_in" : "pay_out",
-      paymentType: c.type === "pay_in" ? "Pay In" : "Pay Out",
-      time: c.created_at,
-      checkNumber: c.reason,
-      amount: Number(c.amount),
-      tip: 0,
-      status: c.type,
-    }));
-    return [...orderRows, ...cashRows].sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-  }, [ticketOrders, cashTxs]);
+    // Only show order rows in the transaction table (Pay In/Pay Out removed)
+    return orderRows.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
+  }, [ticketOrders]);
 
   // Metrics
   const paidOrders = useMemo(() => ticketOrders.filter(o => o.status === "PAID" || o.payment_status === "completed"), [ticketOrders]);

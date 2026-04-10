@@ -26,7 +26,7 @@ const QUICK_QUESTIONS = [
   "How long does setup take?",
 ];
 
-type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "chat-qr-options" | "chat-qr-scanning" | "chat-browser" | "chat-browser-connected" | "chat-device-name" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner" | "returning-contact" | "returning-email" | "returning-phone" | "new-contact" | "new-email" | "new-phone" | "new-not-found" | "new-checking" | "create-fullname" | "create-confirm-email" | "create-email" | "create-phone" | "create-otp" | "create-otp-verifying" | "create-password" | "create-device-pin" | "create-country" | "create-business" | "create-creating" | "create-success" | "license-request" | "license-submitted";
+type StepType = "initial" | "activation-methods" | "activate-code" | "activate-code-verifying" | "sign-in-link" | "sign-in-email" | "sign-in-phone" | "sign-in-email-sent" | "sign-in-phone-sent" | "sign-in-verified" | "demo-mode" | "demo-email" | "demo-otp" | "demo-verified" | "chat" | "chat-qr-options" | "chat-qr-scanning" | "chat-qr-verifying" | "chat-browser" | "chat-browser-connected" | "chat-device-name" | "chat-email-phone" | "chat-email-phone-sent" | "chat-email-phone-verifying" | "personal-link-methods" | "personal-invite-code" | "personal-invite-verifying" | "personal-sign-in-email" | "personal-sign-in-password" | "personal-sign-in-verifying" | "personal-access-denied" | "personal-qr-scanner" | "returning-contact" | "returning-email" | "returning-phone" | "new-contact" | "new-email" | "new-phone" | "new-not-found" | "new-checking" | "create-fullname" | "create-confirm-email" | "create-email" | "create-phone" | "create-otp" | "create-otp-verifying" | "create-password" | "create-device-pin" | "create-country" | "create-business" | "create-creating" | "create-success" | "license-request" | "license-submitted";
 
 interface VerificationWaitingProps {
   currentStep: StepType;
@@ -654,9 +654,9 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
     }
   }, [currentStep]);
 
-  // Browser connected: after 5 seconds show "Device is connected" then ask for device name
+  // Verification steps: after 5 seconds show "Device is connected" then ask for device name
   useEffect(() => {
-    if (currentStep === "chat-browser-connected") {
+    if (currentStep === "chat-browser-connected" || currentStep === "chat-qr-verifying" || currentStep === "chat-email-phone-verifying") {
       const timer = setTimeout(() => {
         const connectedMsg: Message = {
           id: Date.now().toString(),
@@ -1104,9 +1104,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                     <button
                       onClick={() => {
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Send code to email/phone" };
-                        setMessages(prev => [...prev, userMsg]);
-                        setCurrentStep("chat");
-                        streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Send code to email/phone" }]);
+                        const assistantMsg: Message = {
+                          id: (Date.now() + 1).toString(),
+                          role: "assistant",
+                          content: "Sure! Please enter your email address or phone number below, and I'll send you a verification code."
+                        };
+                        setMessages(prev => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("chat-email-phone");
                       }}
                       className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
                     >
@@ -1138,9 +1142,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                       <button
                         onClick={() => {
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Done, I scanned it" };
-                          setMessages(prev => [...prev, userMsg]);
-                          setCurrentStep("chat");
-                          streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Done, I scanned it" }]);
+                          const assistantMsg: Message = {
+                            id: (Date.now() + 1).toString(),
+                            role: "assistant",
+                            content: "Great, verifying your device..."
+                          };
+                          setMessages(prev => [...prev, userMsg, assistantMsg]);
+                          setCurrentStep("chat-qr-verifying");
                         }}
                         className="px-4 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >
@@ -1150,8 +1158,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                         onClick={() => {
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Having trouble scanning" };
                           setMessages(prev => [...prev, userMsg]);
-                          setCurrentStep("chat");
-                          streamChat([...messages, { id: Date.now().toString(), role: "user", content: "Having trouble scanning" }]);
+                          setCurrentStep("chat-qr-options");
+                          const assistantMsg: Message = {
+                            id: (Date.now() + 1).toString(),
+                            role: "assistant",
+                            content: "No worries! You can try another method:"
+                          };
+                          setMessages(prev => [...prev, assistantMsg]);
                         }}
                         className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >
@@ -1219,8 +1232,128 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                   </motion.div>
                 )}
 
-                {/* Browser connected - verifying then showing connected */}
-                {currentStep === "chat-browser-connected" && !isLoading && (
+                {/* Email/Phone activation flow */}
+                {currentStep === "chat-email-phone" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex flex-col gap-3 pl-7 pt-4 pb-4 w-full"
+                  >
+                    <div className="relative">
+                      <input
+                        type="text"
+                        value={signInInput}
+                        onChange={(e) => setSignInInput(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter" && signInInput.trim()) {
+                            const userMsg: Message = { id: Date.now().toString(), role: "user", content: signInInput.trim() };
+                            const assistantMsg: Message = {
+                              id: (Date.now() + 1).toString(),
+                              role: "assistant",
+                              content: `I've sent a verification code to **${signInInput.trim()}**. Please check and enter it below.`
+                            };
+                            setSentAddress(signInInput.trim());
+                            setMessages(prev => [...prev, userMsg, assistantMsg]);
+                            setCurrentStep("chat-email-phone-sent");
+                            setSignInInput("");
+                          }
+                        }}
+                        className="w-full px-4 py-3 rounded-xl border border-foreground/[0.12] bg-foreground/[0.03] text-sm text-foreground placeholder:text-foreground/30 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
+                        placeholder="Enter email or phone number"
+                        autoFocus
+                      />
+                      <Mail className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/30" />
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (!signInInput.trim()) return;
+                        const userMsg: Message = { id: Date.now().toString(), role: "user", content: signInInput.trim() };
+                        const assistantMsg: Message = {
+                          id: (Date.now() + 1).toString(),
+                          role: "assistant",
+                          content: `I've sent a verification code to **${signInInput.trim()}**. Please check and enter it below.`
+                        };
+                        setSentAddress(signInInput.trim());
+                        setMessages(prev => [...prev, userMsg, assistantMsg]);
+                        setCurrentStep("chat-email-phone-sent");
+                        setSignInInput("");
+                      }}
+                      disabled={!signInInput.trim()}
+                      className="w-full px-4 py-2.5 rounded-xl text-sm font-medium bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 disabled:pointer-events-none"
+                    >
+                      Send Code
+                    </button>
+                  </motion.div>
+                )}
+
+                {/* Email/Phone OTP sent - enter code */}
+                {currentStep === "chat-email-phone-sent" && !isLoading && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, ease: "easeOut" }}
+                    className="flex flex-col gap-3 pl-7 pt-4 pb-4 w-full"
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      {Array.from({ length: 6 }).map((_, i) => (
+                        <input
+                          key={i}
+                          type="text"
+                          maxLength={1}
+                          value={activationCode[i] || ""}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "").slice(-1);
+                            const newCode = [...activationCode];
+                            newCode[i] = val;
+                            setActivationCode(newCode);
+                            if (val && i < 5) {
+                              const nextInput = e.target.parentElement?.children[i + 1] as HTMLInputElement;
+                              nextInput?.focus();
+                            }
+                            if (val && i === 5 && newCode.every(d => d !== "")) {
+                              const userMsg: Message = { id: Date.now().toString(), role: "user", content: `Code: ${newCode.join("")}` };
+                              const assistantMsg: Message = {
+                                id: (Date.now() + 1).toString(),
+                                role: "assistant",
+                                content: "Great, verifying your device..."
+                              };
+                              setMessages(prev => [...prev, userMsg, assistantMsg]);
+                              setActivationCode(["", "", "", "", "", ""]);
+                              setCurrentStep("chat-email-phone-verifying");
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Backspace" && !activationCode[i] && i > 0) {
+                              const prevInput = (e.target as HTMLElement).parentElement?.children[i - 1] as HTMLInputElement;
+                              prevInput?.focus();
+                            }
+                          }}
+                          className="w-10 h-12 text-center rounded-xl border border-foreground/[0.12] bg-foreground/[0.05] text-lg font-bold text-foreground focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/30 transition-all"
+                          autoFocus={i === 0}
+                        />
+                      ))}
+                    </div>
+                    <div className="flex gap-2 justify-center pt-1">
+                      <button
+                        onClick={() => {
+                          setMessages(prev => [...prev, {
+                            id: Date.now().toString(),
+                            role: "assistant",
+                            content: `Code resent to **${sentAddress}**`
+                          }]);
+                        }}
+                        className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 inline mr-1.5" />
+                        Resend
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
+                {/* Verifying spinner - shared for QR, browser, email/phone */}
+                {(currentStep === "chat-browser-connected" || currentStep === "chat-qr-verifying" || currentStep === "chat-email-phone-verifying") && !isLoading && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -1240,7 +1373,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="flex flex-col gap-3 pl-7 pt-4 pb-4 w-full max-w-sm"
+                    className="flex flex-col gap-3 pl-7 pt-4 pb-4 w-full"
                   >
                     <div className="relative">
                       <input

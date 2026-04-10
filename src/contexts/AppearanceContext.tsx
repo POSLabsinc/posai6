@@ -21,13 +21,35 @@ interface AppearanceContextType {
 
 const AppearanceContext = createContext<AppearanceContextType | undefined>(undefined);
 
+const SHARED_DEVICE_ID = "shared";
 const DARK_ICON_COLOR = '#212121';
-const DEFAULT_TEXT_SIZE = 14; // Default font size in pixels
+const DEFAULT_TEXT_SIZE = 14;
 const MIN_TEXT_SIZE = 12;
 const MAX_TEXT_SIZE = 30;
-const DEFAULT_BRIGHTNESS = 100; // Default brightness percentage (100 = normal)
+const DEFAULT_BRIGHTNESS = 100;
 const MIN_BRIGHTNESS = 30;
 const MAX_BRIGHTNESS = 100;
+
+// Helper to load a preference from the database
+const loadPreference = async (key: string): Promise<string | null> => {
+  const { data } = await (supabase as any)
+    .from("user_preferences")
+    .select("preference_value")
+    .eq("device_id", SHARED_DEVICE_ID)
+    .eq("preference_key", key)
+    .maybeSingle();
+  return data?.preference_value ?? null;
+};
+
+// Helper to save a preference to the database
+const savePreference = async (key: string, value: string) => {
+  await (supabase as any)
+    .from("user_preferences")
+    .upsert(
+      { device_id: SHARED_DEVICE_ID, preference_key: key, preference_value: value },
+      { onConflict: "device_id,preference_key" }
+    );
+};
 
 const iconSizeMap: Record<IconSize, string> = {
   Default: 'w-5 h-5',

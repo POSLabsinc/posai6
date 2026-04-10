@@ -151,10 +151,8 @@ export default function ShiftSummaryModal({
   const [shareInput, setShareInput] = useState("");
   const [shareSending, setShareSending] = useState(false);
 
-  // AI Insights state
-  const [showAIInsights, setShowAIInsights] = useState(false);
-  const [aiInsights, setAiInsights] = useState<string | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
+  // AI Chat state
+  const [showAIChat, setShowAIChat] = useState(false);
 
   const hasActiveFilters = filterEmployee || filterRevenueCenter || activePreset !== "today" || filterTimeFrom !== "00:00" || filterTimeTo !== "23:59";
 

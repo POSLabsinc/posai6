@@ -1112,14 +1112,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ delay: 0.15 }}
-              className="flex flex-col md:flex-row gap-0 w-full"
+              className="flex flex-col md:flex-row items-stretch gap-0 w-full"
             >
               {/* Left: QR Code (always visible) */}
               <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0">
                 <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
                 <h2 className="text-lg md:text-xl font-bold text-foreground mb-6">Point the camera on your phone or tablet at the QR code.</h2>
                 
-                <div className="flex flex-col items-start gap-5">
+                <div className="flex flex-col items-center gap-5">
                   <button
                     onClick={() => {
                       setShowDeviceConnected(true);
@@ -1139,14 +1139,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       level="M"
                     />
                   </button>
-                  <p className="text-sm text-foreground/50 leading-relaxed text-left">
+                  <p className="text-sm text-foreground/50 leading-relaxed text-left w-full">
                     Tap the link that appears and follow the steps on your mobile device.
                   </p>
                 </div>
               </div>
 
-              {/* Divider with OR */}
-              <div className="hidden md:flex flex-col items-center px-4">
+              {/* Divider with OR - vertically centered */}
+              <div className="hidden md:flex flex-col items-center justify-center px-4 self-stretch">
                 <div className="w-px flex-1 bg-foreground/10" />
                 <span className="text-xs font-medium text-foreground/30 py-2">OR</span>
                 <div className="w-px flex-1 bg-foreground/10" />

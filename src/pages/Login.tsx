@@ -1145,11 +1145,17 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 </div>
               </div>
 
-              {/* Divider */}
+              {/* Divider with OR */}
               <div className="hidden md:flex flex-col items-center px-4">
                 <div className="w-px flex-1 bg-foreground/10" />
+                <span className="text-xs font-medium text-foreground/30 py-2">OR</span>
+                <div className="w-px flex-1 bg-foreground/10" />
               </div>
-              <div className="md:hidden w-full h-px bg-foreground/10 my-6" />
+              <div className="md:hidden flex items-center gap-3 my-6">
+                <div className="flex-1 h-px bg-foreground/10" />
+                <span className="text-xs font-medium text-foreground/30">OR</span>
+                <div className="flex-1 h-px bg-foreground/10" />
+              </div>
 
               {/* Right side */}
               <div className="flex-[1.2] pl-0 md:pl-12">
@@ -1296,23 +1302,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Footer: Need Help (left) + Other Options (right) */}
+          {/* Footer: Try another way (centered button) + Need Help */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="mt-10 w-full flex items-start justify-between"
+            className="mt-10 w-full flex flex-col items-center gap-3"
           >
-            {/* Need Help - Left */}
-            <button
-              onClick={() => setShowContactAdmin(true)}
-              className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors flex items-center gap-1.5"
-            >
-              <HelpCircle className="w-4 h-4" />
-              Need Help?
-            </button>
-
-            {/* Try another way - Right */}
             <button
               onClick={() => {
                 if (showOtherOptions) {
@@ -1324,9 +1320,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   setShowOtherOptions(true);
                 }
               }}
-              className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+              className="px-6 py-2.5 rounded-full border border-foreground/[0.12] bg-foreground/[0.05] text-sm text-foreground/60 hover:text-foreground/80 hover:bg-foreground/[0.08] transition-all"
             >
               {showOtherOptions ? "Back to options" : "Try another way"}
+            </button>
+            <button
+              onClick={() => setShowContactAdmin(true)}
+              className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
+            >
+              Need Help?
             </button>
           </motion.div>
         </div>

@@ -1117,7 +1117,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               {/* Left: QR Code (always visible) */}
               <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0">
                 <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
-                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Scan this QR code</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Point the camera on your phone or tablet at the QR code.</h2>
                 
                 <div className="flex flex-col items-center text-center gap-5">
                   <button
@@ -1139,14 +1139,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       level="M"
                     />
                   </button>
-                  <div className="space-y-1.5">
-                    <p className="text-sm font-medium text-foreground/70 leading-relaxed">
-                      Point the camera on your phone or tablet at the QR code.
-                    </p>
-                    <p className="text-xs text-foreground/40 leading-relaxed">
-                      Tap the link that appears and follow the steps on your mobile device.
-                    </p>
-                  </div>
+                  <p className="text-sm text-foreground/50 leading-relaxed">
+                    Tap the link that appears and follow the steps on your mobile device.
+                  </p>
                 </div>
               </div>
 

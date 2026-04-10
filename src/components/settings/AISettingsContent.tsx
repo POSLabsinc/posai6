@@ -4,7 +4,6 @@ import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, Extern
 import { cn } from "@/lib/utils";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useTheme } from "next-themes";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/hooks/use-toast";

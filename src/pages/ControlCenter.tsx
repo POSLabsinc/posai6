@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
 import ControlCenterContent from "@/components/settings/ControlCenterContent";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { ChevronLeft } from "lucide-react";
 
 const ControlCenter = () => {
@@ -16,16 +15,6 @@ const ControlCenter = () => {
           <ChevronLeft className="w-4 h-4 text-foreground" />
         </button>
         <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Control center</h1>
-        <div className="overflow-visible flex items-center justify-center" style={{ width: 40, height: 40 }}>
-          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
-        </div>
-      </div>
-      <div className="flex-1 overflow-y-auto">
-        <ControlCenterContent
-          showHeader={false}
-          onBack={() => navigate('/settings/system')}
-        />
-      </div>
     </div>
   );
 };

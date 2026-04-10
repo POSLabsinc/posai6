@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
@@ -291,128 +290,6 @@ const CashManagementContent = ({
           )}
           <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Cash Management</h1>
           <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-          </div>
-        </div>
-      )}
-      <div className="pt-0 px-6 pb-28">
-        {/* Description */}
-        <div className="mb-4 px-1">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Cash management focuses on efficiently handling cash flow, liquidity, and investments to ensure financial stability.
-          </p>
-        </div>
-
-        {/* Starting Cash */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Start New Drawer</h2>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <button ref={drawerRef} onClick={handleOpenDrawerDropdown} className="w-full flex items-center justify-between py-3.5 px-4 active:opacity-70 transition-opacity">
-            <span className="text-foreground text-lg font-medium">Cash Drawer</span>
-            <div className="flex items-center gap-1">
-              <span className="text-neutral-400 text-base">{selectedDrawer}</span>
-              <ChevronRight className="w-4 h-4 text-neutral-500" />
-            </div>
-          </button>
-        </div>
-
-        {/* Opening Cash Input */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Opening Cash Amount</h2>
-        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-6">
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Amount</span>
-            <div className="flex items-center gap-1">
-              <span className="text-foreground text-lg">$</span>
-              <input type="text" inputMode="decimal" placeholder="0.00" value={openingCash} onChange={e => handleCashInput(e.target.value)} className="bg-transparent text-foreground text-lg text-right w-24 outline-none placeholder:text-neutral-500" />
-            </div>
-          </div>
-        </div>
-
-        {/* Balances */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Balances</h2>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Last Closing Balance</span>
-            <span className="text-foreground text-lg">${lastClosingBalance.toFixed(2)}</span>
-          </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Opening Till Cash</span>
-            <span className="text-foreground text-lg">${openingCash ? parseFloat(openingCash || "0").toFixed(2) : "0.00"}</span>
-          </div>
-        </div>
-
-        {/* Open Drawer Button */}
-        <button onClick={handleStartDrawer} disabled={!hasAmount} className={`w-full py-4 rounded-full text-base font-semibold tracking-wide transition-all ${hasAmount ? 'bg-neutral-600 text-white active:opacity-70' : 'border border-neutral-600 text-foreground opacity-50'}`}>
-          OPEN DRAWER
-        </button>
-
-        {/* History Section */}
-        {lastClosedSession && (
-          <div className="mt-6">
-            <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">History</h2>
-            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-              <Table className="min-w-[1080px]">
-                <TableHeader>
-                  <TableRow className="border-neutral-700/50 hover:bg-transparent">
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Drawer</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase whitespace-nowrap">Closed At</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Starting Cash</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Sales</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Cash Refunds</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Paid In/Out</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Expected</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Closing Balance</TableHead>
-                    <TableHead className="text-neutral-400 text-xs font-semibold tracking-wider uppercase text-right whitespace-nowrap">Difference</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow className="border-neutral-700/50 hover:bg-neutral-700/20">
-                    <TableCell className="text-foreground text-sm font-medium py-3 whitespace-nowrap">{lastClosedSession.drawer}</TableCell>
-                    <TableCell className="text-neutral-400 text-sm py-3 whitespace-nowrap">{formatDateTime(lastClosedSession.closedAt)}</TableCell>
-                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.startingCash)}</TableCell>
-                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.cashSales)}</TableCell>
-                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.cashRefunds)}</TableCell>
-                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">
-                      {`${lastClosedSession.paidInOut < 0 ? '-' : ''}${formatCurrency(Math.abs(lastClosedSession.paidInOut))}`}
-                    </TableCell>
-                    <TableCell className="text-foreground text-sm py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.expectedInDrawer)}</TableCell>
-                    <TableCell className="text-foreground text-sm font-medium py-3 text-right whitespace-nowrap">{formatCurrency(lastClosedSession.closingBalance)}</TableCell>
-                    <TableCell className={`text-sm font-medium py-3 text-right whitespace-nowrap ${lastClosedSession.difference === 0 ? 'text-foreground' : lastClosedSession.difference > 0 ? 'text-green-500' : 'text-red-500'}`}>
-                      {`${lastClosedSession.difference >= 0 ? '' : '-'}${formatCurrency(Math.abs(lastClosedSession.difference))}`}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-        )}
-
-        {/* Cash Log Section */}
-        <div className="mt-6">
-          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
-            <Popover open={isDatePickerOpen} onOpenChange={setIsDatePickerOpen}>
-              <PopoverTrigger asChild>
-                <button className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity">
-                  <span className="text-foreground text-lg font-medium">Cash Log</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-neutral-400">{formattedLogDate}</span>
-                    <ChevronRight className="w-5 h-5 text-neutral-500" />
-                  </div>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700" align="end">
-                <Calendar
-                  mode="single"
-                  selected={selectedLogDate}
-                  onSelect={(date) => {
-                    if (date) {
-                      setSelectedLogDate(date);
-                      setIsDatePickerOpen(false);
-                    }
-                  }}
-                  initialFocus
-                  className={cn("p-3 pointer-events-auto")}
-                />
               </PopoverContent>
             </Popover>
           </div>

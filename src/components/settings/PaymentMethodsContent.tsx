@@ -3,7 +3,6 @@ import { ChevronLeft } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import paymentMethodsIcon from "@/assets/icons/payment-methods.png";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -121,42 +120,6 @@ const PaymentMethodsContent = ({ showHeader = true, onBack, onAIClick }: Payment
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
             <h1 className="text-base font-medium text-foreground">Payment Methods</h1>
           </div>
-          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-          </div>
-        </div>
-      )}
-
-      <div className="px-6 pb-28 pt-0">
-        {/* Description */}
-        <div className="mb-4 px-1">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Control which payment methods are available at checkout. Toggle a method <span className="text-foreground font-medium">ON</span> to allow customers to use it, or <span className="text-foreground font-medium">OFF</span> to hide it from the payment screen.
-          </p>
-        </div>
-        {/* Payment Methods List */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          {paymentMethodConfigs.map((method, index) => (
-            <div key={method.id}>
-              <div className="flex items-center justify-between py-3.5 px-4">
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-9 h-9 rounded-lg flex items-center justify-center"
-                    style={{ backgroundColor: method.bgColor }}
-                  >
-                    <img 
-                      src={method.icon} 
-                      alt={method.name} 
-                      className="w-5 h-5 object-contain"
-                    />
-                  </div>
-                  <span className="text-foreground text-base font-medium">{method.name}</span>
-                </div>
-                <Switch 
-                  checked={methodStates[method.id] ?? true}
-                  onCheckedChange={(checked) => handleToggle(method.id, checked)}
-                />
-              </div>
               {index < paymentMethodConfigs.length - 1 && (
                 <div className="h-px bg-neutral-700/50 mx-4" />
               )}

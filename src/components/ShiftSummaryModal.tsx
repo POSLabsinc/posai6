@@ -465,12 +465,12 @@ export default function ShiftSummaryModal({
         {/* Shift info bar */}
         <div className="flex items-center gap-4 px-6 py-2.5 bg-white/[0.03] border-b border-white/10 shrink-0 text-xs text-neutral-400">
           <span>{clockInDate}</span>
-          <span>{clockInTime} - now</span>
-          <span>Total: {totalHours}h</span>
+          <span>{clockInTime || new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })} - now</span>
+          <span>Total: {totalHours || "0.0"}h</span>
         </div>
 
-        {/* Key metrics */}
-        <div className="grid grid-cols-3 gap-3 px-6 py-4 shrink-0">
+        {/* Key metrics - 4 cards */}
+        <div className="grid grid-cols-4 gap-3 px-6 py-4 shrink-0">
           <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
             <div className="w-10 h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center">
               <CreditCard className="w-5 h-5 text-emerald-400" />
@@ -498,9 +498,18 @@ export default function ShiftSummaryModal({
               <p className="text-xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
+          <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
+            <div className="w-10 h-10 rounded-lg bg-blue-500/15 flex items-center justify-center">
+              <Timer className="w-5 h-5 text-blue-400" />
+            </div>
+            <div>
+              <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Cash Time</p>
+              <p className="text-xl font-bold text-white">{totalHours || "0.0"}h</p>
+            </div>
+          </div>
         </div>
 
-        {/* Bottom summary row */}
+        {/* Bottom summary row - without Pay In / Pay Out */}
         <div className="flex items-center px-6 py-3 shrink-0 gap-8 border-b border-white/10">
           <div>
             <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Total</p>
@@ -509,14 +518,6 @@ export default function ShiftSummaryModal({
           <div>
             <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Cash Drop</p>
             <p className="text-2xl font-bold text-white mt-0.5">$ {totalCashDrop.toFixed(2)}</p>
-          </div>
-          <div>
-            <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Pay In</p>
-            <p className="text-xl font-bold text-emerald-400 mt-0.5">$ {totalPayIn.toFixed(2)}</p>
-          </div>
-          <div>
-            <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Pay Out</p>
-            <p className="text-xl font-bold text-red-400 mt-0.5">$ {totalPayOut.toFixed(2)}</p>
           </div>
         </div>
 

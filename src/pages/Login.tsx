@@ -1332,7 +1332,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <motion.div key="mobile-email-active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   {/* Email content at top */}
                   <div className="mb-6">
-                    <p className="text-sm font-semibold text-foreground text-center mb-3">Activate via email / phone</p>
+                    <p className="text-sm font-semibold text-foreground mb-3">Activate via email / phone</p>
                     {!activationCodeSent ? (
                       <div className="space-y-4">
                         <p className="text-sm text-foreground/50">Enter your email or mobile number to receive a code</p>

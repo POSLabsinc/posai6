@@ -1239,15 +1239,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 /* Default: QR on top, two tab buttons below */
                 <motion.div key="mobile-default" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   {/* QR Code Section */}
-                  <div className="flex flex-col items-start mb-6">
-                    <h2 className="text-base font-bold text-foreground mb-4">Point the camera at the QR code</h2>
+                  <div className="flex flex-col items-start mb-5">
+                    <h2 className="text-lg font-bold text-foreground mb-3">Point the camera at the QR code</h2>
                     <button
                       onClick={() => { setShowDeviceConnected(true); setDeviceName("Rustic Table POS 1"); setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500); }}
-                      className="bg-foreground rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-3 w-full flex items-center justify-center"
+                      className="bg-foreground rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 w-full flex items-center justify-center"
                     >
-                      <QRCodeSVG value={activationQrValue} size={280} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
+                      <QRCodeSVG value={activationQrValue} size={220} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                     </button>
-                    <p className="text-xs text-foreground/50 leading-relaxed">
+                    <p className="text-sm text-foreground/50 leading-relaxed">
                       Tap the link that appears and follow the steps on your mobile device.
                     </p>
                   </div>

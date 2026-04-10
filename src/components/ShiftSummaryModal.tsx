@@ -385,41 +385,22 @@ export default function ShiftSummaryModal({
     }, 500);
   };
 
-  // AI Insights
-  const fetchAIInsights = async () => {
-    setShowAIInsights(true);
-    setAiLoading(true);
-    setAiInsights(null);
-    try {
-      const shiftData = {
-        employee: employeeName,
-        role: employeeRole,
-        totalHours,
-        totalCardSales,
-        totalCashSales,
-        totalTips,
-        tipsPayable,
-        totalCashTips,
-        overallTotal,
-        totalCashDrop,
-        orderCount: paidOrders.length,
-        paymentBreakdown: paymentTypeSummary,
-        dateRange: `${formatDateDisplay(filterDateFrom)} to ${formatDateDisplay(filterDateTo)}`,
-      };
-
-      const { data, error } = await supabase.functions.invoke("shift-insights", {
-        body: { shiftData },
-      });
-
-      if (error) throw error;
-      setAiInsights(data?.insights || "No insights available at this time.");
-    } catch (e: any) {
-      console.error("AI insights error:", e);
-      setAiInsights("Unable to generate insights. Please try again later.");
-    } finally {
-      setAiLoading(false);
-    }
-  };
+  // AI Chat context
+  const shiftContextForAI = useMemo(() => ({
+    employeeName,
+    employeeRole,
+    totalHours,
+    totalCardSales,
+    totalCashSales,
+    totalTips,
+    totalCashTips,
+    tipsPayable,
+    overallTotal,
+    totalCashDrop,
+    orderCount: paidOrders.length,
+    paymentBreakdown: paymentTypeSummary,
+    dateRange: `${formatDateDisplay(filterDateFrom)} to ${formatDateDisplay(filterDateTo)}`,
+  }), [employeeName, employeeRole, totalHours, totalCardSales, totalCashSales, totalTips, totalCashTips, tipsPayable, overallTotal, totalCashDrop, paidOrders.length, paymentTypeSummary, filterDateFrom, filterDateTo]);
 
   const openCheckDetail = async (order: TicketOrder) => {
     setSelectedOrder(order);

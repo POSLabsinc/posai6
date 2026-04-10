@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback, useRef } from "react";
-import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, ChevronDown, Calendar, Clock, Filter, ArrowUpRight, ArrowDownLeft, Timer } from "lucide-react";
+import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, ChevronDown, Calendar, Clock, Filter, ArrowUpRight, ArrowDownLeft, Timer, Share2, Sparkles, FileText, Mail, MessageSquare, Download, Users } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { InlineDatePicker } from "@/components/ui/inline-date-picker";
@@ -63,6 +63,8 @@ type UnifiedRow = {
   raw?: TicketOrder;
 };
 
+type DatePreset = "today" | "yesterday" | "last7" | "thisMonth" | "thisYear" | "custom";
+
 const getInitials = (name: string) =>
   name.split(" ").map(p => p[0]).join("").toUpperCase().substring(0, 2);
 
@@ -79,6 +81,41 @@ const toDateInputVal = (d: Date) => {
   return `${y}-${m}-${day}`;
 };
 
+const DATE_PRESETS: { key: DatePreset; label: string }[] = [
+  { key: "today", label: "Today" },
+  { key: "yesterday", label: "Yesterday" },
+  { key: "last7", label: "Last 7 Days" },
+  { key: "thisMonth", label: "This Month" },
+  { key: "thisYear", label: "This Year" },
+  { key: "custom", label: "Custom" },
+];
+
+function applyDatePreset(preset: DatePreset): { from: Date; to: Date } {
+  const now = new Date();
+  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  switch (preset) {
+    case "today":
+      return { from: startOfToday, to: startOfToday };
+    case "yesterday": {
+      const y = new Date(startOfToday);
+      y.setDate(y.getDate() - 1);
+      return { from: y, to: y };
+    }
+    case "last7": {
+      const s = new Date(startOfToday);
+      s.setDate(s.getDate() - 6);
+      return { from: s, to: startOfToday };
+    }
+    case "thisMonth":
+      return { from: new Date(now.getFullYear(), now.getMonth(), 1), to: startOfToday };
+    case "thisYear":
+      return { from: new Date(now.getFullYear(), 0, 1), to: startOfToday };
+    case "custom":
+    default:
+      return { from: startOfToday, to: startOfToday };
+  }
+}
+
 export default function ShiftSummaryModal({
   open, onClose, employeeName, employeeRole, clockInTime, clockInDate, totalHours
 }: ShiftSummaryModalProps) {
@@ -90,6 +127,19 @@ export default function ShiftSummaryModal({
   const [filterTimeTo, setFilterTimeTo] = useState("23:59");
   const [filterRevenueCenter, setFilterRevenueCenter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [activePreset, setActivePreset] = useState<DatePreset>("today");
+
+  // Share dropdown
+  const [showShareMenu, setShowShareMenu] = useState(false);
+  const shareRef = useRef<HTMLButtonElement>(null);
+
+  // Employee dropdown
+  const [showEmployeeMenu, setShowEmployeeMenu] = useState(false);
+  const employeeMenuRef = useRef<HTMLButtonElement>(null);
+
+  // Date preset dropdown
+  const [showDatePresetMenu, setShowDatePresetMenu] = useState(false);
+  const datePresetRef = useRef<HTMLButtonElement>(null);
 
   // Date picker state
   const [showFromPicker, setShowFromPicker] = useState(false);
@@ -138,7 +188,6 @@ export default function ShiftSummaryModal({
     if (!open) return;
     setLoading(true);
 
-    // Ticket orders
     let orderQuery = supabase
       .from("ticket_orders" as any)
       .select("id,order_number,order_type,payment_type,server,name,subtotal,discount,tax,tip,total,status,payment_status,created_at")
@@ -153,7 +202,6 @@ export default function ShiftSummaryModal({
       orderQuery = orderQuery.ilike("order_type", filterRevenueCenter);
     }
 
-    // Cash transactions
     let cashQuery = supabase
       .from("cash_transactions")
       .select("id,type,amount,employee_name,reason,note,created_at")
@@ -203,13 +251,11 @@ export default function ShiftSummaryModal({
       status: o.status,
       raw: o,
     }));
-    // Only show order rows in the transaction table (Pay In/Pay Out removed)
     return orderRows.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
   }, [ticketOrders]);
 
   // Metrics
   const paidOrders = useMemo(() => ticketOrders.filter(o => o.status === "PAID" || o.payment_status === "completed"), [ticketOrders]);
-  const pendingOrders = useMemo(() => ticketOrders.filter(o => o.status !== "PAID" && o.status !== "CANCELLED" && o.payment_status !== "completed"), [ticketOrders]);
 
   const totalCardSales = useMemo(() => paidOrders.filter(o => {
     const pt = (o.payment_type || "").toLowerCase();
@@ -226,12 +272,100 @@ export default function ShiftSummaryModal({
 
   const initials = getInitials(employeeName);
 
+  // Handle date preset selection
+  const handlePresetSelect = (preset: DatePreset) => {
+    setActivePreset(preset);
+    if (preset === "custom") {
+      setShowDatePresetMenu(false);
+      setShowFilters(true);
+      return;
+    }
+    const { from, to } = applyDatePreset(preset);
+    setFilterDateFrom(from);
+    setFilterDateTo(to);
+    setShowDatePresetMenu(false);
+  };
+
+  // Handle share actions
+  const handleShare = (action: string) => {
+    setShowShareMenu(false);
+    const reportText = `Shift Summary - ${employeeName}\nTotal: $${overallTotal.toFixed(2)}\nCard Sales: $${totalCardSales.toFixed(2)}\nCash Sales: $${totalCashSales.toFixed(2)}\nTips: $${totalTips.toFixed(2)}\nCash Drop: $${totalCashDrop.toFixed(2)}`;
+
+    switch (action) {
+      case "pdf": {
+        const printWindow = window.open("", "_blank");
+        if (printWindow) {
+          printWindow.document.write(`
+            <html><head><title>Shift Summary</title>
+            <style>
+              body { font-family: 'Montserrat', sans-serif; padding: 40px; color: #333; }
+              h1 { font-size: 20px; margin-bottom: 4px; }
+              h2 { font-size: 14px; color: #666; margin-bottom: 24px; }
+              .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+              .metric { border: 1px solid #eee; border-radius: 8px; padding: 16px; }
+              .metric-label { font-size: 11px; color: #999; text-transform: uppercase; }
+              .metric-value { font-size: 22px; font-weight: 700; margin-top: 4px; }
+              table { width: 100%; border-collapse: collapse; font-size: 13px; }
+              th { text-align: left; border-bottom: 2px solid #eee; padding: 8px 4px; color: #999; font-size: 11px; text-transform: uppercase; }
+              td { padding: 8px 4px; border-bottom: 1px solid #f5f5f5; }
+              .text-right { text-align: right; }
+            </style></head><body>
+            <h1>Shift Summary</h1>
+            <h2>${employeeName} - ${employeeRole} | ${formatDateDisplay(filterDateFrom)} to ${formatDateDisplay(filterDateTo)}</h2>
+            <div class="metrics">
+              <div class="metric"><div class="metric-label">Total Card Sales</div><div class="metric-value">$${totalCardSales.toFixed(2)}</div></div>
+              <div class="metric"><div class="metric-label">Total Cash Sales</div><div class="metric-value">$${totalCashSales.toFixed(2)}</div></div>
+              <div class="metric"><div class="metric-label">Total Tips</div><div class="metric-value">$${totalTips.toFixed(2)}</div></div>
+              <div class="metric"><div class="metric-label">Total</div><div class="metric-value">$${overallTotal.toFixed(2)}</div></div>
+            </div>
+            <table>
+              <thead><tr><th>Type</th><th>Time</th><th>Check</th><th class="text-right">Amount</th><th class="text-right">Tip</th></tr></thead>
+              <tbody>${unifiedRows.map(r => `<tr><td>${r.paymentType}</td><td>${formatTime(r.time)}</td><td>${r.checkNumber}</td><td class="text-right">$${r.amount.toFixed(2)}</td><td class="text-right">$${r.tip.toFixed(2)}</td></tr>`).join("")}</tbody>
+            </table>
+            </body></html>
+          `);
+          printWindow.document.close();
+          printWindow.print();
+        }
+        break;
+      }
+      case "email": {
+        const subject = encodeURIComponent(`Shift Summary - ${employeeName}`);
+        const body = encodeURIComponent(reportText);
+        window.open(`mailto:?subject=${subject}&body=${body}`);
+        break;
+      }
+      case "text": {
+        if (navigator.share) {
+          navigator.share({ title: "Shift Summary", text: reportText }).catch(() => {});
+        } else {
+          navigator.clipboard.writeText(reportText);
+        }
+        break;
+      }
+      case "download": {
+        const csvRows = [
+          ["Type", "Time", "Check/Reason", "Amount", "Tip"],
+          ...unifiedRows.map(r => [r.paymentType, formatTime(r.time), String(r.checkNumber), r.amount.toFixed(2), r.tip.toFixed(2)])
+        ];
+        const csvContent = csvRows.map(r => r.join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `shift-summary-${toDateInputVal(filterDateFrom)}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        break;
+      }
+    }
+  };
+
   // Fetch order items for check detail
   const openCheckDetail = async (order: TicketOrder) => {
     setSelectedOrder(order);
     setLoadingItems(true);
     const { data } = await supabase.from("order_items").select("*").eq("order_id", order.id);
-    // Also try ticket_order_items
     const { data: ticketItems } = await (supabase as any).from("ticket_order_items").select("*").eq("order_id", order.id);
     const items = (data && data.length > 0) ? data : (ticketItems || []);
     setOrderItems(items.map((i: any) => ({
@@ -376,44 +510,156 @@ export default function ShiftSummaryModal({
               <p className="text-xs text-neutral-400">{employeeName} - {employeeRole}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            {/* Date Preset */}
+            <div className="relative">
+              <button
+                ref={datePresetRef}
+                onClick={() => { setShowDatePresetMenu(v => !v); setShowShareMenu(false); setShowEmployeeMenu(false); }}
+                className={`h-9 rounded-lg flex items-center gap-1.5 px-3 transition-colors text-xs font-medium ${showDatePresetMenu ? "bg-white/20 text-white" : "bg-white/10 hover:bg-white/15 text-neutral-300"}`}
+              >
+                <Calendar className="w-3.5 h-3.5" />
+                {DATE_PRESETS.find(p => p.key === activePreset)?.label || "Today"}
+                <ChevronDown className="w-3 h-3 opacity-50" />
+              </button>
+              {showDatePresetMenu && (
+                <>
+                  <div className="fixed inset-0 z-[100]" onClick={() => setShowDatePresetMenu(false)} />
+                  <div className="absolute right-0 top-full mt-1 z-[101] w-[160px] bg-neutral-800 border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                    {DATE_PRESETS.map(p => (
+                      <button
+                        key={p.key}
+                        onClick={() => handlePresetSelect(p.key)}
+                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors ${activePreset === p.key ? "text-white bg-white/10 font-medium" : "text-neutral-400 hover:bg-white/5 hover:text-white"}`}
+                      >
+                        {p.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Employee Filter */}
+            <div className="relative">
+              <button
+                ref={employeeMenuRef}
+                onClick={() => { setShowEmployeeMenu(v => !v); setShowShareMenu(false); setShowDatePresetMenu(false); }}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${showEmployeeMenu || filterEmployee !== "all" ? "bg-white/20" : "bg-white/10 hover:bg-white/15"}`}
+                title="Employee Filter"
+              >
+                <Users className="w-4 h-4 text-neutral-300" />
+              </button>
+              {showEmployeeMenu && (
+                <>
+                  <div className="fixed inset-0 z-[100]" onClick={() => setShowEmployeeMenu(false)} />
+                  <div className="absolute right-0 top-full mt-1 z-[101] w-[180px] bg-neutral-800 border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150 max-h-[280px] overflow-y-auto scrollbar-hide">
+                    <button
+                      onClick={() => { setFilterEmployee("all"); setShowEmployeeMenu(false); }}
+                      className={`w-full text-left px-4 py-2.5 text-xs transition-colors ${filterEmployee === "all" ? "text-white bg-white/10 font-medium" : "text-neutral-400 hover:bg-white/5 hover:text-white"}`}
+                    >
+                      All Employees
+                    </button>
+                    {employees.map(e => (
+                      <button
+                        key={e}
+                        onClick={() => { setFilterEmployee(e); setShowEmployeeMenu(false); }}
+                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors ${filterEmployee === e ? "text-white bg-white/10 font-medium" : "text-neutral-400 hover:bg-white/5 hover:text-white"}`}
+                      >
+                        {e}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Filter toggle */}
             <button
               onClick={() => setShowFilters(v => !v)}
               className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${showFilters ? "bg-white/20" : "bg-white/10 hover:bg-white/15"}`}
+              title="Advanced Filters"
             >
               <Filter className="w-4 h-4 text-neutral-300" />
             </button>
-            <button className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/15 transition-colors">
+
+            {/* AI Icon */}
+            <button
+              className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/15 transition-colors"
+              title="AI Insights"
+            >
+              <Sparkles className="w-4 h-4 text-amber-400" />
+            </button>
+
+            {/* Share */}
+            <div className="relative">
+              <button
+                ref={shareRef}
+                onClick={() => { setShowShareMenu(v => !v); setShowDatePresetMenu(false); setShowEmployeeMenu(false); }}
+                className={`w-9 h-9 rounded-lg flex items-center justify-center transition-colors ${showShareMenu ? "bg-white/20" : "bg-white/10 hover:bg-white/15"}`}
+                title="Share"
+              >
+                <Share2 className="w-4 h-4 text-neutral-300" />
+              </button>
+              {showShareMenu && (
+                <>
+                  <div className="fixed inset-0 z-[100]" onClick={() => setShowShareMenu(false)} />
+                  <div className="absolute right-0 top-full mt-1 z-[101] w-[180px] bg-neutral-800 border border-white/10 rounded-xl overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                    <button onClick={() => handleShare("pdf")} className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-neutral-300 hover:bg-white/5 hover:text-white transition-colors">
+                      <FileText className="w-3.5 h-3.5" /> Export as PDF
+                    </button>
+                    <button onClick={() => handleShare("email")} className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-neutral-300 hover:bg-white/5 hover:text-white transition-colors">
+                      <Mail className="w-3.5 h-3.5" /> Send via Email
+                    </button>
+                    <button onClick={() => handleShare("text")} className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-neutral-300 hover:bg-white/5 hover:text-white transition-colors">
+                      <MessageSquare className="w-3.5 h-3.5" /> Share via Text
+                    </button>
+                    <button onClick={() => handleShare("download")} className="w-full flex items-center gap-3 px-4 py-2.5 text-xs text-neutral-300 hover:bg-white/5 hover:text-white transition-colors">
+                      <Download className="w-3.5 h-3.5" /> Download CSV
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {/* Print */}
+            <button
+              onClick={() => handleShare("pdf")}
+              className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/15 transition-colors"
+              title="Print"
+            >
               <Printer className="w-4 h-4 text-neutral-300" />
             </button>
+
+            {/* Close */}
             <button onClick={onClose} className="w-8 h-8 rounded-sm flex items-center justify-center opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
               <X className="h-4 w-4 text-neutral-300" />
             </button>
           </div>
         </div>
 
-        {/* Filters */}
+        {/* Advanced Filters */}
         {showFilters && (
           <div className="px-6 py-3 border-b border-white/10 shrink-0 bg-white/[0.02]">
             <div className="flex items-end gap-3 flex-wrap">
-              {/* From Date - iOS picker */}
+              {/* From Date */}
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] text-neutral-500 uppercase">From</label>
                 <button
                   ref={fromBtnRef}
-                  onClick={() => setShowFromPicker(true)}
+                  onClick={() => { setShowFromPicker(true); setActivePreset("custom"); }}
                   className="bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white outline-none hover:border-white/30 w-[140px] text-left flex items-center gap-2"
                 >
                   <Calendar className="w-3.5 h-3.5 text-neutral-400" />
                   {formatDateDisplay(filterDateFrom)}
                 </button>
               </div>
-              {/* To Date - iOS picker */}
+              {/* To Date */}
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] text-neutral-500 uppercase">To</label>
                 <button
                   ref={toBtnRef}
-                  onClick={() => setShowToPicker(true)}
+                  onClick={() => { setShowToPicker(true); setActivePreset("custom"); }}
                   className="bg-white/10 border border-white/10 rounded-lg px-3 py-1.5 text-xs text-white outline-none hover:border-white/30 w-[140px] text-left flex items-center gap-2"
                 >
                   <Calendar className="w-3.5 h-3.5 text-neutral-400" />
@@ -500,7 +746,7 @@ export default function ShiftSummaryModal({
           </div>
         </div>
 
-        {/* Bottom summary row - without Pay In / Pay Out */}
+        {/* Bottom summary row */}
         <div className="flex items-center px-6 py-3 shrink-0 gap-8 border-b border-white/10">
           <div>
             <p className="text-[11px] text-neutral-500 uppercase tracking-wider font-medium">Total</p>

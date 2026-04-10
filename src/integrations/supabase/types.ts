@@ -298,6 +298,7 @@ export type Database = {
           cash_sales: number
           closed_at: string | null
           closing_cash: number | null
+          closing_reason: string | null
           created_at: string
           device_id: string
           difference: number
@@ -315,6 +316,7 @@ export type Database = {
           cash_sales?: number
           closed_at?: string | null
           closing_cash?: number | null
+          closing_reason?: string | null
           created_at?: string
           device_id: string
           difference?: number
@@ -332,6 +334,7 @@ export type Database = {
           cash_sales?: number
           closed_at?: string | null
           closing_cash?: number | null
+          closing_reason?: string | null
           created_at?: string
           device_id?: string
           difference?: number

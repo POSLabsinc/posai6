@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { supabase } from "@/integrations/supabase/client";
 
 export type IconStyle = 'Default' | 'Dark';
 export type IconSize = 'Default' | 'Small' | 'Medium' | 'Large';
@@ -20,13 +21,35 @@ interface AppearanceContextType {
 
 const AppearanceContext = createContext<AppearanceContextType | undefined>(undefined);
 
+const SHARED_DEVICE_ID = "shared";
 const DARK_ICON_COLOR = '#212121';
-const DEFAULT_TEXT_SIZE = 14; // Default font size in pixels
+const DEFAULT_TEXT_SIZE = 14;
 const MIN_TEXT_SIZE = 12;
 const MAX_TEXT_SIZE = 30;
-const DEFAULT_BRIGHTNESS = 100; // Default brightness percentage (100 = normal)
+const DEFAULT_BRIGHTNESS = 100;
 const MIN_BRIGHTNESS = 30;
 const MAX_BRIGHTNESS = 100;
+
+// Helper to load a preference from the database
+const loadPreference = async (key: string): Promise<string | null> => {
+  const { data } = await (supabase as any)
+    .from("user_preferences")
+    .select("preference_value")
+    .eq("device_id", SHARED_DEVICE_ID)
+    .eq("preference_key", key)
+    .maybeSingle();
+  return data?.preference_value ?? null;
+};
+
+// Helper to save a preference to the database
+const savePreference = async (key: string, value: string) => {
+  await (supabase as any)
+    .from("user_preferences")
+    .upsert(
+      { device_id: SHARED_DEVICE_ID, preference_key: key, preference_value: value },
+      { onConflict: "device_id,preference_key" }
+    );
+};
 
 const iconSizeMap: Record<IconSize, string> = {
   Default: 'w-5 h-5',
@@ -68,28 +91,62 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
     return saved ? parseInt(saved, 10) : DEFAULT_BRIGHTNESS;
   });
 
+  // Hydrate from database on mount (overrides localStorage with DB values)
+  useEffect(() => {
+    const hydrate = async () => {
+      const [dbTextSize, dbBoldText, dbBrightness, dbIconStyle, dbIconSize] = await Promise.all([
+        loadPreference('textSize'),
+        loadPreference('boldText'),
+        loadPreference('brightness'),
+        loadPreference('iconStyle'),
+        loadPreference('iconSize'),
+      ]);
+      if (dbTextSize) {
+        const parsed = parseInt(dbTextSize, 10);
+        if (!isNaN(parsed)) { setTextSize(parsed); localStorage.setItem('textSize', dbTextSize); }
+      }
+      if (dbBoldText !== null) {
+        setBoldText(dbBoldText === 'true');
+        localStorage.setItem('boldText', dbBoldText);
+      }
+      if (dbBrightness) {
+        const parsed = parseInt(dbBrightness, 10);
+        if (!isNaN(parsed)) { setBrightnessState(parsed); localStorage.setItem('brightness', dbBrightness); }
+      }
+      if (dbIconStyle) {
+        setIconStyle(dbIconStyle as IconStyle);
+        localStorage.setItem('iconStyle', dbIconStyle);
+      }
+      if (dbIconSize) {
+        setIconSize(dbIconSize as IconSize);
+        localStorage.setItem('iconSize', dbIconSize);
+      }
+    };
+    hydrate();
+  }, []);
+
   useEffect(() => {
     localStorage.setItem('iconStyle', iconStyle);
+    savePreference('iconStyle', iconStyle);
   }, [iconStyle]);
 
   useEffect(() => {
     localStorage.setItem('iconSize', iconSize);
+    savePreference('iconSize', iconSize);
   }, [iconSize]);
 
   useEffect(() => {
     localStorage.setItem('textSize', textSize.toString());
-    // Apply text size globally by setting the root font-size on html element
-    // This affects all rem-based Tailwind sizing since rem is based on html font-size
+    savePreference('textSize', textSize.toString());
     const scaleFactor = textSize / DEFAULT_TEXT_SIZE;
     document.documentElement.style.fontSize = `${textSize}px`;
-    // Also set CSS variable for components that use it directly
     document.documentElement.style.setProperty('--app-font-size', `${textSize}px`);
     document.documentElement.style.setProperty('--app-font-scale', scaleFactor.toString());
   }, [textSize]);
 
   useEffect(() => {
     localStorage.setItem('boldText', boldText.toString());
-    // Apply bold text globally
+    savePreference('boldText', boldText.toString());
     if (boldText) {
       document.documentElement.classList.add('app-bold-text');
     } else {
@@ -99,7 +156,7 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     localStorage.setItem('brightness', brightness.toString());
-    // Apply brightness globally via CSS filter on body
+    savePreference('brightness', brightness.toString());
     const brightnessValue = brightness / 100;
     document.body.style.filter = `brightness(${brightnessValue})`;
   }, [brightness]);

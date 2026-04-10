@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import eatosLogo from "@/assets/icons/posai-logo.png";
+import aiColorfulIcon from "@/assets/icons/ai-colorful.png";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useToast } from "@/hooks/use-toast";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -1105,6 +1106,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <p className="text-sm sm:text-base text-foreground/50 text-center max-w-md md:max-w-none">
               To start using this Point of Sale, activate your device using one of the options below
             </p>
+            <button
+              onClick={() => setShowAIChat(true)}
+              className="mt-4 px-6 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
+              <span>Activate with AI</span>
+            </button>
           </motion.div>
 
           <div className="mt-4 sm:mt-6 md:mt-8" />
@@ -1185,11 +1193,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                           className="w-full py-3 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.04] hover:bg-foreground/[0.08] text-sm text-foreground/60 hover:text-foreground/80 transition-all flex items-center justify-center gap-2">
                           <Mail className="w-4 h-4" />
                           Activate via email / phone
-                        </button>
-                        <button onClick={() => { setShowAIChat(true); }}
-                          className="w-full py-3 rounded-2xl border border-primary/20 bg-primary/[0.06] hover:bg-primary/[0.12] text-sm text-primary hover:text-primary transition-all flex items-center justify-center gap-2">
-                          <Sparkles className="w-4 h-4" />
-                          Activate with AI
                         </button>
                       </div>
                     </>

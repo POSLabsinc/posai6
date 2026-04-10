@@ -1327,7 +1327,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               {showOtherOptions ? "Back to options" : "Try another way"}
             </button>
             <button
-              onClick={() => setShowContactAdmin(true)}
+              onClick={() => setShowTutorialOverlay(true)}
               className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
             >
               Need Help?
@@ -1338,6 +1338,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <ContactAdminDialog 
           open={showContactAdmin} 
           onOpenChange={setShowContactAdmin} 
+        />
+        <DeviceSetupTutorialOverlay
+          open={showTutorialOverlay}
+          onClose={() => setShowTutorialOverlay(false)}
+          variant="new"
         />
       </div>
     );

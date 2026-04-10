@@ -1,12 +1,12 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, Calendar, DollarSign, Users, Share2, FileText, Mail, MessageSquare, Download, RotateCcw, Clock, Sparkles, Send, Phone } from "lucide-react";
+import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, Calendar, DollarSign, Users, Share2, FileText, Mail, MessageSquare, Download, RotateCcw, Clock, Send, Phone } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { OverlayTimePicker } from "@/components/ui/overlay-time-picker";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import ReactMarkdown from "react-markdown";
+import ShiftAIChatPanel from "@/components/ShiftAIChatPanel";
 
 interface ShiftSummaryModalProps {
   open: boolean;
@@ -151,10 +151,8 @@ export default function ShiftSummaryModal({
   const [shareInput, setShareInput] = useState("");
   const [shareSending, setShareSending] = useState(false);
 
-  // AI Insights state
-  const [showAIInsights, setShowAIInsights] = useState(false);
-  const [aiInsights, setAiInsights] = useState<string | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
+  // AI Chat state
+  const [showAIChat, setShowAIChat] = useState(false);
 
   const hasActiveFilters = filterEmployee || filterRevenueCenter || activePreset !== "today" || filterTimeFrom !== "00:00" || filterTimeTo !== "23:59";
 
@@ -387,41 +385,22 @@ export default function ShiftSummaryModal({
     }, 500);
   };
 
-  // AI Insights
-  const fetchAIInsights = async () => {
-    setShowAIInsights(true);
-    setAiLoading(true);
-    setAiInsights(null);
-    try {
-      const shiftData = {
-        employee: employeeName,
-        role: employeeRole,
-        totalHours,
-        totalCardSales,
-        totalCashSales,
-        totalTips,
-        tipsPayable,
-        totalCashTips,
-        overallTotal,
-        totalCashDrop,
-        orderCount: paidOrders.length,
-        paymentBreakdown: paymentTypeSummary,
-        dateRange: `${formatDateDisplay(filterDateFrom)} to ${formatDateDisplay(filterDateTo)}`,
-      };
-
-      const { data, error } = await supabase.functions.invoke("shift-insights", {
-        body: { shiftData },
-      });
-
-      if (error) throw error;
-      setAiInsights(data?.insights || "No insights available at this time.");
-    } catch (e: any) {
-      console.error("AI insights error:", e);
-      setAiInsights("Unable to generate insights. Please try again later.");
-    } finally {
-      setAiLoading(false);
-    }
-  };
+  // AI Chat context
+  const shiftContextForAI = useMemo(() => ({
+    employeeName,
+    employeeRole,
+    totalHours,
+    totalCardSales,
+    totalCashSales,
+    totalTips,
+    totalCashTips,
+    tipsPayable,
+    overallTotal,
+    totalCashDrop,
+    orderCount: paidOrders.length,
+    paymentBreakdown: paymentTypeSummary,
+    dateRange: `${formatDateDisplay(filterDateFrom)} to ${formatDateDisplay(filterDateTo)}`,
+  }), [employeeName, employeeRole, totalHours, totalCardSales, totalCashSales, totalTips, totalCashTips, tipsPayable, overallTotal, totalCashDrop, paidOrders.length, paymentTypeSummary, filterDateFrom, filterDateTo]);
 
   const openCheckDetail = async (order: TicketOrder) => {
     setSelectedOrder(order);
@@ -494,48 +473,22 @@ export default function ShiftSummaryModal({
     );
   }
 
-  // AI Insights popup
-  if (showAIInsights) {
+  // AI Chat view - embedded in same modal
+  if (showAIChat) {
     return (
       <div className="fixed inset-0 z-[9999] flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/70" onClick={() => setShowAIInsights(false)} />
-        <div className="relative z-10 w-[540px] max-h-[80vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 shrink-0">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/15 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-purple-400" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-white">AI Shift Insights</h2>
-                <p className="text-sm text-neutral-400">{employeeName} - {formatDateDisplay(filterDateFrom)}</p>
-              </div>
-            </div>
-            <button onClick={() => setShowAIInsights(false)} className="w-9 h-9 rounded-sm flex items-center justify-center opacity-70 hover:opacity-100 transition-opacity">
-              <X className="h-5 w-5 text-neutral-300" />
-            </button>
-          </div>
-
-          <div className="flex-1 overflow-auto px-6 py-5">
-            {aiLoading ? (
-              <div className="flex flex-col items-center justify-center py-12 gap-3">
-                <div className="w-8 h-8 border-2 border-purple-400 border-t-transparent rounded-full animate-spin" />
-                <p className="text-base text-neutral-400">Analyzing shift data...</p>
-              </div>
-            ) : aiInsights ? (
-              <div className="prose prose-invert prose-sm max-w-none text-base leading-relaxed">
-                <ReactMarkdown>{aiInsights}</ReactMarkdown>
-              </div>
-            ) : null}
-          </div>
-
-          <div className="px-6 py-4 border-t border-white/10 shrink-0 flex justify-end gap-3">
-            <button onClick={fetchAIInsights} disabled={aiLoading} className="px-4 py-2.5 bg-white/10 text-white rounded-xl text-sm font-medium hover:bg-white/15 transition-colors disabled:opacity-40">
-              Regenerate
-            </button>
-            <button onClick={() => setShowAIInsights(false)} className="px-4 py-2.5 bg-white text-black rounded-xl text-sm font-medium hover:bg-neutral-200 transition-colors">
-              Close
-            </button>
-          </div>
+        <div className="absolute inset-0 bg-black/70" onClick={() => setShowAIChat(false)} />
+        <div className="relative z-10 w-[960px] max-h-[92vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+          <ShiftAIChatPanel
+            onClose={() => setShowAIChat(false)}
+            shiftContext={shiftContextForAI}
+            shiftActions={{
+              exportPDF: () => { setShowAIChat(false); setTimeout(() => handleShare("pdf"), 100); },
+              sendEmail: () => { setShowAIChat(false); setTimeout(() => handleShare("email"), 100); },
+              sendText: () => { setShowAIChat(false); setTimeout(() => handleShare("text"), 100); },
+              downloadCSV: () => { setShowAIChat(false); setTimeout(() => handleShare("download"), 100); },
+            }}
+          />
         </div>
       </div>
     );
@@ -766,12 +719,12 @@ export default function ShiftSummaryModal({
               </button>
             )}
 
-            {/* AI Icon - functional */}
+            {/* AI Icon - opens chat */}
             <button
-              onClick={fetchAIInsights}
+              onClick={() => setShowAIChat(true)}
               className="flex items-center justify-center rounded-xl hover:bg-white/15 transition-colors"
               style={{ width: 40, height: 40, background: "rgba(100, 100, 100, 0.4)" }}
-              title="AI Insights"
+              title="AI Assistant"
             >
               <AnimatedAIIcon size={18} />
             </button>

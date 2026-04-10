@@ -7107,17 +7107,17 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-10 text-center flex flex-col items-center"
+            className="mb-4 text-center flex flex-col items-center"
           >
             <motion.img
               src={eatosLogo}
               alt="POS AI"
-              className="w-28 h-auto mb-6"
+              className="w-28 h-auto mb-3"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
             />
-            <h1 className="text-3xl md:text-4xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
               Sign in to your device
             </h1>
             <p className="text-base text-foreground/50 whitespace-nowrap">
@@ -7134,14 +7134,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ delay: 0.15 }}
-              className="flex flex-col md:flex-row gap-0 w-full"
+              className="flex flex-col md:flex-row items-stretch gap-0 w-full"
             >
               {/* Left: QR Code (always visible) */}
               <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0">
                 <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
-                <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Scan this QR code</h2>
+                <h2 className="text-lg md:text-xl font-bold text-foreground mb-6">Point the camera on your phone or tablet at the QR code.</h2>
                 
-                <div className="flex items-start gap-6">
+                <div className="flex flex-col items-center gap-5">
                   <button
                     onClick={() => {
                       localStorage.setItem("pos_device_session", JSON.stringify({
@@ -7162,19 +7162,23 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       level="M"
                     />
                   </button>
-                  <p className="text-sm text-foreground/50 leading-relaxed pt-2">
-                    {showExistingOtherOptions
-                      ? "Scan directly with your phone camera. You will be asked to enter your email, and code to verify."
-                      : "On your mobile phone, open the camera or the QR scanner app and point to this code."}
+                  <p className="text-sm text-foreground/50 leading-relaxed text-left w-full">
+                    Tap the link that appears and follow the steps on your mobile device.
                   </p>
                 </div>
               </div>
 
-              {/* Divider */}
-              <div className="hidden md:flex flex-col items-center px-4">
+              {/* Divider with OR - vertically centered */}
+              <div className="hidden md:flex flex-col items-center justify-center px-4 self-stretch">
+                <div className="w-px flex-1 bg-foreground/10" />
+                <span className="text-xs font-medium text-foreground/30 py-2">OR</span>
                 <div className="w-px flex-1 bg-foreground/10" />
               </div>
-              <div className="md:hidden w-full h-px bg-foreground/10 my-6" />
+              <div className="md:hidden flex items-center gap-3 my-6">
+                <div className="flex-1 h-px bg-foreground/10" />
+                <span className="text-xs font-medium text-foreground/30">OR</span>
+                <div className="flex-1 h-px bg-foreground/10" />
+              </div>
 
               {/* Right side */}
               <div className="flex-[1.2] pl-0 md:pl-12">
@@ -7182,7 +7186,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   /* Option 2: Browser pairing */
                   <>
                     <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
-                    <h2 className="text-xl md:text-2xl font-bold text-foreground mb-6">Use a browser</h2>
+                    <h2 className="text-lg md:text-xl font-bold text-foreground mb-6">Use a browser</h2>
                     
                     <div className="space-y-6">
                       <div className="flex items-start gap-4">
@@ -7354,21 +7358,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             </motion.div>
           </AnimatePresence>
 
-          {/* Footer: Need Help (left) + Try another way (right) */}
+          {/* Footer: Try another way (centered button) + Need Help */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="mt-10 w-full flex items-start justify-between"
+            className="mt-6 w-full flex flex-col items-center gap-3"
           >
-            <button
-              onClick={() => setShowTutorialOverlay(true)}
-              className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors flex items-center gap-1.5"
-            >
-              <HelpCircle className="w-4 h-4" />
-              Need Help?
-            </button>
-
             <button
               onClick={() => {
                 if (showExistingOtherOptions) {
@@ -7381,9 +7377,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   setExistingUserSelectedOption("code");
                 }
               }}
-              className="text-sm text-foreground/40 hover:text-foreground/60 transition-colors"
+              className="px-6 py-2.5 rounded-full border border-foreground/[0.12] bg-foreground/[0.05] text-sm text-foreground/60 hover:text-foreground/80 hover:bg-foreground/[0.08] transition-all"
             >
               {showExistingOtherOptions ? "Back to options" : "Try another way"}
+            </button>
+            <button
+              onClick={() => setShowTutorialOverlay(true)}
+              className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors"
+            >
+              Need Help?
             </button>
           </motion.div>
         </div>

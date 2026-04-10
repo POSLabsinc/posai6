@@ -4,6 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 export type IconStyle = 'Default' | 'Dark';
 export type IconSize = 'Default' | 'Small' | 'Medium' | 'Large';
 
+// Advanced customization defaults
+const DEFAULT_SELECTION_COLOR = '#F97316'; // orange
+const DEFAULT_HOVER_COLOR = '#1C1C1C';
+const DEFAULT_SPLASH_BG_COLOR = '#131316';
+const DEFAULT_TOP_BAR_COLOR = '#212121';
+const DEFAULT_SETTINGS_ICON_COLOR = '';  // empty = use per-icon defaults
+
 interface AppearanceContextType {
   iconStyle: IconStyle;
   setIconStyle: (style: IconStyle) => void;
@@ -17,6 +24,20 @@ interface AppearanceContextType {
   setBoldText: (bold: boolean) => void;
   brightness: number;
   setBrightness: (brightness: number) => void;
+  // Advanced customization
+  selectionColor: string;
+  setSelectionColor: (c: string) => void;
+  hoverColor: string;
+  setHoverColor: (c: string) => void;
+  splashBgColor: string;
+  setSplashBgColor: (c: string) => void;
+  topBarColor: string;
+  setTopBarColor: (c: string) => void;
+  settingsIconColor: string;
+  setSettingsIconColor: (c: string) => void;
+  partnerLogoUrl: string;
+  setPartnerLogoUrl: (url: string) => void;
+  resetAdvancedCustomization: () => void;
 }
 
 const AppearanceContext = createContext<AppearanceContextType | undefined>(undefined);
@@ -65,6 +86,50 @@ const iconContainerSizeMap: Record<IconSize, string> = {
   Large: 'w-12 h-12',
 };
 
+// Apply CSS custom properties for advanced customization
+const applyCustomColors = (
+  selectionColor: string,
+  hoverColor: string,
+  topBarColor: string
+) => {
+  const root = document.documentElement;
+  if (selectionColor) {
+    root.style.setProperty('--custom-selection-color', selectionColor);
+  }
+  if (hoverColor) {
+    root.style.setProperty('--custom-hover-color', hoverColor);
+  }
+  if (topBarColor) {
+    // Convert hex to HSL for the --header variable
+    const hsl = hexToHSL(topBarColor);
+    if (hsl) {
+      root.style.setProperty('--header', hsl);
+    }
+  }
+};
+
+// Convert hex color to HSL string (without hsl() wrapper, just "H S% L%")
+function hexToHSL(hex: string): string | null {
+  if (!hex || !hex.startsWith('#')) return null;
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+  if (!result) return null;
+  let r = parseInt(result[1], 16) / 255;
+  let g = parseInt(result[2], 16) / 255;
+  let b = parseInt(result[3], 16) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b);
+  let h = 0, s = 0, l = (max + min) / 2;
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
+      case g: h = ((b - r) / d + 2) / 6; break;
+      case b: h = ((r - g) / d + 4) / 6; break;
+    }
+  }
+  return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
+}
+
 export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
   const [iconStyle, setIconStyle] = useState<IconStyle>(() => {
     const saved = localStorage.getItem('iconStyle');
@@ -91,15 +156,42 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
     return saved ? parseInt(saved, 10) : DEFAULT_BRIGHTNESS;
   });
 
+  // Advanced customization state
+  const [selectionColor, setSelectionColorState] = useState<string>(() =>
+    localStorage.getItem('selectionColor') || DEFAULT_SELECTION_COLOR
+  );
+  const [hoverColor, setHoverColorState] = useState<string>(() =>
+    localStorage.getItem('hoverColor') || DEFAULT_HOVER_COLOR
+  );
+  const [splashBgColor, setSplashBgColorState] = useState<string>(() =>
+    localStorage.getItem('splashBgColor') || DEFAULT_SPLASH_BG_COLOR
+  );
+  const [topBarColor, setTopBarColorState] = useState<string>(() =>
+    localStorage.getItem('topBarColor') || DEFAULT_TOP_BAR_COLOR
+  );
+  const [settingsIconColor, setSettingsIconColorState] = useState<string>(() =>
+    localStorage.getItem('settingsIconColor') || DEFAULT_SETTINGS_ICON_COLOR
+  );
+  const [partnerLogoUrl, setPartnerLogoUrlState] = useState<string>(() =>
+    localStorage.getItem('partnerLogoUrl') || ''
+  );
+
   // Hydrate from database on mount (overrides localStorage with DB values)
   useEffect(() => {
     const hydrate = async () => {
-      const [dbTextSize, dbBoldText, dbBrightness, dbIconStyle, dbIconSize] = await Promise.all([
+      const [dbTextSize, dbBoldText, dbBrightness, dbIconStyle, dbIconSize,
+             dbSelectionColor, dbHoverColor, dbSplashBg, dbTopBar, dbSettingsIcon, dbPartnerLogo] = await Promise.all([
         loadPreference('textSize'),
         loadPreference('boldText'),
         loadPreference('brightness'),
         loadPreference('iconStyle'),
         loadPreference('iconSize'),
+        loadPreference('selectionColor'),
+        loadPreference('hoverColor'),
+        loadPreference('splashBgColor'),
+        loadPreference('topBarColor'),
+        loadPreference('settingsIconColor'),
+        loadPreference('partnerLogoUrl'),
       ]);
       if (dbTextSize) {
         const parsed = parseInt(dbTextSize, 10);
@@ -120,6 +212,30 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
       if (dbIconSize) {
         setIconSize(dbIconSize as IconSize);
         localStorage.setItem('iconSize', dbIconSize);
+      }
+      if (dbSelectionColor) {
+        setSelectionColorState(dbSelectionColor);
+        localStorage.setItem('selectionColor', dbSelectionColor);
+      }
+      if (dbHoverColor) {
+        setHoverColorState(dbHoverColor);
+        localStorage.setItem('hoverColor', dbHoverColor);
+      }
+      if (dbSplashBg) {
+        setSplashBgColorState(dbSplashBg);
+        localStorage.setItem('splashBgColor', dbSplashBg);
+      }
+      if (dbTopBar) {
+        setTopBarColorState(dbTopBar);
+        localStorage.setItem('topBarColor', dbTopBar);
+      }
+      if (dbSettingsIcon) {
+        setSettingsIconColorState(dbSettingsIcon);
+        localStorage.setItem('settingsIconColor', dbSettingsIcon);
+      }
+      if (dbPartnerLogo) {
+        setPartnerLogoUrlState(dbPartnerLogo);
+        localStorage.setItem('partnerLogoUrl', dbPartnerLogo);
       }
     };
     hydrate();
@@ -161,6 +277,34 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
     document.body.style.filter = `brightness(${brightnessValue})`;
   }, [brightness]);
 
+  // Advanced customization persistence + live application
+  const persistAndApply = (key: string, value: string, setter: (v: string) => void) => {
+    setter(value);
+    localStorage.setItem(key, value);
+    savePreference(key, value);
+  };
+
+  const setSelectionColor = (c: string) => persistAndApply('selectionColor', c, setSelectionColorState);
+  const setHoverColor = (c: string) => persistAndApply('hoverColor', c, setHoverColorState);
+  const setSplashBgColor = (c: string) => persistAndApply('splashBgColor', c, setSplashBgColorState);
+  const setTopBarColor = (c: string) => persistAndApply('topBarColor', c, setTopBarColorState);
+  const setSettingsIconColor = (c: string) => persistAndApply('settingsIconColor', c, setSettingsIconColorState);
+  const setPartnerLogoUrl = (url: string) => persistAndApply('partnerLogoUrl', url, setPartnerLogoUrlState);
+
+  // Apply custom colors to CSS variables
+  useEffect(() => {
+    applyCustomColors(selectionColor, hoverColor, topBarColor);
+  }, [selectionColor, hoverColor, topBarColor]);
+
+  const resetAdvancedCustomization = () => {
+    setSelectionColor(DEFAULT_SELECTION_COLOR);
+    setHoverColor(DEFAULT_HOVER_COLOR);
+    setSplashBgColor(DEFAULT_SPLASH_BG_COLOR);
+    setTopBarColor(DEFAULT_TOP_BAR_COLOR);
+    setSettingsIconColor(DEFAULT_SETTINGS_ICON_COLOR);
+    setPartnerLogoUrl('');
+  };
+
   // Listen for AI-driven settings updates from SettingsManager
   useEffect(() => {
     const handleSettingsUpdate = (event: CustomEvent) => {
@@ -181,11 +325,11 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const setBrightness = (value: number) => {
-    // Clamp value between min and max
     const clampedValue = Math.max(MIN_BRIGHTNESS, Math.min(MAX_BRIGHTNESS, value));
     setBrightnessState(clampedValue);
   };
   const getIconBgColor = (defaultColor: string): string => {
+    if (settingsIconColor) return settingsIconColor;
     return iconStyle === 'Dark' ? DARK_ICON_COLOR : defaultColor;
   };
 
@@ -208,6 +352,19 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
         setBoldText,
         brightness,
         setBrightness,
+        selectionColor,
+        setSelectionColor,
+        hoverColor,
+        setHoverColor,
+        splashBgColor,
+        setSplashBgColor,
+        topBarColor,
+        setTopBarColor,
+        settingsIconColor,
+        setSettingsIconColor,
+        partnerLogoUrl,
+        setPartnerLogoUrl,
+        resetAdvancedCustomization,
       }}
     >
       {children}
@@ -223,4 +380,4 @@ export const useAppearance = (): AppearanceContextType => {
   return context;
 };
 
-export { iconContainerSizeMap, iconSizeMap, MIN_TEXT_SIZE, MAX_TEXT_SIZE, DEFAULT_TEXT_SIZE, MIN_BRIGHTNESS, MAX_BRIGHTNESS, DEFAULT_BRIGHTNESS };
+export { iconContainerSizeMap, iconSizeMap, MIN_TEXT_SIZE, MAX_TEXT_SIZE, DEFAULT_TEXT_SIZE, MIN_BRIGHTNESS, MAX_BRIGHTNESS, DEFAULT_BRIGHTNESS, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SPLASH_BG_COLOR, DEFAULT_TOP_BAR_COLOR, DEFAULT_SETTINGS_ICON_COLOR };

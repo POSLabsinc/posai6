@@ -43,9 +43,7 @@ export function SplashScreen({ onComplete, duration = 2000, variant = "default" 
         isFading ? "opacity-0" : "opacity-100"
       }`}
       style={{
-        background: isBrand
-          ? "#DF1683"
-          : splashBgColor,
+        background: splashBgColor,
       }}
     >
       <div className="flex flex-col items-center justify-center" style={{ animation: "fadeIn 0.5s ease-in" }}>

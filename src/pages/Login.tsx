@@ -44,7 +44,7 @@ const Login = () => {
   const { toast } = useToast();
   const [deviceType, setDeviceType] = useState<DeviceType>(null);
   const [showSplash, setShowSplash] = useState(false);
-  const [showInitialSplash, setShowInitialSplash] = useState(true);
+  const [showInitialSplash, setShowInitialSplash] = useState(false);
   const [pendingDeviceType, setPendingDeviceType] = useState<DeviceType>(null);
   const [userType, setUserType] = useState<"new" | "existing" | null>(null);
   const [showDeviceConnected, setShowDeviceConnected] = useState(false);

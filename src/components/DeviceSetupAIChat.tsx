@@ -1440,7 +1440,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                   >
                     <div className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin text-primary" />
-                      <span className="text-sm text-foreground/60 font-medium">Verifying device...</span>
+                      <span className="text-sm text-foreground/60 font-medium">{isSignIn ? "Verifying identity..." : "Verifying device..."}</span>
                     </div>
                   </motion.div>
                 )}

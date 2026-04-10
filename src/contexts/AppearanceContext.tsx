@@ -146,7 +146,7 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     localStorage.setItem('boldText', boldText.toString());
-    // Apply bold text globally
+    savePreference('boldText', boldText.toString());
     if (boldText) {
       document.documentElement.classList.add('app-bold-text');
     } else {
@@ -156,7 +156,7 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     localStorage.setItem('brightness', brightness.toString());
-    // Apply brightness globally via CSS filter on body
+    savePreference('brightness', brightness.toString());
     const brightnessValue = brightness / 100;
     document.body.style.filter = `brightness(${brightnessValue})`;
   }, [brightness]);

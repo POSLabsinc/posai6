@@ -623,19 +623,26 @@ const Settings = () => {
     }
   };
 
-  const aiContext = location.pathname.startsWith('/settings/menu') ? 'menu'
-    : location.pathname.startsWith('/settings/system') ? 'system'
-    : location.pathname.startsWith('/settings/payments') ? 'payments'
-    : location.pathname === '/settings/end-of-day' ? 'end-of-day'
-    : location.pathname === '/settings/guest-book' ? 'guest-book'
-    : location.pathname.startsWith('/settings/workforce') ? 'workforce'
-    : location.pathname.startsWith('/settings/support') ? 'support'
-    : location.pathname.startsWith('/settings/network') ? 'network'
-    : location.pathname.startsWith('/settings/hardware') ? 'hardware'
-    : location.pathname.startsWith('/settings/notifications') ? 'notifications'
-    : location.pathname.startsWith('/settings/reports') ? 'reports'
-    : (location.pathname === '/settings/account' || location.pathname === '/settings' || location.pathname.startsWith('/settings/account/')) ? 'account'
-    : undefined;
+  const getAiContext = (pathname: string): string | undefined => {
+    const segments = pathname.replace('/settings/', '').split('/').filter(Boolean);
+    if (segments.length === 0 || pathname === '/settings' || pathname === '/settings/account') return 'account';
+    if (pathname.startsWith('/settings/account/')) return 'account';
+    // For sub-routes like /settings/system/appearance produce "system-appearance"
+    const parentMap: Record<string, string> = {
+      menu: 'menu', system: 'system', payments: 'payments', workforce: 'workforce',
+      support: 'support', network: 'network', hardware: 'hardware',
+      notifications: 'notifications', reports: 'reports',
+    };
+    const parent = parentMap[segments[0]];
+    if (!parent) {
+      if (segments[0] === 'end-of-day') return 'end-of-day';
+      if (segments[0] === 'guest-book') return 'guest-book';
+      return undefined;
+    }
+    if (segments.length >= 2) return `${parent}-${segments[1]}`;
+    return parent;
+  };
+  const aiContext = getAiContext(location.pathname);
 
   const isGuestBook = location.pathname === '/settings/guest-book';
   const isNotifications = location.pathname.startsWith('/settings/notifications/all') || location.pathname.startsWith('/settings/notifications/detail/');

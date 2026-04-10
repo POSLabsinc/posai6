@@ -1080,10 +1080,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       );
     }
     return (
-      <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-auto">
         <div className="absolute inset-0 gradient-mesh opacity-30" />
         
-        <div className="relative z-10 w-full max-w-5xl px-8 flex flex-col items-center">
+        <div className="relative z-10 w-full max-w-5xl px-4 sm:px-6 md:px-8 py-6 sm:py-8 flex flex-col items-center">
           {/* Logo + Title - Centered */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -1093,20 +1093,20 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <motion.img
               src={eatosLogo}
               alt="POS AI"
-              className="w-28 h-auto mb-3"
+              className="w-20 sm:w-24 md:w-28 h-auto mb-3"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
             />
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-1">
               Activate this device
             </h1>
-            <p className="text-base text-foreground/50 whitespace-nowrap">
+            <p className="text-sm sm:text-base text-foreground/50 text-center max-w-md md:max-w-none">
               To start using this Point of Sale, activate your device using one of the options below
             </p>
           </motion.div>
 
-          <div className="mt-8" />
+          <div className="mt-4 sm:mt-6 md:mt-8" />
 
           <AnimatePresence mode="wait">
             {/* Two-column layout - QR on left, right side toggles between Browser and Activate with Code */}
@@ -1119,11 +1119,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               className="flex flex-col md:flex-row items-stretch gap-0 w-full"
             >
               {/* Left: QR Code (always visible) */}
-              <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0">
-                <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
-                <h2 className="text-lg md:text-xl font-bold text-foreground mb-6">Point the camera on your phone or tablet at the QR code.</h2>
+              <div className="flex-1 pr-0 md:pr-12 pb-6 md:pb-0">
+                <p className="text-xs sm:text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
+                <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-4 sm:mb-6">Point the camera on your phone or tablet at the QR code.</h2>
                 
-                <div className="flex flex-col items-center gap-5">
+                <div className="flex flex-col items-center gap-4 sm:gap-5">
                   <button
                     onClick={() => {
                       setShowDeviceConnected(true);
@@ -1133,17 +1133,17 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         setOwnerVerified(true);
                       }, 2500);
                     }}
-                    className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                    className="bg-foreground rounded-2xl p-3 sm:p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                   >
                     <QRCodeSVG
                       value={activationQrValue}
-                      size={180}
+                      size={typeof window !== 'undefined' && window.innerWidth < 640 ? 140 : 180}
                       bgColor="hsl(0 0% 100%)"
                       fgColor="hsl(0 0% 0%)"
                       level="M"
                     />
                   </button>
-                  <p className="text-sm text-foreground/50 leading-relaxed text-left w-full">
+                  <p className="text-xs sm:text-sm text-foreground/50 leading-relaxed text-left w-full">
                     Tap the link that appears and follow the steps on your mobile device.
                   </p>
                 </div>
@@ -1188,9 +1188,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                             {generatedDeviceCode.split('').map((char, i) => (
                               <div
                                 key={i}
-                                className="w-12 h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center"
+                                className="w-10 sm:w-12 h-12 sm:h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center"
                               >
-                                <span className="text-xl font-bold text-foreground">{char}</span>
+                                <span className="text-lg sm:text-xl font-bold text-foreground">{char}</span>
                               </div>
                             ))}
                           </div>
@@ -1252,11 +1252,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <p className="text-sm text-foreground/50 mb-6">
                       Enter the 6-digit code sent to <span className="font-semibold text-foreground">{activationContactValue}</span>
                     </p>
-                    <div className="flex gap-2 mb-4">
+                    <div className="flex gap-1.5 sm:gap-2 mb-4">
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div
                           key={i}
-                          className={`w-12 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all ${
+                          className={`w-10 sm:w-12 h-12 sm:h-14 rounded-xl border-2 flex items-center justify-center text-xl sm:text-2xl font-bold transition-all ${
                             activationCode[i]
                               ? "border-primary bg-primary/5 text-foreground"
                               : i === activationCode.length
@@ -1326,7 +1326,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               }}
               className="px-6 py-2.5 rounded-full border border-foreground/[0.12] bg-foreground/[0.05] text-sm text-foreground/60 hover:text-foreground/80 hover:bg-foreground/[0.08] transition-all"
             >
-              {showOtherOptions ? "Back to options" : "Try another way"}
+              {showOtherOptions ? "Back to options" : "Activate via email / phone"}
             </button>
             <button
               onClick={() => setShowTutorialOverlay(true)}
@@ -7099,10 +7099,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     const showExistingOtherOptions = existingUserSelectedOption === "code";
 
     return (
-      <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-auto">
         <div className="absolute inset-0 gradient-mesh opacity-30" />
         
-        <div className="relative z-10 w-full max-w-5xl px-8 flex flex-col items-center">
+        <div className="relative z-10 w-full max-w-5xl px-4 sm:px-6 md:px-8 py-6 sm:py-8 flex flex-col items-center">
           {/* Logo + Title - Centered */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}
@@ -7112,20 +7112,20 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <motion.img
               src={eatosLogo}
               alt="POS AI"
-              className="w-28 h-auto mb-3"
+              className="w-20 sm:w-24 md:w-28 h-auto mb-3"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
             />
-            <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-1">
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-1">
               Sign in to your device
             </h1>
-            <p className="text-base text-foreground/50 whitespace-nowrap">
+            <p className="text-sm sm:text-base text-foreground/50 text-center max-w-md md:max-w-none">
               To access this Point of Sale, sign in using one of the options below
             </p>
           </motion.div>
 
-          <div className="mt-8" />
+          <div className="mt-4 sm:mt-6 md:mt-8" />
 
           <AnimatePresence mode="wait">
             <motion.div
@@ -7137,11 +7137,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               className="flex flex-col md:flex-row items-stretch gap-0 w-full"
             >
               {/* Left: QR Code (always visible) */}
-              <div className="flex-1 pr-0 md:pr-12 pb-8 md:pb-0">
-                <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
-                <h2 className="text-lg md:text-xl font-bold text-foreground mb-6">Point the camera on your phone or tablet at the QR code.</h2>
+              <div className="flex-1 pr-0 md:pr-12 pb-6 md:pb-0">
+                <p className="text-xs sm:text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
+                <h2 className="text-base sm:text-lg md:text-xl font-bold text-foreground mb-4 sm:mb-6">Point the camera on your phone or tablet at the QR code.</h2>
                 
-                <div className="flex flex-col items-center gap-5">
+                <div className="flex flex-col items-center gap-4 sm:gap-5">
                   <button
                     onClick={() => {
                       localStorage.setItem("pos_device_session", JSON.stringify({
@@ -7152,17 +7152,17 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       }));
                       navigate("/");
                     }}
-                    className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                    className="bg-foreground rounded-2xl p-3 sm:p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                   >
                     <QRCodeSVG
                       value={activationQrValueExisting}
-                      size={180}
+                      size={typeof window !== 'undefined' && window.innerWidth < 640 ? 140 : 180}
                       bgColor="hsl(0 0% 100%)"
                       fgColor="hsl(0 0% 0%)"
                       level="M"
                     />
                   </button>
-                  <p className="text-sm text-foreground/50 leading-relaxed text-left w-full">
+                  <p className="text-xs sm:text-sm text-foreground/50 leading-relaxed text-left w-full">
                     Tap the link that appears and follow the steps on your mobile device.
                   </p>
                 </div>
@@ -7203,13 +7203,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
                         <div>
                           <p className="text-sm text-foreground/70 mb-3">When asked, enter this code:</p>
-                          <div className="flex gap-2">
+                          <div className="flex gap-1.5 sm:gap-2">
                             {generatedDeviceCode.split('').map((char, i) => (
                               <div
                                 key={i}
-                                className="w-12 h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center"
+                                className="w-10 sm:w-12 h-12 sm:h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center"
                               >
-                                <span className="text-xl font-bold text-foreground">{char}</span>
+                                <span className="text-lg sm:text-xl font-bold text-foreground">{char}</span>
                               </div>
                             ))}
                           </div>
@@ -7278,11 +7278,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <p className="text-sm text-foreground/50 mb-6">
                       Enter the 6-digit code sent to <span className="font-semibold text-foreground">{existingUserContact}</span>
                     </p>
-                    <div className="flex gap-2 mb-4">
+                    <div className="flex gap-1.5 sm:gap-2 mb-4">
                       {Array.from({ length: 6 }).map((_, i) => (
                         <div
                           key={i}
-                          className={`w-12 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all ${
+                          className={`w-10 sm:w-12 h-12 sm:h-14 rounded-xl border-2 flex items-center justify-center text-xl sm:text-2xl font-bold transition-all ${
                             existingUserVerificationCode[i]
                               ? "border-primary bg-primary/5 text-foreground"
                               : i === existingUserVerificationCode.length
@@ -7379,7 +7379,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               }}
               className="px-6 py-2.5 rounded-full border border-foreground/[0.12] bg-foreground/[0.05] text-sm text-foreground/60 hover:text-foreground/80 hover:bg-foreground/[0.08] transition-all"
             >
-              {showExistingOtherOptions ? "Back to options" : "Try another way"}
+              {showExistingOtherOptions ? "Back to options" : "Sign in via email / phone"}
             </button>
             <button
               onClick={() => setShowTutorialOverlay(true)}

@@ -1,4 +1,5 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
+import { supabase } from "@/integrations/supabase/client";
 
 export type IconStyle = 'Default' | 'Dark';
 export type IconSize = 'Default' | 'Small' | 'Medium' | 'Large';

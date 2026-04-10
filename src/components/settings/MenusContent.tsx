@@ -58,11 +58,7 @@ const MenusContent = ({
         <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
           <h1 className="text-base font-medium text-foreground">Menus</h1>
         </div>
-        <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
-            size={24}
-            onClick={onAIClick || (() => onNavigate?.("/settings/ai"))}
-          />
-        </div>
+        <div className="w-8 h-8" />
       </div>
 
       {/* Scrollable content */}

@@ -206,14 +206,7 @@ const EditMenuContent = ({
           <div className="w-12 h-12" />
         )}
         <h1 className="text-lg font-semibold text-foreground">Edit Menu</h1>
-        <button
-          type="button"
-          className="w-12 h-12 flex items-center justify-center"
-          onClick={onAIClick || (() => {})}
-          aria-label="AI Assistant"
-        >
-          <AnimatedAIIcon size={24} />
-        </button>
+        <div className="w-12 h-12" />
       </div>
 
       {/* Form */}

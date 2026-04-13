@@ -96,6 +96,8 @@ interface Message {
   multiSelect?: boolean;
   imageUrl?: string;
   reportData?: ReportData;
+  inlineAction?: "theme-color-picker" | "brand-logo-upload" | "derived-color-picker";
+  derivedColorTarget?: string;
 }
 
 interface ReportData {
@@ -266,11 +268,11 @@ const accountSuggestionChips: SuggestionChip[] = [
 
 // Sub-route suggestion chips for System sub-pages
 const systemAppearanceChips: SuggestionChip[] = [
-  { label: "Change theme color", icon: <Palette className="w-3.5 h-3.5" />, prompt: "Change the theme color to blue" },
-  { label: "Update brand logo", icon: <Image className="w-3.5 h-3.5" />, prompt: "I want to update the brand logo" },
+  { label: "Change theme color", icon: <Palette className="w-3.5 h-3.5" />, prompt: "Change theme color" },
+  { label: "Update brand logo", icon: <Image className="w-3.5 h-3.5" />, prompt: "Update brand logo" },
   { label: "Adjust text size", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Adjust text size settings" },
   { label: "Toggle bold text", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Toggle bold text on or off" },
-  { label: "Change splash color", icon: <Sparkles className="w-3.5 h-3.5" />, prompt: "Change the splash screen background color" },
+  { label: "Change splash color", icon: <Sparkles className="w-3.5 h-3.5" />, prompt: "Change splash screen color" },
   { label: "Reset theme", icon: <RotateCcw className="w-3.5 h-3.5" />, prompt: "Reset all theme colors to defaults" },
 ];
 
@@ -1193,8 +1195,158 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     }
   };
 
+  // Preset colors for inline theme picker
+  const THEME_PRESETS = [
+    '#6366F1', '#8B5CF6', '#A855F7', '#EC4899', '#F43F5E',
+    '#EF4444', '#F97316', '#F59E0B', '#EAB308', '#84CC16',
+    '#22C55E', '#10B981', '#14B8A6', '#06B6D4', '#0EA5E9',
+    '#3B82F6', '#6366F1', '#7C3AED', '#9333EA', '#C026D3',
+  ];
+
+  // Color name mapping for natural language
+  const COLOR_NAME_MAP: Record<string, string> = {
+    red: '#EF4444', blue: '#3B82F6', green: '#10B981', purple: '#8B5CF6',
+    orange: '#F97316', yellow: '#F59E0B', pink: '#EC4899', teal: '#14B8A6',
+    cyan: '#06B6D4', indigo: '#6366F1', violet: '#7C3AED', amber: '#F59E0B',
+    emerald: '#10B981', rose: '#F43F5E', sky: '#0EA5E9', lime: '#84CC16',
+    fuchsia: '#C026D3', slate: '#64748B', gray: '#6B7280', white: '#FFFFFF',
+    black: '#000000', navy: '#1E3A5F', maroon: '#800000', gold: '#FFD700',
+    coral: '#FF6B6B', turquoise: '#40E0D0', magenta: '#FF00FF', lavender: '#E6E6FA',
+    'dark purple': '#5B21B6', 'dark blue': '#1E40AF', 'dark green': '#166534',
+    'light blue': '#93C5FD', 'light green': '#86EFAC', 'warm orange': '#EA580C',
+  };
+
+  // Derived color labels mapping
+  const DERIVED_COLOR_MAP: Record<string, { setter: (v: string) => void; getter: string }> = {
+    selection: { setter: setSelectionColor, getter: selectionColor },
+    'selection color': { setter: setSelectionColor, getter: selectionColor },
+    hover: { setter: setHoverColor, getter: hoverColor },
+    'hover color': { setter: setHoverColor, getter: hoverColor },
+    'top bar': { setter: setTopBarColor, getter: topBarColor },
+    'top bar background': { setter: setTopBarColor, getter: topBarColor },
+    'splash screen': { setter: setSplashBgColor, getter: splashBgColor },
+    'splash': { setter: setSplashBgColor, getter: splashBgColor },
+    'splash screen background': { setter: setSplashBgColor, getter: splashBgColor },
+    'splash background': { setter: setSplashBgColor, getter: splashBgColor },
+    'settings icon': { setter: setSettingsIconColor, getter: settingsIconColor },
+    'settings icon color': { setter: setSettingsIconColor, getter: settingsIconColor },
+  };
+
+  // Detect and handle appearance-related intents locally
+  const handleAppearanceIntent = (text: string): boolean => {
+    const lower = text.toLowerCase().trim();
+
+    // Theme color picker request
+    if (lower.includes('change theme color') || lower.includes('change the theme color') || lower === 'change theme' || lower.includes('pick a theme') || lower.includes('select theme color') || lower.includes('choose theme')) {
+      // Check if there's a specific color mentioned
+      const colorMatch = findColorInText(lower);
+      if (colorMatch) {
+        applyThemeColor(colorMatch);
+        addUserAndAssistantMessages(text, `Done! Theme color has been updated to **${colorMatch}**. The new color is now applied across the entire app.`);
+        return true;
+      }
+      // Show inline color picker
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: text, timestamp: new Date() };
+      const assistantMsg: Message = {
+        id: (Date.now() + 1).toString(), role: "assistant",
+        content: "Choose a preset color below, or tap the color picker for a custom color:",
+        timestamp: new Date(),
+        inlineAction: "theme-color-picker",
+      };
+      setMessages(prev => [...prev.map(m => m.role === "assistant" ? { ...m, quickReplies: undefined } : m), userMsg, assistantMsg]);
+      setInputValue("");
+      return true;
+    }
+
+    // Brand logo upload request
+    if (lower.includes('update brand logo') || lower.includes('change brand logo') || lower.includes('upload brand logo') || lower.includes('update logo') || lower.includes('change logo') || lower.includes('upload logo') || lower.includes('brand logo')) {
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: text, timestamp: new Date() };
+      const assistantMsg: Message = {
+        id: (Date.now() + 1).toString(), role: "assistant",
+        content: partnerLogoUrl
+          ? "Your current brand logo is shown below. You can replace it or remove it:"
+          : "Upload a brand logo image (PNG, JPG, WebP, or SVG, max 2MB). It will appear in the sidebar and splash screen:",
+        timestamp: new Date(),
+        inlineAction: "brand-logo-upload",
+      };
+      setMessages(prev => [...prev.map(m => m.role === "assistant" ? { ...m, quickReplies: undefined } : m), userMsg, assistantMsg]);
+      setInputValue("");
+      return true;
+    }
+
+    // Derived color change via prompt (e.g. "change selection color to red")
+    for (const [key, config] of Object.entries(DERIVED_COLOR_MAP)) {
+      if (lower.includes(key)) {
+        const colorMatch = findColorInText(lower);
+        if (colorMatch) {
+          config.setter(colorMatch);
+          const label = key.split(' ').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+          addUserAndAssistantMessages(text, `Done! **${label}** has been updated to **${colorMatch}**. The change is now active.`);
+          return true;
+        }
+        // If they mention the element but no color, show picker
+        const userMsg: Message = { id: Date.now().toString(), role: "user", content: text, timestamp: new Date() };
+        const label = key.split(' ').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+        const assistantMsg: Message = {
+          id: (Date.now() + 1).toString(), role: "assistant",
+          content: `Choose a color for **${label}**:`,
+          timestamp: new Date(),
+          inlineAction: "derived-color-picker",
+          derivedColorTarget: key,
+        };
+        setMessages(prev => [...prev.map(m => m.role === "assistant" ? { ...m, quickReplies: undefined } : m), userMsg, assistantMsg]);
+        setInputValue("");
+        return true;
+      }
+    }
+
+    // Generic "theme to <color>" or "make it <color>"
+    if ((lower.includes('theme') || lower.includes('make it') || lower.includes('set color')) && !lower.includes('reset')) {
+      const colorMatch = findColorInText(lower);
+      if (colorMatch) {
+        applyThemeColor(colorMatch);
+        addUserAndAssistantMessages(text, `Done! Theme color has been updated to **${colorMatch}**. All derived colors have been adjusted automatically.`);
+        return true;
+      }
+    }
+
+    // Reset theme
+    if (lower.includes('reset theme') || lower.includes('default theme') || lower.includes('reset all theme') || lower.includes('reset colors')) {
+      resetAdvancedCustomization();
+      addUserAndAssistantMessages(text, "Done! All theme colors have been reset to their defaults.");
+      toast({ title: "Reset complete", description: "All theme colors reset to defaults." });
+      return true;
+    }
+
+    return false;
+  };
+
+  const findColorInText = (text: string): string | null => {
+    // Check for hex code
+    const hexMatch = text.match(/#[0-9a-fA-F]{6}/);
+    if (hexMatch) return hexMatch[0];
+    // Check for color names (longest match first)
+    const sortedNames = Object.keys(COLOR_NAME_MAP).sort((a, b) => b.length - a.length);
+    for (const name of sortedNames) {
+      if (text.includes(name)) return COLOR_NAME_MAP[name];
+    }
+    return null;
+  };
+
+  const addUserAndAssistantMessages = (userText: string, assistantText: string) => {
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: userText, timestamp: new Date() };
+    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: assistantText, timestamp: new Date() };
+    setMessages(prev => [...prev.map(m => m.role === "assistant" ? { ...m, quickReplies: undefined } : m), userMsg, assistantMsg]);
+    setInputValue("");
+  };
+
   const handleSendMessage = async (content: string, imageDataUrl?: string | null) => {
     if (!content.trim() && !imageDataUrl) return;
+
+    // Handle appearance intents locally when in appearance context
+    if (!imageDataUrl && isAppearanceContext && handleAppearanceIntent(content.trim())) {
+      return;
+    }
 
     // Detect settings intent and show module buttons
     if (!imageDataUrl && isSettingsIntent(content.trim())) {
@@ -2131,6 +2283,163 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   
                   {/* Navigate Button */}
                   {message.navigateTo && renderNavigateButton(message.navigateTo)}
+
+                  {/* Inline Theme Color Picker */}
+                  {message.inlineAction === "theme-color-picker" && (
+                    <div className="mt-3 bg-neutral-800/60 rounded-xl p-4 space-y-3">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Preset Colors</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {THEME_PRESETS.map((hex) => (
+                          <button
+                            key={hex}
+                            onClick={() => {
+                              applyThemeColor(hex);
+                              const confirmMsg: Message = {
+                                id: Date.now().toString(), role: "assistant",
+                                content: `Theme color updated to **${hex}**! All derived colors have been adjusted automatically.`,
+                                timestamp: new Date(),
+                              };
+                              setMessages(prev => [...prev, confirmMsg]);
+                              toast({ title: "Theme updated", description: `Theme color set to ${hex}` });
+                            }}
+                            className={cn(
+                              "w-8 h-8 rounded-lg transition-all hover:scale-110",
+                              themeColor === hex && "ring-2 ring-white ring-offset-1 ring-offset-neutral-900"
+                            )}
+                            style={{ backgroundColor: hex }}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-3 pt-1">
+                        <label className="relative cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-700/50 hover:bg-neutral-600/50 transition-colors text-sm text-neutral-300">
+                          <Palette className="w-4 h-4" />
+                          Custom Color
+                          <input
+                            type="color"
+                            value={themeColor}
+                            onChange={(e) => {
+                              applyThemeColor(e.target.value);
+                              const confirmMsg: Message = {
+                                id: Date.now().toString(), role: "assistant",
+                                content: `Theme color updated to **${e.target.value}**!`,
+                                timestamp: new Date(),
+                              };
+                              setMessages(prev => [...prev, confirmMsg]);
+                              toast({ title: "Theme updated" });
+                            }}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                        </label>
+                        <div className="w-6 h-6 rounded-md border border-neutral-600" style={{ backgroundColor: themeColor }} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Inline Brand Logo Upload */}
+                  {message.inlineAction === "brand-logo-upload" && (
+                    <div className="mt-3 bg-neutral-800/60 rounded-xl p-4 space-y-3">
+                      {partnerLogoUrl && (
+                        <div className="flex items-center gap-3">
+                          <div className="w-16 h-16 rounded-xl bg-neutral-700/50 flex items-center justify-center overflow-hidden border border-neutral-600">
+                            <img src={partnerLogoUrl} alt="Brand Logo" className="w-14 h-14 object-contain" />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <button
+                              onClick={() => brandLogoInputRef.current?.click()}
+                              className="text-xs text-neutral-300 hover:text-foreground px-3 py-1.5 rounded-lg bg-neutral-700/50 hover:bg-neutral-600/50 transition-colors"
+                            >
+                              Replace
+                            </button>
+                            <button
+                              onClick={() => {
+                                setPartnerLogoUrl('');
+                                toast({ title: "Logo removed" });
+                                const confirmMsg: Message = { id: Date.now().toString(), role: "assistant", content: "Brand logo has been removed. The default logo will be used.", timestamp: new Date() };
+                                setMessages(prev => [...prev, confirmMsg]);
+                              }}
+                              className="text-xs text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg bg-neutral-700/50 hover:bg-neutral-600/50 transition-colors"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {!partnerLogoUrl && (
+                        <button
+                          onClick={() => brandLogoInputRef.current?.click()}
+                          className="flex items-center gap-2 text-sm text-neutral-300 hover:text-foreground px-4 py-2.5 rounded-xl bg-neutral-700/50 hover:bg-neutral-600/50 border border-dashed border-neutral-600 transition-colors"
+                        >
+                          <Upload className="w-4 h-4" />
+                          Upload Logo
+                        </button>
+                      )}
+                      <input
+                        ref={brandLogoInputRef}
+                        type="file"
+                        accept=".png,.jpg,.jpeg,.webp,.svg"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          if (file.size > 2 * 1024 * 1024) {
+                            toast({ title: "File too large", description: "Max 2MB.", variant: "destructive" });
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            setPartnerLogoUrl(reader.result as string);
+                            toast({ title: "Logo updated" });
+                            const confirmMsg: Message = { id: Date.now().toString(), role: "assistant", content: "Brand logo has been updated successfully! It will now appear in the sidebar and splash screen.", timestamp: new Date() };
+                            setMessages(prev => [...prev, confirmMsg]);
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Inline Derived Color Picker */}
+                  {message.inlineAction === "derived-color-picker" && message.derivedColorTarget && (
+                    <div className="mt-3 bg-neutral-800/60 rounded-xl p-4 space-y-3">
+                      <div className="flex flex-wrap gap-1.5">
+                        {THEME_PRESETS.map((hex) => (
+                          <button
+                            key={hex}
+                            onClick={() => {
+                              const target = DERIVED_COLOR_MAP[message.derivedColorTarget!];
+                              if (target) {
+                                target.setter(hex);
+                                const label = message.derivedColorTarget!.split(' ').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+                                const confirmMsg: Message = { id: Date.now().toString(), role: "assistant", content: `**${label}** updated to **${hex}**.`, timestamp: new Date() };
+                                setMessages(prev => [...prev, confirmMsg]);
+                                toast({ title: `${label} updated` });
+                              }
+                            }}
+                            className="w-8 h-8 rounded-lg transition-all hover:scale-110"
+                            style={{ backgroundColor: hex }}
+                          />
+                        ))}
+                      </div>
+                      <label className="relative cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-700/50 hover:bg-neutral-600/50 transition-colors text-sm text-neutral-300 w-fit">
+                        <Palette className="w-4 h-4" />
+                        Custom Color
+                        <input
+                          type="color"
+                          value={DERIVED_COLOR_MAP[message.derivedColorTarget]?.getter || themeColor}
+                          onChange={(e) => {
+                            const target = DERIVED_COLOR_MAP[message.derivedColorTarget!];
+                            if (target) {
+                              target.setter(e.target.value);
+                              const label = message.derivedColorTarget!.split(' ').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+                              const confirmMsg: Message = { id: Date.now().toString(), role: "assistant", content: `**${label}** updated to **${e.target.value}**.`, timestamp: new Date() };
+                              setMessages(prev => [...prev, confirmMsg]);
+                            }
+                          }}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                      </label>
+                    </div>
+                  )}
 
                   {/* Sales Report Data */}
                   {message.reportData && (

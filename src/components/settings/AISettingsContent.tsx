@@ -96,6 +96,8 @@ interface Message {
   multiSelect?: boolean;
   imageUrl?: string;
   reportData?: ReportData;
+  inlineAction?: "theme-color-picker" | "brand-logo-upload" | "derived-color-picker";
+  derivedColorTarget?: string;
 }
 
 interface ReportData {

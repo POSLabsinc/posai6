@@ -218,7 +218,7 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const hydrate = async () => {
       const [dbTextSize, dbBoldText, dbBrightness, dbIconStyle, dbIconSize,
-             dbSelectionColor, dbHoverColor, dbSplashBg, dbTopBar, dbSettingsIcon, dbPartnerLogo] = await Promise.all([
+             dbSelectionColor, dbHoverColor, dbSplashBg, dbTopBar, dbSettingsIcon, dbPartnerLogo, dbThemeColor] = await Promise.all([
         loadPreference('textSize'),
         loadPreference('boldText'),
         loadPreference('brightness'),
@@ -230,6 +230,7 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
         loadPreference('topBarColor'),
         loadPreference('settingsIconColor'),
         loadPreference('partnerLogoUrl'),
+        loadPreference('themeColor'),
       ]);
       if (dbTextSize) {
         const parsed = parseInt(dbTextSize, 10);

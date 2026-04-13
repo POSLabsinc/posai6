@@ -4,6 +4,8 @@ import { Search, Mic, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContext";
+import { useDeviceAuth } from "@/hooks/useDeviceAuth";
+import { format } from "date-fns";
 
 // Import custom icons
 import systemIcon from "@/assets/icons/settings-system.png";
@@ -112,6 +114,15 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
+  const { clockInSession } = useDeviceAuth();
+
+  const employeeName = clockInSession?.employeeName || "Employee";
+  const employeeRole = clockInSession?.employeeRole || "Staff";
+  const employeeAvatar = clockInSession?.employeeAvatar || "";
+  const employeeInitials = employeeName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  const clockInTimeFormatted = clockInSession?.loginTime
+    ? format(new Date(clockInSession.loginTime), "h:mm a")
+    : null;
 
   const activeItemId = useMemo(() => {
     const path = location.pathname;
@@ -198,18 +209,20 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
           <div className="bg-surface rounded-2xl overflow-hidden">
             <div className="flex items-center gap-4 p-4">
               <Avatar className="w-14 h-14">
-                <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Jim Hopper" />
-                <AvatarFallback className="bg-muted text-foreground">JH</AvatarFallback>
+                {employeeAvatar && <AvatarImage src={employeeAvatar} alt={employeeName} />}
+                <AvatarFallback className="bg-muted text-foreground">{employeeInitials}</AvatarFallback>
               </Avatar>
               <div className="flex-1">
-                <h2 className="text-lg font-semibold text-foreground">Jim Hopper</h2>
-                <p className="text-sm text-muted-foreground">Executive Assistant Manager</p>
+                <h2 className="text-lg font-semibold text-foreground">{employeeName}</h2>
+                <p className="text-sm text-muted-foreground">{employeeRole}</p>
               </div>
             </div>
             <div className="h-px bg-divider mx-4" />
             <div className="px-4 py-3 flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Clocked In At 10:00 AM</span>
-              <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+              <span className="text-sm text-muted-foreground">
+                {clockInTimeFormatted ? `Clocked In At ${clockInTimeFormatted}` : "Not Clocked In"}
+              </span>
+              {clockInTimeFormatted && <span className="w-2 h-2 rounded-full bg-emerald-500"></span>}
             </div>
           </div>
         </button>
@@ -330,17 +343,19 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
         >
           <div className="flex items-center gap-4">
             <Avatar className="w-12 h-12">
-              <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Jim Hopper" />
-              <AvatarFallback className="bg-muted text-foreground">JH</AvatarFallback>
+              {employeeAvatar && <AvatarImage src={employeeAvatar} alt={employeeName} />}
+              <AvatarFallback className="bg-muted text-foreground">{employeeInitials}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h2 className="text-base font-semibold text-foreground">Jim Hopper</h2>
-              <p className="text-sm text-muted-foreground">Executive Assistant Manager</p>
+              <h2 className="text-base font-semibold text-foreground">{employeeName}</h2>
+              <p className="text-sm text-muted-foreground">{employeeRole}</p>
             </div>
           </div>
           <div className="mt-2 flex items-center gap-2 pl-16">
-            <span className="text-sm text-muted-foreground">Clocked In At 10:00 AM</span>
-            <span className="w-2 h-2 rounded-full bg-orange-500"></span>
+            <span className="text-sm text-muted-foreground">
+              {clockInTimeFormatted ? `Clocked In At ${clockInTimeFormatted}` : "Not Clocked In"}
+            </span>
+            {clockInTimeFormatted && <span className="w-2 h-2 rounded-full bg-emerald-500"></span>}
           </div>
         </button>
 

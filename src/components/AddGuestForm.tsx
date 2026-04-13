@@ -207,12 +207,14 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     const stateZip = (parts[2] || "").split(" ");
     return {
       id: crypto.randomUUID(),
+      label: "Home",
       street: parts[0] || "",
       apt: "",
       city: parts[1] || "",
       state: stateZip[0] || "",
       zip: stateZip[1] || "",
       phone: "",
+      phoneCountry: COUNTRY_CODES[0],
       isEditing: false,
     };
   };

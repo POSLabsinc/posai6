@@ -53,6 +53,10 @@ interface AppearanceContextType {
   setBoldText: (bold: boolean) => void;
   brightness: number;
   setBrightness: (brightness: number) => void;
+  // Theme color
+  themeColor: string;
+  setThemeColor: (c: string) => void;
+  applyThemeColor: (hex: string) => void;
   // Advanced customization
   selectionColor: string;
   setSelectionColor: (c: string) => void;

@@ -4,18 +4,10 @@ import { useAppearance, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SP
 import { toast } from "@/hooks/use-toast";
 
 const PRESET_COLORS = [
-  { label: "Orange", hex: "#F97316" },
-  { label: "Blue", hex: "#3B82F6" },
-  { label: "Green", hex: "#22C55E" },
-  { label: "Purple", hex: "#8B5CF6" },
-  { label: "Red", hex: "#EF4444" },
-  { label: "Pink", hex: "#EC4899" },
-  { label: "Teal", hex: "#14B8A6" },
-  { label: "Amber", hex: "#F59E0B" },
-  { label: "Indigo", hex: "#6366F1" },
-  { label: "Cyan", hex: "#06B6D4" },
-  { label: "Rose", hex: "#F43F5E" },
-  { label: "Emerald", hex: "#10B981" },
+  "#F97316", "#FF6B35", "#E85D04", "#EF4444", "#F43F5E", "#DC2626",
+  "#FF0040", "#EC4899", "#D946EF", "#A855F7", "#8B5CF6", "#7C3AED",
+  "#6366F1", "#4F46E5", "#3B82F6", "#2563EB", "#0EA5E9", "#06B6D4",
+  "#14B8A6", "#10B981", "#22C55E", "#84CC16", "#F59E0B", "#FBBF24",
 ];
 
 interface SavedTheme {
@@ -61,6 +53,7 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
   const handlePresetSelect = (hex: string) => {
     setThemeColor(hex);
     applyThemeColor(hex);
+    setCustomPickerColor(hex);
     toast({ title: "Theme applied", description: `Theme color set to ${hex}` });
   };
 
@@ -121,60 +114,55 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
   ];
 
   return (
-    <div className="space-y-6">
-      {showHeader && (
-        <div className="flex items-center gap-3 mb-2">
-          <button
-            type="button"
-            onClick={onBack}
-            className="w-9 h-9 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <ChevronLeft className="w-4 h-4 text-foreground" />
-          </button>
-          <h1 className="text-base font-medium text-foreground">Theme Color</h1>
-        </div>
-      )}
-      {/* Current Theme Indicator */}
+    <div className="space-y-5">
+      {/* Header - consistent with other sub-screens */}
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={onBack}
+          className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+        >
+          <ChevronLeft className="w-4 h-4 text-foreground" />
+        </button>
+        <h1 className="text-base font-medium text-foreground">Theme Color</h1>
+      </div>
+
+      {/* Active Theme Indicator */}
       {themeColor && (
-        <div className="bg-neutral-800/60 rounded-2xl p-4 flex items-center gap-4">
+        <div className="bg-neutral-800/60 rounded-2xl p-4 flex items-center gap-3">
           <div
-            className="w-12 h-12 rounded-xl border-2 border-neutral-600"
+            className="w-10 h-10 rounded-xl border-2 border-neutral-600"
             style={{ backgroundColor: themeColor }}
           />
-          <div className="flex-1">
+          <div className="flex-1 min-w-0">
             <p className="text-sm font-medium text-foreground">Active Theme</p>
-            <p className="text-xs text-neutral-400 font-mono uppercase">{themeColor}</p>
+            <p className="text-[11px] text-neutral-400 font-mono uppercase">{themeColor}</p>
           </div>
-          <Check className="w-5 h-5 text-emerald-400" />
+          <Check className="w-4 h-4 text-emerald-400" />
         </div>
       )}
 
       {/* Preset Colors */}
       <div>
         <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Preset Colors</p>
-        <div className="bg-neutral-800/60 rounded-2xl p-4">
-          <div className="grid grid-cols-6 gap-3">
-            {PRESET_COLORS.map((preset) => (
+        <div className="bg-neutral-800/60 rounded-2xl p-3">
+          <div className="grid grid-cols-8 gap-2">
+            {PRESET_COLORS.map((hex) => (
               <button
-                key={preset.hex}
-                onClick={() => handlePresetSelect(preset.hex)}
-                className="flex flex-col items-center gap-1.5 group"
+                key={hex}
+                onClick={() => handlePresetSelect(hex)}
+                className="aspect-square rounded-lg border-2 transition-all relative"
+                style={{
+                  backgroundColor: hex,
+                  borderColor: themeColor === hex ? '#ffffff' : 'transparent',
+                  transform: themeColor === hex ? 'scale(1.1)' : 'scale(1)',
+                }}
               >
-                <div
-                  className={`w-10 h-10 rounded-xl border-2 transition-all ${
-                    themeColor === preset.hex
-                      ? "border-white scale-110 shadow-lg"
-                      : "border-neutral-600 hover:border-neutral-400 hover:scale-105"
-                  }`}
-                  style={{ backgroundColor: preset.hex }}
-                >
-                  {themeColor === preset.hex && (
-                    <div className="w-full h-full flex items-center justify-center">
-                      <Check className="w-4 h-4 text-white drop-shadow" />
-                    </div>
-                  )}
-                </div>
-                <span className="text-[10px] text-neutral-400 group-hover:text-neutral-300">{preset.label}</span>
+                {themeColor === hex && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Check className="w-3.5 h-3.5 text-white drop-shadow" />
+                  </div>
+                )}
               </button>
             ))}
           </div>
@@ -186,7 +174,7 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
         <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Custom Color</p>
         <div className="bg-neutral-800/60 rounded-2xl p-4">
           <div className="flex items-center gap-4">
-            <div className="relative w-12 h-12 rounded-xl overflow-hidden border-2 border-neutral-600 cursor-pointer flex-shrink-0">
+            <div className="relative w-10 h-10 rounded-xl overflow-hidden border-2 border-neutral-600 cursor-pointer flex-shrink-0">
               <input
                 type="color"
                 value={customPickerColor}
@@ -196,7 +184,6 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
               <div className="w-full h-full" style={{ backgroundColor: customPickerColor }} />
             </div>
             <div className="flex-1">
-              <p className="text-sm font-medium text-foreground mb-1">Pick a color</p>
               <input
                 type="text"
                 value={customPickerColor}
@@ -206,7 +193,7 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
                   handleCustomColor(val);
                 }}
                 maxLength={7}
-                className="w-[100px] text-xs bg-neutral-700/50 border border-neutral-600 rounded-lg px-2 py-1.5 text-foreground font-mono text-center uppercase"
+                className="w-[90px] text-xs bg-neutral-700/50 border border-neutral-600 rounded-lg px-2 py-1.5 text-foreground font-mono text-center uppercase"
                 placeholder="#000000"
               />
             </div>
@@ -226,48 +213,36 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {derivedColors.map((item, idx) => (
             <div key={item.label}>
-              <div className="flex items-center justify-between py-3 px-5">
+              <div className="flex items-center justify-between py-2.5 px-4">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground">{item.label}</p>
-                  <p className="text-xs text-neutral-500">{item.description}</p>
+                  <p className="text-[11px] text-neutral-500">{item.description}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <div
-                    className="w-8 h-8 rounded-lg border-2 border-neutral-600"
+                    className="w-7 h-7 rounded-lg border border-neutral-600"
                     style={{ backgroundColor: item.value.startsWith('#') ? item.value : '#000000' }}
                   />
-                  <span className="text-xs text-neutral-400 font-mono uppercase w-[70px] text-center">
+                  <span className="text-[11px] text-neutral-400 font-mono uppercase w-[65px] text-center">
                     {item.value.startsWith('#') ? item.value : 'Default'}
                   </span>
                 </div>
               </div>
-              {idx < derivedColors.length - 1 && <div className="h-px bg-neutral-700/50 mx-5" />}
+              {idx < derivedColors.length - 1 && <div className="h-px bg-neutral-700/50 mx-4" />}
             </div>
           ))}
         </div>
-        <p className="text-xs text-neutral-500 mt-2 px-1">
-          These colors are derived from your theme. You can override them individually in Advanced Customization.
+        <p className="text-[11px] text-neutral-500 mt-1.5 px-1">
+          Colors derived from your theme. Override individually in Advanced Customization.
         </p>
       </div>
 
       {/* Saved Themes */}
       <div>
-        <div className="flex items-center justify-between mb-2 px-1">
-          <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Saved Themes</p>
-          {!showSaveInput && (
-            <button
-              onClick={() => setShowSaveInput(true)}
-              className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-foreground transition-colors px-3 py-1.5 rounded-lg bg-neutral-800/60 hover:bg-neutral-700/60"
-            >
-              <Save className="w-3 h-3" />
-              Save Current
-            </button>
-          )}
-        </div>
+        <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Saved Themes</p>
 
         {showSaveInput && (
           <div className="bg-neutral-800/60 rounded-2xl p-4 mb-3">
-            <p className="text-sm font-medium text-foreground mb-2">Save current theme</p>
             <div className="flex items-center gap-3">
               <input
                 type="text"
@@ -295,54 +270,63 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
 
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {savedThemes.length === 0 ? (
-            <div className="py-8 flex flex-col items-center gap-2">
-              <Palette className="w-6 h-6 text-neutral-600" />
-              <p className="text-xs text-neutral-500">No saved themes yet</p>
+            <div className="py-6 flex flex-col items-center gap-1.5">
+              <Palette className="w-5 h-5 text-neutral-600" />
+              <p className="text-[11px] text-neutral-500">No saved themes yet</p>
             </div>
           ) : (
             savedThemes.map((theme, idx) => (
               <div key={theme.id}>
-                <div className="flex items-center justify-between py-3 px-5">
+                <div className="flex items-center justify-between py-2.5 px-4">
                   <button
                     onClick={() => handleLoadTheme(theme)}
                     className="flex items-center gap-3 flex-1 min-w-0 text-left"
                   >
                     <div
-                      className="w-8 h-8 rounded-lg border-2 border-neutral-600 flex-shrink-0"
+                      className="w-7 h-7 rounded-lg border border-neutral-600 flex-shrink-0"
                       style={{ backgroundColor: theme.themeColor }}
                     />
                     <div className="min-w-0">
                       <p className="text-sm font-medium text-foreground truncate">{theme.name}</p>
-                      <p className="text-xs text-neutral-500 font-mono uppercase">{theme.themeColor}</p>
+                      <p className="text-[11px] text-neutral-500 font-mono uppercase">{theme.themeColor}</p>
                     </div>
                   </button>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     {themeColor === theme.themeColor && (
-                      <Check className="w-4 h-4 text-emerald-400" />
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
                     )}
                     <button
                       onClick={() => handleDeleteTheme(theme.id)}
-                      className="w-7 h-7 rounded-lg flex items-center justify-center hover:bg-neutral-700/50 transition-colors"
+                      className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-neutral-700/50 transition-colors"
                     >
-                      <Trash2 className="w-3.5 h-3.5 text-neutral-500 hover:text-red-400" />
+                      <Trash2 className="w-3 h-3 text-neutral-500 hover:text-red-400" />
                     </button>
                   </div>
                 </div>
-                {idx < savedThemes.length - 1 && <div className="h-px bg-neutral-700/50 mx-5" />}
+                {idx < savedThemes.length - 1 && <div className="h-px bg-neutral-700/50 mx-4" />}
               </div>
             ))
           )}
         </div>
       </div>
 
-      {/* Use Default Theme */}
-      <button
-        onClick={handleResetDefault}
-        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors"
-      >
-        <RotateCcw className="w-4 h-4" />
-        Use Default Theme
-      </button>
+      {/* Action Buttons - side by side */}
+      <div className="flex items-center gap-3">
+        <button
+          onClick={handleResetDefault}
+          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors"
+        >
+          <RotateCcw className="w-3.5 h-3.5" />
+          Use Default Theme
+        </button>
+        <button
+          onClick={() => setShowSaveInput(true)}
+          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
+        >
+          <Save className="w-3.5 h-3.5" />
+          Save Current Theme
+        </button>
+      </div>
     </div>
   );
 }

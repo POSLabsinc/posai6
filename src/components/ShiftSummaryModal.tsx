@@ -615,18 +615,131 @@ export default function ShiftSummaryModal({
     );
   }
 
+  // Mobile filter bottom sheet
+  const renderFilterSheet = () => {
+    if (!showFilterSheet) return null;
+    return (
+      <div className="fixed inset-0 z-[10001] flex items-end justify-center">
+        <div className="absolute inset-0 bg-black/60" onClick={() => { setShowFilterSheet(false); setFilterSheetView("main"); }} />
+        <div className="relative z-10 w-full rounded-t-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden max-h-[70vh] flex flex-col">
+          <div className="flex justify-center pt-2 pb-1 shrink-0">
+            <div className="w-10 h-1 rounded-full bg-white/20" />
+          </div>
+
+          {filterSheetView === "main" ? (
+            <>
+              <div className="px-5 py-4 border-b border-white/10 shrink-0">
+                <h3 className="text-lg font-bold text-white text-center">Filters</h3>
+              </div>
+              <div className="flex-1 overflow-auto">
+                <button onClick={() => setFilterSheetView("revenue")} className="w-full flex items-center justify-between px-5 py-4 border-b border-white/5 active:bg-white/5">
+                  <span className="text-[15px] text-white">Revenue Center</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[15px] text-neutral-400">{filterRevenueCenter || "All"}</span>
+                    <ChevronRight className="w-4 h-4 text-neutral-500" />
+                  </div>
+                </button>
+                <button onClick={() => setFilterSheetView("date")} className="w-full flex items-center justify-between px-5 py-4 border-b border-white/5 active:bg-white/5">
+                  <span className="text-[15px] text-white">Date</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[15px] text-neutral-400">{activePreset === "today" ? "Today" : activePreset === "yesterday" ? "Yesterday" : activePreset === "custom" ? formatDateDisplay(filterDateFrom) : activePreset}</span>
+                    <ChevronRight className="w-4 h-4 text-neutral-500" />
+                  </div>
+                </button>
+                <button onClick={() => setFilterSheetView("employee")} className="w-full flex items-center justify-between px-5 py-4 border-b border-white/5 active:bg-white/5">
+                  <span className="text-[15px] text-white">Employee</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[15px] text-neutral-400">{filterEmployee || "All"}</span>
+                    <ChevronRight className="w-4 h-4 text-neutral-500" />
+                  </div>
+                </button>
+                <button onClick={() => setFilterSheetView("time")} className="w-full flex items-center justify-between px-5 py-4 border-b border-white/5 active:bg-white/5">
+                  <span className="text-[15px] text-white">Time Range</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[15px] text-neutral-400">{filterTimeFrom} - {filterTimeTo}</span>
+                    <ChevronRight className="w-4 h-4 text-neutral-500" />
+                  </div>
+                </button>
+              </div>
+              <div className="px-5 py-4 shrink-0 border-t border-white/10">
+                <button onClick={() => { setShowFilterSheet(false); setFilterSheetView("main"); }} className="w-full py-3.5 bg-white text-black font-semibold rounded-xl text-[15px]">Apply</button>
+              </div>
+            </>
+          ) : filterSheetView === "revenue" ? (
+            <>
+              <div className="flex items-center px-5 py-4 border-b border-white/10 shrink-0">
+                <button onClick={() => setFilterSheetView("main")} className="mr-3"><ChevronLeft className="w-5 h-5 text-white" /></button>
+                <h3 className="text-lg font-bold text-white">Revenue Center</h3>
+              </div>
+              <div className="flex-1 overflow-auto px-3 py-2">
+                <button onClick={() => setFilterRevenueCenter(null)} className={`w-full text-left px-4 py-3 rounded-xl text-[15px] mb-1 ${!filterRevenueCenter ? 'bg-white text-black font-semibold' : 'text-white active:bg-white/10'}`}>All</button>
+                {REVENUE_CENTERS.map(rc => (
+                  <button key={rc} onClick={() => setFilterRevenueCenter(rc)} className={`w-full text-left px-4 py-3 rounded-xl text-[15px] mb-1 ${filterRevenueCenter === rc ? 'bg-white text-black font-semibold' : 'text-white active:bg-white/10'}`}>{rc}</button>
+                ))}
+              </div>
+            </>
+          ) : filterSheetView === "date" ? (
+            <>
+              <div className="flex items-center px-5 py-4 border-b border-white/10 shrink-0">
+                <button onClick={() => setFilterSheetView("main")} className="mr-3"><ChevronLeft className="w-5 h-5 text-white" /></button>
+                <h3 className="text-lg font-bold text-white">Date</h3>
+              </div>
+              <div className="flex-1 overflow-auto px-3 py-2">
+                {DATE_PRESETS.map(p => (
+                  <button key={p.key} onClick={() => { handlePresetSelect(p.key); if (p.key !== "custom") setFilterSheetView("main"); }} className={`w-full text-left px-4 py-3 rounded-xl text-[15px] mb-1 ${activePreset === p.key ? 'bg-white text-black font-semibold' : 'text-white active:bg-white/10'}`}>{p.label}</button>
+                ))}
+                {activePreset === "custom" && (
+                  <div className="mt-2">
+                    <CalendarComponent mode="single" selected={filterDateFrom} onSelect={(d) => { if (d) { setFilterDateFrom(d); setFilterDateTo(d); } }} className="pointer-events-auto bg-neutral-800 text-white rounded-xl" />
+                  </div>
+                )}
+              </div>
+            </>
+          ) : filterSheetView === "employee" ? (
+            <>
+              <div className="flex items-center px-5 py-4 border-b border-white/10 shrink-0">
+                <button onClick={() => setFilterSheetView("main")} className="mr-3"><ChevronLeft className="w-5 h-5 text-white" /></button>
+                <h3 className="text-lg font-bold text-white">Employee</h3>
+              </div>
+              <div className="flex-1 overflow-auto px-3 py-2">
+                <button onClick={() => { setFilterEmployee(null); setFilterSheetView("main"); }} className={`w-full text-left px-4 py-3 rounded-xl text-[15px] mb-1 ${!filterEmployee ? 'bg-white text-black font-semibold' : 'text-white active:bg-white/10'}`}>All Employees</button>
+                {employees.map(e => (
+                  <button key={e} onClick={() => { setFilterEmployee(e); setFilterSheetView("main"); }} className={`w-full text-left px-4 py-3 rounded-xl text-[15px] mb-1 ${filterEmployee === e ? 'bg-white text-black font-semibold' : 'text-white active:bg-white/10'}`}>{e}</button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center px-5 py-4 border-b border-white/10 shrink-0">
+                <button onClick={() => setFilterSheetView("main")} className="mr-3"><ChevronLeft className="w-5 h-5 text-white" /></button>
+                <h3 className="text-lg font-bold text-white">Time Range</h3>
+              </div>
+              <div className="flex-1 overflow-auto px-5 py-4 space-y-4">
+                <div className="relative">
+                  <label className="text-sm text-neutral-400 mb-2 block">From</label>
+                  <button onClick={() => { setShowTimeFromPicker(!showTimeFromPicker); setShowTimeToPicker(false); }} className="w-full text-left px-4 py-3 bg-neutral-800 rounded-xl text-[15px] text-white">{filterTimeFrom}</button>
+                  <OverlayTimePicker isOpen={showTimeFromPicker} onClose={() => setShowTimeFromPicker(false)} selectedTime={filterTimeFrom} onTimeChange={(t) => { setFilterTimeFrom(t); setShowTimeFromPicker(false); }} />
+                </div>
+                <div className="relative">
+                  <label className="text-sm text-neutral-400 mb-2 block">To</label>
+                  <button onClick={() => { setShowTimeToPicker(!showTimeToPicker); setShowTimeFromPicker(false); }} className="w-full text-left px-4 py-3 bg-neutral-800 rounded-xl text-[15px] text-white">{filterTimeTo}</button>
+                  <OverlayTimePicker isOpen={showTimeToPicker} onClose={() => setShowTimeToPicker(false)} selectedTime={filterTimeTo} onTimeChange={(t) => { setFilterTimeTo(t); setShowTimeToPicker(false); }} />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className={`relative z-10 bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col
-        w-full max-h-[95vh] rounded-t-2xl
+        w-full h-full md:h-auto
         md:w-[960px] md:max-h-[92vh] md:rounded-2xl`}
       >
-        {/* Mobile drag indicator */}
-        <div className="flex justify-center pt-2 pb-1 md:hidden shrink-0">
-          <div className="w-10 h-1 rounded-full bg-white/20" />
-        </div>
-
         {/* Header */}
         <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-2.5 md:gap-3 min-w-0 flex-1">
@@ -644,91 +757,109 @@ export default function ShiftSummaryModal({
                 </div>
               </div>
               <p className="text-xs md:text-sm text-neutral-400 truncate">{employeeName} - {employeeRole}</p>
-              {/* Mobile shift time */}
-              <div className="flex md:hidden items-center gap-1 text-[11px] text-neutral-500 mt-0.5">
-                <Clock className="w-3 h-3" />
-                <span>{clockInTime || "--:--"} - now | {totalHours || "0.0"}h</span>
+              {/* Mobile shift time - larger font */}
+              <div className="flex md:hidden items-center gap-1.5 text-sm text-neutral-400 mt-0.5">
+                <Clock className="w-3.5 h-3.5" />
+                <span className="font-medium">{clockInTime || "--:--"} - now</span>
+                <span className="mx-0.5 text-neutral-600">|</span>
+                <span className="font-semibold text-white">{totalHours || "0.0"}h</span>
               </div>
             </div>
           </div>
 
-          {/* Action buttons - scrollable on mobile */}
-          <div className="flex items-center gap-1 md:gap-1.5 shrink-0 overflow-x-auto ml-2">
-            {/* Revenue Center */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className={`p-2 md:p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${filterRevenueCenter ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
-                  <DollarSign className="w-4 h-4 md:w-[18px] md:h-[18px] text-white" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
-                <div className="text-xs text-white/50 mb-2 px-2">Revenue Center</div>
-                {REVENUE_CENTERS.map(rc => (
-                  <button key={rc} onClick={() => setFilterRevenueCenter(filterRevenueCenter === rc ? null : rc)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterRevenueCenter === rc ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{rc}</button>
-                ))}
-              </PopoverContent>
-            </Popover>
+          {/* Action buttons */}
+          <div className="flex items-center gap-1 md:gap-1.5 shrink-0 ml-2">
+            {/* Mobile: single filter icon */}
+            {isMobile && (
+              <button
+                onClick={() => { setShowFilterSheet(true); setFilterSheetView("main"); }}
+                className={`p-2 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${hasActiveFilters ? 'ring-2 ring-white/50' : ''}`}
+                style={{ background: "rgba(100, 100, 100, 0.4)" }}
+              >
+                <SlidersHorizontal className="w-4 h-4 text-white" />
+              </button>
+            )}
 
-            {/* Date/Calendar */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className={`p-2 md:p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${activePreset !== "today" ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
-                  <Calendar className="w-4 h-4 md:w-[18px] md:h-[18px] text-white" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
-                <div className="p-2 border-b border-white/10">
-                  <div className="grid grid-cols-3 gap-1">
-                    {DATE_PRESETS.map(p => (
-                      <button key={p.key} onClick={() => handlePresetSelect(p.key)} className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activePreset === p.key ? "bg-white text-black" : "text-white hover:bg-white/10"}`}>{p.label}</button>
+            {/* Desktop: individual filter icons */}
+            {!isMobile && (
+              <>
+                {/* Revenue Center */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${filterRevenueCenter ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                      <DollarSign className="w-[18px] h-[18px] text-white" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
+                    <div className="text-xs text-white/50 mb-2 px-2">Revenue Center</div>
+                    {REVENUE_CENTERS.map(rc => (
+                      <button key={rc} onClick={() => setFilterRevenueCenter(filterRevenueCenter === rc ? null : rc)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterRevenueCenter === rc ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{rc}</button>
                     ))}
-                  </div>
-                </div>
-                {activePreset === "custom" && (
-                  <CalendarComponent mode="single" selected={filterDateFrom} onSelect={(d) => { if (d) { setFilterDateFrom(d); setFilterDateTo(d); } }} className="pointer-events-auto bg-neutral-800 text-white" />
-                )}
-              </PopoverContent>
-            </Popover>
+                  </PopoverContent>
+                </Popover>
 
-            {/* Time Filter */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className={`p-2 md:p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${(filterTimeFrom !== "00:00" || filterTimeTo !== "23:59") ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
-                  <Clock className="w-4 h-4 md:w-[18px] md:h-[18px] text-white" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 p-3 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
-                <div className="text-xs text-white/50 mb-3 px-1">Time Range</div>
-                <div className="space-y-3">
-                  <div className="relative">
-                    <label className="text-xs text-neutral-400 mb-1 block">From</label>
-                    <button onClick={() => { setShowTimeFromPicker(!showTimeFromPicker); setShowTimeToPicker(false); }} className="w-full text-left px-3 py-2 bg-neutral-700 rounded-lg text-sm text-white hover:bg-neutral-600 transition-colors">{filterTimeFrom}</button>
-                    <OverlayTimePicker isOpen={showTimeFromPicker} onClose={() => setShowTimeFromPicker(false)} selectedTime={filterTimeFrom} onTimeChange={(t) => { setFilterTimeFrom(t); setShowTimeFromPicker(false); }} />
-                  </div>
-                  <div className="relative">
-                    <label className="text-xs text-neutral-400 mb-1 block">To</label>
-                    <button onClick={() => { setShowTimeToPicker(!showTimeToPicker); setShowTimeFromPicker(false); }} className="w-full text-left px-3 py-2 bg-neutral-700 rounded-lg text-sm text-white hover:bg-neutral-600 transition-colors">{filterTimeTo}</button>
-                    <OverlayTimePicker isOpen={showTimeToPicker} onClose={() => setShowTimeToPicker(false)} selectedTime={filterTimeTo} onTimeChange={(t) => { setFilterTimeTo(t); setShowTimeToPicker(false); }} />
-                  </div>
-                </div>
-              </PopoverContent>
-            </Popover>
+                {/* Date/Calendar */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${activePreset !== "today" ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                      <Calendar className="w-[18px] h-[18px] text-white" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
+                    <div className="p-2 border-b border-white/10">
+                      <div className="grid grid-cols-3 gap-1">
+                        {DATE_PRESETS.map(p => (
+                          <button key={p.key} onClick={() => handlePresetSelect(p.key)} className={`px-3 py-2 rounded-lg text-xs font-medium transition-colors ${activePreset === p.key ? "bg-white text-black" : "text-white hover:bg-white/10"}`}>{p.label}</button>
+                        ))}
+                      </div>
+                    </div>
+                    {activePreset === "custom" && (
+                      <CalendarComponent mode="single" selected={filterDateFrom} onSelect={(d) => { if (d) { setFilterDateFrom(d); setFilterDateTo(d); } }} className="pointer-events-auto bg-neutral-800 text-white" />
+                    )}
+                  </PopoverContent>
+                </Popover>
 
-            {/* Employee */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <button className={`p-2 md:p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${filterEmployee ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
-                  <Users className="w-4 h-4 md:w-[18px] md:h-[18px] text-white" />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000] max-h-[280px] overflow-y-auto" align="end">
-                <div className="text-xs text-white/50 mb-2 px-2">Employee</div>
-                <button onClick={() => setFilterEmployee(null)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${!filterEmployee ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>All Employees</button>
-                {employees.map(e => (
-                  <button key={e} onClick={() => setFilterEmployee(filterEmployee === e ? null : e)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterEmployee === e ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{e}</button>
-                ))}
-              </PopoverContent>
-            </Popover>
+                {/* Time Filter */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${(filterTimeFrom !== "00:00" || filterTimeTo !== "23:59") ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                      <Clock className="w-[18px] h-[18px] text-white" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-56 p-3 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
+                    <div className="text-xs text-white/50 mb-3 px-1">Time Range</div>
+                    <div className="space-y-3">
+                      <div className="relative">
+                        <label className="text-xs text-neutral-400 mb-1 block">From</label>
+                        <button onClick={() => { setShowTimeFromPicker(!showTimeFromPicker); setShowTimeToPicker(false); }} className="w-full text-left px-3 py-2 bg-neutral-700 rounded-lg text-sm text-white hover:bg-neutral-600 transition-colors">{filterTimeFrom}</button>
+                        <OverlayTimePicker isOpen={showTimeFromPicker} onClose={() => setShowTimeFromPicker(false)} selectedTime={filterTimeFrom} onTimeChange={(t) => { setFilterTimeFrom(t); setShowTimeFromPicker(false); }} />
+                      </div>
+                      <div className="relative">
+                        <label className="text-xs text-neutral-400 mb-1 block">To</label>
+                        <button onClick={() => { setShowTimeToPicker(!showTimeToPicker); setShowTimeFromPicker(false); }} className="w-full text-left px-3 py-2 bg-neutral-700 rounded-lg text-sm text-white hover:bg-neutral-600 transition-colors">{filterTimeTo}</button>
+                        <OverlayTimePicker isOpen={showTimeToPicker} onClose={() => setShowTimeToPicker(false)} selectedTime={filterTimeTo} onTimeChange={(t) => { setFilterTimeTo(t); setShowTimeToPicker(false); }} />
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                {/* Employee */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${filterEmployee ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                      <Users className="w-[18px] h-[18px] text-white" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000] max-h-[280px] overflow-y-auto" align="end">
+                    <div className="text-xs text-white/50 mb-2 px-2">Employee</div>
+                    <button onClick={() => setFilterEmployee(null)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${!filterEmployee ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>All Employees</button>
+                    {employees.map(e => (
+                      <button key={e} onClick={() => setFilterEmployee(filterEmployee === e ? null : e)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterEmployee === e ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{e}</button>
+                    ))}
+                  </PopoverContent>
+                </Popover>
+              </>
+            )}
 
             {/* Share */}
             <Popover>
@@ -870,6 +1001,9 @@ export default function ShiftSummaryModal({
           )}
         </div>
       </div>
+
+      {/* Mobile filter bottom sheet */}
+      {isMobile && renderFilterSheet()}
     </div>
   );
 }

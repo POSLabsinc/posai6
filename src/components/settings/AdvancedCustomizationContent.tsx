@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
-import { RotateCcw, Upload, X, Eye, Palette, MousePointer2, Monitor, PanelTop, Settings2, Image } from "lucide-react";
+import { RotateCcw, Upload, X, Eye, Palette, MousePointer2, Monitor, PanelTop, Settings2, Image, ChevronRight } from "lucide-react";
 import { useAppearance, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SPLASH_BG_COLOR, DEFAULT_TOP_BAR_COLOR, DEFAULT_SETTINGS_ICON_COLOR } from "@/contexts/AppearanceContext";
 import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface ColorFieldProps {
   label: string;
@@ -92,7 +93,9 @@ const ACCEPTED_IMAGE_TYPES = ['image/png', 'image/jpeg', 'image/webp', 'image/sv
 const MAX_FILE_SIZE = 2 * 1024 * 1024; // 2MB
 
 export default function AdvancedCustomizationContent() {
+  const navigate = useNavigate();
   const {
+    themeColor,
     selectionColor, setSelectionColor,
     hoverColor, setHoverColor,
     splashBgColor, setSplashBgColor,
@@ -152,6 +155,36 @@ export default function AdvancedCustomizationContent() {
           <RotateCcw className="w-3 h-3" />
           Reset All
         </button>
+      </div>
+
+      {/* Theme Color - Top Level Option */}
+      <div>
+        <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Theme</p>
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          <button
+            onClick={() => navigate('/settings/system/appearance/theme-color')}
+            className="flex items-center justify-between w-full py-3.5 px-5 active:opacity-70 transition-opacity"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-neutral-700/50 flex-shrink-0">
+                <Palette className="w-4 h-4 text-neutral-300" />
+              </div>
+              <div className="text-left">
+                <p className="text-sm font-medium text-foreground">Theme Color</p>
+                <p className="text-xs text-neutral-500">Set the primary color for the entire app</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {themeColor && (
+                <div
+                  className="w-6 h-6 rounded-md border border-neutral-600"
+                  style={{ backgroundColor: themeColor }}
+                />
+              )}
+              <ChevronRight className="w-5 h-5 text-neutral-500" />
+            </div>
+          </button>
+        </div>
       </div>
 
       {/* Interactive Colors */}

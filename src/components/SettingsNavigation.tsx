@@ -4,6 +4,8 @@ import { Search, Mic, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContext";
+import { useDeviceAuth } from "@/hooks/useDeviceAuth";
+import { format } from "date-fns";
 
 // Import custom icons
 import systemIcon from "@/assets/icons/settings-system.png";

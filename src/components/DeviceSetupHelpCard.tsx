@@ -181,22 +181,14 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
                   {/* Helper note */}
                   {current.helperNote && renderHelperNote(current.helperNote.icon, current.helperNote.text)}
 
-                  {/* CTAs */}
-                  <div className="flex items-center gap-2.5 sm:gap-3 pt-1 sm:pt-2">
+                  {/* CTA */}
+                  <div className="pt-1 sm:pt-2">
                     <button
                       onClick={handleClose}
-                      className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl bg-primary text-primary-foreground text-xs sm:text-sm font-semibold hover:bg-primary/90 transition-colors"
+                      className="w-full py-3 sm:py-3.5 rounded-xl bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
                     >
-                      {current.ctas.primary}
+                      Got it
                     </button>
-                    {current.ctas.secondary && (
-                      <button
-                        onClick={handleClose}
-                        className="px-5 sm:px-6 py-2 sm:py-2.5 rounded-xl border border-foreground/10 bg-foreground/[0.03] text-xs sm:text-sm font-medium text-foreground/60 hover:bg-foreground/[0.06] transition-colors"
-                      >
-                        {current.ctas.secondary}
-                      </button>
-                    )}
                   </div>
                 </motion.div>
               </AnimatePresence>

@@ -88,6 +88,9 @@ const vehicleBrands: Record<string, string[]> = {
 const NOTE_MAX = 250;
 
 const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuestFormProps) => {
+  const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0]);
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [vehicleEditIndex, setVehicleEditIndex] = useState<number | null>(null);
   const [addressSearch, setAddressSearch] = useState("");

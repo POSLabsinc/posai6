@@ -1836,7 +1836,206 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         </div>
       )}
 
-      {/* Messages Area */}
+      {/* Tab Bar for Appearance context */}
+      {isAppearanceContext && (
+        <div className="flex-shrink-0 px-4 pt-2 pb-1 border-b border-neutral-800/50">
+          <div className="flex gap-1 bg-neutral-800/60 rounded-xl p-1">
+            <button
+              onClick={() => setActiveTab('chat')}
+              className={cn(
+                "flex-1 py-2 rounded-lg text-sm font-medium transition-all",
+                activeTab === 'chat'
+                  ? "bg-neutral-700 text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              Chat
+            </button>
+            <button
+              onClick={() => setActiveTab('more')}
+              className={cn(
+                "flex-1 py-2 rounded-lg text-sm font-medium transition-all",
+                activeTab === 'more'
+                  ? "bg-neutral-700 text-foreground shadow-sm"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              More
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* More Tab Content */}
+      {isAppearanceContext && activeTab === 'more' ? (
+        <div className="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-5">
+          {/* Theme Color */}
+          <div>
+            <p className="text-xs font-medium text-muted-foreground mb-2 px-1 uppercase tracking-wider">Theme Color</p>
+            <div className="bg-neutral-800/60 rounded-2xl p-4 space-y-3">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-neutral-700/50 flex-shrink-0">
+                  <Palette className="w-4 h-4 text-neutral-300" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-medium text-foreground">Primary Theme</p>
+                  <p className="text-xs text-muted-foreground">Main color for the entire app</p>
+                </div>
+                <label className="relative cursor-pointer">
+                  <div
+                    className="w-8 h-8 rounded-lg border border-neutral-600 cursor-pointer hover:scale-105 transition-transform"
+                    style={{ backgroundColor: themeColor }}
+                  />
+                  <input
+                    type="color"
+                    value={themeColor}
+                    onChange={(e) => applyThemeColor(e.target.value)}
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                </label>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {['#6366F1', '#8B5CF6', '#EC4899', '#EF4444', '#F97316', '#F59E0B', '#10B981', '#06B6D4', '#3B82F6', '#A855F7'].map((hex) => (
+                  <button
+                    key={hex}
+                    onClick={() => applyThemeColor(hex)}
+                    className={cn(
+                      "w-7 h-7 rounded-lg transition-all hover:scale-110",
+                      themeColor === hex && "ring-2 ring-white ring-offset-1 ring-offset-neutral-900"
+                    )}
+                    style={{ backgroundColor: hex }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Derived Colors */}
+          <div>
+            <p className="text-xs font-medium text-muted-foreground mb-2 px-1 uppercase tracking-wider">Customize Colors</p>
+            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+              {[
+                { label: "Selection Color", value: selectionColor, onChange: setSelectionColor },
+                { label: "Hover Color", value: hoverColor, onChange: setHoverColor },
+                { label: "Top Bar Background", value: topBarColor, onChange: setTopBarColor },
+                { label: "Splash Screen", value: splashBgColor, onChange: setSplashBgColor },
+                { label: "Settings Icon Color", value: settingsIconColor, onChange: setSettingsIconColor },
+              ].map((item, i, arr) => (
+                <div key={item.label}>
+                  <div className="flex items-center justify-between py-3 px-4">
+                    <span className="text-sm text-foreground">{item.label}</span>
+                    <label className="relative cursor-pointer">
+                      <div
+                        className="w-7 h-7 rounded-lg border border-neutral-600 cursor-pointer hover:scale-105 transition-transform"
+                        style={{ backgroundColor: item.value }}
+                      />
+                      <input
+                        type="color"
+                        value={item.value}
+                        onChange={(e) => item.onChange(e.target.value)}
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                      />
+                    </label>
+                  </div>
+                  {i < arr.length - 1 && <div className="h-px bg-neutral-700/50 mx-4" />}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Brand Logo */}
+          <div>
+            <p className="text-xs font-medium text-muted-foreground mb-2 px-1 uppercase tracking-wider">Brand Logo</p>
+            <div className="bg-neutral-800/60 rounded-2xl p-4">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-neutral-700/50 flex-shrink-0">
+                  <Image className="w-4 h-4 text-neutral-300" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-foreground">Brand Logo</p>
+                  <p className="text-xs text-muted-foreground">Shown in sidebar and splash screen</p>
+                </div>
+                {partnerLogoUrl ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-neutral-700/50 flex items-center justify-center overflow-hidden border border-neutral-600">
+                      <img src={partnerLogoUrl} alt="Logo" className="w-7 h-7 object-contain" />
+                    </div>
+                    <button
+                      onClick={() => { setPartnerLogoUrl(''); toast({ title: "Logo removed" }); }}
+                      className="text-xs text-red-400 hover:text-red-300 px-2 py-1 rounded-lg bg-neutral-700/50"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => brandLogoInputRef.current?.click()}
+                    className="flex items-center gap-1.5 text-xs text-neutral-300 hover:text-foreground px-3 py-1.5 rounded-lg bg-neutral-700/50 hover:bg-neutral-600/50 transition-colors"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    Upload
+                  </button>
+                )}
+              </div>
+              <input
+                ref={brandLogoInputRef}
+                type="file"
+                accept=".png,.jpg,.jpeg,.webp,.svg"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  if (file.size > 2 * 1024 * 1024) {
+                    toast({ title: "File too large", description: "Max 2MB.", variant: "destructive" });
+                    return;
+                  }
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    setPartnerLogoUrl(reader.result as string);
+                    toast({ title: "Logo updated" });
+                  };
+                  reader.readAsDataURL(file);
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Quick AI Actions */}
+          <div>
+            <p className="text-xs font-medium text-muted-foreground mb-2 px-1 uppercase tracking-wider">Quick AI Actions</p>
+            <div className="space-y-1.5">
+              {[
+                { label: "Change theme to blue", prompt: "Change the theme color to blue" },
+                { label: "Make it dark purple", prompt: "Set theme color to dark purple" },
+                { label: "Use warm orange tones", prompt: "Change the theme to warm orange" },
+                { label: "Reset to defaults", prompt: "Reset all theme colors to defaults" },
+              ].map((action) => (
+                <button
+                  key={action.label}
+                  onClick={() => { setActiveTab('chat'); handleSendMessage(action.prompt); }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm text-foreground transition-all text-left"
+                >
+                  <Sparkles className="w-4 h-4 text-violet-400 flex-shrink-0" />
+                  {action.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Use Default Theme Button */}
+          <button
+            onClick={() => {
+              resetAdvancedCustomization();
+              toast({ title: "Reset complete", description: "All theme colors reset to defaults." });
+            }}
+            className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Use Default Theme
+          </button>
+        </div>
+      ) : (
+      /* Messages Area */
       <div className="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-4">
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">

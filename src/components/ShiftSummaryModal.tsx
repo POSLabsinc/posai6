@@ -126,6 +126,7 @@ const REVENUE_CENTERS = ["Dine-In", "Take Out", "Delivery", "Drive Thru"];
 export default function ShiftSummaryModal({
   open, onClose, employeeName, employeeRole, clockInTime, clockInDate, totalHours
 }: ShiftSummaryModalProps) {
+  const isMobile = useIsMobile();
   const today = new Date();
   const [filterDateFrom, setFilterDateFrom] = useState(today);
   const [filterDateTo, setFilterDateTo] = useState(today);

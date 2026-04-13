@@ -552,21 +552,37 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
   // Address card component
   const AddressCard = ({ addr }: { addr: AddressEntry }) => {
     if (addr.isEditing) {
+      const addrFields = [
+        { label: "Street", field: "street" as const, value: addr.street, placeholder: "Street address", required: true, hasSuggestions: false },
+        { label: "Apt/Suite", field: "apt" as const, value: addr.apt, placeholder: "Optional", hasSuggestions: false },
+        { label: "City", field: "city" as const, value: addr.city, placeholder: "City", required: true, hasSuggestions: true },
+        { label: "State", field: "state" as const, value: addr.state, placeholder: "State", required: true, hasSuggestions: true },
+        { label: "ZIP", field: "zip" as const, value: addr.zip, placeholder: "ZIP Code", required: true, hasSuggestions: true },
+      ];
       return (
-        <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden p-4 space-y-3">
-          <div className="flex items-center justify-between mb-1">
+        <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden p-4 space-y-1">
+          <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-neutral-500 uppercase">Edit Address</span>
             <button onClick={() => handleSaveAddressEdit(addr.id)} className="text-xs text-primary hover:text-primary/80 font-medium">Done</button>
           </div>
-          {[
-            { label: "Street", field: "street" as const, value: addr.street, placeholder: "Street address", required: true },
-            { label: "Apt/Suite", field: "apt" as const, value: addr.apt, placeholder: "Optional" },
-            { label: "City", field: "city" as const, value: addr.city, placeholder: "City", required: true },
-            { label: "State", field: "state" as const, value: addr.state, placeholder: "State", required: true },
-            { label: "ZIP", field: "zip" as const, value: addr.zip, placeholder: "ZIP Code", required: true },
-            { label: "Phone", field: "phone" as const, value: addr.phone, placeholder: "+1 (XXX) XXX-XXXX" },
-          ].map((f, i) => (
-            <div key={f.field}>
+          {/* Label selector */}
+          <div className="flex items-center gap-2 pb-2">
+            {ADDRESS_LABELS.map(l => (
+              <button
+                key={l}
+                onClick={() => handleUpdateAddress(addr.id, "label", l)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  addr.label === l
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-neutral-100 dark:bg-neutral-700/50 text-neutral-400 hover:text-foreground"
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+          {addrFields.map((f, i) => (
+            <div key={f.field} className="relative">
               {i > 0 && <div className="h-px bg-white/5" />}
               <div className="flex items-center justify-between py-2 min-h-[40px]">
                 <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">
@@ -575,16 +591,83 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                 <input
                   type="text"
                   value={f.value}
-                  onChange={(e) => { e.stopPropagation(); handleUpdateAddress(addr.id, f.field, e.target.value); }}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    handleUpdateAddress(addr.id, f.field, e.target.value);
+                    if (f.hasSuggestions) getAddressFieldSuggestions(addr.id, f.field, e.target.value);
+                  }}
                   onClick={(e) => e.stopPropagation()}
-                  onFocus={(e) => e.stopPropagation()}
+                  onFocus={(e) => {
+                    e.stopPropagation();
+                    if (f.hasSuggestions && f.value) getAddressFieldSuggestions(addr.id, f.field, f.value);
+                  }}
+                  onBlur={() => setTimeout(() => setAddressFieldSuggestions({ id: "", field: "", suggestions: [] }), 200)}
                   placeholder={f.placeholder}
                   className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
                   autoComplete="off"
                 />
               </div>
+              {/* Field suggestions dropdown */}
+              {addressFieldSuggestions.id === addr.id && addressFieldSuggestions.field === f.field && addressFieldSuggestions.suggestions.length > 0 && (
+                <div className="absolute right-0 top-full mt-0.5 bg-neutral-800 rounded-lg border border-white/10 overflow-hidden z-20 shadow-lg min-w-[160px]">
+                  {addressFieldSuggestions.suggestions.map((s) => (
+                    <button
+                      key={s}
+                      onMouseDown={(e) => { e.preventDefault(); selectAddressFieldSuggestion(addr.id, f.field, s); }}
+                      className="block w-full px-3 py-2 text-left text-sm text-foreground hover:bg-white/10 transition-colors"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
+          {/* Phone with country code */}
+          <div className="h-px bg-white/5" />
+          <div className="flex items-center justify-between py-2 min-h-[40px]">
+            <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Phone</span>
+            <div className="flex items-center gap-2 w-full max-w-[60%] justify-end">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-700/50 hover:bg-neutral-200 dark:hover:bg-neutral-600/50 transition-colors text-xs flex-shrink-0"
+                  >
+                    <span className="text-sm leading-none">{addr.phoneCountry?.flag || "🇺🇸"}</span>
+                    <span className="text-[10px] text-neutral-400">{addr.phoneCountry?.code || "+1"}</span>
+                    <ChevronDown className="w-2.5 h-2.5 text-neutral-400" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-52 p-0 bg-neutral-800 border-white/10" align="end">
+                  <div className="max-h-48 overflow-y-auto">
+                    {COUNTRY_CODES.map((c, ci) => (
+                      <button
+                        key={`${c.label}-${ci}`}
+                        onClick={() => handleUpdateAddress(addr.id, "phoneCountry" as any, c as any)}
+                        className={`flex items-center gap-3 w-full px-3 py-2 text-left text-xs hover:bg-white/10 transition-colors ${addr.phoneCountry?.label === c.label ? 'bg-white/5' : ''}`}
+                      >
+                        <span>{c.flag}</span>
+                        <span className="text-foreground">{c.label}</span>
+                        <span className="text-neutral-400 ml-auto">{c.code}</span>
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+              <input
+                type="tel"
+                value={addr.phone}
+                onChange={(e) => { e.stopPropagation(); handleUpdateAddress(addr.id, "phone", e.target.value); }}
+                onClick={(e) => e.stopPropagation()}
+                onFocus={(e) => e.stopPropagation()}
+                placeholder="(XXX) XXX-XXXX"
+                className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full min-w-0"
+                autoComplete="off"
+              />
+            </div>
+          </div>
         </div>
       );
     }
@@ -595,8 +678,13 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
         <div className="flex items-start gap-3">
           <MapPin className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />
           <div className="flex-1 min-w-0">
+            {addr.label && (
+              <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-primary/15 text-primary mb-1">
+                {addr.label}
+              </span>
+            )}
             <p className="text-sm text-foreground leading-relaxed">{displayAddr}</p>
-            {addr.phone && <p className="text-xs text-neutral-400 mt-1">{addr.phone}</p>}
+            {addr.phone && <p className="text-xs text-neutral-400 mt-1">{addr.phoneCountry?.flag} {addr.phoneCountry?.code} {addr.phone}</p>}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button onClick={() => handleEditAddress(addr.id)} className="text-xs text-primary hover:text-primary/80 font-medium">Edit</button>

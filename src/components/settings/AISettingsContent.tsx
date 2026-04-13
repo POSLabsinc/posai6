@@ -413,6 +413,18 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const navigate = useNavigate();
   const { setTheme } = useTheme();
   const { profile, getInitials } = useAuth();
+  const {
+    themeColor, setThemeColor, applyThemeColor,
+    selectionColor, setSelectionColor,
+    hoverColor, setHoverColor,
+    splashBgColor, setSplashBgColor,
+    topBarColor, setTopBarColor,
+    settingsIconColor, setSettingsIconColor,
+    partnerLogoUrl, setPartnerLogoUrl,
+    resetAdvancedCustomization,
+  } = useAppearance();
+  const isAppearanceContext = context === 'system-appearance' || context === 'system-theme-color';
+  const [activeTab, setActiveTab] = useState<'chat' | 'more'>('chat');
   const [messages, setMessages] = useState<Message[]>([]);
   const [conversationHistory, setConversationHistory] = useState<{ role: string; content: string }[]>([]);
   const [inputValue, setInputValue] = useState("");
@@ -429,6 +441,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const brandLogoInputRef = useRef<HTMLInputElement>(null);
 
   // ── Order mode state ──
   const ORDER_INTENT_KEYWORDS = ["create order", "new order", "add product", "place order", "start order", "add to order", "order type", "browse menu", "show menu", "add burger", "add pizza", "add salad", "add drink", "add item"];

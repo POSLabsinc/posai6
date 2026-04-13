@@ -1126,6 +1126,17 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
                 {/* Activation Options */}
                 <div className="w-full flex flex-col gap-2.5">
+                  {/* Active AI option - First */}
+                  <div className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium border border-primary/30 bg-primary/[0.08] text-foreground">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0">
+                      <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Activate with AI</p>
+                      <p className="text-xs text-primary/70">AI-guided setup</p>
+                    </div>
+                  </div>
+
                   <button
                     onClick={() => { setShowAIChat(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium transition-all border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground"
@@ -1164,17 +1175,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <p className="text-xs text-foreground/40">Receive activation code</p>
                     </div>
                   </button>
-
-                  {/* Active AI option */}
-                  <div className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium border border-primary/30 bg-primary/[0.08] text-foreground">
-                    <div className="w-9 h-9 rounded-lg bg-primary/[0.15] flex items-center justify-center shrink-0">
-                      <img src={aiColorfulIcon} alt="AI" className="w-4.5 h-4.5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Activate with AI</p>
-                      <p className="text-xs text-primary/70">AI-guided setup</p>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Footer */}
@@ -7350,6 +7350,17 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
                 {/* Sign-in Options */}
                 <div className="w-full flex flex-col gap-2.5">
+                  {/* Active AI option - First */}
+                  <div className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium border border-primary/30 bg-primary/[0.08] text-foreground">
+                    <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0">
+                      <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium text-foreground">Sign in with AI</p>
+                      <p className="text-xs text-primary/70">AI-guided sign-in</p>
+                    </div>
+                  </div>
+
                   <button
                     onClick={() => { setShowSignInAIChat(false); }}
                     className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium transition-all border border-foreground/[0.08] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground"
@@ -7388,17 +7399,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <p className="text-xs text-foreground/40">Receive sign-in code</p>
                     </div>
                   </button>
-
-                  {/* Active AI option */}
-                  <div className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-left text-sm font-medium border border-primary/30 bg-primary/[0.08] text-foreground">
-                    <div className="w-9 h-9 rounded-lg bg-primary/[0.15] flex items-center justify-center shrink-0">
-                      <img src={aiColorfulIcon} alt="AI" className="w-4.5 h-4.5" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium text-foreground">Sign in with AI</p>
-                      <p className="text-xs text-primary/70">AI-guided sign-in</p>
-                    </div>
-                  </div>
                 </div>
 
                 {/* Footer */}

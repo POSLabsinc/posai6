@@ -7,6 +7,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { OverlayTimePicker } from "@/components/ui/overlay-time-picker";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ShiftAIChatPanel from "@/components/ShiftAIChatPanel";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ShiftSummaryModalProps {
   open: boolean;

@@ -47,6 +47,7 @@ import TimedPricingContent from "@/components/settings/TimedPricingContent";
 import InventoryContent from "@/components/settings/InventoryContent";
 import AddTimedPricingRuleContent from "@/components/settings/AddTimedPricingRuleContent";
 import AISettingsContent from "@/components/settings/AISettingsContent";
+import ThemeColorContent from "@/components/settings/ThemeColorContent";
 import SupportContent from "@/components/settings/SupportContent";
 import FeedbackContent from "@/components/settings/FeedbackContent";
 import SupportContactContent from "@/components/settings/SupportContactContent";
@@ -291,6 +292,9 @@ const getContentForRoute = (
   }
   if (pathname === '/settings/system/theme-presets') {
     return <ThemePresetsContent showHeader={true} onBack={() => navigate('/settings/system/appearance')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/system/appearance/theme-color') {
+    return <ThemeColorContent showHeader={true} onBack={() => navigate('/settings/system/appearance')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/system/fonts') {
     return <FontsContent showHeader={true} onBack={() => navigate('/settings/system/appearance')} onAIClick={() => setShowAIChat(true)} onNavigate={navigate} />;

@@ -77,7 +77,10 @@ export function useScheduledTheme() {
     const next = { ...config, enabled };
     setConfigState(next);
     saveConfig(next);
-    // Don't change theme immediately - just enable/disable the schedule
+    // When disabling schedule, revert to dark theme
+    if (!enabled) {
+      setTheme("dark");
+    }
   };
 
   const setLightStart = (time: string) => {

@@ -31,6 +31,14 @@ const COUNTRY_CODES = [
   { code: "+34", flag: "🇪🇸", label: "ES" },
 ];
 
+const ADDRESS_LABELS = ["Home", "Office", "Work", "Billing", "Shipping", "Other"];
+
+const EMAIL_DOMAINS = ["gmail.com", "hotmail.com", "yahoo.com", "outlook.com", "icloud.com", "aol.com", "protonmail.com", "mail.com", "zoho.com"];
+
+const US_STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"];
+
+const SAMPLE_CITIES = ["New York","Los Angeles","Chicago","Houston","Phoenix","Philadelphia","San Antonio","San Diego","Dallas","San Jose","Austin","Jacksonville","Fort Worth","Columbus","Charlotte","Indianapolis","San Francisco","Seattle","Denver","Washington","Nashville","Oklahoma City","El Paso","Boston","Portland","Las Vegas","Memphis","Louisville","Baltimore","Milwaukee"];
+
 interface AddGuestFormProps {
   onClose: () => void;
   onSave: (guestData: GuestFormData) => void;
@@ -48,12 +56,14 @@ interface VehicleEntry {
 
 interface AddressEntry {
   id: string;
+  label: string;
   street: string;
   apt: string;
   city: string;
   state: string;
   zip: string;
   phone: string;
+  phoneCountry: typeof COUNTRY_CODES[0];
   isEditing?: boolean;
 }
 
@@ -96,6 +106,9 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
   const [addressSearch, setAddressSearch] = useState("");
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
   const [addresses, setAddresses] = useState<AddressEntry[]>([]);
+  const [emailSuggestions, setEmailSuggestions] = useState<string[]>([]);
+  const [showEmailSuggestions, setShowEmailSuggestions] = useState(false);
+  const [addressFieldSuggestions, setAddressFieldSuggestions] = useState<{ id: string; field: string; suggestions: string[] }>({ id: "", field: "", suggestions: [] });
   const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { getIconBgColor } = useAppearance();
@@ -170,10 +183,59 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
       setFormData((prev) => ({ ...prev, [field]: formatPhoneNumber(value) }));
       return;
     }
+    if (field === "email") {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      // Show domain suggestions when user types @ but hasn't completed domain
+      if (value.includes("@")) {
+        const [local, domain] = value.split("@");
+        if (local && (!domain || !domain.includes("."))) {
+          const filtered = EMAIL_DOMAINS.filter(d => !domain || d.startsWith(domain.toLowerCase()));
+          setEmailSuggestions(filtered.map(d => `${local}@${d}`));
+          setShowEmailSuggestions(filtered.length > 0);
+        } else {
+          setShowEmailSuggestions(false);
+        }
+      } else {
+        setShowEmailSuggestions(false);
+      }
+      return;
+    }
     if (field === "note") {
       if (value.length > NOTE_MAX) return;
     }
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const selectEmailSuggestion = (email: string) => {
+    setFormData((prev) => ({ ...prev, email }));
+    setShowEmailSuggestions(false);
+  };
+
+  const getAddressFieldSuggestions = (id: string, field: string, value: string) => {
+    if (!value || value.length < 1) {
+      setAddressFieldSuggestions({ id: "", field: "", suggestions: [] });
+      return;
+    }
+    let suggestions: string[] = [];
+    if (field === "city") {
+      suggestions = SAMPLE_CITIES.filter(c => c.toLowerCase().startsWith(value.toLowerCase())).slice(0, 5);
+    } else if (field === "state") {
+      suggestions = US_STATES.filter(s => s.toLowerCase().startsWith(value.toLowerCase())).slice(0, 5);
+    } else if (field === "zip") {
+      // Common ZIP prefixes
+      const zips = ["10001","10002","10003","90001","90002","60601","60602","77001","77002","85001","19101","78201","92101","75201","95101"];
+      suggestions = zips.filter(z => z.startsWith(value)).slice(0, 5);
+    }
+    if (suggestions.length > 0) {
+      setAddressFieldSuggestions({ id, field, suggestions });
+    } else {
+      setAddressFieldSuggestions({ id: "", field: "", suggestions: [] });
+    }
+  };
+
+  const selectAddressFieldSuggestion = (id: string, field: keyof AddressEntry, value: string) => {
+    handleUpdateAddress(id, field, value);
+    setAddressFieldSuggestions({ id: "", field: "", suggestions: [] });
   };
 
   // Address helpers
@@ -197,12 +259,14 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     const stateZip = (parts[2] || "").split(" ");
     return {
       id: crypto.randomUUID(),
+      label: "Home",
       street: parts[0] || "",
       apt: "",
       city: parts[1] || "",
       state: stateZip[0] || "",
       zip: stateZip[1] || "",
       phone: "",
+      phoneCountry: COUNTRY_CODES[0],
       isEditing: false,
     };
   };
@@ -225,7 +289,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     setAddresses(prev => prev.map(a => a.id === id ? { ...a, isEditing: true } : a));
   };
 
-  const handleUpdateAddress = (id: string, field: keyof AddressEntry, value: string) => {
+  const handleUpdateAddress = (id: string, field: keyof AddressEntry | string, value: any) => {
     setAddresses(prev => {
       const updated = prev.map(a => a.id === id ? { ...a, [field]: value } : a);
       syncAddressToForm(updated);
@@ -488,21 +552,37 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
   // Address card component
   const AddressCard = ({ addr }: { addr: AddressEntry }) => {
     if (addr.isEditing) {
+      const addrFields = [
+        { label: "Street", field: "street" as const, value: addr.street, placeholder: "Street address", required: true, hasSuggestions: false },
+        { label: "Apt/Suite", field: "apt" as const, value: addr.apt, placeholder: "Optional", hasSuggestions: false },
+        { label: "City", field: "city" as const, value: addr.city, placeholder: "City", required: true, hasSuggestions: true },
+        { label: "State", field: "state" as const, value: addr.state, placeholder: "State", required: true, hasSuggestions: true },
+        { label: "ZIP", field: "zip" as const, value: addr.zip, placeholder: "ZIP Code", required: true, hasSuggestions: true },
+      ];
       return (
-        <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden p-4 space-y-3">
-          <div className="flex items-center justify-between mb-1">
+        <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden p-4 space-y-1">
+          <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-neutral-500 uppercase">Edit Address</span>
             <button onClick={() => handleSaveAddressEdit(addr.id)} className="text-xs text-primary hover:text-primary/80 font-medium">Done</button>
           </div>
-          {[
-            { label: "Street", field: "street" as const, value: addr.street, placeholder: "Street address", required: true },
-            { label: "Apt/Suite", field: "apt" as const, value: addr.apt, placeholder: "Optional" },
-            { label: "City", field: "city" as const, value: addr.city, placeholder: "City", required: true },
-            { label: "State", field: "state" as const, value: addr.state, placeholder: "State", required: true },
-            { label: "ZIP", field: "zip" as const, value: addr.zip, placeholder: "ZIP Code", required: true },
-            { label: "Phone", field: "phone" as const, value: addr.phone, placeholder: "+1 (XXX) XXX-XXXX" },
-          ].map((f, i) => (
-            <div key={f.field}>
+          {/* Label selector */}
+          <div className="flex items-center gap-2 pb-2">
+            {ADDRESS_LABELS.map(l => (
+              <button
+                key={l}
+                onClick={() => handleUpdateAddress(addr.id, "label", l)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
+                  addr.label === l
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-neutral-100 dark:bg-neutral-700/50 text-neutral-400 hover:text-foreground"
+                }`}
+              >
+                {l}
+              </button>
+            ))}
+          </div>
+          {addrFields.map((f, i) => (
+            <div key={f.field} className="relative">
               {i > 0 && <div className="h-px bg-white/5" />}
               <div className="flex items-center justify-between py-2 min-h-[40px]">
                 <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">
@@ -511,16 +591,83 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                 <input
                   type="text"
                   value={f.value}
-                  onChange={(e) => { e.stopPropagation(); handleUpdateAddress(addr.id, f.field, e.target.value); }}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    handleUpdateAddress(addr.id, f.field, e.target.value);
+                    if (f.hasSuggestions) getAddressFieldSuggestions(addr.id, f.field, e.target.value);
+                  }}
                   onClick={(e) => e.stopPropagation()}
-                  onFocus={(e) => e.stopPropagation()}
+                  onFocus={(e) => {
+                    e.stopPropagation();
+                    if (f.hasSuggestions && f.value) getAddressFieldSuggestions(addr.id, f.field, f.value);
+                  }}
+                  onBlur={() => setTimeout(() => setAddressFieldSuggestions({ id: "", field: "", suggestions: [] }), 200)}
                   placeholder={f.placeholder}
                   className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
                   autoComplete="off"
                 />
               </div>
+              {/* Field suggestions dropdown */}
+              {addressFieldSuggestions.id === addr.id && addressFieldSuggestions.field === f.field && addressFieldSuggestions.suggestions.length > 0 && (
+                <div className="absolute right-0 top-full mt-0.5 bg-neutral-800 rounded-lg border border-white/10 overflow-hidden z-20 shadow-lg min-w-[160px]">
+                  {addressFieldSuggestions.suggestions.map((s) => (
+                    <button
+                      key={s}
+                      onMouseDown={(e) => { e.preventDefault(); selectAddressFieldSuggestion(addr.id, f.field, s); }}
+                      className="block w-full px-3 py-2 text-left text-sm text-foreground hover:bg-white/10 transition-colors"
+                    >
+                      {s}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           ))}
+          {/* Phone with country code */}
+          <div className="h-px bg-white/5" />
+          <div className="flex items-center justify-between py-2 min-h-[40px]">
+            <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Phone</span>
+            <div className="flex items-center gap-2 w-full max-w-[60%] justify-end">
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    type="button"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex items-center gap-1 px-2 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-700/50 hover:bg-neutral-200 dark:hover:bg-neutral-600/50 transition-colors text-xs flex-shrink-0"
+                  >
+                    <span className="text-sm leading-none">{addr.phoneCountry?.flag || "🇺🇸"}</span>
+                    <span className="text-[10px] text-neutral-400">{addr.phoneCountry?.code || "+1"}</span>
+                    <ChevronDown className="w-2.5 h-2.5 text-neutral-400" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-52 p-0 bg-neutral-800 border-white/10" align="end">
+                  <div className="max-h-48 overflow-y-auto">
+                    {COUNTRY_CODES.map((c, ci) => (
+                      <button
+                        key={`${c.label}-${ci}`}
+                        onClick={() => handleUpdateAddress(addr.id, "phoneCountry" as any, c as any)}
+                        className={`flex items-center gap-3 w-full px-3 py-2 text-left text-xs hover:bg-white/10 transition-colors ${addr.phoneCountry?.label === c.label ? 'bg-white/5' : ''}`}
+                      >
+                        <span>{c.flag}</span>
+                        <span className="text-foreground">{c.label}</span>
+                        <span className="text-neutral-400 ml-auto">{c.code}</span>
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+              <input
+                type="tel"
+                value={addr.phone}
+                onChange={(e) => { e.stopPropagation(); handleUpdateAddress(addr.id, "phone", e.target.value); }}
+                onClick={(e) => e.stopPropagation()}
+                onFocus={(e) => e.stopPropagation()}
+                placeholder="(XXX) XXX-XXXX"
+                className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full min-w-0"
+                autoComplete="off"
+              />
+            </div>
+          </div>
         </div>
       );
     }
@@ -531,8 +678,13 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
         <div className="flex items-start gap-3">
           <MapPin className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />
           <div className="flex-1 min-w-0">
+            {addr.label && (
+              <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-primary/15 text-primary mb-1">
+                {addr.label}
+              </span>
+            )}
             <p className="text-sm text-foreground leading-relaxed">{displayAddr}</p>
-            {addr.phone && <p className="text-xs text-neutral-400 mt-1">{addr.phone}</p>}
+            {addr.phone && <p className="text-xs text-neutral-400 mt-1">{addr.phoneCountry?.flag} {addr.phoneCountry?.code} {addr.phone}</p>}
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button onClick={() => handleEditAddress(addr.id)} className="text-xs text-primary hover:text-primary/80 font-medium">Edit</button>
@@ -706,9 +858,34 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                   </div>
                 </div>
                 <Divider />
-                <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
-                  <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Email <span className="text-red-400">*</span></span>
-                  <input type="email" value={formData.email} onChange={(e) => { e.stopPropagation(); handleInputChange("email", e.target.value); }} onFocus={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} placeholder="email@example.com" className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]" autoComplete="off" />
+                <div className="relative">
+                  <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+                    <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Email <span className="text-red-400">*</span></span>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => { e.stopPropagation(); handleInputChange("email", e.target.value); }}
+                      onFocus={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
+                      onBlur={() => setTimeout(() => setShowEmailSuggestions(false), 200)}
+                      placeholder="email@example.com"
+                      className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
+                      autoComplete="off"
+                    />
+                  </div>
+                  {showEmailSuggestions && emailSuggestions.length > 0 && (
+                    <div className="absolute right-4 top-full mt-0.5 bg-neutral-800 rounded-lg border border-white/10 overflow-hidden z-20 shadow-lg min-w-[220px]">
+                      {emailSuggestions.slice(0, 5).map((s) => (
+                        <button
+                          key={s}
+                          onMouseDown={(e) => { e.preventDefault(); selectEmailSuggestion(s); }}
+                          className="block w-full px-3 py-2 text-left text-sm text-foreground hover:bg-white/10 transition-colors"
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 

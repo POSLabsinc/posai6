@@ -10,6 +10,35 @@ const DEFAULT_HOVER_COLOR = '#1C1C1C';
 const DEFAULT_SPLASH_BG_COLOR = '#131316';
 const DEFAULT_TOP_BAR_COLOR = '#212121';
 const DEFAULT_SETTINGS_ICON_COLOR = '';  // empty = use per-icon defaults
+const DEFAULT_THEME_COLOR = ''; // empty = no theme applied, use individual defaults
+
+// Derive colors from a theme color
+function deriveColorsFromTheme(themeHex: string) {
+  if (!themeHex || !/^#[0-9A-Fa-f]{6}$/.test(themeHex)) return null;
+  const r = parseInt(themeHex.slice(1, 3), 16);
+  const g = parseInt(themeHex.slice(3, 5), 16);
+  const b = parseInt(themeHex.slice(5, 7), 16);
+  // selection = theme color itself
+  const selection = themeHex;
+  // hover = very dark version (10% lightness mix with black)
+  const hoverR = Math.round(r * 0.15);
+  const hoverG = Math.round(g * 0.15);
+  const hoverB = Math.round(b * 0.15);
+  const hover = `#${hoverR.toString(16).padStart(2,'0')}${hoverG.toString(16).padStart(2,'0')}${hoverB.toString(16).padStart(2,'0')}`;
+  // splash = dark version
+  const splashR = Math.round(r * 0.08);
+  const splashG = Math.round(g * 0.08);
+  const splashB = Math.round(b * 0.08);
+  const splash = `#${splashR.toString(16).padStart(2,'0')}${splashG.toString(16).padStart(2,'0')}${splashB.toString(16).padStart(2,'0')}`;
+  // topBar = slightly dark version
+  const topR = Math.round(r * 0.2);
+  const topG = Math.round(g * 0.2);
+  const topB = Math.round(b * 0.2);
+  const topBar = `#${topR.toString(16).padStart(2,'0')}${topG.toString(16).padStart(2,'0')}${topB.toString(16).padStart(2,'0')}`;
+  // settingsIcon = theme color
+  const settingsIcon = themeHex;
+  return { selection, hover, splash, topBar, settingsIcon };
+}
 
 interface AppearanceContextType {
   iconStyle: IconStyle;

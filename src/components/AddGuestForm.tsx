@@ -27,13 +27,15 @@ interface VehicleEntry {
   licensePlate: string;
 }
 
-interface AddressData {
+interface AddressEntry {
+  id: string;
   street: string;
   apt: string;
   city: string;
   state: string;
   zip: string;
   phone: string;
+  isEditing?: boolean;
 }
 
 interface GuestFormData {
@@ -68,7 +70,10 @@ const NOTE_MAX = 250;
 
 const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuestFormProps) => {
   const [showVehicleDetails, setShowVehicleDetails] = useState(false);
-  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [showAddressSection, setShowAddressSection] = useState(false);
+  const [addressSearch, setAddressSearch] = useState("");
+  const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
+  const [addresses, setAddresses] = useState<AddressEntry[]>([]);
   const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { getIconBgColor } = useAppearance();
@@ -85,14 +90,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     vehicles: [{ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" }],
     profilePhoto: null,
     note: "",
-  });
-  const [addressData, setAddressData] = useState<AddressData>({
-    street: "",
-    apt: "",
-    city: "",
-    state: "",
-    zip: "",
-    phone: "",
   });
 
   const handleAddVehicle = () => {
@@ -157,11 +154,70 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleAddressChange = (field: keyof AddressData, value: string) => {
-    setAddressData((prev) => ({ ...prev, [field]: value }));
-    // Compose full address string for formData
-    const updated = { ...addressData, [field]: value };
-    const fullAddr = [updated.street, updated.apt, updated.city, updated.state, updated.zip].filter(Boolean).join(", ");
+  // Address helpers
+  const handleAddressSearch = (query: string) => {
+    setAddressSearch(query);
+    if (query.length > 2) {
+      // Simulated suggestions - replace with Google Places API when key is available
+      setAddressSuggestions([
+        `${query}, New York, NY 10001`,
+        `${query}, Los Angeles, CA 90001`,
+        `${query}, Chicago, IL 60601`,
+        `${query}, Houston, TX 77001`,
+      ]);
+    } else {
+      setAddressSuggestions([]);
+    }
+  };
+
+  const parseAddressString = (addr: string): AddressEntry => {
+    const parts = addr.split(", ").map(s => s.trim());
+    const stateZip = (parts[2] || "").split(" ");
+    return {
+      id: crypto.randomUUID(),
+      street: parts[0] || "",
+      apt: "",
+      city: parts[1] || "",
+      state: stateZip[0] || "",
+      zip: stateZip[1] || "",
+      phone: "",
+      isEditing: false,
+    };
+  };
+
+  const handleSelectAddress = (addr: string) => {
+    const entry = parseAddressString(addr);
+    setAddresses(prev => [...prev, entry]);
+    setAddressSearch("");
+    setAddressSuggestions([]);
+    syncAddressToForm([...addresses, entry]);
+  };
+
+  const handleRemoveAddress = (id: string) => {
+    const updated = addresses.filter(a => a.id !== id);
+    setAddresses(updated);
+    syncAddressToForm(updated);
+    if (updated.length === 0) setShowAddressSection(false);
+  };
+
+  const handleEditAddress = (id: string) => {
+    setAddresses(prev => prev.map(a => a.id === id ? { ...a, isEditing: true } : a));
+  };
+
+  const handleUpdateAddress = (id: string, field: keyof AddressEntry, value: string) => {
+    setAddresses(prev => {
+      const updated = prev.map(a => a.id === id ? { ...a, [field]: value } : a);
+      syncAddressToForm(updated);
+      return updated;
+    });
+  };
+
+  const handleSaveAddressEdit = (id: string) => {
+    setAddresses(prev => prev.map(a => a.id === id ? { ...a, isEditing: false } : a));
+  };
+
+  const syncAddressToForm = (addrs: AddressEntry[]) => {
+    const fullAddr = addrs.map(a => [a.street, a.apt, a.city, a.state, a.zip].filter(Boolean).join(", ")).join(" | ");
     setFormData(prev => ({ ...prev, address: fullAddr }));
   };
 
@@ -329,33 +385,63 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     </div>
   );
 
-  // Address input row with stopPropagation
-  const AddressInputRow = ({ label, value, field, placeholder, required }: {
-    label: string;
-    value: string;
-    field: keyof AddressData;
-    placeholder: string;
-    required?: boolean;
-  }) => (
-    <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
-      <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">
-        {label} {required && <span className="text-red-400">*</span>}
-      </span>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => {
-          e.stopPropagation();
-          handleAddressChange(field, e.target.value);
-        }}
-        onFocus={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        placeholder={placeholder}
-        className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
-        autoComplete="off"
-      />
-    </div>
-  );
+  // Address card component
+  const AddressCard = ({ addr }: { addr: AddressEntry }) => {
+    if (addr.isEditing) {
+      return (
+        <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden p-4 space-y-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold text-neutral-500 uppercase">Edit Address</span>
+            <button onClick={() => handleSaveAddressEdit(addr.id)} className="text-xs text-primary hover:text-primary/80 font-medium">Done</button>
+          </div>
+          {[
+            { label: "Street", field: "street" as const, value: addr.street, placeholder: "Street address", required: true },
+            { label: "Apt/Suite", field: "apt" as const, value: addr.apt, placeholder: "Optional" },
+            { label: "City", field: "city" as const, value: addr.city, placeholder: "City", required: true },
+            { label: "State", field: "state" as const, value: addr.state, placeholder: "State", required: true },
+            { label: "ZIP", field: "zip" as const, value: addr.zip, placeholder: "ZIP Code", required: true },
+            { label: "Phone", field: "phone" as const, value: addr.phone, placeholder: "+1 (XXX) XXX-XXXX" },
+          ].map((f, i) => (
+            <div key={f.field}>
+              {i > 0 && <div className="h-px bg-white/5" />}
+              <div className="flex items-center justify-between py-2 min-h-[40px]">
+                <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">
+                  {f.label} {f.required && <span className="text-red-400">*</span>}
+                </span>
+                <input
+                  type="text"
+                  value={f.value}
+                  onChange={(e) => { e.stopPropagation(); handleUpdateAddress(addr.id, f.field, e.target.value); }}
+                  onClick={(e) => e.stopPropagation()}
+                  onFocus={(e) => e.stopPropagation()}
+                  placeholder={f.placeholder}
+                  className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    const displayAddr = [addr.street, addr.apt, addr.city, [addr.state, addr.zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+    return (
+      <div className="bg-white dark:bg-neutral-800/60 rounded-2xl p-4">
+        <div className="flex items-start gap-3">
+          <MapPin className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-foreground leading-relaxed">{displayAddr}</p>
+            {addr.phone && <p className="text-xs text-neutral-400 mt-1">{addr.phone}</p>}
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button onClick={() => handleEditAddress(addr.id)} className="text-xs text-primary hover:text-primary/80 font-medium">Edit</button>
+            <button onClick={() => handleRemoveAddress(addr.id)} className="text-red-400 hover:text-red-300"><Trash2 className="w-3.5 h-3.5" /></button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#F0F0F0] dark:bg-background overflow-hidden">
@@ -498,45 +584,53 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
           </div>
         </div>
 
-        {/* Address Form (shown when Add Address is clicked) */}
-        {showAddressForm && (
+        {/* Address Section */}
+        {showAddressSection && (
           <div className="px-4 pb-3">
             <div className="flex items-center justify-between mb-2 px-1">
               <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Address</p>
-              <button
-                onClick={() => setShowAddressForm(false)}
-                className="text-xs text-red-400 hover:text-red-300 transition-colors"
-              >
-                Remove
-              </button>
             </div>
-            <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden">
-              <AddressInputRow label="Street Address" value={addressData.street} field="street" placeholder="Enter street address" required />
-              <Divider />
-              <AddressInputRow label="Apt, Suite, Unit" value={addressData.apt} field="apt" placeholder="Optional" />
-              <Divider />
-              <AddressInputRow label="City" value={addressData.city} field="city" placeholder="Enter city" required />
-              <Divider />
-              <AddressInputRow label="State" value={addressData.state} field="state" placeholder="Enter state" required />
-              <Divider />
-              <AddressInputRow label="ZIP Code" value={addressData.zip} field="zip" placeholder="Enter ZIP" required />
-              <Divider />
-              <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
-                <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Phone Number</span>
+            {/* Search Bar */}
+            <div className="relative mb-3">
+              <div className="flex items-center bg-white dark:bg-neutral-800/60 rounded-2xl px-4 py-3">
+                <MapPin className="w-4 h-4 text-neutral-400 mr-3 flex-shrink-0" />
                 <input
-                  type="tel"
-                  value={addressData.phone}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    handleAddressChange("phone", formatPhoneNumber(e.target.value));
-                  }}
-                  onFocus={(e) => e.stopPropagation()}
+                  type="text"
+                  value={addressSearch}
+                  onChange={(e) => { e.stopPropagation(); handleAddressSearch(e.target.value); }}
                   onClick={(e) => e.stopPropagation()}
-                  placeholder="+1 (XXX) XXX-XXXX"
-                  className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
+                  onFocus={(e) => e.stopPropagation()}
+                  placeholder="Search for an address..."
+                  className="text-sm bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full"
                   autoComplete="off"
                 />
+                {addressSearch && (
+                  <button onClick={() => { setAddressSearch(""); setAddressSuggestions([]); }} className="ml-2">
+                    <X className="w-4 h-4 text-neutral-400" />
+                  </button>
+                )}
               </div>
+              {/* Suggestions dropdown */}
+              {addressSuggestions.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-1 bg-neutral-800 rounded-xl border border-white/10 overflow-hidden z-10 shadow-lg">
+                  {addressSuggestions.map((suggestion, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSelectAddress(suggestion)}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-left text-sm text-foreground hover:bg-white/10 transition-colors"
+                    >
+                      <MapPin className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+                      <span className="truncate">{suggestion}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Address Cards */}
+            <div className="space-y-3">
+              {addresses.map((addr) => (
+                <AddressCard key={addr.id} addr={addr} />
+              ))}
             </div>
           </div>
         )}
@@ -623,12 +717,12 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
           </div>
         )}
 
-        {/* Add Address & Add Vehicle Buttons - side by side, equal width */}
+        {/* Add Address & Add Vehicle Buttons */}
         <div className="px-4 pb-6">
           <div className="grid grid-cols-2 gap-3">
-            {!showAddressForm && (
+            {!showAddressSection && (
               <button
-                onClick={() => setShowAddressForm(true)}
+                onClick={() => setShowAddressSection(true)}
                 className="flex items-center justify-center gap-2 px-4 py-3 bg-neutral-900 dark:bg-neutral-800 text-foreground rounded-2xl text-sm font-medium hover:opacity-80 transition-opacity"
               >
                 <Home className="w-4 h-4" />
@@ -644,9 +738,8 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                 <span>Add Vehicle</span>
               </button>
             )}
-            {/* Fill remaining space if one is already shown */}
-            {showAddressForm && !showVehicleDetails && <div />}
-            {showVehicleDetails && !showAddressForm && <div />}
+            {showAddressSection && !showVehicleDetails && <div />}
+            {showVehicleDetails && !showAddressSection && <div />}
           </div>
         </div>
       </div>

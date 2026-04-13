@@ -7,6 +7,7 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { OverlayTimePicker } from "@/components/ui/overlay-time-picker";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ShiftAIChatPanel from "@/components/ShiftAIChatPanel";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ShiftSummaryModalProps {
   open: boolean;
@@ -125,6 +126,7 @@ const REVENUE_CENTERS = ["Dine-In", "Take Out", "Delivery", "Drive Thru"];
 export default function ShiftSummaryModal({
   open, onClose, employeeName, employeeRole, clockInTime, clockInDate, totalHours
 }: ShiftSummaryModalProps) {
+  const isMobile = useIsMobile();
   const today = new Date();
   const [filterDateFrom, setFilterDateFrom] = useState(today);
   const [filterDateTo, setFilterDateTo] = useState(today);
@@ -426,10 +428,13 @@ export default function ShiftSummaryModal({
   if (sharePopup) {
     const isEmail = sharePopup === "email";
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
         <div className="absolute inset-0 bg-black/70" onClick={() => setSharePopup(null)} />
-        <div className="relative z-10 w-[440px] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden">
-          <div className="flex items-center justify-between px-6 py-5 border-b border-white/10">
+        <div className="relative z-10 w-full rounded-t-2xl md:w-[440px] md:rounded-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden">
+          <div className="flex justify-center pt-2 pb-1 md:hidden">
+            <div className="w-10 h-1 rounded-full bg-white/20" />
+          </div>
+          <div className="flex items-center justify-between px-5 md:px-6 py-4 md:py-5 border-b border-white/10">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center">
                 {isEmail ? <Mail className="w-5 h-5 text-white" /> : <Phone className="w-5 h-5 text-white" />}
@@ -476,9 +481,12 @@ export default function ShiftSummaryModal({
   // AI Chat view - embedded in same modal
   if (showAIChat) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
         <div className="absolute inset-0 bg-black/70" onClick={() => setShowAIChat(false)} />
-        <div className="relative z-10 w-[960px] max-h-[92vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        <div className="relative z-10 w-full max-h-[95vh] rounded-t-2xl md:w-[960px] md:max-h-[92vh] md:rounded-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col">
+          <div className="flex justify-center pt-2 pb-1 md:hidden">
+            <div className="w-10 h-1 rounded-full bg-white/20" />
+          </div>
           <ShiftAIChatPanel
             onClose={() => setShowAIChat(false)}
             shiftContext={shiftContextForAI}
@@ -497,9 +505,12 @@ export default function ShiftSummaryModal({
   // Check detail view
   if (selectedOrder) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
         <div className="absolute inset-0 bg-black/70" onClick={() => setSelectedOrder(null)} />
-        <div className="relative z-10 w-[580px] max-h-[85vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        <div className="relative z-10 w-full max-h-[90vh] rounded-t-2xl md:w-[580px] md:max-h-[85vh] md:rounded-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col">
+          <div className="flex justify-center pt-2 pb-1 md:hidden">
+            <div className="w-10 h-1 rounded-full bg-white/20" />
+          </div>
           <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 shrink-0">
             <div className="flex items-center gap-3">
               <button onClick={() => setSelectedOrder(null)} className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/15 transition-colors">
@@ -601,34 +612,49 @@ export default function ShiftSummaryModal({
   }
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="relative z-10 w-[960px] max-h-[92vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+      <div className={`relative z-10 bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col
+        w-full max-h-[95vh] rounded-t-2xl
+        md:w-[960px] md:max-h-[92vh] md:rounded-2xl`}
+      >
+        {/* Mobile drag indicator */}
+        <div className="flex justify-center pt-2 pb-1 md:hidden shrink-0">
+          <div className="w-10 h-1 rounded-full bg-white/20" />
+        </div>
+
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10 shrink-0">
-          <div className="flex items-center gap-3">
-            <Avatar className="w-11 h-11 border border-white/20">
-              <AvatarFallback className="text-sm font-semibold bg-neutral-700 text-white">{initials}</AvatarFallback>
+        <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-2.5 md:gap-3 min-w-0 flex-1">
+            <Avatar className="w-10 h-10 md:w-11 md:h-11 border border-white/20 shrink-0">
+              <AvatarFallback className="text-xs md:text-sm font-semibold bg-neutral-700 text-white">{initials}</AvatarFallback>
             </Avatar>
-            <div>
-              <div className="flex items-center gap-3">
-                <h2 className="text-lg font-bold text-white tracking-wide">SHIFT SUMMARY</h2>
-                <div className="flex items-center gap-1.5 text-sm text-neutral-400">
+            <div className="min-w-0">
+              <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+                <h2 className="text-base md:text-lg font-bold text-white tracking-wide whitespace-nowrap">SHIFT SUMMARY</h2>
+                <div className="hidden md:flex items-center gap-1.5 text-sm text-neutral-400">
                   <Clock className="w-4 h-4" />
                   <span>{clockInTime || "--:--"} - now</span>
                   <span className="mx-1">|</span>
                   <span>Total: {totalHours || "0.0"}h</span>
                 </div>
               </div>
-              <p className="text-sm text-neutral-400">{employeeName} - {employeeRole}</p>
+              <p className="text-xs md:text-sm text-neutral-400 truncate">{employeeName} - {employeeRole}</p>
+              {/* Mobile shift time */}
+              <div className="flex md:hidden items-center gap-1 text-[11px] text-neutral-500 mt-0.5">
+                <Clock className="w-3 h-3" />
+                <span>{clockInTime || "--:--"} - now | {totalHours || "0.0"}h</span>
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-1.5">
+
+          {/* Action buttons - scrollable on mobile */}
+          <div className="flex items-center gap-1 md:gap-1.5 shrink-0 overflow-x-auto ml-2">
             {/* Revenue Center */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${filterRevenueCenter ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
-                  <DollarSign className="w-[18px] h-[18px] text-white" />
+                <button className={`p-2 md:p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${filterRevenueCenter ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                  <DollarSign className="w-4 h-4 md:w-[18px] md:h-[18px] text-white" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
@@ -642,8 +668,8 @@ export default function ShiftSummaryModal({
             {/* Date/Calendar */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${activePreset !== "today" ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
-                  <Calendar className="w-[18px] h-[18px] text-white" />
+                <button className={`p-2 md:p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${activePreset !== "today" ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                  <Calendar className="w-4 h-4 md:w-[18px] md:h-[18px] text-white" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
@@ -663,8 +689,8 @@ export default function ShiftSummaryModal({
             {/* Time Filter */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${(filterTimeFrom !== "00:00" || filterTimeTo !== "23:59") ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
-                  <Clock className="w-[18px] h-[18px] text-white" />
+                <button className={`p-2 md:p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${(filterTimeFrom !== "00:00" || filterTimeTo !== "23:59") ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                  <Clock className="w-4 h-4 md:w-[18px] md:h-[18px] text-white" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-56 p-3 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
@@ -687,8 +713,8 @@ export default function ShiftSummaryModal({
             {/* Employee */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className={`p-2.5 rounded-xl hover:bg-white/10 transition-colors ${filterEmployee ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
-                  <Users className="w-[18px] h-[18px] text-white" />
+                <button className={`p-2 md:p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${filterEmployee ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                  <Users className="w-4 h-4 md:w-[18px] md:h-[18px] text-white" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000] max-h-[280px] overflow-y-auto" align="end">
@@ -703,8 +729,8 @@ export default function ShiftSummaryModal({
             {/* Share */}
             <Popover>
               <PopoverTrigger asChild>
-                <button className="p-2.5 rounded-xl hover:bg-white/10 transition-colors" style={{ background: "rgba(100, 100, 100, 0.4)" }}>
-                  <Share2 className="w-[18px] h-[18px] text-white" />
+                <button className="p-2 md:p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0" style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                  <Share2 className="w-4 h-4 md:w-[18px] md:h-[18px] text-white" />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-[180px] p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
@@ -715,128 +741,125 @@ export default function ShiftSummaryModal({
               </PopoverContent>
             </Popover>
 
-            {/* Print */}
-            <button onClick={() => handleShare("pdf")} className="p-2.5 rounded-xl hover:bg-white/10 transition-colors" style={{ background: "rgba(100, 100, 100, 0.4)" }} title="Print">
+            {/* Print - hidden on mobile */}
+            <button onClick={() => handleShare("pdf")} className="hidden md:flex p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0" style={{ background: "rgba(100, 100, 100, 0.4)" }} title="Print">
               <Printer className="w-[18px] h-[18px] text-white" />
             </button>
 
             {/* Clear Filters */}
             {hasActiveFilters && (
-              <button onClick={clearAllFilters} className="p-2.5 rounded-xl hover:bg-white/10 transition-colors" style={{ background: "rgba(239, 68, 68, 0.4)" }}>
-                <RotateCcw className="w-4 h-4 text-white" />
+              <button onClick={clearAllFilters} className="p-2 md:p-2.5 rounded-xl hover:bg-white/10 transition-colors shrink-0" style={{ background: "rgba(239, 68, 68, 0.4)" }}>
+                <RotateCcw className="w-3.5 h-3.5 md:w-4 md:h-4 text-white" />
               </button>
             )}
 
-            {/* AI Icon - opens chat */}
+            {/* AI Icon */}
             <button
               onClick={() => setShowAIChat(true)}
-              className="flex items-center justify-center rounded-xl hover:bg-white/15 transition-colors"
-              style={{ width: 40, height: 40, background: "rgba(100, 100, 100, 0.4)" }}
+              className="flex items-center justify-center rounded-xl hover:bg-white/15 transition-colors shrink-0 w-8 h-8 md:w-10 md:h-10"
+              style={{ background: "rgba(100, 100, 100, 0.4)" }}
               title="AI Assistant"
             >
-              <AnimatedAIIcon size={18} />
+              <AnimatedAIIcon size={isMobile ? 16 : 18} />
             </button>
 
             {/* Close */}
-            <button onClick={onClose} className="w-9 h-9 rounded-sm flex items-center justify-center opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none">
-              <X className="h-5 w-5 text-neutral-300" />
+            <button onClick={onClose} className="w-8 h-8 md:w-9 md:h-9 rounded-sm flex items-center justify-center opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none shrink-0">
+              <X className="h-4 w-4 md:h-5 md:w-5 text-neutral-300" />
             </button>
           </div>
         </div>
 
-
-
-
-        {/* Key metrics - 4 cards */}
-        <div className="grid grid-cols-4 gap-3 px-6 py-4 shrink-0">
-          <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
-            <div className="w-11 h-11 rounded-lg bg-emerald-500/15 flex items-center justify-center">
-              <CreditCard className="w-5 h-5 text-emerald-400" />
+        {/* Key metrics - 2 cols on mobile, 4 cols on desktop */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3 px-4 md:px-6 py-3 md:py-4 shrink-0">
+          <div className="flex items-center gap-2.5 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
+              <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
             </div>
-            <div>
-              <p className="text-[11px] text-neutral-500 uppercase tracking-wide font-medium">Total Card Sale</p>
-              <p className="text-xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
+            <div className="min-w-0">
+              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Card Sales</p>
+              <p className="text-lg md:text-xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
-            <div className="w-11 h-11 rounded-lg bg-amber-500/15 flex items-center justify-center">
-              <Banknote className="w-5 h-5 text-amber-400" />
+          <div className="flex items-center gap-2.5 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+              <Banknote className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
             </div>
-            <div>
-              <p className="text-[11px] text-neutral-500 uppercase tracking-wide font-medium">Total Cash Sales</p>
-              <p className="text-xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
-            <div className="w-11 h-11 rounded-lg bg-purple-500/15 flex items-center justify-center">
-              <Receipt className="w-5 h-5 text-purple-400" />
-            </div>
-            <div>
-              <p className="text-[11px] text-neutral-500 uppercase tracking-wide font-medium">Total Tips</p>
-              <p className="text-xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
+            <div className="min-w-0">
+              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Sales</p>
+              <p className="text-lg md:text-xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 bg-white/5 rounded-xl p-4">
-            <div className="w-11 h-11 rounded-lg bg-blue-500/15 flex items-center justify-center">
-              <Banknote className="w-5 h-5 text-blue-400" />
+          <div className="flex items-center gap-2.5 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
+              <Receipt className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
             </div>
-            <div>
-              <p className="text-[11px] text-neutral-500 uppercase tracking-wide font-medium">Tips Payable</p>
-              <p className="text-xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
+            <div className="min-w-0">
+              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Total Tips</p>
+              <p className="text-lg md:text-xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
+              <Banknote className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Tips Payable</p>
+              <p className="text-lg md:text-xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
             </div>
           </div>
         </div>
 
         {/* Bottom summary row */}
-        <div className="flex items-center px-6 py-3 shrink-0 gap-8 border-b border-white/10">
+        <div className="flex items-center px-4 md:px-6 py-2.5 md:py-3 shrink-0 gap-6 md:gap-8 border-b border-white/10">
           <div>
-            <p className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Total</p>
-            <p className="text-2xl font-bold text-white mt-0.5">$ {overallTotal.toFixed(2)}</p>
+            <p className="text-[10px] md:text-xs text-neutral-500 uppercase tracking-wider font-medium">Total</p>
+            <p className="text-xl md:text-2xl font-bold text-white mt-0.5">$ {overallTotal.toFixed(2)}</p>
           </div>
           <div>
-            <p className="text-xs text-neutral-500 uppercase tracking-wider font-medium">Tips Payable</p>
-            <p className="text-2xl font-bold text-white mt-0.5">$ {tipsPayable.toFixed(2)}</p>
+            <p className="text-[10px] md:text-xs text-neutral-500 uppercase tracking-wider font-medium">Tips Payable</p>
+            <p className="text-xl md:text-2xl font-bold text-white mt-0.5">$ {tipsPayable.toFixed(2)}</p>
           </div>
         </div>
 
         {/* Data table */}
-        <div className="flex-1 overflow-auto px-6 py-3">
+        <div className="flex-1 overflow-auto px-4 md:px-6 py-3">
           {loading ? (
-            <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
+            <p className="text-sm md:text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
           ) : paymentTypeSummary.length === 0 ? (
-            <p className="text-base text-neutral-500 py-8 text-center">No transactions found for the selected filters</p>
+            <p className="text-sm md:text-base text-neutral-500 py-8 text-center">No transactions found for the selected filters</p>
           ) : (
-            <table className="w-full text-[15px]">
+            <table className="w-full text-sm md:text-[15px]">
               <thead className="sticky top-0 bg-[#1C1C1E] z-10">
                 <tr className="border-b-2 border-white/10 text-left">
-                  <th className="py-3 pr-4 text-xs font-bold text-white/60 uppercase tracking-wider">Type</th>
-                  <th className="py-3 pr-4 text-xs font-bold text-white/60 uppercase tracking-wider">Qty</th>
-                  <th className="py-3 pr-4 text-xs font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
-                  <th className="py-3 pr-4 text-xs font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
-                  <th className="py-3 pl-4 text-xs font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
+                  <th className="py-2.5 md:py-3 pr-3 md:pr-4 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-wider">Type</th>
+                  <th className="py-2.5 md:py-3 pr-3 md:pr-4 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-wider">Qty</th>
+                  <th className="py-2.5 md:py-3 pr-3 md:pr-4 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
+                  <th className="py-2.5 md:py-3 pr-3 md:pr-4 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
+                  <th className="py-2.5 md:py-3 pl-3 md:pl-4 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
                 </tr>
               </thead>
               <tbody>
                 {paymentTypeSummary.map(row => (
                   <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
-                    <td className="py-3.5 pr-4 text-[15px] font-medium text-white">{row.type}</td>
-                    <td className="py-3.5 pr-4 text-[15px] text-neutral-300">{row.qty}</td>
-                    <td className="py-3.5 pr-4 text-[15px] font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
-                    <td className="py-3.5 pr-4 text-[15px] text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
-                    <td className="py-3.5 pl-4 text-[15px] font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
+                    <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-medium text-white">{row.type}</td>
+                    <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] text-neutral-300">{row.qty}</td>
+                    <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
+                    <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
+                    <td className="py-3 md:py-3.5 pl-3 md:pl-4 text-sm md:text-[15px] font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr className="bg-neutral-800/50">
-                  <td colSpan={2} className="py-3.5 pr-4 text-[15px] font-bold text-white">Total</td>
-                  <td className="py-3.5 pr-4 text-[15px] font-bold text-white text-right">$ {overallTotal.toFixed(2)}</td>
-                  <td className="py-3.5 pr-4 text-[15px] font-bold text-white text-right" colSpan={2}>$ {totalTips.toFixed(2)}</td>
+                  <td colSpan={2} className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white">Total</td>
+                  <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white text-right">$ {overallTotal.toFixed(2)}</td>
+                  <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white text-right" colSpan={2}>$ {totalTips.toFixed(2)}</td>
                 </tr>
                 <tr className="bg-neutral-800/30">
-                  <td colSpan={2} className="py-3.5 pr-4 text-[15px] font-bold text-white">Cash Drop</td>
-                  <td className="py-3.5 pr-4 text-[15px] font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
-                  <td className="py-3.5 pr-4 text-[15px] text-neutral-500 text-right" colSpan={2}>-</td>
+                  <td colSpan={2} className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white">Cash Drop</td>
+                  <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
+                  <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] text-neutral-500 text-right" colSpan={2}>-</td>
                 </tr>
               </tfoot>
             </table>

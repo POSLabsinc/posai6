@@ -372,6 +372,10 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
         if (data.textSize !== undefined) setTextSize(data.textSize);
         if (data.boldText !== undefined) setBoldText(data.boldText);
         if (data.brightness !== undefined) setBrightness(data.brightness);
+        if (data.themeColor !== undefined) {
+          setThemeColor(data.themeColor);
+          if (data.themeColor) applyThemeColor(data.themeColor);
+        }
       }
     };
 

@@ -1,7 +1,8 @@
 import { useState, useRef } from "react";
-import { RotateCcw, Upload, X, Eye, Palette, MousePointer2, Monitor, PanelTop, Settings2, Image } from "lucide-react";
+import { RotateCcw, Upload, X, Eye, Palette, MousePointer2, Monitor, PanelTop, Settings2, Image, ChevronRight } from "lucide-react";
 import { useAppearance, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SPLASH_BG_COLOR, DEFAULT_TOP_BAR_COLOR, DEFAULT_SETTINGS_ICON_COLOR } from "@/contexts/AppearanceContext";
 import { toast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 interface ColorFieldProps {
   label: string;

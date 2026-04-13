@@ -41,7 +41,11 @@ interface ThemeColorContentProps {
 export default function ThemeColorContent({ showHeader = false, onBack }: ThemeColorContentProps) {
   const {
     themeColor, setThemeColor, applyThemeColor,
-    selectionColor, hoverColor, splashBgColor, topBarColor, settingsIconColor,
+    selectionColor, setSelectionColor,
+    hoverColor, setHoverColor,
+    splashBgColor, setSplashBgColor,
+    topBarColor, setTopBarColor,
+    settingsIconColor, setSettingsIconColor,
     resetAdvancedCustomization,
   } = useAppearance();
 
@@ -49,6 +53,7 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
   const [savedThemes, setSavedThemes] = useState<SavedTheme[]>(getSavedThemes);
   const [saveName, setSaveName] = useState("");
   const [showSaveInput, setShowSaveInput] = useState(false);
+  const [editingDerived, setEditingDerived] = useState<string | null>(null);
 
   const handlePresetSelect = (hex: string) => {
     setThemeColor(hex);
@@ -105,22 +110,33 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
     toast({ title: "Theme deleted" });
   };
 
+  const handleDerivedColorChange = (key: string, hex: string) => {
+    if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
+    switch (key) {
+      case 'selection': setSelectionColor(hex); break;
+      case 'hover': setHoverColor(hex); break;
+      case 'topBar': setTopBarColor(hex); break;
+      case 'splash': setSplashBgColor(hex); break;
+      case 'settingsIcon': setSettingsIconColor(hex); break;
+    }
+  };
+
   const derivedColors = [
-    { label: "Selection Color", value: selectionColor, description: "Active tabs, selected rows" },
-    { label: "Hover Color", value: hoverColor, description: "Buttons, list rows, menus" },
-    { label: "Top Bar Background", value: topBarColor, description: "Header bar across screens" },
-    { label: "Splash Screen", value: splashBgColor, description: "App launch screen" },
-    { label: "Settings Icon Color", value: settingsIconColor || "Per-icon default", description: "Icon background tint" },
+    { key: "selection", label: "Selection Color", value: selectionColor, description: "Active tabs, selected rows" },
+    { key: "hover", label: "Hover Color", value: hoverColor, description: "Buttons, list rows, menus" },
+    { key: "topBar", label: "Top Bar Background", value: topBarColor, description: "Header bar across screens" },
+    { key: "splash", label: "Splash Screen", value: splashBgColor, description: "App launch screen" },
+    { key: "settingsIcon", label: "Settings Icon Color", value: settingsIconColor || "Per-icon default", description: "Icon background tint" },
   ];
 
   return (
     <div className="space-y-5">
-      {/* Header - consistent with other sub-screens */}
-      <div className="flex items-center gap-3">
+      {/* Header - center-aligned title with back arrow, matching Appearance screen spacing */}
+      <div className="relative flex items-center justify-center px-4">
         <button
           type="button"
           onClick={onBack}
-          className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+          className="absolute left-0 w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
         >
           <ChevronLeft className="w-4 h-4 text-foreground" />
         </button>
@@ -207,22 +223,31 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
         </div>
       </div>
 
-      {/* Derived Colors */}
+      {/* Derived Colors - clickable with color pickers */}
       <div>
         <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Derived Colors</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {derivedColors.map((item, idx) => (
-            <div key={item.label}>
+            <div key={item.key}>
               <div className="flex items-center justify-between py-2.5 px-4">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-foreground">{item.label}</p>
                   <p className="text-[11px] text-neutral-500">{item.description}</p>
                 </div>
                 <div className="flex items-center gap-2 flex-shrink-0">
-                  <div
-                    className="w-7 h-7 rounded-lg border border-neutral-600"
-                    style={{ backgroundColor: item.value.startsWith('#') ? item.value : '#000000' }}
-                  />
+                  {/* Clickable color swatch with picker */}
+                  <div className="relative w-7 h-7 rounded-lg overflow-hidden border border-neutral-600 cursor-pointer">
+                    <input
+                      type="color"
+                      value={item.value.startsWith('#') ? item.value : '#000000'}
+                      onChange={(e) => handleDerivedColorChange(item.key, e.target.value)}
+                      className="absolute inset-0 w-full h-full cursor-pointer opacity-0"
+                    />
+                    <div
+                      className="w-full h-full"
+                      style={{ backgroundColor: item.value.startsWith('#') ? item.value : '#000000' }}
+                    />
+                  </div>
                   <span className="text-[11px] text-neutral-400 font-mono uppercase w-[65px] text-center">
                     {item.value.startsWith('#') ? item.value : 'Default'}
                   </span>
@@ -233,7 +258,7 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
           ))}
         </div>
         <p className="text-[11px] text-neutral-500 mt-1.5 px-1">
-          Colors derived from your theme. Override individually in Advanced Customization.
+          Colors derived from your theme. Click any swatch to customize individually.
         </p>
       </div>
 

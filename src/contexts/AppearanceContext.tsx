@@ -336,12 +336,13 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
   const setPartnerLogoUrl = (url: string) => persistAndApply('partnerLogoUrl', url, setPartnerLogoUrlState);
 
   // Apply theme color - derives all related colors
+  // Splash screen defaults to the theme color itself for consistency
   const applyThemeColor = (hex: string) => {
     const derived = deriveColorsFromTheme(hex);
     if (derived) {
       setSelectionColor(derived.selection);
       setHoverColor(derived.hover);
-      setSplashBgColor(derived.splash);
+      setSplashBgColor(hex); // Splash screen matches theme color
       setTopBarColor(derived.topBar);
       setSettingsIconColor(derived.settingsIcon);
     }

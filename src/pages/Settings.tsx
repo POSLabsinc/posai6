@@ -294,7 +294,7 @@ const getContentForRoute = (
     return <ThemePresetsContent showHeader={true} onBack={() => navigate('/settings/system/appearance')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/system/appearance/theme-color') {
-    return <ThemeColorContent showHeader={true} onBack={() => navigate('/settings/system/appearance')} onAIClick={() => setShowAIChat(true)} />;
+    return <ThemeColorContent showHeader={isMobile} onBack={() => navigate('/settings/system/appearance')} />;
   }
   if (pathname === '/settings/system/fonts') {
     return <FontsContent showHeader={true} onBack={() => navigate('/settings/system/appearance')} onAIClick={() => setShowAIChat(true)} onNavigate={navigate} />;

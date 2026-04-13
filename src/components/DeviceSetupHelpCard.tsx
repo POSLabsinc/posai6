@@ -47,7 +47,6 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
     icon: React.ReactNode;
     steps: { text: string; highlight?: string }[];
     helperNote?: { icon: React.ReactNode; text: string };
-    ctas: { primary: string; secondary?: string };
   }> = {
     qr: {
       title: "Scan QR Code",
@@ -62,7 +61,6 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
         icon: <ShieldCheck className="w-4 h-4" />,
         text: "Make sure your camera has permission to scan QR codes. Most modern phones support this natively.",
       },
-      ctas: { primary: "Got it", secondary: "Try Again" },
     },
     browser: {
       title: "Activate using a browser",
@@ -73,7 +71,6 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
         { text: "Enter the code shown on this screen" },
         { text: "Follow the instructions to complete activation" },
       ],
-      ctas: { primary: "Got it", secondary: "Continue" },
     },
     email: {
       title: "Activate using email or phone",
@@ -88,7 +85,6 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
         icon: <RefreshCw className="w-4 h-4" />,
         text: "If you don't receive the code, you can resend it after a few seconds.",
       },
-      ctas: { primary: "Got it", secondary: "Send Code" },
     },
   };
 

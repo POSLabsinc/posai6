@@ -56,15 +56,19 @@ export function useScheduledTheme() {
     setTheme(inLight ? "light" : "dark");
   }, [config, setTheme]);
 
-  // Apply on config change and set interval
+  // Apply on config change and set interval - only when schedule is explicitly enabled
   useEffect(() => {
     if (!config.enabled) {
       if (intervalRef.current) clearInterval(intervalRef.current);
       return;
     }
-    applySchedule();
-    intervalRef.current = setInterval(applySchedule, 60_000);
+    // Only apply schedule after a short delay to avoid overriding user's manual choice on mount
+    const timeout = setTimeout(() => {
+      applySchedule();
+      intervalRef.current = setInterval(applySchedule, 60_000);
+    }, 500);
     return () => {
+      clearTimeout(timeout);
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
   }, [config.enabled, config.lightStart, config.lightEnd, applySchedule]);
@@ -73,7 +77,10 @@ export function useScheduledTheme() {
     const next = { ...config, enabled };
     setConfigState(next);
     saveConfig(next);
-    // Don't change theme immediately - just enable/disable the schedule
+    // When disabling schedule, revert to dark theme
+    if (!enabled) {
+      setTheme("dark");
+    }
   };
 
   const setLightStart = (time: string) => {

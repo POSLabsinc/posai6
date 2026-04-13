@@ -979,9 +979,22 @@ export default function ShiftSummaryModal({
             </table>
           )}
         </div>
-      </div>
 
-      {/* Mobile filter bottom sheet */}
+        {/* Desktop AI side panel overlay */}
+        {showAIChat && !isMobile && (
+          <div className="absolute right-0 top-0 bottom-0 w-[380px] z-[20] flex flex-col bg-[#1C1C1E] border-l border-white/10 shadow-2xl rounded-r-2xl overflow-hidden">
+            <ShiftAIChatPanel
+              onClose={() => setShowAIChat(false)}
+              shiftContext={shiftContextForAI}
+              shiftActions={{
+                exportPDF: () => { setShowAIChat(false); setTimeout(() => handleShare("pdf"), 100); },
+                sendEmail: () => { setShowAIChat(false); setTimeout(() => handleShare("email"), 100); },
+                sendText: () => { setShowAIChat(false); setTimeout(() => handleShare("text"), 100); },
+                downloadCSV: () => { setShowAIChat(false); setTimeout(() => handleShare("download"), 100); },
+              }}
+            />
+          </div>
+        )}
       {isMobile && renderFilterSheet()}
     </div>
   );

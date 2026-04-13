@@ -502,9 +502,12 @@ export default function ShiftSummaryModal({
   // Check detail view
   if (selectedOrder) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-center justify-center">
+      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
         <div className="absolute inset-0 bg-black/70" onClick={() => setSelectedOrder(null)} />
-        <div className="relative z-10 w-[580px] max-h-[85vh] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+        <div className="relative z-10 w-full max-h-[90vh] rounded-t-2xl md:w-[580px] md:max-h-[85vh] md:rounded-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col">
+          <div className="flex justify-center pt-2 pb-1 md:hidden">
+            <div className="w-10 h-1 rounded-full bg-white/20" />
+          </div>
           <div className="flex items-center justify-between px-6 py-5 border-b border-white/10 shrink-0">
             <div className="flex items-center gap-3">
               <button onClick={() => setSelectedOrder(null)} className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center hover:bg-white/15 transition-colors">

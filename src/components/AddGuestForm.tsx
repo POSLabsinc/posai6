@@ -31,6 +31,14 @@ const COUNTRY_CODES = [
   { code: "+34", flag: "🇪🇸", label: "ES" },
 ];
 
+const ADDRESS_LABELS = ["Home", "Office", "Work", "Billing", "Shipping", "Other"];
+
+const EMAIL_DOMAINS = ["gmail.com", "hotmail.com", "yahoo.com", "outlook.com", "icloud.com", "aol.com", "protonmail.com", "mail.com", "zoho.com"];
+
+const US_STATES = ["AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID","IL","IN","IA","KS","KY","LA","ME","MD","MA","MI","MN","MS","MO","MT","NE","NV","NH","NJ","NM","NY","NC","ND","OH","OK","OR","PA","RI","SC","SD","TN","TX","UT","VT","VA","WA","WV","WI","WY"];
+
+const SAMPLE_CITIES = ["New York","Los Angeles","Chicago","Houston","Phoenix","Philadelphia","San Antonio","San Diego","Dallas","San Jose","Austin","Jacksonville","Fort Worth","Columbus","Charlotte","Indianapolis","San Francisco","Seattle","Denver","Washington","Nashville","Oklahoma City","El Paso","Boston","Portland","Las Vegas","Memphis","Louisville","Baltimore","Milwaukee"];
+
 interface AddGuestFormProps {
   onClose: () => void;
   onSave: (guestData: GuestFormData) => void;

@@ -2561,6 +2561,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           </div>
         )}
       </div>
+      )}
     </div>
   );
 };

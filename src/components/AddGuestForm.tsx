@@ -858,9 +858,34 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                   </div>
                 </div>
                 <Divider />
-                <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
-                  <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Email <span className="text-red-400">*</span></span>
-                  <input type="email" value={formData.email} onChange={(e) => { e.stopPropagation(); handleInputChange("email", e.target.value); }} onFocus={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} placeholder="email@example.com" className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]" autoComplete="off" />
+                <div className="relative">
+                  <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+                    <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Email <span className="text-red-400">*</span></span>
+                    <input
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => { e.stopPropagation(); handleInputChange("email", e.target.value); }}
+                      onFocus={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
+                      onBlur={() => setTimeout(() => setShowEmailSuggestions(false), 200)}
+                      placeholder="email@example.com"
+                      className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
+                      autoComplete="off"
+                    />
+                  </div>
+                  {showEmailSuggestions && emailSuggestions.length > 0 && (
+                    <div className="absolute right-4 top-full mt-0.5 bg-neutral-800 rounded-lg border border-white/10 overflow-hidden z-20 shadow-lg min-w-[220px]">
+                      {emailSuggestions.slice(0, 5).map((s) => (
+                        <button
+                          key={s}
+                          onMouseDown={(e) => { e.preventDefault(); selectEmailSuggestion(s); }}
+                          className="block w-full px-3 py-2 text-left text-sm text-foreground hover:bg-white/10 transition-colors"
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 

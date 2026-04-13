@@ -2284,6 +2284,163 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   {/* Navigate Button */}
                   {message.navigateTo && renderNavigateButton(message.navigateTo)}
 
+                  {/* Inline Theme Color Picker */}
+                  {message.inlineAction === "theme-color-picker" && (
+                    <div className="mt-3 bg-neutral-800/60 rounded-xl p-4 space-y-3">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Preset Colors</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {THEME_PRESETS.map((hex) => (
+                          <button
+                            key={hex}
+                            onClick={() => {
+                              applyThemeColor(hex);
+                              const confirmMsg: Message = {
+                                id: Date.now().toString(), role: "assistant",
+                                content: `Theme color updated to **${hex}**! All derived colors have been adjusted automatically.`,
+                                timestamp: new Date(),
+                              };
+                              setMessages(prev => [...prev, confirmMsg]);
+                              toast({ title: "Theme updated", description: `Theme color set to ${hex}` });
+                            }}
+                            className={cn(
+                              "w-8 h-8 rounded-lg transition-all hover:scale-110",
+                              themeColor === hex && "ring-2 ring-white ring-offset-1 ring-offset-neutral-900"
+                            )}
+                            style={{ backgroundColor: hex }}
+                          />
+                        ))}
+                      </div>
+                      <div className="flex items-center gap-3 pt-1">
+                        <label className="relative cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-700/50 hover:bg-neutral-600/50 transition-colors text-sm text-neutral-300">
+                          <Palette className="w-4 h-4" />
+                          Custom Color
+                          <input
+                            type="color"
+                            value={themeColor}
+                            onChange={(e) => {
+                              applyThemeColor(e.target.value);
+                              const confirmMsg: Message = {
+                                id: Date.now().toString(), role: "assistant",
+                                content: `Theme color updated to **${e.target.value}**!`,
+                                timestamp: new Date(),
+                              };
+                              setMessages(prev => [...prev, confirmMsg]);
+                              toast({ title: "Theme updated" });
+                            }}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                        </label>
+                        <div className="w-6 h-6 rounded-md border border-neutral-600" style={{ backgroundColor: themeColor }} />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Inline Brand Logo Upload */}
+                  {message.inlineAction === "brand-logo-upload" && (
+                    <div className="mt-3 bg-neutral-800/60 rounded-xl p-4 space-y-3">
+                      {partnerLogoUrl && (
+                        <div className="flex items-center gap-3">
+                          <div className="w-16 h-16 rounded-xl bg-neutral-700/50 flex items-center justify-center overflow-hidden border border-neutral-600">
+                            <img src={partnerLogoUrl} alt="Brand Logo" className="w-14 h-14 object-contain" />
+                          </div>
+                          <div className="flex flex-col gap-2">
+                            <button
+                              onClick={() => brandLogoInputRef.current?.click()}
+                              className="text-xs text-neutral-300 hover:text-foreground px-3 py-1.5 rounded-lg bg-neutral-700/50 hover:bg-neutral-600/50 transition-colors"
+                            >
+                              Replace
+                            </button>
+                            <button
+                              onClick={() => {
+                                setPartnerLogoUrl('');
+                                toast({ title: "Logo removed" });
+                                const confirmMsg: Message = { id: Date.now().toString(), role: "assistant", content: "Brand logo has been removed. The default logo will be used.", timestamp: new Date() };
+                                setMessages(prev => [...prev, confirmMsg]);
+                              }}
+                              className="text-xs text-red-400 hover:text-red-300 px-3 py-1.5 rounded-lg bg-neutral-700/50 hover:bg-neutral-600/50 transition-colors"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                      {!partnerLogoUrl && (
+                        <button
+                          onClick={() => brandLogoInputRef.current?.click()}
+                          className="flex items-center gap-2 text-sm text-neutral-300 hover:text-foreground px-4 py-2.5 rounded-xl bg-neutral-700/50 hover:bg-neutral-600/50 border border-dashed border-neutral-600 transition-colors"
+                        >
+                          <Upload className="w-4 h-4" />
+                          Upload Logo
+                        </button>
+                      )}
+                      <input
+                        ref={brandLogoInputRef}
+                        type="file"
+                        accept=".png,.jpg,.jpeg,.webp,.svg"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (!file) return;
+                          if (file.size > 2 * 1024 * 1024) {
+                            toast({ title: "File too large", description: "Max 2MB.", variant: "destructive" });
+                            return;
+                          }
+                          const reader = new FileReader();
+                          reader.onload = () => {
+                            setPartnerLogoUrl(reader.result as string);
+                            toast({ title: "Logo updated" });
+                            const confirmMsg: Message = { id: Date.now().toString(), role: "assistant", content: "Brand logo has been updated successfully! It will now appear in the sidebar and splash screen.", timestamp: new Date() };
+                            setMessages(prev => [...prev, confirmMsg]);
+                          };
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {/* Inline Derived Color Picker */}
+                  {message.inlineAction === "derived-color-picker" && message.derivedColorTarget && (
+                    <div className="mt-3 bg-neutral-800/60 rounded-xl p-4 space-y-3">
+                      <div className="flex flex-wrap gap-1.5">
+                        {THEME_PRESETS.map((hex) => (
+                          <button
+                            key={hex}
+                            onClick={() => {
+                              const target = DERIVED_COLOR_MAP[message.derivedColorTarget!];
+                              if (target) {
+                                target.setter(hex);
+                                const label = message.derivedColorTarget!.split(' ').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+                                const confirmMsg: Message = { id: Date.now().toString(), role: "assistant", content: `**${label}** updated to **${hex}**.`, timestamp: new Date() };
+                                setMessages(prev => [...prev, confirmMsg]);
+                                toast({ title: `${label} updated` });
+                              }
+                            }}
+                            className="w-8 h-8 rounded-lg transition-all hover:scale-110"
+                            style={{ backgroundColor: hex }}
+                          />
+                        ))}
+                      </div>
+                      <label className="relative cursor-pointer flex items-center gap-2 px-3 py-2 rounded-lg bg-neutral-700/50 hover:bg-neutral-600/50 transition-colors text-sm text-neutral-300 w-fit">
+                        <Palette className="w-4 h-4" />
+                        Custom Color
+                        <input
+                          type="color"
+                          value={DERIVED_COLOR_MAP[message.derivedColorTarget]?.getter || themeColor}
+                          onChange={(e) => {
+                            const target = DERIVED_COLOR_MAP[message.derivedColorTarget!];
+                            if (target) {
+                              target.setter(e.target.value);
+                              const label = message.derivedColorTarget!.split(' ').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+                              const confirmMsg: Message = { id: Date.now().toString(), role: "assistant", content: `**${label}** updated to **${e.target.value}**.`, timestamp: new Date() };
+                              setMessages(prev => [...prev, confirmMsg]);
+                            }
+                          }}
+                          className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                      </label>
+                    </div>
+                  )}
+
                   {/* Sales Report Data */}
                   {message.reportData && (
                     <div className="mt-3 space-y-3">

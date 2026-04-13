@@ -46,7 +46,7 @@ interface ThemeColorContentProps {
   onAIClick?: () => void;
 }
 
-export default function ThemeColorContent({ showHeader = true, onBack }: ThemeColorContentProps) {
+export default function ThemeColorContent({ showHeader = false, onBack }: ThemeColorContentProps) {
   const {
     themeColor, setThemeColor, applyThemeColor,
     selectionColor, hoverColor, splashBgColor, topBarColor, settingsIconColor,
@@ -122,6 +122,18 @@ export default function ThemeColorContent({ showHeader = true, onBack }: ThemeCo
 
   return (
     <div className="space-y-6">
+      {showHeader && (
+        <div className="flex items-center gap-3 mb-2">
+          <button
+            type="button"
+            onClick={onBack}
+            className="w-9 h-9 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+          >
+            <ChevronLeft className="w-4 h-4 text-foreground" />
+          </button>
+          <h1 className="text-base font-medium text-foreground">Theme Color</h1>
+        </div>
+      )}
       {/* Current Theme Indicator */}
       {themeColor && (
         <div className="bg-neutral-800/60 rounded-2xl p-4 flex items-center gap-4">

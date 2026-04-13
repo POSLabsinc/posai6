@@ -584,45 +584,53 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
           </div>
         </div>
 
-        {/* Address Form (shown when Add Address is clicked) */}
-        {showAddressForm && (
+        {/* Address Section */}
+        {showAddressSection && (
           <div className="px-4 pb-3">
             <div className="flex items-center justify-between mb-2 px-1">
               <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Address</p>
-              <button
-                onClick={() => setShowAddressForm(false)}
-                className="text-xs text-red-400 hover:text-red-300 transition-colors"
-              >
-                Remove
-              </button>
             </div>
-            <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden">
-              <AddressInputRow label="Street Address" value={addressData.street} field="street" placeholder="Enter street address" required />
-              <Divider />
-              <AddressInputRow label="Apt, Suite, Unit" value={addressData.apt} field="apt" placeholder="Optional" />
-              <Divider />
-              <AddressInputRow label="City" value={addressData.city} field="city" placeholder="Enter city" required />
-              <Divider />
-              <AddressInputRow label="State" value={addressData.state} field="state" placeholder="Enter state" required />
-              <Divider />
-              <AddressInputRow label="ZIP Code" value={addressData.zip} field="zip" placeholder="Enter ZIP" required />
-              <Divider />
-              <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
-                <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Phone Number</span>
+            {/* Search Bar */}
+            <div className="relative mb-3">
+              <div className="flex items-center bg-white dark:bg-neutral-800/60 rounded-2xl px-4 py-3">
+                <MapPin className="w-4 h-4 text-neutral-400 mr-3 flex-shrink-0" />
                 <input
-                  type="tel"
-                  value={addressData.phone}
-                  onChange={(e) => {
-                    e.stopPropagation();
-                    handleAddressChange("phone", formatPhoneNumber(e.target.value));
-                  }}
-                  onFocus={(e) => e.stopPropagation()}
+                  type="text"
+                  value={addressSearch}
+                  onChange={(e) => { e.stopPropagation(); handleAddressSearch(e.target.value); }}
                   onClick={(e) => e.stopPropagation()}
-                  placeholder="+1 (XXX) XXX-XXXX"
-                  className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
+                  onFocus={(e) => e.stopPropagation()}
+                  placeholder="Search for an address..."
+                  className="text-sm bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full"
                   autoComplete="off"
                 />
+                {addressSearch && (
+                  <button onClick={() => { setAddressSearch(""); setAddressSuggestions([]); }} className="ml-2">
+                    <X className="w-4 h-4 text-neutral-400" />
+                  </button>
+                )}
               </div>
+              {/* Suggestions dropdown */}
+              {addressSuggestions.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-1 bg-neutral-800 rounded-xl border border-white/10 overflow-hidden z-10 shadow-lg">
+                  {addressSuggestions.map((suggestion, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSelectAddress(suggestion)}
+                      className="flex items-center gap-3 w-full px-4 py-3 text-left text-sm text-foreground hover:bg-white/10 transition-colors"
+                    >
+                      <MapPin className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+                      <span className="truncate">{suggestion}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            {/* Address Cards */}
+            <div className="space-y-3">
+              {addresses.map((addr) => (
+                <AddressCard key={addr.id} addr={addr} />
+              ))}
             </div>
           </div>
         )}
@@ -709,12 +717,12 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
           </div>
         )}
 
-        {/* Add Address & Add Vehicle Buttons - side by side, equal width */}
+        {/* Add Address & Add Vehicle Buttons */}
         <div className="px-4 pb-6">
           <div className="grid grid-cols-2 gap-3">
-            {!showAddressForm && (
+            {!showAddressSection && (
               <button
-                onClick={() => setShowAddressForm(true)}
+                onClick={() => setShowAddressSection(true)}
                 className="flex items-center justify-center gap-2 px-4 py-3 bg-neutral-900 dark:bg-neutral-800 text-foreground rounded-2xl text-sm font-medium hover:opacity-80 transition-opacity"
               >
                 <Home className="w-4 h-4" />
@@ -730,9 +738,8 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                 <span>Add Vehicle</span>
               </button>
             )}
-            {/* Fill remaining space if one is already shown */}
-            {showAddressForm && !showVehicleDetails && <div />}
-            {showVehicleDetails && !showAddressForm && <div />}
+            {showAddressSection && !showVehicleDetails && <div />}
+            {showVehicleDetails && !showAddressSection && <div />}
           </div>
         </div>
       </div>

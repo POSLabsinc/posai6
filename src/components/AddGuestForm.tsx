@@ -385,33 +385,63 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     </div>
   );
 
-  // Address input row with stopPropagation
-  const AddressInputRow = ({ label, value, field, placeholder, required }: {
-    label: string;
-    value: string;
-    field: keyof AddressData;
-    placeholder: string;
-    required?: boolean;
-  }) => (
-    <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
-      <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">
-        {label} {required && <span className="text-red-400">*</span>}
-      </span>
-      <input
-        type="text"
-        value={value}
-        onChange={(e) => {
-          e.stopPropagation();
-          handleAddressChange(field, e.target.value);
-        }}
-        onFocus={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
-        placeholder={placeholder}
-        className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
-        autoComplete="off"
-      />
-    </div>
-  );
+  // Address card component
+  const AddressCard = ({ addr }: { addr: AddressEntry }) => {
+    if (addr.isEditing) {
+      return (
+        <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden p-4 space-y-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold text-neutral-500 uppercase">Edit Address</span>
+            <button onClick={() => handleSaveAddressEdit(addr.id)} className="text-xs text-primary hover:text-primary/80 font-medium">Done</button>
+          </div>
+          {[
+            { label: "Street", field: "street" as const, value: addr.street, placeholder: "Street address", required: true },
+            { label: "Apt/Suite", field: "apt" as const, value: addr.apt, placeholder: "Optional" },
+            { label: "City", field: "city" as const, value: addr.city, placeholder: "City", required: true },
+            { label: "State", field: "state" as const, value: addr.state, placeholder: "State", required: true },
+            { label: "ZIP", field: "zip" as const, value: addr.zip, placeholder: "ZIP Code", required: true },
+            { label: "Phone", field: "phone" as const, value: addr.phone, placeholder: "+1 (XXX) XXX-XXXX" },
+          ].map((f, i) => (
+            <div key={f.field}>
+              {i > 0 && <div className="h-px bg-white/5" />}
+              <div className="flex items-center justify-between py-2 min-h-[40px]">
+                <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">
+                  {f.label} {f.required && <span className="text-red-400">*</span>}
+                </span>
+                <input
+                  type="text"
+                  value={f.value}
+                  onChange={(e) => { e.stopPropagation(); handleUpdateAddress(addr.id, f.field, e.target.value); }}
+                  onClick={(e) => e.stopPropagation()}
+                  onFocus={(e) => e.stopPropagation()}
+                  placeholder={f.placeholder}
+                  className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
+                  autoComplete="off"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      );
+    }
+
+    const displayAddr = [addr.street, addr.apt, addr.city, [addr.state, addr.zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
+    return (
+      <div className="bg-white dark:bg-neutral-800/60 rounded-2xl p-4">
+        <div className="flex items-start gap-3">
+          <MapPin className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-foreground leading-relaxed">{displayAddr}</p>
+            {addr.phone && <p className="text-xs text-neutral-400 mt-1">{addr.phone}</p>}
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button onClick={() => handleEditAddress(addr.id)} className="text-xs text-primary hover:text-primary/80 font-medium">Edit</button>
+            <button onClick={() => handleRemoveAddress(addr.id)} className="text-red-400 hover:text-red-300"><Trash2 className="w-3.5 h-3.5" /></button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div className="flex flex-col h-full bg-[#F0F0F0] dark:bg-background overflow-hidden">

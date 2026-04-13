@@ -36,7 +36,7 @@ export default function AdvancedCustomizationContent() {
       const dataUrl = reader.result as string;
       setPreviewUrl(dataUrl);
       setPartnerLogoUrl(dataUrl);
-      toast({ title: "Logo updated", description: "Partner logo has been updated successfully." });
+      toast({ title: "Logo updated", description: "Brand logo has been updated successfully." });
     };
     reader.readAsDataURL(file);
   };
@@ -44,7 +44,7 @@ export default function AdvancedCustomizationContent() {
   const handleRemoveLogo = () => {
     setPreviewUrl('');
     setPartnerLogoUrl('');
-    toast({ title: "Logo removed", description: "Partner logo has been reset to default." });
+    toast({ title: "Logo removed", description: "Brand logo has been reset to default." });
   };
 
   const handleResetAll = () => {
@@ -56,15 +56,8 @@ export default function AdvancedCustomizationContent() {
   return (
     <div className="space-y-6">
       {/* Section Header */}
-      <div className="flex items-center justify-between px-1">
+      <div className="px-1">
         <h2 className="text-base font-medium text-neutral-500">Advanced Customization</h2>
-        <button
-          onClick={handleResetAll}
-          className="flex items-center gap-1.5 text-xs text-neutral-400 hover:text-foreground transition-colors px-3 py-1.5 rounded-lg bg-neutral-800/60 hover:bg-neutral-700/60"
-        >
-          <RotateCcw className="w-3 h-3" />
-          Reset All
-        </button>
       </div>
 
       {/* Theme Color - Top Level Option */}
@@ -97,7 +90,7 @@ export default function AdvancedCustomizationContent() {
         </div>
       </div>
 
-      {/* Partner Logo Upload */}
+      {/* Brand Logo Upload */}
       <div>
         <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Branding</p>
         <div className="bg-neutral-800/60 rounded-2xl p-5">
@@ -106,13 +99,13 @@ export default function AdvancedCustomizationContent() {
               <Image className="w-4 h-4 text-neutral-300" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground mb-1">Partner Logo</p>
+              <p className="text-sm font-medium text-foreground mb-1">Brand Logo</p>
               <p className="text-xs text-neutral-500 mb-3">Shown in sidebar and splash screen. PNG, JPG, WebP, or SVG. Max 2MB.</p>
 
               {previewUrl ? (
                 <div className="flex items-center gap-3">
                   <div className="w-16 h-16 rounded-xl bg-neutral-700/50 flex items-center justify-center overflow-hidden border border-neutral-600">
-                    <img src={previewUrl} alt="Partner Logo" className="w-14 h-14 object-contain" />
+                    <img src={previewUrl} alt="Brand Logo" className="w-14 h-14 object-contain" />
                   </div>
                   <div className="flex flex-col gap-2">
                     <button
@@ -150,6 +143,15 @@ export default function AdvancedCustomizationContent() {
           </div>
         </div>
       </div>
+
+      {/* Use Default Theme - Primary Button at Bottom */}
+      <button
+        onClick={handleResetAll}
+        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
+      >
+        <RotateCcw className="w-4 h-4" />
+        Use Default Theme
+      </button>
     </div>
   );
 }

@@ -114,6 +114,15 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const location = useLocation();
+  const { clockInSession } = useDeviceAuth();
+
+  const employeeName = clockInSession?.employeeName || "Employee";
+  const employeeRole = clockInSession?.employeeRole || "Staff";
+  const employeeAvatar = clockInSession?.employeeAvatar || "";
+  const employeeInitials = employeeName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+  const clockInTimeFormatted = clockInSession?.loginTime
+    ? format(new Date(clockInSession.loginTime), "h:mm a")
+    : null;
 
   const activeItemId = useMemo(() => {
     const path = location.pathname;

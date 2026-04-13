@@ -268,11 +268,11 @@ const accountSuggestionChips: SuggestionChip[] = [
 
 // Sub-route suggestion chips for System sub-pages
 const systemAppearanceChips: SuggestionChip[] = [
-  { label: "Change theme color", icon: <Palette className="w-3.5 h-3.5" />, prompt: "Change the theme color to blue" },
-  { label: "Update brand logo", icon: <Image className="w-3.5 h-3.5" />, prompt: "I want to update the brand logo" },
+  { label: "Change theme color", icon: <Palette className="w-3.5 h-3.5" />, prompt: "Change theme color" },
+  { label: "Update brand logo", icon: <Image className="w-3.5 h-3.5" />, prompt: "Update brand logo" },
   { label: "Adjust text size", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Adjust text size settings" },
   { label: "Toggle bold text", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Toggle bold text on or off" },
-  { label: "Change splash color", icon: <Sparkles className="w-3.5 h-3.5" />, prompt: "Change the splash screen background color" },
+  { label: "Change splash color", icon: <Sparkles className="w-3.5 h-3.5" />, prompt: "Change splash screen color" },
   { label: "Reset theme", icon: <RotateCcw className="w-3.5 h-3.5" />, prompt: "Reset all theme colors to defaults" },
 ];
 

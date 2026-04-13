@@ -2366,6 +2366,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           </>
         )}
       </div>
+      )}
 
       {/* Order Browse Mode Overlay */}
       {orderMode && orderBrowseActive && (

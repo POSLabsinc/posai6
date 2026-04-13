@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { X, Camera, ChevronLeft, MapPin, Calendar as CalendarIcon, Upload, Plus, Trash2, ChevronRight, Car, ChevronUp, ChevronDown, Crosshair } from "lucide-react";
+import { X, Camera, ChevronLeft, MapPin, Calendar as CalendarIcon, Upload, Plus, Trash2, ChevronRight, Car, ChevronUp, ChevronDown, Crosshair, Home } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -25,6 +25,15 @@ interface VehicleEntry {
   vehicleColor: string;
   vehicleBrand: string;
   licensePlate: string;
+}
+
+interface AddressData {
+  street: string;
+  apt: string;
+  city: string;
+  state: string;
+  zip: string;
+  phone: string;
 }
 
 interface GuestFormData {
@@ -59,6 +68,7 @@ const NOTE_MAX = 250;
 
 const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuestFormProps) => {
   const [showVehicleDetails, setShowVehicleDetails] = useState(false);
+  const [showAddressForm, setShowAddressForm] = useState(false);
   const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { getIconBgColor } = useAppearance();
@@ -75,6 +85,14 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     vehicles: [{ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" }],
     profilePhoto: null,
     note: "",
+  });
+  const [addressData, setAddressData] = useState<AddressData>({
+    street: "",
+    apt: "",
+    city: "",
+    state: "",
+    zip: "",
+    phone: "",
   });
 
   const handleAddVehicle = () => {
@@ -137,6 +155,14 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
       if (value.length > NOTE_MAX) return;
     }
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleAddressChange = (field: keyof AddressData, value: string) => {
+    setAddressData((prev) => ({ ...prev, [field]: value }));
+    // Compose full address string for formData
+    const updated = { ...addressData, [field]: value };
+    const fullAddr = [updated.street, updated.apt, updated.city, updated.state, updated.zip].filter(Boolean).join(", ");
+    setFormData(prev => ({ ...prev, address: fullAddr }));
   };
 
   const [isSaving, setIsSaving] = useState(false);
@@ -274,7 +300,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     </Popover>
   );
 
-  // Input row (inline editing)
+  // Input row (inline editing) - fixed to stop propagation and work properly
   const InputRow = ({ label, value, field, placeholder, type, required }: {
     label: string;
     value: string;
@@ -290,24 +316,57 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
       <input
         type={type || "text"}
         value={value}
-        onChange={(e) => handleInputChange(field, e.target.value)}
+        onChange={(e) => {
+          e.stopPropagation();
+          handleInputChange(field, e.target.value);
+        }}
+        onFocus={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         placeholder={placeholder}
         className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
+        autoComplete="off"
+      />
+    </div>
+  );
+
+  // Address input row with stopPropagation
+  const AddressInputRow = ({ label, value, field, placeholder, required }: {
+    label: string;
+    value: string;
+    field: keyof AddressData;
+    placeholder: string;
+    required?: boolean;
+  }) => (
+    <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+      <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">
+        {label} {required && <span className="text-red-400">*</span>}
+      </span>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => {
+          e.stopPropagation();
+          handleAddressChange(field, e.target.value);
+        }}
+        onFocus={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        placeholder={placeholder}
+        className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
+        autoComplete="off"
       />
     </div>
   );
 
   return (
     <div className="flex flex-col h-full bg-[#F0F0F0] dark:bg-background overflow-hidden">
-      {/* Back Header */}
+      {/* Back Header - arrow only, no text */}
       {hideHeader && onBack && (
         <div className="flex items-center h-12 px-4 flex-shrink-0">
           <button
             onClick={handleBack}
-            className="flex items-center gap-1 text-foreground hover:opacity-70 transition-opacity"
+            className="flex items-center text-foreground hover:opacity-70 transition-opacity"
           >
             <ChevronLeft className="w-5 h-5" />
-            <span className="text-sm font-medium">Back</span>
           </button>
         </div>
       )}
@@ -327,7 +386,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
 
       {/* Scrollable Content */}
       <div className="flex-1 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-        {/* Info Header Card - matching other settings screens */}
+        {/* Info Header Card */}
         <div className="px-4 pt-4 pb-2">
           <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-center text-center">
             <div
@@ -338,8 +397,12 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-1">New Guest</h3>
             <p className="text-sm text-neutral-400 leading-relaxed max-w-lg">
-              Guests will only be added to your guestbook if required fields (Name, Email, or Phone) are completed;
-              otherwise, only the customer name will be used as a generic guest name for the order.
+              Guests will only be added to your guestbook if required fields
+              (Name, Email, or Phone) are completed.
+            </p>
+            <p className="text-sm text-neutral-400 leading-relaxed max-w-lg mt-1">
+              Otherwise, only the customer name will be used as a
+              generic guest name for the order.
             </p>
           </div>
         </div>
@@ -435,39 +498,62 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
           </div>
         </div>
 
-        {/* Address Section */}
-        <div className="px-4 pb-3">
-          <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider mb-2 px-1">Address</p>
-          <div className="flex gap-3">
-            <div className="flex-1 bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden">
-              <div className="flex items-center px-4 py-3">
-                <MapPin className="w-4 h-4 text-neutral-500 mr-3 flex-shrink-0" />
+        {/* Address Form (shown when Add Address is clicked) */}
+        {showAddressForm && (
+          <div className="px-4 pb-3">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Address</p>
+              <button
+                onClick={() => setShowAddressForm(false)}
+                className="text-xs text-red-400 hover:text-red-300 transition-colors"
+              >
+                Remove
+              </button>
+            </div>
+            <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden">
+              <AddressInputRow label="Street Address" value={addressData.street} field="street" placeholder="Enter street address" required />
+              <Divider />
+              <AddressInputRow label="Apt, Suite, Unit" value={addressData.apt} field="apt" placeholder="Optional" />
+              <Divider />
+              <AddressInputRow label="City" value={addressData.city} field="city" placeholder="Enter city" required />
+              <Divider />
+              <AddressInputRow label="State" value={addressData.state} field="state" placeholder="Enter state" required />
+              <Divider />
+              <AddressInputRow label="ZIP Code" value={addressData.zip} field="zip" placeholder="Enter ZIP" required />
+              <Divider />
+              <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+                <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Phone Number</span>
                 <input
-                  value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
-                  placeholder="Search Address"
-                  className="flex-1 text-sm bg-transparent text-foreground placeholder:text-neutral-500 outline-none"
+                  type="tel"
+                  value={addressData.phone}
+                  onChange={(e) => {
+                    e.stopPropagation();
+                    handleAddressChange("phone", formatPhoneNumber(e.target.value));
+                  }}
+                  onFocus={(e) => e.stopPropagation()}
+                  onClick={(e) => e.stopPropagation()}
+                  placeholder="+1 (XXX) XXX-XXXX"
+                  className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]"
+                  autoComplete="off"
                 />
               </div>
             </div>
-            <button className="w-11 h-11 rounded-2xl bg-white dark:bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
-              <Crosshair className="w-5 h-5 text-foreground" />
-            </button>
           </div>
-        </div>
+        )}
 
-        {/* Vehicle Section */}
-        <div className="px-4 pb-6">
-          <button
-            onClick={() => setShowVehicleDetails(!showVehicleDetails)}
-            className="flex items-center gap-2 px-4 py-3 bg-neutral-900 dark:bg-neutral-800 text-foreground rounded-2xl text-sm font-medium hover:opacity-80 transition-opacity"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Add vehicle</span>
-          </button>
-
-          {showVehicleDetails && (
-            <div className="mt-3 space-y-3">
+        {/* Vehicle Section (shown when Add Vehicle is clicked) */}
+        {showVehicleDetails && (
+          <div className="px-4 pb-3">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Vehicle</p>
+              <button
+                onClick={() => setShowVehicleDetails(false)}
+                className="text-xs text-red-400 hover:text-red-300 transition-colors"
+              >
+                Remove
+              </button>
+            </div>
+            <div className="space-y-3">
               {formData.vehicles.map((vehicle, index) => (
                 <div key={index} className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden p-4 space-y-3">
                   <div className="flex items-center justify-between">
@@ -534,7 +620,34 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                 <span>Add another vehicle</span>
               </button>
             </div>
-          )}
+          </div>
+        )}
+
+        {/* Add Address & Add Vehicle Buttons - side by side, equal width */}
+        <div className="px-4 pb-6">
+          <div className="grid grid-cols-2 gap-3">
+            {!showAddressForm && (
+              <button
+                onClick={() => setShowAddressForm(true)}
+                className="flex items-center justify-center gap-2 px-4 py-3 bg-neutral-900 dark:bg-neutral-800 text-foreground rounded-2xl text-sm font-medium hover:opacity-80 transition-opacity"
+              >
+                <Home className="w-4 h-4" />
+                <span>Add Address</span>
+              </button>
+            )}
+            {!showVehicleDetails && (
+              <button
+                onClick={() => setShowVehicleDetails(true)}
+                className="flex items-center justify-center gap-2 px-4 py-3 bg-neutral-900 dark:bg-neutral-800 text-foreground rounded-2xl text-sm font-medium hover:opacity-80 transition-opacity"
+              >
+                <Car className="w-4 h-4" />
+                <span>Add Vehicle</span>
+              </button>
+            )}
+            {/* Fill remaining space if one is already shown */}
+            {showAddressForm && !showVehicleDetails && <div />}
+            {showVehicleDetails && !showAddressForm && <div />}
+          </div>
         </div>
       </div>
 

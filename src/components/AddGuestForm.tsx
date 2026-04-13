@@ -27,13 +27,15 @@ interface VehicleEntry {
   licensePlate: string;
 }
 
-interface AddressData {
+interface AddressEntry {
+  id: string;
   street: string;
   apt: string;
   city: string;
   state: string;
   zip: string;
   phone: string;
+  isEditing?: boolean;
 }
 
 interface GuestFormData {

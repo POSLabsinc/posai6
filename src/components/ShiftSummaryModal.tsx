@@ -482,13 +482,13 @@ export default function ShiftSummaryModal({
     );
   }
 
-  // AI Chat view - embedded in same modal
-  if (showAIChat) {
+  // AI Chat view - mobile: full modal, desktop: side panel overlay
+  if (showAIChat && isMobile) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
+      <div className="fixed inset-0 z-[9999] flex items-end justify-center">
         <div className="absolute inset-0 bg-black/70" onClick={() => setShowAIChat(false)} />
-        <div className="relative z-10 w-full max-h-[95vh] rounded-t-2xl md:w-[960px] md:max-h-[92vh] md:rounded-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col">
-          <div className="flex justify-center pt-2 pb-1 md:hidden">
+        <div className="relative z-10 w-full max-h-[95vh] rounded-t-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col">
+          <div className="flex justify-center pt-2 pb-1">
             <div className="w-10 h-1 rounded-full bg-white/20" />
           </div>
           <ShiftAIChatPanel

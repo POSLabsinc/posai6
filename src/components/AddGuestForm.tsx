@@ -638,13 +638,78 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
             <div className="flex-1 grid grid-cols-2 gap-4 min-w-0">
               {/* Left Card - Contact Info */}
               <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden">
-                <InputRow label="First Name" value={formData.firstName} field="firstName" placeholder="Enter" required />
+                <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">First Name <span className="text-red-400">*</span></span>
+                  <input type="text" value={formData.firstName} onChange={(e) => { e.stopPropagation(); handleInputChange("firstName", e.target.value); }} onFocus={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} placeholder="Enter" className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]" autoComplete="off" />
+                </div>
                 <Divider />
-                <InputRow label="Last Name" value={formData.lastName} field="lastName" placeholder="Enter" required />
+                <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Last Name <span className="text-red-400">*</span></span>
+                  <input type="text" value={formData.lastName} onChange={(e) => { e.stopPropagation(); handleInputChange("lastName", e.target.value); }} onFocus={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} placeholder="Enter" className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]" autoComplete="off" />
+                </div>
                 <Divider />
-                <InputRow label="Phone Number" value={formData.phoneNumber} field="phoneNumber" placeholder="+1 (XXX) XXX-XXXX" type="tel" required />
+                {/* Phone Number with Country Code Picker */}
+                <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Phone Number <span className="text-red-400">*</span></span>
+                  <div className="flex items-center gap-2 w-full max-w-[60%] justify-end">
+                    <Popover open={showCountryPicker} onOpenChange={setShowCountryPicker}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-700/50 hover:bg-neutral-200 dark:hover:bg-neutral-600/50 transition-colors text-sm flex-shrink-0"
+                        >
+                          <span className="text-base leading-none">{countryCode.flag}</span>
+                          <span className="text-xs text-neutral-400">{countryCode.code}</span>
+                          <ChevronDown className="w-3 h-3 text-neutral-400" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56 p-0 bg-neutral-800 border-white/10" align="start">
+                        <div className="p-2 border-b border-white/10">
+                          <input
+                            type="text"
+                            value={countrySearch}
+                            onChange={(e) => setCountrySearch(e.target.value)}
+                            placeholder="Search country..."
+                            className="w-full px-3 py-2 text-sm bg-neutral-700/50 rounded-lg text-foreground placeholder:text-neutral-500 outline-none"
+                            autoComplete="off"
+                          />
+                        </div>
+                        <div className="max-h-48 overflow-y-auto">
+                          {COUNTRY_CODES.filter(c =>
+                            c.label.toLowerCase().includes(countrySearch.toLowerCase()) ||
+                            c.code.includes(countrySearch)
+                          ).map((c, i) => (
+                            <button
+                              key={`${c.label}-${i}`}
+                              onClick={() => { setCountryCode(c); setShowCountryPicker(false); setCountrySearch(""); }}
+                              className={`flex items-center gap-3 w-full px-3 py-2.5 text-left text-sm hover:bg-white/10 transition-colors ${countryCode.label === c.label && countryCode.code === c.code ? 'bg-white/5' : ''}`}
+                            >
+                              <span className="text-base">{c.flag}</span>
+                              <span className="text-foreground">{c.label}</span>
+                              <span className="text-neutral-400 ml-auto">{c.code}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <input
+                      type="tel"
+                      value={formData.phoneNumber}
+                      onChange={(e) => { e.stopPropagation(); handleInputChange("phoneNumber", e.target.value); }}
+                      onFocus={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
+                      placeholder="(XXX) XXX-XXXX"
+                      className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full min-w-0"
+                      autoComplete="off"
+                    />
+                  </div>
+                </div>
                 <Divider />
-                <InputRow label="Email" value={formData.email} field="email" placeholder="email@example.com" type="email" required />
+                <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Email <span className="text-red-400">*</span></span>
+                  <input type="email" value={formData.email} onChange={(e) => { e.stopPropagation(); handleInputChange("email", e.target.value); }} onFocus={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} placeholder="email@example.com" className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]" autoComplete="off" />
+                </div>
               </div>
 
               {/* Right Card - Dates */}

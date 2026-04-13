@@ -560,13 +560,8 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
               <img src={addGuestIcon} alt="" className="w-6 h-6 object-contain" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-1">New Guest</h3>
-            <p className="text-sm text-neutral-400 leading-relaxed max-w-lg">
-              Guests will only be added to your guestbook if required fields
-              (Name, Email, or Phone) are completed.
-            </p>
-            <p className="text-sm text-neutral-400 leading-relaxed max-w-lg mt-1">
-              Otherwise, only the customer name will be used as a
-              generic guest name for the order.
+            <p className="text-sm text-neutral-400 leading-relaxed max-w-2xl">
+              Guests will only be added to your guestbook if required fields (Name, Email, or Phone) are completed. Otherwise, only the customer name will be used as a generic guest name for the order.
             </p>
           </div>
         </div>

@@ -156,6 +156,10 @@ export default function ShiftSummaryModal({
   // AI Chat state
   const [showAIChat, setShowAIChat] = useState(false);
 
+  // Mobile filter bottom sheet state
+  const [showFilterSheet, setShowFilterSheet] = useState(false);
+  const [filterSheetView, setFilterSheetView] = useState<"main" | "revenue" | "date" | "time" | "employee">("main");
+
   const hasActiveFilters = filterEmployee || filterRevenueCenter || activePreset !== "today" || filterTimeFrom !== "00:00" || filterTimeTo !== "23:59";
 
   useEffect(() => {

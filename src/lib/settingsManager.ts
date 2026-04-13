@@ -237,6 +237,7 @@ export interface AppearanceSettings {
   textSize: number;
   boldText: boolean;
   brightness: number;
+  themeColor?: string;
 }
 
 export interface DashboardMetricsVisibility {
@@ -940,6 +941,10 @@ export class SettingsManager {
       localStorage.setItem('brightness', updates.brightness.toString());
       syncToDatabase('brightness', updates.brightness.toString());
       window.dispatchEvent(new CustomEvent('brightness-change', { detail: { brightness: updates.brightness } }));
+    }
+    if (updates.themeColor !== undefined) {
+      localStorage.setItem('themeColor', updates.themeColor);
+      syncToDatabase('themeColor', updates.themeColor);
     }
     
     window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'appearance', data: updated } }));

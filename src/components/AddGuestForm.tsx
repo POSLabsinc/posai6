@@ -87,7 +87,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     dateOfBirth: "",
     anniversary: "",
     address: "",
-    vehicles: [{ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" }],
+    vehicles: [],
     profilePhoto: null,
     note: "",
   });

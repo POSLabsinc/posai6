@@ -1001,7 +1001,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                       <AnimatedAIIcon size={18} />
                     </div>
                     <div className="max-w-[80%] rounded-2xl px-3.5 py-2.5 text-lg bg-foreground/[0.04] text-foreground">
-                      <p>{isSignIn ? "Welcome back! How can I help you sign in today?" : "Hi, How can I assist you today? Are you new here?"}</p>
+                      <p>{isSignIn ? "Welcome back! How can I help you sign in today?" : "Hi! I'll help you activate this device.\n\nHow would you like to continue?\n\nThe fastest way is to use your phone to scan a QR code.\n\nWould you like to do that?"}</p>
                     </div>
                   </motion.div>
                   {isSignIn ? (
@@ -1062,25 +1062,52 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                       initial={{ opacity: 0, y: 10 }}
                       animate={showFirstButtons ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
                       transition={{ duration: 0.35, ease: "easeOut" }}
-                      className="flex gap-2 pl-7"
+                      className="flex flex-wrap gap-2 pl-7"
                     >
                       <button
                         onClick={() => {
-                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, I'm new" };
-                          const newMessages = [userMsg];
-                          setMessages(newMessages);
-                          setCurrentStep("chat-qr-options");
-                          streamChat(newMessages);
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Yes, scan QR" };
+                          const assistantMsg: Message = {
+                            id: (Date.now() + 1).toString(),
+                            role: "assistant",
+                            content: "Great!\n\nPlease use your phone or tablet to scan the QR code shown on this screen.\n\nOnce scanned, a link will open on your phone. Just follow the steps there.\n\nI'll wait here while you complete it on your phone..."
+                          };
+                          setMessages([userMsg, assistantMsg]);
+                          setCurrentStep("chat-qr-scanning");
                         }}
-                        className="px-5 py-2 rounded-full text-lg font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        className="px-4 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >
-                        Yes, I'm New
+                        Yes, scan QR
                       </button>
                       <button
-                        onClick={handleNotNew}
-                        className="px-5 py-2 rounded-full text-lg font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Use browser instead" };
+                          const assistantMsg: Message = {
+                            id: (Date.now() + 1).toString(),
+                            role: "assistant",
+                            content: "No problem! You can activate this device using any browser.\n\n**Step 1:** Open this link on your phone or computer:\n**posai.com/pair**\n\n**Step 2:** Enter the code shown below.\n\nLet me know once you've entered the code."
+                          };
+                          setMessages([userMsg, assistantMsg]);
+                          setCurrentStep("chat-browser");
+                        }}
+                        className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
                       >
-                        No, I'm Not
+                        Use browser instead
+                      </button>
+                      <button
+                        onClick={() => {
+                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Send code to email/phone" };
+                          const assistantMsg: Message = {
+                            id: (Date.now() + 1).toString(),
+                            role: "assistant",
+                            content: "Sure! Please enter your email address or phone number below, and I'll send you a verification code."
+                          };
+                          setMessages([userMsg, assistantMsg]);
+                          setCurrentStep("chat-email-phone");
+                        }}
+                        className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+                      >
+                        Send code to email/phone
                       </button>
                     </motion.div>
                   )}

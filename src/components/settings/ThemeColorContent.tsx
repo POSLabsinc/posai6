@@ -38,7 +38,7 @@ interface ThemeColorContentProps {
   onAIClick?: () => void;
 }
 
-export default function ThemeColorContent({ showHeader = false, onBack }: ThemeColorContentProps) {
+export default function ThemeColorContent({ showHeader = false, onBack, onAIClick }: ThemeColorContentProps) {
   const {
     themeColor, setThemeColor, applyThemeColor,
     selectionColor, setSelectionColor,
@@ -53,7 +53,6 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
   const [savedThemes, setSavedThemes] = useState<SavedTheme[]>(getSavedThemes);
   const [saveName, setSaveName] = useState("");
   const [showSaveInput, setShowSaveInput] = useState(false);
-  const [editingDerived, setEditingDerived] = useState<string | null>(null);
 
   const handlePresetSelect = (hex: string) => {
     setThemeColor(hex);
@@ -130,227 +129,230 @@ export default function ThemeColorContent({ showHeader = false, onBack }: ThemeC
   ];
 
   return (
-    <div className="space-y-5">
-      {/* Header - center-aligned title with back arrow, matching Appearance screen spacing */}
-      <div className="relative flex items-center justify-center px-4">
-        <button
-          type="button"
-          onClick={onBack}
-          className="absolute left-0 w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-        >
-          <ChevronLeft className="w-4 h-4 text-foreground" />
-        </button>
-        <h1 className="text-base font-medium text-foreground">Theme Color</h1>
+    <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
+      {/* Header - center-aligned title with back arrow, matching Appearance screen */}
+      <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="w-10 h-10 rounded-full bg-surface flex items-center justify-center active:opacity-70 transition-opacity"
+          >
+            <ChevronLeft className="w-5 h-5 text-foreground" />
+          </button>
+        )}
+        <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Theme Color</h1>
       </div>
 
-      {/* Active Theme Indicator */}
-      {themeColor && (
-        <div className="bg-neutral-800/60 rounded-2xl p-4 flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-xl border-2 border-neutral-600"
-            style={{ backgroundColor: themeColor }}
-          />
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium text-foreground">Active Theme</p>
-            <p className="text-[11px] text-neutral-400 font-mono uppercase">{themeColor}</p>
-          </div>
-          <Check className="w-4 h-4 text-emerald-400" />
-        </div>
-      )}
-
-      {/* Preset Colors */}
-      <div>
-        <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Preset Colors</p>
-        <div className="bg-neutral-800/60 rounded-2xl p-3">
-          <div className="grid grid-cols-8 gap-2">
-            {PRESET_COLORS.map((hex) => (
-              <button
-                key={hex}
-                onClick={() => handlePresetSelect(hex)}
-                className="aspect-square rounded-lg border-2 transition-all relative"
-                style={{
-                  backgroundColor: hex,
-                  borderColor: themeColor === hex ? '#ffffff' : 'transparent',
-                  transform: themeColor === hex ? 'scale(1.1)' : 'scale(1)',
-                }}
-              >
-                {themeColor === hex && (
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <Check className="w-3.5 h-3.5 text-white drop-shadow" />
-                  </div>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Custom Color */}
-      <div>
-        <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Custom Color</p>
-        <div className="bg-neutral-800/60 rounded-2xl p-4">
-          <div className="flex items-center gap-4">
-            <div className="relative w-10 h-10 rounded-xl overflow-hidden border-2 border-neutral-600 cursor-pointer flex-shrink-0">
-              <input
-                type="color"
-                value={customPickerColor}
-                onChange={(e) => handleCustomColor(e.target.value)}
-                className="absolute inset-0 w-full h-full cursor-pointer opacity-0"
-              />
-              <div className="w-full h-full" style={{ backgroundColor: customPickerColor }} />
+      <div className="px-6 pb-28 space-y-5">
+        {/* Active Theme Indicator */}
+        {themeColor && (
+          <div className="bg-neutral-800/60 rounded-2xl p-4 flex items-center gap-3">
+            <div
+              className="w-10 h-10 rounded-xl border-2 border-neutral-600"
+              style={{ backgroundColor: themeColor }}
+            />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">Active Theme</p>
+              <p className="text-[11px] text-neutral-400 font-mono uppercase">{themeColor}</p>
             </div>
-            <div className="flex-1">
-              <input
-                type="text"
-                value={customPickerColor}
-                onChange={(e) => {
-                  let val = e.target.value;
-                  if (!val.startsWith('#')) val = '#' + val;
-                  handleCustomColor(val);
-                }}
-                maxLength={7}
-                className="w-[90px] text-xs bg-neutral-700/50 border border-neutral-600 rounded-lg px-2 py-1.5 text-foreground font-mono text-center uppercase"
-                placeholder="#000000"
-              />
-            </div>
-            <button
-              onClick={() => handlePresetSelect(customPickerColor)}
-              className="px-4 py-2 rounded-xl bg-neutral-700/50 hover:bg-neutral-600/50 text-sm text-foreground font-medium transition-colors"
-            >
-              Apply
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Derived Colors - clickable with color pickers */}
-      <div>
-        <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Derived Colors</p>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          {derivedColors.map((item, idx) => (
-            <div key={item.key}>
-              <div className="flex items-center justify-between py-2.5 px-4">
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-foreground">{item.label}</p>
-                  <p className="text-[11px] text-neutral-500">{item.description}</p>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {/* Clickable color swatch with picker */}
-                  <div className="relative w-7 h-7 rounded-lg overflow-hidden border border-neutral-600 cursor-pointer">
-                    <input
-                      type="color"
-                      value={item.value.startsWith('#') ? item.value : '#000000'}
-                      onChange={(e) => handleDerivedColorChange(item.key, e.target.value)}
-                      className="absolute inset-0 w-full h-full cursor-pointer opacity-0"
-                    />
-                    <div
-                      className="w-full h-full"
-                      style={{ backgroundColor: item.value.startsWith('#') ? item.value : '#000000' }}
-                    />
-                  </div>
-                  <span className="text-[11px] text-neutral-400 font-mono uppercase w-[65px] text-center">
-                    {item.value.startsWith('#') ? item.value : 'Default'}
-                  </span>
-                </div>
-              </div>
-              {idx < derivedColors.length - 1 && <div className="h-px bg-neutral-700/50 mx-4" />}
-            </div>
-          ))}
-        </div>
-        <p className="text-[11px] text-neutral-500 mt-1.5 px-1">
-          Colors derived from your theme. Click any swatch to customize individually.
-        </p>
-      </div>
-
-      {/* Saved Themes */}
-      <div>
-        <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Saved Themes</p>
-
-        {showSaveInput && (
-          <div className="bg-neutral-800/60 rounded-2xl p-4 mb-3">
-            <div className="flex items-center gap-3">
-              <input
-                type="text"
-                value={saveName}
-                onChange={(e) => setSaveName(e.target.value)}
-                placeholder="Theme name (optional)"
-                className="flex-1 text-sm bg-neutral-700/50 border border-neutral-600 rounded-xl px-3 py-2 text-foreground placeholder:text-neutral-500"
-                onKeyDown={(e) => e.key === 'Enter' && handleSaveTheme()}
-              />
-              <button
-                onClick={handleSaveTheme}
-                className="px-4 py-2 rounded-xl bg-foreground text-background text-sm font-medium hover:bg-foreground/90 transition-colors"
-              >
-                Save
-              </button>
-              <button
-                onClick={() => { setShowSaveInput(false); setSaveName(""); }}
-                className="px-3 py-2 rounded-xl bg-neutral-700/50 text-sm text-neutral-400 hover:text-foreground transition-colors"
-              >
-                Cancel
-              </button>
-            </div>
+            <Check className="w-4 h-4 text-emerald-400" />
           </div>
         )}
 
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          {savedThemes.length === 0 ? (
-            <div className="py-6 flex flex-col items-center gap-1.5">
-              <Palette className="w-5 h-5 text-neutral-600" />
-              <p className="text-[11px] text-neutral-500">No saved themes yet</p>
-            </div>
-          ) : (
-            savedThemes.map((theme, idx) => (
-              <div key={theme.id}>
-                <div className="flex items-center justify-between py-2.5 px-4">
-                  <button
-                    onClick={() => handleLoadTheme(theme)}
-                    className="flex items-center gap-3 flex-1 min-w-0 text-left"
-                  >
-                    <div
-                      className="w-7 h-7 rounded-lg border border-neutral-600 flex-shrink-0"
-                      style={{ backgroundColor: theme.themeColor }}
-                    />
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-foreground truncate">{theme.name}</p>
-                      <p className="text-[11px] text-neutral-500 font-mono uppercase">{theme.themeColor}</p>
+        {/* Preset Colors */}
+        <div>
+          <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Preset Colors</p>
+          <div className="bg-neutral-800/60 rounded-2xl p-3">
+            <div className="grid grid-cols-8 gap-2">
+              {PRESET_COLORS.map((hex) => (
+                <button
+                  key={hex}
+                  onClick={() => handlePresetSelect(hex)}
+                  className="aspect-square rounded-lg border-2 transition-all relative"
+                  style={{
+                    backgroundColor: hex,
+                    borderColor: themeColor === hex ? '#ffffff' : 'transparent',
+                    transform: themeColor === hex ? 'scale(1.1)' : 'scale(1)',
+                  }}
+                >
+                  {themeColor === hex && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <Check className="w-3.5 h-3.5 text-white drop-shadow" />
                     </div>
-                  </button>
+                  )}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Custom Color */}
+        <div>
+          <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Custom Color</p>
+          <div className="bg-neutral-800/60 rounded-2xl p-4">
+            <div className="flex items-center gap-4">
+              <div className="relative w-10 h-10 rounded-xl overflow-hidden border-2 border-neutral-600 cursor-pointer flex-shrink-0">
+                <input
+                  type="color"
+                  value={customPickerColor}
+                  onChange={(e) => handleCustomColor(e.target.value)}
+                  className="absolute inset-0 w-full h-full cursor-pointer opacity-0"
+                />
+                <div className="w-full h-full" style={{ backgroundColor: customPickerColor }} />
+              </div>
+              <div className="flex-1">
+                <input
+                  type="text"
+                  value={customPickerColor}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (!val.startsWith('#')) val = '#' + val;
+                    handleCustomColor(val);
+                  }}
+                  maxLength={7}
+                  className="w-[90px] text-xs bg-neutral-700/50 border border-neutral-600 rounded-lg px-2 py-1.5 text-foreground font-mono text-center uppercase"
+                  placeholder="#000000"
+                />
+              </div>
+              <button
+                onClick={() => handlePresetSelect(customPickerColor)}
+                className="px-4 py-2 rounded-xl bg-neutral-700/50 hover:bg-neutral-600/50 text-sm text-foreground font-medium transition-colors"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Derived Colors - clickable with color pickers */}
+        <div>
+          <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Derived Colors</p>
+          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+            {derivedColors.map((item, idx) => (
+              <div key={item.key}>
+                <div className="flex items-center justify-between py-2.5 px-4">
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground">{item.label}</p>
+                    <p className="text-[11px] text-neutral-500">{item.description}</p>
+                  </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {themeColor === theme.themeColor && (
-                      <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    )}
-                    <button
-                      onClick={() => handleDeleteTheme(theme.id)}
-                      className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-neutral-700/50 transition-colors"
-                    >
-                      <Trash2 className="w-3 h-3 text-neutral-500 hover:text-red-400" />
-                    </button>
+                    <div className="relative w-7 h-7 rounded-lg overflow-hidden border border-neutral-600 cursor-pointer">
+                      <input
+                        type="color"
+                        value={item.value.startsWith('#') ? item.value : '#000000'}
+                        onChange={(e) => handleDerivedColorChange(item.key, e.target.value)}
+                        className="absolute inset-0 w-full h-full cursor-pointer opacity-0"
+                      />
+                      <div
+                        className="w-full h-full"
+                        style={{ backgroundColor: item.value.startsWith('#') ? item.value : '#000000' }}
+                      />
+                    </div>
+                    <span className="text-[11px] text-neutral-400 font-mono uppercase w-[65px] text-center">
+                      {item.value.startsWith('#') ? item.value : 'Default'}
+                    </span>
                   </div>
                 </div>
-                {idx < savedThemes.length - 1 && <div className="h-px bg-neutral-700/50 mx-4" />}
+                {idx < derivedColors.length - 1 && <div className="h-px bg-neutral-700/50 mx-4" />}
               </div>
-            ))
-          )}
+            ))}
+          </div>
+          <p className="text-[11px] text-neutral-500 mt-1.5 px-1">
+            Colors derived from your theme. Click any swatch to customize individually.
+          </p>
         </div>
-      </div>
 
-      {/* Action Buttons - side by side */}
-      <div className="flex items-center gap-3">
-        <button
-          onClick={handleResetDefault}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors"
-        >
-          <RotateCcw className="w-3.5 h-3.5" />
-          Use Default Theme
-        </button>
-        <button
-          onClick={() => setShowSaveInput(true)}
-          className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
-        >
-          <Save className="w-3.5 h-3.5" />
-          Save Current Theme
-        </button>
+        {/* Saved Themes */}
+        <div>
+          <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Saved Themes</p>
+
+          {showSaveInput && (
+            <div className="bg-neutral-800/60 rounded-2xl p-4 mb-3">
+              <div className="flex items-center gap-3">
+                <input
+                  type="text"
+                  value={saveName}
+                  onChange={(e) => setSaveName(e.target.value)}
+                  placeholder="Theme name (optional)"
+                  className="flex-1 text-sm bg-neutral-700/50 border border-neutral-600 rounded-xl px-3 py-2 text-foreground placeholder:text-neutral-500"
+                  onKeyDown={(e) => e.key === 'Enter' && handleSaveTheme()}
+                />
+                <button
+                  onClick={handleSaveTheme}
+                  className="px-4 py-2 rounded-xl bg-foreground text-background text-sm font-medium hover:bg-foreground/90 transition-colors"
+                >
+                  Save
+                </button>
+                <button
+                  onClick={() => { setShowSaveInput(false); setSaveName(""); }}
+                  className="px-3 py-2 rounded-xl bg-neutral-700/50 text-sm text-neutral-400 hover:text-foreground transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+
+          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+            {savedThemes.length === 0 ? (
+              <div className="py-6 flex flex-col items-center gap-1.5">
+                <Palette className="w-5 h-5 text-neutral-600" />
+                <p className="text-[11px] text-neutral-500">No saved themes yet</p>
+              </div>
+            ) : (
+              savedThemes.map((theme, idx) => (
+                <div key={theme.id}>
+                  <div className="flex items-center justify-between py-2.5 px-4">
+                    <button
+                      onClick={() => handleLoadTheme(theme)}
+                      className="flex items-center gap-3 flex-1 min-w-0 text-left"
+                    >
+                      <div
+                        className="w-7 h-7 rounded-lg border border-neutral-600 flex-shrink-0"
+                        style={{ backgroundColor: theme.themeColor }}
+                      />
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium text-foreground truncate">{theme.name}</p>
+                        <p className="text-[11px] text-neutral-500 font-mono uppercase">{theme.themeColor}</p>
+                      </div>
+                    </button>
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {themeColor === theme.themeColor && (
+                        <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      )}
+                      <button
+                        onClick={() => handleDeleteTheme(theme.id)}
+                        className="w-6 h-6 rounded-lg flex items-center justify-center hover:bg-neutral-700/50 transition-colors"
+                      >
+                        <Trash2 className="w-3 h-3 text-neutral-500 hover:text-red-400" />
+                      </button>
+                    </div>
+                  </div>
+                  {idx < savedThemes.length - 1 && <div className="h-px bg-neutral-700/50 mx-4" />}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Action Buttons - side by side */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleResetDefault}
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            Use Default Theme
+          </button>
+          <button
+            onClick={() => setShowSaveInput(true)}
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
+          >
+            <Save className="w-3.5 h-3.5" />
+            Save Current Theme
+          </button>
+        </div>
       </div>
     </div>
   );

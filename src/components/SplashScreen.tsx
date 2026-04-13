@@ -13,7 +13,8 @@ export function SplashScreen({ onComplete, duration = 2000, variant = "default" 
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
 
-  const splashBgColor = localStorage.getItem('splashBgColor') || '#131316';
+  const themeColor = localStorage.getItem('themeColor') || '';
+  const splashBgColor = localStorage.getItem('splashBgColor') || themeColor || '#131316';
   const partnerLogoUrl = localStorage.getItem('partnerLogoUrl') || '';
 
   useEffect(() => {

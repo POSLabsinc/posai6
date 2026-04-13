@@ -70,7 +70,10 @@ const NOTE_MAX = 250;
 
 const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuestFormProps) => {
   const [showVehicleDetails, setShowVehicleDetails] = useState(false);
-  const [showAddressForm, setShowAddressForm] = useState(false);
+  const [showAddressSection, setShowAddressSection] = useState(false);
+  const [addressSearch, setAddressSearch] = useState("");
+  const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
+  const [addresses, setAddresses] = useState<AddressEntry[]>([]);
   const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { getIconBgColor } = useAppearance();
@@ -87,14 +90,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     vehicles: [{ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" }],
     profilePhoto: null,
     note: "",
-  });
-  const [addressData, setAddressData] = useState<AddressData>({
-    street: "",
-    apt: "",
-    city: "",
-    state: "",
-    zip: "",
-    phone: "",
   });
 
   const handleAddVehicle = () => {

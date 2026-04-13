@@ -482,13 +482,13 @@ export default function ShiftSummaryModal({
     );
   }
 
-  // AI Chat view - embedded in same modal
-  if (showAIChat) {
+  // AI Chat view - mobile: full modal, desktop: side panel overlay
+  if (showAIChat && isMobile) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
+      <div className="fixed inset-0 z-[9999] flex items-end justify-center">
         <div className="absolute inset-0 bg-black/70" onClick={() => setShowAIChat(false)} />
-        <div className="relative z-10 w-full max-h-[95vh] rounded-t-2xl md:w-[960px] md:max-h-[92vh] md:rounded-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col">
-          <div className="flex justify-center pt-2 pb-1 md:hidden">
+        <div className="relative z-10 w-full max-h-[95vh] rounded-t-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col">
+          <div className="flex justify-center pt-2 pb-1">
             <div className="w-10 h-1 rounded-full bg-white/20" />
           </div>
           <ShiftAIChatPanel
@@ -661,9 +661,6 @@ export default function ShiftSummaryModal({
                   </div>
                 </button>
               </div>
-              <div className="px-5 py-4 shrink-0 border-t border-white/10">
-                <button onClick={() => { setShowFilterSheet(false); setFilterSheetView("main"); }} className="w-full py-3.5 bg-white text-black font-semibold rounded-xl text-[15px]">Apply</button>
-              </div>
             </>
           ) : filterSheetView === "revenue" ? (
             <>
@@ -749,21 +746,8 @@ export default function ShiftSummaryModal({
             <div className="min-w-0">
               <div className="flex items-center gap-2 md:gap-3 flex-wrap">
                 <h2 className="text-base md:text-lg font-bold text-white tracking-wide whitespace-nowrap">SHIFT SUMMARY</h2>
-                <div className="hidden md:flex items-center gap-1.5 text-sm text-neutral-400">
-                  <Clock className="w-4 h-4" />
-                  <span>{clockInTime || "--:--"} - now</span>
-                  <span className="mx-1">|</span>
-                  <span>Total: {totalHours || "0.0"}h</span>
-                </div>
               </div>
               <p className="text-xs md:text-sm text-neutral-400 truncate">{employeeName} - {employeeRole}</p>
-              {/* Mobile shift time - larger font */}
-              <div className="flex md:hidden items-center gap-1.5 text-sm text-neutral-400 mt-0.5">
-                <Clock className="w-3.5 h-3.5" />
-                <span className="font-medium">{clockInTime || "--:--"} - now</span>
-                <span className="mx-0.5 text-neutral-600">|</span>
-                <span className="font-semibold text-white">{totalHours || "0.0"}h</span>
-              </div>
             </div>
           </div>
 
@@ -913,7 +897,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Card Sales</p>
-              <p className="text-lg md:text-xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
+              <p className="text-xl md:text-2xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2.5 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -922,7 +906,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Sales</p>
-              <p className="text-lg md:text-xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
+              <p className="text-xl md:text-2xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2.5 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -931,7 +915,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Total Tips</p>
-              <p className="text-lg md:text-xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
+              <p className="text-xl md:text-2xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2.5 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -940,7 +924,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Tips Payable</p>
-              <p className="text-lg md:text-xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
+              <p className="text-xl md:text-2xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -991,15 +975,26 @@ export default function ShiftSummaryModal({
                   <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white text-right">$ {overallTotal.toFixed(2)}</td>
                   <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white text-right" colSpan={2}>$ {totalTips.toFixed(2)}</td>
                 </tr>
-                <tr className="bg-neutral-800/30">
-                  <td colSpan={2} className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white">Cash Drop</td>
-                  <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
-                  <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] text-neutral-500 text-right" colSpan={2}>-</td>
-                </tr>
               </tfoot>
             </table>
           )}
         </div>
+
+        {/* Desktop AI side panel overlay */}
+        {showAIChat && !isMobile && (
+          <div className="absolute right-0 top-0 bottom-0 w-[380px] z-[20] flex flex-col bg-[#1C1C1E] border-l border-white/10 shadow-2xl rounded-r-2xl overflow-hidden">
+            <ShiftAIChatPanel
+              onClose={() => setShowAIChat(false)}
+              shiftContext={shiftContextForAI}
+              shiftActions={{
+                exportPDF: () => { setShowAIChat(false); setTimeout(() => handleShare("pdf"), 100); },
+                sendEmail: () => { setShowAIChat(false); setTimeout(() => handleShare("email"), 100); },
+                sendText: () => { setShowAIChat(false); setTimeout(() => handleShare("text"), 100); },
+                downloadCSV: () => { setShowAIChat(false); setTimeout(() => handleShare("download"), 100); },
+              }}
+            />
+          </div>
+        )}
       </div>
 
       {/* Mobile filter bottom sheet */}

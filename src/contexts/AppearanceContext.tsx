@@ -189,6 +189,11 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
     return saved ? parseInt(saved, 10) : DEFAULT_BRIGHTNESS;
   });
 
+  // Theme color state
+  const [themeColor, setThemeColorState] = useState<string>(() =>
+    localStorage.getItem('themeColor') || DEFAULT_THEME_COLOR
+  );
+
   // Advanced customization state
   const [selectionColor, setSelectionColorState] = useState<string>(() =>
     localStorage.getItem('selectionColor') || DEFAULT_SELECTION_COLOR
@@ -317,6 +322,7 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
     savePreference(key, value);
   };
 
+  const setThemeColor = (c: string) => persistAndApply('themeColor', c, setThemeColorState);
   const setSelectionColor = (c: string) => persistAndApply('selectionColor', c, setSelectionColorState);
   const setHoverColor = (c: string) => persistAndApply('hoverColor', c, setHoverColorState);
   const setSplashBgColor = (c: string) => persistAndApply('splashBgColor', c, setSplashBgColorState);
@@ -324,12 +330,25 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
   const setSettingsIconColor = (c: string) => persistAndApply('settingsIconColor', c, setSettingsIconColorState);
   const setPartnerLogoUrl = (url: string) => persistAndApply('partnerLogoUrl', url, setPartnerLogoUrlState);
 
+  // Apply theme color - derives all related colors
+  const applyThemeColor = (hex: string) => {
+    const derived = deriveColorsFromTheme(hex);
+    if (derived) {
+      setSelectionColor(derived.selection);
+      setHoverColor(derived.hover);
+      setSplashBgColor(derived.splash);
+      setTopBarColor(derived.topBar);
+      setSettingsIconColor(derived.settingsIcon);
+    }
+  };
+
   // Apply custom colors to CSS variables
   useEffect(() => {
     applyCustomColors(selectionColor, hoverColor, topBarColor);
   }, [selectionColor, hoverColor, topBarColor]);
 
   const resetAdvancedCustomization = () => {
+    setThemeColor(DEFAULT_THEME_COLOR);
     setSelectionColor(DEFAULT_SELECTION_COLOR);
     setHoverColor(DEFAULT_HOVER_COLOR);
     setSplashBgColor(DEFAULT_SPLASH_BG_COLOR);

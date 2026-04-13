@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { X, Camera, ChevronLeft, MapPin, Calendar as CalendarIcon, Upload, Plus, Trash2, ChevronRight, Car, ChevronUp, ChevronDown, Crosshair, Home } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { X, Camera, ChevronLeft, MapPin, Calendar as CalendarIcon, Upload, Plus, Trash2, ChevronRight, Car, ChevronUp, ChevronDown, Crosshair, Home, ChevronDown as ChevronDownIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,25 @@ import { format } from "date-fns";
 import { cn, formatPhoneNumber } from "@/lib/utils";
 import addGuestIcon from "@/assets/icons/add-guest.svg";
 import { useAppearance } from "@/contexts/AppearanceContext";
+
+const COUNTRY_CODES = [
+  { code: "+1", flag: "🇺🇸", label: "US" },
+  { code: "+1", flag: "🇨🇦", label: "CA" },
+  { code: "+44", flag: "🇬🇧", label: "UK" },
+  { code: "+91", flag: "🇮🇳", label: "IN" },
+  { code: "+61", flag: "🇦🇺", label: "AU" },
+  { code: "+49", flag: "🇩🇪", label: "DE" },
+  { code: "+33", flag: "🇫🇷", label: "FR" },
+  { code: "+81", flag: "🇯🇵", label: "JP" },
+  { code: "+86", flag: "🇨🇳", label: "CN" },
+  { code: "+55", flag: "🇧🇷", label: "BR" },
+  { code: "+52", flag: "🇲🇽", label: "MX" },
+  { code: "+971", flag: "🇦🇪", label: "AE" },
+  { code: "+966", flag: "🇸🇦", label: "SA" },
+  { code: "+82", flag: "🇰🇷", label: "KR" },
+  { code: "+39", flag: "🇮🇹", label: "IT" },
+  { code: "+34", flag: "🇪🇸", label: "ES" },
+];
 
 interface AddGuestFormProps {
   onClose: () => void;

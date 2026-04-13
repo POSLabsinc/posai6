@@ -289,7 +289,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     setAddresses(prev => prev.map(a => a.id === id ? { ...a, isEditing: true } : a));
   };
 
-  const handleUpdateAddress = (id: string, field: keyof AddressEntry, value: string) => {
+  const handleUpdateAddress = (id: string, field: keyof AddressEntry | string, value: any) => {
     setAddresses(prev => {
       const updated = prev.map(a => a.id === id ? { ...a, [field]: value } : a);
       syncAddressToForm(updated);

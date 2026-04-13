@@ -749,21 +749,8 @@ export default function ShiftSummaryModal({
             <div className="min-w-0">
               <div className="flex items-center gap-2 md:gap-3 flex-wrap">
                 <h2 className="text-base md:text-lg font-bold text-white tracking-wide whitespace-nowrap">SHIFT SUMMARY</h2>
-                <div className="hidden md:flex items-center gap-1.5 text-sm text-neutral-400">
-                  <Clock className="w-4 h-4" />
-                  <span>{clockInTime || "--:--"} - now</span>
-                  <span className="mx-1">|</span>
-                  <span>Total: {totalHours || "0.0"}h</span>
-                </div>
               </div>
               <p className="text-xs md:text-sm text-neutral-400 truncate">{employeeName} - {employeeRole}</p>
-              {/* Mobile shift time - larger font */}
-              <div className="flex md:hidden items-center gap-1.5 text-sm text-neutral-400 mt-0.5">
-                <Clock className="w-3.5 h-3.5" />
-                <span className="font-medium">{clockInTime || "--:--"} - now</span>
-                <span className="mx-0.5 text-neutral-600">|</span>
-                <span className="font-semibold text-white">{totalHours || "0.0"}h</span>
-              </div>
             </div>
           </div>
 

@@ -276,6 +276,10 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
         setPartnerLogoUrlState(dbPartnerLogo);
         localStorage.setItem('partnerLogoUrl', dbPartnerLogo);
       }
+      if (dbThemeColor) {
+        setThemeColorState(dbThemeColor);
+        localStorage.setItem('themeColor', dbThemeColor);
+      }
     };
     hydrate();
   }, []);

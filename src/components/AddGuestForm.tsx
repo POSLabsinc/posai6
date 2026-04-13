@@ -1,5 +1,5 @@
-import { useState, useRef } from "react";
-import { X, Camera, ChevronLeft, MapPin, Calendar as CalendarIcon, Upload, Plus, Trash2, ChevronRight, Car, ChevronUp, ChevronDown, Crosshair, Home } from "lucide-react";
+import { useState, useRef, useCallback } from "react";
+import { X, Camera, ChevronLeft, MapPin, Calendar as CalendarIcon, Upload, Plus, Trash2, ChevronRight, Car, ChevronUp, ChevronDown, Crosshair, Home, ChevronDown as ChevronDownIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,25 @@ import { format } from "date-fns";
 import { cn, formatPhoneNumber } from "@/lib/utils";
 import addGuestIcon from "@/assets/icons/add-guest.svg";
 import { useAppearance } from "@/contexts/AppearanceContext";
+
+const COUNTRY_CODES = [
+  { code: "+1", flag: "🇺🇸", label: "US" },
+  { code: "+1", flag: "🇨🇦", label: "CA" },
+  { code: "+44", flag: "🇬🇧", label: "UK" },
+  { code: "+91", flag: "🇮🇳", label: "IN" },
+  { code: "+61", flag: "🇦🇺", label: "AU" },
+  { code: "+49", flag: "🇩🇪", label: "DE" },
+  { code: "+33", flag: "🇫🇷", label: "FR" },
+  { code: "+81", flag: "🇯🇵", label: "JP" },
+  { code: "+86", flag: "🇨🇳", label: "CN" },
+  { code: "+55", flag: "🇧🇷", label: "BR" },
+  { code: "+52", flag: "🇲🇽", label: "MX" },
+  { code: "+971", flag: "🇦🇪", label: "AE" },
+  { code: "+966", flag: "🇸🇦", label: "SA" },
+  { code: "+82", flag: "🇰🇷", label: "KR" },
+  { code: "+39", flag: "🇮🇹", label: "IT" },
+  { code: "+34", flag: "🇪🇸", label: "ES" },
+];
 
 interface AddGuestFormProps {
   onClose: () => void;
@@ -69,6 +88,9 @@ const vehicleBrands: Record<string, string[]> = {
 const NOTE_MAX = 250;
 
 const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuestFormProps) => {
+  const [countryCode, setCountryCode] = useState(COUNTRY_CODES[0]);
+  const [showCountryPicker, setShowCountryPicker] = useState(false);
+  const [countrySearch, setCountrySearch] = useState("");
   const [showVehicleForm, setShowVehicleForm] = useState(false);
   const [vehicleEditIndex, setVehicleEditIndex] = useState<number | null>(null);
   const [addressSearch, setAddressSearch] = useState("");
@@ -560,13 +582,8 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
               <img src={addGuestIcon} alt="" className="w-6 h-6 object-contain" />
             </div>
             <h3 className="text-lg font-semibold text-foreground mb-1">New Guest</h3>
-            <p className="text-sm text-neutral-400 leading-relaxed max-w-lg">
-              Guests will only be added to your guestbook if required fields
-              (Name, Email, or Phone) are completed.
-            </p>
-            <p className="text-sm text-neutral-400 leading-relaxed max-w-lg mt-1">
-              Otherwise, only the customer name will be used as a
-              generic guest name for the order.
+            <p className="text-sm text-neutral-400 leading-relaxed max-w-2xl">
+              Guests will only be added to your guestbook if required fields (Name, Email, or Phone) are completed. Otherwise, only the customer name will be used as a generic guest name for the order.
             </p>
           </div>
         </div>
@@ -621,13 +638,78 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
             <div className="flex-1 grid grid-cols-2 gap-4 min-w-0">
               {/* Left Card - Contact Info */}
               <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden">
-                <InputRow label="First Name" value={formData.firstName} field="firstName" placeholder="Enter" required />
+                <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">First Name <span className="text-red-400">*</span></span>
+                  <input type="text" value={formData.firstName} onChange={(e) => { e.stopPropagation(); handleInputChange("firstName", e.target.value); }} onFocus={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} placeholder="Enter" className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]" autoComplete="off" />
+                </div>
                 <Divider />
-                <InputRow label="Last Name" value={formData.lastName} field="lastName" placeholder="Enter" required />
+                <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Last Name <span className="text-red-400">*</span></span>
+                  <input type="text" value={formData.lastName} onChange={(e) => { e.stopPropagation(); handleInputChange("lastName", e.target.value); }} onFocus={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} placeholder="Enter" className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]" autoComplete="off" />
+                </div>
                 <Divider />
-                <InputRow label="Phone Number" value={formData.phoneNumber} field="phoneNumber" placeholder="+1 (XXX) XXX-XXXX" type="tel" required />
+                {/* Phone Number with Country Code Picker */}
+                <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Phone Number <span className="text-red-400">*</span></span>
+                  <div className="flex items-center gap-2 w-full max-w-[60%] justify-end">
+                    <Popover open={showCountryPicker} onOpenChange={setShowCountryPicker}>
+                      <PopoverTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={(e) => e.stopPropagation()}
+                          className="flex items-center gap-1 px-2 py-1 rounded-lg bg-neutral-100 dark:bg-neutral-700/50 hover:bg-neutral-200 dark:hover:bg-neutral-600/50 transition-colors text-sm flex-shrink-0"
+                        >
+                          <span className="text-base leading-none">{countryCode.flag}</span>
+                          <span className="text-xs text-neutral-400">{countryCode.code}</span>
+                          <ChevronDown className="w-3 h-3 text-neutral-400" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-56 p-0 bg-neutral-800 border-white/10" align="start">
+                        <div className="p-2 border-b border-white/10">
+                          <input
+                            type="text"
+                            value={countrySearch}
+                            onChange={(e) => setCountrySearch(e.target.value)}
+                            placeholder="Search country..."
+                            className="w-full px-3 py-2 text-sm bg-neutral-700/50 rounded-lg text-foreground placeholder:text-neutral-500 outline-none"
+                            autoComplete="off"
+                          />
+                        </div>
+                        <div className="max-h-48 overflow-y-auto">
+                          {COUNTRY_CODES.filter(c =>
+                            c.label.toLowerCase().includes(countrySearch.toLowerCase()) ||
+                            c.code.includes(countrySearch)
+                          ).map((c, i) => (
+                            <button
+                              key={`${c.label}-${i}`}
+                              onClick={() => { setCountryCode(c); setShowCountryPicker(false); setCountrySearch(""); }}
+                              className={`flex items-center gap-3 w-full px-3 py-2.5 text-left text-sm hover:bg-white/10 transition-colors ${countryCode.label === c.label && countryCode.code === c.code ? 'bg-white/5' : ''}`}
+                            >
+                              <span className="text-base">{c.flag}</span>
+                              <span className="text-foreground">{c.label}</span>
+                              <span className="text-neutral-400 ml-auto">{c.code}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <input
+                      type="tel"
+                      value={formData.phoneNumber}
+                      onChange={(e) => { e.stopPropagation(); handleInputChange("phoneNumber", e.target.value); }}
+                      onFocus={(e) => e.stopPropagation()}
+                      onClick={(e) => e.stopPropagation()}
+                      placeholder="(XXX) XXX-XXXX"
+                      className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full min-w-0"
+                      autoComplete="off"
+                    />
+                  </div>
+                </div>
                 <Divider />
-                <InputRow label="Email" value={formData.email} field="email" placeholder="email@example.com" type="email" required />
+                <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">
+                  <span className="text-sm font-medium text-foreground whitespace-nowrap mr-4">Email <span className="text-red-400">*</span></span>
+                  <input type="email" value={formData.email} onChange={(e) => { e.stopPropagation(); handleInputChange("email", e.target.value); }} onFocus={(e) => e.stopPropagation()} onClick={(e) => e.stopPropagation()} placeholder="email@example.com" className="text-sm text-right bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full max-w-[60%]" autoComplete="off" />
+                </div>
               </div>
 
               {/* Right Card - Dates */}

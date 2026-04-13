@@ -404,6 +404,9 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
         setBoldText,
         brightness,
         setBrightness,
+        themeColor,
+        setThemeColor,
+        applyThemeColor,
         selectionColor,
         setSelectionColor,
         hoverColor,
@@ -432,4 +435,4 @@ export const useAppearance = (): AppearanceContextType => {
   return context;
 };
 
-export { iconContainerSizeMap, iconSizeMap, MIN_TEXT_SIZE, MAX_TEXT_SIZE, DEFAULT_TEXT_SIZE, MIN_BRIGHTNESS, MAX_BRIGHTNESS, DEFAULT_BRIGHTNESS, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SPLASH_BG_COLOR, DEFAULT_TOP_BAR_COLOR, DEFAULT_SETTINGS_ICON_COLOR };
+export { iconContainerSizeMap, iconSizeMap, MIN_TEXT_SIZE, MAX_TEXT_SIZE, DEFAULT_TEXT_SIZE, MIN_BRIGHTNESS, MAX_BRIGHTNESS, DEFAULT_BRIGHTNESS, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SPLASH_BG_COLOR, DEFAULT_TOP_BAR_COLOR, DEFAULT_SETTINGS_ICON_COLOR, DEFAULT_THEME_COLOR };

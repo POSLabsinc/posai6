@@ -69,8 +69,8 @@ const vehicleBrands: Record<string, string[]> = {
 const NOTE_MAX = 250;
 
 const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuestFormProps) => {
-  const [showVehicleDetails, setShowVehicleDetails] = useState(false);
-  const [showAddressSection, setShowAddressSection] = useState(false);
+  const [showVehicleForm, setShowVehicleForm] = useState(false);
+  const [vehicleEditIndex, setVehicleEditIndex] = useState<number | null>(null);
   const [addressSearch, setAddressSearch] = useState("");
   const [addressSuggestions, setAddressSuggestions] = useState<string[]>([]);
   const [addresses, setAddresses] = useState<AddressEntry[]>([]);
@@ -87,7 +87,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     dateOfBirth: "",
     anniversary: "",
     address: "",
-    vehicles: [{ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" }],
+    vehicles: [],
     profilePhoto: null,
     note: "",
   });
@@ -197,7 +197,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     const updated = addresses.filter(a => a.id !== id);
     setAddresses(updated);
     syncAddressToForm(updated);
-    if (updated.length === 0) setShowAddressSection(false);
   };
 
   const handleEditAddress = (id: string) => {
@@ -384,6 +383,85 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
       />
     </div>
   );
+
+  // Vehicle card component
+  const VehicleCard = ({ vehicle, index }: { vehicle: VehicleEntry; index: number }) => {
+    const isEditing = vehicleEditIndex === index;
+    const displayText = [vehicle.vehicleColor, vehicle.vehicleBrand, vehicle.vehicleType].filter(Boolean).join(" ");
+
+    if (isEditing) {
+      return (
+        <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden p-4 space-y-3">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs font-semibold text-neutral-500 uppercase">Edit Vehicle {index + 1}</span>
+            <button onClick={() => setVehicleEditIndex(null)} className="text-xs text-primary hover:text-primary/80 font-medium">Done</button>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-neutral-500 mb-1 block">Type</label>
+              <Select value={vehicle.vehicleType} onValueChange={(v) => handleVehicleChange(index, "vehicleType", v)}>
+                <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-800 border-white/10">
+                  {vehicleTypes.map(t => <SelectItem key={t} value={t} className="text-foreground">{t}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs text-neutral-500 mb-1 block">Color</label>
+              <Select value={vehicle.vehicleColor} onValueChange={(v) => handleVehicleChange(index, "vehicleColor", v)}>
+                <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10">
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-800 border-white/10">
+                  {vehicleColors.map(c => <SelectItem key={c} value={c} className="text-foreground">{c}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-neutral-500 mb-1 block">Brand</label>
+              <Select value={vehicle.vehicleBrand} onValueChange={(v) => handleVehicleChange(index, "vehicleBrand", v)} disabled={!vehicle.vehicleType}>
+                <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10 disabled:opacity-50">
+                  <SelectValue placeholder={vehicle.vehicleType ? "Select" : "Type first"} />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-800 border-white/10">
+                  {(vehicle.vehicleType && vehicleBrands[vehicle.vehicleType] || []).map(b => <SelectItem key={b} value={b} className="text-foreground">{b}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs text-neutral-500 mb-1 block">License Plate</label>
+              <input
+                value={vehicle.licensePlate}
+                onChange={(e) => handleVehicleChange(index, "licensePlate", e.target.value.toUpperCase())}
+                placeholder="Enter"
+                className="w-full h-10 px-3 text-sm bg-neutral-100 dark:bg-neutral-700/50 rounded-xl text-foreground placeholder:text-neutral-500 outline-none uppercase"
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-white dark:bg-neutral-800/60 rounded-2xl p-4">
+        <div className="flex items-start gap-3">
+          <Car className="w-4 h-4 text-neutral-400 mt-0.5 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <p className="text-sm text-foreground leading-relaxed">{displayText || "No details"}</p>
+            {vehicle.licensePlate && <p className="text-xs text-neutral-400 mt-1">Plate: {vehicle.licensePlate}</p>}
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button onClick={() => setVehicleEditIndex(index)} className="text-xs text-primary hover:text-primary/80 font-medium">Edit</button>
+            <button onClick={() => handleRemoveVehicle(index)} className="text-red-400 hover:text-red-300"><Trash2 className="w-3.5 h-3.5" /></button>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   // Address card component
   const AddressCard = ({ addr }: { addr: AddressEntry }) => {
@@ -584,163 +662,153 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
           </div>
         </div>
 
-        {/* Address Section */}
-        {showAddressSection && (
-          <div className="px-4 pb-3">
-            <div className="flex items-center justify-between mb-2 px-1">
-              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Address</p>
-            </div>
-            {/* Search Bar */}
-            <div className="relative mb-3">
-              <div className="flex items-center bg-white dark:bg-neutral-800/60 rounded-2xl px-4 py-3">
-                <MapPin className="w-4 h-4 text-neutral-400 mr-3 flex-shrink-0" />
-                <input
-                  type="text"
-                  value={addressSearch}
-                  onChange={(e) => { e.stopPropagation(); handleAddressSearch(e.target.value); }}
-                  onClick={(e) => e.stopPropagation()}
-                  onFocus={(e) => e.stopPropagation()}
-                  placeholder="Search for an address..."
-                  className="text-sm bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full"
-                  autoComplete="off"
-                />
-                {addressSearch && (
-                  <button onClick={() => { setAddressSearch(""); setAddressSuggestions([]); }} className="ml-2">
-                    <X className="w-4 h-4 text-neutral-400" />
-                  </button>
-                )}
-              </div>
-              {/* Suggestions dropdown */}
-              {addressSuggestions.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-1 bg-neutral-800 rounded-xl border border-white/10 overflow-hidden z-10 shadow-lg">
-                  {addressSuggestions.map((suggestion, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => handleSelectAddress(suggestion)}
-                      className="flex items-center gap-3 w-full px-4 py-3 text-left text-sm text-foreground hover:bg-white/10 transition-colors"
-                    >
-                      <MapPin className="w-4 h-4 text-neutral-400 flex-shrink-0" />
-                      <span className="truncate">{suggestion}</span>
-                    </button>
-                  ))}
-                </div>
+        {/* Address Section - always visible */}
+        <div className="px-4 pb-3">
+          <div className="flex items-center justify-between mb-2 px-1">
+            <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Address</p>
+          </div>
+          {/* Search Bar */}
+          <div className="relative mb-3">
+            <div className="flex items-center bg-white dark:bg-neutral-800/60 rounded-2xl px-4 py-3">
+              <MapPin className="w-4 h-4 text-neutral-400 mr-3 flex-shrink-0" />
+              <input
+                type="text"
+                value={addressSearch}
+                onChange={(e) => { e.stopPropagation(); handleAddressSearch(e.target.value); }}
+                onClick={(e) => e.stopPropagation()}
+                onFocus={(e) => e.stopPropagation()}
+                placeholder="Search for an address..."
+                className="text-sm bg-transparent outline-none text-foreground placeholder:text-neutral-500 w-full"
+                autoComplete="off"
+              />
+              {addressSearch && (
+                <button onClick={() => { setAddressSearch(""); setAddressSuggestions([]); }} className="ml-2">
+                  <X className="w-4 h-4 text-neutral-400" />
+                </button>
               )}
             </div>
-            {/* Address Cards */}
+            {addressSuggestions.length > 0 && (
+              <div className="absolute left-0 right-0 top-full mt-1 bg-neutral-800 rounded-xl border border-white/10 overflow-hidden z-10 shadow-lg">
+                {addressSuggestions.map((suggestion, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleSelectAddress(suggestion)}
+                    className="flex items-center gap-3 w-full px-4 py-3 text-left text-sm text-foreground hover:bg-white/10 transition-colors"
+                  >
+                    <MapPin className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+                    <span className="truncate">{suggestion}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          {/* Address Cards */}
+          {addresses.length > 0 && (
             <div className="space-y-3">
               {addresses.map((addr) => (
                 <AddressCard key={addr.id} addr={addr} />
               ))}
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
-        {/* Vehicle Section (shown when Add Vehicle is clicked) */}
-        {showVehicleDetails && (
+        {/* Vehicle Section - cards for saved vehicles */}
+        {formData.vehicles.some(v => v.vehicleType || v.vehicleColor || v.vehicleBrand || v.licensePlate) && !showVehicleForm && (
           <div className="px-4 pb-3">
             <div className="flex items-center justify-between mb-2 px-1">
-              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Vehicle</p>
-              <button
-                onClick={() => setShowVehicleDetails(false)}
-                className="text-xs text-red-400 hover:text-red-300 transition-colors"
-              >
-                Remove
-              </button>
+              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">Vehicles</p>
             </div>
             <div className="space-y-3">
               {formData.vehicles.map((vehicle, index) => (
-                <div key={index} className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs font-semibold text-neutral-500 uppercase">Vehicle {index + 1}</span>
-                    {formData.vehicles.length > 1 && (
-                      <button onClick={() => handleRemoveVehicle(index)} className="text-red-400 hover:text-red-300">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    )}
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-neutral-500 mb-1 block">Type</label>
-                      <Select value={vehicle.vehicleType} onValueChange={(v) => handleVehicleChange(index, "vehicleType", v)}>
-                        <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-neutral-800 border-white/10">
-                          {vehicleTypes.map(t => <SelectItem key={t} value={t} className="text-foreground">{t}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-xs text-neutral-500 mb-1 block">Color</label>
-                      <Select value={vehicle.vehicleColor} onValueChange={(v) => handleVehicleChange(index, "vehicleColor", v)}>
-                        <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10">
-                          <SelectValue placeholder="Select" />
-                        </SelectTrigger>
-                        <SelectContent className="bg-neutral-800 border-white/10">
-                          {vehicleColors.map(c => <SelectItem key={c} value={c} className="text-foreground">{c}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-xs text-neutral-500 mb-1 block">Brand</label>
-                      <Select value={vehicle.vehicleBrand} onValueChange={(v) => handleVehicleChange(index, "vehicleBrand", v)} disabled={!vehicle.vehicleType}>
-                        <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10 disabled:opacity-50">
-                          <SelectValue placeholder={vehicle.vehicleType ? "Select" : "Type first"} />
-                        </SelectTrigger>
-                        <SelectContent className="bg-neutral-800 border-white/10">
-                          {(vehicle.vehicleType && vehicleBrands[vehicle.vehicleType] || []).map(b => <SelectItem key={b} value={b} className="text-foreground">{b}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="text-xs text-neutral-500 mb-1 block">License Plate</label>
-                      <input
-                        value={vehicle.licensePlate}
-                        onChange={(e) => handleVehicleChange(index, "licensePlate", e.target.value.toUpperCase())}
-                        placeholder="Enter"
-                        className="w-full h-10 px-3 text-sm bg-neutral-100 dark:bg-neutral-700/50 rounded-xl text-foreground placeholder:text-neutral-500 outline-none uppercase"
-                      />
-                    </div>
-                  </div>
-                </div>
+                <VehicleCard key={index} vehicle={vehicle} index={index} />
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Vehicle Form (for adding new) */}
+        {showVehicleForm && (
+          <div className="px-4 pb-3">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <p className="text-xs font-semibold text-neutral-500 uppercase tracking-wider">New Vehicle</p>
               <button
-                onClick={handleAddVehicle}
-                className="flex items-center gap-2 text-primary text-sm hover:text-primary/80 transition-colors px-1"
+                onClick={() => setShowVehicleForm(false)}
+                className="text-xs text-red-400 hover:text-red-300 transition-colors"
               >
-                <Plus className="w-4 h-4" />
-                <span>Add another vehicle</span>
+                Cancel
+              </button>
+            </div>
+            <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden p-4 space-y-3">
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-neutral-500 mb-1 block">Type</label>
+                  <Select value={formData.vehicles[formData.vehicles.length - 1]?.vehicleType || ""} onValueChange={(v) => handleVehicleChange(formData.vehicles.length - 1, "vehicleType", v)}>
+                    <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-neutral-800 border-white/10">
+                      {vehicleTypes.map(t => <SelectItem key={t} value={t} className="text-foreground">{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs text-neutral-500 mb-1 block">Color</label>
+                  <Select value={formData.vehicles[formData.vehicles.length - 1]?.vehicleColor || ""} onValueChange={(v) => handleVehicleChange(formData.vehicles.length - 1, "vehicleColor", v)}>
+                    <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10">
+                      <SelectValue placeholder="Select" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-neutral-800 border-white/10">
+                      {vehicleColors.map(c => <SelectItem key={c} value={c} className="text-foreground">{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="text-xs text-neutral-500 mb-1 block">Brand</label>
+                  <Select value={formData.vehicles[formData.vehicles.length - 1]?.vehicleBrand || ""} onValueChange={(v) => handleVehicleChange(formData.vehicles.length - 1, "vehicleBrand", v)} disabled={!formData.vehicles[formData.vehicles.length - 1]?.vehicleType}>
+                    <SelectTrigger className="bg-neutral-100 dark:bg-neutral-700/50 border-0 text-foreground text-sm rounded-xl h-10 disabled:opacity-50">
+                      <SelectValue placeholder={formData.vehicles[formData.vehicles.length - 1]?.vehicleType ? "Select" : "Type first"} />
+                    </SelectTrigger>
+                    <SelectContent className="bg-neutral-800 border-white/10">
+                      {(formData.vehicles[formData.vehicles.length - 1]?.vehicleType && vehicleBrands[formData.vehicles[formData.vehicles.length - 1].vehicleType] || []).map(b => <SelectItem key={b} value={b} className="text-foreground">{b}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="text-xs text-neutral-500 mb-1 block">License Plate</label>
+                  <input
+                    value={formData.vehicles[formData.vehicles.length - 1]?.licensePlate || ""}
+                    onChange={(e) => handleVehicleChange(formData.vehicles.length - 1, "licensePlate", e.target.value.toUpperCase())}
+                    placeholder="Enter"
+                    className="w-full h-10 px-3 text-sm bg-neutral-100 dark:bg-neutral-700/50 rounded-xl text-foreground placeholder:text-neutral-500 outline-none uppercase"
+                  />
+                </div>
+              </div>
+              <button
+                onClick={() => setShowVehicleForm(false)}
+                className="w-full py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-medium hover:bg-primary/90 transition-colors"
+              >
+                Save Vehicle
               </button>
             </div>
           </div>
         )}
 
-        {/* Add Address & Add Vehicle Buttons */}
+        {/* Add Vehicle Button */}
         <div className="px-4 pb-6">
-          <div className="grid grid-cols-2 gap-3">
-            {!showAddressSection && (
-              <button
-                onClick={() => setShowAddressSection(true)}
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-neutral-900 dark:bg-neutral-800 text-foreground rounded-2xl text-sm font-medium hover:opacity-80 transition-opacity"
-              >
-                <Home className="w-4 h-4" />
-                <span>Add Address</span>
-              </button>
-            )}
-            {!showVehicleDetails && (
-              <button
-                onClick={() => setShowVehicleDetails(true)}
-                className="flex items-center justify-center gap-2 px-4 py-3 bg-neutral-900 dark:bg-neutral-800 text-foreground rounded-2xl text-sm font-medium hover:opacity-80 transition-opacity"
-              >
-                <Car className="w-4 h-4" />
-                <span>Add Vehicle</span>
-              </button>
-            )}
-            {showAddressSection && !showVehicleDetails && <div />}
-            {showVehicleDetails && !showAddressSection && <div />}
-          </div>
+          {!showVehicleForm && (
+            <button
+              onClick={() => {
+                handleAddVehicle();
+                setShowVehicleForm(true);
+              }}
+              className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-neutral-900 dark:bg-neutral-800 text-foreground rounded-2xl text-sm font-medium hover:opacity-80 transition-opacity"
+            >
+              <Car className="w-4 h-4" />
+              <span>Add Vehicle</span>
+            </button>
+          )}
         </div>
       </div>
 

@@ -1195,8 +1195,158 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     }
   };
 
+  // Preset colors for inline theme picker
+  const THEME_PRESETS = [
+    '#6366F1', '#8B5CF6', '#A855F7', '#EC4899', '#F43F5E',
+    '#EF4444', '#F97316', '#F59E0B', '#EAB308', '#84CC16',
+    '#22C55E', '#10B981', '#14B8A6', '#06B6D4', '#0EA5E9',
+    '#3B82F6', '#6366F1', '#7C3AED', '#9333EA', '#C026D3',
+  ];
+
+  // Color name mapping for natural language
+  const COLOR_NAME_MAP: Record<string, string> = {
+    red: '#EF4444', blue: '#3B82F6', green: '#10B981', purple: '#8B5CF6',
+    orange: '#F97316', yellow: '#F59E0B', pink: '#EC4899', teal: '#14B8A6',
+    cyan: '#06B6D4', indigo: '#6366F1', violet: '#7C3AED', amber: '#F59E0B',
+    emerald: '#10B981', rose: '#F43F5E', sky: '#0EA5E9', lime: '#84CC16',
+    fuchsia: '#C026D3', slate: '#64748B', gray: '#6B7280', white: '#FFFFFF',
+    black: '#000000', navy: '#1E3A5F', maroon: '#800000', gold: '#FFD700',
+    coral: '#FF6B6B', turquoise: '#40E0D0', magenta: '#FF00FF', lavender: '#E6E6FA',
+    'dark purple': '#5B21B6', 'dark blue': '#1E40AF', 'dark green': '#166534',
+    'light blue': '#93C5FD', 'light green': '#86EFAC', 'warm orange': '#EA580C',
+  };
+
+  // Derived color labels mapping
+  const DERIVED_COLOR_MAP: Record<string, { setter: (v: string) => void; getter: string }> = {
+    selection: { setter: setSelectionColor, getter: selectionColor },
+    'selection color': { setter: setSelectionColor, getter: selectionColor },
+    hover: { setter: setHoverColor, getter: hoverColor },
+    'hover color': { setter: setHoverColor, getter: hoverColor },
+    'top bar': { setter: setTopBarColor, getter: topBarColor },
+    'top bar background': { setter: setTopBarColor, getter: topBarColor },
+    'splash screen': { setter: setSplashBgColor, getter: splashBgColor },
+    'splash': { setter: setSplashBgColor, getter: splashBgColor },
+    'splash screen background': { setter: setSplashBgColor, getter: splashBgColor },
+    'splash background': { setter: setSplashBgColor, getter: splashBgColor },
+    'settings icon': { setter: setSettingsIconColor, getter: settingsIconColor },
+    'settings icon color': { setter: setSettingsIconColor, getter: settingsIconColor },
+  };
+
+  // Detect and handle appearance-related intents locally
+  const handleAppearanceIntent = (text: string): boolean => {
+    const lower = text.toLowerCase().trim();
+
+    // Theme color picker request
+    if (lower.includes('change theme color') || lower.includes('change the theme color') || lower === 'change theme' || lower.includes('pick a theme') || lower.includes('select theme color') || lower.includes('choose theme')) {
+      // Check if there's a specific color mentioned
+      const colorMatch = findColorInText(lower);
+      if (colorMatch) {
+        applyThemeColor(colorMatch);
+        addUserAndAssistantMessages(text, `Done! Theme color has been updated to **${colorMatch}**. The new color is now applied across the entire app.`);
+        return true;
+      }
+      // Show inline color picker
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: text, timestamp: new Date() };
+      const assistantMsg: Message = {
+        id: (Date.now() + 1).toString(), role: "assistant",
+        content: "Choose a preset color below, or tap the color picker for a custom color:",
+        timestamp: new Date(),
+        inlineAction: "theme-color-picker",
+      };
+      setMessages(prev => [...prev.map(m => m.role === "assistant" ? { ...m, quickReplies: undefined } : m), userMsg, assistantMsg]);
+      setInputValue("");
+      return true;
+    }
+
+    // Brand logo upload request
+    if (lower.includes('update brand logo') || lower.includes('change brand logo') || lower.includes('upload brand logo') || lower.includes('update logo') || lower.includes('change logo') || lower.includes('upload logo') || lower.includes('brand logo')) {
+      const userMsg: Message = { id: Date.now().toString(), role: "user", content: text, timestamp: new Date() };
+      const assistantMsg: Message = {
+        id: (Date.now() + 1).toString(), role: "assistant",
+        content: partnerLogoUrl
+          ? "Your current brand logo is shown below. You can replace it or remove it:"
+          : "Upload a brand logo image (PNG, JPG, WebP, or SVG, max 2MB). It will appear in the sidebar and splash screen:",
+        timestamp: new Date(),
+        inlineAction: "brand-logo-upload",
+      };
+      setMessages(prev => [...prev.map(m => m.role === "assistant" ? { ...m, quickReplies: undefined } : m), userMsg, assistantMsg]);
+      setInputValue("");
+      return true;
+    }
+
+    // Derived color change via prompt (e.g. "change selection color to red")
+    for (const [key, config] of Object.entries(DERIVED_COLOR_MAP)) {
+      if (lower.includes(key)) {
+        const colorMatch = findColorInText(lower);
+        if (colorMatch) {
+          config.setter(colorMatch);
+          const label = key.split(' ').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+          addUserAndAssistantMessages(text, `Done! **${label}** has been updated to **${colorMatch}**. The change is now active.`);
+          return true;
+        }
+        // If they mention the element but no color, show picker
+        const userMsg: Message = { id: Date.now().toString(), role: "user", content: text, timestamp: new Date() };
+        const label = key.split(' ').map(w => w[0].toUpperCase() + w.slice(1)).join(' ');
+        const assistantMsg: Message = {
+          id: (Date.now() + 1).toString(), role: "assistant",
+          content: `Choose a color for **${label}**:`,
+          timestamp: new Date(),
+          inlineAction: "derived-color-picker",
+          derivedColorTarget: key,
+        };
+        setMessages(prev => [...prev.map(m => m.role === "assistant" ? { ...m, quickReplies: undefined } : m), userMsg, assistantMsg]);
+        setInputValue("");
+        return true;
+      }
+    }
+
+    // Generic "theme to <color>" or "make it <color>"
+    if ((lower.includes('theme') || lower.includes('make it') || lower.includes('set color')) && !lower.includes('reset')) {
+      const colorMatch = findColorInText(lower);
+      if (colorMatch) {
+        applyThemeColor(colorMatch);
+        addUserAndAssistantMessages(text, `Done! Theme color has been updated to **${colorMatch}**. All derived colors have been adjusted automatically.`);
+        return true;
+      }
+    }
+
+    // Reset theme
+    if (lower.includes('reset theme') || lower.includes('default theme') || lower.includes('reset all theme') || lower.includes('reset colors')) {
+      resetAdvancedCustomization();
+      addUserAndAssistantMessages(text, "Done! All theme colors have been reset to their defaults.");
+      toast({ title: "Reset complete", description: "All theme colors reset to defaults." });
+      return true;
+    }
+
+    return false;
+  };
+
+  const findColorInText = (text: string): string | null => {
+    // Check for hex code
+    const hexMatch = text.match(/#[0-9a-fA-F]{6}/);
+    if (hexMatch) return hexMatch[0];
+    // Check for color names (longest match first)
+    const sortedNames = Object.keys(COLOR_NAME_MAP).sort((a, b) => b.length - a.length);
+    for (const name of sortedNames) {
+      if (text.includes(name)) return COLOR_NAME_MAP[name];
+    }
+    return null;
+  };
+
+  const addUserAndAssistantMessages = (userText: string, assistantText: string) => {
+    const userMsg: Message = { id: Date.now().toString(), role: "user", content: userText, timestamp: new Date() };
+    const assistantMsg: Message = { id: (Date.now() + 1).toString(), role: "assistant", content: assistantText, timestamp: new Date() };
+    setMessages(prev => [...prev.map(m => m.role === "assistant" ? { ...m, quickReplies: undefined } : m), userMsg, assistantMsg]);
+    setInputValue("");
+  };
+
   const handleSendMessage = async (content: string, imageDataUrl?: string | null) => {
     if (!content.trim() && !imageDataUrl) return;
+
+    // Handle appearance intents locally when in appearance context
+    if (!imageDataUrl && isAppearanceContext && handleAppearanceIntent(content.trim())) {
+      return;
+    }
 
     // Detect settings intent and show module buttons
     if (!imageDataUrl && isSettingsIntent(content.trim())) {

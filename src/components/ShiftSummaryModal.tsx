@@ -995,6 +995,9 @@ export default function ShiftSummaryModal({
             />
           </div>
         )}
+      </div>
+
+      {/* Mobile filter bottom sheet */}
       {isMobile && renderFilterSheet()}
     </div>
   );

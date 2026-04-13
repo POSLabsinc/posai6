@@ -56,12 +56,14 @@ interface VehicleEntry {
 
 interface AddressEntry {
   id: string;
+  label: string;
   street: string;
   apt: string;
   city: string;
   state: string;
   zip: string;
   phone: string;
+  phoneCountry: typeof COUNTRY_CODES[0];
   isEditing?: boolean;
 }
 

@@ -2467,7 +2467,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         </div>
       )}
 
-      {/* Input Area */}
+      {/* Input Area - hidden when More tab is active */}
+      {!(isAppearanceContext && activeTab === 'more') && (
       <div className="flex-shrink-0 p-4 border-t border-neutral-800">
         {/* Image preview */}
         {uploadedImage && (

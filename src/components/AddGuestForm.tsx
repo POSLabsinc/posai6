@@ -154,11 +154,70 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  const handleAddressChange = (field: keyof AddressData, value: string) => {
-    setAddressData((prev) => ({ ...prev, [field]: value }));
-    // Compose full address string for formData
-    const updated = { ...addressData, [field]: value };
-    const fullAddr = [updated.street, updated.apt, updated.city, updated.state, updated.zip].filter(Boolean).join(", ");
+  // Address helpers
+  const handleAddressSearch = (query: string) => {
+    setAddressSearch(query);
+    if (query.length > 2) {
+      // Simulated suggestions - replace with Google Places API when key is available
+      setAddressSuggestions([
+        `${query}, New York, NY 10001`,
+        `${query}, Los Angeles, CA 90001`,
+        `${query}, Chicago, IL 60601`,
+        `${query}, Houston, TX 77001`,
+      ]);
+    } else {
+      setAddressSuggestions([]);
+    }
+  };
+
+  const parseAddressString = (addr: string): AddressEntry => {
+    const parts = addr.split(", ").map(s => s.trim());
+    const stateZip = (parts[2] || "").split(" ");
+    return {
+      id: crypto.randomUUID(),
+      street: parts[0] || "",
+      apt: "",
+      city: parts[1] || "",
+      state: stateZip[0] || "",
+      zip: stateZip[1] || "",
+      phone: "",
+      isEditing: false,
+    };
+  };
+
+  const handleSelectAddress = (addr: string) => {
+    const entry = parseAddressString(addr);
+    setAddresses(prev => [...prev, entry]);
+    setAddressSearch("");
+    setAddressSuggestions([]);
+    syncAddressToForm([...addresses, entry]);
+  };
+
+  const handleRemoveAddress = (id: string) => {
+    const updated = addresses.filter(a => a.id !== id);
+    setAddresses(updated);
+    syncAddressToForm(updated);
+    if (updated.length === 0) setShowAddressSection(false);
+  };
+
+  const handleEditAddress = (id: string) => {
+    setAddresses(prev => prev.map(a => a.id === id ? { ...a, isEditing: true } : a));
+  };
+
+  const handleUpdateAddress = (id: string, field: keyof AddressEntry, value: string) => {
+    setAddresses(prev => {
+      const updated = prev.map(a => a.id === id ? { ...a, [field]: value } : a);
+      syncAddressToForm(updated);
+      return updated;
+    });
+  };
+
+  const handleSaveAddressEdit = (id: string) => {
+    setAddresses(prev => prev.map(a => a.id === id ? { ...a, isEditing: false } : a));
+  };
+
+  const syncAddressToForm = (addrs: AddressEntry[]) => {
+    const fullAddr = addrs.map(a => [a.street, a.apt, a.city, a.state, a.zip].filter(Boolean).join(", ")).join(" | ");
     setFormData(prev => ({ ...prev, address: fullAddr }));
   };
 

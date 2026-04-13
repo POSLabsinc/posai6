@@ -183,10 +183,59 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
       setFormData((prev) => ({ ...prev, [field]: formatPhoneNumber(value) }));
       return;
     }
+    if (field === "email") {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+      // Show domain suggestions when user types @ but hasn't completed domain
+      if (value.includes("@")) {
+        const [local, domain] = value.split("@");
+        if (local && (!domain || !domain.includes("."))) {
+          const filtered = EMAIL_DOMAINS.filter(d => !domain || d.startsWith(domain.toLowerCase()));
+          setEmailSuggestions(filtered.map(d => `${local}@${d}`));
+          setShowEmailSuggestions(filtered.length > 0);
+        } else {
+          setShowEmailSuggestions(false);
+        }
+      } else {
+        setShowEmailSuggestions(false);
+      }
+      return;
+    }
     if (field === "note") {
       if (value.length > NOTE_MAX) return;
     }
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const selectEmailSuggestion = (email: string) => {
+    setFormData((prev) => ({ ...prev, email }));
+    setShowEmailSuggestions(false);
+  };
+
+  const getAddressFieldSuggestions = (id: string, field: string, value: string) => {
+    if (!value || value.length < 1) {
+      setAddressFieldSuggestions({ id: "", field: "", suggestions: [] });
+      return;
+    }
+    let suggestions: string[] = [];
+    if (field === "city") {
+      suggestions = SAMPLE_CITIES.filter(c => c.toLowerCase().startsWith(value.toLowerCase())).slice(0, 5);
+    } else if (field === "state") {
+      suggestions = US_STATES.filter(s => s.toLowerCase().startsWith(value.toLowerCase())).slice(0, 5);
+    } else if (field === "zip") {
+      // Common ZIP prefixes
+      const zips = ["10001","10002","10003","90001","90002","60601","60602","77001","77002","85001","19101","78201","92101","75201","95101"];
+      suggestions = zips.filter(z => z.startsWith(value)).slice(0, 5);
+    }
+    if (suggestions.length > 0) {
+      setAddressFieldSuggestions({ id, field, suggestions });
+    } else {
+      setAddressFieldSuggestions({ id: "", field: "", suggestions: [] });
+    }
+  };
+
+  const selectAddressFieldSuggestion = (id: string, field: keyof AddressEntry, value: string) => {
+    handleUpdateAddress(id, field, value);
+    setAddressFieldSuggestions({ id: "", field: "", suggestions: [] });
   };
 
   // Address helpers

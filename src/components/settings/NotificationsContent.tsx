@@ -140,8 +140,6 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           )}
-          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Notifications</h1>
-          <div className="w-8 h-8" />
         </div>
       )}
 

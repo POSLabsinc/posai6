@@ -377,6 +377,10 @@ const CashManagementContent = ({
       const parsedCash = parseFloat(openingCash);
       const sessionId = await SettingsManager.createCashDrawerSession(selectedDrawer, parsedCash);
       
+      // Fresh start: clear any previous session data
+      localStorage.removeItem('cashTransactions');
+      localStorage.removeItem('paidInOut');
+      
       const sessionData = {
         id: sessionId,
         startingCash: parsedCash,

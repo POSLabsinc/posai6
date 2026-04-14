@@ -168,11 +168,13 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   useEffect(() => {
     if (!open) return;
+    setHighlightRect(null); // Reset highlight when step changes
     const s = steps[currentStep];
     if (s?.beforeShow) {
       s.beforeShow();
     }
     let attempts = 0;
+    let timerId: ReturnType<typeof setTimeout>;
     const tryMeasure = () => {
       const el = document.querySelector(`[data-tour="${s?.tourTarget}"]`);
       if (el) {
@@ -183,12 +185,12 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
         }
       }
       attempts++;
-      if (attempts < 20) {
-        setTimeout(tryMeasure, 100);
+      if (attempts < 40) {
+        timerId = setTimeout(tryMeasure, 120);
       }
     };
-    const timer = setTimeout(tryMeasure, 150);
-    return () => clearTimeout(timer);
+    const timer = setTimeout(tryMeasure, 300);
+    return () => { clearTimeout(timer); clearTimeout(timerId); };
   }, [currentStep, open]);
 
   useEffect(() => {

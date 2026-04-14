@@ -972,7 +972,7 @@ export default function ShiftSummaryModal({
                 <tr className="bg-neutral-800/30">
                   <td colSpan={2} className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white">Cash Drop</td>
                   <td className="py-3 md:py-3.5 pr-3 md:pr-4" colSpan={2}></td>
-                  <td className="py-3 md:py-3.5 pl-3 md:pl-4 text-sm md:text-[15px] font-bold text-white text-right">$ {(-totalCashDrop).toFixed(2)}</td>
+                  <td className="py-3 md:py-3.5 pl-3 md:pl-4 text-sm md:text-[15px] font-bold text-white text-right">$ {(-tipsPayable).toFixed(2)}</td>
                 </tr>
               </tfoot>
             </table>

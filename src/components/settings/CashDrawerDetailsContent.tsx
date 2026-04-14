@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -7,6 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { SettingsManager } from "@/lib/settingsManager";
+import { supabase } from "@/integrations/supabase/client";
 
 interface CashDrawerDetailsContentProps {
   showHeader?: boolean;
@@ -74,58 +75,148 @@ const CashDrawerDetailsContent = ({
   
   const drawerRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => {
-    // Load transactions only for the current session (fresh start enforced)
-    const savedTransactions = localStorage.getItem('cashTransactions');
-    if (savedTransactions) {
-      setTransactions(JSON.parse(savedTransactions));
-    }
-    
-    const loadFromDB = async () => {
-      const sessionData = localStorage.getItem('activeDrawerSession');
-      if (sessionData) {
-        const session = JSON.parse(sessionData);
-        if (session.id) {
-          const dbTransactions = await SettingsManager.getCashTransactions(session.id);
-          if (dbTransactions.length > 0) {
-            const mapped: CashTransaction[] = dbTransactions.map((t: any) => ({
-              id: t.id,
-              time: new Date(t.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-              name: t.employee_name || 'Guest',
-              reason: t.reason,
-              payIn: t.type === 'pay_in' ? Number(t.amount) : 0,
-              payOut: t.type === 'pay_out' ? Number(t.amount) : 0,
-              cashSale: 0,
-              cardSale: 0,
-              cashTip: 0,
-              cardTip: 0,
-              cashDrop: t.type === 'cash_drop' ? Number(t.amount) : 0,
-              note: t.note,
-              timestamp: new Date(t.created_at).getTime(),
-              date: format(new Date(t.created_at), 'yyyy-MM-dd'),
-            }));
-            setTransactions(mapped);
-            localStorage.setItem('cashTransactions', JSON.stringify(mapped));
-          }
-        }
+  // State for order-based data (from DB)
+  const [orderCashSales, setOrderCashSales] = useState(0);
+  const [orderCardSales, setOrderCardSales] = useState(0);
+  const [orderCashTips, setOrderCashTips] = useState(0);
+  const [orderCardTips, setOrderCardTips] = useState(0);
+  const [dbCashDropTotal, setDbCashDropTotal] = useState(0);
+  const [orderEntries, setOrderEntries] = useState<CashTransaction[]>([]);
+  const [dropEntries, setDropEntries] = useState<CashTransaction[]>([]);
+
+  // Load all data: cash_transactions (pay in/out), orders (sales/tips), cash_drops
+  const loadAllData = useCallback(async () => {
+    const sessionData = localStorage.getItem('activeDrawerSession');
+    if (!sessionData) return;
+    const session = JSON.parse(sessionData);
+    const sessionStart = new Date(session.sessionStartTime);
+    const now = new Date();
+
+    // 1. Load cash_transactions (pay in/out) from DB
+    if (session.id) {
+      const dbTransactions = await SettingsManager.getCashTransactions(session.id);
+      if (dbTransactions.length > 0) {
+        const mapped: CashTransaction[] = dbTransactions.map((t: any) => ({
+          id: t.id,
+          time: new Date(t.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+          name: t.employee_name || 'Guest',
+          reason: t.reason,
+          payIn: t.type === 'pay_in' ? Number(t.amount) : 0,
+          payOut: t.type === 'pay_out' ? Number(t.amount) : 0,
+          cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0,
+          cashDrop: t.type === 'cash_drop' ? Number(t.amount) : 0,
+          note: t.note,
+          timestamp: new Date(t.created_at).getTime(),
+          date: format(new Date(t.created_at), 'yyyy-MM-dd'),
+        }));
+        setTransactions(mapped);
+        localStorage.setItem('cashTransactions', JSON.stringify(mapped));
+      } else {
+        setTransactions([]);
       }
-    };
-    loadFromDB();
+    }
+
+    // 2. Load orders (sales + tips) created since session start
+    const { data: sessionOrders } = await (supabase as any).from("orders")
+      .select("*")
+      .gte("created_at", sessionStart.toISOString())
+      .lte("created_at", now.toISOString())
+      .in("status", ["paid", "completed", "PAID"])
+      .order("created_at", { ascending: true });
+
+    let cSales = 0, cdSales = 0, cTips = 0, cdTips = 0;
+    const oEntries: CashTransaction[] = [];
+
+    if (sessionOrders && sessionOrders.length > 0) {
+      sessionOrders.forEach((order: any) => {
+        const isCash = order.payment_type === 'cash';
+        const orderTotal = Number(order.total) || 0;
+        const tipAmount = Number(order.tip_amount) || 0;
+        const saleAmount = orderTotal - tipAmount;
+
+        if (isCash) { cSales += saleAmount; cTips += tipAmount; }
+        else { cdSales += saleAmount; cdTips += tipAmount; }
+
+        oEntries.push({
+          id: order.id,
+          time: new Date(order.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+          name: order.employee_name || 'Staff',
+          reason: isCash ? 'Cash Sale' : 'Card Sale',
+          payIn: 0, payOut: 0,
+          cashSale: isCash ? saleAmount : 0,
+          cardSale: !isCash ? saleAmount : 0,
+          cashTip: isCash ? tipAmount : 0,
+          cardTip: !isCash ? tipAmount : 0,
+          cashDrop: 0,
+          timestamp: new Date(order.created_at).getTime(),
+          date: format(new Date(order.created_at), 'yyyy-MM-dd'),
+        });
+      });
+    }
+    setOrderCashSales(cSales);
+    setOrderCardSales(cdSales);
+    setOrderCashTips(cTips);
+    setOrderCardTips(cdTips);
+    setOrderEntries(oEntries);
+
+    // 3. Load cash drops since session start
+    const { data: drops } = await (supabase as any).from("cash_drops")
+      .select("*")
+      .gte("created_at", sessionStart.toISOString())
+      .order("created_at", { ascending: true });
+
+    let dropTotal = 0;
+    const dEntries: CashTransaction[] = [];
+    if (drops && drops.length > 0) {
+      drops.forEach((d: any) => {
+        const amt = Number(d.actual_drop_amount) || 0;
+        dropTotal += amt;
+        dEntries.push({
+          id: d.id,
+          time: new Date(d.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+          name: d.employee_name || 'Staff',
+          reason: 'Cash Drop',
+          payIn: 0, payOut: 0,
+          cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0,
+          cashDrop: amt,
+          timestamp: new Date(d.created_at).getTime(),
+          date: format(new Date(d.created_at), 'yyyy-MM-dd'),
+        });
+      });
+    }
+    setDbCashDropTotal(dropTotal);
+    setDropEntries(dEntries);
   }, []);
-  
-  // Calculate totals from transactions
+
+  useEffect(() => {
+    loadAllData();
+    // Refresh every 30 seconds for live updates
+    const interval = setInterval(loadAllData, 30000);
+    return () => clearInterval(interval);
+  }, [loadAllData]);
+
+  // Refresh on window focus (returning from other screens)
+  useEffect(() => {
+    const handleFocus = () => loadAllData();
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [loadAllData]);
+
+  // Calculate totals from combined sources
   const calculatedPaidInOut = transactions.reduce((acc, t) => acc + t.payIn - t.payOut, 0);
-  const totalCashSales = transactions.reduce((acc, t) => acc + (t.cashSale || 0), 0);
-  const totalCardSales = transactions.reduce((acc, t) => acc + (t.cardSale || 0), 0);
-  const totalCashTips = transactions.reduce((acc, t) => acc + (t.cashTip || 0), 0);
-  const totalCardTips = transactions.reduce((acc, t) => acc + (t.cardTip || 0), 0);
-  const totalCashDrops = transactions.reduce((acc, t) => acc + (t.cashDrop || 0), 0);
+  const txCashDrops = transactions.reduce((acc, t) => acc + (t.cashDrop || 0), 0);
+
+  const totalCashSales = orderCashSales;
+  const totalCardSales = orderCardSales;
+  const totalCashTips = orderCashTips;
+  const totalCardTips = orderCardTips;
+  const totalCashDrops = Math.max(dbCashDropTotal, txCashDrops);
   
   const cashSales = totalCashSales;
   const cashRefunds = 0.00;
   
-  // Expected = Starting + CashSales - Refunds + (PayIns - PayOuts) - CashDrops
-  const expectedInDrawer = startingCash + cashSales - cashRefunds + calculatedPaidInOut - totalCashDrops;
+  // Expected = Starting + CashSales + CashTips - Refunds + (PayIns - PayOuts) - CashDrops
+  const expectedInDrawer = startingCash + cashSales + totalCashTips - cashRefunds + calculatedPaidInOut - totalCashDrops;
   
   const actualAmount = actualInDrawer ? parseFloat(actualInDrawer) : 0;
   const difference = actualAmount - expectedInDrawer;
@@ -148,47 +239,45 @@ const CashDrawerDetailsContent = ({
     return 'Guest';
   };
 
-  // Build cash log entries filtered by selected date
+  // Build cash log: merge all entry types sorted by timestamp
   const filteredCashLogEntries = (() => {
     const entries: Array<{ time: string; name: string; reason: string; payIn: number; payOut: number; cashSale: number; cardSale: number; cashTip: number; cardTip: number; cashDrop: number; runningBalance: number }> = [];
-    let balance = 0;
     
+    // Opening cash entry
     if (selectedDateString === sessionStartDateString) {
       const startTime = format(sessionStartDate, 'hh:mm a');
-      balance = startingCash;
       entries.push({ 
-        time: startTime, 
-        name: getEmployeeName(), 
-        reason: "Opening Cash",
-        payIn: startingCash, 
-        payOut: 0,
-        cashSale: 0,
-        cardSale: 0,
-        cashTip: 0,
-        cardTip: 0,
-        cashDrop: 0,
-        runningBalance: balance,
+        time: startTime, name: getEmployeeName(), reason: "Opening Cash",
+        payIn: startingCash, payOut: 0,
+        cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0, cashDrop: 0,
+        runningBalance: startingCash,
       });
     }
-    
-    const filteredTransactions = transactions
-      .filter(t => {
-        const txDate = t.date || format(new Date(t.timestamp), 'yyyy-MM-dd');
-        return txDate === selectedDateString;
-      });
-    
-    filteredTransactions.forEach(t => {
-      balance += t.payIn - t.payOut - (t.cashDrop || 0);
+
+    // Merge pay in/out + orders + cash drops, sorted by timestamp
+    const allItems = [
+      ...transactions.filter(t => (t.date || format(new Date(t.timestamp), 'yyyy-MM-dd')) === selectedDateString),
+      ...orderEntries.filter(t => t.date === selectedDateString),
+      ...dropEntries.filter(t => t.date === selectedDateString),
+    ].sort((a, b) => a.timestamp - b.timestamp);
+
+    // Deduplicate by id
+    const seen = new Set<string>();
+    const unique = allItems.filter(item => {
+      if (seen.has(item.id)) return false;
+      seen.add(item.id);
+      return true;
+    });
+
+    let balance = selectedDateString === sessionStartDateString ? startingCash : 0;
+
+    unique.forEach(t => {
+      balance += t.payIn - t.payOut - (t.cashDrop || 0) + (t.cashSale || 0) + (t.cashTip || 0);
       entries.push({
-        time: t.time,
-        name: t.name || getEmployeeName(),
-        reason: t.reason,
-        payIn: t.payIn,
-        payOut: t.payOut,
-        cashSale: t.cashSale || 0,
-        cardSale: t.cardSale || 0,
-        cashTip: t.cashTip || 0,
-        cardTip: t.cardTip || 0,
+        time: t.time, name: t.name || getEmployeeName(), reason: t.reason,
+        payIn: t.payIn, payOut: t.payOut,
+        cashSale: t.cashSale || 0, cardSale: t.cardSale || 0,
+        cashTip: t.cashTip || 0, cardTip: t.cardTip || 0,
         cashDrop: t.cashDrop || 0,
         runningBalance: balance,
       });

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft, QrCode, KeyRound, Link2, ShieldCheck, Mail, Phone, MessageSquare } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, QrCode, KeyRound, Link2, ShieldCheck, Mail, Phone, MessageSquare, Send, Lock } from "lucide-react";
 
 interface WalkthroughStep {
   id: string;
@@ -8,10 +8,10 @@ interface WalkthroughStep {
   subtitle: string;
   instructions: string[];
   helperNote?: string;
-  tourTarget: string; // data-tour attribute value
+  tourTarget: string;
   cardPosition: "right" | "left" | "bottom" | "top";
   icon: React.ReactNode;
-  beforeShow?: () => void; // callback to trigger UI changes before showing this step
+  beforeShow?: () => void;
 }
 
 interface Props {
@@ -20,12 +20,14 @@ interface Props {
   onSwitchToEmailPhone?: () => void;
   onSwitchToBrowser?: () => void;
   onSwitchToOtp?: () => void;
+  onFillDummyEmail?: () => void;
+  onFillDummyPhone?: () => void;
+  onFillDummyOtp?: () => void;
 }
 
-const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToOtp }: Props) => {
+const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToOtp, onFillDummyEmail, onFillDummyPhone, onFillDummyOtp }: Props) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
-  const rafRef = useRef<number>(0);
 
   const steps: WalkthroughStep[] = [
     {
@@ -106,38 +108,55 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     },
     {
       id: "email-input",
-      title: "Step 6: Enter Contact Info",
-      subtitle: "Email or phone number",
+      title: "Step 6: Enter Your Email",
+      subtitle: "Example: john.doe@example.com",
       instructions: [
-        "Enter your registered email address or phone number",
-        "Tap 'Send Code' to receive a 6-digit verification code",
-        "Check your inbox or messages for the code",
+        "Enter your registered email address in this field",
+        "For example: john.doe@example.com",
+        "Make sure the email matches your account on file",
+        "A 6-digit verification code will be sent to this address",
       ],
-      helperNote: "If you don't receive the code, you can resend it after a few seconds.",
-      tourTarget: "email-input-area",
+      helperNote: "You can also enter a phone number like +1 (555) 234-5678 in this same field.",
+      tourTarget: "email-input-field",
       cardPosition: "left",
-      icon: <MessageSquare className="w-5 h-5" />,
-      beforeShow: onSwitchToEmailPhone,
+      icon: <Mail className="w-5 h-5" />,
+      beforeShow: onFillDummyEmail,
+    },
+    {
+      id: "send-code",
+      title: "Step 7: Send Verification Code",
+      subtitle: "Tap to receive your code",
+      instructions: [
+        "After entering your email or phone number, tap this button",
+        "A 6-digit verification code will be sent instantly",
+        "Check your email inbox or phone messages for the code",
+        "If you do not receive it, wait a few seconds and resend",
+      ],
+      tourTarget: "send-code-button",
+      cardPosition: "left",
+      icon: <Send className="w-5 h-5" />,
+      beforeShow: onFillDummyEmail,
     },
     {
       id: "otp-entry",
-      title: "Step 7: Enter Verification Code",
+      title: "Step 8: Enter Verification Code",
       subtitle: "Complete activation",
       instructions: [
         "Enter the 6-digit code received on your email or phone",
-        "Each digit goes in a separate box",
-        "Your device will activate automatically once verified",
+        "Each digit goes in a separate box as shown",
+        "The code auto-verifies once all 6 digits are entered",
+        "Your device will activate automatically after verification",
       ],
+      helperNote: "If the code expires, use 'Change contact' to go back and resend.",
       tourTarget: "otp-code-area",
       cardPosition: "left",
-      icon: <Phone className="w-5 h-5" />,
-      beforeShow: onSwitchToOtp,
+      icon: <Lock className="w-5 h-5" />,
+      beforeShow: onFillDummyOtp,
     },
   ];
 
   const step = steps[currentStep];
 
-  // Find and measure the target element
   const measureTarget = useCallback(() => {
     if (!step || !open) return;
     const el = document.querySelector(`[data-tour="${step.tourTarget}"]`);
@@ -147,14 +166,12 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     }
   }, [step, open]);
 
-  // Run beforeShow and then measure after DOM updates
   useEffect(() => {
     if (!open) return;
     const s = steps[currentStep];
     if (s?.beforeShow) {
       s.beforeShow();
     }
-    // Retry measuring until element is found (handles AnimatePresence delays)
     let attempts = 0;
     const tryMeasure = () => {
       const el = document.querySelector(`[data-tour="${s?.tourTarget}"]`);
@@ -166,7 +183,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
         }
       }
       attempts++;
-      if (attempts < 15) {
+      if (attempts < 20) {
         setTimeout(tryMeasure, 100);
       }
     };
@@ -174,7 +191,6 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     return () => clearTimeout(timer);
   }, [currentStep, open]);
 
-  // Keep measuring on resize/scroll
   useEffect(() => {
     if (!open) return;
     const onResize = () => measureTarget();
@@ -223,80 +239,40 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     height: highlightRect.height + padding * 2,
   } : { top: "40%", left: "40%", width: "20%", height: "20%" };
 
-  // Position card relative to the highlighted element
   const getCardStyle = (): React.CSSProperties => {
     if (!highlightRect) return { position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
 
     const cardW = 380;
-    const cardEstH = 420; // estimated card height
+    const cardEstH = 420;
     const gap = 32;
-
-    // Center card vertically with highlight, clamped to viewport
     const centerY = highlightRect.top + highlightRect.height / 2 - cardEstH / 2;
     const clampedY = Math.max(20, Math.min(centerY, window.innerHeight - cardEstH - 60));
 
     if (step.cardPosition === "right") {
-      return {
-        position: "fixed",
-        top: clampedY,
-        left: highlightRect.right + gap,
-        width: cardW,
-        maxWidth: `calc(100vw - ${highlightRect.right + gap + 20}px)`,
-      };
+      return { position: "fixed", top: clampedY, left: highlightRect.right + gap, width: cardW, maxWidth: `calc(100vw - ${highlightRect.right + gap + 20}px)` };
     }
     if (step.cardPosition === "left") {
-      return {
-        position: "fixed",
-        top: clampedY,
-        right: `calc(100vw - ${highlightRect.left - gap}px)`,
-        width: cardW,
-        maxWidth: `${highlightRect.left - gap - 20}px`,
-      };
+      return { position: "fixed", top: clampedY, right: `calc(100vw - ${highlightRect.left - gap}px)`, width: cardW, maxWidth: `${highlightRect.left - gap - 20}px` };
     }
     if (step.cardPosition === "top") {
-      return {
-        position: "fixed",
-        bottom: `calc(100vh - ${highlightRect.top - gap}px)`,
-        left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2),
-        width: cardW,
-      };
+      return { position: "fixed", bottom: `calc(100vh - ${highlightRect.top - gap}px)`, left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2), width: cardW };
     }
-    // bottom
-    return {
-      position: "fixed",
-      top: highlightRect.bottom + gap,
-      left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2),
-      width: cardW,
-    };
+    return { position: "fixed", top: highlightRect.bottom + gap, left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2), width: cardW };
   };
 
-  // Arrow between spotlight and card
   const getArrowInfo = (): { pos: React.CSSProperties; dir: string } => {
     if (!highlightRect) return { pos: { position: "fixed", top: 0, left: 0 }, dir: "right" };
     const gap = 4;
-
     if (step.cardPosition === "right") {
-      return {
-        pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.right + gap },
-        dir: "right",
-      };
+      return { pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.right + gap }, dir: "right" };
     }
     if (step.cardPosition === "left") {
-      return {
-        pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.left - gap - 32 },
-        dir: "left",
-      };
+      return { pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.left - gap - 32 }, dir: "left" };
     }
     if (step.cardPosition === "top") {
-      return {
-        pos: { position: "fixed", top: highlightRect.top - gap - 32, left: highlightRect.left + highlightRect.width / 2 - 16 },
-        dir: "up",
-      };
+      return { pos: { position: "fixed", top: highlightRect.top - gap - 32, left: highlightRect.left + highlightRect.width / 2 - 16 }, dir: "up" };
     }
-    return {
-      pos: { position: "fixed", top: highlightRect.bottom + gap, left: highlightRect.left + highlightRect.width / 2 - 16 },
-      dir: "down",
-    };
+    return { pos: { position: "fixed", top: highlightRect.bottom + gap, left: highlightRect.left + highlightRect.width / 2 - 16 }, dir: "down" };
   };
 
   const arrowPaths: Record<string, string> = {

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft, QrCode, Globe, Mail, Phone, KeyRound, Link2, ShieldCheck } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, QrCode, Globe, KeyRound, Link2, ShieldCheck, Mail, Phone } from "lucide-react";
 
 interface WalkthroughStep {
   id: string;
@@ -14,8 +14,9 @@ interface WalkthroughStep {
   icon: React.ReactNode;
 }
 
-// Flow 1: QR Code activation walkthrough
-const qrFlowSteps: WalkthroughStep[] = [
+// All walkthrough steps in sequence: QR → Code → Link → Code again → Email/Phone button → Email → Phone
+const walkthroughSteps: WalkthroughStep[] = [
+  // Step 1: QR Code
   {
     id: "qr-highlight",
     title: "Step 1: Scan QR Code",
@@ -32,6 +33,7 @@ const qrFlowSteps: WalkthroughStep[] = [
     arrowDirection: "right",
     icon: <QrCode className="w-5 h-5" />,
   },
+  // Step 2: Activation Code
   {
     id: "code-highlight",
     title: "Step 2: Activation Code",
@@ -47,21 +49,23 @@ const qrFlowSteps: WalkthroughStep[] = [
     arrowDirection: "left",
     icon: <KeyRound className="w-5 h-5" />,
   },
+  // Step 3: Activation Link
   {
     id: "link-highlight",
     title: "Step 3: Activation Link",
-    subtitle: "Alternative browser method",
+    subtitle: "Open this URL in a browser",
     instructions: [
       "If QR scanning is not available, use this link instead",
       "Open any browser on your phone or computer",
       "Type the URL shown here into the address bar",
-      "You will be prompted to enter the activation code from Step 2",
+      "You will be prompted to enter the activation code",
     ],
     highlightArea: { top: "38%", left: "52%", width: "42%", height: "12%" },
     cardPosition: "left",
     arrowDirection: "left",
     icon: <Link2 className="w-5 h-5" />,
   },
+  // Step 4: Code reconfirmation
   {
     id: "code-reconfirm",
     title: "Step 4: Enter the Code",
@@ -78,105 +82,56 @@ const qrFlowSteps: WalkthroughStep[] = [
     arrowDirection: "left",
     icon: <ShieldCheck className="w-5 h-5" />,
   },
-];
-
-// Flow 2: Email activation walkthrough
-const emailFlowSteps: WalkthroughStep[] = [
+  // Step 5: Email / Phone button
   {
-    id: "email-button",
-    title: "Step 1: Select Email Activation",
-    subtitle: "Choose email verification",
+    id: "email-phone-button",
+    title: "Step 5: Activate via Email or Phone",
+    subtitle: "Alternative activation method",
     instructions: [
-      "Look for the 'Activate via email / phone' button below",
-      "Tap or click on it to switch to email activation mode",
-      "You will be prompted to enter your email address",
+      "Tap this button to switch to email or phone activation",
+      "You can verify your identity using a code sent to your email",
+      "Or receive a verification code via SMS to your phone",
     ],
-    highlightArea: { top: "80%", left: "35%", width: "30%", height: "6%" },
-    cardPosition: "left",
+    highlightArea: { top: "78%", left: "30%", width: "40%", height: "7%" },
+    cardPosition: "bottom",
     arrowDirection: "down",
     icon: <Mail className="w-5 h-5" />,
   },
+  // Step 6: Email activation
   {
-    id: "email-enter",
-    title: "Step 2: Enter Your Email",
-    subtitle: "Provide your registered email",
+    id: "email-activate",
+    title: "Step 6: Email Verification",
+    subtitle: "Activate using your email",
     instructions: [
-      "Enter the email address associated with your account",
-      "Make sure to use the email registered with your organization",
-      "Tap 'Send Code' to receive a verification code",
+      "Enter your registered email address in the input field",
+      "Tap 'Send Code' to receive a 6-digit verification code",
+      "Check your inbox (and spam folder) for the code",
+      "Enter the code on this device to complete activation",
     ],
-    highlightArea: { top: "40%", left: "30%", width: "40%", height: "10%" },
-    cardPosition: "right",
-    arrowDirection: "right",
+    helperNote: "If you don't receive the code, you can resend it after a few seconds.",
+    highlightArea: { top: "78%", left: "30%", width: "40%", height: "7%" },
+    cardPosition: "bottom",
+    arrowDirection: "down",
     icon: <Mail className="w-5 h-5" />,
   },
+  // Step 7: Phone activation
   {
-    id: "email-otp",
-    title: "Step 3: Enter Verification Code",
-    subtitle: "Check your inbox",
+    id: "phone-activate",
+    title: "Step 7: Phone Verification",
+    subtitle: "Activate using your phone number",
     instructions: [
-      "Open your email inbox and find the verification email",
-      "Copy the 6-digit code from the email",
-      "Enter the code in the verification boxes on screen",
-      "The device will activate automatically once verified",
-    ],
-    helperNote: "If you don't receive the code, check your spam folder or tap 'Resend Code' after a few seconds.",
-    highlightArea: { top: "45%", left: "25%", width: "50%", height: "15%" },
-    cardPosition: "right",
-    arrowDirection: "right",
-    icon: <ShieldCheck className="w-5 h-5" />,
-  },
-];
-
-// Flow 3: Phone activation walkthrough
-const phoneFlowSteps: WalkthroughStep[] = [
-  {
-    id: "phone-button",
-    title: "Step 1: Select Phone Activation",
-    subtitle: "Choose phone verification",
-    instructions: [
-      "Look for the 'Activate via email / phone' button below",
-      "Tap or click on it to switch to phone activation mode",
-      "Select the phone tab to enter your mobile number",
-    ],
-    highlightArea: { top: "80%", left: "35%", width: "30%", height: "6%" },
-    cardPosition: "left",
-    arrowDirection: "down",
-    icon: <Phone className="w-5 h-5" />,
-  },
-  {
-    id: "phone-enter",
-    title: "Step 2: Enter Phone Number",
-    subtitle: "Provide your mobile number",
-    instructions: [
-      "Enter your mobile phone number with country code",
-      "Make sure the number can receive SMS messages",
+      "Select the phone tab and enter your mobile number with country code",
       "Tap 'Send Code' to receive a verification SMS",
+      "Enter the 6-digit code from the SMS on this device",
+      "Your device will activate automatically once verified",
     ],
-    highlightArea: { top: "40%", left: "30%", width: "40%", height: "10%" },
-    cardPosition: "right",
-    arrowDirection: "right",
+    helperNote: "Make sure your phone has signal and can receive SMS messages.",
+    highlightArea: { top: "78%", left: "30%", width: "40%", height: "7%" },
+    cardPosition: "bottom",
+    arrowDirection: "down",
     icon: <Phone className="w-5 h-5" />,
   },
-  {
-    id: "phone-otp",
-    title: "Step 3: Enter Verification Code",
-    subtitle: "Check your messages",
-    instructions: [
-      "Open your text messages and find the verification SMS",
-      "Copy the 6-digit code from the message",
-      "Enter the code in the verification boxes on screen",
-      "The device will activate automatically once verified",
-    ],
-    helperNote: "If you don't receive the SMS, ensure your phone has signal and tap 'Resend Code' after a few seconds.",
-    highlightArea: { top: "45%", left: "25%", width: "50%", height: "15%" },
-    cardPosition: "right",
-    arrowDirection: "right",
-    icon: <ShieldCheck className="w-5 h-5" />,
-  },
 ];
-
-type FlowType = "main" | "qr" | "email" | "phone";
 
 interface Props {
   open: boolean;
@@ -184,32 +139,18 @@ interface Props {
 }
 
 const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
-  const [flow, setFlow] = useState<FlowType>("main");
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
-    if (open) {
-      setFlow("main");
-      setCurrentStep(0);
-    }
+    if (open) setCurrentStep(0);
   }, [open]);
 
   const handleClose = () => {
-    setFlow("main");
     setCurrentStep(0);
     onClose();
   };
 
-  const getSteps = (): WalkthroughStep[] => {
-    switch (flow) {
-      case "qr": return qrFlowSteps;
-      case "email": return emailFlowSteps;
-      case "phone": return phoneFlowSteps;
-      default: return [];
-    }
-  };
-
-  const steps = getSteps();
+  const steps = walkthroughSteps;
   const step = steps[currentStep];
 
   const handleNext = () => {
@@ -223,14 +164,7 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
   const handlePrev = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
-    } else {
-      setFlow("main");
     }
-  };
-
-  const startFlow = (f: FlowType) => {
-    setFlow(f);
-    setCurrentStep(0);
   };
 
   // Calculate card position based on step config
@@ -259,7 +193,7 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
     // bottom
     return {
       position: "absolute",
-      top: `calc(${h.top} + ${h.height} + 32px)`,
+      bottom: `calc(100% - ${h.top} + 24px)`,
       left: `calc(${h.left} + ${h.width} / 2)`,
       transform: "translateX(-50%)",
       maxWidth: "400px",
@@ -294,90 +228,6 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
     step.arrowDirection === "right" ? { x: [0, 6, 0] } :
     { y: [0, 6, 0] };
 
-  // Main menu screen
-  if (flow === "main") {
-    return (
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-[10000] flex items-center justify-center p-4"
-          >
-            <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={handleClose} />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ duration: 0.25 }}
-              className="relative z-10 w-full max-w-md bg-[#1C1C1E] border border-foreground/[0.08] rounded-2xl shadow-2xl overflow-hidden"
-            >
-              {/* Header */}
-              <div className="flex items-start justify-between px-6 pt-6 pb-2">
-                <div>
-                  <span className="text-[10px] font-medium text-foreground/30 uppercase tracking-wider">Help Guide</span>
-                  <h2 className="text-xl font-bold text-foreground mt-1">How would you like to activate?</h2>
-                  <p className="text-sm text-foreground/40 mt-1">Choose a method below to see step-by-step instructions</p>
-                </div>
-                <button onClick={handleClose} className="w-9 h-9 rounded-xl flex items-center justify-center text-foreground/40 hover:text-foreground/70 hover:bg-foreground/[0.06] transition-colors shrink-0 ml-2">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Flow options */}
-              <div className="px-6 py-5 flex flex-col gap-3">
-                <button
-                  onClick={() => startFlow("qr")}
-                  className="flex items-center gap-4 p-4 rounded-xl bg-foreground/[0.04] border border-foreground/[0.08] hover:bg-foreground/[0.08] hover:border-primary/30 transition-all group"
-                >
-                  <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <QrCode className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <h3 className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors">QR Code / Browser Activation</h3>
-                    <p className="text-xs text-foreground/40 mt-0.5">Scan QR or use a link with activation code</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-foreground/20 group-hover:text-primary transition-colors" />
-                </button>
-
-                <button
-                  onClick={() => startFlow("email")}
-                  className="flex items-center gap-4 p-4 rounded-xl bg-foreground/[0.04] border border-foreground/[0.08] hover:bg-foreground/[0.08] hover:border-primary/30 transition-all group"
-                >
-                  <div className="w-11 h-11 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center shrink-0">
-                    <Mail className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <h3 className="text-sm font-semibold text-foreground group-hover:text-blue-400 transition-colors">Activate via Email</h3>
-                    <p className="text-xs text-foreground/40 mt-0.5">Receive a verification code to your email</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-foreground/20 group-hover:text-blue-400 transition-colors" />
-                </button>
-
-                <button
-                  onClick={() => startFlow("phone")}
-                  className="flex items-center gap-4 p-4 rounded-xl bg-foreground/[0.04] border border-foreground/[0.08] hover:bg-foreground/[0.08] hover:border-primary/30 transition-all group"
-                >
-                  <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0">
-                    <Phone className="w-5 h-5" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <h3 className="text-sm font-semibold text-foreground group-hover:text-emerald-400 transition-colors">Activate via Phone</h3>
-                    <p className="text-xs text-foreground/40 mt-0.5">Receive a verification code via SMS</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-foreground/20 group-hover:text-emerald-400 transition-colors" />
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    );
-  }
-
-  // Walkthrough mode with spotlight + card
   if (!step) return null;
 
   const h = step.highlightArea;
@@ -390,15 +240,15 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[10000]"
+          className="fixed inset-0 z-[10000] pointer-events-auto"
         >
-          {/* Spotlight cutout - dims everything except highlighted area */}
+          {/* Spotlight cutout */}
           <motion.div
-            key={`spotlight-${flow}-${currentStep}`}
+            key={`spotlight-${currentStep}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3 }}
-            className="absolute rounded-2xl"
+            className="absolute"
             style={{
               top: h.top,
               left: h.left,
@@ -412,7 +262,7 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
 
           {/* Animated arrow */}
           <motion.div
-            key={`arrow-${flow}-${currentStep}`}
+            key={`arrow-${currentStep}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2, duration: 0.25 }}
@@ -430,14 +280,14 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
 
           {/* Instruction Card */}
           <motion.div
-            key={`card-${flow}-${currentStep}`}
+            key={`card-${currentStep}`}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.15, duration: 0.3 }}
             className="z-30"
             style={getCardStyle()}
           >
-            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden border border-white/10">
+            <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
               {/* Card header */}
               <div className="px-5 pt-5 pb-3 flex items-center gap-3">
                 <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
@@ -483,13 +333,12 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
                       }`}
                     />
                   ))}
-                  <span className="text-[11px] text-gray-400 ml-2">{currentStep + 1}/{steps.length}</span>
                 </div>
                 <button
                   onClick={handleNext}
                   className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors"
                 >
-                  {currentStep === steps.length - 1 ? "Done" : "Next"}
+                  {currentStep === steps.length - 1 ? "Got it" : "Next"}
                   {currentStep < steps.length - 1 && <ChevronRight className="w-4 h-4" />}
                 </button>
               </div>
@@ -498,13 +347,15 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
 
           {/* Bottom controls */}
           <div className="absolute bottom-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
-            <button
-              onClick={handlePrev}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 text-white/70 text-sm hover:bg-white/20 transition-colors backdrop-blur-sm"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              Back
-            </button>
+            {currentStep > 0 && (
+              <button
+                onClick={handlePrev}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 text-white/70 text-sm hover:bg-white/20 transition-colors backdrop-blur-sm"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Back
+              </button>
+            )}
             <button
               onClick={handleClose}
               className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 text-white/70 text-sm hover:bg-white/20 transition-colors backdrop-blur-sm"

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, AlertTriangle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
@@ -25,18 +25,21 @@ interface CashTransaction {
   reason: string;
   payIn: number;
   payOut: number;
-  cash: number;
-  card: number;
-  tips: number;
+  cashSale: number;
+  cardSale: number;
+  cashTip: number;
+  cardTip: number;
+  cashDrop: number;
   note?: string;
   timestamp: number;
-  date: string; // YYYY-MM-DD format for easy filtering
+  date: string;
 }
 
 interface DrawerSession {
   startingCash: number;
   selectedDrawer: string;
   sessionStartTime: number;
+  id?: string;
 }
 
 const DRAWER_OPTIONS = ["Point of Sale 1", "Point of Sale 2", "Point of Sale 3", "Main Drawer"];
@@ -48,7 +51,7 @@ const CashDrawerDetailsContent = ({
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   
-  // Load drawer session from localStorage (persisted, not from navigation state)
+  // Load drawer session from localStorage
   const [drawerSession, setDrawerSession] = useState<DrawerSession>(() => {
     const saved = localStorage.getItem('activeDrawerSession');
     if (saved) {
@@ -62,6 +65,7 @@ const CashDrawerDetailsContent = ({
   const [showDrawerDropdown, setShowDrawerDropdown] = useState(false);
   const [drawerPosition, setDrawerPosition] = useState<DropdownPosition>({ top: 0, right: 0 });
   const [showEndDrawerPopup, setShowEndDrawerPopup] = useState(false);
+  const [showBackAlert, setShowBackAlert] = useState(false);
   const [actualInDrawer, setActualInDrawer] = useState("");
   const [differenceReason, setDifferenceReason] = useState("");
   const [transactions, setTransactions] = useState<CashTransaction[]>([]);
@@ -69,14 +73,14 @@ const CashDrawerDetailsContent = ({
   const [isDatePickerOpen, setIsDatePickerOpen] = useState(false);
   
   const drawerRef = useRef<HTMLButtonElement>(null);
+
   useEffect(() => {
-    // Load from localStorage first
+    // Load transactions only for the current session (fresh start enforced)
     const savedTransactions = localStorage.getItem('cashTransactions');
     if (savedTransactions) {
       setTransactions(JSON.parse(savedTransactions));
     }
     
-    // Also load from DB if session has an ID
     const loadFromDB = async () => {
       const sessionData = localStorage.getItem('activeDrawerSession');
       if (sessionData) {
@@ -91,9 +95,11 @@ const CashDrawerDetailsContent = ({
               reason: t.reason,
               payIn: t.type === 'pay_in' ? Number(t.amount) : 0,
               payOut: t.type === 'pay_out' ? Number(t.amount) : 0,
-              cash: t.type === 'pay_in' ? Number(t.amount) : 0,
-              card: 0,
-              tips: 0,
+              cashSale: 0,
+              cardSale: 0,
+              cashTip: 0,
+              cardTip: 0,
+              cashDrop: t.type === 'cash_drop' ? Number(t.amount) : 0,
               note: t.note,
               timestamp: new Date(t.created_at).getTime(),
               date: format(new Date(t.created_at), 'yyyy-MM-dd'),
@@ -107,17 +113,19 @@ const CashDrawerDetailsContent = ({
     loadFromDB();
   }, []);
   
-  // Calculate paidInOut from actual transactions (totalPayIn - totalPayOut)
-  const calculatedPaidInOut = transactions.reduce((acc, t) => {
-    return acc + t.payIn - t.payOut;
-  }, 0);
+  // Calculate totals from transactions
+  const calculatedPaidInOut = transactions.reduce((acc, t) => acc + t.payIn - t.payOut, 0);
+  const totalCashSales = transactions.reduce((acc, t) => acc + (t.cashSale || 0), 0);
+  const totalCardSales = transactions.reduce((acc, t) => acc + (t.cardSale || 0), 0);
+  const totalCashTips = transactions.reduce((acc, t) => acc + (t.cashTip || 0), 0);
+  const totalCardTips = transactions.reduce((acc, t) => acc + (t.cardTip || 0), 0);
+  const totalCashDrops = transactions.reduce((acc, t) => acc + (t.cashDrop || 0), 0);
   
-  // Mock sales data (in real app, this would come from sales system)
-  const cashSales = 0.00;
+  const cashSales = totalCashSales;
   const cashRefunds = 0.00;
   
-  // Expected = Starting + Sales - Refunds + (PayIns - PayOuts)
-  const expectedInDrawer = startingCash + cashSales - cashRefunds + calculatedPaidInOut;
+  // Expected = Starting + CashSales - Refunds + (PayIns - PayOuts) - CashDrops
+  const expectedInDrawer = startingCash + cashSales - cashRefunds + calculatedPaidInOut - totalCashDrops;
   
   const actualAmount = actualInDrawer ? parseFloat(actualInDrawer) : 0;
   const difference = actualAmount - expectedInDrawer;
@@ -125,12 +133,10 @@ const CashDrawerDetailsContent = ({
   const hasDifference = hasActualAmount && difference !== 0;
   const canConfirmEndDrawer = hasActualAmount && (!hasDifference || differenceReason.trim().length > 0);
   
-  // Get session start date for filtering
   const sessionStartDate = new Date(drawerSession.sessionStartTime);
   const sessionStartDateString = format(sessionStartDate, 'yyyy-MM-dd');
   const selectedDateString = format(selectedLogDate, 'yyyy-MM-dd');
   
-  // Get the clocked-in employee name
   const getEmployeeName = () => {
     try {
       const session = localStorage.getItem('pos_session');
@@ -142,12 +148,11 @@ const CashDrawerDetailsContent = ({
     return 'Guest';
   };
 
-  // Build cash log entries filtered by selected date with running balance
+  // Build cash log entries filtered by selected date
   const filteredCashLogEntries = (() => {
-    const entries: Array<{ time: string; name: string; reason: string; payIn: number; payOut: number; cash: number; card: number; tips: number; runningBalance: number }> = [];
+    const entries: Array<{ time: string; name: string; reason: string; payIn: number; payOut: number; cashSale: number; cardSale: number; cashTip: number; cardTip: number; cashDrop: number; runningBalance: number }> = [];
     let balance = 0;
     
-    // Include Opening Cash only on the session start date
     if (selectedDateString === sessionStartDateString) {
       const startTime = format(sessionStartDate, 'hh:mm a');
       balance = startingCash;
@@ -157,14 +162,15 @@ const CashDrawerDetailsContent = ({
         reason: "Opening Cash",
         payIn: startingCash, 
         payOut: 0,
-        cash: startingCash,
-        card: 0,
-        tips: 0,
+        cashSale: 0,
+        cardSale: 0,
+        cashTip: 0,
+        cardTip: 0,
+        cashDrop: 0,
         runningBalance: balance,
       });
     }
     
-    // Filter transactions by selected date
     const filteredTransactions = transactions
       .filter(t => {
         const txDate = t.date || format(new Date(t.timestamp), 'yyyy-MM-dd');
@@ -172,16 +178,18 @@ const CashDrawerDetailsContent = ({
       });
     
     filteredTransactions.forEach(t => {
-      balance += t.payIn - t.payOut;
+      balance += t.payIn - t.payOut - (t.cashDrop || 0);
       entries.push({
         time: t.time,
         name: t.name || getEmployeeName(),
         reason: t.reason,
         payIn: t.payIn,
         payOut: t.payOut,
-        cash: t.cash || t.payIn,
-        card: t.card || 0,
-        tips: t.tips || 0,
+        cashSale: t.cashSale || 0,
+        cardSale: t.cardSale || 0,
+        cashTip: t.cashTip || 0,
+        cardTip: t.cardTip || 0,
+        cashDrop: t.cashDrop || 0,
         runningBalance: balance,
       });
     });
@@ -207,8 +215,12 @@ const CashDrawerDetailsContent = ({
   };
 
   const handlePayInOut = () => {
-    // Session data is already in localStorage, no need to pass via state
     navigate('/settings/payments/cash-management/pay-in-out');
+  };
+
+  const handleBack = () => {
+    // Block navigation — drawer must be closed first
+    setShowBackAlert(true);
   };
 
   const handleConfirmEndDrawer = async () => {
@@ -216,7 +228,6 @@ const CashDrawerDetailsContent = ({
       const sessionData = localStorage.getItem('activeDrawerSession');
       const session = sessionData ? JSON.parse(sessionData) : null;
       
-      // Close in DB if we have a session ID
       if (session?.id) {
         await SettingsManager.closeCashDrawerSession(session.id, {
           closingCash: actualAmount,
@@ -228,7 +239,6 @@ const CashDrawerDetailsContent = ({
         });
       }
 
-      // Also store in localStorage for backwards compatibility
       const closedSessionData = {
         drawer: selectedDrawer,
         closingBalance: actualAmount,
@@ -236,6 +246,10 @@ const CashDrawerDetailsContent = ({
         expectedInDrawer: expectedInDrawer,
         difference: difference,
         cashSales: cashSales,
+        cardSales: totalCardSales,
+        cashTips: totalCashTips,
+        cardTips: totalCardTips,
+        cashDrops: totalCashDrops,
         cashRefunds: cashRefunds,
         paidInOut: calculatedPaidInOut,
         closedAt: Date.now()
@@ -250,17 +264,9 @@ const CashDrawerDetailsContent = ({
     }
   };
 
-  const handleBack = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      navigate('/settings/payments');
-    }
-  };
-
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {/* Back Button - Circular style matching reference */}
+      {/* Back Button — shows alert instead of navigating */}
       {showHeader && (
         <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
           <button
@@ -274,7 +280,7 @@ const CashDrawerDetailsContent = ({
         </div>
       )}
 
-      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
+      <div className="pt-0 px-6 pb-28">
         {/* Opening Cash Section */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Opening Cash</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
@@ -308,8 +314,33 @@ const CashDrawerDetailsContent = ({
           </div>
           <div className="h-px bg-neutral-700/50 mx-4" />
           <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-lg font-medium">Cash Sale</span>
+            <span className="text-foreground text-lg">${totalCashSales.toFixed(2)}</span>
+          </div>
+          <div className="h-px bg-neutral-700/50 mx-4" />
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-lg font-medium">Card Sale</span>
+            <span className="text-foreground text-lg">${totalCardSales.toFixed(2)}</span>
+          </div>
+          <div className="h-px bg-neutral-700/50 mx-4" />
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-lg font-medium">Cash Tip</span>
+            <span className="text-foreground text-lg">${totalCashTips.toFixed(2)}</span>
+          </div>
+          <div className="h-px bg-neutral-700/50 mx-4" />
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-lg font-medium">Card Tip</span>
+            <span className="text-foreground text-lg">${totalCardTips.toFixed(2)}</span>
+          </div>
+          <div className="h-px bg-neutral-700/50 mx-4" />
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-lg font-medium">Cash Drop</span>
+            <span className="text-amber-400 text-lg">${totalCashDrops.toFixed(2)}</span>
+          </div>
+          <div className="h-px bg-neutral-700/50 mx-4" />
+          <div className="flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-lg font-medium">Expected In Drawer</span>
-            <span className="text-foreground text-lg">${expectedInDrawer.toFixed(2)}</span>
+            <span className="text-foreground text-lg font-semibold">${expectedInDrawer.toFixed(2)}</span>
           </div>
         </div>
 
@@ -356,32 +387,36 @@ const CashDrawerDetailsContent = ({
         {/* Cash Log Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
-            <div className="min-w-[800px]">
+            <div className="min-w-[1100px]">
               {/* Table Header */}
-              <div className="grid grid-cols-9 py-3.5 px-4 border-b border-neutral-700/50">
+              <div className="grid grid-cols-11 py-3.5 px-4 border-b border-neutral-700/50">
                 <span className="text-neutral-400 text-sm font-medium">Time</span>
                 <span className="text-neutral-400 text-sm font-medium">Name</span>
                 <span className="text-neutral-400 text-sm font-medium">Reason</span>
                 <span className="text-neutral-400 text-sm font-medium text-right">Pay In</span>
                 <span className="text-neutral-400 text-sm font-medium text-right">Pay Out</span>
-                <span className="text-neutral-400 text-sm font-medium text-right">Cash</span>
-                <span className="text-neutral-400 text-sm font-medium text-right">Card</span>
-                <span className="text-neutral-400 text-sm font-medium text-right">Tips</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Cash Sale</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Card Sale</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Cash Tip</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Card Tip</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Cash Drop</span>
                 <span className="text-neutral-400 text-sm font-medium text-right">Balance</span>
               </div>
               
               {/* Table Rows */}
               {filteredCashLogEntries.length > 0 ? (
                 filteredCashLogEntries.map((entry, index) => (
-                  <div key={index} className="grid grid-cols-9 py-3.5 px-4 border-b border-neutral-700/20 last:border-0">
+                  <div key={index} className="grid grid-cols-11 py-3.5 px-4 border-b border-neutral-700/20 last:border-0">
                     <span className="text-foreground text-sm">{entry.time}</span>
                     <span className="text-foreground text-sm">{entry.name}</span>
                     <span className="text-foreground text-sm">{entry.reason}</span>
                     <span className="text-foreground text-sm text-right">${entry.payIn.toFixed(2)}</span>
                     <span className="text-foreground text-sm text-right">${entry.payOut.toFixed(2)}</span>
-                    <span className="text-foreground text-sm text-right">${entry.cash.toFixed(2)}</span>
-                    <span className="text-foreground text-sm text-right">${entry.card.toFixed(2)}</span>
-                    <span className="text-foreground text-sm text-right">${entry.tips.toFixed(2)}</span>
+                    <span className="text-foreground text-sm text-right">${entry.cashSale.toFixed(2)}</span>
+                    <span className="text-foreground text-sm text-right">${entry.cardSale.toFixed(2)}</span>
+                    <span className="text-foreground text-sm text-right">${entry.cashTip.toFixed(2)}</span>
+                    <span className="text-foreground text-sm text-right">${entry.cardTip.toFixed(2)}</span>
+                    <span className="text-amber-400 text-sm text-right">${entry.cashDrop.toFixed(2)}</span>
                     <span className="text-foreground text-sm text-right font-medium">${entry.runningBalance.toFixed(2)}</span>
                   </div>
                 ))
@@ -426,6 +461,35 @@ const CashDrawerDetailsContent = ({
         </div>
       )}
 
+      {/* Back Navigation Alert */}
+      {showBackAlert && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 animate-in fade-in duration-200"
+          onClick={() => setShowBackAlert(false)}
+        >
+          <div 
+            className="bg-background rounded-2xl w-full max-w-sm mx-4 overflow-hidden animate-in zoom-in-95 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex flex-col items-center px-6 py-6 gap-4">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                <AlertTriangle className="w-6 h-6 text-amber-400" />
+              </div>
+              <h3 className="text-foreground text-lg font-semibold text-center">Active Cash Drawer</h3>
+              <p className="text-neutral-400 text-sm text-center leading-relaxed">
+                Please close the active cash drawer before leaving this screen.
+              </p>
+              <button
+                onClick={() => setShowBackAlert(false)}
+                className="w-full py-3.5 rounded-xl bg-neutral-700 text-foreground text-base font-semibold active:opacity-70 transition-opacity mt-1"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* End Drawer Popup */}
       {showEndDrawerPopup && (
         <div 
@@ -433,7 +497,7 @@ const CashDrawerDetailsContent = ({
           onClick={() => setShowEndDrawerPopup(false)}
         >
           <div 
-            className="bg-background rounded-2xl w-full max-w-md mx-4 overflow-hidden animate-in zoom-in-95 duration-200"
+            className="bg-background rounded-2xl w-full max-w-md mx-4 overflow-hidden animate-in zoom-in-95 duration-200 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Header */}
@@ -443,25 +507,41 @@ const CashDrawerDetailsContent = ({
 
             {/* Content */}
             <div className="px-6 py-4 space-y-4">
-              {/* Opening Cash */}
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400 text-base">Opening Cash</span>
                 <span className="text-foreground text-base">${startingCash.toFixed(2)}</span>
               </div>
 
-              {/* Cash Sales */}
               <div className="flex items-center justify-between">
-                <span className="text-neutral-400 text-base">Cash Sales</span>
-                <span className="text-foreground text-base">${cashSales.toFixed(2)}</span>
+                <span className="text-neutral-400 text-base">Cash Sale</span>
+                <span className="text-foreground text-base">${totalCashSales.toFixed(2)}</span>
               </div>
 
-              {/* Cash Refunds */}
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-400 text-base">Card Sale</span>
+                <span className="text-foreground text-base">${totalCardSales.toFixed(2)}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-400 text-base">Cash Tip</span>
+                <span className="text-foreground text-base">${totalCashTips.toFixed(2)}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-400 text-base">Card Tip</span>
+                <span className="text-foreground text-base">${totalCardTips.toFixed(2)}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-400 text-base">Cash Drop</span>
+                <span className="text-amber-400 text-base">${totalCashDrops.toFixed(2)}</span>
+              </div>
+
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400 text-base">Cash Refunds</span>
                 <span className="text-foreground text-base">${cashRefunds.toFixed(2)}</span>
               </div>
 
-              {/* Paid In/Out */}
               <div className="flex items-center justify-between">
                 <span className="text-neutral-400 text-base">Paid In/Out</span>
                 <span className="text-foreground text-base">{calculatedPaidInOut < 0 ? '-' : ''}${Math.abs(calculatedPaidInOut).toFixed(2)}</span>
@@ -473,7 +553,7 @@ const CashDrawerDetailsContent = ({
                 <span className="text-foreground text-base font-medium">${expectedInDrawer.toFixed(2)}</span>
               </div>
 
-              {/* Actual in Drawer - Input */}
+              {/* Actual in Drawer */}
               <div className="pt-2">
                 <span className="text-neutral-400 text-base block mb-2">Actual in Drawer</span>
                 <div className="flex items-center bg-neutral-800/60 rounded-xl px-4 py-3">
@@ -499,7 +579,7 @@ const CashDrawerDetailsContent = ({
                 </span>
               </div>
 
-              {/* Reason for Difference - mandatory when there's a mismatch */}
+              {/* Reason for Difference */}
               {hasDifference && (
                 <div className="pt-2">
                   <span className="text-neutral-400 text-base block mb-2">

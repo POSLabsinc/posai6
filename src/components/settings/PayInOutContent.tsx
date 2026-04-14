@@ -161,6 +161,12 @@ const PayInOutContent = ({
     }
   };
 
+  const handleCashDrop = () => {
+    if (hasAmount && hasReason) {
+      saveTransaction('payOut');
+    }
+  };
+
   const canSubmit = hasAmount && hasReason;
 
   return (

@@ -1205,13 +1205,32 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           {showTutorialOverlay && (
             <DeviceSetupHelpCard
               open={showTutorialOverlay}
-              onClose={() => setShowTutorialOverlay(false)}
-              onSwitchToEmailPhone={() => { setShowOtherOptions(true); setActivationCodeSent(false); }}
-              onSwitchToBrowser={() => { setShowOtherOptions(false); setActivationCodeSent(false); setActivationContactValue(""); }}
-              onSwitchToOtp={() => { setShowOtherOptions(true); setActivationCodeSent(true); }}
-              onFillDummyEmail={() => { setShowOtherOptions(true); setActivationCodeSent(false); setActivationContactValue("john.doe@example.com"); }}
-              onFillDummyPhone={() => { setShowOtherOptions(true); setActivationCodeSent(false); setActivationContactValue("+1 (555) 234-5678"); }}
-              onFillDummyOtp={() => { setShowOtherOptions(true); setActivationCodeSent(true); setActivationContactValue("john.doe@example.com"); setActivationCode("482"); }}
+              onClose={() => { setShowTutorialOverlay(false); setShowOtherOptions(false); setActivationCodeSent(false); setActivationContactValue(""); setActivationCode(""); }}
+              onStepChange={(step) => {
+                if (step <= 4) {
+                  // Steps 0-4: browser view
+                  setShowOtherOptions(false);
+                  setActivationCodeSent(false);
+                  setActivationContactValue("");
+                  setActivationCode("");
+                } else if (step === 5) {
+                  // Step 5: email input with dummy email
+                  setShowOtherOptions(true);
+                  setActivationCodeSent(false);
+                  setActivationContactValue("john.doe@example.com");
+                } else if (step === 6) {
+                  // Step 6: highlight send code button
+                  setShowOtherOptions(true);
+                  setActivationCodeSent(false);
+                  setActivationContactValue("john.doe@example.com");
+                } else if (step === 7) {
+                  // Step 7: OTP entry with partial dummy code
+                  setShowOtherOptions(true);
+                  setActivationCodeSent(true);
+                  setActivationContactValue("john.doe@example.com");
+                  setActivationCode("482");
+                }
+              }}
             />
           )}
         </div>
@@ -1256,15 +1275,18 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
           {/* Desktop: Two-column layout */}
           <div className="hidden md:block w-full">
-            <AnimatePresence mode={showTutorialOverlay ? "sync" : "wait"}>
+            {showTutorialOverlay ? (
+              <div className="flex flex-row items-stretch gap-0 w-full">
+            ) : (
+              <AnimatePresence mode="wait">
               <motion.div
-                key={showOtherOptions ? (activationCodeSent ? "otp-view" : "code-view") : "browser-view"}
-                initial={showTutorialOverlay ? false : { opacity: 0, y: 20 }}
+                key={showOtherOptions ? "code-view" : "browser-view"}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={showTutorialOverlay ? { opacity: 0 } : { opacity: 0, y: -20 }}
-                transition={showTutorialOverlay ? { duration: 0.05 } : { delay: 0.15 }}
-                className="flex flex-row items-stretch gap-0 w-full"
-              >
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: 0.15 }}
+                className="flex flex-row items-stretch gap-0 w-full">
+            )}
                 {/* Left: QR Code */}
                 <div className="flex-1 pr-12">
                   <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>

@@ -601,9 +601,11 @@ const CashManagementContent = ({
                       <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Reason</th>
                       <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay In</th>
                       <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay Out</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Tips</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Sale</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card Sale</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Tip</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card Tip</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Drop</th>
                       <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Balance</th>
                     </tr>
                   </thead>
@@ -616,15 +618,17 @@ const CashManagementContent = ({
                           <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.reason}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payIn)}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payOut)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cash)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.card)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.tips)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashSale)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cardSale)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashTip)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cardTip)}</td>
+                          <td className={`text-sm py-3.5 px-4 text-right whitespace-nowrap ${entry.cashDrop > 0 ? 'text-amber-400 font-medium' : 'text-foreground'}`}>{formatCurrency(entry.cashDrop)}</td>
                           <td className="text-foreground text-sm font-medium py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.runningBalance)}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={9} className="text-neutral-500 text-sm py-8 text-center">
+                        <td colSpan={11} className="text-neutral-500 text-sm py-8 text-center">
                           No cash log entries for this date
                         </td>
                       </tr>

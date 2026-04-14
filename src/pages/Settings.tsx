@@ -339,6 +339,9 @@ const getContentForRoute = (
   if (pathname === '/settings/payments/cash-management/pay-in-out') {
     return <PayInOutContent showHeader={true} onBack={() => navigate('/settings/payments/cash-management/details')} />;
   }
+  if (pathname === '/settings/payments/cash-management/cash-drop') {
+    return <CashDropContent showHeader={true} onBack={() => navigate('/settings/payments/cash-management/details')} />;
+  }
   if (pathname === '/settings/payments/checkout-options') {
     return <CheckoutOptionsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
   }

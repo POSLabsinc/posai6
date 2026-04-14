@@ -1061,9 +1061,9 @@ export class SettingsManager {
     reason: string;
     note?: string;
     employeeName?: string;
-  }): Promise<boolean> {
+  }): Promise<any | null> {
     const deviceId = getPerDeviceId();
-    const { error } = await (supabase as any).from("cash_transactions").insert({
+    const { data, error } = await (supabase as any).from("cash_transactions").insert({
       session_id: sessionId,
       device_id: deviceId,
       type: transaction.type,
@@ -1071,12 +1071,38 @@ export class SettingsManager {
       reason: transaction.reason,
       note: transaction.note || null,
       employee_name: transaction.employeeName || null,
-    });
+    }).select("*").single();
     if (error) {
       console.error("[SettingsManager] Failed to add cash transaction:", error);
-      return false;
+      return null;
     }
-    return true;
+    return data || null;
+  }
+
+  static async addCashDrop(sessionId: string, transaction: {
+    amount: number;
+    reason: string;
+    note?: string;
+    employeeId?: string;
+    employeeName?: string;
+  }): Promise<any | null> {
+    const deviceId = getPerDeviceId();
+    const { data, error } = await (supabase as any).from("cash_drops").insert({
+      session_id: sessionId,
+      device_id: deviceId,
+      employee_id: transaction.employeeId || null,
+      employee_name: transaction.employeeName || "",
+      actual_drop_amount: transaction.amount,
+      expected_drop_amount: transaction.amount,
+      reason: transaction.reason,
+      notes: transaction.note || null,
+      shift_date: new Date().toISOString().split("T")[0],
+    }).select("*").single();
+    if (error) {
+      console.error("[SettingsManager] Failed to add cash drop:", error);
+      return null;
+    }
+    return data || null;
   }
 
   static async getCashTransactions(sessionId: string): Promise<any[]> {

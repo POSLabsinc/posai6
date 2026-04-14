@@ -21,6 +21,7 @@ interface CashTransaction {
   reason: string;
   payIn: number;
   payOut: number;
+  cashDrop?: number;
   note?: string;
   timestamp: number;
   date: string; // YYYY-MM-DD format for easy filtering
@@ -93,43 +94,73 @@ const PayInOutContent = ({
     }
   };
 
-  const saveTransaction = async (type: 'payIn' | 'payOut') => {
+  const getCurrentEmployee = () => {
+    try {
+      const session = localStorage.getItem('pos_session');
+      if (session) {
+        const parsed = JSON.parse(session);
+        return {
+          employeeId: parsed.employeeId || null,
+          employeeName: parsed.employeeName || 'Staff',
+        };
+      }
+    } catch {}
+
+    return {
+      employeeId: null,
+      employeeName: 'Staff',
+    };
+  };
+
+  const saveTransaction = async (type: 'payIn' | 'payOut' | 'cashDrop') => {
     const parsedAmount = parseFloat(amount);
+    const { employeeId, employeeName } = getCurrentEmployee();
     
     // Get active session ID from localStorage
     const savedSession = localStorage.getItem('activeDrawerSession');
     const sessionData = savedSession ? JSON.parse(savedSession) : null;
     const sessionId = sessionData?.id;
+    let savedRecord: any = null;
 
     if (sessionId) {
-      // Save to DB
-      await SettingsManager.addCashTransaction(sessionId, {
-        type: type === 'payIn' ? 'pay_in' : 'pay_out',
-        amount: parsedAmount,
-        reason: selectedReason,
-        note: note || undefined,
-        employeeName: 'User',
-      });
+      if (type === 'cashDrop') {
+        savedRecord = await SettingsManager.addCashDrop(sessionId, {
+          amount: parsedAmount,
+          reason: selectedReason,
+          note: note || undefined,
+          employeeId: employeeId || undefined,
+          employeeName,
+        });
+      } else {
+        savedRecord = await SettingsManager.addCashTransaction(sessionId, {
+          type: type === 'payIn' ? 'pay_in' : 'pay_out',
+          amount: parsedAmount,
+          reason: selectedReason,
+          note: note || undefined,
+          employeeName,
+        });
+      }
     }
 
     // Also save to localStorage for backwards compatibility
-    const now = new Date();
-    const timeString = now.toLocaleTimeString('en-US', { 
+    const transactionDate = savedRecord?.created_at ? new Date(savedRecord.created_at) : new Date();
+    const timeString = transactionDate.toLocaleTimeString('en-US', { 
       hour: '2-digit', 
       minute: '2-digit',
       hour12: true 
     });
-    const dateString = now.toISOString().split('T')[0];
+    const dateString = transactionDate.toISOString().split('T')[0];
 
     const newTransaction: CashTransaction = {
-      id: Date.now().toString(),
+      id: savedRecord?.id || Date.now().toString(),
       time: timeString,
-      name: "User",
+      name: savedRecord?.employee_name || employeeName,
       reason: selectedReason,
       payIn: type === 'payIn' ? parsedAmount : 0,
       payOut: type === 'payOut' ? parsedAmount : 0,
+      cashDrop: type === 'cashDrop' ? parsedAmount : 0,
       note: note || undefined,
-      timestamp: now.getTime(),
+      timestamp: transactionDate.getTime(),
       date: dateString
     };
 
@@ -140,11 +171,20 @@ const PayInOutContent = ({
     transactions.push(newTransaction);
     localStorage.setItem('cashTransactions', JSON.stringify(transactions));
 
-    const currentPaidInOut = parseFloat(localStorage.getItem('paidInOut') || '0');
-    const newPaidInOut = type === 'payIn' 
-      ? currentPaidInOut + parsedAmount 
-      : currentPaidInOut - parsedAmount;
-    localStorage.setItem('paidInOut', newPaidInOut.toString());
+    if (type !== 'cashDrop') {
+      const currentPaidInOut = parseFloat(localStorage.getItem('paidInOut') || '0');
+      const newPaidInOut = type === 'payIn' 
+        ? currentPaidInOut + parsedAmount 
+        : currentPaidInOut - parsedAmount;
+      localStorage.setItem('paidInOut', newPaidInOut.toString());
+    }
+
+    window.dispatchEvent(new CustomEvent('cash-drawer-updated', {
+      detail: {
+        type,
+        amount: parsedAmount,
+      },
+    }));
 
     navigate('/settings/payments/cash-management/details');
   };
@@ -163,7 +203,7 @@ const PayInOutContent = ({
 
   const handleCashDrop = () => {
     if (hasAmount && hasReason) {
-      saveTransaction('payOut');
+      saveTransaction('cashDrop');
     }
   };
 

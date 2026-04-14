@@ -41,9 +41,11 @@ interface CashLogEntry {
   reason: string;
   payIn: number;
   payOut: number;
-  cash: number;
-  card: number;
-  tips: number;
+  cashSale: number;
+  cardSale: number;
+  cashTip: number;
+  cardTip: number;
+  cashDrop: number;
   runningBalance: number;
 }
 
@@ -128,11 +130,32 @@ const CashManagementContent = ({
     const loadCashLog = async () => {
       const selectedDateStr = format(selectedLogDate, 'yyyy-MM-dd');
       
-      // Load transactions from DB for this date
       const startOfDay = new Date(selectedLogDate);
       startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date(selectedLogDate);
       endOfDay.setHours(23, 59, 59, 999);
+
+      // Get clocked-in employees from employee_shifts for this date
+      const { data: activeShifts } = await (supabase as any).from("employee_shifts")
+        .select("employee_id, employees(full_name)")
+        .eq("shift_date", selectedDateStr)
+        .not("clock_in", "is", null);
+
+      const clockedInNames = new Set<string>();
+      if (activeShifts) {
+        activeShifts.forEach((s: any) => {
+          const name = s.employees?.full_name;
+          if (name) clockedInNames.add(name);
+        });
+      }
+      // Also include current session employee
+      try {
+        const session = localStorage.getItem('pos_session');
+        if (session) {
+          const parsed = JSON.parse(session);
+          if (parsed.employeeName) clockedInNames.add(parsed.employeeName);
+        }
+      } catch {}
       
       const { data: dbTransactions } = await (supabase as any).from("cash_transactions")
         .select("*")
@@ -140,30 +163,35 @@ const CashManagementContent = ({
         .lte("created_at", endOfDay.toISOString())
         .order("created_at", { ascending: true });
       
-      // Load orders for the same date to get cash/card/tips data
+      // Load orders - use 'paid' and 'completed' statuses
       const { data: dayOrders } = await (supabase as any).from("orders")
         .select("*")
         .gte("created_at", startOfDay.toISOString())
         .lte("created_at", endOfDay.toISOString())
-        .eq("status", "completed")
+        .in("status", ["paid", "completed", "PAID"])
+        .order("created_at", { ascending: true });
+
+      // Load cash drops for the date
+      const { data: dayCashDrops } = await (supabase as any).from("cash_drops")
+        .select("*")
+        .eq("shift_date", selectedDateStr)
         .order("created_at", { ascending: true });
 
       const entries: CashLogEntry[] = [];
       let balance = 0;
 
-      // Get the clocked-in employee name
       const getEmployeeName = () => {
         try {
           const session = localStorage.getItem('pos_session');
           if (session) {
             const parsed = JSON.parse(session);
-            return parsed.employeeName || 'Guest';
+            return parsed.employeeName || 'Staff';
           }
         } catch {}
-        return 'Guest';
+        return 'Staff';
       };
 
-      // Find the session that was active on this date
+      // Find session for this date
       const matchingSession = allClosedSessions.find(s => {
         const sessionDate = format(new Date(s.closedAt), 'yyyy-MM-dd');
         return sessionDate === selectedDateStr;
@@ -178,59 +206,97 @@ const CashManagementContent = ({
           reason: "Opening Cash",
           payIn: matchingSession.startingCash,
           payOut: 0,
-          cash: matchingSession.startingCash,
-          card: 0,
-          tips: 0,
+          cashSale: 0,
+          cardSale: 0,
+          cashTip: 0,
+          cardTip: 0,
+          cashDrop: 0,
           runningBalance: balance,
         });
       }
 
-      // Add order-based entries (employee transactions with cash/card/tips)
+      // Add order-based entries (Cash Sale / Card Sale with tip split)
       if (dayOrders && dayOrders.length > 0) {
         dayOrders.forEach((order: any) => {
-          const cashAmount = order.payment_type === 'cash' ? Number(order.total) : 0;
-          const cardAmount = order.payment_type !== 'cash' ? Number(order.total) : 0;
+          const empName = order.employee_name || getEmployeeName();
+          // Filter: only show clocked-in employees
+          if (clockedInNames.size > 0 && !clockedInNames.has(empName)) return;
+
+          const isCash = order.payment_type === 'cash';
+          const orderTotal = Number(order.total) || 0;
           const tipAmount = Number(order.tip_amount) || 0;
-          
-          if (cashAmount > 0) {
-            balance += cashAmount;
+          const saleAmount = orderTotal - tipAmount; // sale excluding tip
+
+          if (isCash) {
+            balance += orderTotal;
           }
           
           entries.push({
             time: format(new Date(order.created_at), 'hh:mm a'),
-            name: order.employee_name || getEmployeeName(),
-            reason: order.payment_type === 'cash' ? 'Cash Sale' : 'Card Sale',
-            payIn: cashAmount > 0 ? cashAmount : 0,
+            name: empName,
+            reason: isCash ? 'Cash Sale' : 'Card Sale',
+            payIn: 0,
             payOut: 0,
-            cash: cashAmount,
-            card: cardAmount,
-            tips: tipAmount,
+            cashSale: isCash ? saleAmount : 0,
+            cardSale: !isCash ? saleAmount : 0,
+            cashTip: isCash ? tipAmount : 0,
+            cardTip: !isCash ? tipAmount : 0,
+            cashDrop: 0,
             runningBalance: balance,
           });
         });
       }
 
-      // Add pay in/out transactions from DB
+      // Add pay in/out transactions (NOT counted as sales)
       if (dbTransactions && dbTransactions.length > 0) {
         dbTransactions.forEach((t: any) => {
+          const empName = t.employee_name || getEmployeeName();
+          if (clockedInNames.size > 0 && !clockedInNames.has(empName)) return;
+
           const payIn = t.type === 'pay_in' ? Number(t.amount) : 0;
           const payOut = t.type === 'pay_out' ? Number(t.amount) : 0;
           balance += payIn - payOut;
           entries.push({
             time: format(new Date(t.created_at), 'hh:mm a'),
-            name: t.employee_name || getEmployeeName(),
+            name: empName,
             reason: t.reason,
             payIn,
             payOut,
-            cash: payIn,
-            card: 0,
-            tips: 0,
+            cashSale: 0,
+            cardSale: 0,
+            cashTip: 0,
+            cardTip: 0,
+            cashDrop: 0,
             runningBalance: balance,
           });
         });
       }
 
-      // If no DB data, fall back to localStorage-based entries
+      // Add cash drop entries
+      if (dayCashDrops && dayCashDrops.length > 0) {
+        dayCashDrops.forEach((drop: any) => {
+          const empName = drop.employee_name || getEmployeeName();
+          if (clockedInNames.size > 0 && !clockedInNames.has(empName)) return;
+
+          const dropAmount = Number(drop.actual_drop_amount) || 0;
+          balance -= dropAmount;
+          entries.push({
+            time: format(new Date(drop.created_at), 'hh:mm a'),
+            name: empName,
+            reason: 'Cash Drop',
+            payIn: 0,
+            payOut: 0,
+            cashSale: 0,
+            cardSale: 0,
+            cashTip: 0,
+            cardTip: 0,
+            cashDrop: dropAmount,
+            runningBalance: balance,
+          });
+        });
+      }
+
+      // Fallback for localStorage-based entries
       if (entries.length === 0 && lastClosedSession) {
         const sessionDate = format(new Date(lastClosedSession.closedAt), 'yyyy-MM-dd');
         if (sessionDate === selectedDateStr) {
@@ -242,9 +308,7 @@ const CashManagementContent = ({
             reason: "Opening Cash",
             payIn: lastClosedSession.startingCash,
             payOut: 0,
-            cash: lastClosedSession.startingCash,
-            card: 0,
-            tips: 0,
+            cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0, cashDrop: 0,
             runningBalance: balance,
           });
 
@@ -254,11 +318,9 @@ const CashManagementContent = ({
               time: format(new Date(lastClosedSession.closedAt), 'hh:mm a'),
               name: "Sales",
               reason: "Cash Sales",
-              payIn: lastClosedSession.cashSales,
-              payOut: 0,
-              cash: lastClosedSession.cashSales,
-              card: 0,
-              tips: 0,
+              payIn: 0, payOut: 0,
+              cashSale: lastClosedSession.cashSales, cardSale: 0,
+              cashTip: 0, cardTip: 0, cashDrop: 0,
               runningBalance: balance,
             });
           }
@@ -269,11 +331,8 @@ const CashManagementContent = ({
               time: format(new Date(lastClosedSession.closedAt), 'hh:mm a'),
               name: "Refund",
               reason: "Cash Refunds",
-              payIn: 0,
-              payOut: lastClosedSession.cashRefunds,
-              cash: 0,
-              card: 0,
-              tips: 0,
+              payIn: 0, payOut: lastClosedSession.cashRefunds,
+              cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0, cashDrop: 0,
               runningBalance: balance,
             });
           }
@@ -286,9 +345,7 @@ const CashManagementContent = ({
               reason: lastClosedSession.paidInOut > 0 ? "Paid In" : "Paid Out",
               payIn: lastClosedSession.paidInOut > 0 ? lastClosedSession.paidInOut : 0,
               payOut: lastClosedSession.paidInOut < 0 ? Math.abs(lastClosedSession.paidInOut) : 0,
-              cash: 0,
-              card: 0,
-              tips: 0,
+              cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0, cashDrop: 0,
               runningBalance: balance,
             });
           }
@@ -536,7 +593,7 @@ const CashManagementContent = ({
             {/* Cash Log Table */}
             <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[800px]">
+                <table className="w-full min-w-[1100px]">
                   <thead>
                     <tr className="border-b border-neutral-700/50">
                       <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Time</th>
@@ -544,9 +601,11 @@ const CashManagementContent = ({
                       <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Reason</th>
                       <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay In</th>
                       <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay Out</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Tips</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Sale</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card Sale</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Tip</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card Tip</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Drop</th>
                       <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Balance</th>
                     </tr>
                   </thead>
@@ -559,15 +618,17 @@ const CashManagementContent = ({
                           <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.reason}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payIn)}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payOut)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cash)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.card)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.tips)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashSale)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cardSale)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashTip)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cardTip)}</td>
+                          <td className={`text-sm py-3.5 px-4 text-right whitespace-nowrap ${entry.cashDrop > 0 ? 'text-amber-400 font-medium' : 'text-foreground'}`}>{formatCurrency(entry.cashDrop)}</td>
                           <td className="text-foreground text-sm font-medium py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.runningBalance)}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={9} className="text-neutral-500 text-sm py-8 text-center">
+                        <td colSpan={11} className="text-neutral-500 text-sm py-8 text-center">
                           No cash log entries for this date
                         </td>
                       </tr>

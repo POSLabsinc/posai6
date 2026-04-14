@@ -219,8 +219,12 @@ const CashDrawerDetailsContent = ({
   };
 
   const handleBack = () => {
-    // Block navigation — drawer must be closed first
-    setShowBackAlert(true);
+    // Allow navigation away - drawer session persists in localStorage
+    if (onBack) {
+      onBack();
+    } else {
+      navigate('/settings/payments');
+    }
   };
 
   const handleConfirmEndDrawer = async () => {

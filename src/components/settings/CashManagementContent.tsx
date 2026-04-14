@@ -81,6 +81,17 @@ const CashManagementContent = ({
   const drawerRef = useRef<HTMLButtonElement>(null);
   const hasAmount = openingCash.trim() !== "" && parseFloat(openingCash) >= 0;
 
+  // Auto-redirect to active drawer if one exists
+  const [hasActiveDrawer, setHasActiveDrawer] = useState(false);
+  useEffect(() => {
+    const activeSession = localStorage.getItem('activeDrawerSession');
+    if (activeSession) {
+      setHasActiveDrawer(true);
+      navigate('/settings/payments/cash-management/details');
+      return;
+    }
+  }, [navigate]);
+
   // Load last closing data from DB on mount
   useEffect(() => {
     const loadData = async () => {

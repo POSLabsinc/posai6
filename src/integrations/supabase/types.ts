@@ -357,6 +357,99 @@ export type Database = {
           },
         ]
       }
+      cash_drops: {
+        Row: {
+          actual_drop_amount: number
+          created_at: string
+          device_id: string
+          employee_id: string | null
+          employee_name: string
+          expected_drop_amount: number
+          id: string
+          merchant_id: string | null
+          notes: string | null
+          opening_cash: number
+          paid_in_total: number
+          paid_out_total: number
+          reason: string | null
+          session_id: string | null
+          shift_date: string
+          status: string
+          tips_payable: number
+          total_card_sales: number
+          total_card_tips: number
+          total_cash_sales: number
+          total_cash_tips: number
+          updated_at: string
+          variance: number
+        }
+        Insert: {
+          actual_drop_amount?: number
+          created_at?: string
+          device_id?: string
+          employee_id?: string | null
+          employee_name?: string
+          expected_drop_amount?: number
+          id?: string
+          merchant_id?: string | null
+          notes?: string | null
+          opening_cash?: number
+          paid_in_total?: number
+          paid_out_total?: number
+          reason?: string | null
+          session_id?: string | null
+          shift_date?: string
+          status?: string
+          tips_payable?: number
+          total_card_sales?: number
+          total_card_tips?: number
+          total_cash_sales?: number
+          total_cash_tips?: number
+          updated_at?: string
+          variance?: number
+        }
+        Update: {
+          actual_drop_amount?: number
+          created_at?: string
+          device_id?: string
+          employee_id?: string | null
+          employee_name?: string
+          expected_drop_amount?: number
+          id?: string
+          merchant_id?: string | null
+          notes?: string | null
+          opening_cash?: number
+          paid_in_total?: number
+          paid_out_total?: number
+          reason?: string | null
+          session_id?: string | null
+          shift_date?: string
+          status?: string
+          tips_payable?: number
+          total_card_sales?: number
+          total_card_tips?: number
+          total_cash_sales?: number
+          total_cash_tips?: number
+          updated_at?: string
+          variance?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cash_drops_merchant_id_fkey"
+            columns: ["merchant_id"]
+            isOneToOne: false
+            referencedRelation: "merchants"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cash_drops_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "cash_drawer_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       cash_transactions: {
         Row: {
           amount: number

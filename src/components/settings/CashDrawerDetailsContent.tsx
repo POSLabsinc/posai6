@@ -181,15 +181,13 @@ const CashDrawerDetailsContent = ({
     setTransactions(mergedTransactions);
     localStorage.setItem('cashTransactions', JSON.stringify(mergedTransactions));
 
-    // 2. Load orders (sales + tips) created since session start
-    let query = (supabase as any).from("orders")
-      .select("*")
+    // 2. Load orders (sales + tips) created since session start from ticket_orders
+    const { data: sessionOrders } = await (supabase as any).from("ticket_orders")
+      .select("id, total, tip, payment_type, server, created_at, status")
       .gte("created_at", sessionStart.toISOString())
       .lte("created_at", now.toISOString())
-      .in("status", ["paid", "completed", "PAID", "Paid"])
+      .eq("status", "PAID")
       .order("created_at", { ascending: true });
-
-    const { data: sessionOrders } = await query;
 
     let cSales = 0, cdSales = 0, cTips = 0, cdTips = 0;
     const oEntries: CashTransaction[] = [];
@@ -199,7 +197,7 @@ const CashDrawerDetailsContent = ({
         const paymentType = (order.payment_type || '').toLowerCase();
         const isCash = paymentType === 'cash';
         const orderTotal = Number(order.total) || 0;
-        const tipAmount = Number(order.tip_amount) || 0;
+        const tipAmount = Number(order.tip) || 0;
         const saleAmount = orderTotal - tipAmount;
 
         if (isCash) { cSales += saleAmount; cTips += tipAmount; }
@@ -208,7 +206,7 @@ const CashDrawerDetailsContent = ({
         oEntries.push({
           id: order.id,
           time: new Date(order.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-          name: getDisplayName(order.employee_name),
+          name: getDisplayName(order.server),
           reason: isCash ? 'Cash Sale' : 'Card Sale',
           payIn: 0, payOut: 0,
           cashSale: isCash ? saleAmount : 0,
@@ -282,7 +280,7 @@ const CashDrawerDetailsContent = ({
       .channel('cash-drawer-details-realtime')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_transactions' }, () => loadAllData())
       .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_drops' }, () => loadAllData())
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => loadAllData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ticket_orders' }, () => loadAllData())
       .subscribe();
 
     const handleDrawerUpdate = () => loadAllData();

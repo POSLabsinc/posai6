@@ -174,12 +174,12 @@ const CashManagementContent = ({
         .lte("created_at", endOfDay.toISOString())
         .order("created_at", { ascending: true });
       
-      // Load orders - use 'paid' and 'completed' statuses
-      const { data: dayOrders } = await (supabase as any).from("orders")
-        .select("*")
+      // Load orders from ticket_orders (real POS transactions)
+      const { data: dayOrders } = await (supabase as any).from("ticket_orders")
+        .select("id, total, tip, payment_type, server, created_at, status")
         .gte("created_at", startOfDay.toISOString())
         .lte("created_at", endOfDay.toISOString())
-        .in("status", ["paid", "completed", "PAID"])
+        .eq("status", "PAID")
         .order("created_at", { ascending: true });
 
       // Load cash drops for the date
@@ -229,13 +229,13 @@ const CashManagementContent = ({
       // Add order-based entries (Cash Sale / Card Sale with tip split)
       if (dayOrders && dayOrders.length > 0) {
         dayOrders.forEach((order: any) => {
-          const empName = order.employee_name || getEmployeeName();
+          const empName = order.server || getEmployeeName();
           // Filter: only show clocked-in employees
           if (clockedInNames.size > 0 && !clockedInNames.has(empName)) return;
 
-          const isCash = order.payment_type === 'cash';
+          const isCash = (order.payment_type || '').toLowerCase() === 'cash';
           const orderTotal = Number(order.total) || 0;
-          const tipAmount = Number(order.tip_amount) || 0;
+          const tipAmount = Number(order.tip) || 0;
           const saleAmount = orderTotal - tipAmount; // sale excluding tip
 
           if (isCash) {

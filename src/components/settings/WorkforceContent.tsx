@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
@@ -51,6 +51,15 @@ const WorkforceContent = ({
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
+      {showHeader && (
+        <div className="flex items-center py-4 relative md:hidden px-4">
+          {onBack && (
+            <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+        </div>
+      )}
       <div className={`${showHeader ? "pt-0" : "pt-0"} px-6 pb-28`}>
         {/* Header Card */}
         <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">

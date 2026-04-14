@@ -188,6 +188,15 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
 
   return (
     <div className="relative flex flex-col h-full bg-background">
+      {showHeader && (
+        <div className="flex items-center py-4 relative md:hidden px-4">
+          {onBack && (
+            <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+        </div>
+      )}
       <div className={`flex-1 overflow-y-auto ${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Header card */}
         <div className="bg-surface rounded-2xl p-6 mb-4 flex flex-col items-start">

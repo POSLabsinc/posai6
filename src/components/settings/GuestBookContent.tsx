@@ -1374,9 +1374,16 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
             </button>
           </div>
         )}
+        {/* Icon, title, subtext header */}
+        <div className="px-6 pt-4 pb-2 flex flex-col items-center text-center">
+          <div className="w-14 h-14 rounded-2xl bg-neutral-800/60 flex items-center justify-center mb-2">
+            <img src={guestBookIcon} alt="Guest Book" className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-bold text-foreground">Guest Book</h2>
+          <p className="text-xs text-neutral-500 mt-1 max-w-[260px]">Manage your guest profiles, track visits, and build lasting relationships.</p>
+        </div>
         {/* Action icons row */}
-        <div className="px-6 pt-4 pb-2 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-foreground">Guest Book</h3>
+        <div className="px-6 pt-2 pb-2 flex items-center justify-end">
           <div className="flex items-center gap-2">
             <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
               <Plus className="w-4 h-4 text-foreground" />

@@ -154,10 +154,23 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     if (s?.beforeShow) {
       s.beforeShow();
     }
-    // Wait for DOM to update after state change
-    const timer = setTimeout(() => {
-      measureTarget();
-    }, 350);
+    // Retry measuring until element is found (handles AnimatePresence delays)
+    let attempts = 0;
+    const tryMeasure = () => {
+      const el = document.querySelector(`[data-tour="${s?.tourTarget}"]`);
+      if (el) {
+        const rect = el.getBoundingClientRect();
+        if (rect.width > 0 && rect.height > 0) {
+          setHighlightRect(rect);
+          return;
+        }
+      }
+      attempts++;
+      if (attempts < 15) {
+        setTimeout(tryMeasure, 100);
+      }
+    };
+    const timer = setTimeout(tryMeasure, 150);
     return () => clearTimeout(timer);
   }, [currentStep, open]);
 

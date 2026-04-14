@@ -1304,8 +1304,8 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     });
 
     setGuests(mapped);
-    // Auto-select first guest if none selected
-    if (mapped.length > 0 && !selectedGuestId) {
+    // Auto-select first guest only on desktop/tablet, not mobile
+    if (mapped.length > 0 && !selectedGuestId && window.innerWidth >= 768) {
       setSelectedGuestId(mapped[0].id);
     }
     setLoading(false);

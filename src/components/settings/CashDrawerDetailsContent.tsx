@@ -94,23 +94,68 @@ const CashDrawerDetailsContent = ({
     return null;
   }, []);
 
+  const getStoredTransactions = useCallback((): CashTransaction[] => {
+    try {
+      const stored = JSON.parse(localStorage.getItem('cashTransactions') || '[]');
+      if (!Array.isArray(stored)) return [];
+
+      return stored.map((t: any) => {
+        const timestamp = Number(t.timestamp) || Date.now();
+        const createdAt = new Date(timestamp);
+
+        return {
+          id: String(t.id || `${timestamp}-${t.reason || 'transaction'}`),
+          time: t.time || createdAt.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+          name: t.name || 'Staff',
+          reason: t.reason || 'Transaction',
+          payIn: Number(t.payIn) || 0,
+          payOut: Number(t.payOut) || 0,
+          cashSale: Number(t.cashSale) || 0,
+          cardSale: Number(t.cardSale) || 0,
+          cashTip: Number(t.cashTip) || 0,
+          cardTip: Number(t.cardTip) || 0,
+          cashDrop: Number(t.cashDrop) || 0,
+          note: t.note,
+          timestamp,
+          date: t.date || format(createdAt, 'yyyy-MM-dd'),
+        };
+      });
+    } catch {
+      return [];
+    }
+  }, []);
+
+  const getDisplayName = useCallback((name?: string | null) => {
+    const trimmed = name?.trim();
+    return trimmed && trimmed.length > 0 ? trimmed : 'Staff';
+  }, []);
+
   const loadAllData = useCallback(async () => {
     const sessionData = localStorage.getItem('activeDrawerSession');
-    if (!sessionData) return;
+    if (!sessionData) {
+      setTransactions([]);
+      setOrderEntries([]);
+      setDropEntries([]);
+      return;
+    }
+
     const session = JSON.parse(sessionData);
+    setDrawerSession(session);
+    setSelectedDrawer(session.selectedDrawer);
+
     const sessionStart = new Date(session.sessionStartTime);
     const now = new Date();
-    const clockIn = getClockInSession();
-    const employeeName = clockIn?.employeeName || null;
+    const fallbackTransactions = getStoredTransactions().filter((transaction) => transaction.timestamp >= session.sessionStartTime);
 
     // 1. Load cash_transactions (pay in/out) from DB
+    let mappedTransactions: CashTransaction[] = [];
     if (session.id) {
       const dbTransactions = await SettingsManager.getCashTransactions(session.id);
       if (dbTransactions.length > 0) {
-        const mapped: CashTransaction[] = dbTransactions.map((t: any) => ({
+        mappedTransactions = dbTransactions.map((t: any) => ({
           id: t.id,
           time: new Date(t.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-          name: t.employee_name || employeeName || 'Staff',
+          name: getDisplayName(t.employee_name),
           reason: t.reason,
           payIn: t.type === 'pay_in' ? Number(t.amount) : 0,
           payOut: t.type === 'pay_out' ? Number(t.amount) : 0,
@@ -120,12 +165,21 @@ const CashDrawerDetailsContent = ({
           timestamp: new Date(t.created_at).getTime(),
           date: format(new Date(t.created_at), 'yyyy-MM-dd'),
         }));
-        setTransactions(mapped);
-        localStorage.setItem('cashTransactions', JSON.stringify(mapped));
-      } else {
-        setTransactions([]);
       }
     }
+
+    const mergedTransactions = [...mappedTransactions];
+    const seenTransactionIds = new Set(mappedTransactions.map((transaction) => transaction.id));
+
+    fallbackTransactions.forEach((transaction) => {
+      if (!seenTransactionIds.has(transaction.id)) {
+        mergedTransactions.push(transaction);
+      }
+    });
+
+    mergedTransactions.sort((a, b) => a.timestamp - b.timestamp);
+    setTransactions(mergedTransactions);
+    localStorage.setItem('cashTransactions', JSON.stringify(mergedTransactions));
 
     // 2. Load orders (sales + tips) created since session start
     let query = (supabase as any).from("orders")
@@ -134,11 +188,6 @@ const CashDrawerDetailsContent = ({
       .lte("created_at", now.toISOString())
       .in("status", ["paid", "completed", "PAID", "Paid"])
       .order("created_at", { ascending: true });
-
-    // Filter by clocked-in employee if available
-    if (employeeName) {
-      query = query.eq("employee_name", employeeName);
-    }
 
     const { data: sessionOrders } = await query;
 
@@ -159,7 +208,7 @@ const CashDrawerDetailsContent = ({
         oEntries.push({
           id: order.id,
           time: new Date(order.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-          name: order.employee_name || employeeName || 'Staff',
+          name: getDisplayName(order.employee_name),
           reason: isCash ? 'Cash Sale' : 'Card Sale',
           payIn: 0, payOut: 0,
           cashSale: isCash ? saleAmount : 0,
@@ -181,11 +230,12 @@ const CashDrawerDetailsContent = ({
     // 3. Load cash drops since session start
     let dropQuery = (supabase as any).from("cash_drops")
       .select("*")
-      .gte("created_at", sessionStart.toISOString())
       .order("created_at", { ascending: true });
 
-    if (employeeName) {
-      dropQuery = dropQuery.eq("employee_name", employeeName);
+    if (session.id) {
+      dropQuery = dropQuery.eq("session_id", session.id);
+    } else {
+      dropQuery = dropQuery.gte("created_at", sessionStart.toISOString());
     }
 
     const { data: drops } = await dropQuery;
@@ -199,8 +249,8 @@ const CashDrawerDetailsContent = ({
         dEntries.push({
           id: d.id,
           time: new Date(d.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-          name: d.employee_name || employeeName || 'Staff',
-          reason: 'Cash Drop',
+          name: getDisplayName(d.employee_name),
+          reason: d.reason || 'Cash Drop',
           payIn: 0, payOut: 0,
           cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0,
           cashDrop: amt,
@@ -211,7 +261,7 @@ const CashDrawerDetailsContent = ({
     }
     setDbCashDropTotal(dropTotal);
     setDropEntries(dEntries);
-  }, [getClockInSession]);
+  }, [getDisplayName, getStoredTransactions]);
 
   useEffect(() => {
     loadAllData();
@@ -225,6 +275,23 @@ const CashDrawerDetailsContent = ({
     const handleFocus = () => loadAllData();
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
+  }, [loadAllData]);
+
+  useEffect(() => {
+    const realtimeChannel = supabase
+      .channel('cash-drawer-details-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_transactions' }, () => loadAllData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_drops' }, () => loadAllData())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'orders' }, () => loadAllData())
+      .subscribe();
+
+    const handleDrawerUpdate = () => loadAllData();
+    window.addEventListener('cash-drawer-updated', handleDrawerUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener('cash-drawer-updated', handleDrawerUpdate as EventListener);
+      supabase.removeChannel(realtimeChannel);
+    };
   }, [loadAllData]);
 
   // Calculate totals from combined sources

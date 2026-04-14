@@ -638,6 +638,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
   const [activeTab, setActiveTab] = useState<TabId>("profile");
   const [showTagPicker, setShowTagPicker] = useState(false);
   const { getIconBgColor } = useAppearance();
+  const isMobile = useIsMobile();
   const [newTagInput, setNewTagInput] = useState("");
   const [showAllergyPicker, setShowAllergyPicker] = useState(false);
   const [newAllergyInput, setNewAllergyInput] = useState("");
@@ -709,25 +710,27 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide px-6 pt-0 pb-28">
-      {/* Header: Guest Book default or Guest Details for non-profile tabs */}
+      {/* Header: mobile profile keeps only back button, desktop keeps Guest Book card */}
       {activeTab === "profile" ? (
         <div className="mb-6">
           {onCollapse && (
-            <div className="mb-4">
+            <div className={isMobile ? "mb-0" : "mb-4"}>
               <button onClick={onCollapse} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
             </div>
           )}
-          <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
-            <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
-          </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
-          <p className="text-base text-neutral-400 leading-relaxed w-full">
-            Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
-          </p>
-          </div>
+          {!isMobile && (
+            <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
+                <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
+              <p className="text-base text-neutral-400 leading-relaxed w-full">
+                Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
+              </p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="mb-6">
@@ -1375,12 +1378,16 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           </div>
         )}
         {/* Icon, title, subtext header */}
-        <div className="px-6 pt-4 pb-2 flex flex-col items-center text-center">
-          <div className="w-14 h-14 rounded-2xl bg-neutral-800/60 flex items-center justify-center mb-2">
-            <img src={guestBookIcon} alt="Guest Book" className="w-8 h-8" />
+        <div className="px-6 pt-4 pb-3">
+          <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
+              <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
+            </div>
+            <h2 className="text-xl font-semibold text-foreground mb-2">Guest Book</h2>
+            <p className="text-base text-neutral-400 leading-relaxed w-full">
+              Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
+            </p>
           </div>
-          <h2 className="text-xl font-bold text-foreground">Guest Book</h2>
-          <p className="text-xs text-neutral-500 mt-1 max-w-[260px]">Manage your guest profiles, track visits, and build lasting relationships.</p>
         </div>
         {/* Action icons row */}
         <div className="px-6 pt-2 pb-2 flex items-center justify-end">

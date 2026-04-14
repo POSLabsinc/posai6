@@ -136,6 +136,15 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
 
   return (
     <div className="relative h-full">
+      {showHeader && (
+        <div className="flex items-center py-4 relative md:hidden px-4">
+          {onBack && (
+            <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+        </div>
+      )}
       <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Header card with background */}
         <div className="bg-card rounded-2xl flex flex-col items-start py-8 px-6 mb-6">

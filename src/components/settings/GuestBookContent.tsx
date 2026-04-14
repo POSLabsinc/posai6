@@ -638,6 +638,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
   const [activeTab, setActiveTab] = useState<TabId>("profile");
   const [showTagPicker, setShowTagPicker] = useState(false);
   const { getIconBgColor } = useAppearance();
+  const isMobile = useIsMobile();
   const [newTagInput, setNewTagInput] = useState("");
   const [showAllergyPicker, setShowAllergyPicker] = useState(false);
   const [newAllergyInput, setNewAllergyInput] = useState("");

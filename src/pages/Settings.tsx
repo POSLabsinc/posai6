@@ -24,6 +24,7 @@ import ServiceChargeContent from "@/components/settings/ServiceChargeContent";
 import CashManagementContent from "@/components/settings/CashManagementContent";
 import CashDrawerDetailsContent from "@/components/settings/CashDrawerDetailsContent";
 import PayInOutContent from "@/components/settings/PayInOutContent";
+import CashDropContent from "@/components/settings/CashDropContent";
 import CheckoutOptionsContent from "@/components/settings/CheckoutOptionsContent";
 
 import MenuSettingsContent from "@/components/settings/MenuSettingsContent";

@@ -32,6 +32,11 @@ const REASON_OPTIONS = [
   "Tips Payout",
   "Bank Deposit",
   "Change Replenishment",
+  "Cash Refund",
+  "Cash Out",
+  "Delivery",
+  "Grocery",
+  "Change Order",
   "Other"
 ];
 
@@ -193,21 +198,16 @@ const PayInOutContent = ({
 
         {/* Reason Section */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Reason</h2>
-        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-6">
+        <div className="relative mb-6">
           <button
             ref={reasonRef}
             onClick={handleOpenReasonDropdown}
-            className="w-full flex items-center justify-between py-3.5 px-5 active:opacity-70 transition-opacity"
+            className="w-full flex items-center justify-between py-3.5 px-5 active:opacity-70 transition-opacity bg-neutral-800/60 rounded-full"
           >
-            <span className="text-foreground text-lg font-medium">
+            <span className={`text-lg font-medium ${selectedReason ? 'text-foreground' : 'text-neutral-500'}`}>
               {selectedReason || "Select Reason"}
             </span>
-            <div className="flex items-center gap-2">
-              <span className="text-neutral-400 text-base">
-                {selectedDrawer}
-              </span>
-              <ChevronRight className="w-4 h-4 text-neutral-500" />
-            </div>
+            <ChevronRight className={`w-4 h-4 text-neutral-500 transition-transform ${showReasonDropdown ? 'rotate-90' : ''}`} />
           </button>
         </div>
 
@@ -252,21 +252,25 @@ const PayInOutContent = ({
       {/* Reason Dropdown Overlay */}
       {showReasonDropdown && (
         <div 
-          className="fixed inset-0 z-50 animate-in fade-in duration-200"
+          className="fixed inset-0 z-50"
           onClick={() => setShowReasonDropdown(false)}
         >
           <div 
-            className="fixed bg-neutral-800 rounded-xl overflow-hidden shadow-2xl min-w-[200px] animate-in zoom-in-95 duration-200"
-            style={{ top: reasonPosition.top, right: reasonPosition.right }}
+            className="absolute bg-neutral-800 rounded-2xl overflow-hidden shadow-2xl animate-in zoom-in-95 fade-in duration-200 max-h-[320px] overflow-y-auto scrollbar-hide"
+            style={{ 
+              top: reasonPosition.top, 
+              left: reasonRef.current?.getBoundingClientRect().left ?? 0,
+              width: reasonRef.current?.getBoundingClientRect().width ?? 'auto'
+            }}
             onClick={(e) => e.stopPropagation()}
           >
             {REASON_OPTIONS.map((reason) => (
               <button
                 key={reason}
-                className={`w-full text-left px-4 py-3 text-base transition-colors ${
+                className={`w-full text-left px-5 py-3.5 text-base transition-colors ${
                   selectedReason === reason 
-                    ? "text-foreground bg-neutral-700/50" 
-                    : "text-neutral-400 hover:bg-neutral-700/30"
+                    ? "text-foreground bg-neutral-700/50 font-medium" 
+                    : "text-neutral-300 hover:bg-neutral-700/30"
                 }`}
                 onClick={() => {
                   setSelectedReason(reason);

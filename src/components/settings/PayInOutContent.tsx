@@ -161,6 +161,12 @@ const PayInOutContent = ({
     }
   };
 
+  const handleCashDrop = () => {
+    if (hasAmount && hasReason) {
+      saveTransaction('payOut');
+    }
+  };
+
   const canSubmit = hasAmount && hasReason;
 
   return (
@@ -222,8 +228,8 @@ const PayInOutContent = ({
           />
         </div>
 
-        {/* Action Buttons - Dark Outlined Style */}
-        <div className="flex gap-4">
+        {/* Action Buttons */}
+        <div className="flex gap-3">
           <button
             onClick={handlePayIn}
             disabled={!canSubmit}
@@ -245,6 +251,17 @@ const PayInOutContent = ({
             }`}
           >
             PAY OUT
+          </button>
+          <button
+            onClick={handleCashDrop}
+            disabled={!canSubmit}
+            className={`flex-1 py-4 rounded-full text-base font-semibold transition-all border ${
+              canSubmit 
+                ? 'bg-amber-600/80 border-amber-500/60 text-foreground active:opacity-70' 
+                : 'bg-amber-900/20 border-amber-800/30 text-neutral-500'
+            }`}
+          >
+            CASH DROP
           </button>
         </div>
       </div>

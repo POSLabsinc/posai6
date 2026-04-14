@@ -181,19 +181,20 @@ const CashDrawerDetailsContent = ({
     setTransactions(mergedTransactions);
     localStorage.setItem('cashTransactions', JSON.stringify(mergedTransactions));
 
-    // 2. Load orders (sales + tips) created since session start from ticket_orders
+    // 2. Load paid orders (sales + tips) using payment/update time from ticket_orders
     const { data: sessionOrders } = await (supabase as any).from("ticket_orders")
-      .select("id, total, tip, payment_type, server, created_at, status")
-      .gte("created_at", sessionStart.toISOString())
-      .lte("created_at", now.toISOString())
-      .eq("status", "PAID")
-      .order("created_at", { ascending: true });
+      .select("id, total, tip, payment_type, server, created_at, updated_at, status, payment_status")
+      .gte("updated_at", sessionStart.toISOString())
+      .lte("updated_at", now.toISOString())
+      .or("status.eq.PAID,payment_status.eq.completed")
+      .order("updated_at", { ascending: true });
 
     let cSales = 0, cdSales = 0, cTips = 0, cdTips = 0;
     const oEntries: CashTransaction[] = [];
 
     if (sessionOrders && sessionOrders.length > 0) {
       sessionOrders.forEach((order: any) => {
+        const transactionDate = new Date(order.updated_at || order.created_at);
         const paymentType = (order.payment_type || '').toLowerCase();
         const isCash = paymentType === 'cash';
         const orderTotal = Number(order.total) || 0;
@@ -205,7 +206,7 @@ const CashDrawerDetailsContent = ({
 
         oEntries.push({
           id: order.id,
-          time: new Date(order.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+          time: transactionDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
           name: getDisplayName(order.server),
           reason: isCash ? 'Cash Sale' : 'Card Sale',
           payIn: 0, payOut: 0,
@@ -214,8 +215,8 @@ const CashDrawerDetailsContent = ({
           cashTip: isCash ? tipAmount : 0,
           cardTip: !isCash ? tipAmount : 0,
           cashDrop: 0,
-          timestamp: new Date(order.created_at).getTime(),
-          date: format(new Date(order.created_at), 'yyyy-MM-dd'),
+          timestamp: transactionDate.getTime(),
+          date: format(transactionDate, 'yyyy-MM-dd'),
         });
       });
     }

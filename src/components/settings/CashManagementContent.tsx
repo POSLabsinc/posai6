@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -137,36 +137,13 @@ const CashManagementContent = ({
   }, []);
 
   // Build cash log entries from closed session data and real transactions
-  useEffect(() => {
-    const loadCashLog = async () => {
+  const loadCashLog = useCallback(async () => {
       const selectedDateStr = format(selectedLogDate, 'yyyy-MM-dd');
       
       const startOfDay = new Date(selectedLogDate);
       startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date(selectedLogDate);
       endOfDay.setHours(23, 59, 59, 999);
-
-      // Get clocked-in employees from employee_shifts for this date
-      const { data: activeShifts } = await (supabase as any).from("employee_shifts")
-        .select("employee_id, employees(full_name)")
-        .eq("shift_date", selectedDateStr)
-        .not("clock_in", "is", null);
-
-      const clockedInNames = new Set<string>();
-      if (activeShifts) {
-        activeShifts.forEach((s: any) => {
-          const name = s.employees?.full_name;
-          if (name) clockedInNames.add(name);
-        });
-      }
-      // Also include current session employee
-      try {
-        const session = localStorage.getItem('pos_session');
-        if (session) {
-          const parsed = JSON.parse(session);
-          if (parsed.employeeName) clockedInNames.add(parsed.employeeName);
-        }
-      } catch {}
       
       const { data: dbTransactions } = await (supabase as any).from("cash_transactions")
         .select("*")
@@ -174,13 +151,13 @@ const CashManagementContent = ({
         .lte("created_at", endOfDay.toISOString())
         .order("created_at", { ascending: true });
       
-      // Load orders from ticket_orders (real POS transactions)
+      // Load paid orders from ticket_orders using payment/update time
       const { data: dayOrders } = await (supabase as any).from("ticket_orders")
-        .select("id, total, tip, payment_type, server, created_at, status")
-        .gte("created_at", startOfDay.toISOString())
-        .lte("created_at", endOfDay.toISOString())
-        .eq("status", "PAID")
-        .order("created_at", { ascending: true });
+        .select("id, total, tip, payment_type, server, created_at, updated_at, status, payment_status")
+        .gte("updated_at", startOfDay.toISOString())
+        .lte("updated_at", endOfDay.toISOString())
+        .or("status.eq.PAID,payment_status.eq.completed")
+        .order("updated_at", { ascending: true });
 
       // Load cash drops for the date
       const { data: dayCashDrops } = await (supabase as any).from("cash_drops")
@@ -230,9 +207,7 @@ const CashManagementContent = ({
       if (dayOrders && dayOrders.length > 0) {
         dayOrders.forEach((order: any) => {
           const empName = order.server || getEmployeeName();
-          // Filter: only show clocked-in employees
-          if (clockedInNames.size > 0 && !clockedInNames.has(empName)) return;
-
+          const transactionDate = new Date(order.updated_at || order.created_at);
           const isCash = (order.payment_type || '').toLowerCase() === 'cash';
           const orderTotal = Number(order.total) || 0;
           const tipAmount = Number(order.tip) || 0;
@@ -243,7 +218,7 @@ const CashManagementContent = ({
           }
           
           entries.push({
-            time: format(new Date(order.created_at), 'hh:mm a'),
+            time: format(transactionDate, 'hh:mm a'),
             name: empName,
             reason: isCash ? 'Cash Sale' : 'Card Sale',
             payIn: 0,
@@ -262,8 +237,6 @@ const CashManagementContent = ({
       if (dbTransactions && dbTransactions.length > 0) {
         dbTransactions.forEach((t: any) => {
           const empName = t.employee_name || getEmployeeName();
-          if (clockedInNames.size > 0 && !clockedInNames.has(empName)) return;
-
           const payIn = t.type === 'pay_in' ? Number(t.amount) : 0;
           const payOut = t.type === 'pay_out' ? Number(t.amount) : 0;
           balance += payIn - payOut;
@@ -287,8 +260,6 @@ const CashManagementContent = ({
       if (dayCashDrops && dayCashDrops.length > 0) {
         dayCashDrops.forEach((drop: any) => {
           const empName = drop.employee_name || getEmployeeName();
-          if (clockedInNames.size > 0 && !clockedInNames.has(empName)) return;
-
           const dropAmount = Number(drop.actual_drop_amount) || 0;
           balance -= dropAmount;
           entries.push({
@@ -364,10 +335,29 @@ const CashManagementContent = ({
       }
 
       setCashLogEntries(entries);
-    };
-    
+    }, [allClosedSessions, lastClosedSession, selectedLogDate]);
+
+  useEffect(() => {
     loadCashLog();
-  }, [lastClosedSession, allClosedSessions, selectedLogDate]);
+  }, [loadCashLog]);
+
+  useEffect(() => {
+    const realtimeChannel = supabase
+      .channel('cash-management-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'ticket_orders' }, () => loadCashLog())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_transactions' }, () => loadCashLog())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_drops' }, () => loadCashLog())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'cash_drawer_sessions' }, () => loadCashLog())
+      .subscribe();
+
+    const handleFocus = () => loadCashLog();
+    window.addEventListener('focus', handleFocus);
+
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      supabase.removeChannel(realtimeChannel);
+    };
+  }, [loadCashLog]);
 
   const formattedLogDate = format(selectedLogDate, 'MM/dd/yyyy');
 

@@ -85,12 +85,23 @@ const CashDrawerDetailsContent = ({
   const [dropEntries, setDropEntries] = useState<CashTransaction[]>([]);
 
   // Load all data: cash_transactions (pay in/out), orders (sales/tips), cash_drops
+  // Get clocked-in employee info
+  const getClockInSession = useCallback(() => {
+    try {
+      const session = localStorage.getItem('pos_session');
+      if (session) return JSON.parse(session);
+    } catch {}
+    return null;
+  }, []);
+
   const loadAllData = useCallback(async () => {
     const sessionData = localStorage.getItem('activeDrawerSession');
     if (!sessionData) return;
     const session = JSON.parse(sessionData);
     const sessionStart = new Date(session.sessionStartTime);
     const now = new Date();
+    const clockIn = getClockInSession();
+    const employeeName = clockIn?.employeeName || null;
 
     // 1. Load cash_transactions (pay in/out) from DB
     if (session.id) {
@@ -99,7 +110,7 @@ const CashDrawerDetailsContent = ({
         const mapped: CashTransaction[] = dbTransactions.map((t: any) => ({
           id: t.id,
           time: new Date(t.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-          name: t.employee_name || 'Guest',
+          name: t.employee_name || employeeName || 'Staff',
           reason: t.reason,
           payIn: t.type === 'pay_in' ? Number(t.amount) : 0,
           payOut: t.type === 'pay_out' ? Number(t.amount) : 0,
@@ -117,19 +128,27 @@ const CashDrawerDetailsContent = ({
     }
 
     // 2. Load orders (sales + tips) created since session start
-    const { data: sessionOrders } = await (supabase as any).from("orders")
+    let query = (supabase as any).from("orders")
       .select("*")
       .gte("created_at", sessionStart.toISOString())
       .lte("created_at", now.toISOString())
-      .in("status", ["paid", "completed", "PAID"])
+      .in("status", ["paid", "completed", "PAID", "Paid"])
       .order("created_at", { ascending: true });
+
+    // Filter by clocked-in employee if available
+    if (employeeName) {
+      query = query.eq("employee_name", employeeName);
+    }
+
+    const { data: sessionOrders } = await query;
 
     let cSales = 0, cdSales = 0, cTips = 0, cdTips = 0;
     const oEntries: CashTransaction[] = [];
 
     if (sessionOrders && sessionOrders.length > 0) {
       sessionOrders.forEach((order: any) => {
-        const isCash = order.payment_type === 'cash';
+        const paymentType = (order.payment_type || '').toLowerCase();
+        const isCash = paymentType === 'cash';
         const orderTotal = Number(order.total) || 0;
         const tipAmount = Number(order.tip_amount) || 0;
         const saleAmount = orderTotal - tipAmount;
@@ -140,7 +159,7 @@ const CashDrawerDetailsContent = ({
         oEntries.push({
           id: order.id,
           time: new Date(order.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-          name: order.employee_name || 'Staff',
+          name: order.employee_name || employeeName || 'Staff',
           reason: isCash ? 'Cash Sale' : 'Card Sale',
           payIn: 0, payOut: 0,
           cashSale: isCash ? saleAmount : 0,
@@ -160,10 +179,16 @@ const CashDrawerDetailsContent = ({
     setOrderEntries(oEntries);
 
     // 3. Load cash drops since session start
-    const { data: drops } = await (supabase as any).from("cash_drops")
+    let dropQuery = (supabase as any).from("cash_drops")
       .select("*")
       .gte("created_at", sessionStart.toISOString())
       .order("created_at", { ascending: true });
+
+    if (employeeName) {
+      dropQuery = dropQuery.eq("employee_name", employeeName);
+    }
+
+    const { data: drops } = await dropQuery;
 
     let dropTotal = 0;
     const dEntries: CashTransaction[] = [];
@@ -174,7 +199,7 @@ const CashDrawerDetailsContent = ({
         dEntries.push({
           id: d.id,
           time: new Date(d.created_at).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-          name: d.employee_name || 'Staff',
+          name: d.employee_name || employeeName || 'Staff',
           reason: 'Cash Drop',
           payIn: 0, payOut: 0,
           cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0,
@@ -186,7 +211,7 @@ const CashDrawerDetailsContent = ({
     }
     setDbCashDropTotal(dropTotal);
     setDropEntries(dEntries);
-  }, []);
+  }, [getClockInSession]);
 
   useEffect(() => {
     loadAllData();

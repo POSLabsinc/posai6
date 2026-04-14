@@ -41,9 +41,11 @@ interface CashLogEntry {
   reason: string;
   payIn: number;
   payOut: number;
-  cash: number;
-  card: number;
-  tips: number;
+  cashSale: number;
+  cardSale: number;
+  cashTip: number;
+  cardTip: number;
+  cashDrop: number;
   runningBalance: number;
 }
 

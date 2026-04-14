@@ -1275,19 +1275,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
           {/* Desktop: Two-column layout */}
           <div className="hidden md:block w-full">
-            {showTutorialOverlay ? (
-              <div className="flex flex-row items-stretch gap-0 w-full">
-            ) : (
             <AnimatePresence mode="wait">
               <motion.div
-                key={showOtherOptions ? (activationCodeSent ? "otp-view" : "code-view") : "browser-view"}
-                initial={{ opacity: 0, y: 20 }}
+                key={showTutorialOverlay ? `tour-${showOtherOptions}-${activationCodeSent}` : (showOtherOptions ? "code-view" : "browser-view")}
+                initial={showTutorialOverlay ? false : { opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ delay: 0.15 }}
+                exit={showTutorialOverlay ? false : { opacity: 0, y: -20 }}
+                transition={showTutorialOverlay ? { duration: 0 } : { delay: 0.15 }}
                 className="flex flex-row items-stretch gap-0 w-full"
               >
-            )}
                 {/* Left: QR Code */}
                 <div className="flex-1 pr-12">
                   <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>

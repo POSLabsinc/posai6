@@ -1207,8 +1207,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               open={showTutorialOverlay}
               onClose={() => setShowTutorialOverlay(false)}
               onSwitchToEmailPhone={() => { setShowOtherOptions(true); setActivationCodeSent(false); }}
-              onSwitchToBrowser={() => { setShowOtherOptions(false); setActivationCodeSent(false); }}
+              onSwitchToBrowser={() => { setShowOtherOptions(false); setActivationCodeSent(false); setActivationContactValue(""); }}
               onSwitchToOtp={() => { setShowOtherOptions(true); setActivationCodeSent(true); }}
+              onFillDummyEmail={() => { setShowOtherOptions(true); setActivationCodeSent(false); setActivationContactValue("john.doe@example.com"); }}
+              onFillDummyPhone={() => { setShowOtherOptions(true); setActivationCodeSent(false); setActivationContactValue("+1 (555) 234-5678"); }}
+              onFillDummyOtp={() => { setShowOtherOptions(true); setActivationCodeSent(true); setActivationContactValue("john.doe@example.com"); setActivationCode("482"); }}
             />
           )}
         </div>
@@ -1253,13 +1256,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
           {/* Desktop: Two-column layout */}
           <div className="hidden md:block w-full">
-            <AnimatePresence mode="wait">
+            <AnimatePresence mode={showTutorialOverlay ? "sync" : "wait"}>
               <motion.div
-                key={showOtherOptions ? "code-view" : "browser-view"}
-                initial={{ opacity: 0, y: 20 }}
+                key={showOtherOptions ? (activationCodeSent ? "otp-view" : "code-view") : "browser-view"}
+                initial={showTutorialOverlay ? false : { opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ delay: 0.15 }}
+                exit={showTutorialOverlay ? { opacity: 0 } : { opacity: 0, y: -20 }}
+                transition={showTutorialOverlay ? { duration: 0.05 } : { delay: 0.15 }}
                 className="flex flex-row items-stretch gap-0 w-full"
               >
                 {/* Left: QR Code */}
@@ -1338,13 +1341,14 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <h2 className="text-xl font-bold text-foreground mb-2">Activate with Code</h2>
                       <p className="text-sm text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
                        <div className="space-y-4" data-tour="email-input-area">
-                        <div className="relative">
+                        <div className="relative" data-tour="email-input-field">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-5 h-5" /></div>
                           <input type="text" placeholder="Email or phone number" value={activationContactValue} onChange={(e) => setActivationContactValue(e.target.value)}
                             className="w-full h-14 pl-12 pr-4 rounded-2xl bg-foreground/[0.04] border border-foreground/[0.08] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/20 transition-colors text-base" />
                         </div>
                         <button onClick={() => { if (!activationContactValue.trim()) return; setActivationSendingCode(true); setTimeout(() => { setActivationCodeSent(true); setActivationSendingCode(false); toast({ title: "Verification code sent", description: `Check ${activationContactValue} for your code` }); }, 800); }}
                           disabled={!activationContactValue.trim() || activationSendingCode}
+                          data-tour="send-code-button"
                           className="w-full h-14 rounded-2xl bg-foreground/[0.08] hover:bg-foreground/[0.12] text-foreground font-semibold text-base flex items-center justify-center gap-2 transition-colors disabled:opacity-40">
                           {activationSendingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-5 h-5" />Send Code</>}
                         </button>

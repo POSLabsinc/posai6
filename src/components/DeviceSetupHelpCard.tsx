@@ -253,39 +253,31 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   };
 
   // Arrow between spotlight and card
-  const getArrowStyle = (): React.CSSProperties & { direction: string } => {
-    if (!highlightRect) return { position: "fixed", top: 0, left: 0, direction: "right" };
+  const getArrowInfo = (): { pos: React.CSSProperties; dir: string } => {
+    if (!highlightRect) return { pos: { position: "fixed", top: 0, left: 0 }, dir: "right" };
     const gap = 4;
 
     if (step.cardPosition === "right") {
       return {
-        position: "fixed",
-        top: highlightRect.top + highlightRect.height / 2 - 16,
-        left: highlightRect.right + gap,
-        direction: "right",
+        pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.right + gap },
+        dir: "right",
       };
     }
     if (step.cardPosition === "left") {
       return {
-        position: "fixed",
-        top: highlightRect.top + highlightRect.height / 2 - 16,
-        left: highlightRect.left - gap - 32,
-        direction: "left",
+        pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.left - gap - 32 },
+        dir: "left",
       };
     }
     if (step.cardPosition === "top") {
       return {
-        position: "fixed",
-        top: highlightRect.top - gap - 32,
-        left: highlightRect.left + highlightRect.width / 2 - 16,
-        direction: "up",
+        pos: { position: "fixed", top: highlightRect.top - gap - 32, left: highlightRect.left + highlightRect.width / 2 - 16 },
+        dir: "up",
       };
     }
     return {
-      position: "fixed",
-      top: highlightRect.bottom + gap,
-      left: highlightRect.left + highlightRect.width / 2 - 16,
-      direction: "down",
+      pos: { position: "fixed", top: highlightRect.bottom + gap, left: highlightRect.left + highlightRect.width / 2 - 16 },
+      dir: "down",
     };
   };
 
@@ -296,8 +288,9 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     up: "M16 26L16 6M16 6L8 14M16 6L24 14",
   };
 
-  const arrowInfo = getArrowStyle();
-  const { direction: arrowDir, ...arrowPos } = arrowInfo;
+  const arrowData = getArrowInfo();
+  const arrowDir = arrowData.dir;
+  const arrowPos = arrowData.pos;
   const motionDir = arrowDir === "left" ? { x: [0, -6, 0] } :
     arrowDir === "right" ? { x: [0, 6, 0] } :
     arrowDir === "up" ? { y: [0, -6, 0] } :

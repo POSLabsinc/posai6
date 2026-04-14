@@ -1203,7 +1203,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </div>
 
           {showTutorialOverlay && (
-            <DeviceSetupHelpCard open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} />
+            <DeviceSetupHelpCard
+              open={showTutorialOverlay}
+              onClose={() => setShowTutorialOverlay(false)}
+              onSwitchToEmailPhone={() => { setShowOtherOptions(true); setActivationCodeSent(false); }}
+              onSwitchToBrowser={() => { setShowOtherOptions(false); setActivationCodeSent(false); }}
+              onSwitchToOtp={() => { setShowOtherOptions(true); setActivationCodeSent(true); }}
+            />
           )}
         </div>
       );
@@ -1268,6 +1274,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500);
                       }}
                       className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                      data-tour="qr-code"
                     >
                       <QRCodeSVG value={activationQrValue} size={180} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                     </button>
@@ -1295,7 +1302,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                           <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
                           <div>
                             <p className="text-sm text-foreground/70 mb-2">Go to this link:</p>
-                            <div className="inline-block px-5 py-2.5 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]">
+                            <div className="inline-block px-5 py-2.5 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]" data-tour="activation-link">
                               <span className="text-base font-semibold text-foreground tracking-wide">posai.com/pair</span>
                             </div>
                           </div>
@@ -1304,7 +1311,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                           <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
                           <div>
                             <p className="text-sm text-foreground/70 mb-3">When asked, enter this code:</p>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2" data-tour="activation-code">
                               {generatedDeviceCode.split('').map((char, i) => (
                                 <div key={i} className="w-12 h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center">
                                   <span className="text-xl font-bold text-foreground">{char}</span>
@@ -1318,7 +1325,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       {/* Additional options below Option 2 */}
                       <div className="mt-8 flex flex-col gap-3">
                         <button onClick={() => { setShowOtherOptions(true); }}
-                          className="w-full py-3 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.04] hover:bg-foreground/[0.08] text-sm text-foreground/60 hover:text-foreground/80 transition-all flex items-center justify-center gap-2">
+                          className="w-full py-3 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.04] hover:bg-foreground/[0.08] text-sm text-foreground/60 hover:text-foreground/80 transition-all flex items-center justify-center gap-2"
+                          data-tour="email-phone-button">
                           <Mail className="w-4 h-4" />
                           Activate via email / phone
                         </button>
@@ -1329,7 +1337,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 2</p>
                       <h2 className="text-xl font-bold text-foreground mb-2">Activate with Code</h2>
                       <p className="text-sm text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
-                      <div className="space-y-4">
+                       <div className="space-y-4" data-tour="email-input-area">
                         <div className="relative">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-5 h-5" /></div>
                           <input type="text" placeholder="Email or phone number" value={activationContactValue} onChange={(e) => setActivationContactValue(e.target.value)}
@@ -1354,7 +1362,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Verification</p>
                       <h2 className="text-xl font-bold text-foreground mb-2">Enter Code</h2>
                       <p className="text-sm text-foreground/50 mb-6">Enter the 6-digit code sent to <span className="font-semibold text-foreground">{activationContactValue}</span></p>
-                      <div className="flex gap-2 mb-4">
+                       <div className="flex gap-2 mb-4" data-tour="otp-code-area">
                         {Array.from({ length: 6 }).map((_, i) => (
                           <div key={i} className={`w-12 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all ${activationCode[i] ? "border-primary bg-primary/5 text-foreground" : i === activationCode.length ? "border-primary/50 bg-foreground/[0.03]" : "border-foreground/10 bg-foreground/[0.03]"}`}>
                             {activationCode[i] || ""}

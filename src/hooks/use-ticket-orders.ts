@@ -208,6 +208,8 @@ function unifiedToRow(order: Partial<UnifiedTicketOrder>): Record<string, any> {
   if (order.refundAmount !== undefined) row.refund_amount = order.refundAmount;
   if (order.refundReason !== undefined) row.refund_reason = order.refundReason;
   if (order.refundTransactions !== undefined) row.refund_transactions = order.refundTransactions;
+  // Always refresh updated_at on updates
+  row.updated_at = new Date().toISOString();
   return row;
 }
 

@@ -181,13 +181,18 @@ const CashDrawerDetailsContent = ({
     setTransactions(mergedTransactions);
     localStorage.setItem('cashTransactions', JSON.stringify(mergedTransactions));
 
-    // 2. Load paid orders (sales + tips) using payment/update time from ticket_orders
-    const { data: sessionOrders } = await (supabase as any).from("ticket_orders")
+    // 2. Load paid orders (sales + tips) from ticket_orders since session start
+    // Use created_at for range (always set reliably) and filter by PAID status
+    const { data: sessionOrders, error: ordersError } = await (supabase as any).from("ticket_orders")
       .select("id, total, tip, payment_type, server, created_at, updated_at, status, payment_status")
-      .gte("updated_at", sessionStart.toISOString())
-      .lte("updated_at", now.toISOString())
+      .gte("created_at", sessionStart.toISOString())
+      .lte("created_at", now.toISOString())
       .or("status.eq.PAID,payment_status.eq.completed")
-      .order("updated_at", { ascending: true });
+      .order("created_at", { ascending: true });
+
+    if (ordersError) {
+      console.error('[CashDrawer] Error loading ticket_orders:', ordersError);
+    }
 
     let cSales = 0, cdSales = 0, cTips = 0, cdTips = 0;
     const oEntries: CashTransaction[] = [];

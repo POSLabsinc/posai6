@@ -490,6 +490,20 @@ const CashDrawerDetailsContent = ({
           CLOSE DRAWER
         </button>
 
+        {/* Balances Section */}
+        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Balances</h2>
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-lg font-medium">Opening Cash</span>
+            <span className="text-foreground text-lg">${startingCash.toFixed(2)}</span>
+          </div>
+          <div className="h-px bg-neutral-700/50 mx-4" />
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-lg font-medium">Expected In Drawer</span>
+            <span className="text-foreground text-lg font-semibold">${expectedInDrawer.toFixed(2)}</span>
+          </div>
+        </div>
+
         {/* Pay In/Pay Out */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <button 

@@ -1374,16 +1374,22 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
             </button>
           </div>
         )}
-        {/* Header Card */}
-        <div className="px-6 pt-4">
-          <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">
-            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
-              <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
-            </div>
-            <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
-            <p className="text-base text-neutral-400 leading-relaxed w-full">
-              Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
-            </p>
+        {/* Action icons row */}
+        <div className="px-6 pt-4 pb-2 flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-foreground">Guest Book</h3>
+          <div className="flex items-center gap-2">
+            <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+              <Plus className="w-4 h-4 text-foreground" />
+            </button>
+            <button className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+              <Archive className="w-4 h-4 text-foreground" />
+            </button>
+            <button
+              onClick={() => setSortAZ(prev => !prev)}
+              className={`w-8 h-8 rounded-full flex items-center justify-center active:opacity-70 transition-all ${sortAZ ? 'bg-foreground' : 'bg-neutral-800/60'}`}
+            >
+              <ArrowDownAZ className={`w-4 h-4 ${sortAZ ? 'text-background' : 'text-foreground'}`} />
+            </button>
           </div>
         </div>
         {/* Search */}
@@ -1400,6 +1406,20 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
             <GuestListItem key={guest.id} guest={guest} isSelected={false} onClick={() => setSelectedGuestId(guest.id)} />
           ))}
         </div>
+
+        {/* Add Guest Screen */}
+        {showAddGuest && (
+          <div className="absolute inset-0 z-40 bg-background flex flex-col">
+            <div className="flex-1 overflow-y-auto">
+              <AddGuestForm
+                onClose={() => setShowAddGuest(false)}
+                onSave={async () => { await fetchGuests(); }}
+                hideHeader={true}
+                onBack={() => { setShowAddGuest(false); fetchGuests(); }}
+              />
+            </div>
+          </div>
+        )}
       </div>
     );
   }

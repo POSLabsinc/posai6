@@ -151,13 +151,18 @@ const CashManagementContent = ({
         .lte("created_at", endOfDay.toISOString())
         .order("created_at", { ascending: true });
       
-      // Load paid orders from ticket_orders using payment/update time
-      const { data: dayOrders } = await (supabase as any).from("ticket_orders")
+      // Load paid orders from ticket_orders for the selected date
+      // Use created_at for date range (always set) and filter by PAID status
+      const { data: dayOrders, error: ordersError } = await (supabase as any).from("ticket_orders")
         .select("id, total, tip, payment_type, server, created_at, updated_at, status, payment_status")
-        .gte("updated_at", startOfDay.toISOString())
-        .lte("updated_at", endOfDay.toISOString())
+        .gte("created_at", startOfDay.toISOString())
+        .lte("created_at", endOfDay.toISOString())
         .or("status.eq.PAID,payment_status.eq.completed")
-        .order("updated_at", { ascending: true });
+        .order("created_at", { ascending: true });
+
+      if (ordersError) {
+        console.error('[CashLog] Error loading ticket_orders:', ordersError);
+      }
 
       // Load cash drops for the date
       const { data: dayCashDrops } = await (supabase as any).from("cash_drops")

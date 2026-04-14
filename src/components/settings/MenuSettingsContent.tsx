@@ -144,10 +144,6 @@ const MenuSettingsContent = ({
         </div>
       )}
 
-
-
-    }
-
       {/* Content */}
       <div className={`flex-1 overflow-y-auto scrollbar-hide ${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Header Card */}

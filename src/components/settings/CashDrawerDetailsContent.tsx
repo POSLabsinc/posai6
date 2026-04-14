@@ -65,7 +65,7 @@ const CashDrawerDetailsContent = ({
   const [showDrawerDropdown, setShowDrawerDropdown] = useState(false);
   const [drawerPosition, setDrawerPosition] = useState<DropdownPosition>({ top: 0, right: 0 });
   const [showEndDrawerPopup, setShowEndDrawerPopup] = useState(false);
-  const [showBackAlert, setShowBackAlert] = useState(false);
+  
   const [actualInDrawer, setActualInDrawer] = useState("");
   const [differenceReason, setDifferenceReason] = useState("");
   const [transactions, setTransactions] = useState<CashTransaction[]>([]);
@@ -465,34 +465,6 @@ const CashDrawerDetailsContent = ({
         </div>
       )}
 
-      {/* Back Navigation Alert */}
-      {showBackAlert && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 animate-in fade-in duration-200"
-          onClick={() => setShowBackAlert(false)}
-        >
-          <div 
-            className="bg-background rounded-2xl w-full max-w-sm mx-4 overflow-hidden animate-in zoom-in-95 duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex flex-col items-center px-6 py-6 gap-4">
-              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-amber-400" />
-              </div>
-              <h3 className="text-foreground text-lg font-semibold text-center">Active Cash Drawer</h3>
-              <p className="text-neutral-400 text-sm text-center leading-relaxed">
-                Please close the active cash drawer before leaving this screen.
-              </p>
-              <button
-                onClick={() => setShowBackAlert(false)}
-                className="w-full py-3.5 rounded-xl bg-neutral-700 text-foreground text-base font-semibold active:opacity-70 transition-opacity mt-1"
-              >
-                OK
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* End Drawer Popup */}
       {showEndDrawerPopup && (

@@ -710,25 +710,27 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide px-6 pt-0 pb-28">
-      {/* Header: Guest Book default or Guest Details for non-profile tabs */}
+      {/* Header: mobile profile keeps only back button, desktop keeps Guest Book card */}
       {activeTab === "profile" ? (
         <div className="mb-6">
           {onCollapse && (
-            <div className="mb-4">
+            <div className={isMobile ? "mb-0" : "mb-4"}>
               <button onClick={onCollapse} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
             </div>
           )}
-          <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
-            <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
-          </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
-          <p className="text-base text-neutral-400 leading-relaxed w-full">
-            Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
-          </p>
-          </div>
+          {!isMobile && (
+            <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
+                <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
+              <p className="text-base text-neutral-400 leading-relaxed w-full">
+                Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
+              </p>
+            </div>
+          )}
         </div>
       ) : (
         <div className="mb-6">

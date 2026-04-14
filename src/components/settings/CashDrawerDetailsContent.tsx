@@ -313,21 +313,13 @@ const CashDrawerDetailsContent = ({
           </div>
         </div>
 
-        {/* Pay In/Pay Out & Cash Drop */}
+        {/* Pay In/Pay Out */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <button 
             onClick={handlePayInOut}
             className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
           >
-            <span className="text-foreground text-lg font-medium">Pay In / Pay Out</span>
-            <ChevronRight className="w-5 h-5 text-neutral-500" />
-          </button>
-          <div className="h-px bg-neutral-700/50 mx-4" />
-          <button 
-            onClick={() => navigate('/settings/payments/cash-management/cash-drop')}
-            className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
-          >
-            <span className="text-foreground text-lg font-medium">Cash Drop</span>
+            <span className="text-foreground text-lg font-medium">Pay In/ Pay Out</span>
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>
         </div>

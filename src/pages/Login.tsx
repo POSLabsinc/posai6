@@ -1280,7 +1280,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 key={showTutorialOverlay ? `tour-${showOtherOptions}-${activationCodeSent}` : (showOtherOptions ? "code-view" : "browser-view")}
                 initial={showTutorialOverlay ? false : { opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={showTutorialOverlay ? false : { opacity: 0, y: -20 }}
+                exit={showTutorialOverlay ? { opacity: 1 } : { opacity: 0, y: -20 }}
                 transition={showTutorialOverlay ? { duration: 0 } : { delay: 0.15 }}
                 className="flex flex-row items-stretch gap-0 w-full"
               >

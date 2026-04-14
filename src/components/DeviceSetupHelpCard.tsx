@@ -215,12 +215,17 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     if (!highlightRect) return { position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
 
     const cardW = 380;
+    const cardEstH = 420; // estimated card height
     const gap = 32;
+
+    // Center card vertically with highlight, clamped to viewport
+    const centerY = highlightRect.top + highlightRect.height / 2 - cardEstH / 2;
+    const clampedY = Math.max(20, Math.min(centerY, window.innerHeight - cardEstH - 60));
 
     if (step.cardPosition === "right") {
       return {
         position: "fixed",
-        top: Math.max(20, highlightRect.top - padding),
+        top: clampedY,
         left: highlightRect.right + gap,
         width: cardW,
         maxWidth: `calc(100vw - ${highlightRect.right + gap + 20}px)`,
@@ -229,7 +234,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     if (step.cardPosition === "left") {
       return {
         position: "fixed",
-        top: Math.max(20, highlightRect.top - padding),
+        top: clampedY,
         right: `calc(100vw - ${highlightRect.left - gap}px)`,
         width: cardW,
         maxWidth: `${highlightRect.left - gap - 20}px`,

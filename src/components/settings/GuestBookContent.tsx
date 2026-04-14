@@ -1378,12 +1378,16 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           </div>
         )}
         {/* Icon, title, subtext header */}
-        <div className="px-6 pt-4 pb-2 flex flex-col items-center text-center">
-          <div className="w-14 h-14 rounded-2xl bg-neutral-800/60 flex items-center justify-center mb-2">
-            <img src={guestBookIcon} alt="Guest Book" className="w-8 h-8" />
+        <div className="px-6 pt-4 pb-3">
+          <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
+              <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
+            </div>
+            <h2 className="text-xl font-semibold text-foreground mb-2">Guest Book</h2>
+            <p className="text-base text-neutral-400 leading-relaxed w-full">
+              Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
+            </p>
           </div>
-          <h2 className="text-xl font-bold text-foreground">Guest Book</h2>
-          <p className="text-xs text-neutral-500 mt-1 max-w-[260px]">Manage your guest profiles, track visits, and build lasting relationships.</p>
         </div>
         {/* Action icons row */}
         <div className="px-6 pt-2 pb-2 flex items-center justify-end">

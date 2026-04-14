@@ -930,14 +930,6 @@ export default function ShiftSummaryModal({
             <p className="text-xl md:text-2xl font-bold text-white mt-0.5">$ {overallTotal.toFixed(2)}</p>
           </div>
           <div>
-            <p className="text-[10px] md:text-xs text-neutral-500 uppercase tracking-wider font-medium">Total Cash Drop</p>
-            <p className="text-xl md:text-2xl font-bold text-white mt-0.5">$ {totalCashDrop.toFixed(2)}</p>
-          </div>
-          <div>
-            <p className="text-[10px] md:text-xs text-neutral-500 uppercase tracking-wider font-medium">Cash Tips Payable</p>
-            <p className="text-xl md:text-2xl font-bold text-emerald-400 mt-0.5">$ {totalCashTips.toFixed(2)}</p>
-          </div>
-          <div>
             <p className="text-[10px] md:text-xs text-neutral-500 uppercase tracking-wider font-medium">Tips Payable</p>
             <p className="text-xl md:text-2xl font-bold text-white mt-0.5">$ {tipsPayable.toFixed(2)}</p>
           </div>

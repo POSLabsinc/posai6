@@ -154,7 +154,7 @@ export default function ShiftSummaryModal({
   const [shareSending, setShareSending] = useState(false);
 
   // AI Chat state
-  const [showAIChat, setShowAIChat] = useState(false);
+  const [showAIChat, setShowAIChat] = useState(true);
 
   // Cash Drop popup state
   const [showCashDropPopup, setShowCashDropPopup] = useState(false);
@@ -268,7 +268,7 @@ export default function ShiftSummaryModal({
   const overallTotal = useMemo(() => paidOrders.reduce((s, o) => s + Number(o.total) + Number(o.tip), 0), [paidOrders]);
   const totalPayIn = useMemo(() => cashTxs.filter(c => c.type === "pay_in").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
   const totalPayOut = useMemo(() => cashTxs.filter(c => c.type === "pay_out").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
-  const totalCashDrop = totalCashSales + totalPayIn - totalPayOut;
+  const totalCashDrop = overallTotal - totalTips;
 
   const initials = getInitials(employeeName);
 
@@ -948,7 +948,7 @@ export default function ShiftSummaryModal({
               setCashDropMismatch(false);
               setShowCashDropPopup(true);
             }}
-            className="flex items-center gap-2 px-5 py-3 bg-white/10 hover:bg-white/15 rounded-xl text-white font-semibold text-sm md:text-base transition-colors"
+            className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/15 rounded-full text-white font-semibold text-sm md:text-base transition-colors"
           >
             <ArrowDownToLine className="w-4 h-4 md:w-5 md:h-5" />
             Cash Drop
@@ -965,36 +965,37 @@ export default function ShiftSummaryModal({
             <table className="w-full text-sm md:text-base">
               <thead className="sticky top-0 bg-[#1C1C1E] z-10">
                 <tr className="border-b-2 border-white/10 text-left">
-                  <th className="py-3 md:py-3.5 pr-4 text-[11px] md:text-xs font-bold text-white/60 uppercase tracking-wider">Type</th>
-                  <th className="py-3 md:py-3.5 pr-4 text-[11px] md:text-xs font-bold text-white/60 uppercase tracking-wider">Qty</th>
-                  <th className="py-3 md:py-3.5 pr-4 text-[11px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
-                  <th className="py-3 md:py-3.5 pr-4 text-[11px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
-                  <th className="py-3 md:py-3.5 pl-4 text-[11px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
+                  <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider">Type</th>
+                  <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Qty</th>
+                  <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
+                  <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
+                  <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
+                  <th className="py-3 md:py-3.5 pl-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Cash Drop</th>
                 </tr>
               </thead>
               <tbody>
-                {paymentTypeSummary.map(row => (
-                  <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
-                    <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white">{row.type}</td>
-                    <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300">{row.qty}</td>
-                    <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
-                    <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
-                    <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
-                  </tr>
-                ))}
+                {paymentTypeSummary.map(row => {
+                  const cashDropForRow = row.amount - row.tips;
+                  return (
+                    <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
+                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white">{row.type}</td>
+                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">{row.qty}</td>
+                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
+                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
+                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
+                      <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-medium text-white text-right">$ {cashDropForRow.toFixed(2)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
               <tfoot>
                 <tr className="bg-neutral-800/50">
-                  <td colSpan={2} className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white">Total</td>
+                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white">Total</td>
+                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">{paidOrders.length}</td>
                   <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {overallTotal.toFixed(2)}</td>
-                  <td className="py-3.5 md:py-4 pr-4"></td>
-                  <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalTips.toFixed(2)}</td>
-                </tr>
-                <tr className="bg-neutral-800/30">
-                  <td colSpan={2} className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white">Cash Drop</td>
-                  <td className="py-3.5 md:py-4 pr-4"></td>
-                  <td className="py-3.5 md:py-4 pr-4"></td>
-                  <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
+                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalTips.toFixed(2)}</td>
+                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalTips.toFixed(2)}</td>
+                  <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {(overallTotal - totalTips).toFixed(2)}</td>
                 </tr>
               </tfoot>
             </table>

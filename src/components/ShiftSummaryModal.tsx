@@ -890,104 +890,120 @@ export default function ShiftSummaryModal({
         </div>
 
         {/* Key metrics - 2 cols on mobile, 4 cols on desktop */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 md:gap-3 px-4 md:px-6 py-3 md:py-4 shrink-0">
-          <div className="flex items-center gap-2.5 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
-            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
-              <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-5 md:px-8 py-4 md:py-5 shrink-0">
+          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
+              <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Card Sales</p>
-              <p className="text-xl md:text-2xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
+              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Card Sales</p>
+              <p className="text-xl md:text-3xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2.5 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
-            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
-              <Banknote className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
+          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+              <Banknote className="w-5 h-5 md:w-6 md:h-6 text-amber-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Sales</p>
-              <p className="text-xl md:text-2xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
+              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Sales</p>
+              <p className="text-xl md:text-3xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2.5 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
-            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
-              <Receipt className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
+          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
+              <Receipt className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Total Tips</p>
-              <p className="text-xl md:text-2xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
+              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Total Tips</p>
+              <p className="text-xl md:text-3xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2.5 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
-            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
-              <Banknote className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
+          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
+              <Banknote className="w-5 h-5 md:w-6 md:h-6 text-blue-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Tips Payable</p>
-              <p className="text-xl md:text-2xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
+              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Tips Payable</p>
+              <p className="text-xl md:text-3xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
             </div>
           </div>
         </div>
 
-        {/* Bottom summary row */}
-        <div className="flex items-center px-4 md:px-6 py-2.5 md:py-3 shrink-0 gap-6 md:gap-8 border-b border-white/10">
-          <div>
-            <p className="text-[10px] md:text-xs text-neutral-500 uppercase tracking-wider font-medium">Total</p>
-            <p className="text-xl md:text-2xl font-bold text-white mt-0.5">$ {overallTotal.toFixed(2)}</p>
+        {/* Bottom summary row with Cash Drop button */}
+        <div className="flex items-center justify-between px-5 md:px-8 py-3 md:py-4 shrink-0 border-b border-white/10">
+          <div className="flex items-center gap-8 md:gap-10">
+            <div>
+              <p className="text-[11px] md:text-sm text-neutral-500 uppercase tracking-wider font-medium">Total</p>
+              <p className="text-2xl md:text-3xl font-bold text-white mt-0.5">$ {overallTotal.toFixed(2)}</p>
+            </div>
+            <div>
+              <p className="text-[11px] md:text-sm text-neutral-500 uppercase tracking-wider font-medium">Tips Payable</p>
+              <p className="text-2xl md:text-3xl font-bold text-white mt-0.5">$ {tipsPayable.toFixed(2)}</p>
+            </div>
           </div>
-          <div>
-            <p className="text-[10px] md:text-xs text-neutral-500 uppercase tracking-wider font-medium">Tips Payable</p>
-            <p className="text-xl md:text-2xl font-bold text-white mt-0.5">$ {tipsPayable.toFixed(2)}</p>
-          </div>
+          <button
+            onClick={() => {
+              setCashDropAmount("");
+              setCashDropReason("");
+              setCashDropMismatch(false);
+              setShowCashDropPopup(true);
+            }}
+            className="flex items-center gap-2 px-5 py-3 bg-white/10 hover:bg-white/15 rounded-xl text-white font-semibold text-sm md:text-base transition-colors"
+          >
+            <ArrowDownToLine className="w-4 h-4 md:w-5 md:h-5" />
+            Cash Drop
+          </button>
         </div>
 
         {/* Data table */}
-        <div className="flex-1 overflow-auto px-4 md:px-6 py-3">
+        <div className="flex-1 overflow-auto px-5 md:px-8 py-4">
           {loading ? (
-            <p className="text-sm md:text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
+            <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
           ) : paymentTypeSummary.length === 0 ? (
-            <p className="text-sm md:text-base text-neutral-500 py-8 text-center">No transactions found for the selected filters</p>
+            <p className="text-base text-neutral-500 py-8 text-center">No transactions found for the selected filters</p>
           ) : (
-            <table className="w-full text-sm md:text-[15px]">
+            <table className="w-full text-sm md:text-base">
               <thead className="sticky top-0 bg-[#1C1C1E] z-10">
                 <tr className="border-b-2 border-white/10 text-left">
-                  <th className="py-2.5 md:py-3 pr-3 md:pr-4 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-wider">Type</th>
-                  <th className="py-2.5 md:py-3 pr-3 md:pr-4 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-wider">Qty</th>
-                  <th className="py-2.5 md:py-3 pr-3 md:pr-4 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
-                  <th className="py-2.5 md:py-3 pr-3 md:pr-4 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
-                  <th className="py-2.5 md:py-3 pl-3 md:pl-4 text-[10px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
+                  <th className="py-3 md:py-3.5 pr-4 text-[11px] md:text-xs font-bold text-white/60 uppercase tracking-wider">Type</th>
+                  <th className="py-3 md:py-3.5 pr-4 text-[11px] md:text-xs font-bold text-white/60 uppercase tracking-wider">Qty</th>
+                  <th className="py-3 md:py-3.5 pr-4 text-[11px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
+                  <th className="py-3 md:py-3.5 pr-4 text-[11px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
+                  <th className="py-3 md:py-3.5 pl-4 text-[11px] md:text-xs font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
                 </tr>
               </thead>
               <tbody>
                 {paymentTypeSummary.map(row => (
                   <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
-                    <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-medium text-white">{row.type}</td>
-                    <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] text-neutral-300">{row.qty}</td>
-                    <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
-                    <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
-                    <td className="py-3 md:py-3.5 pl-3 md:pl-4 text-sm md:text-[15px] font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
+                    <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white">{row.type}</td>
+                    <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300">{row.qty}</td>
+                    <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
+                    <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
+                    <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
                   </tr>
                 ))}
               </tbody>
               <tfoot>
                 <tr className="bg-neutral-800/50">
-                  <td colSpan={2} className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white">Total</td>
-                  <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white text-right">$ {overallTotal.toFixed(2)}</td>
-                  <td className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white text-right" colSpan={2}>$ {totalTips.toFixed(2)}</td>
+                  <td colSpan={2} className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white">Total</td>
+                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {overallTotal.toFixed(2)}</td>
+                  <td className="py-3.5 md:py-4 pr-4"></td>
+                  <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalTips.toFixed(2)}</td>
                 </tr>
                 <tr className="bg-neutral-800/30">
-                  <td colSpan={2} className="py-3 md:py-3.5 pr-3 md:pr-4 text-sm md:text-[15px] font-bold text-white">Cash Drop</td>
-                  <td className="py-3 md:py-3.5 pr-3 md:pr-4" colSpan={2}></td>
-                  <td className="py-3 md:py-3.5 pl-3 md:pl-4 text-sm md:text-[15px] font-bold text-white text-right">$ {(-tipsPayable).toFixed(2)}</td>
+                  <td colSpan={2} className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white">Cash Drop</td>
+                  <td className="py-3.5 md:py-4 pr-4"></td>
+                  <td className="py-3.5 md:py-4 pr-4"></td>
+                  <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
                 </tr>
               </tfoot>
             </table>
           )}
         </div>
 
-        {/* Desktop AI side panel overlay */}
+        {/* Desktop AI side panel overlay - wider */}
         {showAIChat && !isMobile && (
-          <div className="absolute right-0 top-0 bottom-0 w-[380px] z-[20] flex flex-col bg-[#1C1C1E] border-l border-white/10 shadow-2xl rounded-r-2xl overflow-hidden">
+          <div className="absolute right-0 top-0 bottom-0 w-[440px] z-[20] flex flex-col bg-[#1C1C1E] border-l border-white/10 shadow-2xl rounded-r-2xl overflow-hidden">
             <ShiftAIChatPanel
               onClose={() => setShowAIChat(false)}
               shiftContext={shiftContextForAI}
@@ -998,6 +1014,74 @@ export default function ShiftSummaryModal({
                 downloadCSV: () => { setShowAIChat(false); setTimeout(() => handleShare("download"), 100); },
               }}
             />
+          </div>
+        )}
+
+        {/* Cash Drop Popup */}
+        {showCashDropPopup && (
+          <div className="absolute inset-0 z-[30] flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/50" onClick={() => setShowCashDropPopup(false)} />
+            <div className="relative z-10 bg-[#252525] rounded-2xl p-6 w-[400px] max-w-[90%] shadow-2xl">
+              <div className="flex items-center justify-between mb-5">
+                <h3 className="text-lg font-bold text-white">Cash Drop</h3>
+                <button onClick={() => setShowCashDropPopup(false)} className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-white/10 transition-colors">
+                  <X className="w-4 h-4 text-neutral-400" />
+                </button>
+              </div>
+
+              <div className="mb-4">
+                <p className="text-sm text-neutral-400 mb-1">Expected Cash Drop</p>
+                <p className="text-2xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+              </div>
+
+              <div className="mb-4">
+                <label className="text-sm text-neutral-400 mb-2 block">Enter Cash Drop Amount</label>
+                <input
+                  type="number"
+                  value={cashDropAmount}
+                  onChange={(e) => {
+                    setCashDropAmount(e.target.value);
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val) && Math.abs(val - totalCashDrop) > 0.01) {
+                      setCashDropMismatch(true);
+                    } else {
+                      setCashDropMismatch(false);
+                      setCashDropReason("");
+                    }
+                  }}
+                  placeholder="0.00"
+                  className="w-full px-4 py-3 bg-neutral-700 rounded-xl text-white text-lg font-medium outline-none focus:ring-2 focus:ring-white/30 transition-all"
+                  step="0.01"
+                />
+              </div>
+
+              {cashDropMismatch && (
+                <div className="mb-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-400" />
+                    <p className="text-sm text-amber-400 font-medium">Amount doesn't match expected total</p>
+                  </div>
+                  <label className="text-sm text-neutral-400 mb-2 block">Reason (required)</label>
+                  <textarea
+                    value={cashDropReason}
+                    onChange={(e) => setCashDropReason(e.target.value)}
+                    placeholder="Explain the difference..."
+                    className="w-full px-4 py-3 bg-neutral-700 rounded-xl text-white text-sm outline-none focus:ring-2 focus:ring-white/30 transition-all resize-none h-20"
+                  />
+                </div>
+              )}
+
+              <button
+                onClick={() => {
+                  if (cashDropMismatch && !cashDropReason.trim()) return;
+                  setShowCashDropPopup(false);
+                }}
+                disabled={!cashDropAmount || (cashDropMismatch && !cashDropReason.trim())}
+                className="w-full py-3.5 bg-white text-black font-semibold rounded-xl text-base hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Confirm Cash Drop
+              </button>
+            </div>
           </div>
         )}
       </div>

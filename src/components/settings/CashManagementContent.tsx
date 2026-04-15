@@ -42,10 +42,7 @@ interface CashLogEntry {
   payIn: number;
   payOut: number;
   cashSale: number;
-  cardSale: number;
   cashTip: number;
-  cardTip: number;
-  cashDrop: number;
   runningBalance: number;
 }
 
@@ -200,10 +197,7 @@ const CashManagementContent = ({
           payIn: matchingSession.startingCash,
           payOut: 0,
           cashSale: 0,
-          cardSale: 0,
           cashTip: 0,
-          cardTip: 0,
-          cashDrop: 0,
           runningBalance: balance,
         });
       }
@@ -216,7 +210,7 @@ const CashManagementContent = ({
           const isCash = (order.payment_type || '').toLowerCase() === 'cash';
           const orderTotal = Number(order.total) || 0;
           const tipAmount = Number(order.tip) || 0;
-          const saleAmount = orderTotal - tipAmount; // sale excluding tip
+          const saleAmount = orderTotal - tipAmount;
 
           if (isCash) {
             balance += orderTotal;
@@ -229,10 +223,7 @@ const CashManagementContent = ({
             payIn: 0,
             payOut: 0,
             cashSale: isCash ? saleAmount : 0,
-            cardSale: !isCash ? saleAmount : 0,
             cashTip: isCash ? tipAmount : 0,
-            cardTip: !isCash ? tipAmount : 0,
-            cashDrop: 0,
             runningBalance: balance,
           });
         });
@@ -252,10 +243,7 @@ const CashManagementContent = ({
             payIn,
             payOut,
             cashSale: 0,
-            cardSale: 0,
             cashTip: 0,
-            cardTip: 0,
-            cashDrop: 0,
             runningBalance: balance,
           });
         });
@@ -460,29 +448,15 @@ const CashManagementContent = ({
           </button>
         </div>
 
-        {/* Opening Cash Input */}
+        {/* Opening Cash Amount - Enhanced */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Opening Cash Amount</h2>
-        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-6">
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Amount</span>
-            <div className="flex items-center gap-1">
-              <span className="text-foreground text-lg">$</span>
-              <input type="text" inputMode="decimal" placeholder="0.00" value={openingCash} onChange={e => handleCashInput(e.target.value)} className="bg-transparent text-foreground text-lg text-right w-24 outline-none placeholder:text-neutral-500" />
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6 border border-neutral-700/40">
+          <div className="flex items-center justify-between py-5 px-5">
+            <span className="text-foreground text-xl font-semibold">Amount</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-foreground text-2xl font-semibold">$</span>
+              <input type="text" inputMode="decimal" placeholder="0.00" value={openingCash} onChange={e => handleCashInput(e.target.value)} className="bg-transparent text-foreground text-2xl font-semibold text-right w-32 outline-none placeholder:text-neutral-500" />
             </div>
-          </div>
-        </div>
-
-        {/* Balances */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Balances</h2>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Last Closing Balance</span>
-            <span className="text-foreground text-lg">${lastClosingBalance.toFixed(2)}</span>
-          </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Opening Till Cash</span>
-            <span className="text-foreground text-lg">${openingCash ? parseFloat(openingCash || "0").toFixed(2) : "0.00"}</span>
           </div>
         </div>
 

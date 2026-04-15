@@ -343,12 +343,12 @@ const CashDrawerDetailsContent = ({
   const filteredCashLogEntries = (() => {
     const entries: Array<{ time: string; name: string; reason: string; payIn: number; payOut: number; cashSale: number; cashTip: number; runningBalance: number }> = [];
     
-    // Opening cash entry
+    // Opening cash entry - not a pay in, just sets starting balance
     if (selectedDateString === sessionStartDateString) {
       const startTime = format(sessionStartDate, 'hh:mm a');
       entries.push({ 
         time: startTime, name: getEmployeeName(), reason: "Opening Cash",
-        payIn: startingCash, payOut: 0,
+        payIn: 0, payOut: 0,
         cashSale: 0, cashTip: 0,
         runningBalance: startingCash,
       });
@@ -472,7 +472,7 @@ const CashDrawerDetailsContent = ({
       )}
 
       <div className="pt-0 px-6 pb-28">
-        {/* Opening Cash Section */}
+        {/* 1. Cash Drawer */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Opening Cash</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <button
@@ -488,29 +488,15 @@ const CashDrawerDetailsContent = ({
           </button>
         </div>
 
-        {/* Close Drawer Button */}
-        <button 
-          onClick={() => setShowEndDrawerPopup(true)}
-          className="w-full py-4 rounded-full bg-neutral-800/60 text-foreground text-base font-semibold tracking-wide active:opacity-70 transition-opacity mb-6"
-        >
-          CLOSE DRAWER
-        </button>
-
-        {/* Balances Section */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Balances</h2>
+        {/* 2. Opening Cash */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <div className="flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-lg font-medium">Opening Cash</span>
             <span className="text-foreground text-lg">${startingCash.toFixed(2)}</span>
           </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Expected In Drawer</span>
-            <span className="text-foreground text-lg font-semibold">${expectedInDrawer.toFixed(2)}</span>
-          </div>
         </div>
 
-        {/* Pay In/Pay Out */}
+        {/* 3. Pay In/Pay Out */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <button 
             onClick={handlePayInOut}
@@ -520,6 +506,22 @@ const CashDrawerDetailsContent = ({
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>
         </div>
+
+        {/* 4. Expected in Drawer */}
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
+          <div className="flex items-center justify-between py-3.5 px-4">
+            <span className="text-foreground text-lg font-medium">Expected In Drawer</span>
+            <span className="text-foreground text-lg font-semibold">${expectedInDrawer.toFixed(2)}</span>
+          </div>
+        </div>
+
+        {/* 5. Close Drawer Button */}
+        <button 
+          onClick={() => setShowEndDrawerPopup(true)}
+          className="w-full py-4 rounded-full bg-neutral-800/60 text-foreground text-base font-semibold tracking-wide active:opacity-70 transition-opacity mb-6"
+        >
+          CLOSE DRAWER
+        </button>
 
         {/* Cash Log with Date Picker */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">

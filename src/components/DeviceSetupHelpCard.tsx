@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, ChevronLeft, QrCode, KeyRound, Link2, ShieldCheck, Mail, Phone, MessageSquare } from "lucide-react";
 
@@ -26,6 +26,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   const [currentStep, setCurrentStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const rafRef = useRef<number>(0);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -46,6 +47,45 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   const step = steps[currentStep];
 
+  // Scroll element into view on mobile then measure
+  const measureAndScroll = useCallback((tourTarget: string) => {
+    const el = document.querySelector(`[data-tour="${tourTarget}"]`) as HTMLElement | null;
+    if (!el) return false;
+
+    const rect = el.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return false;
+
+    if (isMobile) {
+      // On mobile, scroll so the element is visible with space for the card below
+      const cardHeight = 380; // estimated card height
+      const viewH = window.innerHeight;
+      const padding = 20;
+
+      // Check if element is fully visible with room for card
+      const elementTop = rect.top;
+      const elementBottom = rect.bottom;
+      const availableForCard = viewH - elementBottom;
+
+      if (elementTop < padding || elementBottom > viewH - cardHeight - padding || availableForCard < cardHeight) {
+        // Scroll so element is near the top with some padding
+        const scrollContainer = el.closest('[class*="overflow"]') || document.documentElement;
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Re-measure after scroll settles
+        setTimeout(() => {
+          const newRect = el.getBoundingClientRect();
+          if (newRect.width > 0 && newRect.height > 0) {
+            setHighlightRect(newRect);
+          }
+        }, 350);
+        return true;
+      }
+    }
+
+    setHighlightRect(rect);
+    return true;
+  }, [isMobile]);
+
   const measureTarget = useCallback(() => {
     if (!step || !open) return;
     const el = document.querySelector(`[data-tour="${step.tourTarget}"]`);
@@ -61,23 +101,35 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     if (s?.beforeShow) s.beforeShow();
     let attempts = 0;
     const tryMeasure = () => {
-      const el = document.querySelector(`[data-tour="${s?.tourTarget}"]`);
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) { setHighlightRect(rect); return; }
+      const found = measureAndScroll(s?.tourTarget || "");
+      if (!found) {
+        attempts++;
+        if (attempts < 25) setTimeout(tryMeasure, 100);
       }
-      attempts++;
-      if (attempts < 20) setTimeout(tryMeasure, 100);
     };
     const timer = setTimeout(tryMeasure, 150);
     return () => clearTimeout(timer);
   }, [currentStep, open]);
 
+  // Keep position updated on scroll/resize
   useEffect(() => {
     if (!open) return;
+    const update = () => {
+      measureTarget();
+      rafRef.current = requestAnimationFrame(update);
+    };
+    // Use RAF for smooth tracking during scroll
+    const handleInteraction = () => {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(update);
+    };
     window.addEventListener("resize", measureTarget);
-    window.addEventListener("scroll", measureTarget, true);
-    return () => { window.removeEventListener("resize", measureTarget); window.removeEventListener("scroll", measureTarget, true); };
+    window.addEventListener("scroll", handleInteraction, true);
+    return () => {
+      window.removeEventListener("resize", measureTarget);
+      window.removeEventListener("scroll", handleInteraction, true);
+      cancelAnimationFrame(rafRef.current);
+    };
   }, [open, measureTarget]);
 
   useEffect(() => { if (open) { setCurrentStep(0); setHighlightRect(null); } }, [open]);
@@ -88,7 +140,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   if (!step || !open) return null;
 
-  const padding = isMobile ? 8 : 12;
+  const padding = isMobile ? 10 : 12;
 
   const getDesktopCardStyle = (): React.CSSProperties => {
     if (!highlightRect) return { position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
@@ -118,8 +170,25 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     width: highlightRect.width + padding * 2, height: highlightRect.height + padding * 2,
   } : { top: "40%", left: "40%", width: "20%", height: "20%" };
 
+  // On mobile, position card below the spotlight with proper spacing
+  const getMobileCardStyle = (): React.CSSProperties => {
+    if (!highlightRect) return { position: "fixed", bottom: 16, left: 12, right: 12, zIndex: 10002 };
+    
+    const spotlightBottom = highlightRect.top + highlightRect.height + padding + 16;
+    const viewH = window.innerHeight;
+    const cardMaxHeight = 360;
+    
+    // If there's room below the spotlight, place card there
+    if (viewH - spotlightBottom >= cardMaxHeight) {
+      return { position: "fixed", top: spotlightBottom, left: 12, right: 12, zIndex: 10002 };
+    }
+    
+    // Otherwise place at bottom of screen
+    return { position: "fixed", bottom: 12, left: 12, right: 12, zIndex: 10002, maxHeight: `${viewH - spotlightBottom - 8}px`, overflow: "auto" };
+  };
+
   const cardStyle: React.CSSProperties = isMobile
-    ? { position: "fixed", bottom: 16, left: 12, right: 12, zIndex: 10002 }
+    ? getMobileCardStyle()
     : { ...getDesktopCardStyle(), zIndex: 10002 };
 
   return (
@@ -182,7 +251,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
               </div>
               <span className="ml-auto text-xs text-gray-400 shrink-0">{currentStep + 1}/{steps.length}</span>
             </div>
-            <div className="px-4 md:px-5 pb-3 md:pb-4 flex flex-col gap-2">
+            <div className="px-4 md:px-5 pb-3 md:pb-4 flex flex-col gap-1.5 md:gap-2">
               {step.instructions.map((inst, i) => (
                 <div key={i} className="flex gap-2.5 items-start">
                   <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center text-[11px] md:text-xs font-bold shrink-0 mt-0.5">{i + 1}</div>
@@ -191,11 +260,11 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
               ))}
             </div>
             {step.helperNote && (
-              <div className="mx-4 md:mx-5 mb-3 md:mb-4 p-2.5 md:p-3 rounded-xl bg-amber-50 border border-amber-100">
+              <div className="mx-4 md:mx-5 mb-2 md:mb-4 p-2.5 md:p-3 rounded-xl bg-amber-50 border border-amber-100">
                 <p className="text-[11px] md:text-xs text-amber-700 leading-relaxed">{step.helperNote}</p>
               </div>
             )}
-            <div className="px-4 md:px-5 pb-4 md:pb-5 flex items-center justify-between gap-2">
+            <div className="px-4 md:px-5 pb-3 md:pb-5 flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5 md:gap-2">
                 {currentStep > 0 && (
                   <button onClick={handlePrev} className="flex items-center gap-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl bg-gray-100 text-gray-600 text-xs md:text-sm font-medium hover:bg-gray-200 transition-colors">

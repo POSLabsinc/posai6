@@ -1016,10 +1016,11 @@ export default function ShiftSummaryModal({
             </table>
           )}
         </div>
+        )}
 
-        {/* Desktop AI side panel overlay - wider */}
+        {/* Desktop AI chat - full content area below header */}
         {showAIChat && !isMobile && (
-          <div className="absolute right-0 top-0 bottom-0 w-[440px] z-[20] flex flex-col bg-[#1C1C1E] border-l border-white/10 shadow-2xl rounded-r-2xl overflow-hidden">
+          <div className="flex-1 overflow-hidden flex flex-col">
             <ShiftAIChatPanel
               onClose={() => setShowAIChat(false)}
               shiftContext={shiftContextForAI}

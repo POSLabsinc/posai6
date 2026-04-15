@@ -337,7 +337,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2, duration: 0.25 }}
-              style={{ ...arrowData.pos, zIndex: 20 }}
+              style={{ ...arrowData.pos, zIndex: 10002 }}
             >
               <motion.div
                 animate={

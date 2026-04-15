@@ -19,6 +19,8 @@ interface Props {
   onClose: () => void;
   onSwitchToEmailPhone?: () => void;
   onSwitchToBrowser?: () => void;
+  onSwitchToBrowserTab?: () => void;
+  onSwitchToDefaultView?: () => void;
   onSwitchToOtp?: () => void;
 }
 

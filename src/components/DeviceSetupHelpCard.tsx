@@ -27,7 +27,6 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [isMobile, setIsMobile] = useState(false);
 
-  // Detect mobile
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
     check();
@@ -154,7 +153,6 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     }
   }, [step, open]);
 
-  // Run beforeShow and then measure after DOM updates
   useEffect(() => {
     if (!open) return;
     const s = steps[currentStep];
@@ -192,14 +190,8 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   if (!step || !open) return null;
 
   const padding = isMobile ? 8 : 12;
-  const spotlightStyle: React.CSSProperties = highlightRect ? {
-    top: highlightRect.top - padding,
-    left: highlightRect.left - padding,
-    width: highlightRect.width + padding * 2,
-    height: highlightRect.height + padding * 2,
-  } : { top: "40%", left: "40%", width: "20%", height: "20%" };
 
-  // Desktop: position card relative to highlight
+  // Desktop card positioning
   const getDesktopCardStyle = (): React.CSSProperties => {
     if (!highlightRect) return { position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
     const cardW = 380;
@@ -208,19 +200,13 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     const centerY = highlightRect.top + highlightRect.height / 2 - cardEstH / 2;
     const clampedY = Math.max(20, Math.min(centerY, window.innerHeight - cardEstH - 60));
 
-    if (step.desktopCardPosition === "right") {
-      return { position: "fixed", top: clampedY, left: highlightRect.right + gap, width: cardW, maxWidth: `calc(100vw - ${highlightRect.right + gap + 20}px)` };
-    }
-    if (step.desktopCardPosition === "left") {
-      return { position: "fixed", top: clampedY, right: `calc(100vw - ${highlightRect.left - gap}px)`, width: cardW, maxWidth: `${highlightRect.left - gap - 20}px` };
-    }
-    if (step.desktopCardPosition === "top") {
-      return { position: "fixed", bottom: `calc(100vh - ${highlightRect.top - gap}px)`, left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2), width: cardW };
-    }
+    if (step.desktopCardPosition === "right") return { position: "fixed", top: clampedY, left: highlightRect.right + gap, width: cardW, maxWidth: `calc(100vw - ${highlightRect.right + gap + 20}px)` };
+    if (step.desktopCardPosition === "left") return { position: "fixed", top: clampedY, right: `calc(100vw - ${highlightRect.left - gap}px)`, width: cardW, maxWidth: `${highlightRect.left - gap - 20}px` };
+    if (step.desktopCardPosition === "top") return { position: "fixed", bottom: `calc(100vh - ${highlightRect.top - gap}px)`, left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2), width: cardW };
     return { position: "fixed", top: highlightRect.bottom + gap, left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2), width: cardW };
   };
 
-  // Arrow info for desktop only
+  // Arrow for desktop
   const getArrowInfo = (): { pos: React.CSSProperties; dir: string } | null => {
     if (!highlightRect || isMobile) return null;
     const gap = 4;
@@ -239,10 +225,40 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   const arrowData = getArrowInfo();
 
-  // Instruction card content (shared between mobile and desktop)
+  // SVG overlay with cutout
+  const renderOverlay = () => {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    if (!highlightRect) {
+      return (
+        <svg style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 10000, pointerEvents: "auto" }}>
+          <rect width={vw} height={vh} fill="rgba(0,0,0,0.82)" />
+        </svg>
+      );
+    }
+    const p = padding;
+    const x = highlightRect.left - p;
+    const y = highlightRect.top - p;
+    const w = highlightRect.width + p * 2;
+    const h = highlightRect.height + p * 2;
+    const r = isMobile ? 12 : 16;
+
+    return (
+      <svg style={{ position: "fixed", inset: 0, width: "100%", height: "100%", zIndex: 10000, pointerEvents: "auto" }}>
+        <defs>
+          <mask id="spotlight-mask">
+            <rect width={vw} height={vh} fill="white" />
+            <rect x={x} y={y} width={w} height={h} rx={r} ry={r} fill="black" />
+          </mask>
+        </defs>
+        <rect width={vw} height={vh} fill="rgba(0,0,0,0.82)" mask="url(#spotlight-mask)" />
+        <rect x={x} y={y} width={w} height={h} rx={r} ry={r} fill="none" stroke="#F59E0B" strokeWidth={isMobile ? 2 : 3} />
+      </svg>
+    );
+  };
+
   const renderCardContent = () => (
     <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-      {/* Card header */}
       <div className="px-4 md:px-5 pt-4 md:pt-5 pb-2 md:pb-3 flex items-center gap-3">
         <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
           {step.icon}
@@ -254,7 +270,6 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
         <span className="ml-auto text-xs text-gray-400 shrink-0">{currentStep + 1}/{steps.length}</span>
       </div>
 
-      {/* Instructions */}
       <div className="px-4 md:px-5 pb-3 md:pb-4 flex flex-col gap-2">
         {step.instructions.map((instruction, i) => (
           <div key={i} className="flex gap-2.5 items-start">
@@ -266,14 +281,12 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
         ))}
       </div>
 
-      {/* Helper note */}
       {step.helperNote && (
         <div className="mx-4 md:mx-5 mb-3 md:mb-4 p-2.5 md:p-3 rounded-xl bg-amber-50 border border-amber-100">
           <p className="text-[11px] md:text-xs text-amber-700 leading-relaxed">{step.helperNote}</p>
         </div>
       )}
 
-      {/* Footer with navigation */}
       <div className="px-4 md:px-5 pb-4 md:pb-5 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 md:gap-2">
           {currentStep > 0 && (
@@ -307,32 +320,18 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     <AnimatePresence>
       {open && (
         <>
-          {/* Overlay layer with spotlight */}
+          {/* SVG overlay with cutout */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed inset-0 pointer-events-auto"
-            style={{ zIndex: 10000 }}
+            style={{ position: "fixed", inset: 0, zIndex: 10000 }}
           >
-            <motion.div
-              key={`spotlight-${currentStep}`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.3 }}
-              style={{
-                position: "fixed",
-                ...spotlightStyle,
-                boxShadow: "0 0 0 9999px rgba(0,0,0,0.82)",
-                border: isMobile ? "2px solid #F59E0B" : "3px solid #F59E0B",
-                borderRadius: isMobile ? "12px" : "16px",
-                pointerEvents: "none",
-              }}
-            />
+            {renderOverlay()}
           </motion.div>
 
-          {/* Arrow layer */}
+          {/* Arrow (desktop only) */}
           {arrowData && highlightRect && (
             <motion.div
               key={`arrow-${currentStep}`}
@@ -358,7 +357,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
             </motion.div>
           )}
 
-          {/* Instruction Card layer - separate from spotlight */}
+          {/* Instruction Card */}
           {highlightRect && (
             <motion.div
               key={`card-${currentStep}`}
@@ -369,12 +368,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
               style={{
                 zIndex: 10002,
                 ...(isMobile
-                  ? {
-                      position: "fixed" as const,
-                      bottom: 16,
-                      left: 12,
-                      right: 12,
-                    }
+                  ? { position: "fixed" as const, bottom: 16, left: 12, right: 12 }
                   : getDesktopCardStyle()),
               }}
             >

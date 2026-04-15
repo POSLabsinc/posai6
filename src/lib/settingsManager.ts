@@ -1013,7 +1013,7 @@ export class SettingsManager {
     await SettingsManager.createCashDrawerSession(drawerName, cashAmount);
   }
 
-
+  static async getActiveDrawerSession(): Promise<any | null> {
     const deviceId = getPerDeviceId();
     const { data } = await (supabase as any).from("cash_drawer_sessions")
       .select("*")

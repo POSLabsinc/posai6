@@ -637,7 +637,7 @@ const CashDrawerDetailsContent = ({
           >
             {/* Header */}
             <div className="flex items-center justify-center px-4 py-4 border-b border-neutral-800">
-              <span className="text-foreground text-lg font-semibold">End Drawer</span>
+              <span className="text-foreground text-lg font-semibold">Close Drawer</span>
             </div>
 
             {/* Content */}
@@ -663,8 +663,13 @@ const CashDrawerDetailsContent = ({
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-neutral-400 text-base">Paid In/Out</span>
-                <span className="text-foreground text-base">{calculatedPaidInOut < 0 ? '-' : ''}${Math.abs(calculatedPaidInOut).toFixed(2)}</span>
+                <span className="text-neutral-400 text-base">Pay In</span>
+                <span className="text-foreground text-base">${transactions.reduce((acc, t) => acc + t.payIn, 0).toFixed(2)}</span>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <span className="text-neutral-400 text-base">Pay Out</span>
+                <span className="text-foreground text-base">${transactions.reduce((acc, t) => acc + t.payOut, 0).toFixed(2)}</span>
               </div>
 
               {/* Expected in Drawer */}
@@ -673,9 +678,9 @@ const CashDrawerDetailsContent = ({
                 <span className="text-foreground text-base font-medium">${expectedInDrawer.toFixed(2)}</span>
               </div>
 
-              {/* Actual in Drawer */}
+              {/* Cash Deposit */}
               <div className="pt-2">
-                <span className="text-neutral-400 text-base block mb-2">Actual in Drawer</span>
+                <span className="text-neutral-400 text-base block mb-2">Cash Deposit</span>
                 <div className="flex items-center bg-neutral-800/60 rounded-xl px-4 py-3">
                   <span className="text-foreground text-lg">$</span>
                   <input
@@ -730,7 +735,7 @@ const CashDrawerDetailsContent = ({
                     : 'bg-neutral-600/50 text-foreground/50'
                 }`}
               >
-                Confirm End Drawer
+                Confirm
               </button>
             </div>
           </div>

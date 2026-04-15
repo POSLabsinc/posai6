@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo, useCallback } from "react";
-import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, Calendar, DollarSign, Users, Share2, FileText, Mail, MessageSquare, Download, RotateCcw, Clock, Send, Phone, SlidersHorizontal, ChevronRight } from "lucide-react";
+import { X, Printer, CreditCard, Banknote, Receipt, ChevronLeft, Calendar, DollarSign, Users, Share2, FileText, Mail, MessageSquare, Download, RotateCcw, Clock, Send, Phone, SlidersHorizontal, ChevronRight, ArrowDownToLine } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

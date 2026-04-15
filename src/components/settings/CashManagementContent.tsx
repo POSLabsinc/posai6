@@ -42,10 +42,7 @@ interface CashLogEntry {
   payIn: number;
   payOut: number;
   cashSale: number;
-  cardSale: number;
   cashTip: number;
-  cardTip: number;
-  cashDrop: number;
   runningBalance: number;
 }
 
@@ -200,10 +197,7 @@ const CashManagementContent = ({
           payIn: matchingSession.startingCash,
           payOut: 0,
           cashSale: 0,
-          cardSale: 0,
           cashTip: 0,
-          cardTip: 0,
-          cashDrop: 0,
           runningBalance: balance,
         });
       }
@@ -216,7 +210,7 @@ const CashManagementContent = ({
           const isCash = (order.payment_type || '').toLowerCase() === 'cash';
           const orderTotal = Number(order.total) || 0;
           const tipAmount = Number(order.tip) || 0;
-          const saleAmount = orderTotal - tipAmount; // sale excluding tip
+          const saleAmount = orderTotal - tipAmount;
 
           if (isCash) {
             balance += orderTotal;
@@ -229,10 +223,7 @@ const CashManagementContent = ({
             payIn: 0,
             payOut: 0,
             cashSale: isCash ? saleAmount : 0,
-            cardSale: !isCash ? saleAmount : 0,
             cashTip: isCash ? tipAmount : 0,
-            cardTip: !isCash ? tipAmount : 0,
-            cashDrop: 0,
             runningBalance: balance,
           });
         });
@@ -252,36 +243,13 @@ const CashManagementContent = ({
             payIn,
             payOut,
             cashSale: 0,
-            cardSale: 0,
             cashTip: 0,
-            cardTip: 0,
-            cashDrop: 0,
             runningBalance: balance,
           });
         });
       }
 
-      // Add cash drop entries
-      if (dayCashDrops && dayCashDrops.length > 0) {
-        dayCashDrops.forEach((drop: any) => {
-          const empName = drop.employee_name || getEmployeeName();
-          const dropAmount = Number(drop.actual_drop_amount) || 0;
-          balance -= dropAmount;
-          entries.push({
-            time: format(new Date(drop.created_at), 'hh:mm a'),
-            name: empName,
-            reason: 'Cash Drop',
-            payIn: 0,
-            payOut: 0,
-            cashSale: 0,
-            cardSale: 0,
-            cashTip: 0,
-            cardTip: 0,
-            cashDrop: dropAmount,
-            runningBalance: balance,
-          });
-        });
-      }
+      // Cash drop entries removed from log
 
       // Fallback for localStorage-based entries
       if (entries.length === 0 && lastClosedSession) {
@@ -295,7 +263,7 @@ const CashManagementContent = ({
             reason: "Opening Cash",
             payIn: lastClosedSession.startingCash,
             payOut: 0,
-            cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0, cashDrop: 0,
+            cashSale: 0, cashTip: 0,
             runningBalance: balance,
           });
 
@@ -306,8 +274,8 @@ const CashManagementContent = ({
               name: "Sales",
               reason: "Cash Sales",
               payIn: 0, payOut: 0,
-              cashSale: lastClosedSession.cashSales, cardSale: 0,
-              cashTip: 0, cardTip: 0, cashDrop: 0,
+              cashSale: lastClosedSession.cashSales,
+              cashTip: 0,
               runningBalance: balance,
             });
           }
@@ -319,7 +287,7 @@ const CashManagementContent = ({
               name: "Refund",
               reason: "Cash Refunds",
               payIn: 0, payOut: lastClosedSession.cashRefunds,
-              cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0, cashDrop: 0,
+              cashSale: 0, cashTip: 0,
               runningBalance: balance,
             });
           }
@@ -332,7 +300,7 @@ const CashManagementContent = ({
               reason: lastClosedSession.paidInOut > 0 ? "Paid In" : "Paid Out",
               payIn: lastClosedSession.paidInOut > 0 ? lastClosedSession.paidInOut : 0,
               payOut: lastClosedSession.paidInOut < 0 ? Math.abs(lastClosedSession.paidInOut) : 0,
-              cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0, cashDrop: 0,
+              cashSale: 0, cashTip: 0,
               runningBalance: balance,
             });
           }
@@ -460,29 +428,15 @@ const CashManagementContent = ({
           </button>
         </div>
 
-        {/* Opening Cash Input */}
+        {/* Opening Cash Amount - Enhanced */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Opening Cash Amount</h2>
-        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-6">
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Amount</span>
-            <div className="flex items-center gap-1">
-              <span className="text-foreground text-lg">$</span>
-              <input type="text" inputMode="decimal" placeholder="0.00" value={openingCash} onChange={e => handleCashInput(e.target.value)} className="bg-transparent text-foreground text-lg text-right w-24 outline-none placeholder:text-neutral-500" />
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6 border border-neutral-700/40">
+          <div className="flex items-center justify-between py-5 px-5">
+            <span className="text-foreground text-xl font-semibold">Amount</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-foreground text-2xl font-semibold">$</span>
+              <input type="text" inputMode="decimal" placeholder="0.00" value={openingCash} onChange={e => handleCashInput(e.target.value)} className="bg-transparent text-foreground text-2xl font-semibold text-right w-32 outline-none placeholder:text-neutral-500" />
             </div>
-          </div>
-        </div>
-
-        {/* Balances */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Balances</h2>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Last Closing Balance</span>
-            <span className="text-foreground text-lg">${lastClosingBalance.toFixed(2)}</span>
-          </div>
-          <div className="h-px bg-neutral-700/50 mx-4" />
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Opening Till Cash</span>
-            <span className="text-foreground text-lg">${openingCash ? parseFloat(openingCash || "0").toFixed(2) : "0.00"}</span>
           </div>
         </div>
 
@@ -603,20 +557,17 @@ const CashManagementContent = ({
             {/* Cash Log Table */}
             <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[1100px]">
+                <table className="w-full min-w-[800px]">
                   <thead>
                     <tr className="border-b border-neutral-700/50">
                       <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Time</th>
                       <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Name</th>
                       <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Reason</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Sale</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Tip</th>
                       <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay In</th>
                       <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay Out</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Sale</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card Sale</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Tip</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card Tip</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Drop</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Balance</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Balance</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -626,19 +577,16 @@ const CashManagementContent = ({
                           <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.time}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.name}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.reason}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashSale)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashTip)}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payIn)}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payOut)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashSale)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cardSale)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashTip)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cardTip)}</td>
-                          <td className={`text-sm py-3.5 px-4 text-right whitespace-nowrap ${entry.cashDrop > 0 ? 'text-amber-400 font-medium' : 'text-foreground'}`}>{formatCurrency(entry.cashDrop)}</td>
                           <td className="text-foreground text-sm font-medium py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.runningBalance)}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={11} className="text-neutral-500 text-sm py-8 text-center">
+                        <td colSpan={8} className="text-neutral-500 text-sm py-8 text-center">
                           No cash log entries for this date
                         </td>
                       </tr>

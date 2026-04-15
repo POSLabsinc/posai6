@@ -894,7 +894,14 @@ export function PaymentDialog({
   };
 
   // Handle close and complete
-  const handleComplete = () => {
+  const handleComplete = async () => {
+    // Auto-open cash drawer on first cash transaction
+    const hasCashPayment = paymentHistory.some(p => p.method === 'cash');
+    if (hasCashPayment) {
+      const cashTotal = paymentHistory.filter(p => p.method === 'cash').reduce((s, p) => s + p.amount, 0);
+      const { SettingsManager } = await import('@/lib/settingsManager');
+      await SettingsManager.ensureCashDrawerOpen(cashTotal);
+    }
     onPaymentComplete?.(paymentHistory);
     onOpenChange(false);
   };

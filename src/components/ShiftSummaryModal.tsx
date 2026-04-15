@@ -911,8 +911,9 @@ export default function ShiftSummaryModal({
           </div>
         </div>
 
-        {/* Key metrics - 2 cols on mobile, 4 cols on desktop */}
-        <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-5 md:px-8 py-4 md:py-5 shrink-0 transition-all duration-300 ${showAIChat && !isMobile ? 'md:mr-[440px]' : ''}`}>
+        {/* Key metrics - 2 cols on mobile, 3 cols on desktop (6 boxes) */}
+        {!showAIChat && (
+        <div className={`grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 px-5 md:px-8 py-4 md:py-5 shrink-0`}>
           <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
               <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />
@@ -949,36 +950,30 @@ export default function ShiftSummaryModal({
               <p className="text-xl md:text-3xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
             </div>
           </div>
-        </div>
-
-        {/* Bottom summary row with Cash Drop button */}
-        <div className={`flex items-center justify-between px-5 md:px-8 py-3 md:py-4 shrink-0 border-b border-white/10 transition-all duration-300 ${showAIChat && !isMobile ? 'md:mr-[440px]' : ''}`}>
-          <div className="flex items-center gap-8 md:gap-10">
-            <div>
-              <p className="text-[11px] md:text-sm text-neutral-500 uppercase tracking-wider font-medium">Total</p>
-              <p className="text-2xl md:text-3xl font-bold text-white mt-0.5">$ {overallTotal.toFixed(2)}</p>
+          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-cyan-500/15 flex items-center justify-center shrink-0">
+              <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-cyan-400" />
             </div>
-            <div>
-              <p className="text-[11px] md:text-sm text-neutral-500 uppercase tracking-wider font-medium">Tips Payable</p>
-              <p className="text-2xl md:text-3xl font-bold text-white mt-0.5">$ {tipsPayable.toFixed(2)}</p>
+            <div className="min-w-0">
+              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Total</p>
+              <p className="text-xl md:text-3xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
             </div>
           </div>
-          <button
-            onClick={() => {
-              setCashDropAmount("");
-              setCashDropReason("");
-              setCashDropMismatch(false);
-              setShowCashDropPopup(true);
-            }}
-            className="flex items-center gap-2 px-6 py-3 bg-white/10 hover:bg-white/15 rounded-full text-white font-semibold text-sm md:text-base transition-colors"
-          >
-            <ArrowDownToLine className="w-4 h-4 md:w-5 md:h-5" />
-            Cash Drop
-          </button>
+          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
+            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-orange-500/15 flex items-center justify-center shrink-0">
+              <ArrowDownToLine className="w-5 h-5 md:w-6 md:h-6 text-orange-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Drop</p>
+              <p className="text-xl md:text-3xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+            </div>
+          </div>
         </div>
+        )}
 
-        {/* Data table */}
-        <div className={`flex-1 overflow-auto px-5 md:px-8 py-4 transition-all duration-300 ${showAIChat && !isMobile ? 'md:mr-[440px]' : ''}`}>
+        {/* Data table - hidden when AI chat is open */}
+        {!showAIChat && (
+        <div className={`flex-1 overflow-auto px-5 md:px-8 py-4`}>
           {loading ? (
             <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
           ) : (

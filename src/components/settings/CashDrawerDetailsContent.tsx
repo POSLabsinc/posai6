@@ -473,7 +473,7 @@ const CashDrawerDetailsContent = ({
 
       <div className="pt-0 px-6 pb-28">
         {/* 1. Cash Drawer */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Opening Cash</h2>
+        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Cash Drawer</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <button
             ref={drawerRef}
@@ -488,21 +488,22 @@ const CashDrawerDetailsContent = ({
           </button>
         </div>
 
-        {/* 2. Opening Cash */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-lg font-medium">Opening Cash</span>
-            <span className="text-foreground text-lg">${startingCash.toFixed(2)}</span>
+        {/* 2. Opening Cash Amount - Enhanced to match Cash Management */}
+        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Opening Cash Amount</h2>
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6 border border-neutral-700/40">
+          <div className="flex items-center justify-between py-5 px-5">
+            <span className="text-foreground text-xl font-semibold">Amount</span>
+            <span className="text-foreground text-2xl font-semibold">${startingCash.toFixed(2)}</span>
           </div>
         </div>
 
-        {/* 3. Pay In/Pay Out */}
+        {/* 3. Pay In / Pay Out */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <button 
             onClick={handlePayInOut}
             className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
           >
-            <span className="text-foreground text-lg font-medium">Pay In/ Pay Out</span>
+            <span className="text-foreground text-lg font-medium">Pay In / Pay Out</span>
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>
         </div>

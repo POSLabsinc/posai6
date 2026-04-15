@@ -1,6 +1,18 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronRight, ChevronLeft, QrCode, Smartphone, Mail, CheckCircle2 } from "lucide-react";
+import { X, ChevronRight, ChevronLeft, QrCode, KeyRound, Link2, ShieldCheck, Mail, Phone, MessageSquare } from "lucide-react";
+
+interface WalkthroughStep {
+  id: string;
+  title: string;
+  subtitle: string;
+  instructions: string[];
+  helperNote?: string;
+  tourTarget: string; // data-tour attribute value
+  cardPosition: "right" | "left" | "bottom" | "top";
+  icon: React.ReactNode;
+  beforeShow?: () => void; // callback to trigger UI changes before showing this step
+}
 
 interface Props {
   open: boolean;
@@ -10,89 +22,142 @@ interface Props {
   onSwitchToOtp?: () => void;
 }
 
-interface WalkthroughStep {
-  id: string;
-  title: string;
-  subtitle: string;
-  instructions: { text: string; detail?: string }[];
-  helperNote?: string;
-  tourTarget: string;
-  icon: React.ReactNode;
-}
-
-const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
+const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToOtp }: Props) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
-  const [isMobile, setIsMobile] = useState(false);
+  const rafRef = useRef<number>(0);
 
   const steps: WalkthroughStep[] = [
     {
-      id: "qr-scan",
-      title: "Scan QR Code",
-      subtitle: "Use your mobile device to get started",
+      id: "qr-highlight",
+      title: "Step 1: Scan QR Code",
+      subtitle: "Use your phone to scan",
       instructions: [
-        { text: "Open the camera app on your phone or tablet", detail: "Most modern devices support QR scanning natively." },
-        { text: "Point the camera at the QR code on this screen", detail: "A notification or link will appear on your device." },
-        { text: "Tap the link to open the activation page", detail: "You'll be directed to enter your details on your mobile." },
+        "Open the camera app on your phone or tablet",
+        "Point it at the QR code displayed on this screen",
+        "A link will appear on your device, tap it to proceed",
+        "Follow the on-screen instructions to complete activation",
       ],
-      helperNote: "The QR code links directly to the activation page where you can enter your email or phone number from your mobile device.",
+      helperNote: "Most modern phones support QR scanning natively through the camera app.",
       tourTarget: "qr-code",
+      cardPosition: "right",
       icon: <QrCode className="w-5 h-5" />,
+      beforeShow: onSwitchToBrowser,
     },
     {
-      id: "enter-contact",
-      title: "Enter Your Details",
-      subtitle: "Email or phone on your mobile device",
+      id: "code-highlight",
+      title: "Step 2: Activation Code",
+      subtitle: "Your unique pairing code",
       instructions: [
-        { text: "On your mobile device, enter your email address or phone number", detail: "Use the email or phone number associated with your account." },
-        { text: "Tap 'Send Code' to receive a verification code", detail: "A 6-digit code will be sent to you via email or SMS." },
-        { text: "Enter the verification code when prompted", detail: "The code verifies your identity and links this device." },
+        "This is your unique activation code for this device",
+        "You will need this code during the activation process",
+        "Enter it when prompted on your mobile device or browser",
+        "The code refreshes periodically for security",
       ],
-      helperNote: "If you don't receive the code, check your spam folder or request a new one after 30 seconds.",
-      tourTarget: "qr-code",
-      icon: <Smartphone className="w-5 h-5" />,
+      tourTarget: "activation-code",
+      cardPosition: "left",
+      icon: <KeyRound className="w-5 h-5" />,
+      beforeShow: onSwitchToBrowser,
     },
     {
-      id: "complete-activation",
-      title: "Complete Activation",
-      subtitle: "Follow on-screen instructions",
+      id: "link-highlight",
+      title: "Step 3: Activation Link",
+      subtitle: "Open this URL in a browser",
       instructions: [
-        { text: "Follow the remaining steps shown on your mobile device", detail: "The activation process will guide you through the final setup." },
-        { text: "Once verified, this device will activate automatically", detail: "You'll see a confirmation on both your mobile and this screen." },
-        { text: "You're all set! Sign in and start using the Point of Sale", detail: "Your device is now paired and ready for use." },
+        "If QR scanning is not available, use this link instead",
+        "Open any browser on your phone or computer",
+        "Type the URL shown here into the address bar",
+        "You will be prompted to enter the activation code",
       ],
-      tourTarget: "qr-code",
-      icon: <CheckCircle2 className="w-5 h-5" />,
+      tourTarget: "activation-link",
+      cardPosition: "left",
+      icon: <Link2 className="w-5 h-5" />,
+      beforeShow: onSwitchToBrowser,
+    },
+    {
+      id: "code-reconfirm",
+      title: "Step 4: Enter the Code",
+      subtitle: "Complete the activation",
+      instructions: [
+        "After opening the link, you will see a code entry screen",
+        "Enter the activation code shown on this device",
+        "Make sure to enter the code exactly as displayed",
+        "Once verified, your device will be activated automatically",
+      ],
+      helperNote: "If the code expires, a new one will be generated automatically.",
+      tourTarget: "activation-code",
+      cardPosition: "left",
+      icon: <ShieldCheck className="w-5 h-5" />,
+      beforeShow: onSwitchToBrowser,
+    },
+    {
+      id: "email-phone-button",
+      title: "Step 5: Alternative Activation",
+      subtitle: "Use email or phone instead",
+      instructions: [
+        "Tap this button to switch to email or phone activation",
+        "You can verify your identity using a code sent to your email",
+        "Or receive a verification code via SMS to your phone",
+      ],
+      tourTarget: "email-phone-button",
+      cardPosition: "top",
+      icon: <Mail className="w-5 h-5" />,
+      beforeShow: onSwitchToBrowser,
+    },
+    {
+      id: "email-input",
+      title: "Step 6: Enter Contact Info",
+      subtitle: "Email or phone number",
+      instructions: [
+        "Enter your registered email address or phone number",
+        "Tap 'Send Code' to receive a 6-digit verification code",
+        "Check your inbox or messages for the code",
+      ],
+      helperNote: "If you don't receive the code, you can resend it after a few seconds.",
+      tourTarget: "email-input-area",
+      cardPosition: "left",
+      icon: <MessageSquare className="w-5 h-5" />,
+      beforeShow: onSwitchToEmailPhone,
+    },
+    {
+      id: "otp-entry",
+      title: "Step 7: Enter Verification Code",
+      subtitle: "Complete activation",
+      instructions: [
+        "Enter the 6-digit code received on your email or phone",
+        "Each digit goes in a separate box",
+        "Your device will activate automatically once verified",
+      ],
+      tourTarget: "otp-code-area",
+      cardPosition: "left",
+      icon: <Phone className="w-5 h-5" />,
+      beforeShow: onSwitchToOtp,
     },
   ];
 
   const step = steps[currentStep];
 
-  // Responsive check
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 768);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
-  }, []);
-
-  // Measure target element
+  // Find and measure the target element
   const measureTarget = useCallback(() => {
     if (!step || !open) return;
     const el = document.querySelector(`[data-tour="${step.tourTarget}"]`);
     if (el) {
       const rect = el.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) {
-        setHighlightRect(rect);
-      }
+      setHighlightRect(rect);
     }
   }, [step, open]);
 
+  // Run beforeShow and then measure after DOM updates
   useEffect(() => {
     if (!open) return;
+    const s = steps[currentStep];
+    if (s?.beforeShow) {
+      s.beforeShow();
+    }
+    // Retry measuring until element is found (handles AnimatePresence delays)
     let attempts = 0;
     const tryMeasure = () => {
-      const el = document.querySelector(`[data-tour="${steps[currentStep]?.tourTarget}"]`);
+      const el = document.querySelector(`[data-tour="${s?.tourTarget}"]`);
       if (el) {
         const rect = el.getBoundingClientRect();
         if (rect.width > 0 && rect.height > 0) {
@@ -101,12 +166,15 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
         }
       }
       attempts++;
-      if (attempts < 15) setTimeout(tryMeasure, 100);
+      if (attempts < 15) {
+        setTimeout(tryMeasure, 100);
+      }
     };
     const timer = setTimeout(tryMeasure, 150);
     return () => clearTimeout(timer);
   }, [currentStep, open]);
 
+  // Keep measuring on resize/scroll
   useEffect(() => {
     if (!open) return;
     const onResize = () => measureTarget();
@@ -127,6 +195,7 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
 
   const handleClose = () => {
     setCurrentStep(0);
+    onSwitchToBrowser?.();
     onClose();
   };
 
@@ -139,47 +208,43 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
   };
 
   const handlePrev = () => {
-    if (currentStep > 0) setCurrentStep(currentStep - 1);
+    if (currentStep > 0) {
+      setCurrentStep(currentStep - 1);
+    }
   };
 
   if (!step || !open) return null;
 
-  const padding = 14;
-  const spotlightStyle: React.CSSProperties = highlightRect
-    ? {
-        top: highlightRect.top - padding,
-        left: highlightRect.left - padding,
-        width: highlightRect.width + padding * 2,
-        height: highlightRect.height + padding * 2,
-      }
-    : { top: "30%", left: "30%", width: "40%", height: "40%" };
+  const padding = 12;
+  const spotlightStyle: React.CSSProperties = highlightRect ? {
+    top: highlightRect.top - padding,
+    left: highlightRect.left - padding,
+    width: highlightRect.width + padding * 2,
+    height: highlightRect.height + padding * 2,
+  } : { top: "40%", left: "40%", width: "20%", height: "20%" };
 
-  // Card positioning: right of QR on desktop, below on mobile
+  // Position card relative to the highlighted element
   const getCardStyle = (): React.CSSProperties => {
     if (!highlightRect) return { position: "absolute", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
 
-    const cardW = isMobile ? Math.min(340, window.innerWidth - 32) : 400;
-    const gap = isMobile ? 20 : 36;
+    const cardW = 380;
+    const cardEstH = 420; // estimated card height
+    const gap = 32;
 
-    if (isMobile) {
-      // Stack below QR on mobile
-      const topPos = highlightRect.bottom + gap;
+    // Center card vertically with highlight, clamped to viewport
+    const centerY = highlightRect.top + highlightRect.height / 2 - cardEstH / 2;
+    const clampedY = Math.max(20, Math.min(centerY, window.innerHeight - cardEstH - 60));
+
+    if (step.cardPosition === "right") {
       return {
         position: "fixed",
-        top: Math.min(topPos, window.innerHeight - 320),
-        left: "50%",
-        transform: "translateX(-50%)",
+        top: clampedY,
+        left: highlightRect.right + gap,
         width: cardW,
+        maxWidth: `calc(100vw - ${highlightRect.right + gap + 20}px)`,
       };
     }
-
-    // Right of QR on desktop/tablet
-    const centerY = highlightRect.top + highlightRect.height / 2 - 220;
-    const clampedY = Math.max(20, Math.min(centerY, window.innerHeight - 480));
-    const leftPos = highlightRect.right + gap;
-    
-    // If not enough room on right, go left
-    if (leftPos + cardW + 20 > window.innerWidth) {
+    if (step.cardPosition === "left") {
       return {
         position: "fixed",
         top: clampedY,
@@ -188,15 +253,66 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
         maxWidth: `${highlightRect.left - gap - 20}px`,
       };
     }
-
+    if (step.cardPosition === "top") {
+      return {
+        position: "fixed",
+        bottom: `calc(100vh - ${highlightRect.top - gap}px)`,
+        left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2),
+        width: cardW,
+      };
+    }
+    // bottom
     return {
       position: "fixed",
-      top: clampedY,
-      left: leftPos,
+      top: highlightRect.bottom + gap,
+      left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2),
       width: cardW,
-      maxWidth: `calc(100vw - ${leftPos + 20}px)`,
     };
   };
+
+  // Arrow between spotlight and card
+  const getArrowInfo = (): { pos: React.CSSProperties; dir: string } => {
+    if (!highlightRect) return { pos: { position: "fixed", top: 0, left: 0 }, dir: "right" };
+    const gap = 4;
+
+    if (step.cardPosition === "right") {
+      return {
+        pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.right + gap },
+        dir: "right",
+      };
+    }
+    if (step.cardPosition === "left") {
+      return {
+        pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.left - gap - 32 },
+        dir: "left",
+      };
+    }
+    if (step.cardPosition === "top") {
+      return {
+        pos: { position: "fixed", top: highlightRect.top - gap - 32, left: highlightRect.left + highlightRect.width / 2 - 16 },
+        dir: "up",
+      };
+    }
+    return {
+      pos: { position: "fixed", top: highlightRect.bottom + gap, left: highlightRect.left + highlightRect.width / 2 - 16 },
+      dir: "down",
+    };
+  };
+
+  const arrowPaths: Record<string, string> = {
+    right: "M6 16L26 16M26 16L18 8M26 16L18 24",
+    left: "M26 16L6 16M6 16L14 8M6 16L14 24",
+    down: "M16 6L16 26M16 26L8 18M16 26L24 18",
+    up: "M16 26L16 6M16 6L8 14M16 6L24 14",
+  };
+
+  const arrowData = getArrowInfo();
+  const arrowDir = arrowData.dir;
+  const arrowPos = arrowData.pos;
+  const motionDir = arrowDir === "left" ? { x: [0, -6, 0] } :
+    arrowDir === "right" ? { x: [0, 6, 0] } :
+    arrowDir === "up" ? { y: [0, -6, 0] } :
+    { y: [0, 6, 0] };
 
   return (
     <AnimatePresence>
@@ -208,12 +324,12 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[10000] pointer-events-auto"
         >
-          {/* Spotlight cutout on QR code */}
+          {/* Spotlight cutout */}
           <motion.div
             key={`spotlight-${currentStep}`}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.35 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
             className="fixed"
             style={{
               ...spotlightStyle,
@@ -224,52 +340,56 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
             }}
           />
 
+          {/* Animated arrow */}
+          {highlightRect && (
+            <motion.div
+              key={`arrow-${currentStep}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.25 }}
+              style={{ ...arrowPos, zIndex: 20 }}
+            >
+              <motion.div
+                animate={motionDir}
+                transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
+              >
+                <svg width={32} height={32} viewBox="0 0 32 32" fill="none">
+                  <path d={arrowPaths[arrowDir] || arrowPaths.right} stroke="#F59E0B" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </motion.div>
+            </motion.div>
+          )}
+
           {/* Instruction Card */}
           {highlightRect && (
             <motion.div
               key={`card-${currentStep}`}
-              initial={{ opacity: 0, y: isMobile ? 20 : 0, x: isMobile ? 0 : 20 }}
-              animate={{ opacity: 1, y: 0, x: 0 }}
-              transition={{ delay: 0.1, duration: 0.3 }}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15, duration: 0.3 }}
               className="z-30"
               style={getCardStyle()}
             >
               <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
-                {/* Header */}
-                <div className="px-5 pt-5 pb-3 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
-                      {step.icon}
-                    </div>
-                    <div>
-                      <p className="text-[10px] font-semibold text-amber-500 uppercase tracking-wider">
-                        Step {currentStep + 1} of {steps.length}
-                      </p>
-                      <h3 className="text-[15px] font-bold text-gray-900 leading-tight">{step.title}</h3>
-                      <p className="text-xs text-gray-500">{step.subtitle}</p>
-                    </div>
+                {/* Card header */}
+                <div className="px-5 pt-5 pb-3 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                    {step.icon}
                   </div>
-                  <button
-                    onClick={handleClose}
-                    className="w-8 h-8 rounded-lg hover:bg-gray-100 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors shrink-0"
-                  >
-                    <X className="w-4 h-4" />
-                  </button>
+                  <div>
+                    <h3 className="text-[15px] font-bold text-gray-900">{step.title}</h3>
+                    <p className="text-xs text-gray-500">{step.subtitle}</p>
+                  </div>
                 </div>
 
-                {/* Steps */}
-                <div className="px-5 pb-4 flex flex-col gap-3">
-                  {step.instructions.map((instr, i) => (
+                {/* Instructions */}
+                <div className="px-5 pb-4 flex flex-col gap-2.5">
+                  {step.instructions.map((instruction, i) => (
                     <div key={i} className="flex gap-3 items-start">
                       <div className="w-6 h-6 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center text-xs font-bold shrink-0 mt-0.5">
                         {i + 1}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-[13px] font-medium text-gray-800 leading-snug">{instr.text}</p>
-                        {instr.detail && (
-                          <p className="text-[11px] text-gray-500 leading-relaxed mt-0.5">{instr.detail}</p>
-                        )}
-                      </div>
+                      <p className="text-[13px] text-gray-700 leading-relaxed pt-0.5">{instruction}</p>
                     </div>
                   ))}
                 </div>
@@ -281,7 +401,7 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
                   </div>
                 )}
 
-                {/* Footer */}
+                {/* Footer with navigation */}
                 <div className="px-5 pb-5 flex items-center justify-between">
                   <div className="flex items-center gap-1.5">
                     {steps.map((_, i) => (
@@ -297,37 +417,35 @@ const DeviceSetupHelpCard = ({ open, onClose }: Props) => {
                       />
                     ))}
                   </div>
-                  <div className="flex items-center gap-2">
-                    {currentStep > 0 && (
-                      <button
-                        onClick={handlePrev}
-                        className="flex items-center gap-1 px-3 py-2 rounded-xl text-gray-500 text-sm font-medium hover:bg-gray-100 transition-colors"
-                      >
-                        <ChevronLeft className="w-4 h-4" />
-                        Back
-                      </button>
-                    )}
-                    <button
-                      onClick={handleNext}
-                      className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors"
-                    >
-                      {currentStep === steps.length - 1 ? "Got it" : "Next"}
-                      {currentStep < steps.length - 1 && <ChevronRight className="w-4 h-4" />}
-                    </button>
-                  </div>
+                  <button
+                    onClick={handleNext}
+                    className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-amber-500 text-white text-sm font-semibold hover:bg-amber-600 transition-colors"
+                  >
+                    {currentStep === steps.length - 1 ? "Got it" : "Next"}
+                    {currentStep < steps.length - 1 && <ChevronRight className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
             </motion.div>
           )}
 
-          {/* Bottom skip */}
-          <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-30">
+          {/* Bottom controls */}
+          <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
+            {currentStep > 0 && (
+              <button
+                onClick={handlePrev}
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 text-white/70 text-sm hover:bg-white/20 transition-colors backdrop-blur-sm"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                Back
+              </button>
+            )}
             <button
               onClick={handleClose}
               className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 text-white/70 text-sm hover:bg-white/20 transition-colors backdrop-blur-sm"
             >
               <X className="w-3.5 h-3.5" />
-              Close Guide
+              Skip
             </button>
           </div>
         </motion.div>

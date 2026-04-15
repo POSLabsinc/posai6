@@ -206,23 +206,27 @@ const CashDrawerDetailsContent = ({
         const tipAmount = Number(order.tip) || 0;
         const saleAmount = orderTotal - tipAmount;
 
+        // Track totals for both cash and card (used in balance calculations)
         if (isCash) { cSales += saleAmount; cTips += tipAmount; }
         else { cdSales += saleAmount; cdTips += tipAmount; }
 
-        oEntries.push({
-          id: order.id,
-          time: transactionDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-          name: getDisplayName(order.server),
-          reason: isCash ? 'Cash Sale' : 'Card Sale',
-          payIn: 0, payOut: 0,
-          cashSale: isCash ? saleAmount : 0,
-          cardSale: !isCash ? saleAmount : 0,
-          cashTip: isCash ? tipAmount : 0,
-          cardTip: !isCash ? tipAmount : 0,
-          cashDrop: 0,
-          timestamp: transactionDate.getTime(),
-          date: format(transactionDate, 'yyyy-MM-dd'),
-        });
+        // Only add cash orders to log entries (card sales excluded from cash log)
+        if (isCash) {
+          oEntries.push({
+            id: order.id,
+            time: transactionDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+            name: getDisplayName(order.server),
+            reason: 'Cash Sale',
+            payIn: 0, payOut: 0,
+            cashSale: saleAmount,
+            cardSale: 0,
+            cashTip: tipAmount,
+            cardTip: 0,
+            cashDrop: 0,
+            timestamp: transactionDate.getTime(),
+            date: format(transactionDate, 'yyyy-MM-dd'),
+          });
+        }
       });
     }
     setOrderCashSales(cSales);

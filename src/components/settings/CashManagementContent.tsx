@@ -202,28 +202,28 @@ const CashManagementContent = ({
         });
       }
 
-      // Add order-based entries (Cash Sale / Card Sale with tip split)
+      // Add only cash sale orders to the log (card sales excluded)
       if (dayOrders && dayOrders.length > 0) {
         dayOrders.forEach((order: any) => {
+          const paymentType = (order.payment_type || '').toLowerCase();
+          if (paymentType !== 'cash') return; // Skip non-cash orders
+          
           const empName = order.server || getEmployeeName();
           const transactionDate = new Date(order.updated_at || order.created_at);
-          const isCash = (order.payment_type || '').toLowerCase() === 'cash';
           const orderTotal = Number(order.total) || 0;
           const tipAmount = Number(order.tip) || 0;
           const saleAmount = orderTotal - tipAmount;
 
-          if (isCash) {
-            balance += orderTotal;
-          }
+          balance += orderTotal;
           
           entries.push({
             time: format(transactionDate, 'hh:mm a'),
             name: empName,
-            reason: isCash ? 'Cash Sale' : 'Card Sale',
+            reason: 'Cash Sale',
             payIn: 0,
             payOut: 0,
-            cashSale: isCash ? saleAmount : 0,
-            cashTip: isCash ? tipAmount : 0,
+            cashSale: saleAmount,
+            cashTip: tipAmount,
             runningBalance: balance,
           });
         });

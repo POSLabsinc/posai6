@@ -188,9 +188,13 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     width: highlightRect.width + padding * 2, height: highlightRect.height + padding * 2,
   } : { top: "40%", left: "40%", width: "20%", height: "20%" };
 
-  // On mobile, position card below the spotlight with proper spacing
+  // On mobile, position card above highlighted element if it's near bottom, otherwise at bottom
   const getMobileCardStyle = (): React.CSSProperties => {
-    // Always show full card at bottom, never scroll - background scrolls instead
+    if (highlightRect && step.desktopCardPosition === "top") {
+      // For steps like email-phone-button, place card above the highlighted element
+      const cardBottom = highlightRect.top - padding - 16;
+      return { position: "fixed", bottom: `calc(100vh - ${cardBottom}px)`, left: 12, right: 12, zIndex: 10002 };
+    }
     return { position: "fixed", bottom: 12, left: 12, right: 12, zIndex: 10002 };
   };
 

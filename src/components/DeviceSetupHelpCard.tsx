@@ -362,17 +362,16 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
               initial={{ opacity: 0, y: isMobile ? 20 : 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.3 }}
-              className="z-30"
               style={{ zIndex: 10, ...(
                 isMobile
                   ? {
-                      position: "fixed",
+                      position: "fixed" as const,
                       bottom: 16,
                       left: 12,
                       right: 12,
                     }
                   : getDesktopCardStyle()
-              }
+              )}}
             >
               {renderCardContent()}
             </motion.div>

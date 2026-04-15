@@ -213,12 +213,12 @@ const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions, onUserInteracti
   };
 
   const quickActions = [
-    { icon: BarChart3, label: "Analyze", action: () => validateAndExecute("analyze") },
-    { icon: FileText, label: "Summary", action: () => validateAndExecute("summary") },
-    { icon: Printer, label: "PDF", action: () => validateAndExecute("pdf") },
-    { icon: Mail, label: "Email", action: () => validateAndExecute("email") },
-    { icon: MessageSquare, label: "Text", action: () => validateAndExecute("text") },
-    { icon: Download, label: "CSV", action: () => validateAndExecute("download") },
+    { icon: BarChart3, label: "Analyze", action: () => { onUserInteraction?.(); validateAndExecute("analyze"); } },
+    { icon: FileText, label: "Summary", action: () => { onUserInteraction?.(); validateAndExecute("summary"); } },
+    { icon: Printer, label: "PDF", action: () => { onUserInteraction?.(); validateAndExecute("pdf"); } },
+    { icon: Mail, label: "Email", action: () => { onUserInteraction?.(); validateAndExecute("email"); } },
+    { icon: MessageSquare, label: "Text", action: () => { onUserInteraction?.(); validateAndExecute("text"); } },
+    { icon: Download, label: "CSV", action: () => { onUserInteraction?.(); validateAndExecute("download"); } },
     { icon: Share2, label: "Share", action: () => validateAndExecute("report") },
   ];
 

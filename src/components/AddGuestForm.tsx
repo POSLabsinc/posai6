@@ -154,34 +154,35 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     vehicles: [], profilePhoto: null, note: "",
   });
 
-  // Auto-save new vehicle when all required fields filled
-  useEffect(() => {
-    if (showNewVehicleForm && newVehicle.licensePlate && newVehicle.vehicleBrand) {
-      const timer = setTimeout(() => {
-        setFormData(prev => ({ ...prev, vehicles: [...prev.vehicles, { ...newVehicle }] }));
-        setNewVehicle({ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" });
-        setShowNewVehicleForm(false);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [newVehicle.licensePlate, newVehicle.vehicleBrand, showNewVehicleForm]);
+  const MAX_VEHICLES = 2;
+  const MAX_ADDRESSES = 2;
 
-  // Auto-save new address when required fields filled
-  useEffect(() => {
-    if (showNewAddressForm && newAddress.street && newAddress.city && newAddress.state && newAddress.zip) {
-      const timer = setTimeout(() => {
-        const entry: AddressEntry = { ...newAddress, id: crypto.randomUUID() };
-        setAddresses(prev => {
-          const updated = [...prev, entry];
-          syncAddressToForm(updated);
-          return updated;
-        });
-        setNewAddress({ id: "", label: "Home", street: "", city: "", state: "", zip: "", country: "", phone: "", phoneCountry: COUNTRY_CODES[0] });
-        setShowNewAddressForm(false);
-      }, 500);
-      return () => clearTimeout(timer);
+  // Save new vehicle (called on collapse / done)
+  const saveNewVehicle = useCallback(() => {
+    if (newVehicle.licensePlate && newVehicle.vehicleBrand) {
+      setFormData(prev => ({ ...prev, vehicles: [...prev.vehicles, { ...newVehicle }] }));
+      setNewVehicle({ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" });
+      setShowNewVehicleForm(false);
+    } else {
+      setShowNewVehicleForm(false);
     }
-  }, [newAddress.street, newAddress.city, newAddress.state, newAddress.zip, showNewAddressForm]);
+  }, [newVehicle]);
+
+  // Save new address (called on collapse / done)
+  const saveNewAddress = useCallback(() => {
+    if (newAddress.street && newAddress.city && newAddress.state && newAddress.zip) {
+      const entry: AddressEntry = { ...newAddress, id: crypto.randomUUID() };
+      setAddresses(prev => {
+        const updated = [...prev, entry];
+        syncAddressToForm(updated);
+        return updated;
+      });
+      setNewAddress({ id: "", label: "Home", street: "", city: "", state: "", zip: "", country: "", phone: "", phoneCountry: COUNTRY_CODES[0] });
+      setShowNewAddressForm(false);
+    } else {
+      setShowNewAddressForm(false);
+    }
+  }, [newAddress]);
 
   const handleVehicleChange = (index: number, field: keyof VehicleEntry, value: string) => {
     setFormData(prev => {
@@ -658,73 +659,84 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
             <div>
               <p className="text-sm font-semibold text-foreground mb-3">Vehicle Details</p>
               <div className="space-y-3">
-                {/* Saved vehicle cards */}
-                {formData.vehicles.map((vehicle, index) => {
-                  const isExpanded = vehicleExpandedIndex === index;
-                  const displayBrand = [vehicle.vehicleBrand, vehicle.vehicleType].filter(Boolean).join(" ");
-                  const displayMeta = [vehicle.licensePlate, vehicle.vehicleColor].filter(Boolean).join(" · ");
+                {/* Saved vehicle cards - 2 per row */}
+                <div className="grid grid-cols-2 gap-2">
+                  {formData.vehicles.map((vehicle, index) => {
+                    const isExpanded = vehicleExpandedIndex === index;
+                    const displayBrand = [vehicle.vehicleBrand, vehicle.vehicleType].filter(Boolean).join(" ");
+                    const displayMeta = [vehicle.licensePlate, vehicle.vehicleColor].filter(Boolean).join(" · ");
 
-                  return (
-                    <div key={index} className="border border-neutral-700 rounded-xl overflow-hidden">
-                      {/* Collapsed card */}
-                      <div className="flex items-center gap-3 p-3">
-                        <div className="w-8 h-8 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0">
-                          {getVehicleIcon(vehicle.vehicleType)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground truncate">{displayBrand || "Vehicle"}</p>
-                          {displayMeta && <p className="text-xs text-neutral-400 truncate">{displayMeta}</p>}
-                        </div>
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          <button onClick={() => setVehicleExpandedIndex(isExpanded ? null : index)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
-                            <Pencil className="w-3.5 h-3.5 text-neutral-400" />
-                          </button>
-                          <button onClick={() => handleRemoveVehicle(index)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
-                            <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                          </button>
+                    if (isExpanded) return null; // render expanded below
+
+                    return (
+                      <div key={index} className="border border-neutral-700 rounded-xl overflow-hidden">
+                        <div className="flex items-center gap-2 p-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0">
+                            {getVehicleIcon(vehicle.vehicleType)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-foreground truncate">{displayBrand || "Vehicle"}</p>
+                            {displayMeta && <p className="text-[11px] text-neutral-400 truncate">{displayMeta}</p>}
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <button onClick={() => setVehicleExpandedIndex(index)} className="p-1 hover:bg-white/10 rounded-lg transition-colors">
+                              <Pencil className="w-3 h-3 text-neutral-400" />
+                            </button>
+                            <button onClick={() => handleRemoveVehicle(index)} className="p-1 hover:bg-white/10 rounded-lg transition-colors">
+                              <Trash2 className="w-3 h-3 text-red-400" />
+                            </button>
+                          </div>
                         </div>
                       </div>
-                      {/* Expanded edit form */}
-                      {isExpanded && (
-                        <div className="border-t border-neutral-700 p-4 space-y-3">
-                          <div>
-                            <label className="text-xs font-medium text-neutral-400 mb-1.5 block">Vehicle Number<span className="text-red-400">*</span></label>
-                            <input value={vehicle.licensePlate} onChange={(e) => handleVehicleChange(index, "licensePlate", e.target.value.toUpperCase())} placeholder="Enter Vehicle Number" className="w-full h-10 px-3 text-sm bg-neutral-900 border border-neutral-700 rounded-lg text-foreground placeholder:text-neutral-500 outline-none uppercase" autoComplete="off" />
-                          </div>
-                          <div>
-                            <label className="text-xs font-medium text-neutral-400 mb-1.5 block">Vehicle Type</label>
-                            <Select value={vehicle.vehicleType} onValueChange={(v) => handleVehicleChange(index, "vehicleType", v)}>
-                              <SelectTrigger className="bg-neutral-900 border-neutral-700 text-foreground text-sm rounded-lg h-10"><SelectValue placeholder="Enter Vehicle Type" /></SelectTrigger>
-                              <SelectContent className="bg-neutral-800 border-white/10">{vehicleTypes.map(t => <SelectItem key={t} value={t} className="text-foreground">{t}</SelectItem>)}</SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <label className="text-xs font-medium text-neutral-400 mb-1.5 block">Vehicle Color</label>
-                            <Select value={vehicle.vehicleColor} onValueChange={(v) => handleVehicleChange(index, "vehicleColor", v)}>
-                              <SelectTrigger className="bg-neutral-900 border-neutral-700 text-foreground text-sm rounded-lg h-10"><SelectValue placeholder="Enter Vehicle Color" /></SelectTrigger>
-                              <SelectContent className="bg-neutral-800 border-white/10">{vehicleColors.map(c => <SelectItem key={c} value={c} className="text-foreground">{c}</SelectItem>)}</SelectContent>
-                            </Select>
-                          </div>
-                          <div>
-                            <label className="text-xs font-medium text-neutral-400 mb-1.5 block">Vehicle Brand<span className="text-red-400">*</span></label>
-                            <Select value={vehicle.vehicleBrand} onValueChange={(v) => handleVehicleChange(index, "vehicleBrand", v)} disabled={!vehicle.vehicleType}>
-                              <SelectTrigger className="bg-neutral-900 border-neutral-700 text-foreground text-sm rounded-lg h-10 disabled:opacity-50"><SelectValue placeholder={vehicle.vehicleType ? "Enter Vehicle Brand" : "Select type first"} /></SelectTrigger>
-                              <SelectContent className="bg-neutral-800 border-white/10">{(vehicle.vehicleType && vehicleBrands[vehicle.vehicleType] || []).map(b => <SelectItem key={b} value={b} className="text-foreground">{b}</SelectItem>)}</SelectContent>
-                            </Select>
-                          </div>
-                          <button onClick={() => setVehicleExpandedIndex(null)} className="w-full flex items-center justify-center gap-1 text-xs text-neutral-400 hover:text-foreground pt-1">
-                            <ChevronUp className="w-3.5 h-3.5" /> Collapse
-                          </button>
+                    );
+                  })}
+                </div>
+
+                {/* Expanded edit form for existing vehicle */}
+                {vehicleExpandedIndex !== null && formData.vehicles[vehicleExpandedIndex] && (() => {
+                  const index = vehicleExpandedIndex;
+                  const vehicle = formData.vehicles[index];
+                  return (
+                    <div className="border border-neutral-700 rounded-xl overflow-hidden">
+                      <button onClick={() => setVehicleExpandedIndex(null)} className="flex items-center justify-between w-full p-3 text-left">
+                        <span className="text-sm font-medium text-foreground">Edit Vehicle</span>
+                        <ChevronUp className="w-4 h-4 text-neutral-400" />
+                      </button>
+                      <div className="border-t border-neutral-700 p-4 space-y-3">
+                        <div>
+                          <label className="text-xs font-medium text-neutral-400 mb-1.5 block">Vehicle Number<span className="text-red-400">*</span></label>
+                          <input value={vehicle.licensePlate} onChange={(e) => handleVehicleChange(index, "licensePlate", e.target.value.toUpperCase())} placeholder="Enter Vehicle Number" className="w-full h-10 px-3 text-sm bg-neutral-900 border border-neutral-700 rounded-lg text-foreground placeholder:text-neutral-500 outline-none uppercase" autoComplete="off" />
                         </div>
-                      )}
+                        <div>
+                          <label className="text-xs font-medium text-neutral-400 mb-1.5 block">Vehicle Type</label>
+                          <Select value={vehicle.vehicleType} onValueChange={(v) => handleVehicleChange(index, "vehicleType", v)}>
+                            <SelectTrigger className="bg-neutral-900 border-neutral-700 text-foreground text-sm rounded-lg h-10"><SelectValue placeholder="Enter Vehicle Type" /></SelectTrigger>
+                            <SelectContent className="bg-neutral-800 border-white/10">{vehicleTypes.map(t => <SelectItem key={t} value={t} className="text-foreground">{t}</SelectItem>)}</SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-neutral-400 mb-1.5 block">Vehicle Color</label>
+                          <Select value={vehicle.vehicleColor} onValueChange={(v) => handleVehicleChange(index, "vehicleColor", v)}>
+                            <SelectTrigger className="bg-neutral-900 border-neutral-700 text-foreground text-sm rounded-lg h-10"><SelectValue placeholder="Enter Vehicle Color" /></SelectTrigger>
+                            <SelectContent className="bg-neutral-800 border-white/10">{vehicleColors.map(c => <SelectItem key={c} value={c} className="text-foreground">{c}</SelectItem>)}</SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="text-xs font-medium text-neutral-400 mb-1.5 block">Vehicle Brand<span className="text-red-400">*</span></label>
+                          <Select value={vehicle.vehicleBrand} onValueChange={(v) => handleVehicleChange(index, "vehicleBrand", v)} disabled={!vehicle.vehicleType}>
+                            <SelectTrigger className="bg-neutral-900 border-neutral-700 text-foreground text-sm rounded-lg h-10 disabled:opacity-50"><SelectValue placeholder={vehicle.vehicleType ? "Enter Vehicle Brand" : "Select type first"} /></SelectTrigger>
+                            <SelectContent className="bg-neutral-800 border-white/10">{(vehicle.vehicleType && vehicleBrands[vehicle.vehicleType] || []).map(b => <SelectItem key={b} value={b} className="text-foreground">{b}</SelectItem>)}</SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
                   );
-                })}
+                })()}
 
                 {/* New vehicle inline form */}
                 {showNewVehicleForm && (
                   <div className="border border-neutral-700 rounded-xl overflow-hidden">
-                    <button onClick={() => setShowNewVehicleForm(false)} className="flex items-center justify-between w-full p-3 text-left">
+                    <button onClick={saveNewVehicle} className="flex items-center justify-between w-full p-3 text-left">
                       <span className="text-sm font-medium text-foreground">New Vehicle</span>
                       <ChevronUp className="w-4 h-4 text-neutral-400" />
                     </button>
@@ -759,7 +771,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                 )}
 
                 {/* Add a New Vehicle - dashed card */}
-                {!showNewVehicleForm && (
+                {!showNewVehicleForm && formData.vehicles.length < MAX_VEHICLES && (
                   <button
                     onClick={() => setShowNewVehicleForm(true)}
                     className="w-full border-2 border-dashed border-neutral-600 rounded-xl p-6 flex flex-col items-center justify-center gap-1.5 hover:border-neutral-500 transition-colors"
@@ -775,55 +787,60 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
             <div>
               <p className="text-sm font-semibold text-foreground mb-3">Address</p>
               <div className="space-y-3">
-                {/* Saved address cards */}
-                {addresses.map((addr) => {
-                  const isExpanded = addressExpandedId === addr.id;
-                  const displayAddr = [addr.street, addr.city, [addr.state, addr.zip].filter(Boolean).join(" "), addr.country].filter(Boolean).join(", ");
+                {/* Saved address cards - 2 per row */}
+                <div className="grid grid-cols-2 gap-2">
+                  {addresses.map((addr) => {
+                    const isExpanded = addressExpandedId === addr.id;
+                    const displayAddr = [addr.street, addr.city, [addr.state, addr.zip].filter(Boolean).join(" ")].filter(Boolean).join(", ");
 
-                  return (
-                    <div key={addr.id} className="border border-neutral-700 rounded-xl overflow-hidden">
-                      {/* Collapsed card */}
-                      <div className="flex items-start gap-3 p-3">
-                        <div className="w-8 h-8 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0 mt-0.5">
-                          {getLabelIcon(addr.label)}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-foreground">{addr.label}</p>
-                          <p className="text-xs text-neutral-400 leading-relaxed mt-0.5">{displayAddr}</p>
-                          {addr.phone && (
-                            <p className="text-xs text-neutral-400 mt-1 flex items-center gap-1">
-                              <Phone className="w-3 h-3" /> {addr.phoneCountry.code} {addr.phone}
-                            </p>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-1.5 flex-shrink-0">
-                          <button onClick={() => setAddressExpandedId(isExpanded ? null : addr.id)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
-                            <Pencil className="w-3.5 h-3.5 text-neutral-400" />
-                          </button>
-                          <button onClick={() => handleRemoveAddress(addr.id)} className="p-1.5 hover:bg-white/10 rounded-lg transition-colors">
-                            <Trash2 className="w-3.5 h-3.5 text-red-400" />
-                          </button>
-                        </div>
-                      </div>
-                      {/* Expanded edit form */}
-                      {isExpanded && (
-                        <div className="border-t border-neutral-700">
-                          <AddressFormFields addr={addr} onChange={(field, value) => handleUpdateAddress(addr.id, field, value)} />
-                          <div className="px-4 pb-3">
-                            <button onClick={() => setAddressExpandedId(null)} className="w-full flex items-center justify-center gap-1 text-xs text-neutral-400 hover:text-foreground">
-                              <ChevronUp className="w-3.5 h-3.5" /> Collapse
+                    if (isExpanded) return null;
+
+                    return (
+                      <div key={addr.id} className="border border-neutral-700 rounded-xl overflow-hidden">
+                        <div className="flex items-start gap-2 p-2.5">
+                          <div className="w-7 h-7 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            {getLabelIcon(addr.label)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-medium text-foreground">{addr.label}</p>
+                            <p className="text-[11px] text-neutral-400 leading-relaxed mt-0.5 line-clamp-2">{displayAddr}</p>
+                            {addr.phone && (
+                              <p className="text-[11px] text-neutral-400 mt-0.5 flex items-center gap-1">
+                                <Phone className="w-2.5 h-2.5" /> {addr.phoneCountry.code} {addr.phone}
+                              </p>
+                            )}
+                          </div>
+                          <div className="flex items-center gap-1 flex-shrink-0">
+                            <button onClick={() => setAddressExpandedId(addr.id)} className="p-1 hover:bg-white/10 rounded-lg transition-colors">
+                              <Pencil className="w-3 h-3 text-neutral-400" />
+                            </button>
+                            <button onClick={() => handleRemoveAddress(addr.id)} className="p-1 hover:bg-white/10 rounded-lg transition-colors">
+                              <Trash2 className="w-3 h-3 text-red-400" />
                             </button>
                           </div>
                         </div>
-                      )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Expanded edit form for existing address */}
+                {addressExpandedId && addresses.find(a => a.id === addressExpandedId) && (
+                  <div className="border border-neutral-700 rounded-xl overflow-hidden">
+                    <button onClick={() => setAddressExpandedId(null)} className="flex items-center justify-between w-full p-3 text-left">
+                      <span className="text-sm font-medium text-foreground">Edit Address</span>
+                      <ChevronUp className="w-4 h-4 text-neutral-400" />
+                    </button>
+                    <div className="border-t border-neutral-700">
+                      <AddressFormFields addr={addresses.find(a => a.id === addressExpandedId)!} onChange={(field, value) => handleUpdateAddress(addressExpandedId, field, value)} />
                     </div>
-                  );
-                })}
+                  </div>
+                )}
 
                 {/* New address inline form */}
                 {showNewAddressForm && (
                   <div className="border border-neutral-700 rounded-xl overflow-hidden">
-                    <button onClick={() => setShowNewAddressForm(false)} className="flex items-center justify-between w-full p-3 text-left">
+                    <button onClick={saveNewAddress} className="flex items-center justify-between w-full p-3 text-left">
                       <span className="text-sm font-medium text-foreground">New Address</span>
                       <ChevronUp className="w-4 h-4 text-neutral-400" />
                     </button>
@@ -838,7 +855,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                 )}
 
                 {/* Add a New Address - dashed card */}
-                {!showNewAddressForm && (
+                {!showNewAddressForm && addresses.length < MAX_ADDRESSES && (
                   <button
                     onClick={() => setShowNewAddressForm(true)}
                     className="w-full border-2 border-dashed border-neutral-600 rounded-xl p-6 flex flex-col items-center justify-center gap-1.5 hover:border-neutral-500 transition-colors"

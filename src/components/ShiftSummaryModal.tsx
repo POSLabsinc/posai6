@@ -1073,11 +1073,38 @@ export default function ShiftSummaryModal({
                 </button>
               </div>
 
-              <div className="mb-4">
-                <p className="text-sm text-neutral-400 mb-1">Expected Cash Drop</p>
-                <p className="text-2xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+              {/* Cash in Hand */}
+              <div className="mb-3 p-3 bg-white/5 rounded-xl">
+                <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">Cash in Hand</p>
+                <p className="text-xl font-bold text-white">$ {cashInHand.toFixed(2)}</p>
               </div>
 
+              {/* Card Tips (excluded) */}
+              <div className="mb-3 p-3 bg-white/5 rounded-xl">
+                <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">Card Tips (excluded)</p>
+                <p className="text-xl font-bold text-red-400">- $ {cardTips.toFixed(2)}</p>
+              </div>
+
+              {/* Cash Drop Amount (auto-calculated, read-only) */}
+              <div className="mb-3 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">Cash Drop Amount</p>
+                {totalCashDrop > 0 ? (
+                  <p className="text-2xl font-bold text-emerald-400">$ {totalCashDrop.toFixed(2)}</p>
+                ) : (
+                  <p className="text-lg font-bold text-amber-400">$ 0.00</p>
+                )}
+              </div>
+
+              {totalCashDrop === 0 && (
+                <div className="mb-3 flex items-center gap-2 px-1">
+                  <div className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+                  <p className="text-sm text-amber-400">No cash available to drop</p>
+                </div>
+              )}
+
+              <p className="text-xs text-neutral-500 mb-4 px-1">Card tips are excluded as they are processed digitally.</p>
+
+              {/* Enter actual drop amount */}
               <div className="mb-4">
                 <label className="text-sm text-neutral-400 mb-2 block">Enter Cash Drop Amount</label>
                 <input

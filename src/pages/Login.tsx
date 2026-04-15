@@ -1564,6 +1564,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
+          onSwitchToEmailPhone={() => { setMobileActivationTab?.("email"); setShowOtherOptions?.(true); setActivationCodeSent(false); }}
+          onSwitchToBrowser={() => { setMobileActivationTab?.(null); setShowOtherOptions?.(false); setActivationCodeSent(false); }}
+          onSwitchToOtp={() => { setMobileActivationTab?.("email"); setShowOtherOptions?.(true); setActivationCodeSent(true); }}
         />
       </div>
     );

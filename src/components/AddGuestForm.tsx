@@ -154,34 +154,35 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     vehicles: [], profilePhoto: null, note: "",
   });
 
-  // Auto-save new vehicle when all required fields filled
-  useEffect(() => {
-    if (showNewVehicleForm && newVehicle.licensePlate && newVehicle.vehicleBrand) {
-      const timer = setTimeout(() => {
-        setFormData(prev => ({ ...prev, vehicles: [...prev.vehicles, { ...newVehicle }] }));
-        setNewVehicle({ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" });
-        setShowNewVehicleForm(false);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [newVehicle.licensePlate, newVehicle.vehicleBrand, showNewVehicleForm]);
+  const MAX_VEHICLES = 2;
+  const MAX_ADDRESSES = 2;
 
-  // Auto-save new address when required fields filled
-  useEffect(() => {
-    if (showNewAddressForm && newAddress.street && newAddress.city && newAddress.state && newAddress.zip) {
-      const timer = setTimeout(() => {
-        const entry: AddressEntry = { ...newAddress, id: crypto.randomUUID() };
-        setAddresses(prev => {
-          const updated = [...prev, entry];
-          syncAddressToForm(updated);
-          return updated;
-        });
-        setNewAddress({ id: "", label: "Home", street: "", city: "", state: "", zip: "", country: "", phone: "", phoneCountry: COUNTRY_CODES[0] });
-        setShowNewAddressForm(false);
-      }, 500);
-      return () => clearTimeout(timer);
+  // Save new vehicle (called on collapse / done)
+  const saveNewVehicle = useCallback(() => {
+    if (newVehicle.licensePlate && newVehicle.vehicleBrand) {
+      setFormData(prev => ({ ...prev, vehicles: [...prev.vehicles, { ...newVehicle }] }));
+      setNewVehicle({ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" });
+      setShowNewVehicleForm(false);
+    } else {
+      setShowNewVehicleForm(false);
     }
-  }, [newAddress.street, newAddress.city, newAddress.state, newAddress.zip, showNewAddressForm]);
+  }, [newVehicle]);
+
+  // Save new address (called on collapse / done)
+  const saveNewAddress = useCallback(() => {
+    if (newAddress.street && newAddress.city && newAddress.state && newAddress.zip) {
+      const entry: AddressEntry = { ...newAddress, id: crypto.randomUUID() };
+      setAddresses(prev => {
+        const updated = [...prev, entry];
+        syncAddressToForm(updated);
+        return updated;
+      });
+      setNewAddress({ id: "", label: "Home", street: "", city: "", state: "", zip: "", country: "", phone: "", phoneCountry: COUNTRY_CODES[0] });
+      setShowNewAddressForm(false);
+    } else {
+      setShowNewAddressForm(false);
+    }
+  }, [newAddress]);
 
   const handleVehicleChange = (index: number, field: keyof VehicleEntry, value: string) => {
     setFormData(prev => {

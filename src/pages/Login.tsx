@@ -1566,6 +1566,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           onClose={() => setShowTutorialOverlay(false)}
           onSwitchToEmailPhone={() => { setMobileActivationTab?.("email"); setShowOtherOptions?.(true); setActivationCodeSent(false); }}
           onSwitchToBrowser={() => { setMobileActivationTab?.(null); setShowOtherOptions?.(false); setActivationCodeSent(false); }}
+          onSwitchToBrowserTab={() => { setMobileActivationTab?.("browser"); setShowOtherOptions?.(false); setActivationCodeSent(false); }}
+          onSwitchToDefaultView={() => { setMobileActivationTab?.(null); setShowOtherOptions?.(false); setActivationCodeSent(false); }}
           onSwitchToOtp={() => { setMobileActivationTab?.("email"); setShowOtherOptions?.(true); setActivationCodeSent(true); }}
         />
       </div>

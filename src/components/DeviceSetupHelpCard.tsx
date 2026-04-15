@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronRight, ChevronLeft, QrCode, KeyRound, Link2, ShieldCheck, Mail, Phone, MessageSquare } from "lucide-react";
 
@@ -19,13 +19,16 @@ interface Props {
   onClose: () => void;
   onSwitchToEmailPhone?: () => void;
   onSwitchToBrowser?: () => void;
+  onSwitchToBrowserTab?: () => void;
+  onSwitchToDefaultView?: () => void;
   onSwitchToOtp?: () => void;
 }
 
-const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToOtp }: Props) => {
+const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToBrowserTab, onSwitchToDefaultView, onSwitchToOtp }: Props) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const rafRef = useRef<number>(0);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -35,25 +38,75 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   }, []);
 
   const steps: WalkthroughStep[] = [
-    { id: "qr-highlight", title: "Step 1: Scan QR Code", subtitle: "Use your phone to scan", instructions: ["Open the camera app on your phone or tablet", "Point it at the QR code displayed on this screen", "A link will appear on your device, tap it to proceed", "Follow the on-screen instructions to complete activation"], helperNote: "Most modern phones support QR scanning natively through the camera app.", tourTarget: "qr-code", desktopCardPosition: "right", icon: <QrCode className="w-5 h-5" />, beforeShow: onSwitchToBrowser },
-    { id: "code-highlight", title: "Step 2: Activation Code", subtitle: "Your unique pairing code", instructions: ["This is your unique activation code for this device", "You will need this code during the activation process", "Enter it when prompted on your mobile device or browser", "The code refreshes periodically for security"], tourTarget: "activation-code", desktopCardPosition: "left", icon: <KeyRound className="w-5 h-5" />, beforeShow: onSwitchToBrowser },
-    { id: "link-highlight", title: "Step 3: Activation Link", subtitle: "Open this URL in a browser", instructions: ["If QR scanning is not available, use this link instead", "Open any browser on your phone or computer", "Type the URL shown here into the address bar", "You will be prompted to enter the activation code"], tourTarget: "activation-link", desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowser },
-    { id: "code-reconfirm", title: "Step 4: Enter the Code", subtitle: "Complete the activation", instructions: ["After opening the link, you will see a code entry screen", "Enter the activation code shown on this device", "Make sure to enter the code exactly as displayed", "Once verified, your device will be activated automatically"], helperNote: "If the code expires, a new one will be generated automatically.", tourTarget: "activation-code", desktopCardPosition: "left", icon: <ShieldCheck className="w-5 h-5" />, beforeShow: onSwitchToBrowser },
-    { id: "email-phone-button", title: "Step 5: Alternative Activation", subtitle: "Use email or phone instead", instructions: ["Tap this button to switch to email or phone activation", "You can verify your identity using a code sent to your email", "Or receive a verification code via SMS to your phone"], tourTarget: "email-phone-button", desktopCardPosition: "top", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToBrowser },
+    { id: "qr-highlight", title: "Step 1: Scan QR Code", subtitle: "Use your phone to scan", instructions: ["Open the camera app on your phone or tablet", "Point it at the QR code displayed on this screen", "A link will appear on your device, tap it to proceed", "Follow the on-screen instructions to complete activation"], helperNote: "Most modern phones support QR scanning natively through the camera app.", tourTarget: "qr-code", desktopCardPosition: "right", icon: <QrCode className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
+    { id: "code-highlight", title: "Step 2: Activation Code", subtitle: "Your unique pairing code", instructions: ["This is your unique activation code for this device", "You will need this code during the activation process", "Enter it when prompted on your mobile device or browser", "The code refreshes periodically for security"], tourTarget: "activation-code", desktopCardPosition: "left", icon: <KeyRound className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
+    { id: "link-highlight", title: "Step 3: Activation Link", subtitle: "Open this URL in a browser", instructions: ["If QR scanning is not available, use this link instead", "Open any browser on your phone or computer", "Type the URL shown here into the address bar", "You will be prompted to enter the activation code"], tourTarget: "activation-link", desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
+    { id: "code-reconfirm", title: "Step 4: Enter the Code", subtitle: "Complete the activation", instructions: ["After opening the link, you will see a code entry screen", "Enter the activation code shown on this device", "Make sure to enter the code exactly as displayed", "Once verified, your device will be activated automatically"], helperNote: "If the code expires, a new one will be generated automatically.", tourTarget: "activation-code", desktopCardPosition: "left", icon: <ShieldCheck className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
+    { id: "email-phone-button", title: "Step 5: Alternative Activation", subtitle: "Use email or phone instead", instructions: ["Tap this button to switch to email or phone activation", "You can verify your identity using a code sent to your email", "Or receive a verification code via SMS to your phone"], tourTarget: "email-phone-button", desktopCardPosition: "top", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
     { id: "email-input", title: "Step 6: Enter Contact Info", subtitle: "Email or phone number", instructions: ["Enter your registered email address or phone number", "Tap 'Send Code' to receive a 6-digit verification code", "Check your inbox or messages for the code"], helperNote: "If you don't receive the code, you can resend it after a few seconds.", tourTarget: "email-input-area", desktopCardPosition: "left", icon: <MessageSquare className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
     { id: "otp-entry", title: "Step 7: Enter Verification Code", subtitle: "Complete activation", instructions: ["Enter the 6-digit code received on your email or phone", "Each digit goes in a separate box", "Your device will activate automatically once verified"], tourTarget: "otp-code-area", desktopCardPosition: "left", icon: <Phone className="w-5 h-5" />, beforeShow: onSwitchToOtp },
   ];
 
   const step = steps[currentStep];
 
+  // Find the visible element with the given data-tour attribute
+  const findVisibleTourElement = useCallback((tourTarget: string): HTMLElement | null => {
+    const els = document.querySelectorAll(`[data-tour="${tourTarget}"]`);
+    for (const el of Array.from(els)) {
+      const htmlEl = el as HTMLElement;
+      const rect = htmlEl.getBoundingClientRect();
+      // Check element is visible (has dimensions and not display:none)
+      if (rect.width > 0 && rect.height > 0 && htmlEl.offsetParent !== null) {
+        return htmlEl;
+      }
+    }
+    // Fallback: return first element with nonzero dimensions
+    for (const el of Array.from(els)) {
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) return el as HTMLElement;
+    }
+    return null;
+  }, []);
+
+  // Scroll element into view on mobile then measure
+  const measureAndScroll = useCallback((tourTarget: string) => {
+    const el = findVisibleTourElement(tourTarget);
+    if (!el) return false;
+
+    const rect = el.getBoundingClientRect();
+    if (rect.width <= 0 || rect.height <= 0) return false;
+
+    if (isMobile) {
+      const cardHeight = 340;
+      const viewH = window.innerHeight;
+      const pad = 20;
+      const elementTop = rect.top;
+      const elementBottom = rect.bottom;
+
+      if (elementTop < pad || elementBottom > viewH - cardHeight - pad) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        setTimeout(() => {
+          const newRect = el.getBoundingClientRect();
+          if (newRect.width > 0 && newRect.height > 0) {
+            setHighlightRect(newRect);
+          }
+        }, 400);
+        return true;
+      }
+    }
+
+    setHighlightRect(rect);
+    return true;
+  }, [isMobile, findVisibleTourElement]);
+
   const measureTarget = useCallback(() => {
     if (!step || !open) return;
-    const el = document.querySelector(`[data-tour="${step.tourTarget}"]`);
+    const el = findVisibleTourElement(step.tourTarget);
     if (el) {
       const rect = el.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) setHighlightRect(rect);
     }
-  }, [step, open]);
+  }, [step, open, findVisibleTourElement]);
 
   useEffect(() => {
     if (!open) return;
@@ -61,34 +114,46 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     if (s?.beforeShow) s.beforeShow();
     let attempts = 0;
     const tryMeasure = () => {
-      const el = document.querySelector(`[data-tour="${s?.tourTarget}"]`);
-      if (el) {
-        const rect = el.getBoundingClientRect();
-        if (rect.width > 0 && rect.height > 0) { setHighlightRect(rect); return; }
+      const found = measureAndScroll(s?.tourTarget || "");
+      if (!found) {
+        attempts++;
+        if (attempts < 25) setTimeout(tryMeasure, 100);
       }
-      attempts++;
-      if (attempts < 20) setTimeout(tryMeasure, 100);
     };
     const timer = setTimeout(tryMeasure, 150);
     return () => clearTimeout(timer);
   }, [currentStep, open]);
 
+  // Keep position updated on scroll/resize
   useEffect(() => {
     if (!open) return;
+    const update = () => {
+      measureTarget();
+      rafRef.current = requestAnimationFrame(update);
+    };
+    // Use RAF for smooth tracking during scroll
+    const handleInteraction = () => {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(update);
+    };
     window.addEventListener("resize", measureTarget);
-    window.addEventListener("scroll", measureTarget, true);
-    return () => { window.removeEventListener("resize", measureTarget); window.removeEventListener("scroll", measureTarget, true); };
+    window.addEventListener("scroll", handleInteraction, true);
+    return () => {
+      window.removeEventListener("resize", measureTarget);
+      window.removeEventListener("scroll", handleInteraction, true);
+      cancelAnimationFrame(rafRef.current);
+    };
   }, [open, measureTarget]);
 
   useEffect(() => { if (open) { setCurrentStep(0); setHighlightRect(null); } }, [open]);
 
-  const handleClose = () => { setCurrentStep(0); onSwitchToBrowser?.(); onClose(); };
+  const handleClose = () => { setCurrentStep(0); (onSwitchToDefaultView || onSwitchToBrowser)?.(); onClose(); };
   const handleNext = () => { if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1); else handleClose(); };
   const handlePrev = () => { if (currentStep > 0) setCurrentStep(currentStep - 1); };
 
   if (!step || !open) return null;
 
-  const padding = isMobile ? 8 : 12;
+  const padding = isMobile ? 10 : 12;
 
   const getDesktopCardStyle = (): React.CSSProperties => {
     if (!highlightRect) return { position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
@@ -118,8 +183,25 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     width: highlightRect.width + padding * 2, height: highlightRect.height + padding * 2,
   } : { top: "40%", left: "40%", width: "20%", height: "20%" };
 
+  // On mobile, position card below the spotlight with proper spacing
+  const getMobileCardStyle = (): React.CSSProperties => {
+    if (!highlightRect) return { position: "fixed", bottom: 16, left: 12, right: 12, zIndex: 10002 };
+    
+    const spotlightBottom = highlightRect.top + highlightRect.height + padding + 16;
+    const viewH = window.innerHeight;
+    const cardMaxHeight = 360;
+    
+    // If there's room below the spotlight, place card there
+    if (viewH - spotlightBottom >= cardMaxHeight) {
+      return { position: "fixed", top: spotlightBottom, left: 12, right: 12, zIndex: 10002 };
+    }
+    
+    // Otherwise place at bottom of screen
+    return { position: "fixed", bottom: 12, left: 12, right: 12, zIndex: 10002, maxHeight: `${viewH - spotlightBottom - 8}px`, overflow: "auto" };
+  };
+
   const cardStyle: React.CSSProperties = isMobile
-    ? { position: "fixed", bottom: 16, left: 12, right: 12, zIndex: 10002 }
+    ? getMobileCardStyle()
     : { ...getDesktopCardStyle(), zIndex: 10002 };
 
   return (
@@ -182,7 +264,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
               </div>
               <span className="ml-auto text-xs text-gray-400 shrink-0">{currentStep + 1}/{steps.length}</span>
             </div>
-            <div className="px-4 md:px-5 pb-3 md:pb-4 flex flex-col gap-2">
+            <div className="px-4 md:px-5 pb-3 md:pb-4 flex flex-col gap-1.5 md:gap-2">
               {step.instructions.map((inst, i) => (
                 <div key={i} className="flex gap-2.5 items-start">
                   <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center text-[11px] md:text-xs font-bold shrink-0 mt-0.5">{i + 1}</div>
@@ -191,11 +273,11 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
               ))}
             </div>
             {step.helperNote && (
-              <div className="mx-4 md:mx-5 mb-3 md:mb-4 p-2.5 md:p-3 rounded-xl bg-amber-50 border border-amber-100">
+              <div className="mx-4 md:mx-5 mb-2 md:mb-4 p-2.5 md:p-3 rounded-xl bg-amber-50 border border-amber-100">
                 <p className="text-[11px] md:text-xs text-amber-700 leading-relaxed">{step.helperNote}</p>
               </div>
             )}
-            <div className="px-4 md:px-5 pb-4 md:pb-5 flex items-center justify-between gap-2">
+            <div className="px-4 md:px-5 pb-3 md:pb-5 flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5 md:gap-2">
                 {currentStep > 0 && (
                   <button onClick={handlePrev} className="flex items-center gap-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl bg-gray-100 text-gray-600 text-xs md:text-sm font-medium hover:bg-gray-200 transition-colors">

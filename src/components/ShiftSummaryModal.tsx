@@ -912,127 +912,142 @@ export default function ShiftSummaryModal({
           </div>
         </div>
 
-        {/* Key metrics - 2 cols on mobile, 3 cols on desktop (6 boxes) */}
-        {!showAIChat && (
-        <div className={`grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4 px-5 md:px-8 py-4 md:py-5 shrink-0`}>
-          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
-              <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />
+        {/* Key metrics - 2 cols on mobile, 6 cols on desktop (single row) */}
+        <div className={`grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-3 px-5 md:px-8 py-4 md:py-5 shrink-0 transition-all duration-300 ${showAIChat && !aiExpanded && !isMobile ? 'md:mr-[440px]' : ''}`}>
+          <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
+              <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Card Sales</p>
-              <p className="text-xl md:text-3xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Card Sales</p>
+              <p className="text-base md:text-xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
-              <Banknote className="w-5 h-5 md:w-6 md:h-6 text-amber-400" />
+          <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+              <Banknote className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Sales</p>
-              <p className="text-xl md:text-3xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Sales</p>
+              <p className="text-base md:text-xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
-              <Receipt className="w-5 h-5 md:w-6 md:h-6 text-purple-400" />
+          <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
+              <Receipt className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Total Tips</p>
-              <p className="text-xl md:text-3xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Total Tips</p>
+              <p className="text-base md:text-xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
-              <Banknote className="w-5 h-5 md:w-6 md:h-6 text-blue-400" />
+          <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
+              <Banknote className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Tips Payable</p>
-              <p className="text-xl md:text-3xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Tips Payable</p>
+              <p className="text-base md:text-xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-cyan-500/15 flex items-center justify-center shrink-0">
-              <DollarSign className="w-5 h-5 md:w-6 md:h-6 text-cyan-400" />
+          <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-cyan-500/15 flex items-center justify-center shrink-0">
+              <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Total</p>
-              <p className="text-xl md:text-3xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Total</p>
+              <p className="text-base md:text-xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
             </div>
           </div>
-          <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
-            <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-orange-500/15 flex items-center justify-center shrink-0">
-              <ArrowDownToLine className="w-5 h-5 md:w-6 md:h-6 text-orange-400" />
+          <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
+            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-orange-500/15 flex items-center justify-center shrink-0">
+              <ArrowDownToLine className="w-4 h-4 md:w-5 md:h-5 text-orange-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[11px] md:text-xs text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Drop</p>
-              <p className="text-xl md:text-3xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Drop</p>
+              <p className="text-base md:text-xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
             </div>
           </div>
         </div>
-        )}
 
-        {/* Data table - hidden when AI chat is open */}
-        {!showAIChat && (
-        <div className={`flex-1 overflow-auto px-5 md:px-8 py-4`}>
-          {loading ? (
-            <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
-          ) : (
-            <table className="w-full text-sm md:text-base">
-              <thead className="sticky top-0 bg-[#1C1C1E] z-10">
-                <tr className="border-b-2 border-white/10 text-left">
-                  <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider">Type</th>
-                  <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Qty</th>
-                  <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
-                  <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
-                  <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
-                  <th className="py-3 md:py-3.5 pl-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Cash Drop</th>
-                </tr>
-              </thead>
-              <tbody>
-                {paymentTypeSummary.map(row => {
-                  const cashDropForRow = row.amount - row.tips;
-                  return (
-                    <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white">{row.type}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">{row.qty}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-medium text-white text-right">$ {cashDropForRow.toFixed(2)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-              <tfoot>
-                <tr className="bg-neutral-800/50">
-                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white">Total</td>
-                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">{paidOrders.length}</td>
-                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
-                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
-                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
-                  <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + (r.amount - r.tips), 0).toFixed(2)}</td>
-                </tr>
-              </tfoot>
-            </table>
-          )}
-        </div>
-        )}
-
-        {/* Desktop AI chat - full content area below header */}
-        {showAIChat && !isMobile && (
+        {/* Data table + AI side panel or AI full area */}
+        {aiExpanded && !isMobile ? (
           <div className="flex-1 overflow-hidden flex flex-col">
             <ShiftAIChatPanel
-              onClose={() => setShowAIChat(false)}
+              onClose={() => { setShowAIChat(false); setAiExpanded(false); }}
               shiftContext={shiftContextForAI}
               shiftActions={{
-                exportPDF: () => { setShowAIChat(false); setTimeout(() => handleShare("pdf"), 100); },
-                sendEmail: () => { setShowAIChat(false); setTimeout(() => handleShare("email"), 100); },
-                sendText: () => { setShowAIChat(false); setTimeout(() => handleShare("text"), 100); },
-                downloadCSV: () => { setShowAIChat(false); setTimeout(() => handleShare("download"), 100); },
+                exportPDF: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("pdf"), 100); },
+                sendEmail: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("email"), 100); },
+                sendText: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("text"), 100); },
+                downloadCSV: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("download"), 100); },
               }}
+              onUserInteraction={() => {}}
             />
           </div>
+        ) : (
+          <>
+            <div className={`flex-1 overflow-auto px-5 md:px-8 py-4 transition-all duration-300 ${showAIChat && !isMobile ? 'md:mr-[440px]' : ''}`}>
+              {loading ? (
+                <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
+              ) : (
+                <table className="w-full text-sm md:text-base">
+                  <thead className="sticky top-0 bg-[#1C1C1E] z-10">
+                    <tr className="border-b-2 border-white/10 text-left">
+                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider">Type</th>
+                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Qty</th>
+                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
+                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
+                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
+                      <th className="py-3 md:py-3.5 pl-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Cash Drop</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paymentTypeSummary.map(row => {
+                      const cashDropForRow = row.amount - row.tips;
+                      return (
+                        <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
+                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white">{row.type}</td>
+                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">{row.qty}</td>
+                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
+                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
+                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
+                          <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-medium text-white text-right">$ {cashDropForRow.toFixed(2)}</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                  <tfoot>
+                    <tr className="bg-neutral-800/50">
+                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white">Total</td>
+                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">{paidOrders.length}</td>
+                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
+                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
+                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
+                      <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + (r.amount - r.tips), 0).toFixed(2)}</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              )}
+            </div>
+
+            {/* Right-side AI panel (not expanded yet) */}
+            {showAIChat && !isMobile && (
+              <div className="absolute right-0 top-0 bottom-0 w-[440px] z-[20] flex flex-col bg-[#1C1C1E] border-l border-white/10 shadow-2xl rounded-r-2xl overflow-hidden">
+                <ShiftAIChatPanel
+                  onClose={() => { setShowAIChat(false); setAiExpanded(false); }}
+                  shiftContext={shiftContextForAI}
+                  shiftActions={{
+                    exportPDF: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("pdf"), 100); },
+                    sendEmail: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("email"), 100); },
+                    sendText: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("text"), 100); },
+                    downloadCSV: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("download"), 100); },
+                  }}
+                  onUserInteraction={() => setAiExpanded(true)}
+                />
+              </div>
+            )}
+          </>
         )}
 
         {/* Cash Drop Popup */}

@@ -1001,10 +1001,10 @@ export default function ShiftSummaryModal({
                 <tr className="bg-neutral-800/50">
                   <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white">Total</td>
                   <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">{paidOrders.length}</td>
-                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {overallTotal.toFixed(2)}</td>
-                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalTips.toFixed(2)}</td>
-                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalTips.toFixed(2)}</td>
-                  <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {(overallTotal - totalTips).toFixed(2)}</td>
+                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
+                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
+                  <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
+                  <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + (r.amount - r.tips), 0).toFixed(2)}</td>
                 </tr>
               </tfoot>
             </table>

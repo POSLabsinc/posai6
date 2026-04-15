@@ -106,6 +106,72 @@ const VerificationWaiting = ({ currentStep, sentAddress, messages, setMessages, 
     </motion.div>
   );
 };
+// QR Scanning section with auto-proceed and activation code
+const QRScanningSection = ({ isSignIn, onAutoProceeded, onNeedHelp }: { isSignIn: boolean; onAutoProceeded: () => void; onNeedHelp: () => void }) => {
+  const [countdown, setCountdown] = useState(3);
+  const activationCode = "Z65J2U";
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          onAutoProceeded();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [onAutoProceeded]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: "easeOut" }}
+      className="flex flex-col items-center gap-4 pl-7 pt-4 pb-4"
+    >
+      <div className="bg-white p-4 rounded-2xl shadow-lg">
+        <QRCodeSVG
+          value="https://posai.com/pair?device=activate"
+          size={200}
+          bgColor="#FFFFFF"
+          fgColor="#000000"
+          level="M"
+          includeMargin={false}
+        />
+      </div>
+      <p className="text-xs text-foreground/40 text-center">Scan with your phone camera</p>
+
+      {/* Activation code for manual entry */}
+      <div className="rounded-xl border border-foreground/[0.08] bg-foreground/[0.03] px-4 py-3 w-full max-w-xs text-center space-y-2">
+        <div className="flex items-center justify-center gap-1.5 text-foreground/50">
+          <Key className="w-3.5 h-3.5" />
+          <span className="text-[10px] font-medium uppercase tracking-wider">{isSignIn ? "Sign-in Code" : "Activation Code"}</span>
+        </div>
+        <div className="flex items-center justify-center gap-1.5">
+          {activationCode.split("").map((char, i) => (
+            <span key={i} className="w-8 h-10 flex items-center justify-center rounded-lg border border-foreground/[0.12] bg-foreground/[0.05] text-sm font-bold text-foreground tracking-widest">
+              {char}
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* Auto-proceed indicator + Need help */}
+      <div className="flex flex-col items-center gap-2 pt-1">
+        <p className="text-xs text-foreground/30">Auto-proceeding in {countdown}s...</p>
+        <button
+          onClick={onNeedHelp}
+          className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
+        >
+          Need help
+        </button>
+      </div>
+    </motion.div>
+  );
+};
 
 interface DeviceSetupAIChatProps {
   open: boolean;

@@ -68,51 +68,43 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   // Scroll element into view on mobile then measure
   const measureAndScroll = useCallback((tourTarget: string) => {
-    const el = document.querySelector(`[data-tour="${tourTarget}"]`) as HTMLElement | null;
+    const el = findVisibleTourElement(tourTarget);
     if (!el) return false;
 
     const rect = el.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return false;
 
     if (isMobile) {
-      // On mobile, scroll so the element is visible with space for the card below
-      const cardHeight = 380; // estimated card height
+      const cardHeight = 340;
       const viewH = window.innerHeight;
-      const padding = 20;
-
-      // Check if element is fully visible with room for card
+      const pad = 20;
       const elementTop = rect.top;
       const elementBottom = rect.bottom;
-      const availableForCard = viewH - elementBottom;
 
-      if (elementTop < padding || elementBottom > viewH - cardHeight - padding || availableForCard < cardHeight) {
-        // Scroll so element is near the top with some padding
-        const scrollContainer = el.closest('[class*="overflow"]') || document.documentElement;
+      if (elementTop < pad || elementBottom > viewH - cardHeight - pad) {
         el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        
-        // Re-measure after scroll settles
         setTimeout(() => {
           const newRect = el.getBoundingClientRect();
           if (newRect.width > 0 && newRect.height > 0) {
             setHighlightRect(newRect);
           }
-        }, 350);
+        }, 400);
         return true;
       }
     }
 
     setHighlightRect(rect);
     return true;
-  }, [isMobile]);
+  }, [isMobile, findVisibleTourElement]);
 
   const measureTarget = useCallback(() => {
     if (!step || !open) return;
-    const el = document.querySelector(`[data-tour="${step.tourTarget}"]`);
+    const el = findVisibleTourElement(step.tourTarget);
     if (el) {
       const rect = el.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) setHighlightRect(rect);
     }
-  }, [step, open]);
+  }, [step, open, findVisibleTourElement]);
 
   useEffect(() => {
     if (!open) return;

@@ -77,15 +77,22 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     if (rect.width <= 0 || rect.height <= 0) return false;
 
     if (isMobile) {
-      // Scroll the background so the element is in the top portion of the screen,
-      // leaving room for the instruction card at the bottom
+      // Scroll the background so the element is visible
       const pad = 20;
-      const desiredTop = pad + 10; // Where we want the element top to be
+      let desiredTop: number;
+      
+      if (step?.desktopCardPosition === "top") {
+        // For "top" card position, element should be in lower portion of screen
+        // Card will appear above, so scroll element to ~60% down the viewport
+        desiredTop = window.innerHeight * 0.55;
+      } else {
+        desiredTop = pad + 10;
+      }
+      
       const currentTop = rect.top;
       const diff = currentTop - desiredTop;
 
       if (Math.abs(diff) > 30) {
-        // Find the scrollable container and scroll it
         const scrollContainer = el.closest('.overflow-y-auto, .overflow-auto') || document.scrollingElement || document.documentElement;
         if (scrollContainer) {
           scrollContainer.scrollTop += diff;
@@ -188,9 +195,13 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     width: highlightRect.width + padding * 2, height: highlightRect.height + padding * 2,
   } : { top: "40%", left: "40%", width: "20%", height: "20%" };
 
-  // On mobile, position card below the spotlight with proper spacing
+  // On mobile, position card above highlighted element if it's near bottom, otherwise at bottom
   const getMobileCardStyle = (): React.CSSProperties => {
-    // Always show full card at bottom, never scroll - background scrolls instead
+    if (highlightRect && step.desktopCardPosition === "top") {
+      // For steps like email-phone-button, place card above the highlighted element
+      const cardBottom = highlightRect.top - padding - 16;
+      return { position: "fixed", bottom: `calc(100vh - ${cardBottom}px)`, left: 12, right: 12, zIndex: 10002 };
+    }
     return { position: "fixed", bottom: 12, left: 12, right: 12, zIndex: 10002 };
   };
 

@@ -1400,6 +1400,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <button
                       onClick={() => { setShowDeviceConnected(true); setDeviceName("Rustic Table POS 1"); setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500); }}
                       className="bg-foreground rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 self-center"
+                      data-tour="qr-code"
                     >
                       <QRCodeSVG value={activationQrValue} size={220} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                     </button>
@@ -1423,7 +1424,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       Use a browser
                     </button>
                     <button onClick={() => setMobileActivationTab("email")}
-                      className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
+                      className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]"
+                      data-tour="email-phone-button">
                       <Mail className="w-4 h-4 mx-auto mb-1" />
                       Activate via email / phone
                     </button>
@@ -1440,7 +1442,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <span className="text-base font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
                       <div>
                         <p className="text-sm text-foreground/70 mb-2">Go to this link:</p>
-                        <div className="inline-block px-4 py-2 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]">
+                        <div className="inline-block px-4 py-2 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]" data-tour="activation-link">
                           <span className="text-sm font-semibold text-foreground tracking-wide">posai.com/pair</span>
                         </div>
                       </div>
@@ -1449,7 +1451,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <span className="text-base font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
                       <div>
                         <p className="text-sm text-foreground/70 mb-2">Enter this code:</p>
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1.5" data-tour="activation-code">
                           {generatedDeviceCode.split('').map((char, i) => (
                             <div key={i} className="w-9 h-11 rounded-lg bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center">
                               <span className="text-base font-bold text-foreground">{char}</span>
@@ -1490,7 +1492,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <div className="mb-6">
                     <p className="text-sm font-semibold text-foreground mb-3">Activate via email / phone</p>
                     {!activationCodeSent ? (
-                      <div className="space-y-4">
+                      <div className="space-y-4" data-tour="email-input-area">
                         <p className="text-sm text-foreground/50">Enter your email or mobile number to receive a code</p>
                         <div className="relative">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-4 h-4" /></div>
@@ -1506,7 +1508,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     ) : (
                       <div className="space-y-4">
                         <p className="text-sm text-foreground/50">Enter the 6-digit code sent to <span className="font-semibold text-foreground">{activationContactValue}</span></p>
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1.5" data-tour="otp-code-area">
                           {Array.from({ length: 6 }).map((_, i) => (
                             <div key={i} className={`flex-1 h-11 rounded-lg border-2 flex items-center justify-center text-lg font-bold transition-all ${activationCode[i] ? "border-primary bg-primary/5 text-foreground" : i === activationCode.length ? "border-primary/50 bg-foreground/[0.03]" : "border-foreground/10 bg-foreground/[0.03]"}`}>
                               {activationCode[i] || ""}
@@ -1562,6 +1564,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
+          onSwitchToEmailPhone={() => { setMobileActivationTab?.("email"); setShowOtherOptions?.(true); setActivationCodeSent(false); }}
+          onSwitchToBrowser={() => { setMobileActivationTab?.(null); setShowOtherOptions?.(false); setActivationCodeSent(false); }}
+          onSwitchToOtp={() => { setMobileActivationTab?.("email"); setShowOtherOptions?.(true); setActivationCodeSent(true); }}
         />
       </div>
     );

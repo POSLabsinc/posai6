@@ -190,19 +190,8 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   // On mobile, position card below the spotlight with proper spacing
   const getMobileCardStyle = (): React.CSSProperties => {
-    if (!highlightRect) return { position: "fixed", bottom: 16, left: 12, right: 12, zIndex: 10002 };
-    
-    const spotlightBottom = highlightRect.top + highlightRect.height + padding + 16;
-    const viewH = window.innerHeight;
-    const cardMaxHeight = 360;
-    
-    // If there's room below the spotlight, place card there
-    if (viewH - spotlightBottom >= cardMaxHeight) {
-      return { position: "fixed", top: spotlightBottom, left: 12, right: 12, zIndex: 10002 };
-    }
-    
-    // Otherwise place at bottom of screen
-    return { position: "fixed", bottom: 12, left: 12, right: 12, zIndex: 10002, maxHeight: `${viewH - spotlightBottom - 8}px`, overflow: "auto" };
+    // Always show full card at bottom, never scroll - background scrolls instead
+    return { position: "fixed", bottom: 12, left: 12, right: 12, zIndex: 10002 };
   };
 
   const cardStyle: React.CSSProperties = isMobile

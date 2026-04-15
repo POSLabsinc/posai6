@@ -326,6 +326,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
               border: isMobile ? "2px solid #F59E0B" : "3px solid #F59E0B",
               borderRadius: isMobile ? "12px" : "16px",
               pointerEvents: "none",
+              zIndex: 1,
             }}
           />
 
@@ -362,7 +363,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.15, duration: 0.3 }}
               className="z-30"
-              style={
+              style={{ zIndex: 10, ...(
                 isMobile
                   ? {
                       position: "fixed",

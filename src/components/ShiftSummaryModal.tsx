@@ -156,6 +156,12 @@ export default function ShiftSummaryModal({
   // AI Chat state
   const [showAIChat, setShowAIChat] = useState(false);
 
+  // Cash Drop popup state
+  const [showCashDropPopup, setShowCashDropPopup] = useState(false);
+  const [cashDropAmount, setCashDropAmount] = useState("");
+  const [cashDropReason, setCashDropReason] = useState("");
+  const [cashDropMismatch, setCashDropMismatch] = useState(false);
+
   // Mobile filter bottom sheet state
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [filterSheetView, setFilterSheetView] = useState<"main" | "revenue" | "date" | "time" | "employee">("main");

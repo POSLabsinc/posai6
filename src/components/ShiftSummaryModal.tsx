@@ -270,7 +270,16 @@ export default function ShiftSummaryModal({
   const overallTotal = useMemo(() => hasRealData ? paidOrders.reduce((s, o) => s + Number(o.total), 0) : 370.00, [paidOrders, hasRealData]);
   const totalPayIn = useMemo(() => cashTxs.filter(c => c.type === "pay_in").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
   const totalPayOut = useMemo(() => cashTxs.filter(c => c.type === "pay_out").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
-  const totalCashDrop = overallTotal - totalTips;
+  
+  // Card tips = tips from non-cash (card) orders
+  const cardTips = useMemo(() => hasRealData 
+    ? paidOrders.filter(o => (o.payment_type || "").toLowerCase() !== "cash").reduce((s, o) => s + Number(o.tip), 0) 
+    : 20.00, [paidOrders, hasRealData]);
+  // Cash in Hand = total cash sales (includes cash tips collected physically)
+  const cashInHand = totalCashSales;
+  // Cash Drop = Cash in Hand - Card Tips (card tips are digital, not in drawer)
+  // If card tips > cash in hand, cash drop = 0
+  const totalCashDrop = Math.max(0, cashInHand - cardTips);
 
   const initials = getInitials(employeeName);
 
@@ -416,13 +425,15 @@ export default function ShiftSummaryModal({
     totalCashSales,
     totalTips,
     totalCashTips,
+    cardTips,
+    cashInHand,
     tipsPayable,
     overallTotal,
     totalCashDrop,
     orderCount: paidOrders.length,
     paymentBreakdown: paymentTypeSummary,
     dateRange: `${formatDateDisplay(filterDateFrom)} to ${formatDateDisplay(filterDateTo)}`,
-  }), [employeeName, employeeRole, totalHours, totalCardSales, totalCashSales, totalTips, totalCashTips, tipsPayable, overallTotal, totalCashDrop, paidOrders.length, paymentTypeSummary, filterDateFrom, filterDateTo]);
+  }), [employeeName, employeeRole, totalHours, totalCardSales, totalCashSales, totalTips, totalCashTips, cardTips, cashInHand, tipsPayable, overallTotal, totalCashDrop, paidOrders.length, paymentTypeSummary, filterDateFrom, filterDateTo]);
 
   const openCheckDetail = async (order: TicketOrder) => {
     setSelectedOrder(order);
@@ -1004,7 +1015,10 @@ export default function ShiftSummaryModal({
                   </thead>
                   <tbody>
                     {paymentTypeSummary.map(row => {
-                      const cashDropForRow = row.amount - row.tips;
+                      const isCash = row.type.toLowerCase() === "cash";
+                      // Cash Drop per row: Cash rows = amount (cash in hand), Card rows = 0 (digital)
+                      // But card tips need to be deducted from cash drop
+                      const cashDropForRow = isCash ? Math.max(0, row.amount - cardTips) : 0;
                       return (
                         <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
                           <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white">{row.type}</td>
@@ -1024,7 +1038,7 @@ export default function ShiftSummaryModal({
                       <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
                       <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
                       <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + (r.amount - r.tips), 0).toFixed(2)}</td>
+                      <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -1062,11 +1076,38 @@ export default function ShiftSummaryModal({
                 </button>
               </div>
 
-              <div className="mb-4">
-                <p className="text-sm text-neutral-400 mb-1">Expected Cash Drop</p>
-                <p className="text-2xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+              {/* Cash in Hand */}
+              <div className="mb-3 p-3 bg-white/5 rounded-xl">
+                <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">Cash in Hand</p>
+                <p className="text-xl font-bold text-white">$ {cashInHand.toFixed(2)}</p>
               </div>
 
+              {/* Card Tips (excluded) */}
+              <div className="mb-3 p-3 bg-white/5 rounded-xl">
+                <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">Card Tips (excluded)</p>
+                <p className="text-xl font-bold text-red-400">- $ {cardTips.toFixed(2)}</p>
+              </div>
+
+              {/* Cash Drop Amount (auto-calculated, read-only) */}
+              <div className="mb-3 p-3 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                <p className="text-xs text-neutral-500 uppercase tracking-wide mb-1">Cash Drop Amount</p>
+                {totalCashDrop > 0 ? (
+                  <p className="text-2xl font-bold text-emerald-400">$ {totalCashDrop.toFixed(2)}</p>
+                ) : (
+                  <p className="text-lg font-bold text-amber-400">$ 0.00</p>
+                )}
+              </div>
+
+              {totalCashDrop === 0 && (
+                <div className="mb-3 flex items-center gap-2 px-1">
+                  <div className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+                  <p className="text-sm text-amber-400">No cash available to drop</p>
+                </div>
+              )}
+
+              <p className="text-xs text-neutral-500 mb-4 px-1">Card tips are excluded as they are processed digitally.</p>
+
+              {/* Enter actual drop amount */}
               <div className="mb-4">
                 <label className="text-sm text-neutral-400 mb-2 block">Enter Cash Drop Amount</label>
                 <input

@@ -890,7 +890,7 @@ export default function ShiftSummaryModal({
         </div>
 
         {/* Key metrics - 2 cols on mobile, 4 cols on desktop */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-5 md:px-8 py-4 md:py-5 shrink-0">
+        <div className={`grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 px-5 md:px-8 py-4 md:py-5 shrink-0 transition-all duration-300 ${showAIChat && !isMobile ? 'md:mr-[440px]' : ''}`}>
           <div className="flex items-center gap-3 md:gap-4 bg-white/5 rounded-xl p-3.5 md:p-5">
             <div className="w-10 h-10 md:w-12 md:h-12 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
               <CreditCard className="w-5 h-5 md:w-6 md:h-6 text-emerald-400" />

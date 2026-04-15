@@ -154,7 +154,7 @@ export default function ShiftSummaryModal({
   const [shareSending, setShareSending] = useState(false);
 
   // AI Chat state
-  const [showAIChat, setShowAIChat] = useState(true);
+  const [showAIChat, setShowAIChat] = useState(false);
 
   // Cash Drop popup state
   const [showCashDropPopup, setShowCashDropPopup] = useState(false);

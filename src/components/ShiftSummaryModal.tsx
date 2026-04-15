@@ -760,8 +760,21 @@ export default function ShiftSummaryModal({
             </div>
           </div>
 
-          {/* Action buttons */}
+          {/* Cash Drop button + Action buttons */}
           <div className="flex items-center gap-1 md:gap-1.5 shrink-0 ml-2">
+            {/* Cash Drop - prominent pill button */}
+            <button
+              onClick={() => {
+                setCashDropAmount("");
+                setCashDropReason("");
+                setCashDropMismatch(false);
+                setShowCashDropPopup(true);
+              }}
+              className="flex items-center gap-1.5 px-4 py-2 md:px-5 md:py-2.5 bg-white/10 hover:bg-white/15 rounded-full text-white font-semibold text-xs md:text-sm transition-colors mr-1"
+            >
+              <ArrowDownToLine className="w-3.5 h-3.5 md:w-4 md:h-4" />
+              Cash Drop
+            </button>
             {/* Mobile: single filter icon */}
             {isMobile && (
               <button

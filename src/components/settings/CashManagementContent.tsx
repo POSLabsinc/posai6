@@ -249,27 +249,7 @@ const CashManagementContent = ({
         });
       }
 
-      // Add cash drop entries
-      if (dayCashDrops && dayCashDrops.length > 0) {
-        dayCashDrops.forEach((drop: any) => {
-          const empName = drop.employee_name || getEmployeeName();
-          const dropAmount = Number(drop.actual_drop_amount) || 0;
-          balance -= dropAmount;
-          entries.push({
-            time: format(new Date(drop.created_at), 'hh:mm a'),
-            name: empName,
-            reason: 'Cash Drop',
-            payIn: 0,
-            payOut: 0,
-            cashSale: 0,
-            cardSale: 0,
-            cashTip: 0,
-            cardTip: 0,
-            cashDrop: dropAmount,
-            runningBalance: balance,
-          });
-        });
-      }
+      // Cash drop entries removed from log
 
       // Fallback for localStorage-based entries
       if (entries.length === 0 && lastClosedSession) {
@@ -283,7 +263,7 @@ const CashManagementContent = ({
             reason: "Opening Cash",
             payIn: lastClosedSession.startingCash,
             payOut: 0,
-            cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0, cashDrop: 0,
+            cashSale: 0, cashTip: 0,
             runningBalance: balance,
           });
 
@@ -294,8 +274,8 @@ const CashManagementContent = ({
               name: "Sales",
               reason: "Cash Sales",
               payIn: 0, payOut: 0,
-              cashSale: lastClosedSession.cashSales, cardSale: 0,
-              cashTip: 0, cardTip: 0, cashDrop: 0,
+              cashSale: lastClosedSession.cashSales,
+              cashTip: 0,
               runningBalance: balance,
             });
           }
@@ -307,7 +287,7 @@ const CashManagementContent = ({
               name: "Refund",
               reason: "Cash Refunds",
               payIn: 0, payOut: lastClosedSession.cashRefunds,
-              cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0, cashDrop: 0,
+              cashSale: 0, cashTip: 0,
               runningBalance: balance,
             });
           }
@@ -320,7 +300,7 @@ const CashManagementContent = ({
               reason: lastClosedSession.paidInOut > 0 ? "Paid In" : "Paid Out",
               payIn: lastClosedSession.paidInOut > 0 ? lastClosedSession.paidInOut : 0,
               payOut: lastClosedSession.paidInOut < 0 ? Math.abs(lastClosedSession.paidInOut) : 0,
-              cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0, cashDrop: 0,
+              cashSale: 0, cashTip: 0,
               runningBalance: balance,
             });
           }

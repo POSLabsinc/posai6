@@ -47,6 +47,25 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   const step = steps[currentStep];
 
+  // Find the visible element with the given data-tour attribute
+  const findVisibleTourElement = useCallback((tourTarget: string): HTMLElement | null => {
+    const els = document.querySelectorAll(`[data-tour="${tourTarget}"]`);
+    for (const el of Array.from(els)) {
+      const htmlEl = el as HTMLElement;
+      const rect = htmlEl.getBoundingClientRect();
+      // Check element is visible (has dimensions and not display:none)
+      if (rect.width > 0 && rect.height > 0 && htmlEl.offsetParent !== null) {
+        return htmlEl;
+      }
+    }
+    // Fallback: return first element with nonzero dimensions
+    for (const el of Array.from(els)) {
+      const rect = el.getBoundingClientRect();
+      if (rect.width > 0 && rect.height > 0) return el as HTMLElement;
+    }
+    return null;
+  }, []);
+
   // Scroll element into view on mobile then measure
   const measureAndScroll = useCallback((tourTarget: string) => {
     const el = document.querySelector(`[data-tour="${tourTarget}"]`) as HTMLElement | null;

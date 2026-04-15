@@ -285,7 +285,15 @@ export default function ShiftSummaryModal({
         totalTips: existing.totalTips + Number(o.tip),
       });
     });
-    return Array.from(map.entries()).map(([type, data]) => ({ type, ...data }));
+    const result = Array.from(map.entries()).map(([type, data]) => ({ type, ...data }));
+    // Default example row when no transactions exist
+    if (result.length === 0) {
+      return [
+        { type: "Cash", qty: 2, amount: 120.00, tips: 20.00, totalTips: 20.00 },
+        { type: "Card", qty: 3, amount: 250.00, tips: 20.00, totalTips: 20.00 },
+      ];
+    }
+    return result;
   }, [paidOrders]);
 
   const handlePresetSelect = (preset: DatePreset) => {

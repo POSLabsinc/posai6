@@ -337,7 +337,7 @@ const CashDrawerDetailsContent = ({
 
   // Build cash log: merge all entry types sorted by timestamp
   const filteredCashLogEntries = (() => {
-    const entries: Array<{ time: string; name: string; reason: string; payIn: number; payOut: number; cashSale: number; cardSale: number; cashTip: number; cardTip: number; cashDrop: number; runningBalance: number }> = [];
+    const entries: Array<{ time: string; name: string; reason: string; payIn: number; payOut: number; cashSale: number; cashTip: number; runningBalance: number }> = [];
     
     // Opening cash entry
     if (selectedDateString === sessionStartDateString) {
@@ -345,16 +345,15 @@ const CashDrawerDetailsContent = ({
       entries.push({ 
         time: startTime, name: getEmployeeName(), reason: "Opening Cash",
         payIn: startingCash, payOut: 0,
-        cashSale: 0, cardSale: 0, cashTip: 0, cardTip: 0, cashDrop: 0,
+        cashSale: 0, cashTip: 0,
         runningBalance: startingCash,
       });
     }
 
-    // Merge pay in/out + orders + cash drops, sorted by timestamp
+    // Merge pay in/out + orders (no cash drops), sorted by timestamp
     const allItems = [
       ...transactions.filter(t => (t.date || format(new Date(t.timestamp), 'yyyy-MM-dd')) === selectedDateString),
       ...orderEntries.filter(t => t.date === selectedDateString),
-      ...dropEntries.filter(t => t.date === selectedDateString),
     ].sort((a, b) => a.timestamp - b.timestamp);
 
     // Deduplicate by id
@@ -368,13 +367,12 @@ const CashDrawerDetailsContent = ({
     let balance = selectedDateString === sessionStartDateString ? startingCash : 0;
 
     unique.forEach(t => {
-      balance += t.payIn - t.payOut - (t.cashDrop || 0) + (t.cashSale || 0) + (t.cashTip || 0);
+      balance += t.payIn - t.payOut + (t.cashSale || 0) + (t.cashTip || 0);
       entries.push({
         time: t.time, name: t.name || getEmployeeName(), reason: t.reason,
         payIn: t.payIn, payOut: t.payOut,
-        cashSale: t.cashSale || 0, cardSale: t.cardSale || 0,
-        cashTip: t.cashTip || 0, cardTip: t.cardTip || 0,
-        cashDrop: t.cashDrop || 0,
+        cashSale: t.cashSale || 0,
+        cashTip: t.cashTip || 0,
         runningBalance: balance,
       });
     });
@@ -551,36 +549,30 @@ const CashDrawerDetailsContent = ({
         {/* Cash Log Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           <div className="overflow-x-auto">
-            <div className="min-w-[1100px]">
+            <div className="min-w-[800px]">
               {/* Table Header */}
-              <div className="grid grid-cols-11 py-3.5 px-4 border-b border-neutral-700/50">
+              <div className="grid grid-cols-8 py-3.5 px-4 border-b border-neutral-700/50">
                 <span className="text-neutral-400 text-sm font-medium">Time</span>
                 <span className="text-neutral-400 text-sm font-medium">Name</span>
                 <span className="text-neutral-400 text-sm font-medium">Reason</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Cash Sale</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Cash Tip</span>
                 <span className="text-neutral-400 text-sm font-medium text-right">Pay In</span>
                 <span className="text-neutral-400 text-sm font-medium text-right">Pay Out</span>
-                <span className="text-neutral-400 text-sm font-medium text-right">Cash Sale</span>
-                <span className="text-neutral-400 text-sm font-medium text-right">Card Sale</span>
-                <span className="text-neutral-400 text-sm font-medium text-right">Cash Tip</span>
-                <span className="text-neutral-400 text-sm font-medium text-right">Card Tip</span>
-                <span className="text-neutral-400 text-sm font-medium text-right">Cash Drop</span>
-                <span className="text-neutral-400 text-sm font-medium text-right">Balance</span>
+                <span className="text-neutral-400 text-sm font-medium text-right">Cash Balance</span>
               </div>
               
               {/* Table Rows */}
               {filteredCashLogEntries.length > 0 ? (
                 filteredCashLogEntries.map((entry, index) => (
-                  <div key={index} className="grid grid-cols-11 py-3.5 px-4 border-b border-neutral-700/20 last:border-0">
+                  <div key={index} className="grid grid-cols-8 py-3.5 px-4 border-b border-neutral-700/20 last:border-0">
                     <span className="text-foreground text-sm">{entry.time}</span>
                     <span className="text-foreground text-sm">{entry.name}</span>
                     <span className="text-foreground text-sm">{entry.reason}</span>
+                    <span className="text-foreground text-sm text-right">${entry.cashSale.toFixed(2)}</span>
+                    <span className="text-foreground text-sm text-right">${entry.cashTip.toFixed(2)}</span>
                     <span className="text-foreground text-sm text-right">${entry.payIn.toFixed(2)}</span>
                     <span className="text-foreground text-sm text-right">${entry.payOut.toFixed(2)}</span>
-                    <span className="text-foreground text-sm text-right">${entry.cashSale.toFixed(2)}</span>
-                    <span className="text-foreground text-sm text-right">${entry.cardSale.toFixed(2)}</span>
-                    <span className="text-foreground text-sm text-right">${entry.cashTip.toFixed(2)}</span>
-                    <span className="text-foreground text-sm text-right">${entry.cardTip.toFixed(2)}</span>
-                    <span className="text-amber-400 text-sm text-right">${entry.cashDrop.toFixed(2)}</span>
                     <span className="text-foreground text-sm text-right font-medium">${entry.runningBalance.toFixed(2)}</span>
                   </div>
                 ))

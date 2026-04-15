@@ -1001,7 +1001,19 @@ export class SettingsManager {
     return data.id;
   }
 
-  static async getActiveDrawerSession(): Promise<any | null> {
+  /**
+   * Auto-open a cash drawer if none is active, using the given amount as starting balance.
+   * Called automatically on first cash transaction.
+   */
+  static async ensureCashDrawerOpen(cashAmount: number): Promise<void> {
+    const existing = localStorage.getItem('activeDrawerSession');
+    if (existing) return; // already open
+    
+    const drawerName = 'Point of Sale 1';
+    await SettingsManager.createCashDrawerSession(drawerName, cashAmount);
+  }
+
+
     const deviceId = getPerDeviceId();
     const { data } = await (supabase as any).from("cash_drawer_sessions")
       .select("*")

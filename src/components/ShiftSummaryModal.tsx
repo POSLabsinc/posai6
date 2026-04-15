@@ -735,19 +735,19 @@ export default function ShiftSummaryModal({
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className={`relative z-10 bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col
         w-full h-full md:h-auto
-        md:w-[960px] md:max-h-[92vh] md:rounded-2xl`}
+        md:w-[1100px] md:max-h-[92vh] md:rounded-2xl`}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 border-b border-white/10 shrink-0">
-          <div className="flex items-center gap-2.5 md:gap-3 min-w-0 flex-1">
+        {/* Modal size increased */}
+        <div className="flex items-center justify-between px-5 md:px-8 py-4 md:py-5 border-b border-white/10 shrink-0">
+          <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
             <Avatar className="w-10 h-10 md:w-11 md:h-11 border border-white/20 shrink-0">
               <AvatarFallback className="text-xs md:text-sm font-semibold bg-neutral-700 text-white">{initials}</AvatarFallback>
             </Avatar>
             <div className="min-w-0">
               <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-                <h2 className="text-base md:text-lg font-bold text-white tracking-wide whitespace-nowrap">SHIFT SUMMARY</h2>
+                <h2 className="text-lg md:text-xl font-bold text-white tracking-wide whitespace-nowrap">SHIFT SUMMARY</h2>
               </div>
-              <p className="text-xs md:text-sm text-neutral-400 truncate">{employeeName} - {employeeRole}</p>
+              <p className="text-sm md:text-base text-neutral-400 truncate">{employeeName} - {employeeRole}</p>
             </div>
           </div>
 

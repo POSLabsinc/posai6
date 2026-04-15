@@ -204,6 +204,7 @@ const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions, onUserInteracti
     const trimmed = input.trim();
     if (!trimmed || isTyping) return;
     setInput("");
+    onUserInteraction?.();
     await sendMessage(trimmed);
   };
 

@@ -306,38 +306,41 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[10000] pointer-events-auto"
-        >
-          {/* Spotlight cutout */}
+        <>
+          {/* Overlay layer with spotlight */}
           <motion.div
-            key={`spotlight-${currentStep}`}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            className="fixed"
-            style={{
-              ...spotlightStyle,
-              boxShadow: "0 0 0 9999px rgba(0,0,0,0.82)",
-              border: isMobile ? "2px solid #F59E0B" : "3px solid #F59E0B",
-              borderRadius: isMobile ? "12px" : "16px",
-              pointerEvents: "none",
-              zIndex: 10001,
-            }}
-          />
+            className="fixed inset-0 pointer-events-auto"
+            style={{ zIndex: 10000 }}
+          >
+            <motion.div
+              key={`spotlight-${currentStep}`}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.3 }}
+              style={{
+                position: "fixed",
+                ...spotlightStyle,
+                boxShadow: "0 0 0 9999px rgba(0,0,0,0.82)",
+                border: isMobile ? "2px solid #F59E0B" : "3px solid #F59E0B",
+                borderRadius: isMobile ? "12px" : "16px",
+                pointerEvents: "none",
+              }}
+            />
+          </motion.div>
 
-          {/* Desktop: Animated arrow */}
+          {/* Arrow layer */}
           {arrowData && highlightRect && (
             <motion.div
               key={`arrow-${currentStep}`}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ delay: 0.2, duration: 0.25 }}
-              style={{ ...arrowData.pos, zIndex: 10002 }}
+              style={{ ...arrowData.pos, zIndex: 10001 }}
             >
               <motion.div
                 animate={
@@ -355,28 +358,30 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
             </motion.div>
           )}
 
-          {/* Instruction Card */}
+          {/* Instruction Card layer - separate from spotlight */}
           {highlightRect && (
             <motion.div
               key={`card-${currentStep}`}
               initial={{ opacity: 0, y: isMobile ? 20 : 12 }}
               animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
               transition={{ delay: 0.15, duration: 0.3 }}
-              style={{ zIndex: 10002, ...(
-                isMobile
+              style={{
+                zIndex: 10002,
+                ...(isMobile
                   ? {
                       position: "fixed" as const,
                       bottom: 16,
                       left: 12,
                       right: 12,
                     }
-                  : getDesktopCardStyle()
-              )}}
+                  : getDesktopCardStyle()),
+              }}
             >
               {renderCardContent()}
             </motion.div>
           )}
-        </motion.div>
+        </>
       )}
     </AnimatePresence>
   );

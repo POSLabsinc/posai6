@@ -270,7 +270,16 @@ export default function ShiftSummaryModal({
   const overallTotal = useMemo(() => hasRealData ? paidOrders.reduce((s, o) => s + Number(o.total), 0) : 370.00, [paidOrders, hasRealData]);
   const totalPayIn = useMemo(() => cashTxs.filter(c => c.type === "pay_in").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
   const totalPayOut = useMemo(() => cashTxs.filter(c => c.type === "pay_out").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
-  const totalCashDrop = overallTotal - totalTips;
+  
+  // Card tips = tips from non-cash (card) orders
+  const cardTips = useMemo(() => hasRealData 
+    ? paidOrders.filter(o => (o.payment_type || "").toLowerCase() !== "cash").reduce((s, o) => s + Number(o.tip), 0) 
+    : 20.00, [paidOrders, hasRealData]);
+  // Cash in Hand = total cash sales (includes cash tips collected physically)
+  const cashInHand = totalCashSales;
+  // Cash Drop = Cash in Hand - Card Tips (card tips are digital, not in drawer)
+  // If card tips > cash in hand, cash drop = 0
+  const totalCashDrop = Math.max(0, cashInHand - cardTips);
 
   const initials = getInitials(employeeName);
 

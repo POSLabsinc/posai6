@@ -1274,7 +1274,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500);
                       }}
                       className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
-                      data-tour="qr-code"
+                      data-tour="qr-code-desktop"
                     >
                       <QRCodeSVG value={activationQrValue} size={180} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                     </button>

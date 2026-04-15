@@ -155,6 +155,7 @@ export default function ShiftSummaryModal({
 
   // AI Chat state
   const [showAIChat, setShowAIChat] = useState(false);
+  const [aiExpanded, setAiExpanded] = useState(false);
 
   // Cash Drop popup state
   const [showCashDropPopup, setShowCashDropPopup] = useState(false);

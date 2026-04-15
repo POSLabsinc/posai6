@@ -968,8 +968,6 @@ export default function ShiftSummaryModal({
         <div className={`flex-1 overflow-auto px-5 md:px-8 py-4 transition-all duration-300 ${showAIChat && !isMobile ? 'md:mr-[440px]' : ''}`}>
           {loading ? (
             <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
-          ) : paymentTypeSummary.length === 0 ? (
-            <p className="text-base text-neutral-500 py-8 text-center">No transactions found for the selected filters</p>
           ) : (
             <table className="w-full text-sm md:text-base">
               <thead className="sticky top-0 bg-[#1C1C1E] z-10">

@@ -77,14 +77,19 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     if (rect.width <= 0 || rect.height <= 0) return false;
 
     if (isMobile) {
-      const cardHeight = 340;
-      const viewH = window.innerHeight;
+      // Scroll the background so the element is in the top portion of the screen,
+      // leaving room for the instruction card at the bottom
       const pad = 20;
-      const elementTop = rect.top;
-      const elementBottom = rect.bottom;
+      const desiredTop = pad + 10; // Where we want the element top to be
+      const currentTop = rect.top;
+      const diff = currentTop - desiredTop;
 
-      if (elementTop < pad || elementBottom > viewH - cardHeight - pad) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (Math.abs(diff) > 30) {
+        // Find the scrollable container and scroll it
+        const scrollContainer = el.closest('.overflow-y-auto, .overflow-auto') || document.scrollingElement || document.documentElement;
+        if (scrollContainer) {
+          scrollContainer.scrollTop += diff;
+        }
         setTimeout(() => {
           const newRect = el.getBoundingClientRect();
           if (newRect.width > 0 && newRect.height > 0) {
@@ -185,19 +190,8 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   // On mobile, position card below the spotlight with proper spacing
   const getMobileCardStyle = (): React.CSSProperties => {
-    if (!highlightRect) return { position: "fixed", bottom: 16, left: 12, right: 12, zIndex: 10002 };
-    
-    const spotlightBottom = highlightRect.top + highlightRect.height + padding + 16;
-    const viewH = window.innerHeight;
-    const cardMaxHeight = 360;
-    
-    // If there's room below the spotlight, place card there
-    if (viewH - spotlightBottom >= cardMaxHeight) {
-      return { position: "fixed", top: spotlightBottom, left: 12, right: 12, zIndex: 10002 };
-    }
-    
-    // Otherwise place at bottom of screen
-    return { position: "fixed", bottom: 12, left: 12, right: 12, zIndex: 10002, maxHeight: `${viewH - spotlightBottom - 8}px`, overflow: "auto" };
+    // Always show full card at bottom, never scroll - background scrolls instead
+    return { position: "fixed", bottom: 12, left: 12, right: 12, zIndex: 10002 };
   };
 
   const cardStyle: React.CSSProperties = isMobile

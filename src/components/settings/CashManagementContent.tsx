@@ -557,20 +557,17 @@ const CashManagementContent = ({
             {/* Cash Log Table */}
             <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
               <div className="overflow-x-auto">
-                <table className="w-full min-w-[1100px]">
+                <table className="w-full min-w-[800px]">
                   <thead>
                     <tr className="border-b border-neutral-700/50">
                       <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Time</th>
                       <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Name</th>
                       <th className="text-neutral-400 text-sm font-medium text-left py-3.5 px-4">Reason</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Sale</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Tip</th>
                       <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay In</th>
                       <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Pay Out</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Sale</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card Sale</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Tip</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Card Tip</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Drop</th>
-                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Balance</th>
+                      <th className="text-neutral-400 text-sm font-medium text-right py-3.5 px-4">Cash Balance</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -580,19 +577,16 @@ const CashManagementContent = ({
                           <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.time}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.name}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 whitespace-nowrap">{entry.reason}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashSale)}</td>
+                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashTip)}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payIn)}</td>
                           <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.payOut)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashSale)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cardSale)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cashTip)}</td>
-                          <td className="text-foreground text-sm py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.cardTip)}</td>
-                          <td className={`text-sm py-3.5 px-4 text-right whitespace-nowrap ${entry.cashDrop > 0 ? 'text-amber-400 font-medium' : 'text-foreground'}`}>{formatCurrency(entry.cashDrop)}</td>
                           <td className="text-foreground text-sm font-medium py-3.5 px-4 text-right whitespace-nowrap">{formatCurrency(entry.runningBalance)}</td>
                         </tr>
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={11} className="text-neutral-500 text-sm py-8 text-center">
+                        <td colSpan={8} className="text-neutral-500 text-sm py-8 text-center">
                           No cash log entries for this date
                         </td>
                       </tr>

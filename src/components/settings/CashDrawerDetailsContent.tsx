@@ -646,23 +646,8 @@ const CashDrawerDetailsContent = ({
               </div>
 
               <div className="flex items-center justify-between">
-                <span className="text-neutral-400 text-base">Card Sale</span>
-                <span className="text-foreground text-base">${totalCardSales.toFixed(2)}</span>
-              </div>
-
-              <div className="flex items-center justify-between">
                 <span className="text-neutral-400 text-base">Cash Tip</span>
                 <span className="text-foreground text-base">${totalCashTips.toFixed(2)}</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-neutral-400 text-base">Card Tip</span>
-                <span className="text-foreground text-base">${totalCardTips.toFixed(2)}</span>
-              </div>
-
-              <div className="flex items-center justify-between">
-                <span className="text-neutral-400 text-base">Cash Drop</span>
-                <span className="text-amber-400 text-base">${totalCashDrops.toFixed(2)}</span>
               </div>
 
               <div className="flex items-center justify-between">

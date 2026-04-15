@@ -24,7 +24,7 @@ interface Props {
   onSwitchToOtp?: () => void;
 }
 
-const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToOtp }: Props) => {
+const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToBrowserTab, onSwitchToDefaultView, onSwitchToOtp }: Props) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [isMobile, setIsMobile] = useState(false);

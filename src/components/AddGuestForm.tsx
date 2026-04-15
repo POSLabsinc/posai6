@@ -154,8 +154,8 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     vehicles: [], profilePhoto: null, note: "",
   });
 
-  const MAX_VEHICLES = 2;
-  const MAX_ADDRESSES = 2;
+  const MAX_VEHICLES = 6;
+  const MAX_ADDRESSES = 6;
 
   // Save new vehicle (called on collapse / done)
   const saveNewVehicle = useCallback(() => {
@@ -354,7 +354,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
   );
 
   // Inline address form fields
-  const AddressFormFields = ({ addr, onChange, isNew }: { addr: AddressEntry; onChange: (field: keyof AddressEntry, value: any) => void; isNew?: boolean }) => (
+  const renderAddressFormFields = ({ addr, onChange }: { addr: AddressEntry; onChange: (field: keyof AddressEntry, value: any) => void }) => (
     <div className="space-y-3 p-4">
       {/* Label */}
       <div>
@@ -832,7 +832,10 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                       <ChevronUp className="w-4 h-4 text-neutral-400" />
                     </button>
                     <div className="border-t border-neutral-700">
-                      <AddressFormFields addr={addresses.find(a => a.id === addressExpandedId)!} onChange={(field, value) => handleUpdateAddress(addressExpandedId, field, value)} />
+                      {renderAddressFormFields({
+                        addr: addresses.find(a => a.id === addressExpandedId)!,
+                        onChange: (field, value) => handleUpdateAddress(addressExpandedId, field, value),
+                      })}
                     </div>
                   </div>
                 )}
@@ -845,11 +848,10 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                       <ChevronUp className="w-4 h-4 text-neutral-400" />
                     </button>
                     <div className="border-t border-neutral-700">
-                      <AddressFormFields
-                        addr={newAddress}
-                        onChange={(field, value) => setNewAddress(prev => ({ ...prev, [field]: value }))}
-                        isNew
-                      />
+                      {renderAddressFormFields({
+                        addr: newAddress,
+                        onChange: (field, value) => setNewAddress(prev => ({ ...prev, [field]: value })),
+                      })}
                     </div>
                   </div>
                 )}

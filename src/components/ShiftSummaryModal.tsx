@@ -268,7 +268,7 @@ export default function ShiftSummaryModal({
   const overallTotal = useMemo(() => paidOrders.reduce((s, o) => s + Number(o.total) + Number(o.tip), 0), [paidOrders]);
   const totalPayIn = useMemo(() => cashTxs.filter(c => c.type === "pay_in").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
   const totalPayOut = useMemo(() => cashTxs.filter(c => c.type === "pay_out").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
-  const totalCashDrop = totalCashSales + totalPayIn - totalPayOut;
+  const totalCashDrop = overallTotal - totalTips;
 
   const initials = getInitials(employeeName);
 

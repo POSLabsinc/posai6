@@ -1205,32 +1205,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           {showTutorialOverlay && (
             <DeviceSetupHelpCard
               open={showTutorialOverlay}
-              onClose={() => { setShowTutorialOverlay(false); setShowOtherOptions(false); setActivationCodeSent(false); setActivationContactValue(""); setActivationCode(""); }}
-              onStepChange={(step) => {
-                if (step <= 4) {
-                  // Steps 0-4: browser view
-                  setShowOtherOptions(false);
-                  setActivationCodeSent(false);
-                  setActivationContactValue("");
-                  setActivationCode("");
-                } else if (step === 5) {
-                  // Step 5: email input with dummy email
-                  setShowOtherOptions(true);
-                  setActivationCodeSent(false);
-                  setActivationContactValue("john.doe@example.com");
-                } else if (step === 6) {
-                  // Step 6: highlight send code button
-                  setShowOtherOptions(true);
-                  setActivationCodeSent(false);
-                  setActivationContactValue("john.doe@example.com");
-                } else if (step === 7) {
-                  // Step 7: OTP entry with partial dummy code
-                  setShowOtherOptions(true);
-                  setActivationCodeSent(true);
-                  setActivationContactValue("john.doe@example.com");
-                  setActivationCode("482");
-                }
-              }}
+              onClose={() => setShowTutorialOverlay(false)}
+              onSwitchToEmailPhone={() => { setShowOtherOptions(true); setActivationCodeSent(false); }}
+              onSwitchToBrowser={() => { setShowOtherOptions(false); setActivationCodeSent(false); }}
+              onSwitchToOtp={() => { setShowOtherOptions(true); setActivationCodeSent(true); }}
             />
           )}
         </div>
@@ -1275,14 +1253,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
           {/* Desktop: Two-column layout */}
           <div className="hidden md:block w-full">
-            <AnimatePresence mode={showTutorialOverlay ? "sync" : "wait"}>
+            <AnimatePresence mode="wait">
               <motion.div
-                key={showTutorialOverlay ? "static" : (showOtherOptions ? "code-view" : "browser-view")}
-                initial={showTutorialOverlay ? false : { opacity: 0, y: 20 }}
+                key={showOtherOptions ? "code-view" : "browser-view"}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={showTutorialOverlay ? undefined : { opacity: 0, y: -20 }}
-                transition={showTutorialOverlay ? { duration: 0 } : { delay: 0.15 }}
-                className="flex flex-row items-stretch gap-0 w-full">
+                exit={{ opacity: 0, y: -20 }}
+                transition={{ delay: 0.15 }}
+                className="flex flex-row items-stretch gap-0 w-full"
+              >
                 {/* Left: QR Code */}
                 <div className="flex-1 pr-12">
                   <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Option 1</p>
@@ -1359,14 +1338,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <h2 className="text-xl font-bold text-foreground mb-2">Activate with Code</h2>
                       <p className="text-sm text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
                        <div className="space-y-4" data-tour="email-input-area">
-                        <div className="relative" data-tour="email-input-field">
+                        <div className="relative">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-5 h-5" /></div>
                           <input type="text" placeholder="Email or phone number" value={activationContactValue} onChange={(e) => setActivationContactValue(e.target.value)}
                             className="w-full h-14 pl-12 pr-4 rounded-2xl bg-foreground/[0.04] border border-foreground/[0.08] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/20 transition-colors text-base" />
                         </div>
                         <button onClick={() => { if (!activationContactValue.trim()) return; setActivationSendingCode(true); setTimeout(() => { setActivationCodeSent(true); setActivationSendingCode(false); toast({ title: "Verification code sent", description: `Check ${activationContactValue} for your code` }); }, 800); }}
                           disabled={!activationContactValue.trim() || activationSendingCode}
-                          data-tour="send-code-button"
                           className="w-full h-14 rounded-2xl bg-foreground/[0.08] hover:bg-foreground/[0.12] text-foreground font-semibold text-base flex items-center justify-center gap-2 transition-colors disabled:opacity-40">
                           {activationSendingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-5 h-5" />Send Code</>}
                         </button>

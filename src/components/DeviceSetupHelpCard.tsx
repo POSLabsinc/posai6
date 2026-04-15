@@ -147,7 +147,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   useEffect(() => { if (open) { setCurrentStep(0); setHighlightRect(null); } }, [open]);
 
-  const handleClose = () => { setCurrentStep(0); onSwitchToBrowser?.(); onClose(); };
+  const handleClose = () => { setCurrentStep(0); (onSwitchToDefaultView || onSwitchToBrowser)?.(); onClose(); };
   const handleNext = () => { if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1); else handleClose(); };
   const handlePrev = () => { if (currentStep > 0) setCurrentStep(currentStep - 1); };
 

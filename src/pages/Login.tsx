@@ -1492,7 +1492,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <div className="mb-6">
                     <p className="text-sm font-semibold text-foreground mb-3">Activate via email / phone</p>
                     {!activationCodeSent ? (
-                      <div className="space-y-4">
+                      <div className="space-y-4" data-tour="email-input-area">
                         <p className="text-sm text-foreground/50">Enter your email or mobile number to receive a code</p>
                         <div className="relative">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-4 h-4" /></div>
@@ -1508,7 +1508,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     ) : (
                       <div className="space-y-4">
                         <p className="text-sm text-foreground/50">Enter the 6-digit code sent to <span className="font-semibold text-foreground">{activationContactValue}</span></p>
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1.5" data-tour="otp-code-area">
                           {Array.from({ length: 6 }).map((_, i) => (
                             <div key={i} className={`flex-1 h-11 rounded-lg border-2 flex items-center justify-center text-lg font-bold transition-all ${activationCode[i] ? "border-primary bg-primary/5 text-foreground" : i === activationCode.length ? "border-primary/50 bg-foreground/[0.03]" : "border-foreground/10 bg-foreground/[0.03]"}`}>
                               {activationCode[i] || ""}

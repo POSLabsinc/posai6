@@ -403,19 +403,22 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
                 {/* Footer with navigation */}
                 <div className="px-5 pb-5 flex items-center justify-between">
-                  <div className="flex items-center gap-1.5">
-                    {steps.map((_, i) => (
-                      <div
-                        key={i}
-                        className={`rounded-full transition-all duration-300 ${
-                          i === currentStep
-                            ? "w-5 h-2 bg-amber-500"
-                            : i < currentStep
-                            ? "w-2 h-2 bg-amber-500/40"
-                            : "w-2 h-2 bg-gray-200"
-                        }`}
-                      />
-                    ))}
+                  <div className="flex items-center gap-2">
+                    {currentStep > 0 && (
+                      <button
+                        onClick={handlePrev}
+                        className="flex items-center gap-1 px-4 py-2.5 rounded-xl bg-gray-100 text-gray-600 text-sm font-medium hover:bg-gray-200 transition-colors"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                        Back
+                      </button>
+                    )}
+                    <button
+                      onClick={handleClose}
+                      className="flex items-center gap-1 px-4 py-2.5 rounded-xl bg-gray-100 text-gray-600 text-sm font-medium hover:bg-gray-200 transition-colors"
+                    >
+                      Skip
+                    </button>
                   </div>
                   <button
                     onClick={handleNext}
@@ -428,26 +431,6 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
               </div>
             </motion.div>
           )}
-
-          {/* Bottom controls */}
-          <div className="fixed bottom-5 left-1/2 -translate-x-1/2 z-30 flex items-center gap-3">
-            {currentStep > 0 && (
-              <button
-                onClick={handlePrev}
-                className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 text-white/70 text-sm hover:bg-white/20 transition-colors backdrop-blur-sm"
-              >
-                <ChevronLeft className="w-4 h-4" />
-                Back
-              </button>
-            )}
-            <button
-              onClick={handleClose}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-white/10 text-white/70 text-sm hover:bg-white/20 transition-colors backdrop-blur-sm"
-            >
-              <X className="w-3.5 h-3.5" />
-              Skip
-            </button>
-          </div>
         </motion.div>
       )}
     </AnimatePresence>

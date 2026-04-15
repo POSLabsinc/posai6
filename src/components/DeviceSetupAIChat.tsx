@@ -1226,57 +1226,30 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
 
                 {/* QR Code display after user selects scan QR */}
                 {currentStep === "chat-qr-scanning" && !isLoading && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="flex flex-col items-center gap-4 pl-7 pt-4 pb-4"
-                  >
-                    <div className="bg-white p-4 rounded-2xl shadow-lg">
-                      <QRCodeSVG
-                        value="https://posai.com/pair?device=activate"
-                        size={200}
-                        bgColor="#FFFFFF"
-                        fgColor="#000000"
-                        level="M"
-                        includeMargin={false}
-                      />
-                    </div>
-                    <p className="text-xs text-foreground/40 text-center">Scan with your phone camera</p>
-                    <div className="flex gap-2 pt-1">
-                      <button
-                        onClick={() => {
-                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Done, I scanned it" };
-                          const assistantMsg: Message = {
-                            id: (Date.now() + 1).toString(),
-                            role: "assistant",
-                            content: "Great, verifying your device..."
-                          };
-                          setMessages(prev => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("chat-qr-verifying");
-                        }}
-                        className="px-4 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
-                      >
-                        Done
-                      </button>
-                      <button
-                        onClick={() => {
-                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Having trouble scanning" };
-                          setMessages(prev => [...prev, userMsg]);
-                          setCurrentStep("chat-qr-options");
-                          const assistantMsg: Message = {
-                            id: (Date.now() + 1).toString(),
-                            role: "assistant",
-                            content: "No worries! You can try another method:"
-                          };
-                          setMessages(prev => [...prev, assistantMsg]);
-                        }}
-                        className="px-4 py-2 rounded-full text-sm font-medium border border-foreground/[0.1] bg-foreground/[0.03] hover:bg-foreground/[0.06] text-foreground/70 hover:text-foreground transition-all hover:scale-[1.02] active:scale-[0.98]"
-                      >
-                        Need help
-                      </button>
-                    </div>
-                  </motion.div>
+                  <QRScanningSection
+                    isSignIn={isSignIn}
+                    onAutoProceeded={() => {
+                      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Done, I scanned it" };
+                      const assistantMsg: Message = {
+                        id: (Date.now() + 1).toString(),
+                        role: "assistant",
+                        content: "Great, verifying your device..."
+                      };
+                      setMessages(prev => [...prev, userMsg, assistantMsg]);
+                      setCurrentStep("chat-qr-verifying");
+                    }}
+                    onNeedHelp={() => {
+                      const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Having trouble scanning" };
+                      setMessages(prev => [...prev, userMsg]);
+                      setCurrentStep("chat-qr-options");
+                      const assistantMsg: Message = {
+                        id: (Date.now() + 1).toString(),
+                        role: "assistant",
+                        content: "No worries! You can try another method:"
+                      };
+                      setMessages(prev => [...prev, assistantMsg]);
+                    }}
+                  />
                 )}
 
                 {/* Browser activation flow */}

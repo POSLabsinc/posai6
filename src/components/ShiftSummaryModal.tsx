@@ -425,13 +425,15 @@ export default function ShiftSummaryModal({
     totalCashSales,
     totalTips,
     totalCashTips,
+    cardTips,
+    cashInHand,
     tipsPayable,
     overallTotal,
     totalCashDrop,
     orderCount: paidOrders.length,
     paymentBreakdown: paymentTypeSummary,
     dateRange: `${formatDateDisplay(filterDateFrom)} to ${formatDateDisplay(filterDateTo)}`,
-  }), [employeeName, employeeRole, totalHours, totalCardSales, totalCashSales, totalTips, totalCashTips, tipsPayable, overallTotal, totalCashDrop, paidOrders.length, paymentTypeSummary, filterDateFrom, filterDateTo]);
+  }), [employeeName, employeeRole, totalHours, totalCardSales, totalCashSales, totalTips, totalCashTips, cardTips, cashInHand, tipsPayable, overallTotal, totalCashDrop, paidOrders.length, paymentTypeSummary, filterDateFrom, filterDateTo]);
 
   const openCheckDetail = async (order: TicketOrder) => {
     setSelectedOrder(order);

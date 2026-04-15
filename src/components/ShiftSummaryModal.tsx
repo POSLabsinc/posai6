@@ -930,7 +930,7 @@ export default function ShiftSummaryModal({
         </div>
 
         {/* Bottom summary row with Cash Drop button */}
-        <div className="flex items-center justify-between px-5 md:px-8 py-3 md:py-4 shrink-0 border-b border-white/10">
+        <div className={`flex items-center justify-between px-5 md:px-8 py-3 md:py-4 shrink-0 border-b border-white/10 transition-all duration-300 ${showAIChat && !isMobile ? 'md:mr-[440px]' : ''}`}>
           <div className="flex items-center gap-8 md:gap-10">
             <div>
               <p className="text-[11px] md:text-sm text-neutral-500 uppercase tracking-wider font-medium">Total</p>

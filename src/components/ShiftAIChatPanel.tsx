@@ -39,6 +39,7 @@ interface ShiftAIChatPanelProps {
   onClose: () => void;
   shiftContext: ShiftContext;
   shiftActions: ShiftActions;
+  onUserInteraction?: () => void;
 }
 
 type Msg = { role: "user" | "assistant"; content: string };
@@ -48,7 +49,7 @@ const addMsg = (role: "assistant", content: string, confirmAction?: string): Mes
   id: crypto.randomUUID(), role, content, timestamp: new Date(), confirmAction,
 });
 
-const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions }: ShiftAIChatPanelProps) => {
+const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions, onUserInteraction }: ShiftAIChatPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([{
     id: "welcome", role: "assistant",
     content: `Hi! I can help you with this shift summary. Try saying:\n- "Generate a report"\n- "Share report via email"\n- "Export as PDF"\n- "Download CSV"\n- "Analyze my performance"\n- "Show me a summary"`,
@@ -203,6 +204,7 @@ const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions }: ShiftAIChatPa
     const trimmed = input.trim();
     if (!trimmed || isTyping) return;
     setInput("");
+    onUserInteraction?.();
     await sendMessage(trimmed);
   };
 
@@ -211,12 +213,12 @@ const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions }: ShiftAIChatPa
   };
 
   const quickActions = [
-    { icon: BarChart3, label: "Analyze", action: () => validateAndExecute("analyze") },
-    { icon: FileText, label: "Summary", action: () => validateAndExecute("summary") },
-    { icon: Printer, label: "PDF", action: () => validateAndExecute("pdf") },
-    { icon: Mail, label: "Email", action: () => validateAndExecute("email") },
-    { icon: MessageSquare, label: "Text", action: () => validateAndExecute("text") },
-    { icon: Download, label: "CSV", action: () => validateAndExecute("download") },
+    { icon: BarChart3, label: "Analyze", action: () => { onUserInteraction?.(); validateAndExecute("analyze"); } },
+    { icon: FileText, label: "Summary", action: () => { onUserInteraction?.(); validateAndExecute("summary"); } },
+    { icon: Printer, label: "PDF", action: () => { onUserInteraction?.(); validateAndExecute("pdf"); } },
+    { icon: Mail, label: "Email", action: () => { onUserInteraction?.(); validateAndExecute("email"); } },
+    { icon: MessageSquare, label: "Text", action: () => { onUserInteraction?.(); validateAndExecute("text"); } },
+    { icon: Download, label: "CSV", action: () => { onUserInteraction?.(); validateAndExecute("download"); } },
     { icon: Share2, label: "Share", action: () => validateAndExecute("report") },
   ];
 

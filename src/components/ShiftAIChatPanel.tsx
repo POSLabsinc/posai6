@@ -39,6 +39,7 @@ interface ShiftAIChatPanelProps {
   onClose: () => void;
   shiftContext: ShiftContext;
   shiftActions: ShiftActions;
+  onUserInteraction?: () => void;
 }
 
 type Msg = { role: "user" | "assistant"; content: string };

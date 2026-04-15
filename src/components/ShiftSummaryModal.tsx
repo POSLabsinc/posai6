@@ -1015,7 +1015,10 @@ export default function ShiftSummaryModal({
                   </thead>
                   <tbody>
                     {paymentTypeSummary.map(row => {
-                      const cashDropForRow = row.amount - row.tips;
+                      const isCash = row.type.toLowerCase() === "cash";
+                      // Cash Drop per row: Cash rows = amount (cash in hand), Card rows = 0 (digital)
+                      // But card tips need to be deducted from cash drop
+                      const cashDropForRow = isCash ? Math.max(0, row.amount - cardTips) : 0;
                       return (
                         <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
                           <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white">{row.type}</td>

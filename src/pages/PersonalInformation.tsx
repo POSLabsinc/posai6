@@ -119,7 +119,7 @@ const PersonalInformation = () => {
           onClick={() => navigate(-1)}
           className="absolute left-0 w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
         >
-          <ChevronLeft className="w-6 h-6 text-foreground" />
+          <ChevronLeft className="w-5 h-5 text-foreground" />
         </button>
         <h1 className="text-lg font-semibold text-foreground">Personal Information</h1>
       </div>

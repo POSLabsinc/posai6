@@ -391,12 +391,11 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
     setBrightnessState(clampedValue);
   };
   const getIconBgColor = (defaultColor: string): string => {
-    if (settingsIconColor) return settingsIconColor;
     switch (iconStyle) {
       case 'Dark': return DARK_ICON_COLOR;
       case 'Clear': return 'transparent';
       case 'Tinted': return themeColor ? `${themeColor}20` : `${defaultColor}20`;
-      default: return defaultColor;
+      default: return settingsIconColor || defaultColor;
     }
   };
 

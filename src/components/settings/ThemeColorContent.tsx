@@ -234,7 +234,20 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
           <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Color Picker</p>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
             <div className="flex gap-4">
-              {/* Left: All color inputs stacked */}
+              {/* Left: Compact color picker */}
+              <div className="w-[180px] flex-shrink-0">
+                <div className="relative w-full h-full min-h-[180px] rounded-xl overflow-hidden border border-neutral-600 cursor-pointer">
+                  <input
+                    type="color"
+                    value={pickerColor}
+                    onChange={(e) => handlePickerChange(e.target.value)}
+                    className="absolute inset-0 w-full h-full cursor-pointer border-0"
+                    style={{ padding: 0, margin: 0 }}
+                  />
+                </div>
+              </div>
+
+              {/* Right: All color inputs stacked */}
               <div className="flex-1 space-y-3">
                 {/* HEX */}
                 <div>
@@ -290,19 +303,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                       </div>
                     ))}
                   </div>
-                </div>
-              </div>
-
-              {/* Right: Compact color picker */}
-              <div className="w-[180px] flex-shrink-0">
-                <div className="relative w-full h-full min-h-[180px] rounded-xl overflow-hidden border border-neutral-600 cursor-pointer">
-                  <input
-                    type="color"
-                    value={pickerColor}
-                    onChange={(e) => handlePickerChange(e.target.value)}
-                    className="absolute inset-0 w-full h-full cursor-pointer border-0"
-                    style={{ padding: 0, margin: 0 }}
-                  />
                 </div>
               </div>
             </div>

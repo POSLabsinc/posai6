@@ -168,7 +168,7 @@ const CustomerSupportPinModal = ({
         <div className="flex gap-6">
           {/* Left: Store Selection */}
           <div className="flex-1 min-w-0 flex flex-col">
-            <p className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">
+            <p className="text-neutral-400 text-xs font-medium tracking-wider mb-1 px-1">
               SELECT NEW STORE
             </p>
             <p className="text-neutral-500 text-xs mb-3 px-1">Available Stores</p>
@@ -231,7 +231,7 @@ const CustomerSupportPinModal = ({
 
           {/* Right: PIN */}
           <div className="flex-1 min-w-0">
-            <p className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">
+            <p className="text-neutral-400 text-xs font-medium tracking-wider mb-1 px-1">
               ENTER CUSTOMER SUPPORT PIN TO SWITCH STORE
             </p>
             <div

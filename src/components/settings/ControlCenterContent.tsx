@@ -319,7 +319,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
         <div className={`${showHeader ? 'pt-2' : 'pt-0'} px-6 pb-8`}>
 
           {/* App Restart Section */}
-          <p className="text-neutral-500 text-base font-medium mb-1.5 px-1">App Restart</p>
+          <p className="text-neutral-500 text-base font-medium mb-0.5 px-1">App Restart</p>
           
           <div className={`bg-neutral-800/60 overflow-hidden mb-2 transition-all duration-300 ${restartApp ? 'rounded-2xl' : 'rounded-full'}`}>
             <div className="flex items-center justify-between py-3 px-4">
@@ -375,7 +375,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
           </p>
 
            {/* Auto Lock Timer Section */}
-           <p className="text-neutral-500 text-base font-medium mb-1.5 px-1">Security</p>
+           <p className="text-neutral-500 text-base font-medium mb-0.5 px-1">Security</p>
            <div className="relative mb-2" ref={autoLockDropdownRef}>
             <div className="bg-neutral-800/60 rounded-full overflow-hidden">
               <button 
@@ -425,7 +425,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
            </p>
 
           {/* Toggle Options Card */}
-           <p className="text-neutral-500 text-base font-medium mb-1.5 px-1">Features</p>
+           <p className="text-neutral-500 text-base font-medium mb-0.5 px-1">Features</p>
            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
             {/* Switch To Kitchen Display System - hidden on mobile */}
             {!isMobile && (
@@ -522,7 +522,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
           </div>
 
           {/* Table Section */}
-           <p className="text-neutral-500 text-base font-medium mb-1.5 px-1">Table</p>
+           <p className="text-neutral-500 text-base font-medium mb-0.5 px-1">Table</p>
            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
             <div className="py-3.5 px-4">
               <div className="flex items-center justify-between">

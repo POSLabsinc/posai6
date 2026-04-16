@@ -2025,7 +2025,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         <div className="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-5">
           {/* Theme Color */}
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-2 px-1 uppercase tracking-wider">Theme Color</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1 px-1 uppercase tracking-wider">Theme Color</p>
             <div className="bg-neutral-800/60 rounded-2xl p-4 space-y-3">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-neutral-700/50 flex-shrink-0">
@@ -2066,7 +2066,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
           {/* Derived Colors */}
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-2 px-1 uppercase tracking-wider">Customize Colors</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1 px-1 uppercase tracking-wider">Customize Colors</p>
             <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
               {[
                 { label: "Selection Color", value: selectionColor, onChange: setSelectionColor },
@@ -2099,7 +2099,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
           {/* Brand Logo */}
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-2 px-1 uppercase tracking-wider">Brand Logo</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1 px-1 uppercase tracking-wider">Brand Logo</p>
             <div className="bg-neutral-800/60 rounded-2xl p-4">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-neutral-700/50 flex-shrink-0">
@@ -2156,7 +2156,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
           {/* Quick AI Actions */}
           <div>
-            <p className="text-xs font-medium text-muted-foreground mb-2 px-1 uppercase tracking-wider">Quick AI Actions</p>
+            <p className="text-xs font-medium text-muted-foreground mb-1 px-1 uppercase tracking-wider">Quick AI Actions</p>
             <div className="space-y-1.5">
               {[
                 { label: "Change theme to blue", prompt: "Change the theme color to blue" },
@@ -2226,7 +2226,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
             
             {/* Example commands hint */}
             <div className="mt-8 text-center">
-              <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
+              <p className="text-xs text-muted-foreground mb-1">Try asking:</p>
               <div className="space-y-1.5 text-xs text-neutral-500">
                 <p>"Update Sales Tax to 9%"</p>
                 <p>"Add a 15% student discount"</p>

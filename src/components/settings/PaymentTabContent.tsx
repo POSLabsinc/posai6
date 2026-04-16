@@ -156,7 +156,7 @@ const PaymentTabContent = ({ guest }: PaymentTabContentProps) => {
   if (orders.length === 0) {
     return (
       <div className="bg-neutral-800/40 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
-        <CreditCard className="w-10 h-10 text-neutral-500 mb-3" />
+        <CreditCard className="w-10 h-10 text-neutral-500 mb-1" />
         <p className="text-neutral-400 text-sm">No payment history available yet.</p>
       </div>
     );
@@ -168,7 +168,7 @@ const PaymentTabContent = ({ guest }: PaymentTabContentProps) => {
     <div className="space-y-5">
       {/* SUMMARY */}
       <div>
-        <p className="text-xs font-medium text-neutral-500 mb-3">Summary</p>
+        <p className="text-xs font-medium text-neutral-500 mb-1">Summary</p>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {summaryItems.map(item => {
             const total = getCategoryTotal(item.key);

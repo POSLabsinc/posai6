@@ -280,7 +280,7 @@
    return (
      <>
        {/* Availability Section */}
-       <h3 className="text-neutral-500 text-base font-medium mt-6 mb-1.5 px-1">Availability</h3>
+       <h3 className="text-neutral-500 text-base font-medium mt-6 mb-0.5 px-1">Availability</h3>
  
        {/* Schedule Discount Toggle */}
        <div className="bg-neutral-800/60 rounded-full overflow-hidden">

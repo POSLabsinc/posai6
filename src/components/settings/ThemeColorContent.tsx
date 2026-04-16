@@ -232,7 +232,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
 
         {/* Color Picker - Side by Side Layout */}
         <div>
-          <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Color Picker</p>
+          <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Color Picker</p>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
             <div className="flex gap-4">
               {/* Left: Compact color picker */}
@@ -312,7 +312,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
 
         {/* Derived Colors */}
         <div>
-          <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Derived Colors</p>
+          <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Derived Colors</p>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             {derivedColors.map((item, idx) => (
               <div key={item.key}>
@@ -347,7 +347,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
 
         {/* Saved Themes */}
         <div>
-          <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Saved Themes</p>
+          <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Saved Themes</p>
 
           {showSaveInput && (
             <div className="bg-neutral-800/60 rounded-2xl p-4 mb-3">

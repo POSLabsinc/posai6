@@ -55,7 +55,7 @@ const HardwareDetailsContent = ({ showHeader = true, onBack, onNavigate, onAICli
 
         {/* POS Terminal Name */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4 px-4 py-3.5">
-          <label className="text-sm text-muted-foreground mb-2 block">POS Terminal Name</label>
+          <label className="text-sm text-muted-foreground mb-1 block">POS Terminal Name</label>
           <input
             type="text"
             value={terminalName}

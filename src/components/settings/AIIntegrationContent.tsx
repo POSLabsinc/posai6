@@ -270,7 +270,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
         {/* Provider Selection */}
         <div className="mb-4">
-          <span className="text-sm font-semibold text-neutral-400 tracking-wider block mb-3">
+          <span className="text-sm font-semibold text-neutral-400 tracking-wider block mb-1">
             AI Provider
           </span>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
@@ -296,7 +296,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
         {/* API Key */}
         {provider && (
           <div className="mb-4">
-            <span className="text-sm font-semibold text-neutral-400 tracking-wider block mb-3">
+            <span className="text-sm font-semibold text-neutral-400 tracking-wider block mb-1">
               API Key
             </span>
             <div className="bg-neutral-800/60 rounded-2xl overflow-hidden p-4">
@@ -377,7 +377,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
         {/* AI Instructions Navigation */}
         <div className="mb-4">
-          <span className="text-sm font-semibold text-neutral-400 tracking-wider block mb-3">
+          <span className="text-sm font-semibold text-neutral-400 tracking-wider block mb-1">
             AI Behavior
           </span>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

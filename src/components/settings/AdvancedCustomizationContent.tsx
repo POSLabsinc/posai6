@@ -62,7 +62,7 @@ export default function AdvancedCustomizationContent() {
 
       {/* Theme Color - Top Level Option */}
       <div>
-        <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Theme</p>
+        <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Theme</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           <button
             onClick={() => navigate('/settings/system/appearance/theme-color')}
@@ -92,7 +92,7 @@ export default function AdvancedCustomizationContent() {
 
       {/* Brand Logo Upload */}
       <div>
-        <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Branding</p>
+        <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Branding</p>
         <div className="bg-neutral-800/60 rounded-2xl p-5">
           <div className="flex items-start gap-4">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-neutral-700/50 flex-shrink-0 mt-0.5">
@@ -100,7 +100,7 @@ export default function AdvancedCustomizationContent() {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-foreground mb-1">Brand Logo</p>
-              <p className="text-xs text-neutral-500 mb-3">Shown in sidebar and splash screen. PNG, JPG, WebP, or SVG. Max 2MB.</p>
+              <p className="text-xs text-neutral-500 mb-1">Shown in sidebar and splash screen. PNG, JPG, WebP, or SVG. Max 2MB.</p>
 
               {previewUrl ? (
                 <div className="flex items-center gap-3">

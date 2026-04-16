@@ -174,7 +174,7 @@ const SwipeableCard = ({ children, onEdit, onDelete }: { children: React.ReactNo
       </div>
       {/* Foreground content */}
       <div
-        className="relative z-10 bg-neutral-800/60 transition-transform"
+        className="relative z-10 bg-[#252525] transition-transform"
         style={{ transform: `translateX(-${swipeX}px)` }}
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
@@ -777,7 +777,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-foreground truncate">{displayBrand || "Vehicle"}</p>
-                            {displayMeta && <p className="text-xs text-neutral-400 truncate mt-0.5">{displayMeta}</p>}
+                            {displayMeta && <p className="text-sm text-neutral-400 truncate mt-0.5">{displayMeta}</p>}
                           </div>
                         </div>
                       </SwipeableCard>
@@ -900,9 +900,9 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-medium text-foreground">{getDisplayLabel(addr)}</p>
-                            <p className="text-xs text-neutral-400 leading-relaxed mt-0.5 line-clamp-2">{displayAddr}</p>
+                            <p className="text-sm text-neutral-400 leading-relaxed mt-0.5 line-clamp-2">{displayAddr}</p>
                             {addr.phone && (
-                              <p className="text-xs text-neutral-400 mt-0.5 flex items-center gap-1">
+                              <p className="text-sm text-neutral-400 mt-0.5 flex items-center gap-1">
                                 <Phone className="w-3 h-3" /> {addr.phoneCountry.code} {addr.phone}
                               </p>
                             )}

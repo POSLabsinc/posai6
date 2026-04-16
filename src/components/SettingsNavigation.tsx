@@ -40,47 +40,43 @@ interface SettingsItemProps {
 
 // Desktop/Tablet version of settings item (no arrow, no container)
 const SettingsItem = ({ iconSrc, label, iconBgColor, onClick, isActive, tourId }: SettingsItemProps & { isActive?: boolean; tourId?: string }) => {
-  const { getIconBgColor, getIconSizeClass, iconSize } = useAppearance();
-  const iconSizeClass = getIconSizeClass();
-  const containerSize = iconContainerSizeMap[iconSize];
+  const { getIconBgColor } = useAppearance();
   
   return (
     <button
       onClick={onClick}
       data-tour={tourId}
-      className={`flex items-center gap-4 w-full py-3 px-3 active:opacity-70 transition-all rounded-full settings-nav-item ${isActive ? 'settings-nav-active text-foreground' : ''}`}
+      className={`flex items-center gap-3.5 w-full py-[0.55rem] px-3 active:opacity-70 transition-all rounded-full settings-nav-item ${isActive ? 'settings-nav-active text-foreground' : ''}`}
     >
       <div 
-        className={`${containerSize} rounded-lg flex items-center justify-center transition-all`}
+        className="w-[2.15rem] h-[2.15rem] rounded-[0.55rem] flex items-center justify-center flex-shrink-0 transition-all"
         style={{ backgroundColor: getIconBgColor(iconBgColor) }}
       >
-        <img src={iconSrc} alt={label} className={`${iconSizeClass} transition-all`} />
+        <img src={iconSrc} alt={label} className="w-[1.25rem] h-[1.25rem] object-contain transition-all" />
       </div>
-      <span className={`text-base font-medium ${isActive ? 'text-foreground' : 'text-foreground'}`}>{label}</span>
+      <span className="text-[0.95rem] font-medium text-foreground leading-tight">{label}</span>
     </button>
   );
 };
 
 // Mobile version of settings item (with arrow)
 const MobileSettingsItem = ({ iconSrc, label, iconBgColor, onClick, tourId }: SettingsItemProps & { tourId?: string }) => {
-  const { getIconBgColor, getIconSizeClass, iconSize } = useAppearance();
-  const iconSizeClass = getIconSizeClass();
-  const containerSize = iconContainerSizeMap[iconSize];
+  const { getIconBgColor } = useAppearance();
   
   return (
     <button
       onClick={onClick}
       data-tour={tourId}
-      className="flex items-center justify-between w-full py-2.5 px-4 active:opacity-70 transition-opacity"
+      className="flex items-center justify-between w-full py-3 px-4 active:opacity-70 transition-opacity"
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-3.5">
         <div 
-          className={`${containerSize} rounded-xl flex items-center justify-center transition-all`}
+          className="w-[2.25rem] h-[2.25rem] rounded-[0.6rem] flex items-center justify-center flex-shrink-0 transition-all"
           style={{ backgroundColor: getIconBgColor(iconBgColor) }}
         >
-          <img src={iconSrc} alt={label} className={`${iconSizeClass} transition-all`} />
+          <img src={iconSrc} alt={label} className="w-[1.3rem] h-[1.3rem] object-contain transition-all" />
         </div>
-        <span className="text-foreground text-lg font-medium">{label}</span>
+        <span className="text-foreground text-[1.05rem] font-medium">{label}</span>
       </div>
       <ChevronRight className="w-5 h-5 text-neutral-500" />
     </button>

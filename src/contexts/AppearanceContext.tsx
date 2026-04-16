@@ -390,12 +390,33 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
     const clampedValue = Math.max(MIN_BRIGHTNESS, Math.min(MAX_BRIGHTNESS, value));
     setBrightnessState(clampedValue);
   };
+  // Helper: determine if a color is "light" (luminance > 0.5)
+  const isLightColor = (hex: string): boolean => {
+    if (!hex || !hex.startsWith('#') || hex.length < 7) return false;
+    const r = parseInt(hex.slice(1, 3), 16) / 255;
+    const g = parseInt(hex.slice(3, 5), 16) / 255;
+    const b = parseInt(hex.slice(5, 7), 16) / 255;
+    // Relative luminance
+    const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+    return luminance > 0.6;
+  };
+
   const getIconBgColor = (defaultColor: string): string => {
     switch (iconStyle) {
       case 'Dark': return DARK_ICON_COLOR;
       case 'Clear': return 'transparent';
       case 'Tinted': return themeColor ? `${themeColor}20` : `${defaultColor}20`;
-      case 'Color': return themeColor || defaultColor;
+      case 'Color': {
+        const color = themeColor || defaultColor;
+        // If the selected color is light, auto-darken it for icon bg
+        if (isLightColor(color)) {
+          const r = Math.round(parseInt(color.slice(1, 3), 16) * 0.5);
+          const g = Math.round(parseInt(color.slice(3, 5), 16) * 0.5);
+          const b = Math.round(parseInt(color.slice(5, 7), 16) * 0.5);
+          return `#${r.toString(16).padStart(2,'0')}${g.toString(16).padStart(2,'0')}${b.toString(16).padStart(2,'0')}`;
+        }
+        return color;
+      }
       default: return defaultColor;
     }
   };

@@ -114,7 +114,9 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
       if (!found) { attempts++; if (attempts < 25) setTimeout(tryMeasure, 100); }
     };
     const timer = setTimeout(tryMeasure, 150);
-    return () => clearTimeout(timer);
+    // Re-measure after card renders so centering uses real card height
+    const reMeasure = setTimeout(() => measureTarget(), 500);
+    return () => { clearTimeout(timer); clearTimeout(reMeasure); };
   }, [currentStep, open]);
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { useTheme } from "next-themes";
-import { useAppearance, IconStyle, IconSize, MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_BRIGHTNESS, MAX_BRIGHTNESS } from "@/contexts/AppearanceContext";
+import { useAppearance, IconSize, MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_BRIGHTNESS, MAX_BRIGHTNESS } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScheduledTheme } from "@/hooks/useScheduledTheme";
@@ -115,11 +115,10 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
-  const { iconStyle, setIconStyle, iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness, getIconBgColor } = useAppearance();
+  const { iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness } = useAppearance();
 
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>('dark');
   const [automaticTheme, setAutomaticTheme] = useState(false);
-  const [iconStyleDropdownOpen, setIconStyleDropdownOpen] = useState(false);
   const [iconSizeDropdownOpen, setIconSizeDropdownOpen] = useState(false);
   const { scheduleEnabled, scheduleType, lightStart, lightEnd, setScheduleEnabled, setScheduleType, setLightStart, setLightEnd } = useScheduledTheme();
 
@@ -143,7 +142,6 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
     // Don't change theme on toggle - keep current theme
   };
 
-  const iconStyleOptions: IconStyle[] = ['Default', 'Dark'];
   const iconSizeOptions: IconSize[] = ['Default', 'Small', 'Medium', 'Large'];
 
   return (
@@ -214,25 +212,8 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
           </p>
         </div>
 
-        {/* Icon Style & Size Section */}
+        {/* Icon Size Section */}
         <div className="bg-surface rounded-2xl overflow-hidden mb-1">
-          <div className="flex items-center justify-between w-full py-4 px-5">
-            <span className="text-lg font-medium text-foreground">Icon Style</span>
-            <OverlayDropdown
-              options={iconStyleOptions}
-              value={iconStyle}
-              onChange={setIconStyle}
-              isOpen={iconStyleDropdownOpen}
-              onToggle={() => {
-                setIconStyleDropdownOpen(!iconStyleDropdownOpen);
-                setIconSizeDropdownOpen(false);
-              }}
-              onClose={() => setIconStyleDropdownOpen(false)} />
-
-          </div>
-          
-          <div className="h-px bg-divider mx-5" />
-          
           <div className="flex items-center justify-between w-full py-4 px-5">
             <span className="text-lg font-medium text-foreground">Icon size</span>
             <OverlayDropdown
@@ -242,14 +223,12 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
               isOpen={iconSizeDropdownOpen}
               onToggle={() => {
                 setIconSizeDropdownOpen(!iconSizeDropdownOpen);
-                setIconStyleDropdownOpen(false);
               }}
               onClose={() => setIconSizeDropdownOpen(false)} />
-
           </div>
         </div>
         <p className="text-sm text-muted-foreground mt-1.5 px-1 mb-6 leading-relaxed">
-          Select the visual style of icons used in the Point of Sale.
+          Adjust the size of icons used in the Point of Sale.
         </p>
 
         {/* Text Size & Bold Section */}

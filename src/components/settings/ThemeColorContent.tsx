@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, Check, RotateCcw, Save, Trash2, Palette, Monitor, Moon, Droplets, Sparkles } from "lucide-react";
+import { ChevronLeft, Check, RotateCcw, Save, Trash2, Palette, Monitor, Moon, Droplets, Sparkles, Paintbrush } from "lucide-react";
 import { useAppearance, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SPLASH_BG_COLOR, DEFAULT_TOP_BAR_COLOR, DEFAULT_SETTINGS_ICON_COLOR, type IconStyle } from "@/contexts/AppearanceContext";
 import { toast } from "@/hooks/use-toast";
 
@@ -40,7 +40,8 @@ type ColorMode = 'hex' | 'rgb' | 'cmyk';
 
 // --- Icon style definitions ---
 const ICON_STYLES: { id: IconStyle; label: string; icon: React.ReactNode; description: string }[] = [
-  { id: 'Default', label: 'Default', icon: <Monitor className="w-5 h-5" />, description: 'Standard colored backgrounds' },
+  { id: 'Default', label: 'Default', icon: <Monitor className="w-5 h-5" />, description: 'Colorful system defaults' },
+  { id: 'Color', label: 'Color', icon: <Paintbrush className="w-5 h-5" />, description: 'Primary theme color' },
   { id: 'Dark', label: 'Dark', icon: <Moon className="w-5 h-5" />, description: 'Dark monochrome style' },
   { id: 'Clear', label: 'Clear', icon: <Droplets className="w-5 h-5" />, description: 'Transparent backgrounds' },
   { id: 'Tinted', label: 'Tinted', icon: <Sparkles className="w-5 h-5" />, description: 'Theme-tinted backgrounds' },
@@ -313,10 +314,11 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         <div>
           <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Icon & Widget Style</p>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-4 gap-3">
+            <div className="grid grid-cols-5 gap-3">
               {ICON_STYLES.map((style) => {
                 const isSelected = iconStyle === style.id;
-                const previewBg = style.id === 'Default' ? (themeColor || '#3B82F6')
+                const previewBg = style.id === 'Default' ? '#3B82F6'
+                  : style.id === 'Color' ? (themeColor || '#F97316')
                   : style.id === 'Dark' ? '#1C1C1E'
                   : style.id === 'Clear' ? 'transparent'
                   : `${themeColor || '#3B82F6'}20`;

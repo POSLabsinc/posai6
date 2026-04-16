@@ -19,7 +19,7 @@ const InfoRow = ({ label, value, onClick, showArrow = false }: InfoRowProps) => 
       onClick={onClick}
       className="flex items-center justify-between w-full py-4 px-5 active:opacity-70 transition-opacity"
     >
-      <span className="text-foreground text-base font-medium">{label}</span>
+      <span className="text-foreground text-lg font-medium">{label}</span>
       <div className="flex items-center gap-2">
         <span className="text-neutral-400 text-base">{value}</span>
         {showArrow && <ChevronRight className="w-5 h-5 text-neutral-500" />}
@@ -52,7 +52,7 @@ const EditableInfoRow = ({ label, value, onChange, type = "text" }: EditableInfo
   if (editing) {
     return (
       <div className="flex items-center justify-between w-full py-4 px-5">
-        <span className="text-foreground text-base font-medium flex-shrink-0 mr-4">{label}</span>
+        <span className="text-foreground text-lg font-medium flex-shrink-0 mr-4">{label}</span>
         <input
           ref={inputRef}
           type={type}
@@ -71,7 +71,7 @@ const EditableInfoRow = ({ label, value, onChange, type = "text" }: EditableInfo
       onClick={() => { setDraft(value); setEditing(true); }}
       className="flex items-center justify-between w-full py-4 px-5 active:opacity-70 transition-opacity"
     >
-      <span className="text-foreground text-base font-medium">{label}</span>
+      <span className="text-foreground text-lg font-medium">{label}</span>
       <div className="flex items-center gap-2">
         <span className="text-neutral-400 text-base">{value}</span>
         <ChevronRight className="w-5 h-5 text-neutral-500" />
@@ -237,7 +237,7 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
             <button className="flex items-center justify-between w-full py-4 px-5 active:opacity-70 transition-opacity">
               <div className="flex items-center gap-4">
                 <SettingsIcon bgColor="#9333EA" iconSrc={roleIcon} iconAlt="Role" />
-                <span className="text-foreground text-base font-medium">Role</span>
+                <span className="text-foreground text-lg font-medium">Role</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-neutral-400 text-base">Manager</span>

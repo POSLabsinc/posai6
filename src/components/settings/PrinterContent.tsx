@@ -52,7 +52,7 @@ const PrinterContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: Pr
           >
             <div className="flex items-center gap-4">
               <SettingsIcon bgColor="#D6336C" iconSrc={hardwarePrinterIcon} iconAlt="Pair Printer" />
-              <span className="text-foreground text-base font-medium">Pair Printer</span>
+              <span className="text-foreground text-lg font-medium">Pair Printer</span>
             </div>
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>
@@ -66,7 +66,7 @@ const PrinterContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: Pr
           >
             <div className="flex items-center gap-4">
               <SettingsIcon bgColor="#5E4DD8" iconSrc={hardwarePrinterIcon} iconAlt="Advanced Settings" />
-              <span className="text-foreground text-base font-medium">Advanced Settings</span>
+              <span className="text-foreground text-lg font-medium">Advanced Settings</span>
             </div>
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>

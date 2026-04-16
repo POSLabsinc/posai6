@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Check, Sun } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Sun, Monitor, Moon, Droplets, Sparkles } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useTheme } from "next-themes";
@@ -12,6 +12,13 @@ import ScheduleTypeSelector from "@/components/settings/ScheduleTypeSelector";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
 import POSThemePreview from "@/components/settings/POSThemePreview";
 import AdvancedCustomizationContent from "@/components/settings/AdvancedCustomizationContent";
+
+const ICON_STYLES: { id: IconStyle; label: string; icon: React.ReactNode; description: string }[] = [
+  { id: 'Default', label: 'Default', icon: <Monitor className="w-5 h-5" />, description: 'Standard colored backgrounds' },
+  { id: 'Dark', label: 'Dark', icon: <Moon className="w-5 h-5" />, description: 'Dark monochrome style' },
+  { id: 'Clear', label: 'Clear', icon: <Droplets className="w-5 h-5" />, description: 'Transparent backgrounds' },
+  { id: 'Tinted', label: 'Tinted', icon: <Sparkles className="w-5 h-5" />, description: 'Theme-tinted backgrounds' },
+];
 
 type ThemeOption = 'dark' | 'light';
 

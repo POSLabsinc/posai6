@@ -1,17 +1,16 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, QrCode, KeyRound, Link2, Mail, Phone, HelpCircle } from "lucide-react";
+import { ChevronRight, ChevronLeft, QrCode, KeyRound, Link2, ShieldCheck, Mail, Phone, MessageSquare } from "lucide-react";
 
-interface HelpTopic {
+interface WalkthroughStep {
   id: string;
-  icon: React.ReactNode;
-  label: string;
   title: string;
   subtitle: string;
-  steps: { text: string }[];
+  instructions: string[];
   helperNote?: string;
   tourTarget: string;
   desktopCardPosition: "right" | "left" | "bottom" | "top";
+  icon: React.ReactNode;
   beforeShow?: () => void;
 }
 
@@ -26,8 +25,7 @@ interface Props {
 }
 
 const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToBrowserTab, onSwitchToDefaultView, onSwitchToOtp }: Props) => {
-  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const rafRef = useRef<number>(0);
@@ -39,78 +37,17 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const topics: HelpTopic[] = [
-    {
-      id: "qr-code",
-      icon: <QrCode className="w-5 h-5" />,
-      label: "Scan QR Code",
-      title: "Scan QR Code",
-      subtitle: "Use your phone camera to activate",
-      steps: [
-        { text: "Open the camera app on your phone or tablet" },
-        { text: "Point it at the QR code displayed on this screen" },
-        { text: "A link will appear on your device, tap it to proceed" },
-        { text: "Follow the on-screen instructions to complete activation" },
-      ],
-      helperNote: "Most modern phones support QR scanning natively through the camera app.",
-      tourTarget: "qr-code",
-      desktopCardPosition: "right",
-      beforeShow: onSwitchToDefaultView || onSwitchToBrowser,
-    },
-    {
-      id: "activation-code",
-      icon: <KeyRound className="w-5 h-5" />,
-      label: "Activation Code",
-      title: "Use Activation Code",
-      subtitle: "Enter this code on your other device",
-      steps: [
-        { text: "Note down the activation code shown on this screen" },
-        { text: "Open the activation link in any browser on another device" },
-        { text: "Enter the code when prompted" },
-        { text: "Your device will activate automatically once verified" },
-      ],
-      helperNote: "The code refreshes periodically for security. Use the latest code displayed.",
-      tourTarget: "activation-code",
-      desktopCardPosition: "left",
-      beforeShow: onSwitchToBrowserTab || onSwitchToBrowser,
-    },
-    {
-      id: "activation-link",
-      icon: <Link2 className="w-5 h-5" />,
-      label: "Activation Link",
-      title: "Open Activation Link",
-      subtitle: "Type this URL in any browser",
-      steps: [
-        { text: "Open any browser on your phone or computer" },
-        { text: "Type the URL shown on screen into the address bar" },
-        { text: "You will be prompted to enter the activation code" },
-        { text: "Enter the code displayed on this device to complete setup" },
-      ],
-      helperNote: "Use this method if QR scanning is not available on your device.",
-      tourTarget: "activation-link",
-      desktopCardPosition: "left",
-      beforeShow: onSwitchToBrowserTab || onSwitchToBrowser,
-    },
-    {
-      id: "email-phone",
-      icon: <Mail className="w-5 h-5" />,
-      label: "Email or Phone",
-      title: "Activate via Email or Phone",
-      subtitle: "Receive a verification code",
-      steps: [
-        { text: "Tap the 'Activate via email / phone' button below" },
-        { text: "Enter your registered email address or phone number" },
-        { text: "Tap 'Send Code' to receive a 6-digit verification code" },
-        { text: "Enter the code to activate your device" },
-      ],
-      helperNote: "If you don't receive the code, you can resend it after a few seconds.",
-      tourTarget: "email-phone-button",
-      desktopCardPosition: "top",
-      beforeShow: onSwitchToDefaultView || onSwitchToBrowser,
-    },
+  const steps: WalkthroughStep[] = [
+    { id: "qr-highlight", title: "Step 1: Scan QR Code", subtitle: "Use your phone to scan", instructions: ["Open the camera app on your phone or tablet", "Point it at the QR code displayed on this screen", "A link will appear on your device, tap it to proceed", "Follow the on-screen instructions to complete activation"], helperNote: "Most modern phones support QR scanning natively through the camera app.", tourTarget: "qr-code", desktopCardPosition: "right", icon: <QrCode className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
+    { id: "code-highlight", title: "Step 2: Activation Code", subtitle: "Your unique pairing code", instructions: ["This is your unique activation code for this device", "You will need this code during the activation process", "Enter it when prompted on your mobile device or browser", "The code refreshes periodically for security"], tourTarget: "activation-code", desktopCardPosition: "left", icon: <KeyRound className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
+    { id: "link-highlight", title: "Step 3: Activation Link", subtitle: "Open this URL in a browser", instructions: ["If QR scanning is not available, use this link instead", "Open any browser on your phone or computer", "Type the URL shown here into the address bar", "You will be prompted to enter the activation code"], tourTarget: "activation-link", desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
+    { id: "code-reconfirm", title: "Step 4: Enter the Code", subtitle: "Complete the activation", instructions: ["After opening the link, you will see a code entry screen", "Enter the activation code shown on this device", "Make sure to enter the code exactly as displayed", "Once verified, your device will be activated automatically"], helperNote: "If the code expires, a new one will be generated automatically.", tourTarget: "activation-code", desktopCardPosition: "left", icon: <ShieldCheck className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
+    { id: "email-phone-button", title: "Step 5: Alternative Activation", subtitle: "Use email or phone instead", instructions: ["Tap this button to switch to email or phone activation", "You can verify your identity using a code sent to your email", "Or receive a verification code via SMS to your phone"], tourTarget: "email-phone-button", desktopCardPosition: "top", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
+    { id: "email-input", title: "Step 6: Enter Contact Info", subtitle: "Email or phone number", instructions: ["Enter your registered email address or phone number", "Tap 'Send Code' to receive a 6-digit verification code", "Check your inbox or messages for the code"], helperNote: "If you don't receive the code, you can resend it after a few seconds.", tourTarget: "email-input-area", desktopCardPosition: "left", icon: <MessageSquare className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
+    { id: "otp-entry", title: "Step 7: Enter Verification Code", subtitle: "Complete activation", instructions: ["Enter the 6-digit code received on your email or phone", "Each digit goes in a separate box", "Your device will activate automatically once verified"], tourTarget: "otp-code-area", desktopCardPosition: "left", icon: <Phone className="w-5 h-5" />, beforeShow: onSwitchToOtp },
   ];
 
-  const activeTopic = topics.find(t => t.id === selectedTopic);
+  const step = steps[currentStep];
 
   const findVisibleTourElement = useCallback((tourTarget: string): HTMLElement | null => {
     const els = document.querySelectorAll(`[data-tour="${tourTarget}"]`);
@@ -131,138 +68,90 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     if (!el) return false;
     const rect = el.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return false;
+
+    if (isMobile) {
+      const pad = 20;
+      let desiredTop: number;
+      if (step?.desktopCardPosition === "top") {
+        desiredTop = window.innerHeight * 0.55;
+      } else {
+        desiredTop = pad + 10;
+      }
+      const currentTop = rect.top;
+      const diff = currentTop - desiredTop;
+      if (Math.abs(diff) > 30) {
+        const scrollContainer = el.closest('.overflow-y-auto, .overflow-auto') || document.scrollingElement || document.documentElement;
+        if (scrollContainer) scrollContainer.scrollTop += diff;
+        setTimeout(() => {
+          const newRect = el.getBoundingClientRect();
+          if (newRect.width > 0 && newRect.height > 0) setHighlightRect(newRect);
+        }, 400);
+        return true;
+      }
+    }
+
     setHighlightRect(rect);
     return true;
-  }, [findVisibleTourElement]);
+  }, [isMobile, findVisibleTourElement]);
 
   const measureTarget = useCallback(() => {
-    if (!activeTopic || !open) return;
-    const el = findVisibleTourElement(activeTopic.tourTarget);
+    if (!step || !open) return;
+    const el = findVisibleTourElement(step.tourTarget);
     if (el) {
       const rect = el.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) setHighlightRect(rect);
     }
-  }, [activeTopic, open, findVisibleTourElement]);
+  }, [step, open, findVisibleTourElement]);
 
-  // When topic changes, trigger beforeShow and measure
   useEffect(() => {
-    if (!open || !activeTopic) { setHighlightRect(null); return; }
-    if (activeTopic.beforeShow) activeTopic.beforeShow();
+    if (!open) return;
+    const s = steps[currentStep];
+    if (s?.beforeShow) s.beforeShow();
     let attempts = 0;
     const tryMeasure = () => {
-      const found = measureAndScroll(activeTopic.tourTarget);
+      const found = measureAndScroll(s?.tourTarget || "");
       if (!found) { attempts++; if (attempts < 25) setTimeout(tryMeasure, 100); }
     };
     const timer = setTimeout(tryMeasure, 150);
     return () => clearTimeout(timer);
-  }, [selectedTopic, open]);
+  }, [currentStep, open]);
 
   useEffect(() => {
-    if (!open || !activeTopic) return;
+    if (!open) return;
     const update = () => { measureTarget(); rafRef.current = requestAnimationFrame(update); };
     const handleInteraction = () => { cancelAnimationFrame(rafRef.current); rafRef.current = requestAnimationFrame(update); };
     window.addEventListener("resize", measureTarget);
     window.addEventListener("scroll", handleInteraction, true);
     return () => { window.removeEventListener("resize", measureTarget); window.removeEventListener("scroll", handleInteraction, true); cancelAnimationFrame(rafRef.current); };
-  }, [open, measureTarget, activeTopic]);
+  }, [open, measureTarget]);
 
-  useEffect(() => { if (open) { setSelectedTopic(null); setCurrentStepIndex(0); setHighlightRect(null); } }, [open]);
+  useEffect(() => { if (open) { setCurrentStep(0); setHighlightRect(null); } }, [open]);
 
-  const handleClose = () => { setSelectedTopic(null); setCurrentStepIndex(0); (onSwitchToDefaultView || onSwitchToBrowser)?.(); onClose(); };
-  const handleBack = () => { setSelectedTopic(null); setCurrentStepIndex(0); (onSwitchToDefaultView || onSwitchToBrowser)?.(); };
+  const handleClose = () => { setCurrentStep(0); (onSwitchToDefaultView || onSwitchToBrowser)?.(); onClose(); };
+  const handleNext = () => { if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1); else handleClose(); };
+  const handlePrev = () => { if (currentStep > 0) setCurrentStep(currentStep - 1); };
 
-  if (!open) return null;
+  if (!step || !open) return null;
 
   const padding = isMobile ? 10 : 12;
 
-  // ---- MENU VIEW (no topic selected) ----
-  if (!selectedTopic) {
-    return (
-      <>
-        <div style={{ position: "fixed", inset: 0, zIndex: 9999, background: "rgba(0,0,0,0.6)" }} onClick={handleClose} />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.25 }}
-          style={{
-            position: "fixed",
-            top: "50%", left: "50%",
-            transform: "translate(-50%, -50%)",
-            zIndex: 10002,
-            width: isMobile ? "calc(100% - 24px)" : 400,
-            maxWidth: 420,
-          }}
-        >
-          <div className="rounded-2xl shadow-2xl overflow-hidden" style={{ background: "#1E1E22", border: "1px solid rgba(255,255,255,0.08)" }}>
-            {/* Header */}
-            <div className="px-5 pt-5 pb-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: "rgba(245,158,11,0.12)" }}>
-                <HelpCircle className="w-5 h-5 text-amber-500" />
-              </div>
-              <div>
-                <h3 className="text-[15px] font-bold text-white">Need Help?</h3>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>Choose a topic to learn more</p>
-              </div>
-            </div>
-
-            {/* Topic Options */}
-            <div className="px-4 pb-4 flex flex-col gap-2">
-              {topics.map((topic) => (
-                <button
-                  key={topic.id}
-                  onClick={() => { setSelectedTopic(topic.id); setCurrentStepIndex(0); }}
-                  className="flex items-center gap-3 p-3.5 rounded-xl transition-all hover:scale-[1.01] active:scale-[0.99]"
-                  style={{ background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.06)" }}
-                >
-                  <div className="w-9 h-9 rounded-lg flex items-center justify-center shrink-0" style={{ background: "rgba(245,158,11,0.12)" }}>
-                    <span className="text-amber-500">{topic.icon}</span>
-                  </div>
-                  <div className="text-left min-w-0 flex-1">
-                    <p className="text-sm font-semibold text-white">{topic.label}</p>
-                    <p className="text-[11px] truncate" style={{ color: "rgba(255,255,255,0.4)" }}>{topic.subtitle}</p>
-                  </div>
-                  <ChevronRight className="w-4 h-4 shrink-0" style={{ color: "rgba(255,255,255,0.25)" }} />
-                </button>
-              ))}
-            </div>
-
-            {/* Footer */}
-            <div className="px-5 pb-4">
-              <button onClick={handleClose} className="text-xs font-medium transition-colors" style={{ color: "rgba(255,255,255,0.35)" }}>
-                Close
-              </button>
-            </div>
-          </div>
-        </motion.div>
-      </>
-    );
-  }
-
-  // ---- SINGLE TOPIC VIEW (step-by-step for one topic) ----
-  if (!activeTopic) return null;
-
-  const currentInstruction = activeTopic.steps[currentStepIndex];
-  const totalSteps = activeTopic.steps.length;
-  const isLastStep = currentStepIndex === totalSteps - 1;
-
   const getDesktopCardStyle = (): React.CSSProperties => {
     if (!highlightRect) return { position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
-    const cardW = 360, cardEstH = 260, gap = 32;
+    const cardW = 380, cardEstH = 420, gap = 32;
     const centerY = highlightRect.top + highlightRect.height / 2 - cardEstH / 2;
     const clampedY = Math.max(20, Math.min(centerY, window.innerHeight - cardEstH - 60));
-    if (activeTopic.desktopCardPosition === "right") return { position: "fixed", top: clampedY, left: highlightRect.right + gap, width: cardW, maxWidth: `calc(100vw - ${highlightRect.right + gap + 20}px)` };
-    if (activeTopic.desktopCardPosition === "left") return { position: "fixed", top: clampedY, right: `calc(100vw - ${highlightRect.left - gap}px)`, width: cardW, maxWidth: `${highlightRect.left - gap - 20}px` };
-    if (activeTopic.desktopCardPosition === "top") return { position: "fixed", bottom: `calc(100vh - ${highlightRect.top - gap}px)`, left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2), width: cardW };
+    if (step.desktopCardPosition === "right") return { position: "fixed", top: clampedY, left: highlightRect.right + gap, width: cardW, maxWidth: `calc(100vw - ${highlightRect.right + gap + 20}px)` };
+    if (step.desktopCardPosition === "left") return { position: "fixed", top: clampedY, right: `calc(100vw - ${highlightRect.left - gap}px)`, width: cardW, maxWidth: `${highlightRect.left - gap - 20}px` };
+    if (step.desktopCardPosition === "top") return { position: "fixed", bottom: `calc(100vh - ${highlightRect.top - gap}px)`, left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2), width: cardW };
     return { position: "fixed", top: highlightRect.bottom + gap, left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2), width: cardW };
   };
 
   const getArrowInfo = (): { pos: React.CSSProperties; dir: string } | null => {
     if (!highlightRect || isMobile) return null;
     const gap = 4;
-    if (activeTopic.desktopCardPosition === "right") return { pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.right + gap }, dir: "right" };
-    if (activeTopic.desktopCardPosition === "left") return { pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.left - gap - 32 }, dir: "left" };
-    if (activeTopic.desktopCardPosition === "top") return { pos: { position: "fixed", top: highlightRect.top - gap - 32, left: highlightRect.left + highlightRect.width / 2 - 16 }, dir: "up" };
+    if (step.desktopCardPosition === "right") return { pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.right + gap }, dir: "right" };
+    if (step.desktopCardPosition === "left") return { pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.left - gap - 32 }, dir: "left" };
+    if (step.desktopCardPosition === "top") return { pos: { position: "fixed", top: highlightRect.top - gap - 32, left: highlightRect.left + highlightRect.width / 2 - 16 }, dir: "up" };
     return { pos: { position: "fixed", top: highlightRect.bottom + gap, left: highlightRect.left + highlightRect.width / 2 - 16 }, dir: "down" };
   };
 
@@ -275,7 +164,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   } : { top: "40%", left: "40%", width: "20%", height: "20%" };
 
   const getMobileCardStyle = (): React.CSSProperties => {
-    if (highlightRect && activeTopic.desktopCardPosition === "top") {
+    if (highlightRect && step.desktopCardPosition === "top") {
       const cardBottom = highlightRect.top - padding - 16;
       return { position: "fixed", bottom: `calc(100vh - ${cardBottom}px)`, left: 12, right: 12, zIndex: 10002 };
     }
@@ -288,27 +177,30 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   return (
     <>
+      {/* Full-screen click blocker */}
       <div style={{ position: "fixed", inset: 0, zIndex: 9999 }} onClick={handleClose} />
 
-      {/* Spotlight */}
+      {/* Spotlight with boxShadow overlay */}
       <motion.div
-        key={`spotlight-${selectedTopic}`}
+        key={`spotlight-${currentStep}`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
         style={{
-          position: "fixed", ...spotlightStyle,
+          position: "fixed",
+          ...spotlightStyle,
           boxShadow: "0 0 0 9999px rgba(0,0,0,0.82)",
           border: isMobile ? "2px solid #F59E0B" : "3px solid #F59E0B",
           borderRadius: isMobile ? 12 : 16,
-          pointerEvents: "none", zIndex: 10000,
+          pointerEvents: "none",
+          zIndex: 10000,
         }}
       />
 
       {/* Arrow (desktop) */}
       {arrowData && highlightRect && (
         <motion.div
-          key={`arrow-${selectedTopic}`}
+          key={`arrow-${currentStep}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.25 }}
@@ -325,94 +217,72 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
         </motion.div>
       )}
 
-      {/* Instruction Card */}
+      {/* Instruction Card - Dark Theme */}
       {highlightRect && (
         <motion.div
-          key={`card-${selectedTopic}-${currentStepIndex}`}
+          key={`card-${currentStep}`}
           initial={{ opacity: 0, y: isMobile ? 20 : 12 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15, duration: 0.25 }}
+          transition={{ delay: 0.15, duration: 0.3 }}
           style={cardStyle}
         >
           <div className="rounded-2xl shadow-2xl overflow-hidden" style={{ background: "#1E1E22", border: "1px solid rgba(255,255,255,0.08)" }}>
             {/* Header */}
             <div className="px-4 md:px-5 pt-4 md:pt-5 pb-2 md:pb-3 flex items-center gap-3">
               <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(245,158,11,0.12)" }}>
-                <span className="text-amber-500">{activeTopic.icon}</span>
+                <span className="text-amber-500">{step.icon}</span>
               </div>
               <div className="min-w-0">
-                <h3 className="text-sm md:text-[15px] font-bold text-white truncate">{activeTopic.title}</h3>
-                <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{activeTopic.subtitle}</p>
+                <h3 className="text-sm md:text-[15px] font-bold text-white truncate">{step.title}</h3>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{step.subtitle}</p>
               </div>
-              <span className="ml-auto text-xs shrink-0" style={{ color: "rgba(255,255,255,0.35)" }}>{currentStepIndex + 1}/{totalSteps}</span>
+              <span className="ml-auto text-xs shrink-0" style={{ color: "rgba(255,255,255,0.35)" }}>{currentStep + 1}/{steps.length}</span>
             </div>
 
-            {/* Single Step Content */}
-            <div className="px-4 md:px-5 py-4 md:py-5">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={currentStepIndex}
-                  initial={{ opacity: 0, x: 20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -20 }}
-                  transition={{ duration: 0.2 }}
-                  className="flex gap-3 items-start"
-                >
-                  <span
-                    className="w-7 h-7 rounded-full flex items-center justify-center shrink-0 text-sm font-bold"
-                    style={{ background: "rgba(245,158,11,0.15)", color: "#F59E0B" }}
-                  >
-                    {currentStepIndex + 1}
-                  </span>
-                  <p className="text-sm leading-relaxed pt-0.5" style={{ color: "rgba(255,255,255,0.8)" }}>
-                    {currentInstruction.text}
-                  </p>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {/* Helper note on last step */}
-            {isLastStep && activeTopic.helperNote && (
-              <div className="mx-4 md:mx-5 mb-3 md:mb-4 p-2.5 md:p-3 rounded-xl" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
-                <p className="text-[11px] md:text-xs leading-relaxed" style={{ color: "rgba(245,158,11,0.85)" }}>{activeTopic.helperNote}</p>
-              </div>
-            )}
-
-            {/* Step dots */}
-            <div className="flex justify-center gap-1.5 pb-3">
-              {activeTopic.steps.map((_, i) => (
-                <div
-                  key={i}
-                  className="h-1.5 rounded-full transition-all duration-300"
-                  style={{
-                    width: i === currentStepIndex ? 20 : 6,
-                    background: i === currentStepIndex ? "#F59E0B" : "rgba(255,255,255,0.15)",
-                  }}
-                />
+            {/* Instructions */}
+            <div className="px-4 md:px-5 pb-3 md:pb-4 flex flex-col gap-1.5 md:gap-2.5">
+              {step.instructions.map((inst, i) => (
+                <div key={i} className="flex gap-2.5 items-start">
+                  <span className="text-amber-500 font-bold text-xs md:text-sm min-w-[16px] mt-0.5">{i + 1}</span>
+                  <p className="text-xs md:text-[13px] leading-relaxed pt-0.5" style={{ color: "rgba(255,255,255,0.75)" }}>{inst}</p>
+                </div>
               ))}
             </div>
 
-            {/* Footer */}
+            {/* Helper note callout */}
+            {step.helperNote && (
+              <div className="mx-4 md:mx-5 mb-3 md:mb-4 p-2.5 md:p-3 rounded-xl" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
+                <p className="text-[11px] md:text-xs leading-relaxed" style={{ color: "rgba(245,158,11,0.85)" }}>{step.helperNote}</p>
+              </div>
+            )}
+
+            {/* Footer - Arrow back + Skip + Next */}
             <div className="px-4 md:px-5 pb-3 md:pb-5 flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
+                {currentStep > 0 && (
+                  <button
+                    onClick={handlePrev}
+                    className="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-colors"
+                    style={{ background: "rgba(255,255,255,0.08)" }}
+                  >
+                    <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" style={{ color: "rgba(255,255,255,0.6)" }} />
+                  </button>
+                )}
                 <button
-                  onClick={currentStepIndex > 0 ? () => setCurrentStepIndex(i => i - 1) : handleBack}
-                  className="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-colors"
-                  style={{ background: "rgba(255,255,255,0.08)" }}
+                  onClick={handleClose}
+                  className="text-xs md:text-sm font-medium transition-colors px-2"
+                  style={{ color: "rgba(255,255,255,0.45)" }}
                 >
-                  <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" style={{ color: "rgba(255,255,255,0.6)" }} />
-                </button>
-                <button onClick={handleClose} className="text-xs md:text-sm font-medium transition-colors px-2" style={{ color: "rgba(255,255,255,0.45)" }}>
                   Skip
                 </button>
               </div>
               <button
-                onClick={isLastStep ? handleBack : () => setCurrentStepIndex(i => i + 1)}
+                onClick={handleNext}
                 className="flex items-center gap-1 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-colors"
                 style={{ background: "#F59E0B", color: "#fff" }}
               >
-                {isLastStep ? "Done" : "Next"}
-                {!isLastStep && <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />}
+                {currentStep === steps.length - 1 ? "Got it" : "Next"}
+                {currentStep < steps.length - 1 && <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />}
               </button>
             </div>
           </div>

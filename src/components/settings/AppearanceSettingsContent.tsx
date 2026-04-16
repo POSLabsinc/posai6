@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef } from "react";
-import { ChevronRight, ChevronLeft, Sun } from "lucide-react";
+import { ChevronRight, ChevronLeft, Sun, Monitor, Moon, Droplets, Sparkles, Paintbrush, Check } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { useTheme } from "next-themes";
-import { useAppearance, IconSize, MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_BRIGHTNESS, MAX_BRIGHTNESS } from "@/contexts/AppearanceContext";
+import { useAppearance, IconSize, MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_BRIGHTNESS, MAX_BRIGHTNESS, type IconStyle } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScheduledTheme } from "@/hooks/useScheduledTheme";
@@ -14,6 +14,15 @@ import appearanceIcon from "@/assets/icons/appearance.png";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
 import POSThemePreview from "@/components/settings/POSThemePreview";
 import AdvancedCustomizationContent from "@/components/settings/AdvancedCustomizationContent";
+
+// Icon style definitions
+const ICON_STYLES: { id: IconStyle; label: string; icon: React.ReactNode; description: string }[] = [
+  { id: 'Default', label: 'Default', icon: <Monitor className="w-5 h-5" />, description: 'Colorful system defaults' },
+  { id: 'Color', label: 'Color', icon: <Paintbrush className="w-5 h-5" />, description: 'Primary theme color' },
+  { id: 'Dark', label: 'Dark', icon: <Moon className="w-5 h-5" />, description: 'Dark monochrome style' },
+  { id: 'Clear', label: 'Clear', icon: <Droplets className="w-5 h-5" />, description: 'Transparent backgrounds' },
+  { id: 'Tinted', label: 'Tinted', icon: <Sparkles className="w-5 h-5" />, description: 'Theme-tinted backgrounds' },
+];
 
 type ThemeOption = 'dark' | 'light';
 

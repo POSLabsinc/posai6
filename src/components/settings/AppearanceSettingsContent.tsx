@@ -120,7 +120,6 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>('dark');
   const [automaticTheme, setAutomaticTheme] = useState(false);
   const [iconSizeDropdownOpen, setIconSizeDropdownOpen] = useState(false);
-  const [iconSizeDropdownOpen, setIconSizeDropdownOpen] = useState(false);
   const { scheduleEnabled, scheduleType, lightStart, lightEnd, setScheduleEnabled, setScheduleType, setLightStart, setLightEnd } = useScheduledTheme();
 
   useEffect(() => {

@@ -4,7 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
 import { useTheme } from "next-themes";
-import { useAppearance, IconStyle, IconSize, MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_BRIGHTNESS, MAX_BRIGHTNESS } from "@/contexts/AppearanceContext";
+import { useAppearance, IconSize, MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_BRIGHTNESS, MAX_BRIGHTNESS } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScheduledTheme } from "@/hooks/useScheduledTheme";
@@ -142,7 +142,6 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
     // Don't change theme on toggle - keep current theme
   };
 
-  const iconStyleOptions: IconStyle[] = ['Default', 'Dark'];
   const iconSizeOptions: IconSize[] = ['Default', 'Small', 'Medium', 'Large'];
 
   return (

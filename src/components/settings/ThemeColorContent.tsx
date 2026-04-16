@@ -317,7 +317,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
             <div className="grid grid-cols-5 gap-3">
               {ICON_STYLES.map((style) => {
                 const isSelected = iconStyle === style.id;
-                const sampleColors = ['#3B82F6', '#EF4444', '#22C55E', '#F97316'];
                 const previewBg = style.id === 'Default' ? '#3B82F6'
                   : style.id === 'Color' ? (themeColor || '#F97316')
                   : style.id === 'Dark' ? '#1C1C1E'

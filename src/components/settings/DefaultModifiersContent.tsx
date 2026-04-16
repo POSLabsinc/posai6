@@ -102,7 +102,7 @@ const DefaultModifiersContent = ({ showHeader = true, onBack, onAIClick }: Defau
             )}
             {!onBack && <div className="w-8 h-8" />}
             <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-              <h1 className="text-base font-medium text-foreground">
+              <h1 className="text-lg font-semibold text-foreground">
                 {showArchived ? "Archived Default Modifiers" : "Default Modifiers"}
               </h1>
             </div>

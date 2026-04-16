@@ -140,7 +140,7 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           )}
-          <h1 className="text-base font-medium text-foreground">Personal Information</h1>
+          <h1 className="text-lg font-semibold text-foreground">Personal Information</h1>
         </div>
       )}
 

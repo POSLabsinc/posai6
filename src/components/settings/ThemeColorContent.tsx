@@ -214,7 +214,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
         )}
-        <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Theme Color</h1>
+        <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Theme Color</h1>
       </div>
 
       <div className="px-6 pb-28 space-y-5">

@@ -347,7 +347,7 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
             )}
-            <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Notifications</h1>
+            <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Notifications</h1>
             <div style={{ width: 32, height: 32 }} />
           </div>
         )}

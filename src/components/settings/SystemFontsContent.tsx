@@ -47,7 +47,7 @@ const SystemFontsContent = ({ showHeader = true, onBack, onAIClick }: SystemFont
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           )}
-          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">System Fonts</h1>
+          <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">System Fonts</h1>
         </div>
       )}
 

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 
-export type IconStyle = 'Default' | 'Dark' | 'Clear' | 'Tinted';
+export type IconStyle = 'Default' | 'Dark' | 'Clear' | 'Tinted' | 'Color';
 export type IconSize = 'Default' | 'Small' | 'Medium' | 'Large';
 
 // Advanced customization defaults

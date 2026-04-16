@@ -211,7 +211,7 @@ const Header = () => {
             </Avatar>
 
             <span className="font-medium text-xs md:text-sm">{employeeName}</span>
-            <span className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 bg-primary/20 text-primary-foreground rounded-full font-medium uppercase tracking-wide">{employeeRole}</span>
+            <span className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 bg-primary/20 text-white rounded-full font-medium uppercase tracking-wide">{employeeRole}</span>
 
             {/* On Break Status Badge */}
             {isOnBreak && (

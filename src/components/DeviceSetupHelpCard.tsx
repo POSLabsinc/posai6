@@ -242,7 +242,17 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
                 <span className="text-amber-500">{step.icon}</span>
               </div>
               <div className="min-w-0">
-                <h3 className="text-sm md:text-[15px] font-bold text-white truncate">{step.title}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm md:text-[15px] font-bold text-white truncate">{step.title}</h3>
+                  {step.showCopyIcon && (
+                    <button
+                      onClick={() => navigator.clipboard.writeText("https://www.posai.com/pair")}
+                      className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-colors hover:bg-white/10 active:bg-white/20"
+                    >
+                      <Copy className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.55)" }} />
+                    </button>
+                  )}
+                </div>
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{step.subtitle}</p>
               </div>
               <span className="ml-auto text-xs shrink-0" style={{ color: "rgba(255,255,255,0.35)" }}>{currentStep + 1}/{steps.length}</span>

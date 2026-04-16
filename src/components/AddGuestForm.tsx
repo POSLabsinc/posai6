@@ -165,10 +165,10 @@ const SwipeableCard = ({ children, onEdit, onDelete }: { children: React.ReactNo
     <div className="relative overflow-hidden rounded-xl border border-neutral-700">
       {/* Action buttons behind */}
       <div className="absolute right-0 top-0 bottom-0 flex items-stretch z-0">
-        <button onClick={onEdit} className="w-10 flex items-center justify-center bg-blue-600 hover:bg-blue-500 transition-colors">
+        <button onClick={onEdit} className="w-10 flex items-center justify-center bg-neutral-600 hover:bg-neutral-500 transition-colors">
           <Pencil className="w-4 h-4 text-white" />
         </button>
-        <button onClick={onDelete} className="w-10 flex items-center justify-center bg-red-600 hover:bg-red-500 transition-colors">
+        <button onClick={onDelete} className="w-10 flex items-center justify-center bg-neutral-500 hover:bg-neutral-400 transition-colors">
           <Trash2 className="w-4 h-4 text-white" />
         </button>
       </div>

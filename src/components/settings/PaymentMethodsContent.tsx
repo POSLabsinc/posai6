@@ -118,7 +118,7 @@ const PaymentMethodsContent = ({ showHeader = true, onBack, onAIClick }: Payment
             </button>
           )}
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-            <h1 className="text-lg font-semibold text-foreground">Payment Methods</h1>
+            <h1 className="text-xl font-semibold text-foreground">Payment Methods</h1>
           </div>
         </div>
       )}

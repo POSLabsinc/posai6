@@ -36,7 +36,7 @@ const ThemePresets = () => {
         >
           <ChevronLeft className="w-4 h-4 text-foreground" />
         </button>
-        <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Theme Presets</h1>
+        <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Theme Presets</h1>
       </div>
 
       {/* Scrollable Content */}

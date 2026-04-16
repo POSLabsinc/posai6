@@ -121,7 +121,7 @@ const EditServiceChargeContent = ({ serviceCharge, onBack, onSave }: EditService
         >
           <ChevronLeft className="w-5 h-5 text-foreground" />
         </button>
-        <h1 className="text-lg font-semibold text-foreground">Edit Service Charge</h1>
+        <h1 className="text-xl font-semibold text-foreground">Edit Service Charge</h1>
       </div>
 
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">

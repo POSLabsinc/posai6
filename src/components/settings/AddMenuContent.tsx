@@ -187,7 +187,7 @@ const AddMenuContent = ({
         ) : (
           <div className="w-12 h-12" />
         )}
-        <h1 className="text-lg font-semibold text-foreground">Add Menu</h1>
+        <h1 className="text-xl font-semibold text-foreground">Add Menu</h1>
       </div>
 
       {/* Form */}

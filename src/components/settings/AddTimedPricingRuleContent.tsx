@@ -236,7 +236,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
         <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
           <ChevronLeft className="w-5 h-5 text-foreground" />
         </button>
-        <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">
+        <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">
           {isEditing ? "Edit Timed Pricing" : "Add Timed Pricing"}
         </h1>
         <button onClick={handleSave} className="px-4 py-2 rounded-full bg-primary text-primary-foreground text-sm font-medium active:opacity-70 transition-opacity">

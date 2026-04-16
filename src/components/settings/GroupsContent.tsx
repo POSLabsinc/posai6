@@ -102,7 +102,7 @@ const GroupsContent = ({ showHeader = true, onBack, onAIClick }: GroupsContentPr
             )}
             {!onBack && <div className="w-8 h-8" />}
             <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-              <h1 className="text-lg font-semibold text-foreground">
+              <h1 className="text-xl font-semibold text-foreground">
                 {showArchived ? "Archived Groups" : "Groups"}
               </h1>
             </div>
@@ -189,7 +189,7 @@ const GroupsContent = ({ showHeader = true, onBack, onAIClick }: GroupsContentPr
             </button>
           )}
           <div className="flex items-center gap-1">
-            <h1 className="text-lg font-semibold text-foreground">Groups</h1>
+            <h1 className="text-xl font-semibold text-foreground">Groups</h1>
             <button onClick={() => { toast({ description: "Create and manage product groups for promotions, special menus, and time-based offerings.", duration: 4000 }); }} className="active:opacity-70 transition-opacity">
               <img src={infoIcon} alt="Info" className="w-5 h-5" />
             </button>

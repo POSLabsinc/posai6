@@ -1,5 +1,6 @@
 import { ChevronRight } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import SettingsIcon from "@/components/settings/SettingsIcon";
 import { Calendar as CalendarIcon } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -49,14 +50,12 @@ const StatCard = ({ label, value, prefix = "" }: { label: string; value: string 
 const AccountOption = ({
   icon,
   label,
-  iconBgColor = "bg-neutral-600/80",
+  iconBgColor = "#525252",
   onClick
 }: AccountOptionProps) => <button onClick={onClick} className="flex items-center justify-between w-full py-4 px-5 active:opacity-70 transition-opacity">
     <div className="flex items-center gap-4">
-      <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${iconBgColor}`}>
-        <img src={icon} alt={label} className="w-5 h-5" />
-      </div>
-      <span className="text-foreground text-base font-medium">{label}</span>
+      <SettingsIcon bgColor={iconBgColor} iconSrc={icon} iconAlt={label} />
+      <span className="text-foreground text-lg font-medium">{label}</span>
     </div>
     <ChevronRight className="w-5 h-5 text-neutral-500" />
   </button>;
@@ -184,7 +183,7 @@ const AccountPanel = ({
   return <div className="flex flex-col h-full w-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Header - only shown in tablet view */}
       {showHeader && <div className="flex items-center justify-center py-4 relative">
-          <h1 className="text-base font-medium text-foreground">Account</h1>
+          <h1 className="text-xl font-semibold text-foreground">Account</h1>
         </div>}
 
       {/* Content */}
@@ -289,11 +288,11 @@ const AccountPanel = ({
         {/* Options Container - Full width with consistent padding */}
         <div className="w-full px-6">
           <div className="bg-neutral-800/40 rounded-2xl overflow-hidden mb-4">
-            <AccountOption icon={personalIcon} label="Personal Information" iconBgColor="bg-neutral-600/80" onClick={() => navigate(getNavigationPath('/personal-information'))} />
+            <AccountOption icon={personalIcon} label="Personal Information" iconBgColor="#525252" onClick={() => navigate(getNavigationPath('/personal-information'))} />
             <div className="h-px bg-neutral-700/50 mx-5" />
-            <AccountOption icon={restaurantIcon} label="Restaurant Information" iconBgColor="bg-neutral-600/80" onClick={() => navigate(getNavigationPath('/restaurant-information'))} />
+            <AccountOption icon={restaurantIcon} label="Restaurant Information" iconBgColor="#525252" onClick={() => navigate(getNavigationPath('/restaurant-information'))} />
             <div className="h-px bg-neutral-700/50 mx-5" />
-            <AccountOption icon={securityIcon} label="Security" iconBgColor="bg-blue-600" onClick={() => navigate(getNavigationPath('/security'))} />
+            <AccountOption icon={securityIcon} label="Security" iconBgColor="#3B82F6" onClick={() => navigate(getNavigationPath('/security'))} />
           </div>
 
           {/* Logout Button */}

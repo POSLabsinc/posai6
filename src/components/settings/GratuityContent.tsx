@@ -155,7 +155,7 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           )}
-          <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Gratuity</h1>
+          <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Gratuity</h1>
         </div>
       )}
       <div className="px-6 pb-28 pt-0">

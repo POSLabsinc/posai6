@@ -156,7 +156,7 @@ const AppearanceSettings = () => {
           >
             <ChevronLeft className="w-4 h-4 text-foreground" />
           </button>
-          <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Appearance</h1>
+          <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Appearance</h1>
         </div>
 
         {/* App Theme Section */}

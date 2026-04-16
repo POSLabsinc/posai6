@@ -29,6 +29,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const rafRef = useRef<number>(0);
+  const cardRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -113,7 +114,9 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
       if (!found) { attempts++; if (attempts < 25) setTimeout(tryMeasure, 100); }
     };
     const timer = setTimeout(tryMeasure, 150);
-    return () => clearTimeout(timer);
+    // Re-measure after card renders so centering uses real card height
+    const reMeasure = setTimeout(() => measureTarget(), 500);
+    return () => { clearTimeout(timer); clearTimeout(reMeasure); };
   }, [currentStep, open]);
 
   useEffect(() => {
@@ -135,11 +138,15 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   const padding = isMobile ? 10 : 12;
 
+
   const getDesktopCardStyle = (): React.CSSProperties => {
     if (!highlightRect) return { position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
-    const cardW = 380, cardEstH = 420, gap = 32;
-    const centerY = highlightRect.top + highlightRect.height / 2 - cardEstH / 2;
-    const clampedY = Math.max(20, Math.min(centerY, window.innerHeight - cardEstH - 60));
+    const cardW = 380, gap = 32;
+    // Use actual card height if available, otherwise estimate
+    const cardH = cardRef.current?.offsetHeight || 220;
+    const arrowCenterY = highlightRect.top + highlightRect.height / 2;
+    const centerY = arrowCenterY - cardH / 2;
+    const clampedY = Math.max(20, Math.min(centerY, window.innerHeight - cardH - 20));
     if (step.desktopCardPosition === "right") return { position: "fixed", top: clampedY, left: highlightRect.right + gap, width: cardW, maxWidth: `calc(100vw - ${highlightRect.right + gap + 20}px)` };
     if (step.desktopCardPosition === "left") return { position: "fixed", top: clampedY, right: `calc(100vw - ${highlightRect.left - gap}px)`, width: cardW, maxWidth: `${highlightRect.left - gap - 20}px` };
     if (step.desktopCardPosition === "top") return { position: "fixed", bottom: `calc(100vh - ${highlightRect.top - gap}px)`, left: Math.max(20, highlightRect.left + highlightRect.width / 2 - cardW / 2), width: cardW };
@@ -220,6 +227,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
       {/* Instruction Card - Dark Theme */}
       {highlightRect && (
         <motion.div
+          ref={cardRef}
           key={`card-${currentStep}`}
           initial={{ opacity: 0, y: isMobile ? 20 : 12 }}
           animate={{ opacity: 1, y: 0 }}

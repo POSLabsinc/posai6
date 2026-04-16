@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 
-export type IconStyle = 'Default' | 'Dark';
+export type IconStyle = 'Default' | 'Dark' | 'Clear' | 'Tinted';
 export type IconSize = 'Default' | 'Small' | 'Medium' | 'Large';
 
 // Advanced customization defaults
@@ -392,7 +392,12 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
   };
   const getIconBgColor = (defaultColor: string): string => {
     if (settingsIconColor) return settingsIconColor;
-    return iconStyle === 'Dark' ? DARK_ICON_COLOR : defaultColor;
+    switch (iconStyle) {
+      case 'Dark': return DARK_ICON_COLOR;
+      case 'Clear': return 'transparent';
+      case 'Tinted': return themeColor ? `${themeColor}20` : `${defaultColor}20`;
+      default: return defaultColor;
+    }
   };
 
   const getIconSizeClass = (): string => {

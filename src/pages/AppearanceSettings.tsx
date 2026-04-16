@@ -145,7 +145,6 @@ const AppearanceSettings = () => {
     // Don't change theme on toggle - keep current theme
   };
 
-  const iconStyleOptions: IconStyle[] = ['Default', 'Dark'];
   const iconSizeOptions: IconSize[] = ['Default', 'Small', 'Medium', 'Large'];
 
   return (

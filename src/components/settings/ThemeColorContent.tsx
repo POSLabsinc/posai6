@@ -229,90 +229,83 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
           </div>
         )}
 
-        {/* Color Picker - Primary Selection */}
+        {/* Color Picker - Side by Side Layout */}
         <div>
           <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Color Picker</p>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            {/* Large color picker area */}
-            <div className="relative w-full h-48 rounded-xl overflow-hidden border border-neutral-600 mb-4 cursor-pointer">
-              <input
-                type="color"
-                value={pickerColor}
-                onChange={(e) => handlePickerChange(e.target.value)}
-                className="absolute inset-0 w-full h-full cursor-pointer border-0"
-                style={{ padding: 0, margin: 0 }}
-              />
-            </div>
-
-            {/* Color format tabs */}
-            <div className="flex gap-1 mb-3 bg-neutral-700/40 rounded-xl p-1">
-              {colorModes.map((mode) => (
-                <button
-                  key={mode.id}
-                  onClick={() => setColorMode(mode.id)}
-                  className={`flex-1 text-xs font-medium py-2 rounded-lg transition-all ${
-                    colorMode === mode.id
-                      ? 'bg-neutral-600 text-foreground'
-                      : 'text-neutral-400 hover:text-neutral-300'
-                  }`}
-                >
-                  {mode.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Color value inputs */}
-            {colorMode === 'hex' && (
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-lg border border-neutral-600 flex-shrink-0" style={{ backgroundColor: pickerColor }} />
-                <input
-                  type="text"
-                  value={hexInput}
-                  onChange={(e) => handleHexChange(e.target.value)}
-                  maxLength={7}
-                  className="flex-1 text-sm bg-neutral-700/50 border border-neutral-600 rounded-xl px-3 py-2.5 text-foreground font-mono uppercase"
-                  placeholder="#000000"
-                />
-              </div>
-            )}
-
-            {colorMode === 'rgb' && (
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-lg border border-neutral-600 flex-shrink-0" style={{ backgroundColor: pickerColor }} />
-                {(['r', 'g', 'b'] as const).map((ch) => (
-                  <div key={ch} className="flex-1">
-                    <label className="text-[10px] text-neutral-500 uppercase font-medium mb-0.5 block text-center">{ch}</label>
+            <div className="flex gap-4">
+              {/* Left: All color inputs stacked */}
+              <div className="flex-1 space-y-3">
+                {/* HEX */}
+                <div>
+                  <label className="text-[10px] text-neutral-500 uppercase font-medium mb-1 block tracking-wider">HEX</label>
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg border border-neutral-600 flex-shrink-0" style={{ backgroundColor: pickerColor }} />
                     <input
-                      type="number"
-                      min={0}
-                      max={255}
-                      value={rgbInput[ch]}
-                      onChange={(e) => handleRgbChange(ch, e.target.value)}
-                      className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-lg px-2 py-2 text-foreground font-mono text-center"
+                      type="text"
+                      value={hexInput}
+                      onChange={(e) => handleHexChange(e.target.value)}
+                      maxLength={7}
+                      className="flex-1 text-sm bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 text-foreground font-mono uppercase"
+                      placeholder="#000000"
                     />
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
 
-            {colorMode === 'cmyk' && (
-              <div className="flex items-center gap-2">
-                <div className="w-9 h-9 rounded-lg border border-neutral-600 flex-shrink-0" style={{ backgroundColor: pickerColor }} />
-                {(['c', 'm', 'y', 'k'] as const).map((ch) => (
-                  <div key={ch} className="flex-1">
-                    <label className="text-[10px] text-neutral-500 uppercase font-medium mb-0.5 block text-center">{ch}</label>
-                    <input
-                      type="number"
-                      min={0}
-                      max={100}
-                      value={cmykInput[ch]}
-                      onChange={(e) => handleCmykChange(ch, e.target.value)}
-                      className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-lg px-2 py-2 text-foreground font-mono text-center"
-                    />
+                {/* RGB */}
+                <div>
+                  <label className="text-[10px] text-neutral-500 uppercase font-medium mb-1 block tracking-wider">RGB</label>
+                  <div className="flex items-center gap-2">
+                    {(['r', 'g', 'b'] as const).map((ch) => (
+                      <div key={ch} className="flex-1">
+                        <label className="text-[9px] text-neutral-500 uppercase font-medium mb-0.5 block text-center">{ch}</label>
+                        <input
+                          type="number"
+                          min={0}
+                          max={255}
+                          value={rgbInput[ch]}
+                          onChange={(e) => handleRgbChange(ch, e.target.value)}
+                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-lg px-2 py-1.5 text-foreground font-mono text-center"
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </div>
+
+                {/* CMYK */}
+                <div>
+                  <label className="text-[10px] text-neutral-500 uppercase font-medium mb-1 block tracking-wider">CMYK</label>
+                  <div className="flex items-center gap-2">
+                    {(['c', 'm', 'y', 'k'] as const).map((ch) => (
+                      <div key={ch} className="flex-1">
+                        <label className="text-[9px] text-neutral-500 uppercase font-medium mb-0.5 block text-center">{ch}</label>
+                        <input
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={cmykInput[ch]}
+                          onChange={(e) => handleCmykChange(ch, e.target.value)}
+                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-lg px-2 py-1.5 text-foreground font-mono text-center"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
-            )}
+
+              {/* Right: Compact color picker */}
+              <div className="w-[180px] flex-shrink-0">
+                <div className="relative w-full h-full min-h-[180px] rounded-xl overflow-hidden border border-neutral-600 cursor-pointer">
+                  <input
+                    type="color"
+                    value={pickerColor}
+                    onChange={(e) => handlePickerChange(e.target.value)}
+                    className="absolute inset-0 w-full h-full cursor-pointer border-0"
+                    style={{ padding: 0, margin: 0 }}
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

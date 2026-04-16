@@ -22,7 +22,7 @@ interface InfoRowProps {
 
 const InfoRow = ({ label, value }: InfoRowProps) => (
   <div className="flex items-center justify-between w-full py-4 px-5">
-    <span className="text-foreground text-base font-medium">{label}</span>
+    <span className="text-foreground text-lg font-medium">{label}</span>
     <span className="text-neutral-500 text-base">{value}</span>
   </div>
 );
@@ -38,7 +38,7 @@ const SettingRow = ({ icon, label, value }: SettingRowProps) => (
   <div className="flex items-center justify-between w-full py-4 px-5">
     <div className="flex items-center gap-4">
       {icon}
-      <span className="text-foreground text-base font-medium">{label}</span>
+      <span className="text-foreground text-lg font-medium">{label}</span>
     </div>
     {value && <span className="text-neutral-400 text-base">{value}</span>}
   </div>
@@ -186,7 +186,7 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
                     <MapPin className="w-4.5 h-4.5 text-white" />
                   </div>
                   <div>
-                    <span className="text-foreground text-base font-medium">Current Store</span>
+                    <span className="text-foreground text-lg font-medium">Current Store</span>
                     <p className="text-neutral-500 text-sm mt-0.5">
                       {storeLoading
                         ? "Loading..."

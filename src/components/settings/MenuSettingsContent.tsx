@@ -184,7 +184,7 @@ const MenuSettingsContent = ({
               }}>
                     <img src={item.iconSrc} alt={item.label} className={`${iconSizeClass} transition-all`} />
                   </div>
-                   <span className="text-foreground text-base font-medium">{item.label}</span>
+                   <span className="text-foreground text-lg font-medium">{item.label}</span>
                 </div>
                 <ChevronRight className="w-5 h-5 text-neutral-500" />
               </button>

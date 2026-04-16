@@ -136,7 +136,6 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   const padding = isMobile ? 10 : 12;
 
-  const cardRef = useRef<HTMLDivElement>(null);
 
   const getDesktopCardStyle = (): React.CSSProperties => {
     if (!highlightRect) return { position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };

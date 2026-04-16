@@ -214,25 +214,8 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
           </p>
         </div>
 
-        {/* Icon Style & Size Section */}
+        {/* Icon Size Section */}
         <div className="bg-surface rounded-2xl overflow-hidden mb-1">
-          <div className="flex items-center justify-between w-full py-4 px-5">
-            <span className="text-lg font-medium text-foreground">Icon Style</span>
-            <OverlayDropdown
-              options={iconStyleOptions}
-              value={iconStyle}
-              onChange={setIconStyle}
-              isOpen={iconStyleDropdownOpen}
-              onToggle={() => {
-                setIconStyleDropdownOpen(!iconStyleDropdownOpen);
-                setIconSizeDropdownOpen(false);
-              }}
-              onClose={() => setIconStyleDropdownOpen(false)} />
-
-          </div>
-          
-          <div className="h-px bg-divider mx-5" />
-          
           <div className="flex items-center justify-between w-full py-4 px-5">
             <span className="text-lg font-medium text-foreground">Icon size</span>
             <OverlayDropdown
@@ -242,14 +225,12 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
               isOpen={iconSizeDropdownOpen}
               onToggle={() => {
                 setIconSizeDropdownOpen(!iconSizeDropdownOpen);
-                setIconStyleDropdownOpen(false);
               }}
               onClose={() => setIconSizeDropdownOpen(false)} />
-
           </div>
         </div>
         <p className="text-sm text-muted-foreground mt-1.5 px-1 mb-6 leading-relaxed">
-          Select the visual style of icons used in the Point of Sale.
+          Adjust the size of icons used in the Point of Sale.
         </p>
 
         {/* Text Size & Bold Section */}

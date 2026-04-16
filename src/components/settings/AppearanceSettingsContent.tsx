@@ -115,11 +115,11 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
-  const { iconStyle, setIconStyle, iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness, getIconBgColor } = useAppearance();
+  const { iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness } = useAppearance();
 
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>('dark');
   const [automaticTheme, setAutomaticTheme] = useState(false);
-  const [iconStyleDropdownOpen, setIconStyleDropdownOpen] = useState(false);
+  const [iconSizeDropdownOpen, setIconSizeDropdownOpen] = useState(false);
   const [iconSizeDropdownOpen, setIconSizeDropdownOpen] = useState(false);
   const { scheduleEnabled, scheduleType, lightStart, lightEnd, setScheduleEnabled, setScheduleType, setLightStart, setLightEnd } = useScheduledTheme();
 

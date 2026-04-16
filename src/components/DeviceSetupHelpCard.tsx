@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, QrCode, KeyRound, Link2, ShieldCheck, Mail, Phone, MessageSquare } from "lucide-react";
+import { ChevronRight, ChevronLeft, QrCode, KeyRound, Link2, ShieldCheck, Mail, Phone, MessageSquare, Copy } from "lucide-react";
 
 interface WalkthroughStep {
   id: string;
@@ -12,6 +12,7 @@ interface WalkthroughStep {
   desktopCardPosition: "right" | "left" | "bottom" | "top";
   icon: React.ReactNode;
   beforeShow?: () => void;
+  showCopyIcon?: boolean;
 }
 
 interface Props {
@@ -41,8 +42,8 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   const steps: WalkthroughStep[] = [
     { id: "qr-highlight", title: "Step 1: Scan QR Code", subtitle: "Use your phone to scan", instructions: ["Open the camera app on your phone or tablet and point it at the QR code displayed on this screen."], tourTarget: "qr-code", desktopCardPosition: "right", icon: <QrCode className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
     { id: "code-highlight", title: "Step 2: Activation Code", subtitle: "Your unique pairing code", instructions: ["This is your unique activation code for this device. Enter this code on your phone, tablet, or in a web browser."], tourTarget: "activation-code", desktopCardPosition: "left", icon: <KeyRound className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
-    { id: "link-highlight", title: "Step 3: Activation Link", subtitle: "Open this URL in a browser", instructions: ["Open any web browser on your phone or computer and enter the URL shown on this screen into the address bar."], tourTarget: "activation-link", desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
-    { id: "code-reconfirm", title: "Step 4: Enter the Code", subtitle: "Complete the activation", instructions: ["Enter the activation code on your phone, tablet, or in a web browser to continue."], tourTarget: "activation-code", desktopCardPosition: "left", icon: <ShieldCheck className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
+    { id: "link-highlight", title: "Step 3: Open the Activation Link", subtitle: "Open this URL in a browser", instructions: ["Open any web browser on your phone or computer and enter the URL https://www.posai.com/pair shown on this screen into the address bar.", "You can also tap the copy icon to quickly copy the link."], tourTarget: "activation-link", desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, showCopyIcon: true },
+    { id: "code-reconfirm", title: "Step 4: Enter the Code", subtitle: "Complete the activation", instructions: ["Go to https://www.posai.com/pair and enter the activation code on your phone, tablet, or computer to continue.", "Tap the copy icon to copy the URL if needed."], tourTarget: "activation-code", desktopCardPosition: "left", icon: <ShieldCheck className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, showCopyIcon: true },
     { id: "email-phone-button", title: "Step 5: Alternative Activation", subtitle: "Use email or phone instead", instructions: ["Tap this option to switch to activation using your email address or phone number."], tourTarget: "email-phone-button", desktopCardPosition: "top", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
     { id: "email-input", title: "Step 6: Enter Contact Information", subtitle: "Email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-area", desktopCardPosition: "left", icon: <MessageSquare className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
     { id: "otp-entry", title: "Step 7: Enter Verification Code", subtitle: "Complete activation", instructions: ["Enter the 6-digit verification code sent to your email or phone."], tourTarget: "otp-code-area", desktopCardPosition: "left", icon: <Phone className="w-5 h-5" />, beforeShow: onSwitchToOtp },
@@ -241,7 +242,17 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
                 <span className="text-amber-500">{step.icon}</span>
               </div>
               <div className="min-w-0">
-                <h3 className="text-sm md:text-[15px] font-bold text-white truncate">{step.title}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm md:text-[15px] font-bold text-white truncate">{step.title}</h3>
+                  {step.showCopyIcon && (
+                    <button
+                      onClick={() => navigator.clipboard.writeText("https://www.posai.com/pair")}
+                      className="w-6 h-6 rounded-md flex items-center justify-center shrink-0 transition-colors hover:bg-white/10 active:bg-white/20"
+                    >
+                      <Copy className="w-3.5 h-3.5" style={{ color: "rgba(255,255,255,0.55)" }} />
+                    </button>
+                  )}
+                </div>
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{step.subtitle}</p>
               </div>
               <span className="ml-auto text-xs shrink-0" style={{ color: "rgba(255,255,255,0.35)" }}>{currentStep + 1}/{steps.length}</span>

@@ -178,7 +178,7 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
 
           {/* Device Configuration */}
           <div className="mt-6">
-            <h3 className="text-neutral-400 text-xs font-medium tracking-wider mb-3 px-1">DEVICE CONFIGURATION</h3>
+            <h3 className="text-neutral-400 text-xs font-medium tracking-wider mb-1 px-1">DEVICE CONFIGURATION</h3>
             <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
               <div className="flex items-center justify-between w-full py-4 px-5">
                 <div className="flex items-center gap-4">

@@ -48,7 +48,7 @@ const MyFontsContent = ({ showHeader = true, onBack, onAIClick }: MyFontsContent
           </div>
         ) : (
           <>
-            <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 px-1">Downloaded Fonts</h2>
+            <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-1 px-1">Downloaded Fonts</h2>
             <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
               {downloadedFonts.map((font, i) => (
                 <div key={font}>

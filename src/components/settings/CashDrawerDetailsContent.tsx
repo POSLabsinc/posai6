@@ -473,7 +473,7 @@ const CashDrawerDetailsContent = ({
 
       <div className="pt-0 px-6 pb-28">
         {/* 1. Cash Drawer */}
-        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Cash Drawer</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-0.5">Cash Drawer</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <button
             ref={drawerRef}
@@ -489,7 +489,7 @@ const CashDrawerDetailsContent = ({
         </div>
 
         {/* 2. Opening Cash Amount - Enhanced to match Cash Management */}
-        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Opening Cash Amount</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-0.5">Opening Cash Amount</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6 border border-neutral-700/40">
           <div className="flex items-center justify-between py-5 px-5">
             <span className="text-foreground text-xl font-semibold">Amount</span>

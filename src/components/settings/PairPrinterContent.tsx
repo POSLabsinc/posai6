@@ -61,7 +61,7 @@ const PairPrinterContent = ({ showHeader = true, onBack, onAIClick }: PairPrinte
         <div className="space-y-4">
           {PRINTER_TYPES.map((type) => (
             <div key={type.id}>
-              <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
+              <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">
                 {type.label}
               </p>
               <button className="w-full bg-neutral-800/60 rounded-full py-3.5 px-4 flex items-center justify-between active:opacity-70 transition-opacity">

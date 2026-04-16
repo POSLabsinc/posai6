@@ -62,7 +62,7 @@ const ThemePresetsContent = ({
 
         {/* All Themes Section */}
         <div className="mb-4">
-          <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">All Themes</h2>
+          <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">All Themes</h2>
         </div>
 
         {/* Themes Grid */}

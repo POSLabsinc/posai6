@@ -72,12 +72,12 @@ const MoreFontsContent = ({ showHeader = true, onBack, onAIClick }: MoreFontsCon
           Tap on a font to download it. Downloaded fonts will appear in My Fonts.
         </p>
 
-        <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 px-1">Sans Serif</h2>
+        <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-1 px-1">Sans Serif</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           {sansSerif.map((font, i) => renderFontRow(font, i === sansSerif.length - 1))}
         </div>
 
-        <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 px-1">Serif</h2>
+        <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-1 px-1">Serif</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           {serif.map((font, i) => renderFontRow(font, i === serif.length - 1))}
         </div>

@@ -64,7 +64,7 @@ const AboutContent = ({ showHeader = true, onBack, onAIClick }: AboutContentProp
 
 
         {/* SOFTWARE Section */}
-        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">Software</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">Software</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <InfoRow label="App Version" value="4.10.2" />
           <InfoRow label="Flutter Version" value="FL.3.7.12" />
@@ -72,7 +72,7 @@ const AboutContent = ({ showHeader = true, onBack, onAIClick }: AboutContentProp
         </div>
 
         {/* DEVICE Section */}
-        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">Device</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">Device</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <InfoRow label="Device Name" value="Emulator POS 7 Stag" />
           <InfoRow label="OS Name" value="Android" />
@@ -83,7 +83,7 @@ const AboutContent = ({ showHeader = true, onBack, onAIClick }: AboutContentProp
         </div>
 
         {/* TERMS & POLICY Section */}
-        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">Terms & Policy</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">Terms & Policy</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           <InfoRow label="Privacy Policy" showChevron onClick={() => navigate('/settings/support/about/privacy-policy')} />
           <InfoRow label="Legal Terms" showChevron onClick={() => navigate('/settings/support/about/legal-terms')} />

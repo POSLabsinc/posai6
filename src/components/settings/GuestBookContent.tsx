@@ -494,7 +494,7 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
 
       {/* Summary Section */}
       <div>
-        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">Summary</p>
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">Summary</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {summaryCards.map((card, idx) => (
             <div key={idx} className="bg-neutral-800/40 rounded-2xl p-4 flex items-center gap-3">

@@ -227,7 +227,7 @@ const PayInOutContent = ({
 
       <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Amount Section */}
-        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Amount</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-0.5">Amount</h2>
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-6">
           <div className="flex items-center py-3.5 px-5">
             <span className="text-foreground text-lg">$</span>
@@ -243,7 +243,7 @@ const PayInOutContent = ({
         </div>
 
         {/* Reason Section */}
-        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Reason</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-0.5">Reason</h2>
         <div className="relative mb-6">
           <button
             ref={reasonRef}
@@ -258,7 +258,7 @@ const PayInOutContent = ({
         </div>
 
         {/* Note Section */}
-        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Note (Optional)</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-0.5">Note (Optional)</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-8">
           <Textarea
             placeholder="Add a note..."

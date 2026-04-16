@@ -129,7 +129,7 @@ const EditModifierContent = ({ modifier, onBack, onSave }: EditModifierContentPr
       <div className="flex-1 overflow-y-auto scrollbar-hide pt-0 px-6 pb-28">
         {/* ORDER TYPE APPLICABLE */}
         <div className="mb-1">
-          <span className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 block">
+          <span className="text-sm font-semibold text-neutral-400 tracking-wider mb-1 block">
             Order Type Applicable
           </span>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
@@ -161,7 +161,7 @@ const EditModifierContent = ({ modifier, onBack, onSave }: EditModifierContentPr
 
         {/* MODIFIER INFORMATION */}
         <div className="mb-1">
-          <span className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 block">
+          <span className="text-sm font-semibold text-neutral-400 tracking-wider mb-1 block">
             Modifier Information
           </span>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
@@ -220,7 +220,7 @@ const EditModifierContent = ({ modifier, onBack, onSave }: EditModifierContentPr
         {/* MODIFIER OPTIONS (shown when hasOptions is true) */}
         {hasOptions && (
           <div className="mb-6">
-            <span className="text-sm font-semibold text-neutral-400 tracking-wider mb-3 block">
+            <span className="text-sm font-semibold text-neutral-400 tracking-wider mb-1 block">
               Modifier Options
             </span>
             <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

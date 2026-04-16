@@ -65,7 +65,7 @@ const CardReaderContent = ({ showHeader = true, onBack, onAIClick }: CardReaderC
         {/* Selected Device */}
         {selectedDevice && (
           <div className="mb-6">
-            <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
+            <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">
               Selected Card Reader
             </p>
             <div className="bg-neutral-800/60 rounded-2xl py-3.5 px-4 flex items-center justify-between">
@@ -76,7 +76,7 @@ const CardReaderContent = ({ showHeader = true, onBack, onAIClick }: CardReaderC
         )}
 
         {/* Devices List */}
-        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-3">
+        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">
           Available Devices
         </p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

@@ -395,7 +395,8 @@ export const AppearanceProvider = ({ children }: { children: ReactNode }) => {
       case 'Dark': return DARK_ICON_COLOR;
       case 'Clear': return 'transparent';
       case 'Tinted': return themeColor ? `${themeColor}20` : `${defaultColor}20`;
-      default: return settingsIconColor || defaultColor;
+      case 'Color': return themeColor || defaultColor;
+      default: return defaultColor;
     }
   };
 

@@ -124,7 +124,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
-  const { iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness } = useAppearance();
+  const { iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness, iconStyle, setIconStyle, themeColor } = useAppearance();
 
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>('dark');
   const [automaticTheme, setAutomaticTheme] = useState(false);
@@ -300,7 +300,54 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
           </p>
         </div>
 
-        {/* Fonts */}
+        {/* Icon & Widget Style */}
+        <div className="mb-6">
+          <h2 className="text-base font-medium text-muted-foreground mb-4 px-1">Icon & Widget Style</h2>
+          <div className="bg-surface rounded-2xl p-4">
+            <div className="grid grid-cols-5 gap-3">
+              {ICON_STYLES.map((style) => {
+                const isSelected = iconStyle === style.id;
+                const previewBg = style.id === 'Default' ? '#3B82F6'
+                  : style.id === 'Color' ? (themeColor || '#F97316')
+                  : style.id === 'Dark' ? '#1C1C1E'
+                  : style.id === 'Clear' ? 'transparent'
+                  : `${themeColor || '#3B82F6'}20`;
+                const previewBorder = style.id === 'Clear' ? '1px solid rgba(255,255,255,0.15)' : 'none';
+
+                return (
+                  <button
+                    key={style.id}
+                    onClick={() => setIconStyle(style.id)}
+                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl transition-all ${
+                      isSelected
+                        ? 'bg-neutral-700/70 ring-2 ring-blue-500'
+                        : 'bg-neutral-700/30 hover:bg-neutral-700/50'
+                    }`}
+                  >
+                    <div
+                      className="w-12 h-12 rounded-xl flex items-center justify-center transition-all"
+                      style={{
+                        backgroundColor: previewBg,
+                        border: previewBorder,
+                      }}
+                    >
+                      <span className={style.id === 'Dark' ? 'text-neutral-400' : style.id === 'Tinted' ? 'text-foreground' : 'text-white'}>
+                        {style.icon}
+                      </span>
+                    </div>
+                    <span className={`text-xs font-medium ${isSelected ? 'text-foreground' : 'text-neutral-400'}`}>
+                      {style.label}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+          <p className="text-sm text-muted-foreground mt-3 px-1 leading-relaxed">
+            Choose how icon backgrounds appear across the Point of Sale.
+          </p>
+        </div>
+
         <div className="bg-surface rounded-full overflow-hidden mb-1.5">
           <button
             onClick={() => onNavigate ? onNavigate('/settings/system/fonts') : navigate('/settings/system/fonts')}

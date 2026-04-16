@@ -771,13 +771,13 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                         onEdit={() => setVehicleExpandedIndex(index)}
                         onDelete={() => handleRemoveVehicle(index)}
                       >
-                        <div className={`flex items-center gap-2.5 p-3 ${CARD_HEIGHT}`}>
-                          <div className="w-8 h-8 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0">
+                        <div className={`flex items-center gap-3 p-4 ${CARD_HEIGHT}`}>
+                          <div className="w-9 h-9 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0">
                             {getVehicleIcon(vehicle.vehicleType)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">{displayBrand || "Vehicle"}</p>
-                            {displayMeta && <p className="text-sm text-neutral-400 truncate mt-0.5">{displayMeta}</p>}
+                            <p className="text-base font-semibold text-foreground truncate">{displayBrand || "Vehicle"}</p>
+                            {displayMeta && <p className="text-sm text-neutral-300 truncate mt-1">{displayMeta}</p>}
                           </div>
                         </div>
                       </SwipeableCard>

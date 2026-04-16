@@ -582,7 +582,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
   );
 
   // Card height for vehicle and address
-  const CARD_HEIGHT = "h-[72px]";
+  const CARD_HEIGHT = "h-[96px]";
 
   return (
     <div className="flex flex-col h-full bg-[#F0F0F0] dark:bg-background overflow-hidden">

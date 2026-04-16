@@ -74,17 +74,17 @@ const HardwareContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: H
 
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-base font-medium">Card Reader Beep</span>
+            <span className="text-foreground text-lg font-medium">Card Reader Beep</span>
             <Switch checked={cardReaderBeep} onCheckedChange={setCardReaderBeep} />
           </div>
           <div className="h-px bg-neutral-700/50 mx-4" />
           <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-base font-medium">Request Tip On Reader</span>
+            <span className="text-foreground text-lg font-medium">Request Tip On Reader</span>
             <Switch checked={requestTipOnReader} onCheckedChange={setRequestTipOnReader} />
           </div>
           <div className="h-px bg-neutral-700/50 mx-4" />
           <div className="flex items-center justify-between py-3.5 px-4">
-            <span className="text-foreground text-base font-medium">Open Cash Drawer</span>
+            <span className="text-foreground text-lg font-medium">Open Cash Drawer</span>
             <Switch checked={openCashDrawer} onCheckedChange={setOpenCashDrawer} />
           </div>
         </div>

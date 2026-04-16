@@ -39,7 +39,7 @@ const SettingsOption = ({
     <button onClick={onClick} className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity bg-neutral-800/60 rounded-2xl">
       <div className="flex items-center gap-4">
         <SettingsIcon bgColor={iconBgColor} iconSrc={icon} iconAlt={label} />
-        <span className="text-foreground text-base font-medium">{label}</span>
+        <span className="text-foreground text-lg font-medium">{label}</span>
       </div>
       {rightText ? (
         <span className="text-sm font-medium text-neutral-500">{rightText}</span>

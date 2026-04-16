@@ -87,7 +87,7 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick, onAdd }: Produc
             )}
             {!onBack && <div className="w-8 h-8" />}
             <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-              <h1 className="text-base font-medium text-foreground">
+              <h1 className="text-lg font-semibold text-foreground">
                 {showArchived ? "Archived Products" : "Products"}
               </h1>
             </div>
@@ -212,7 +212,7 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick, onAdd }: Produc
           {onBack && (
             <button
               onClick={onBack}
-              className="absolute left-4 w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center active:opacity-70 transition-opacity"
+              className="absolute left-4 w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
             >
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>

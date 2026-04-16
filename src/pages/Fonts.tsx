@@ -14,7 +14,7 @@ const Fonts = () => {
           >
             <ChevronLeft className="w-4 h-4 text-foreground" />
           </button>
-          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Fonts</h1>
+          <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Fonts</h1>
         </div>
 
         {/* System Fonts & My Fonts */}

@@ -47,9 +47,9 @@ const SystemSettings = () => {
           <button
             type="button"
             onClick={() => navigate('/settings')}
-            className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center active:opacity-70 transition-opacity"
+            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
           >
-            <ChevronLeft className="w-6 h-6 text-foreground" />
+            <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
           <div style={{ width: 40, height: 40 }} />
         </div>

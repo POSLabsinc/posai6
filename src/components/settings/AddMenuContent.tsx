@@ -179,7 +179,7 @@ const AddMenuContent = ({
         {onBack ? (
           <button
             onClick={handleSave}
-            className="absolute left-4 w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center active:opacity-70 transition-opacity"
+            className="absolute left-4 w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
             aria-label="Back"
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />

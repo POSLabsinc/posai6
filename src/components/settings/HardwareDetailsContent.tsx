@@ -42,7 +42,7 @@ const HardwareDetailsContent = ({ showHeader = true, onBack, onNavigate, onAICli
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           )}
-          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Hardware</h1>
+          <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Hardware</h1>
         </div>
       )}
 
@@ -74,7 +74,7 @@ const HardwareDetailsContent = ({ showHeader = true, onBack, onNavigate, onAICli
           >
             <div className="flex items-center gap-4">
               <SettingsIcon bgColor="#D6336C" iconSrc={hardwarePrinterIcon} iconAlt="Printer" />
-              <span className="text-foreground text-base font-medium">Printer</span>
+              <span className="text-foreground text-lg font-medium">Printer</span>
             </div>
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>
@@ -88,7 +88,7 @@ const HardwareDetailsContent = ({ showHeader = true, onBack, onNavigate, onAICli
           >
             <div className="flex items-center gap-4">
               <SettingsIcon bgColor="#F59F00" iconSrc={hardwareCardReaderIcon} iconAlt="Card Reader" />
-              <span className="text-foreground text-base font-medium">Card Reader</span>
+              <span className="text-foreground text-lg font-medium">Card Reader</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-neutral-500 text-sm">Off</span>
@@ -105,7 +105,7 @@ const HardwareDetailsContent = ({ showHeader = true, onBack, onNavigate, onAICli
           >
             <div className="flex items-center gap-4">
               <SettingsIcon bgColor="#5E4DD8" iconSrc={hardwareCashRegisterIcon} iconAlt="Cash Register" />
-              <span className="text-foreground text-base font-medium">Cash Register</span>
+              <span className="text-foreground text-lg font-medium">Cash Register</span>
             </div>
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>

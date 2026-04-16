@@ -181,7 +181,7 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
          </p>
 
         {/* Display Options Section */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Display Options</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Display Options</h2>
          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <div className="flex items-center justify-between py-3.5 px-4">
              <span className="text-foreground text-base font-medium">Show Gratuity On Receipt</span>
@@ -225,7 +225,7 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
         </div>
 
         {/* Suggested Tip Amount */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">
           Suggested Tip {settings.presetType === "amount" ? "Amount" : "Percentage"}
         </h2>
         <div className="flex gap-3 mb-3">

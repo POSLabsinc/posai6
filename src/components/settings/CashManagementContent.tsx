@@ -417,7 +417,7 @@ const CashManagementContent = ({
         </div>
 
         {/* Start New Drawer */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Start New Drawer</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Start New Drawer</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <button ref={drawerRef} onClick={handleOpenDrawerDropdown} className="w-full flex items-center justify-between py-3.5 px-4 active:opacity-70 transition-opacity">
             <span className="text-foreground text-lg font-medium">Cash Drawer</span>
@@ -429,7 +429,7 @@ const CashManagementContent = ({
         </div>
 
         {/* Opening Cash Amount - Enhanced */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Opening Cash Amount</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Opening Cash Amount</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6 border border-neutral-700/40">
           <div className="flex items-center justify-between py-5 px-5">
             <span className="text-foreground text-xl font-semibold">Amount</span>

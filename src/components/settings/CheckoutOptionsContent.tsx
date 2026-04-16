@@ -67,7 +67,7 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
         </div>
 
         {/* Order Settings */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Order Settings</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Order Settings</h2>
         
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
@@ -161,7 +161,7 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
         </p>
 
         {/* Signature & Receipt */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Signature & Receipt</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Signature & Receipt</h2>
         
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
@@ -242,7 +242,7 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
         </p>
 
         {/* Payment Sounds */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Payment Sounds</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Payment Sounds</h2>
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-6">
           <div className="flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-lg font-medium">Enable Payment Sounds</span>
@@ -254,7 +254,7 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
         </div>
 
         {/* Customer Display */}
-        <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Customer Display</h2>
+        <h2 className="text-base text-neutral-500 font-medium px-1 mb-1.5">Customer Display</h2>
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
              <span className="text-foreground text-lg font-medium">Show Order Summary</span>

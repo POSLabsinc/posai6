@@ -49,18 +49,13 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   const step = steps[currentStep];
 
-  // Find the visible element with the given data-tour attribute
   const findVisibleTourElement = useCallback((tourTarget: string): HTMLElement | null => {
     const els = document.querySelectorAll(`[data-tour="${tourTarget}"]`);
     for (const el of Array.from(els)) {
       const htmlEl = el as HTMLElement;
       const rect = htmlEl.getBoundingClientRect();
-      // Check element is visible (has dimensions and not display:none)
-      if (rect.width > 0 && rect.height > 0 && htmlEl.offsetParent !== null) {
-        return htmlEl;
-      }
+      if (rect.width > 0 && rect.height > 0 && htmlEl.offsetParent !== null) return htmlEl;
     }
-    // Fallback: return first element with nonzero dimensions
     for (const el of Array.from(els)) {
       const rect = el.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) return el as HTMLElement;
@@ -68,40 +63,28 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     return null;
   }, []);
 
-  // Scroll element into view on mobile then measure
   const measureAndScroll = useCallback((tourTarget: string) => {
     const el = findVisibleTourElement(tourTarget);
     if (!el) return false;
-
     const rect = el.getBoundingClientRect();
     if (rect.width <= 0 || rect.height <= 0) return false;
 
     if (isMobile) {
-      // Scroll the background so the element is visible
       const pad = 20;
       let desiredTop: number;
-      
       if (step?.desktopCardPosition === "top") {
-        // For "top" card position, element should be in lower portion of screen
-        // Card will appear above, so scroll element to ~60% down the viewport
         desiredTop = window.innerHeight * 0.55;
       } else {
         desiredTop = pad + 10;
       }
-      
       const currentTop = rect.top;
       const diff = currentTop - desiredTop;
-
       if (Math.abs(diff) > 30) {
         const scrollContainer = el.closest('.overflow-y-auto, .overflow-auto') || document.scrollingElement || document.documentElement;
-        if (scrollContainer) {
-          scrollContainer.scrollTop += diff;
-        }
+        if (scrollContainer) scrollContainer.scrollTop += diff;
         setTimeout(() => {
           const newRect = el.getBoundingClientRect();
-          if (newRect.width > 0 && newRect.height > 0) {
-            setHighlightRect(newRect);
-          }
+          if (newRect.width > 0 && newRect.height > 0) setHighlightRect(newRect);
         }, 400);
         return true;
       }
@@ -127,34 +110,19 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     let attempts = 0;
     const tryMeasure = () => {
       const found = measureAndScroll(s?.tourTarget || "");
-      if (!found) {
-        attempts++;
-        if (attempts < 25) setTimeout(tryMeasure, 100);
-      }
+      if (!found) { attempts++; if (attempts < 25) setTimeout(tryMeasure, 100); }
     };
     const timer = setTimeout(tryMeasure, 150);
     return () => clearTimeout(timer);
   }, [currentStep, open]);
 
-  // Keep position updated on scroll/resize
   useEffect(() => {
     if (!open) return;
-    const update = () => {
-      measureTarget();
-      rafRef.current = requestAnimationFrame(update);
-    };
-    // Use RAF for smooth tracking during scroll
-    const handleInteraction = () => {
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(update);
-    };
+    const update = () => { measureTarget(); rafRef.current = requestAnimationFrame(update); };
+    const handleInteraction = () => { cancelAnimationFrame(rafRef.current); rafRef.current = requestAnimationFrame(update); };
     window.addEventListener("resize", measureTarget);
     window.addEventListener("scroll", handleInteraction, true);
-    return () => {
-      window.removeEventListener("resize", measureTarget);
-      window.removeEventListener("scroll", handleInteraction, true);
-      cancelAnimationFrame(rafRef.current);
-    };
+    return () => { window.removeEventListener("resize", measureTarget); window.removeEventListener("scroll", handleInteraction, true); cancelAnimationFrame(rafRef.current); };
   }, [open, measureTarget]);
 
   useEffect(() => { if (open) { setCurrentStep(0); setHighlightRect(null); } }, [open]);
@@ -195,10 +163,8 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     width: highlightRect.width + padding * 2, height: highlightRect.height + padding * 2,
   } : { top: "40%", left: "40%", width: "20%", height: "20%" };
 
-  // On mobile, position card above highlighted element if it's near bottom, otherwise at bottom
   const getMobileCardStyle = (): React.CSSProperties => {
     if (highlightRect && step.desktopCardPosition === "top") {
-      // For steps like email-phone-button, place card above the highlighted element
       const cardBottom = highlightRect.top - padding - 16;
       return { position: "fixed", bottom: `calc(100vh - ${cardBottom}px)`, left: 12, right: 12, zIndex: 10002 };
     }
@@ -251,7 +217,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
         </motion.div>
       )}
 
-      {/* Instruction Card */}
+      {/* Instruction Card - Dark Theme */}
       {highlightRect && (
         <motion.div
           key={`card-${currentStep}`}
@@ -260,38 +226,61 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
           transition={{ delay: 0.15, duration: 0.3 }}
           style={cardStyle}
         >
-          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden">
+          <div className="rounded-2xl shadow-2xl overflow-hidden" style={{ background: "#1E1E22", border: "1px solid rgba(255,255,255,0.08)" }}>
+            {/* Header */}
             <div className="px-4 md:px-5 pt-4 md:pt-5 pb-2 md:pb-3 flex items-center gap-3">
-              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">{step.icon}</div>
-              <div className="min-w-0">
-                <h3 className="text-sm md:text-[15px] font-bold text-gray-900 truncate">{step.title}</h3>
-                <p className="text-xs text-gray-500">{step.subtitle}</p>
+              <div className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center shrink-0" style={{ background: "rgba(245,158,11,0.12)" }}>
+                <span className="text-amber-500">{step.icon}</span>
               </div>
-              <span className="ml-auto text-xs text-gray-400 shrink-0">{currentStep + 1}/{steps.length}</span>
+              <div className="min-w-0">
+                <h3 className="text-sm md:text-[15px] font-bold text-white truncate">{step.title}</h3>
+                <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{step.subtitle}</p>
+              </div>
+              <span className="ml-auto text-xs shrink-0" style={{ color: "rgba(255,255,255,0.35)" }}>{currentStep + 1}/{steps.length}</span>
             </div>
-            <div className="px-4 md:px-5 pb-3 md:pb-4 flex flex-col gap-1.5 md:gap-2">
+
+            {/* Instructions */}
+            <div className="px-4 md:px-5 pb-3 md:pb-4 flex flex-col gap-1.5 md:gap-2.5">
               {step.instructions.map((inst, i) => (
                 <div key={i} className="flex gap-2.5 items-start">
-                  <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center text-[11px] md:text-xs font-bold shrink-0 mt-0.5">{i + 1}</div>
-                  <p className="text-xs md:text-[13px] text-gray-700 leading-relaxed pt-0.5">{inst}</p>
+                  <span className="text-amber-500 font-bold text-xs md:text-sm min-w-[16px] mt-0.5">{i + 1}</span>
+                  <p className="text-xs md:text-[13px] leading-relaxed pt-0.5" style={{ color: "rgba(255,255,255,0.75)" }}>{inst}</p>
                 </div>
               ))}
             </div>
+
+            {/* Helper note callout */}
             {step.helperNote && (
-              <div className="mx-4 md:mx-5 mb-2 md:mb-4 p-2.5 md:p-3 rounded-xl bg-amber-50 border border-amber-100">
-                <p className="text-[11px] md:text-xs text-amber-700 leading-relaxed">{step.helperNote}</p>
+              <div className="mx-4 md:mx-5 mb-3 md:mb-4 p-2.5 md:p-3 rounded-xl" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
+                <p className="text-[11px] md:text-xs leading-relaxed" style={{ color: "rgba(245,158,11,0.85)" }}>{step.helperNote}</p>
               </div>
             )}
+
+            {/* Footer - Arrow back + Skip + Next */}
             <div className="px-4 md:px-5 pb-3 md:pb-5 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 md:gap-2">
+              <div className="flex items-center gap-2">
                 {currentStep > 0 && (
-                  <button onClick={handlePrev} className="flex items-center gap-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl bg-gray-100 text-gray-600 text-xs md:text-sm font-medium hover:bg-gray-200 transition-colors">
-                    <ChevronLeft className="w-3.5 h-3.5 md:w-4 md:h-4" />Back
+                  <button
+                    onClick={handlePrev}
+                    className="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-colors"
+                    style={{ background: "rgba(255,255,255,0.08)" }}
+                  >
+                    <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" style={{ color: "rgba(255,255,255,0.6)" }} />
                   </button>
                 )}
-                <button onClick={handleClose} className="flex items-center gap-1 px-3 md:px-4 py-2 md:py-2.5 rounded-xl bg-gray-100 text-gray-600 text-xs md:text-sm font-medium hover:bg-gray-200 transition-colors">Skip</button>
+                <button
+                  onClick={handleClose}
+                  className="text-xs md:text-sm font-medium transition-colors px-2"
+                  style={{ color: "rgba(255,255,255,0.45)" }}
+                >
+                  Skip
+                </button>
               </div>
-              <button onClick={handleNext} className="flex items-center gap-1 px-4 md:px-5 py-2 md:py-2.5 rounded-xl bg-amber-500 text-white text-xs md:text-sm font-semibold hover:bg-amber-600 transition-colors">
+              <button
+                onClick={handleNext}
+                className="flex items-center gap-1 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-colors"
+                style={{ background: "#F59E0B", color: "#fff" }}
+              >
                 {currentStep === steps.length - 1 ? "Got it" : "Next"}
                 {currentStep < steps.length - 1 && <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />}
               </button>

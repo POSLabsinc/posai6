@@ -243,8 +243,8 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
             <div className="px-4 md:px-5 pb-3 md:pb-4 flex flex-col gap-1.5 md:gap-2.5">
               {step.instructions.map((inst, i) => (
                 <div key={i} className="flex gap-2.5 items-start">
-                  <span className="text-amber-500 font-bold text-xs md:text-sm min-w-[16px] mt-0.5">{i + 1}</span>
-                  <p className="text-xs md:text-[13px] leading-relaxed pt-0.5" style={{ color: "rgba(255,255,255,0.75)" }}>{inst}</p>
+                  <div className="w-[6px] h-[6px] min-w-[6px] rounded-full bg-amber-500 mt-[7px]" />
+                  <p className="text-xs md:text-[13px] leading-relaxed" style={{ color: "rgba(255,255,255,0.75)" }}>{inst}</p>
                 </div>
               ))}
             </div>

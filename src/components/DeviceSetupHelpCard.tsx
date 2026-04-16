@@ -12,6 +12,7 @@ interface WalkthroughStep {
   desktopCardPosition: "right" | "left" | "bottom" | "top";
   icon: React.ReactNode;
   beforeShow?: () => void;
+  showCopyIcon?: boolean;
 }
 
 interface Props {

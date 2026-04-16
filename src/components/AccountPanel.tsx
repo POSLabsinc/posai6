@@ -288,11 +288,11 @@ const AccountPanel = ({
         {/* Options Container - Full width with consistent padding */}
         <div className="w-full px-6">
           <div className="bg-neutral-800/40 rounded-2xl overflow-hidden mb-4">
-            <AccountOption icon={personalIcon} label="Personal Information" iconBgColor="bg-neutral-600/80" onClick={() => navigate(getNavigationPath('/personal-information'))} />
+            <AccountOption icon={personalIcon} label="Personal Information" iconBgColor="#525252" onClick={() => navigate(getNavigationPath('/personal-information'))} />
             <div className="h-px bg-neutral-700/50 mx-5" />
-            <AccountOption icon={restaurantIcon} label="Restaurant Information" iconBgColor="bg-neutral-600/80" onClick={() => navigate(getNavigationPath('/restaurant-information'))} />
+            <AccountOption icon={restaurantIcon} label="Restaurant Information" iconBgColor="#525252" onClick={() => navigate(getNavigationPath('/restaurant-information'))} />
             <div className="h-px bg-neutral-700/50 mx-5" />
-            <AccountOption icon={securityIcon} label="Security" iconBgColor="bg-blue-600" onClick={() => navigate(getNavigationPath('/security'))} />
+            <AccountOption icon={securityIcon} label="Security" iconBgColor="#3B82F6" onClick={() => navigate(getNavigationPath('/security'))} />
           </div>
 
           {/* Logout Button */}

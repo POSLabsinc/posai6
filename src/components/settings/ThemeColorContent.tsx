@@ -309,49 +309,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
           </div>
         </div>
 
-        {/* Icon & Widget Style */}
-        <div>
-          <p className="text-xs font-medium text-neutral-500 mb-2 px-1 uppercase tracking-wider">Icon & Widget Style</p>
-          <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-4 gap-3">
-              {ICON_STYLES.map((style) => {
-                const isSelected = iconStyle === style.id;
-                const previewBg = style.id === 'Default' ? (themeColor || '#3B82F6')
-                  : style.id === 'Dark' ? '#1C1C1E'
-                  : style.id === 'Clear' ? 'transparent'
-                  : `${themeColor || '#3B82F6'}20`;
-                const previewBorder = style.id === 'Clear' ? '1px solid rgba(255,255,255,0.15)' : 'none';
-
-                return (
-                  <button
-                    key={style.id}
-                    onClick={() => setIconStyle(style.id)}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl transition-all ${
-                      isSelected
-                        ? 'bg-neutral-700/70 ring-2 ring-blue-500'
-                        : 'bg-neutral-700/30 hover:bg-neutral-700/50'
-                    }`}
-                  >
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center transition-all"
-                      style={{
-                        backgroundColor: previewBg,
-                        border: previewBorder,
-                      }}
-                    >
-                      <span className={style.id === 'Dark' ? 'text-neutral-400' : style.id === 'Tinted' ? 'text-foreground' : 'text-white'}>
-                        {style.icon}
-                      </span>
-                    </div>
-                    <span className={`text-xs font-medium ${isSelected ? 'text-foreground' : 'text-neutral-400'}`}>
-                      {style.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
 
         {/* Derived Colors */}
         <div>

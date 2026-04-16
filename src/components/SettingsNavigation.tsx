@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { Search, Mic, ChevronRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContext";
+import { useAppearance } from "@/contexts/AppearanceContext";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
 import { format } from "date-fns";
 

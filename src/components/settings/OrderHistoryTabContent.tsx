@@ -135,7 +135,7 @@ const OrderHistoryTabContent = ({ guest }: OrderHistoryTabContentProps) => {
   if (orders.length === 0) {
     return (
       <div className="rounded-2xl p-8 flex flex-col items-center justify-center text-center bg-neutral-800/40">
-        <ClipboardList className="w-10 h-10 text-neutral-500 mb-3" />
+        <ClipboardList className="w-10 h-10 text-neutral-500 mb-1" />
         <p className="text-neutral-400 text-sm">No order history available yet.</p>
       </div>
     );

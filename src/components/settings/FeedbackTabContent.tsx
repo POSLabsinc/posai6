@@ -66,7 +66,7 @@ const FeedbackTabContent = ({ guest }: FeedbackTabContentProps) => {
   if (feedback.length === 0) {
     return (
       <div className="rounded-2xl p-8 flex flex-col items-center justify-center text-center" style={{ backgroundColor: '#26262699' }}>
-        <MessageSquare className="w-10 h-10 text-neutral-500 mb-3" />
+        <MessageSquare className="w-10 h-10 text-neutral-500 mb-1" />
         <p className="text-neutral-400 text-sm">No feedback available yet.</p>
       </div>
     );

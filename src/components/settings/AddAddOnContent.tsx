@@ -106,7 +106,7 @@ const AddAddOnContent = ({ onBack, onSave, editData }: AddAddOnContentProps) => 
         >
           <ChevronLeft className="w-5 h-5 text-foreground" />
         </button>
-        <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">
+        <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">
           {isEditMode ? "Edit Add-On" : "Add Add-On"}
         </h1>
         <div className="w-10" />

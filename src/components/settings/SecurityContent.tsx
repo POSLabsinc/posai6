@@ -258,7 +258,7 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           )}
-          <h1 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Security</h1>
+          <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Security</h1>
         </div>
       )}
 

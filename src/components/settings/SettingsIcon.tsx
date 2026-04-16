@@ -1,5 +1,5 @@
 import { ReactNode } from "react";
-import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContext";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface SettingsIconProps {
   bgColor: string;

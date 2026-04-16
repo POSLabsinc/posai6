@@ -31,7 +31,15 @@ const COUNTRY_CODES = [
   { code: "+34", flag: "🇪🇸", label: "ES" },
 ];
 
-const ADDRESS_LABELS = ["Home", "Work", "Other"];
+const ADDRESS_LABELS = ["Home", "Work", "Custom"];
+
+const COUNTRIES_LIST = [
+  "United States", "Canada", "United Kingdom", "India", "Australia", "Germany",
+  "France", "Japan", "China", "Brazil", "Mexico", "United Arab Emirates",
+  "Saudi Arabia", "South Korea", "Italy", "Spain", "Netherlands", "Switzerland",
+  "Sweden", "Norway", "Denmark", "Finland", "Ireland", "New Zealand",
+  "Singapore", "South Africa", "Argentina", "Colombia", "Chile", "Peru",
+];
 
 const EMAIL_DOMAINS = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "icloud.com"];
 
@@ -63,6 +71,7 @@ interface VehicleEntry {
 interface AddressEntry {
   id: string;
   label: string;
+  customLabel?: string;
   street: string;
   city: string;
   state: string;
@@ -104,17 +113,81 @@ const NOTE_MAX = 250;
 
 const getVehicleIcon = (type: string) => {
   switch (type) {
-    case "Truck": return <Truck className="w-4 h-4 text-neutral-400" />;
-    default: return <Car className="w-4 h-4 text-neutral-400" />;
+    case "Truck": return <Truck className="w-5 h-5 text-neutral-400" />;
+    default: return <Car className="w-5 h-5 text-neutral-400" />;
   }
 };
 
 const getLabelIcon = (label: string) => {
   switch (label) {
-    case "Home": return <Home className="w-4 h-4 text-neutral-400" />;
-    case "Work": return <Briefcase className="w-4 h-4 text-neutral-400" />;
-    default: return <MapPin className="w-4 h-4 text-neutral-400" />;
+    case "Home": return <Home className="w-5 h-5 text-neutral-400" />;
+    case "Work": return <Briefcase className="w-5 h-5 text-neutral-400" />;
+    default: return <MapPin className="w-5 h-5 text-neutral-400" />;
   }
+};
+
+// Swipeable card wrapper for revealing edit/delete actions
+const SwipeableCard = ({ children, onEdit, onDelete }: { children: React.ReactNode; onEdit: () => void; onDelete: () => void }) => {
+  const [swipeX, setSwipeX] = useState(0);
+  const startX = useRef(0);
+  const isDragging = useRef(false);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    startX.current = e.touches[0].clientX;
+    isDragging.current = true;
+  };
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    const diff = startX.current - e.touches[0].clientX;
+    if (diff > 0) setSwipeX(Math.min(diff, 80));
+    else setSwipeX(0);
+  };
+  const handleTouchEnd = () => {
+    isDragging.current = false;
+    setSwipeX(swipeX > 40 ? 80 : 0);
+  };
+  const handleMouseDown = (e: React.MouseEvent) => {
+    startX.current = e.clientX;
+    isDragging.current = true;
+  };
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging.current) return;
+    const diff = startX.current - e.clientX;
+    if (diff > 0) setSwipeX(Math.min(diff, 80));
+    else setSwipeX(0);
+  };
+  const handleMouseUp = () => {
+    isDragging.current = false;
+    setSwipeX(swipeX > 40 ? 80 : 0);
+  };
+
+  return (
+    <div className="relative overflow-hidden rounded-xl border border-neutral-700">
+      {/* Action buttons behind */}
+      <div className="absolute right-0 top-0 bottom-0 flex items-stretch z-0">
+        <button onClick={onEdit} className="w-10 flex items-center justify-center bg-blue-600 hover:bg-blue-500 transition-colors">
+          <Pencil className="w-4 h-4 text-white" />
+        </button>
+        <button onClick={onDelete} className="w-10 flex items-center justify-center bg-red-600 hover:bg-red-500 transition-colors">
+          <Trash2 className="w-4 h-4 text-white" />
+        </button>
+      </div>
+      {/* Foreground content */}
+      <div
+        className="relative z-10 bg-neutral-800/60 transition-transform"
+        style={{ transform: `translateX(-${swipeX}px)` }}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={() => { if (isDragging.current) { isDragging.current = false; setSwipeX(swipeX > 40 ? 80 : 0); } }}
+      >
+        {children}
+      </div>
+    </div>
+  );
 };
 
 const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuestFormProps) => {
@@ -128,25 +201,24 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { getIconBgColor } = useAppearance();
 
-  // Vehicle inline expand state
   const [vehicleExpandedIndex, setVehicleExpandedIndex] = useState<number | null>(null);
   const [showNewVehicleForm, setShowNewVehicleForm] = useState(false);
   const [newVehicle, setNewVehicle] = useState<VehicleEntry>({ vehicleType: "", vehicleColor: "", vehicleBrand: "", licensePlate: "" });
 
-  // Address inline expand state
   const [addressExpandedId, setAddressExpandedId] = useState<string | null>(null);
   const [showNewAddressForm, setShowNewAddressForm] = useState(false);
   const [newAddress, setNewAddress] = useState<AddressEntry>({
-    id: "", label: "Home", street: "", city: "", state: "", zip: "", country: "", phone: "", phoneCountry: COUNTRY_CODES[0],
+    id: "", label: "Home", customLabel: "", street: "", city: "", state: "", zip: "", country: "", phone: "", phoneCountry: COUNTRY_CODES[0],
   });
 
-  // Street suggestion state
   const [streetSuggestions, setStreetSuggestions] = useState<string[]>([]);
   const [showStreetSuggestions, setShowStreetSuggestions] = useState(false);
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [stateSuggestions, setStateSuggestions] = useState<string[]>([]);
   const [showStateSuggestions, setShowStateSuggestions] = useState(false);
+  const [countrySuggestions, setCountrySuggestions] = useState<string[]>([]);
+  const [showCountrySuggestions, setShowCountrySuggestions] = useState(false);
 
   const [formData, setFormData] = useState<GuestFormData>({
     firstName: "", middleName: "", lastName: "", email: "", phoneNumber: "",
@@ -157,7 +229,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
   const MAX_VEHICLES = 6;
   const MAX_ADDRESSES = 6;
 
-  // Save new vehicle (called on collapse / done)
   const saveNewVehicle = useCallback(() => {
     if (newVehicle.licensePlate && newVehicle.vehicleBrand) {
       setFormData(prev => ({ ...prev, vehicles: [...prev.vehicles, { ...newVehicle }] }));
@@ -168,7 +239,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     }
   }, [newVehicle]);
 
-  // Save new address (called on collapse / done)
   const saveNewAddress = useCallback(() => {
     if (newAddress.street && newAddress.city && newAddress.state && newAddress.zip) {
       const entry: AddressEntry = { ...newAddress, id: crypto.randomUUID() };
@@ -177,7 +247,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
         syncAddressToForm(updated);
         return updated;
       });
-      setNewAddress({ id: "", label: "Home", street: "", city: "", state: "", zip: "", country: "", phone: "", phoneCountry: COUNTRY_CODES[0] });
+      setNewAddress({ id: "", label: "Home", customLabel: "", street: "", city: "", state: "", zip: "", country: "", phone: "", phoneCountry: COUNTRY_CODES[0] });
       setShowNewAddressForm(false);
     } else {
       setShowNewAddressForm(false);
@@ -240,7 +310,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
 
   const handleInputChange = (field: keyof GuestFormData, value: string) => {
     if (field === "phoneNumber") {
-      // Numbers only, max 10 digits
       const digits = value.replace(/\D/g, "").slice(0, 10);
       setFormData(prev => ({ ...prev, [field]: formatPhoneNumber(digits) }));
       return;
@@ -270,11 +339,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     setShowEmailSuggestions(false);
   };
 
-  const handlePhoneDigitsOnly = (value: string, setter: (v: string) => void) => {
-    const digits = value.replace(/\D/g, "").slice(0, 10);
-    setter(formatPhoneNumber(digits));
-  };
-
   const getStreetSuggestions = (value: string) => {
     if (value.length < 2) { setShowStreetSuggestions(false); return; }
     const filtered = SAMPLE_STREETS.filter(s => s.toLowerCase().includes(value.toLowerCase())).slice(0, 5);
@@ -294,6 +358,13 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     const filtered = US_STATES.filter(s => s.toLowerCase().startsWith(value.toLowerCase())).slice(0, 5);
     setStateSuggestions(filtered);
     setShowStateSuggestions(filtered.length > 0);
+  };
+
+  const getCountrySuggestions = (value: string) => {
+    if (value.length < 1) { setShowCountrySuggestions(false); return; }
+    const filtered = COUNTRIES_LIST.filter(c => c.toLowerCase().startsWith(value.toLowerCase())).slice(0, 5);
+    setCountrySuggestions(filtered);
+    setShowCountrySuggestions(filtered.length > 0);
   };
 
   const [isSaving, setIsSaving] = useState(false);
@@ -353,13 +424,18 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
     </Popover>
   );
 
+  const getDisplayLabel = (addr: AddressEntry) => {
+    if (addr.label === "Custom" && addr.customLabel) return addr.customLabel;
+    return addr.label;
+  };
+
   // Inline address form fields
   const renderAddressFormFields = ({ addr, onChange }: { addr: AddressEntry; onChange: (field: keyof AddressEntry, value: any) => void }) => (
     <div className="space-y-3 p-4">
       {/* Label */}
       <div>
         <label className="text-xs font-medium text-neutral-400 mb-1.5 block">Label</label>
-        <Select value={addr.label} onValueChange={(v) => onChange("label", v)}>
+        <Select value={addr.label} onValueChange={(v) => { onChange("label", v); if (v !== "Custom") onChange("customLabel", ""); }}>
           <SelectTrigger className="bg-neutral-900 border-neutral-700 text-foreground text-sm rounded-lg h-10">
             <SelectValue placeholder="Select" />
           </SelectTrigger>
@@ -367,6 +443,16 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
             {ADDRESS_LABELS.map(l => <SelectItem key={l} value={l} className="text-foreground">{l}</SelectItem>)}
           </SelectContent>
         </Select>
+        {addr.label === "Custom" && (
+          <input
+            type="text"
+            value={addr.customLabel || ""}
+            onChange={(e) => onChange("customLabel", e.target.value)}
+            placeholder="Enter custom label..."
+            className="w-full h-10 px-3 text-sm bg-neutral-900 border border-neutral-700 rounded-lg text-foreground placeholder:text-neutral-500 outline-none mt-2"
+            autoComplete="off"
+          />
+        )}
       </div>
       {/* Phone Number */}
       <div>
@@ -473,19 +559,30 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
             autoComplete="off"
           />
         </div>
-        <div>
+        <div className="relative">
           <label className="text-xs font-medium text-neutral-400 mb-1.5 block">Country</label>
           <input
             type="text" value={addr.country}
-            onChange={(e) => onChange("country", e.target.value)}
+            onChange={(e) => { onChange("country", e.target.value); getCountrySuggestions(e.target.value); }}
+            onBlur={() => setTimeout(() => setShowCountrySuggestions(false), 200)}
             placeholder="Country"
             className="w-full h-10 px-3 text-sm bg-neutral-900 border border-neutral-700 rounded-lg text-foreground placeholder:text-neutral-500 outline-none"
             autoComplete="off"
           />
+          {showCountrySuggestions && countrySuggestions.length > 0 && (
+            <div className="absolute left-0 right-0 top-full mt-1 bg-neutral-800 rounded-lg border border-white/10 overflow-hidden z-20 shadow-lg">
+              {countrySuggestions.map((c) => (
+                <button key={c} onMouseDown={(e) => { e.preventDefault(); onChange("country", c); setShowCountrySuggestions(false); }} className="block w-full px-3 py-2 text-left text-sm text-foreground hover:bg-white/10 transition-colors">{c}</button>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
+
+  // Card height for vehicle and address
+  const CARD_HEIGHT = "h-[72px]";
 
   return (
     <div className="flex flex-col h-full bg-[#F0F0F0] dark:bg-background overflow-hidden">
@@ -659,37 +756,44 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
             <div>
               <p className="text-sm font-semibold text-foreground mb-3">Vehicle Details</p>
               <div className="space-y-3">
-                {/* Saved vehicle cards - 2 per row */}
+                {/* Vehicle cards grid - cards + add button in same grid */}
                 <div className="grid grid-cols-2 gap-2">
                   {formData.vehicles.map((vehicle, index) => {
                     const isExpanded = vehicleExpandedIndex === index;
                     const displayBrand = [vehicle.vehicleBrand, vehicle.vehicleType].filter(Boolean).join(" ");
                     const displayMeta = [vehicle.licensePlate, vehicle.vehicleColor].filter(Boolean).join(" · ");
 
-                    if (isExpanded) return null; // render expanded below
+                    if (isExpanded) return null;
 
                     return (
-                      <div key={index} className="border border-neutral-700 rounded-xl overflow-hidden">
-                        <div className="flex items-center gap-2 p-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0">
+                      <SwipeableCard
+                        key={index}
+                        onEdit={() => setVehicleExpandedIndex(index)}
+                        onDelete={() => handleRemoveVehicle(index)}
+                      >
+                        <div className={`flex items-center gap-2.5 p-3 ${CARD_HEIGHT}`}>
+                          <div className="w-8 h-8 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0">
                             {getVehicleIcon(vehicle.vehicleType)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-foreground truncate">{displayBrand || "Vehicle"}</p>
-                            {displayMeta && <p className="text-[11px] text-neutral-400 truncate">{displayMeta}</p>}
-                          </div>
-                          <div className="flex items-center gap-1 flex-shrink-0">
-                            <button onClick={() => setVehicleExpandedIndex(index)} className="p-1 hover:bg-white/10 rounded-lg transition-colors">
-                              <Pencil className="w-3 h-3 text-neutral-400" />
-                            </button>
-                            <button onClick={() => handleRemoveVehicle(index)} className="p-1 hover:bg-white/10 rounded-lg transition-colors">
-                              <Trash2 className="w-3 h-3 text-red-400" />
-                            </button>
+                            <p className="text-sm font-medium text-foreground truncate">{displayBrand || "Vehicle"}</p>
+                            {displayMeta && <p className="text-xs text-neutral-400 truncate mt-0.5">{displayMeta}</p>}
                           </div>
                         </div>
-                      </div>
+                      </SwipeableCard>
                     );
                   })}
+
+                  {/* Add Vehicle button - inline in grid */}
+                  {!showNewVehicleForm && formData.vehicles.length < MAX_VEHICLES && (
+                    <button
+                      onClick={() => setShowNewVehicleForm(true)}
+                      className={`border-2 border-dashed border-neutral-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:border-neutral-500 transition-colors ${CARD_HEIGHT}`}
+                    >
+                      <Plus className="w-5 h-5 text-neutral-500" />
+                      <span className="text-xs text-neutral-400">Add Vehicle</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* Expanded edit form for existing vehicle */}
@@ -769,17 +873,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                     </div>
                   </div>
                 )}
-
-                {/* Add a New Vehicle - dashed card */}
-                {!showNewVehicleForm && formData.vehicles.length < MAX_VEHICLES && (
-                  <button
-                    onClick={() => setShowNewVehicleForm(true)}
-                    className="w-full border-2 border-dashed border-neutral-600 rounded-xl p-6 flex flex-col items-center justify-center gap-1.5 hover:border-neutral-500 transition-colors"
-                  >
-                    <Plus className="w-5 h-5 text-neutral-500" />
-                    <span className="text-sm text-neutral-400">Add a New Vehicle</span>
-                  </button>
-                )}
               </div>
             </div>
 
@@ -787,7 +880,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
             <div>
               <p className="text-sm font-semibold text-foreground mb-3">Address</p>
               <div className="space-y-3">
-                {/* Saved address cards - 2 per row */}
+                {/* Address cards grid - cards + add button in same grid */}
                 <div className="grid grid-cols-2 gap-2">
                   {addresses.map((addr) => {
                     const isExpanded = addressExpandedId === addr.id;
@@ -796,32 +889,39 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                     if (isExpanded) return null;
 
                     return (
-                      <div key={addr.id} className="border border-neutral-700 rounded-xl overflow-hidden">
-                        <div className="flex items-start gap-2 p-2.5">
-                          <div className="w-7 h-7 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <SwipeableCard
+                        key={addr.id}
+                        onEdit={() => setAddressExpandedId(addr.id)}
+                        onDelete={() => handleRemoveAddress(addr.id)}
+                      >
+                        <div className={`flex items-start gap-2.5 p-3 ${CARD_HEIGHT}`}>
+                          <div className="w-8 h-8 rounded-lg bg-neutral-800 flex items-center justify-center flex-shrink-0 mt-0.5">
                             {getLabelIcon(addr.label)}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs font-medium text-foreground">{addr.label}</p>
-                            <p className="text-[11px] text-neutral-400 leading-relaxed mt-0.5 line-clamp-2">{displayAddr}</p>
+                            <p className="text-sm font-medium text-foreground">{getDisplayLabel(addr)}</p>
+                            <p className="text-xs text-neutral-400 leading-relaxed mt-0.5 line-clamp-2">{displayAddr}</p>
                             {addr.phone && (
-                              <p className="text-[11px] text-neutral-400 mt-0.5 flex items-center gap-1">
-                                <Phone className="w-2.5 h-2.5" /> {addr.phoneCountry.code} {addr.phone}
+                              <p className="text-xs text-neutral-400 mt-0.5 flex items-center gap-1">
+                                <Phone className="w-3 h-3" /> {addr.phoneCountry.code} {addr.phone}
                               </p>
                             )}
                           </div>
-                          <div className="flex items-center gap-1 flex-shrink-0">
-                            <button onClick={() => setAddressExpandedId(addr.id)} className="p-1 hover:bg-white/10 rounded-lg transition-colors">
-                              <Pencil className="w-3 h-3 text-neutral-400" />
-                            </button>
-                            <button onClick={() => handleRemoveAddress(addr.id)} className="p-1 hover:bg-white/10 rounded-lg transition-colors">
-                              <Trash2 className="w-3 h-3 text-red-400" />
-                            </button>
-                          </div>
                         </div>
-                      </div>
+                      </SwipeableCard>
                     );
                   })}
+
+                  {/* Add Address button - inline in grid */}
+                  {!showNewAddressForm && addresses.length < MAX_ADDRESSES && (
+                    <button
+                      onClick={() => setShowNewAddressForm(true)}
+                      className={`border-2 border-dashed border-neutral-600 rounded-xl flex flex-col items-center justify-center gap-1 hover:border-neutral-500 transition-colors ${CARD_HEIGHT}`}
+                    >
+                      <Plus className="w-5 h-5 text-neutral-500" />
+                      <span className="text-xs text-neutral-400">Add Address</span>
+                    </button>
+                  )}
                 </div>
 
                 {/* Expanded edit form for existing address */}
@@ -854,17 +954,6 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
                       })}
                     </div>
                   </div>
-                )}
-
-                {/* Add a New Address - dashed card */}
-                {!showNewAddressForm && addresses.length < MAX_ADDRESSES && (
-                  <button
-                    onClick={() => setShowNewAddressForm(true)}
-                    className="w-full border-2 border-dashed border-neutral-600 rounded-xl p-6 flex flex-col items-center justify-center gap-1.5 hover:border-neutral-500 transition-colors"
-                  >
-                    <Plus className="w-5 h-5 text-neutral-500" />
-                    <span className="text-sm text-neutral-400">Add a New Address</span>
-                  </button>
                 )}
               </div>
             </div>

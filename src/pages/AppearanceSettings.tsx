@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Check, Sun, Monitor, Moon, Droplets, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Sun } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useTheme } from "next-themes";
@@ -12,13 +12,6 @@ import ScheduleTypeSelector from "@/components/settings/ScheduleTypeSelector";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
 import POSThemePreview from "@/components/settings/POSThemePreview";
 import AdvancedCustomizationContent from "@/components/settings/AdvancedCustomizationContent";
-
-const ICON_STYLES: { id: IconStyle; label: string; icon: React.ReactNode; description: string }[] = [
-  { id: 'Default', label: 'Default', icon: <Monitor className="w-5 h-5" />, description: 'Standard colored backgrounds' },
-  { id: 'Dark', label: 'Dark', icon: <Moon className="w-5 h-5" />, description: 'Dark monochrome style' },
-  { id: 'Clear', label: 'Clear', icon: <Droplets className="w-5 h-5" />, description: 'Transparent backgrounds' },
-  { id: 'Tinted', label: 'Tinted', icon: <Sparkles className="w-5 h-5" />, description: 'Theme-tinted backgrounds' },
-];
 
 type ThemeOption = 'dark' | 'light';
 
@@ -114,7 +107,7 @@ function OverlayDropdown<T extends string>({ options, value, onChange, isOpen, o
 const AppearanceSettings = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-  const { iconStyle, setIconStyle, iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness, themeColor } = useAppearance();
+  const { iconStyle, setIconStyle, iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness } = useAppearance();
   
   // State for all settings
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>('dark');
@@ -145,6 +138,7 @@ const AppearanceSettings = () => {
     // Don't change theme on toggle - keep current theme
   };
 
+  const iconStyleOptions: IconStyle[] = ['Default', 'Dark'];
   const iconSizeOptions: IconSize[] = ['Default', 'Small', 'Medium', 'Large'];
 
   return (
@@ -220,52 +214,28 @@ const AppearanceSettings = () => {
           </p>
         </div>
 
-        {/* Icon & Widget Style Section */}
-        <div className="mb-1">
-          <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <p className="text-lg font-medium text-foreground mb-3">Icon & Widget Style</p>
-            <div className="grid grid-cols-4 gap-3">
-              {ICON_STYLES.map((style) => {
-                const isSelected = iconStyle === style.id;
-                const previewBg = style.id === 'Default' ? (themeColor || '#3B82F6')
-                  : style.id === 'Dark' ? '#1C1C1E'
-                  : style.id === 'Clear' ? 'transparent'
-                  : `${themeColor || '#3B82F6'}20`;
-                const previewBorder = style.id === 'Clear' ? '1px solid rgba(255,255,255,0.15)' : 'none';
-
-                return (
-                  <button
-                    key={style.id}
-                    onClick={() => setIconStyle(style.id)}
-                    className={`flex flex-col items-center gap-2 p-3 rounded-2xl transition-all ${
-                      isSelected
-                        ? 'bg-neutral-700/70 ring-2 ring-blue-500'
-                        : 'bg-neutral-700/30 hover:bg-neutral-700/50'
-                    }`}
-                  >
-                    <div
-                      className="w-12 h-12 rounded-xl flex items-center justify-center transition-all"
-                      style={{ backgroundColor: previewBg, border: previewBorder }}
-                    >
-                      <span className={style.id === 'Dark' ? 'text-neutral-400' : style.id === 'Tinted' ? 'text-foreground' : 'text-white'}>
-                        {style.icon}
-                      </span>
-                    </div>
-                    <span className={`text-xs font-medium ${isSelected ? 'text-foreground' : 'text-neutral-400'}`}>
-                      {style.label}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-        <p className="text-sm text-neutral-500 mt-1.5 px-1 mb-6 leading-relaxed">
-          Select the visual style of icons and widgets used in the Point of Sale.
-        </p>
-
-        {/* Icon Size */}
+        {/* Icon Style & Size Section */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+          {/* Icon Style */}
+          <div className="flex items-center justify-between w-full py-4 px-5">
+            <span className="text-lg font-medium text-foreground">Icon Style</span>
+            <OverlayDropdown
+              options={iconStyleOptions}
+              value={iconStyle}
+              onChange={setIconStyle}
+              isOpen={iconStyleDropdownOpen}
+              onToggle={() => {
+                setIconStyleDropdownOpen(!iconStyleDropdownOpen);
+                setIconSizeDropdownOpen(false);
+              }}
+              onClose={() => setIconStyleDropdownOpen(false)}
+            />
+          </div>
+          
+          {/* Divider */}
+          <div className="h-px bg-neutral-700/50 mx-5" />
+          
+          {/* Icon Size */}
           <div className="flex items-center justify-between w-full py-4 px-5">
             <span className="text-lg font-medium text-foreground">Icon size</span>
             <OverlayDropdown
@@ -282,7 +252,7 @@ const AppearanceSettings = () => {
           </div>
         </div>
         <p className="text-sm text-neutral-500 mt-1.5 px-1 mb-6 leading-relaxed">
-          Adjust the size of icons displayed throughout the interface.
+          Select the visual style of icons used in the Point of Sale.
         </p>
 
         {/* Text Size & Bold Section */}

@@ -114,7 +114,7 @@ function OverlayDropdown<T extends string>({ options, value, onChange, isOpen, o
 const AppearanceSettings = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-  const { iconStyle, setIconStyle, iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness } = useAppearance();
+  const { iconStyle, setIconStyle, iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness, themeColor } = useAppearance();
   
   // State for all settings
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>('dark');

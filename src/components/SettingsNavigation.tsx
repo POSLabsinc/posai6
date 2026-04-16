@@ -302,31 +302,31 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
   // Tablet/Desktop Layout
   const TabletLayout = () => (
     <div className="h-full flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto scrollbar-hide overscroll-contain p-4 pb-8">
+      <div className="flex-1 overflow-y-auto scrollbar-hide overscroll-contain px-3.5 pt-3.5 pb-8">
         {/* Header */}
-        <h1 className="text-3xl font-bold text-foreground mb-6">Settings</h1>
+        <h1 className="text-[1.65rem] font-bold text-foreground mb-3">Settings</h1>
 
-        {/* Inline Search Bar with AI Icon outside */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex-1 min-w-0 bg-surface rounded-full px-4 py-2 flex items-center gap-3">
-            <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+        {/* Inline Search Bar */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex-1 min-w-0 bg-surface rounded-full px-3.5 py-[0.4rem] flex items-center gap-2.5">
+            <Search className="w-[1.1rem] h-[1.1rem] text-muted-foreground flex-shrink-0" />
             <input
               type="text"
               placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-base"
+              className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-[0.9rem]"
             />
             {searchQuery && (
               <button 
                 onClick={() => setSearchQuery("")}
-                className="p-1 active:opacity-70 transition-opacity text-muted-foreground text-sm flex-shrink-0"
+                className="p-1 active:opacity-70 transition-opacity text-muted-foreground text-xs flex-shrink-0"
               >
                 Clear
               </button>
             )}
-            <button className="p-1 active:opacity-70 transition-opacity flex-shrink-0">
-              <Mic className="w-5 h-5 text-muted-foreground" />
+            <button className="p-0.5 active:opacity-70 transition-opacity flex-shrink-0">
+              <Mic className="w-[1.1rem] h-[1.1rem] text-muted-foreground" />
             </button>
           </div>
         </div>
@@ -335,36 +335,35 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
         <button 
           onClick={onUserProfileClick}
           data-tour="profile"
-          className="w-full active:opacity-70 transition-opacity text-left mb-6"
+          className="w-full active:opacity-70 transition-opacity text-left mb-3"
         >
-          <div className="flex items-center gap-4">
-            <Avatar className="w-12 h-12">
+          <div className="flex items-center gap-3">
+            <Avatar className="w-11 h-11">
               {employeeAvatar && <AvatarImage src={employeeAvatar} alt={employeeName} />}
-              <AvatarFallback className="bg-muted text-foreground">{employeeInitials}</AvatarFallback>
+              <AvatarFallback className="bg-muted text-foreground text-sm">{employeeInitials}</AvatarFallback>
             </Avatar>
             <div className="flex-1">
-              <h2 className="text-base font-semibold text-foreground">{employeeName}</h2>
-              <p className="text-sm text-muted-foreground">{employeeRole}</p>
+              <h2 className="text-[0.95rem] font-semibold text-foreground leading-tight">{employeeName}</h2>
+              <p className="text-[0.8rem] text-muted-foreground leading-tight mt-0.5">{employeeRole}</p>
             </div>
           </div>
-          <div className="mt-2 flex items-center gap-2 pl-16">
-            <span className="text-sm text-muted-foreground">
+          <div className="mt-1.5 flex items-center gap-2 pl-14">
+            <span className="text-[0.75rem] text-muted-foreground">
               {clockInTimeFormatted ? `Clocked In At ${clockInTimeFormatted}` : "Not Clocked In"}
             </span>
-            {clockInTimeFormatted && <span className="w-2 h-2 rounded-full bg-emerald-500"></span>}
+            {clockInTimeFormatted && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>}
           </div>
         </button>
 
-
         {!hasResults && searchQuery && (
-          <div className="bg-surface rounded-2xl p-6 mb-4 text-center">
-            <p className="text-muted-foreground">No settings found for "{searchQuery}"</p>
+          <div className="bg-surface rounded-2xl p-4 mb-3 text-center">
+            <p className="text-muted-foreground text-sm">No settings found for "{searchQuery}"</p>
           </div>
         )}
 
         {/* Main Settings Group */}
         {mainItems.length > 0 && (
-          <div className="mb-6">
+          <div className="mb-2">
             {mainItems.map(item => (
               <SettingsItem
                 key={item.id}

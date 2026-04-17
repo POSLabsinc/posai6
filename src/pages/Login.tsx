@@ -2093,6 +2093,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
+          onSwitchToEmailPhone={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(false); }}
+          onSwitchToBrowser={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
+          onSwitchToOtp={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(true); }}
         />
       </div>
     );
@@ -5243,6 +5246,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
+          onSwitchToEmailPhone={() => { setMobileSignInTab?.("email"); setExistingUserCodeSent(false); }}
+          onSwitchToBrowser={() => { setMobileSignInTab?.(null); setExistingUserCodeSent(false); }}
+          onSwitchToBrowserTab={() => { setMobileSignInTab?.("browser"); setExistingUserCodeSent(false); }}
+          onSwitchToDefaultView={() => { setMobileSignInTab?.(null); setExistingUserCodeSent(false); }}
+          onSwitchToOtp={() => { setMobileSignInTab?.("email"); setExistingUserCodeSent(true); }}
         />
 
 
@@ -7443,7 +7451,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </div>
 
           {showTutorialOverlay && (
-            <DeviceSetupHelpCard open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} />
+            <DeviceSetupHelpCard
+              open={showTutorialOverlay}
+              onClose={() => setShowTutorialOverlay(false)}
+              onSwitchToEmailPhone={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(false); }}
+              onSwitchToBrowser={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
+              onSwitchToOtp={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(true); }}
+            />
           )}
         </div>
       );
@@ -7572,7 +7586,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <h2 className="text-xl font-bold text-foreground mb-2">Sign in with Code</h2>
                       <p className="text-sm text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
                       <div className="space-y-4">
-                        <div className="relative">
+                        <div className="relative" data-tour="email-input-field">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-5 h-5" /></div>
                           <input type="text" placeholder="Email or phone number" value={existingUserContact}
                             onChange={(e) => { setExistingUserContact(e.target.value); setExistingUserVerificationError(""); }}
@@ -7604,7 +7618,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <p className="text-sm font-medium text-foreground/40 mb-1.5 uppercase tracking-wider">Verification</p>
                       <h2 className="text-xl font-bold text-foreground mb-2">Enter Code</h2>
                       <p className="text-sm text-foreground/50 mb-6">Enter the 6-digit code sent to <span className="font-semibold text-foreground">{existingUserContact}</span></p>
-                      <div className="flex gap-2 mb-4">
+                      <div className="flex gap-2 mb-4" data-tour="otp-code-area">
                         {Array.from({ length: 6 }).map((_, i) => (
                           <div key={i} className={`w-12 h-14 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all ${existingUserVerificationCode[i] ? "border-primary bg-primary/5 text-foreground" : i === existingUserVerificationCode.length ? "border-primary/50 bg-foreground/[0.03]" : "border-foreground/10 bg-foreground/[0.03]"}`}>
                             {existingUserVerificationCode[i] || ""}
@@ -7752,7 +7766,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     {!existingUserCodeSent ? (
                       <div className="space-y-4">
                         <p className="text-sm text-foreground/50">Enter your email or mobile number to receive a code</p>
-                        <div className="relative">
+                        <div className="relative" data-tour="email-input-field">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-4 h-4" /></div>
                           <input type="text" placeholder="Email or phone number" value={existingUserContact}
                             onChange={(e) => { setExistingUserContact(e.target.value); setExistingUserVerificationError(""); }}
@@ -7767,7 +7781,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     ) : (
                       <div className="space-y-4">
                         <p className="text-sm text-foreground/50">Enter the 6-digit code sent to <span className="font-semibold text-foreground">{existingUserContact}</span></p>
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1.5" data-tour="otp-code-area">
                           {Array.from({ length: 6 }).map((_, i) => (
                             <div key={i} className={`flex-1 h-11 rounded-lg border-2 flex items-center justify-center text-lg font-bold transition-all ${existingUserVerificationCode[i] ? "border-primary bg-primary/5 text-foreground" : i === existingUserVerificationCode.length ? "border-primary/50 bg-foreground/[0.03]" : "border-foreground/10 bg-foreground/[0.03]"}`}>
                               {existingUserVerificationCode[i] || ""}

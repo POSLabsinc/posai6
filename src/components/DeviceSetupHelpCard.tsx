@@ -131,6 +131,12 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     const tryMeasure = () => {
       const found = measureAndScroll(s?.tourTarget || "");
       if (!found) { attempts++; if (attempts < 25) setTimeout(tryMeasure, 100); }
+      else if (s?.id === "email-input") {
+        // Auto-focus the input inside the highlighted container
+        const el = findVisibleTourElement(s.tourTarget);
+        const input = el?.querySelector("input") as HTMLInputElement | null;
+        if (input) setTimeout(() => input.focus({ preventScroll: true }), 250);
+      }
     };
     const timer = setTimeout(tryMeasure, 150);
     // Re-measure after card renders so centering uses real card height

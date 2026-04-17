@@ -51,15 +51,34 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   const step = steps[currentStep];
 
   const findVisibleTourElement = useCallback((tourTarget: string): HTMLElement | null => {
-    const els = document.querySelectorAll(`[data-tour="${tourTarget}"]`);
-    for (const el of Array.from(els)) {
-      const htmlEl = el as HTMLElement;
-      const rect = htmlEl.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0 && htmlEl.offsetParent !== null) return htmlEl;
+    const els = Array.from(document.querySelectorAll(`[data-tour="${tourTarget}"]`)) as HTMLElement[];
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    // Prefer elements that are visible AND intersect the viewport
+    const candidates = els.filter((el) => {
+      if (el.offsetParent === null) return false;
+      const style = window.getComputedStyle(el);
+      if (style.visibility === "hidden" || style.display === "none" || parseFloat(style.opacity) === 0) return false;
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return false;
+      // Must intersect viewport
+      return r.bottom > 0 && r.right > 0 && r.top < vh && r.left < vw;
+    });
+    if (candidates.length > 0) {
+      // Pick the one with the largest visible area in viewport
+      candidates.sort((a, b) => {
+        const ra = a.getBoundingClientRect();
+        const rb = b.getBoundingClientRect();
+        const aArea = Math.max(0, Math.min(ra.right, vw) - Math.max(ra.left, 0)) * Math.max(0, Math.min(ra.bottom, vh) - Math.max(ra.top, 0));
+        const bArea = Math.max(0, Math.min(rb.right, vw) - Math.max(rb.left, 0)) * Math.max(0, Math.min(rb.bottom, vh) - Math.max(rb.top, 0));
+        return bArea - aArea;
+      });
+      return candidates[0];
     }
-    for (const el of Array.from(els)) {
+    // Fallback: any element with size
+    for (const el of els) {
       const rect = el.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) return el as HTMLElement;
+      if (rect.width > 0 && rect.height > 0) return el;
     }
     return null;
   }, []);
@@ -112,6 +131,12 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     const tryMeasure = () => {
       const found = measureAndScroll(s?.tourTarget || "");
       if (!found) { attempts++; if (attempts < 25) setTimeout(tryMeasure, 100); }
+      else if (s?.id === "email-input") {
+        // Auto-focus the input inside the highlighted container
+        const el = findVisibleTourElement(s.tourTarget);
+        const input = el?.querySelector("input") as HTMLInputElement | null;
+        if (input) setTimeout(() => input.focus({ preventScroll: true }), 250);
+      }
     };
     const timer = setTimeout(tryMeasure, 150);
     // Re-measure after card renders so centering uses real card height
@@ -136,7 +161,8 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   if (!step || !open) return null;
 
-  const padding = isMobile ? 10 : 12;
+  const tightTargets = new Set(["email-input-field", "otp-code-area", "activation-code", "activation-link"]);
+  const padding = tightTargets.has(step.tourTarget) ? (isMobile ? 4 : 6) : (isMobile ? 10 : 12);
 
 
   const getDesktopCardStyle = (): React.CSSProperties => {

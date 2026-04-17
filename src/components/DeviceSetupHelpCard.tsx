@@ -51,15 +51,34 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   const step = steps[currentStep];
 
   const findVisibleTourElement = useCallback((tourTarget: string): HTMLElement | null => {
-    const els = document.querySelectorAll(`[data-tour="${tourTarget}"]`);
-    for (const el of Array.from(els)) {
-      const htmlEl = el as HTMLElement;
-      const rect = htmlEl.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0 && htmlEl.offsetParent !== null) return htmlEl;
+    const els = Array.from(document.querySelectorAll(`[data-tour="${tourTarget}"]`)) as HTMLElement[];
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    // Prefer elements that are visible AND intersect the viewport
+    const candidates = els.filter((el) => {
+      if (el.offsetParent === null) return false;
+      const style = window.getComputedStyle(el);
+      if (style.visibility === "hidden" || style.display === "none" || parseFloat(style.opacity) === 0) return false;
+      const r = el.getBoundingClientRect();
+      if (r.width <= 0 || r.height <= 0) return false;
+      // Must intersect viewport
+      return r.bottom > 0 && r.right > 0 && r.top < vh && r.left < vw;
+    });
+    if (candidates.length > 0) {
+      // Pick the one with the largest visible area in viewport
+      candidates.sort((a, b) => {
+        const ra = a.getBoundingClientRect();
+        const rb = b.getBoundingClientRect();
+        const aArea = Math.max(0, Math.min(ra.right, vw) - Math.max(ra.left, 0)) * Math.max(0, Math.min(ra.bottom, vh) - Math.max(ra.top, 0));
+        const bArea = Math.max(0, Math.min(rb.right, vw) - Math.max(rb.left, 0)) * Math.max(0, Math.min(rb.bottom, vh) - Math.max(rb.top, 0));
+        return bArea - aArea;
+      });
+      return candidates[0];
     }
-    for (const el of Array.from(els)) {
+    // Fallback: any element with size
+    for (const el of els) {
       const rect = el.getBoundingClientRect();
-      if (rect.width > 0 && rect.height > 0) return el as HTMLElement;
+      if (rect.width > 0 && rect.height > 0) return el;
     }
     return null;
   }, []);

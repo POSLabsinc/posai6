@@ -7846,6 +7846,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <DeviceSetupHelpCard
           open={showTutorialOverlay}
           onClose={() => setShowTutorialOverlay(false)}
+          onSwitchToEmailPhone={() => { setMobileSignInTab?.("email"); setExistingUserCodeSent(false); }}
+          onSwitchToBrowser={() => { setMobileSignInTab?.(null); setExistingUserCodeSent(false); }}
+          onSwitchToBrowserTab={() => { setMobileSignInTab?.("browser"); setExistingUserCodeSent(false); }}
+          onSwitchToDefaultView={() => { setMobileSignInTab?.(null); setExistingUserCodeSent(false); }}
+          onSwitchToOtp={() => { setMobileSignInTab?.("email"); setExistingUserCodeSent(true); }}
         />
       </div>
     );

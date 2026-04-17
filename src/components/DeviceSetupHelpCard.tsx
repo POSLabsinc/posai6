@@ -161,7 +161,8 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   if (!step || !open) return null;
 
-  const padding = isMobile ? 10 : 12;
+  const tightTargets = new Set(["email-input-field", "otp-code-area", "activation-code", "activation-link"]);
+  const padding = tightTargets.has(step.tourTarget) ? (isMobile ? 4 : 6) : (isMobile ? 10 : 12);
 
 
   const getDesktopCardStyle = (): React.CSSProperties => {

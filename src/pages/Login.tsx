@@ -7443,7 +7443,13 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </div>
 
           {showTutorialOverlay && (
-            <DeviceSetupHelpCard open={showTutorialOverlay} onClose={() => setShowTutorialOverlay(false)} />
+            <DeviceSetupHelpCard
+              open={showTutorialOverlay}
+              onClose={() => setShowTutorialOverlay(false)}
+              onSwitchToEmailPhone={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(false); }}
+              onSwitchToBrowser={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
+              onSwitchToOtp={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(true); }}
+            />
           )}
         </div>
       );

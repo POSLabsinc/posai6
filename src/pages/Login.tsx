@@ -1338,7 +1338,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <h2 className="text-xl font-bold text-foreground mb-2">Activate with Code</h2>
                       <p className="text-sm text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
                        <div className="space-y-4" data-tour="email-input-area">
-                        <div className="relative">
+                        <div className="relative" data-tour="email-input-field">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-5 h-5" /></div>
                           <input type="text" placeholder="Email or phone number" value={activationContactValue} onChange={(e) => setActivationContactValue(e.target.value)}
                             className="w-full h-14 pl-12 pr-4 rounded-2xl bg-foreground/[0.04] border border-foreground/[0.08] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/20 transition-colors text-base" />
@@ -1494,7 +1494,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     {!activationCodeSent ? (
                       <div className="space-y-4" data-tour="email-input-area">
                         <p className="text-sm text-foreground/50">Enter your email or mobile number to receive a code</p>
-                        <div className="relative">
+                        <div className="relative" data-tour="email-input-field">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-4 h-4" /></div>
                           <input type="text" placeholder="Email or phone number" value={activationContactValue} onChange={(e) => setActivationContactValue(e.target.value)}
                             className="w-full h-12 pl-11 pr-4 rounded-xl bg-foreground/[0.04] border border-foreground/[0.08] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/20 transition-colors text-sm" />

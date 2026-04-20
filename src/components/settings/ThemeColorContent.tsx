@@ -201,12 +201,24 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     { id: 'cmyk', label: 'CMYK' },
   ];
 
+  // Auto-save current theme when leaving the screen (back button or unmount)
+  useEffect(() => {
+    return () => {
+      if (themeColor) handleSaveTheme(themeColor);
+    };
+  }, [themeColor, handleSaveTheme]);
+
+  const handleBack = () => {
+    if (themeColor) handleSaveTheme(themeColor);
+    onBack?.();
+  };
+
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Header */}
       <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
         {onBack && (
-          <button type="button" onClick={onBack} className="w-10 h-10 rounded-full bg-surface flex items-center justify-center active:opacity-70 transition-opacity">
+          <button type="button" onClick={handleBack} className="w-10 h-10 rounded-full bg-surface flex items-center justify-center active:opacity-70 transition-opacity">
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
         )}

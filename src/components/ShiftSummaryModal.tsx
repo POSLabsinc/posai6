@@ -1140,11 +1140,14 @@ export default function ShiftSummaryModal({
               <div>
                 <label className="text-sm font-medium text-neutral-300 mb-2 block">Enter Cash Drop Amount</label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   value={cashDropAmount}
                   onChange={(e) => {
-                    setCashDropAmount(e.target.value);
-                    const val = parseFloat(e.target.value);
+                    // Allow only numbers and a single decimal point
+                    const sanitized = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1");
+                    setCashDropAmount(sanitized);
+                    const val = parseFloat(sanitized);
                     if (!isNaN(val) && Math.abs(val - totalCashDrop) > 0.01) {
                       setCashDropMismatch(true);
                     } else {
@@ -1154,7 +1157,6 @@ export default function ShiftSummaryModal({
                   }}
                   placeholder="0.00"
                   className="w-full px-4 py-3.5 bg-neutral-800 border border-white/10 rounded-xl text-white text-lg font-medium outline-none focus:ring-2 focus:ring-white/30 transition-all"
-                  step="0.01"
                 />
               </div>
 
@@ -1167,22 +1169,18 @@ export default function ShiftSummaryModal({
                   <label className="text-sm text-neutral-300 mb-2 block">Reason (required)</label>
                   <textarea
                     value={cashDropReason}
-                    onChange={(e) => setCashDropReason(e.target.value)}
+                    onChange={(e) => setCashDropReason(e.target.value.slice(0, 50))}
+                    maxLength={50}
                     placeholder="Explain the difference..."
                     className="w-full px-4 py-3 bg-neutral-800 border border-white/10 rounded-xl text-white text-sm outline-none focus:ring-2 focus:ring-white/30 transition-all resize-none h-24"
                   />
+                  <p className="text-[11px] text-neutral-500 mt-1 text-right">{cashDropReason.length}/50</p>
                 </div>
               )}
             </div>
 
             {/* Footer */}
-            <div className="px-7 pb-7 pt-2 flex gap-3">
-              <button
-                onClick={() => setShowCashDropPopup(false)}
-                className="flex-1 py-3.5 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl text-base transition-colors"
-              >
-                Cancel
-              </button>
+            <div className="px-7 pb-7 pt-2">
               <button
                 onClick={() => {
                   if (cashDropMismatch && !cashDropReason.trim()) return;
@@ -1192,7 +1190,7 @@ export default function ShiftSummaryModal({
                   setShowCashDropPopup(false);
                 }}
                 disabled={!cashDropAmount || (cashDropMismatch && !cashDropReason.trim())}
-                className="flex-1 py-3.5 bg-white text-black font-semibold rounded-xl text-base hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full py-3.5 bg-white text-black font-semibold rounded-xl text-base hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Confirm Cash Drop
               </button>

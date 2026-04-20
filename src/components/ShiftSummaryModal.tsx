@@ -1171,6 +1171,134 @@ export default function ShiftSummaryModal({
 
       {/* Mobile filter bottom sheet */}
       {isMobile && renderFilterSheet()}
+
+      {/* Cash Drop Popup — separate top-level modal, outside the Shift Summary container */}
+      {showCashDropPopup && (
+        <div className="fixed inset-0 z-[10010] flex items-end md:items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+            onClick={() => setShowCashDropPopup(false)}
+          />
+          <div className="relative z-10 w-full md:w-[520px] max-w-full md:max-w-[520px] max-h-[92vh] overflow-auto bg-[#1C1C1E] rounded-t-2xl md:rounded-2xl shadow-2xl">
+            {/* Drag handle (mobile) */}
+            <div className="flex justify-center pt-2 pb-1 md:hidden">
+              <div className="w-10 h-1 rounded-full bg-white/20" />
+            </div>
+
+            {/* Header */}
+            <div className="flex items-center justify-between px-7 py-5 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="w-11 h-11 rounded-xl bg-orange-500/15 flex items-center justify-center">
+                  <ArrowDownToLine className="w-5 h-5 text-orange-400" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-white">Cash Drop</h3>
+                  <p className="text-sm text-neutral-400">Reconcile end-of-shift cash</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setShowCashDropPopup(false)}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors"
+              >
+                <X className="w-5 h-5 text-neutral-300" />
+              </button>
+            </div>
+
+            <div className="px-7 py-6 space-y-5">
+              {/* Summary cards */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="p-4 bg-white/5 rounded-xl">
+                  <p className="text-[11px] text-neutral-400 uppercase tracking-wide mb-1.5">Cash in Hand</p>
+                  <p className="text-xl font-bold text-white">$ {cashInHand.toFixed(2)}</p>
+                </div>
+                <div className="p-4 bg-white/5 rounded-xl">
+                  <p className="text-[11px] text-neutral-400 uppercase tracking-wide mb-1.5">Card Tips (excluded)</p>
+                  <p className="text-xl font-bold text-red-400">- $ {cardTips.toFixed(2)}</p>
+                </div>
+              </div>
+
+              {/* Cash Drop Amount (auto-calculated) */}
+              <div className="p-5 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
+                <p className="text-[11px] text-neutral-400 uppercase tracking-wide mb-1.5">Expected Cash Drop</p>
+                {totalCashDrop > 0 ? (
+                  <p className="text-3xl font-bold text-emerald-400">$ {totalCashDrop.toFixed(2)}</p>
+                ) : (
+                  <p className="text-2xl font-bold text-amber-400">$ 0.00</p>
+                )}
+                <p className="text-xs text-neutral-500 mt-2">Card tips are excluded as they are processed digitally.</p>
+              </div>
+
+              {totalCashDrop === 0 && (
+                <div className="flex items-center gap-2 px-1">
+                  <div className="w-2 h-2 rounded-full bg-amber-400 shrink-0" />
+                  <p className="text-sm text-amber-400">No cash available to drop</p>
+                </div>
+              )}
+
+              {/* Enter actual drop amount */}
+              <div>
+                <label className="text-sm font-medium text-neutral-300 mb-2 block">Enter Cash Drop Amount</label>
+                <input
+                  type="number"
+                  value={cashDropAmount}
+                  onChange={(e) => {
+                    setCashDropAmount(e.target.value);
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val) && Math.abs(val - totalCashDrop) > 0.01) {
+                      setCashDropMismatch(true);
+                    } else {
+                      setCashDropMismatch(false);
+                      setCashDropReason("");
+                    }
+                  }}
+                  placeholder="0.00"
+                  className="w-full px-4 py-3.5 bg-neutral-800 border border-white/10 rounded-xl text-white text-lg font-medium outline-none focus:ring-2 focus:ring-white/30 transition-all"
+                  step="0.01"
+                />
+              </div>
+
+              {cashDropMismatch && (
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-2 h-2 rounded-full bg-amber-400" />
+                    <p className="text-sm text-amber-400 font-medium">Amount doesn't match expected total</p>
+                  </div>
+                  <label className="text-sm text-neutral-300 mb-2 block">Reason (required)</label>
+                  <textarea
+                    value={cashDropReason}
+                    onChange={(e) => setCashDropReason(e.target.value)}
+                    placeholder="Explain the difference..."
+                    className="w-full px-4 py-3 bg-neutral-800 border border-white/10 rounded-xl text-white text-sm outline-none focus:ring-2 focus:ring-white/30 transition-all resize-none h-24"
+                  />
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="px-7 pb-7 pt-2 flex gap-3">
+              <button
+                onClick={() => setShowCashDropPopup(false)}
+                className="flex-1 py-3.5 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl text-base transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  if (cashDropMismatch && !cashDropReason.trim()) return;
+                  const settledVal = parseFloat(cashDropAmount) || totalCashDrop;
+                  setCashDropSettledAmount(settledVal);
+                  setCashDropSettled(true);
+                  setShowCashDropPopup(false);
+                }}
+                disabled={!cashDropAmount || (cashDropMismatch && !cashDropReason.trim())}
+                className="flex-1 py-3.5 bg-white text-black font-semibold rounded-xl text-base hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Confirm Cash Drop
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

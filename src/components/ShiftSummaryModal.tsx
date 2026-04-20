@@ -1002,6 +1002,7 @@ export default function ShiftSummaryModal({
                 sendEmail: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("email"), 100); },
                 sendText: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("text"), 100); },
                 downloadCSV: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("download"), 100); },
+                openCashDrop: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => setShowCashDropPopup(true), 100); },
               }}
               onUserInteraction={() => {}}
             />

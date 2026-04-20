@@ -206,8 +206,8 @@ const AccountPanel = ({
           </div>
           
           {/* User Name */}
-          <h2 className="text-xl font-semibold text-foreground mb-0.5">Jim Hopper</h2>
-          <p className="text-neutral-400 text-sm">Executive Assistant Manager</p>
+          <h2 className="text-xl font-semibold text-foreground mb-0.5">John Smith</h2>
+          <p className="text-neutral-400 text-sm">Server</p>
         </div>
 
         {/* Employee Stats Summary - conditionally rendered */}

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, FileText, Mail, MessageSquare, Download, Share2, Printer, BarChart3, Check } from "lucide-react";
+import { X, Send, FileText, Mail, MessageSquare, Download, Share2, Printer, BarChart3, Check, ArrowDownToLine } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { toast } from "sonner";
@@ -33,6 +33,7 @@ export interface ShiftActions {
   sendEmail: () => void;
   sendText: () => void;
   downloadCSV: () => void;
+  openCashDrop: () => void;
 }
 
 interface ShiftAIChatPanelProps {
@@ -52,7 +53,7 @@ const addMsg = (role: "assistant", content: string, confirmAction?: string): Mes
 const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions, onUserInteraction }: ShiftAIChatPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([{
     id: "welcome", role: "assistant",
-    content: `Hi! I can help you with this shift summary. Try saying:\n- "Generate a report"\n- "Share report via email"\n- "Export as PDF"\n- "Download CSV"\n- "Analyze my performance"\n- "Show me a summary"`,
+    content: `Hi! I can help you with this shift summary. Try saying:\n- "Generate a report"\n- "Share report via email"\n- "Export as PDF"\n- "Download CSV"\n- "Cash Drop" to reconcile cash\n- "Analyze my performance"\n- "Show me a summary"`,
     timestamp: new Date(),
   }]);
   const [input, setInput] = useState("");
@@ -87,6 +88,10 @@ const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions, onUserInteracti
       case "download":
         shiftActions.downloadCSV();
         setMessages(prev => [...prev, addMsg("assistant", "Downloading CSV file...")]);
+        return true;
+      case "cashdrop":
+        shiftActions.openCashDrop();
+        setMessages(prev => [...prev, addMsg("assistant", "Opening Cash Drop reconciliation...")]);
         return true;
       case "summary": {
         const summary = buildSummaryText();
@@ -156,6 +161,7 @@ const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions, onUserInteracti
     if (lower.includes("pdf") || lower.includes("print")) return validateAndExecute("pdf");
     if (lower.includes("email") || lower.includes("mail")) return validateAndExecute("email");
     if (lower.includes("text") || lower.includes("sms")) return validateAndExecute("text");
+    if (lower.includes("cash drop") || lower.includes("cashdrop") || lower.includes("reconcile") || lower.includes("drop cash")) return validateAndExecute("cashdrop");
     if (lower.includes("download") || lower.includes("csv") || lower.includes("export")) return validateAndExecute("download");
     if (lower.includes("summary") || lower.includes("details") || lower.includes("show")) return validateAndExecute("summary");
     if (lower.includes("report") || lower.includes("generate")) return validateAndExecute("report");
@@ -215,6 +221,7 @@ const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions, onUserInteracti
   const quickActions = [
     { icon: BarChart3, label: "Analyze", action: () => { onUserInteraction?.(); validateAndExecute("analyze"); } },
     { icon: FileText, label: "Summary", action: () => { onUserInteraction?.(); validateAndExecute("summary"); } },
+    { icon: ArrowDownToLine, label: "Cash Drop", action: () => { onUserInteraction?.(); validateAndExecute("cashdrop"); } },
     { icon: Printer, label: "PDF", action: () => { onUserInteraction?.(); validateAndExecute("pdf"); } },
     { icon: Mail, label: "Email", action: () => { onUserInteraction?.(); validateAndExecute("email"); } },
     { icon: MessageSquare, label: "Text", action: () => { onUserInteraction?.(); validateAndExecute("text"); } },

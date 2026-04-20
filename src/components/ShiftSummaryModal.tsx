@@ -526,6 +526,7 @@ export default function ShiftSummaryModal({
             sendEmail: () => { setShowAIChat(false); setTimeout(() => handleShare("email"), 100); },
             sendText: () => { setShowAIChat(false); setTimeout(() => handleShare("text"), 100); },
             downloadCSV: () => { setShowAIChat(false); setTimeout(() => handleShare("download"), 100); },
+            openCashDrop: () => { setShowAIChat(false); setTimeout(() => setShowCashDropPopup(true), 100); },
           }}
         />
       </div>
@@ -933,7 +934,7 @@ export default function ShiftSummaryModal({
         </div>
 
         {/* Key metrics - 2 cols on mobile, 6 cols on desktop (single row) */}
-        <div className={`grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-3 px-5 md:px-8 py-4 md:py-5 shrink-0 transition-all duration-300 ${showAIChat && !aiExpanded && !isMobile ? 'md:mr-[440px]' : ''}`}>
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-3 px-5 md:px-8 py-4 md:py-5 shrink-0">
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
             <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
               <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
@@ -1001,13 +1002,14 @@ export default function ShiftSummaryModal({
                 sendEmail: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("email"), 100); },
                 sendText: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("text"), 100); },
                 downloadCSV: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("download"), 100); },
+                openCashDrop: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => setShowCashDropPopup(true), 100); },
               }}
               onUserInteraction={() => {}}
             />
           </div>
         ) : (
           <>
-            <div className={`flex-1 overflow-auto px-5 md:px-8 py-4 transition-all duration-300 ${showAIChat && !isMobile ? 'md:mr-[440px]' : ''}`}>
+            <div className="flex-1 overflow-auto px-5 md:px-8 py-4">
               {loading ? (
                 <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
               ) : (
@@ -1065,6 +1067,7 @@ export default function ShiftSummaryModal({
                     sendEmail: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("email"), 100); },
                     sendText: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("text"), 100); },
                     downloadCSV: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("download"), 100); },
+                    openCashDrop: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => setShowCashDropPopup(true), 100); },
                   }}
                   onUserInteraction={() => setAiExpanded(true)}
                 />
@@ -1092,19 +1095,14 @@ export default function ShiftSummaryModal({
             </div>
 
             {/* Header */}
-            <div className="flex items-center justify-between px-7 py-5 border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-orange-500/15 flex items-center justify-center">
-                  <ArrowDownToLine className="w-5 h-5 text-orange-400" />
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-white">Cash Drop</h3>
-                  <p className="text-sm text-neutral-400">Reconcile end-of-shift cash</p>
-                </div>
+            <div className="relative flex items-center justify-center px-7 py-5 border-b border-white/10">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-white">Cash Drop</h3>
+                <p className="text-sm text-neutral-400">Reconcile end-of-shift cash</p>
               </div>
               <button
                 onClick={() => setShowCashDropPopup(false)}
-                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors"
+                className="absolute right-4 top-1/2 -translate-y-1/2 w-9 h-9 rounded-lg flex items-center justify-center hover:bg-white/10 transition-colors"
               >
                 <X className="w-5 h-5 text-neutral-300" />
               </button>
@@ -1145,11 +1143,14 @@ export default function ShiftSummaryModal({
               <div>
                 <label className="text-sm font-medium text-neutral-300 mb-2 block">Enter Cash Drop Amount</label>
                 <input
-                  type="number"
+                  type="text"
+                  inputMode="decimal"
                   value={cashDropAmount}
                   onChange={(e) => {
-                    setCashDropAmount(e.target.value);
-                    const val = parseFloat(e.target.value);
+                    // Allow only numbers and a single decimal point
+                    const sanitized = e.target.value.replace(/[^0-9.]/g, "").replace(/(\..*)\./g, "$1");
+                    setCashDropAmount(sanitized);
+                    const val = parseFloat(sanitized);
                     if (!isNaN(val) && Math.abs(val - totalCashDrop) > 0.01) {
                       setCashDropMismatch(true);
                     } else {
@@ -1159,7 +1160,6 @@ export default function ShiftSummaryModal({
                   }}
                   placeholder="0.00"
                   className="w-full px-4 py-3.5 bg-neutral-800 border border-white/10 rounded-xl text-white text-lg font-medium outline-none focus:ring-2 focus:ring-white/30 transition-all"
-                  step="0.01"
                 />
               </div>
 
@@ -1172,22 +1172,18 @@ export default function ShiftSummaryModal({
                   <label className="text-sm text-neutral-300 mb-2 block">Reason (required)</label>
                   <textarea
                     value={cashDropReason}
-                    onChange={(e) => setCashDropReason(e.target.value)}
+                    onChange={(e) => setCashDropReason(e.target.value.slice(0, 50))}
+                    maxLength={50}
                     placeholder="Explain the difference..."
                     className="w-full px-4 py-3 bg-neutral-800 border border-white/10 rounded-xl text-white text-sm outline-none focus:ring-2 focus:ring-white/30 transition-all resize-none h-24"
                   />
+                  <p className="text-[11px] text-neutral-500 mt-1 text-right">{cashDropReason.length}/50</p>
                 </div>
               )}
             </div>
 
             {/* Footer */}
-            <div className="px-7 pb-7 pt-2 flex gap-3">
-              <button
-                onClick={() => setShowCashDropPopup(false)}
-                className="flex-1 py-3.5 bg-white/5 hover:bg-white/10 text-white font-semibold rounded-xl text-base transition-colors"
-              >
-                Cancel
-              </button>
+            <div className="px-7 pb-7 pt-2">
               <button
                 onClick={() => {
                   if (cashDropMismatch && !cashDropReason.trim()) return;
@@ -1197,7 +1193,7 @@ export default function ShiftSummaryModal({
                   setShowCashDropPopup(false);
                 }}
                 disabled={!cashDropAmount || (cashDropMismatch && !cashDropReason.trim())}
-                className="flex-1 py-3.5 bg-white text-black font-semibold rounded-xl text-base hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full py-3.5 bg-white text-black font-semibold rounded-xl text-base hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Confirm Cash Drop
               </button>

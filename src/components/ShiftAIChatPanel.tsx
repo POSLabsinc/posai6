@@ -33,6 +33,7 @@ export interface ShiftActions {
   sendEmail: () => void;
   sendText: () => void;
   downloadCSV: () => void;
+  openCashDrop: () => void;
 }
 
 interface ShiftAIChatPanelProps {

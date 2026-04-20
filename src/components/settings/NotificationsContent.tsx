@@ -158,7 +158,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
 
         {/* All Notifications Section */}
         <div className="mb-6">
-          <p className="text-sm font-semibold text-neutral-400 tracking-wider px-1 mb-3">All Notifications</p>
+          <p className="text-base font-medium text-muted-foreground px-1 mb-0.5">All Notifications</p>
           <div className="bg-neutral-800/60 rounded-full overflow-hidden">
             <button
               onClick={() => handleNavigate('/settings/notifications/all')}
@@ -177,7 +177,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
 
         {/* Style Section */}
         <div className="mb-6">
-          <p className="text-sm font-semibold text-neutral-400 tracking-wider px-1 mb-3">Notification Style</p>
+          <p className="text-base font-medium text-muted-foreground px-1 mb-0.5">Notification Style</p>
           <div className="grid grid-cols-3 gap-3">
             {styleOptions.map((option) => (
               <button
@@ -203,7 +203,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
 
         {/* Style Preview */}
         <div className="mb-6">
-          <p className="text-sm font-semibold text-neutral-400 tracking-wider px-1 mb-3">Preview</p>
+          <p className="text-base font-medium text-muted-foreground px-1 mb-0.5">Preview</p>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             <StylePreview style={notificationStyle as NotificationStyleType} />
           </div>
@@ -211,7 +211,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
 
         {/* Alerts Section */}
         <div>
-          <p className="text-sm font-semibold text-neutral-400 tracking-wider px-1 mb-3">Alerts</p>
+          <p className="text-base font-medium text-muted-foreground px-1 mb-0.5">Alerts</p>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             {/* Sound Alerts */}
             <div className="flex items-center justify-between py-3.5 px-4">

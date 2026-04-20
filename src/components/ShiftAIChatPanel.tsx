@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { X, Send, FileText, Mail, MessageSquare, Download, Share2, Printer, BarChart3, Check } from "lucide-react";
+import { X, Send, FileText, Mail, MessageSquare, Download, Share2, Printer, BarChart3, Check, ArrowDownToLine } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { toast } from "sonner";

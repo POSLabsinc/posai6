@@ -162,6 +162,8 @@ export default function ShiftSummaryModal({
   const [cashDropAmount, setCashDropAmount] = useState("");
   const [cashDropReason, setCashDropReason] = useState("");
   const [cashDropMismatch, setCashDropMismatch] = useState(false);
+  const [cashDropSettled, setCashDropSettled] = useState(false);
+  const [cashDropSettledAmount, setCashDropSettledAmount] = useState(0);
 
   // Mobile filter bottom sheet state
   const [showFilterSheet, setShowFilterSheet] = useState(false);

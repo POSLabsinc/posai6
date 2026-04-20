@@ -53,7 +53,7 @@ const addMsg = (role: "assistant", content: string, confirmAction?: string): Mes
 const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions, onUserInteraction }: ShiftAIChatPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([{
     id: "welcome", role: "assistant",
-    content: `Hi! I can help you with this shift summary. Try saying:\n- "Generate a report"\n- "Share report via email"\n- "Export as PDF"\n- "Download CSV"\n- "Analyze my performance"\n- "Show me a summary"`,
+    content: `Hi! I can help you with this shift summary. Try saying:\n- "Generate a report"\n- "Share report via email"\n- "Export as PDF"\n- "Download CSV"\n- "Cash Drop" to reconcile cash\n- "Analyze my performance"\n- "Show me a summary"`,
     timestamp: new Date(),
   }]);
   const [input, setInput] = useState("");

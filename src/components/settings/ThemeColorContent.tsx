@@ -98,8 +98,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     return rgb ? rgbToCmyk(rgb.r, rgb.g, rgb.b) : { c: 0, m: 54, y: 91, k: 2 };
   });
   const [savedThemes, setSavedThemes] = useState<SavedTheme[]>(getSavedThemes);
-  const [saveName, setSaveName] = useState("");
-  const [showSaveInput, setShowSaveInput] = useState(false);
 
   // Sync all formats when a color is applied
   const syncAllFormats = useCallback((hex: string) => {

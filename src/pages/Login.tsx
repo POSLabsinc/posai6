@@ -2095,6 +2095,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           onClose={() => setShowTutorialOverlay(false)}
           onSwitchToEmailPhone={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(false); }}
           onSwitchToBrowser={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
+          onSwitchToBrowserTab={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
+          onSwitchToDefaultView={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
           onSwitchToOtp={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(true); }}
         />
       </div>
@@ -7456,6 +7458,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               onClose={() => setShowTutorialOverlay(false)}
               onSwitchToEmailPhone={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(false); }}
               onSwitchToBrowser={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
+              onSwitchToBrowserTab={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
+              onSwitchToDefaultView={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
               onSwitchToOtp={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(true); }}
             />
           )}
@@ -7516,6 +7520,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <h2 className="text-xl font-bold text-foreground mb-6">Point the camera on your phone or tablet at the QR code.</h2>
                   <div className="flex flex-col items-center gap-5">
                     <button
+                      data-tour="qr-code"
                       onClick={() => {
                         localStorage.setItem("pos_device_session", JSON.stringify({
                           deviceId: `device_${Date.now()}`,
@@ -7553,7 +7558,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                           <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
                           <div>
                             <p className="text-sm text-foreground/70 mb-2">Go to this link:</p>
-                            <div className="inline-block px-5 py-2.5 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]">
+                            <div className="inline-block px-5 py-2.5 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]" data-tour="activation-link">
                               <span className="text-base font-semibold text-foreground tracking-wide">posai.com/pair</span>
                             </div>
                           </div>
@@ -7562,7 +7567,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                           <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
                           <div>
                             <p className="text-sm text-foreground/70 mb-3">When asked, enter this code:</p>
-                            <div className="flex gap-2">
+                            <div className="flex gap-2" data-tour="activation-code">
                               {generatedDeviceCode.split('').map((char, i) => (
                                 <div key={i} className="w-12 h-14 rounded-xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center">
                                   <span className="text-xl font-bold text-foreground">{char}</span>
@@ -7574,6 +7579,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       </div>
                       <div className="mt-8 flex flex-col gap-3">
                         <button onClick={() => setExistingUserSelectedOption("code")}
+                          data-tour="email-phone-button"
                           className="w-full py-3 rounded-2xl border border-foreground/[0.1] bg-foreground/[0.04] hover:bg-foreground/[0.08] text-sm text-foreground/60 hover:text-foreground/80 transition-all flex items-center justify-center gap-2">
                           <Mail className="w-4 h-4" />
                           Sign in via email / phone
@@ -7671,6 +7677,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <div className="flex flex-col items-start mb-5">
                     <h2 className="text-lg font-bold text-foreground mb-3">Point the camera at the QR code</h2>
                     <button
+                      data-tour="qr-code"
                       onClick={() => {
                         localStorage.setItem("pos_device_session", JSON.stringify({
                           deviceId: `device_${Date.now()}`,
@@ -7702,6 +7709,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       Use a browser
                     </button>
                     <button onClick={() => setMobileSignInTab("email")}
+                      data-tour="email-phone-button"
                       className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
                       <Mail className="w-4 h-4 mx-auto mb-1" />
                       Sign in via email / phone
@@ -7718,7 +7726,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <span className="text-base font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
                       <div>
                         <p className="text-sm text-foreground/70 mb-2">Go to this link:</p>
-                        <div className="inline-block px-4 py-2 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]">
+                        <div className="inline-block px-4 py-2 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]" data-tour="activation-link">
                           <span className="text-sm font-semibold text-foreground tracking-wide">posai.com/pair</span>
                         </div>
                       </div>
@@ -7727,7 +7735,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <span className="text-base font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
                       <div>
                         <p className="text-sm text-foreground/70 mb-2">Enter this code:</p>
-                        <div className="flex gap-1.5">
+                        <div className="flex gap-1.5" data-tour="activation-code">
                           {generatedDeviceCode.split('').map((char, i) => (
                             <div key={i} className="w-9 h-11 rounded-lg bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center">
                               <span className="text-base font-bold text-foreground">{char}</span>
@@ -7751,6 +7759,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       Scan QR code
                     </button>
                     <button onClick={() => { setMobileSignInTab("email"); setExistingUserCodeSent(false); setExistingUserVerificationCode(""); setExistingUserContact(""); }}
+                      data-tour="email-phone-button"
                       className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
                       <Mail className="w-4 h-4 mx-auto mb-1" />
                       Sign in via email / phone

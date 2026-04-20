@@ -98,8 +98,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     return rgb ? rgbToCmyk(rgb.r, rgb.g, rgb.b) : { c: 0, m: 54, y: 91, k: 2 };
   });
   const [savedThemes, setSavedThemes] = useState<SavedTheme[]>(getSavedThemes);
-  const [saveName, setSaveName] = useState("");
-  const [showSaveInput, setShowSaveInput] = useState(false);
 
   // Sync all formats when a color is applied
   const syncAllFormats = useCallback((hex: string) => {
@@ -154,20 +152,17 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     toast({ title: "Default theme restored", description: "All colors reset to defaults." });
   };
 
-  const handleSaveTheme = () => {
-    if (!themeColor) {
-      toast({ title: "No theme to save", description: "Please select a theme color first.", variant: "destructive" });
-      return;
-    }
-    const name = saveName.trim() || `Theme ${savedThemes.length + 1}`;
-    const newTheme: SavedTheme = { id: crypto.randomUUID(), name, themeColor, savedAt: new Date().toISOString() };
-    const updated = [...savedThemes, newTheme];
+  const handleSaveTheme = useCallback((hex: string) => {
+    if (!hex) return;
+    // Avoid duplicates of the same color
+    const existing = getSavedThemes();
+    if (existing.some(t => t.themeColor.toUpperCase() === hex.toUpperCase())) return;
+    const name = `Theme ${existing.length + 1}`;
+    const newTheme: SavedTheme = { id: crypto.randomUUID(), name, themeColor: hex, savedAt: new Date().toISOString() };
+    const updated = [...existing, newTheme];
     saveSavedThemes(updated);
     setSavedThemes(updated);
-    setSaveName("");
-    setShowSaveInput(false);
-    toast({ title: "Theme saved", description: `"${name}" has been saved.` });
-  };
+  }, []);
 
   const handleLoadTheme = (theme: SavedTheme) => {
     applyColor(theme.themeColor);
@@ -206,12 +201,24 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     { id: 'cmyk', label: 'CMYK' },
   ];
 
+  // Auto-save current theme when leaving the screen (back button or unmount)
+  useEffect(() => {
+    return () => {
+      if (themeColor) handleSaveTheme(themeColor);
+    };
+  }, [themeColor, handleSaveTheme]);
+
+  const handleBack = () => {
+    if (themeColor) handleSaveTheme(themeColor);
+    onBack?.();
+  };
+
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Header */}
       <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
         {onBack && (
-          <button type="button" onClick={onBack} className="w-10 h-10 rounded-full bg-surface flex items-center justify-center active:opacity-70 transition-opacity">
+          <button type="button" onClick={handleBack} className="w-10 h-10 rounded-full bg-surface flex items-center justify-center active:opacity-70 transition-opacity">
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
         )}
@@ -225,29 +232,9 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
           <div className="bg-neutral-800/60 rounded-2xl p-4">
             <div className="flex items-start gap-5">
               {/* LEFT: Picker + eyedropper/swatch */}
-              <div className="flex-shrink-0 space-y-3">
+              <div className="flex-shrink-0">
                 <div className="theme-color-picker">
                   <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={async () => {
-                      const anyWin = window as any;
-                      if (anyWin.EyeDropper) {
-                        try {
-                          const ed = new anyWin.EyeDropper();
-                          const res = await ed.open();
-                          if (res?.sRGBHex) applyColor(res.sRGBHex.toUpperCase());
-                        } catch {}
-                      }
-                    }}
-                    className="w-8 h-8 rounded-lg bg-neutral-700/60 flex items-center justify-center text-neutral-300 hover:text-foreground transition-colors flex-shrink-0"
-                    title="Pick color from screen"
-                  >
-                    <Pipette className="w-4 h-4" />
-                  </button>
-                  <div className="w-8 h-8 rounded-full border border-neutral-600 flex-shrink-0" style={{ backgroundColor: pickerColor }} />
                 </div>
               </div>
 
@@ -314,6 +301,28 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                         </div>
                       ))}
                     </div>
+                  </div>
+
+                  {/* Eyedropper - placed to the right after the inputs */}
+                  <div className="flex-shrink-0">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const anyWin = window as any;
+                        if (anyWin.EyeDropper) {
+                          try {
+                            const ed = new anyWin.EyeDropper();
+                            const res = await ed.open();
+                            if (res?.sRGBHex) applyColor(res.sRGBHex.toUpperCase());
+                          } catch {}
+                        }
+                      }}
+                      className="w-8 h-[30px] rounded-md bg-neutral-700/60 flex items-center justify-center text-neutral-300 hover:text-foreground transition-colors"
+                      title="Pick color from screen"
+                    >
+                      <Pipette className="w-4 h-4" />
+                    </button>
+                    <p className="text-[9px] text-neutral-500 uppercase font-medium mt-0.5 text-center tracking-wider">Pick</p>
                   </div>
                 </div>
               </div>

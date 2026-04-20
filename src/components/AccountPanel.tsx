@@ -187,10 +187,10 @@ const AccountPanel = ({
         </div>}
 
       {/* Content */}
-      <div className="flex-1 flex flex-col items-center justify-start pt-8 px-0">
+      <div className="flex-1 flex flex-col items-center justify-start pt-4 px-0">
         {/* Profile Section */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="relative mb-4">
+        <div className="flex flex-col items-center mb-4">
+          <div className="relative mb-2">
             {/* User Avatar */}
             <Avatar className="w-24 h-24 border-2 border-neutral-700">
               <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face" alt="John Smith" />
@@ -212,9 +212,9 @@ const AccountPanel = ({
 
         {/* Employee Stats Summary - conditionally rendered */}
         {!hidePerformanceSummary && (
-          <div className="w-full px-6 mb-6">
+          <div className="w-full px-6 mb-3">
             {/* Title and Filter Tabs Row */}
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-4">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-2">
               <h3 className="text-sm font-medium text-neutral-400 mb-0">Performance Summary</h3>
               
               {/* Filter Tabs */}

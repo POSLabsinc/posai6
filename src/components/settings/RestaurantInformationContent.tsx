@@ -90,8 +90,8 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
         </div>
       )}
 
-      <div className={`flex flex-col items-center ${showHeader ? 'pt-8' : 'pt-0'} px-6 pb-8`}>
-        <div className="mb-8">
+      <div className={`flex flex-col items-center ${showHeader ? 'pt-4' : 'pt-0'} px-6 pb-8`}>
+        <div className="mb-4">
           <Avatar className="w-24 h-24 border-4 border-neutral-600">
             <AvatarImage
               src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=200&h=200&fit=crop"
@@ -105,7 +105,7 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
           </Avatar>
         </div>
 
-        <div className="w-full space-y-4">
+        <div className="w-full space-y-3">
           <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
             <InfoRow label="Name" value="Bollywood Bites" />
             <div className="h-px bg-neutral-700/50 mx-5" />
@@ -119,7 +119,7 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
           </div>
 
           <div>
-            <h3 className="text-neutral-400 text-base mb-2 px-1">Description</h3>
+            <h3 className="text-neutral-400 text-sm mb-1 px-1">Description</h3>
             <div className="relative">
               <Textarea
                 defaultValue="Authentic Indian fine dining experience in the heart of London. Serving traditional and modern Indian cuisine crafted with fresh, locally sourced ingredients."
@@ -134,7 +134,7 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
           </div>
 
           <div>
-            <h3 className="text-neutral-400 text-base mb-2 px-1">Address</h3>
+            <h3 className="text-neutral-400 text-sm mb-1 px-1">Address</h3>
             <div className="relative">
               <div className="absolute left-4 top-1/2 -translate-y-1/2">
                 <Search className="w-5 h-5 text-neutral-500" />
@@ -177,7 +177,7 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
           </div>
 
           {/* Device Configuration */}
-          <div className="mt-6">
+          <div className="mt-3">
             <h3 className="text-neutral-400 text-xs font-medium tracking-wider mb-1 px-1">DEVICE CONFIGURATION</h3>
             <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
               <div className="flex items-center justify-between w-full py-4 px-5">

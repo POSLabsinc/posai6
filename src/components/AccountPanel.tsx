@@ -193,7 +193,7 @@ const AccountPanel = ({
           <div className="relative mb-4">
             {/* User Avatar */}
             <Avatar className="w-24 h-24 border-2 border-neutral-700">
-              <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face" alt="Jim Hopper" />
+              <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face" alt="John Smith" />
               <AvatarFallback className="bg-muted text-foreground text-2xl">JH</AvatarFallback>
             </Avatar>
             

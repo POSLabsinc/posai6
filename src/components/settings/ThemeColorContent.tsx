@@ -329,8 +329,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
             </div>
           </div>
         </div>
-          </div>
-        </div>
 
         {/* Derived Colors */}
         <div>

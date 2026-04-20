@@ -221,6 +221,7 @@ const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions, onUserInteracti
   const quickActions = [
     { icon: BarChart3, label: "Analyze", action: () => { onUserInteraction?.(); validateAndExecute("analyze"); } },
     { icon: FileText, label: "Summary", action: () => { onUserInteraction?.(); validateAndExecute("summary"); } },
+    { icon: ArrowDownToLine, label: "Cash Drop", action: () => { onUserInteraction?.(); validateAndExecute("cashdrop"); } },
     { icon: Printer, label: "PDF", action: () => { onUserInteraction?.(); validateAndExecute("pdf"); } },
     { icon: Mail, label: "Email", action: () => { onUserInteraction?.(); validateAndExecute("email"); } },
     { icon: MessageSquare, label: "Text", action: () => { onUserInteraction?.(); validateAndExecute("text"); } },

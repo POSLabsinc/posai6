@@ -924,59 +924,59 @@ export default function ShiftSummaryModal({
         </div>
 
         {/* Key metrics - 2 cols on mobile, 6 cols on desktop (single row) */}
-        <div className={`grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-3 px-5 md:px-8 py-4 md:py-5 shrink-0 transition-all duration-300 ${showAIChat && !aiExpanded && !isMobile ? 'md:mr-[440px]' : ''}`}>
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-3 px-5 md:px-8 py-4 md:py-5 shrink-0">
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-emerald-500/15 flex items-center justify-center shrink-0">
               <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Card Sales</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
+              <p className="text-[10px] md:text-xs text-neutral-400 uppercase tracking-wide font-semibold truncate">Card Sales</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-amber-500/15 flex items-center justify-center shrink-0">
               <Banknote className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Sales</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
+              <p className="text-[10px] md:text-xs text-neutral-400 uppercase tracking-wide font-semibold truncate">Cash Sales</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-purple-500/15 flex items-center justify-center shrink-0">
               <Receipt className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Total Tips</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
+              <p className="text-[10px] md:text-xs text-neutral-400 uppercase tracking-wide font-semibold truncate">Total Tips</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-blue-500/15 flex items-center justify-center shrink-0">
               <Banknote className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Tips Payable</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
+              <p className="text-[10px] md:text-xs text-neutral-400 uppercase tracking-wide font-semibold truncate">Tips Payable</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-cyan-500/15 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-cyan-500/15 flex items-center justify-center shrink-0">
               <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Total</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
+              <p className="text-[10px] md:text-xs text-neutral-400 uppercase tracking-wide font-semibold truncate">Total</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
-            <div className="w-9 h-9 md:w-10 md:h-10 rounded-lg bg-orange-500/15 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 md:w-11 md:h-11 rounded-lg bg-orange-500/15 flex items-center justify-center shrink-0">
               <ArrowDownToLine className="w-4 h-4 md:w-5 md:h-5 text-orange-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Drop</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+              <p className="text-[10px] md:text-xs text-neutral-400 uppercase tracking-wide font-semibold truncate">Cash Drop</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
             </div>
           </div>
         </div>

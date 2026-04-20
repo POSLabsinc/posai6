@@ -173,7 +173,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
 
         {/* App Theme Section */}
         <div className="mb-6">
-          <h2 className="text-base font-medium text-muted-foreground mb-4 px-1">App Theme</h2>
+          <h2 className="text-base font-medium text-muted-foreground mb-0.5 px-1">App Theme</h2>
           
           <div className="bg-surface rounded-2xl p-4">
             <div className="grid grid-cols-2 gap-4 mb-4">
@@ -276,7 +276,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
 
         {/* Brightness Section */}
         <div className="mb-4">
-          <h2 className="text-base font-medium text-muted-foreground mb-4 px-1">Brightness</h2>
+          <h2 className="text-base font-medium text-muted-foreground mb-0.5 px-1">Brightness</h2>
           
           <div className="bg-surface rounded-2xl p-5">
             <div className="flex items-center gap-4">
@@ -302,7 +302,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
 
         {/* Icon & Widget Style */}
         <div className="mb-6">
-          <h2 className="text-base font-medium text-muted-foreground mb-4 px-1">Icon & Widget Style</h2>
+          <h2 className="text-base font-medium text-muted-foreground mb-0.5 px-1">Icon & Widget Style</h2>
           <div className="bg-surface rounded-2xl p-4">
             <div className="grid grid-cols-5 gap-3">
               {ICON_STYLES.map((style) => {

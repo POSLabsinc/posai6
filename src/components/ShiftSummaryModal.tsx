@@ -1005,12 +1005,12 @@ export default function ShiftSummaryModal({
                 <table className="w-full text-sm md:text-base">
                   <thead className="sticky top-0 bg-[#1C1C1E] z-10">
                     <tr className="border-b-2 border-white/10 text-left">
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider">Type</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Qty</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
-                      <th className="py-3 md:py-3.5 pl-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Cash Drop</th>
+                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider">Type</th>
+                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Qty</th>
+                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Amount</th>
+                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Tip</th>
+                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Total Tips</th>
+                      <th className="py-3 md:py-4 pl-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Cash Drop</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1021,24 +1021,24 @@ export default function ShiftSummaryModal({
                       const cashDropForRow = isCash ? Math.max(0, row.amount - cardTips) : 0;
                       return (
                         <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white">{row.type}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">{row.qty}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
-                          <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-medium text-white text-right">$ {cashDropForRow.toFixed(2)}</td>
+                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white">{row.type}</td>
+                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] text-white text-right">{row.qty}</td>
+                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white text-right">$ {row.amount.toFixed(2)}</td>
+                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] text-white text-right">$ {row.tips.toFixed(2)}</td>
+                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white text-right">$ {row.totalTips.toFixed(2)}</td>
+                          <td className="py-4 md:py-5 pl-4 text-base md:text-[17px] font-semibold text-white text-right">$ {cashDropForRow.toFixed(2)}</td>
                         </tr>
                       );
                     })}
                   </tbody>
                   <tfoot>
                     <tr className="bg-neutral-800/50">
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white">Total</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">{paidOrders.length}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white">Total</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">{paidOrders.length}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
+                      <td className="py-4 md:py-5 pl-4 text-base md:text-[17px] font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
                     </tr>
                   </tfoot>
                 </table>

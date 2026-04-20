@@ -161,6 +161,7 @@ const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions, onUserInteracti
     if (lower.includes("pdf") || lower.includes("print")) return validateAndExecute("pdf");
     if (lower.includes("email") || lower.includes("mail")) return validateAndExecute("email");
     if (lower.includes("text") || lower.includes("sms")) return validateAndExecute("text");
+    if (lower.includes("cash drop") || lower.includes("cashdrop") || lower.includes("reconcile") || lower.includes("drop cash")) return validateAndExecute("cashdrop");
     if (lower.includes("download") || lower.includes("csv") || lower.includes("export")) return validateAndExecute("download");
     if (lower.includes("summary") || lower.includes("details") || lower.includes("show")) return validateAndExecute("summary");
     if (lower.includes("report") || lower.includes("generate")) return validateAndExecute("report");

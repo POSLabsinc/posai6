@@ -403,14 +403,10 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          <button onClick={handleResetDefault} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors">
+        <div className="flex items-center">
+          <button onClick={handleResetDefault} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors">
             <RotateCcw className="w-3.5 h-3.5" />
             Use Default Theme
-          </button>
-          <button onClick={() => setShowSaveInput(true)} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors">
-            <Save className="w-3.5 h-3.5" />
-            Save Current Theme
           </button>
         </div>
       </div>

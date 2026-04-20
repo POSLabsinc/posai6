@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, Check, RotateCcw, Save, Trash2, Palette, Monitor, Moon, Droplets, Sparkles, Paintbrush } from "lucide-react";
+import { ChevronLeft, Check, RotateCcw, Trash2, Palette, Monitor, Moon, Droplets, Sparkles, Paintbrush, Pipette } from "lucide-react";
+import { HexColorPicker } from "react-colorful";
 import { useAppearance, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SPLASH_BG_COLOR, DEFAULT_TOP_BAR_COLOR, DEFAULT_SETTINGS_ICON_COLOR, type IconStyle } from "@/contexts/AppearanceContext";
 import { toast } from "@/hooks/use-toast";
 
@@ -230,82 +231,81 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
           </div>
         )}
 
-        {/* Color Picker - Side by Side Layout */}
+        {/* Compact Color Picker */}
         <div>
           <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Color Picker</p>
-          <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="flex gap-4">
-              {/* Left: Compact color picker */}
-              <div className="w-[180px] flex-shrink-0">
-                <div className="relative w-full h-full min-h-[180px] rounded-xl overflow-hidden border border-neutral-600 cursor-pointer">
+          <div className="bg-neutral-800/60 rounded-2xl p-4 space-y-3">
+            {/* Compact gradient picker + hue slider */}
+            <div className="theme-color-picker">
+              <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
+            </div>
+
+            {/* Eyedropper + swatch + hue gradient row (visual only) */}
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={async () => {
+                  const anyWin = window as any;
+                  if (anyWin.EyeDropper) {
+                    try {
+                      const ed = new anyWin.EyeDropper();
+                      const res = await ed.open();
+                      if (res?.sRGBHex) applyColor(res.sRGBHex.toUpperCase());
+                    } catch {}
+                  }
+                }}
+                className="w-8 h-8 rounded-lg bg-neutral-700/60 flex items-center justify-center text-neutral-300 hover:text-foreground transition-colors flex-shrink-0"
+                title="Pick color from screen"
+              >
+                <Pipette className="w-4 h-4" />
+              </button>
+              <div className="w-8 h-8 rounded-full border border-neutral-600 flex-shrink-0" style={{ backgroundColor: pickerColor }} />
+            </div>
+
+            {/* HEX / RGB / CMYK in a single row */}
+            <div className="grid grid-cols-8 gap-2">
+              {/* HEX (2 cols) */}
+              <div className="col-span-2">
+                <input
+                  type="text"
+                  value={hexInput.replace('#', '')}
+                  onChange={(e) => handleHexChange(e.target.value)}
+                  maxLength={6}
+                  className="w-full text-xs bg-neutral-700/50 border border-neutral-600 rounded-md px-2 py-1.5 text-foreground font-mono uppercase text-center"
+                  placeholder="000000"
+                />
+                <p className="text-[9px] text-neutral-500 uppercase font-medium mt-1 text-center tracking-wider">HEX</p>
+              </div>
+              {/* RGB (3 cols) */}
+              {(['r', 'g', 'b'] as const).map((ch) => (
+                <div key={ch} className="col-span-1">
                   <input
-                    type="color"
-                    value={pickerColor}
-                    onChange={(e) => handlePickerChange(e.target.value)}
-                    className="absolute inset-0 w-full h-full cursor-pointer border-0"
-                    style={{ padding: 0, margin: 0 }}
+                    type="number"
+                    min={0}
+                    max={255}
+                    value={rgbInput[ch]}
+                    onChange={(e) => handleRgbChange(ch, e.target.value)}
+                    className="w-full text-xs bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
                   />
+                  <p className="text-[9px] text-neutral-500 uppercase font-medium mt-1 text-center tracking-wider">{ch}</p>
                 </div>
-              </div>
-
-              {/* Right: All color inputs stacked */}
-              <div className="flex-1 space-y-3">
-                {/* HEX */}
-                <div>
-                  <label className="text-[10px] text-neutral-500 uppercase font-medium mb-1 block tracking-wider">HEX</label>
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg border border-neutral-600 flex-shrink-0" style={{ backgroundColor: pickerColor }} />
-                    <input
-                      type="text"
-                      value={hexInput}
-                      onChange={(e) => handleHexChange(e.target.value)}
-                      maxLength={7}
-                      className="flex-1 text-sm bg-neutral-700/50 border border-neutral-600 rounded-lg px-3 py-2 text-foreground font-mono uppercase"
-                      placeholder="#000000"
-                    />
-                  </div>
+              ))}
+              {/* CMYK (could overflow on small) */}
+            </div>
+            <div className="grid grid-cols-4 gap-2">
+              {(['c', 'm', 'y', 'k'] as const).map((ch) => (
+                <div key={ch}>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    value={cmykInput[ch]}
+                    onChange={(e) => handleCmykChange(ch, e.target.value)}
+                    className="w-full text-xs bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
+                  />
+                  <p className="text-[9px] text-neutral-500 uppercase font-medium mt-1 text-center tracking-wider">{ch}</p>
                 </div>
-
-                {/* RGB */}
-                <div>
-                  <label className="text-[10px] text-neutral-500 uppercase font-medium mb-1 block tracking-wider">RGB</label>
-                  <div className="flex items-center gap-2">
-                    {(['r', 'g', 'b'] as const).map((ch) => (
-                      <div key={ch} className="flex-1">
-                        <label className="text-[9px] text-neutral-500 uppercase font-medium mb-0.5 block text-center">{ch}</label>
-                        <input
-                          type="number"
-                          min={0}
-                          max={255}
-                          value={rgbInput[ch]}
-                          onChange={(e) => handleRgbChange(ch, e.target.value)}
-                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-lg px-2 py-1.5 text-foreground font-mono text-center"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* CMYK */}
-                <div>
-                  <label className="text-[10px] text-neutral-500 uppercase font-medium mb-1 block tracking-wider">CMYK</label>
-                  <div className="flex items-center gap-2">
-                    {(['c', 'm', 'y', 'k'] as const).map((ch) => (
-                      <div key={ch} className="flex-1">
-                        <label className="text-[9px] text-neutral-500 uppercase font-medium mb-0.5 block text-center">{ch}</label>
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          value={cmykInput[ch]}
-                          onChange={(e) => handleCmykChange(ch, e.target.value)}
-                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-lg px-2 py-1.5 text-foreground font-mono text-center"
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
@@ -349,27 +349,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         <div>
           <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Saved Themes</p>
 
-          {showSaveInput && (
-            <div className="bg-neutral-800/60 rounded-2xl p-4 mb-3">
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  value={saveName}
-                  onChange={(e) => setSaveName(e.target.value)}
-                  placeholder="Theme name (optional)"
-                  className="flex-1 text-sm bg-neutral-700/50 border border-neutral-600 rounded-xl px-3 py-2 text-foreground placeholder:text-neutral-500"
-                  onKeyDown={(e) => e.key === 'Enter' && handleSaveTheme()}
-                />
-                <button onClick={handleSaveTheme} className="px-4 py-2 rounded-xl bg-foreground text-background text-sm font-medium hover:bg-foreground/90 transition-colors">
-                  Save
-                </button>
-                <button onClick={() => { setShowSaveInput(false); setSaveName(""); }} className="px-3 py-2 rounded-xl bg-neutral-700/50 text-sm text-neutral-400 hover:text-foreground transition-colors">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             {savedThemes.length === 0 ? (
               <div className="py-6 flex flex-col items-center gap-1.5">
@@ -402,14 +381,10 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          <button onClick={handleResetDefault} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors">
+        <div className="flex items-center">
+          <button onClick={handleResetDefault} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors">
             <RotateCcw className="w-3.5 h-3.5" />
             Use Default Theme
-          </button>
-          <button onClick={() => setShowSaveInput(true)} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors">
-            <Save className="w-3.5 h-3.5" />
-            Save Current Theme
           </button>
         </div>
       </div>

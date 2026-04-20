@@ -266,7 +266,7 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
       <div className={`flex flex-col items-center ${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-8`}>
         <div className="w-full">
           {/* Password Section - Read Only Notice */}
-          <div className="mb-6">
+          <div className="mb-3">
             <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">
               Password
             </h2>
@@ -281,7 +281,7 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
           </div>
 
           {/* Two Factor Authentication Section */}
-          <div className="mb-6">
+          <div className="mb-3">
             <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">
               Two Factor Authentication
             </h2>
@@ -294,13 +294,13 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
                 />
               </div>
             </div>
-            <p className="text-xs text-neutral-500 mt-3 px-2">
+            <p className="text-xs text-neutral-500 mt-1.5 px-2">
               Enable two factor authentication to add an extra layer of security to your account.
             </p>
           </div>
 
           {/* PIN Settings Section */}
-          <div className="mb-6">
+          <div className="mb-3">
             <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">
               PIN Settings
             </h2>
@@ -316,7 +316,7 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
                 </div>
               </button>
             </div>
-            <p className="text-xs text-neutral-500 mt-3 px-2">
+            <p className="text-xs text-neutral-500 mt-1.5 px-2">
               Your PIN is used for Point of Sale access, clock-in, clock-out, and authorization prompts. Changes take effect immediately.
             </p>
           </div>

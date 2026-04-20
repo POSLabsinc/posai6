@@ -210,7 +210,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
               </Avatar>
               <div className="flex-1">
                 <h2 className="text-lg font-semibold text-foreground">{employeeName}</h2>
-                <p className="text-base font-bold text-foreground">{employeeRole}</p>
+                <p className="text-sm font-bold text-foreground">{employeeRole}</p>
               </div>
             </div>
             <div className="h-px bg-divider mx-4" />
@@ -344,7 +344,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
             </Avatar>
             <div className="flex-1">
               <h2 className="text-[0.95rem] font-semibold text-foreground leading-tight">{employeeName}</h2>
-              <p className="text-[0.9rem] font-bold text-foreground leading-tight mt-0.5">{employeeRole}</p>
+              <p className="text-[0.78rem] font-bold text-foreground leading-tight mt-0.5">{employeeRole}</p>
             </div>
           </div>
           <div className="mt-1.5 flex items-center gap-2 pl-14">

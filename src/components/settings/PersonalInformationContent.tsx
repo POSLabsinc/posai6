@@ -145,14 +145,14 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
       )}
 
       {/* Content */}
-      <div className="flex flex-col items-center pt-8 px-6 pb-8">
+      <div className="flex flex-col items-center pt-4 px-6 pb-8">
 
         {/* Profile Avatar with Edit Button */}
-        <div className="relative mb-8">
+        <div className="relative mb-4">
           <Avatar className="w-24 h-24 border-2 border-neutral-700">
             <AvatarImage
               src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face"
-              alt="Jim Hopper"
+              alt="John Smith"
             />
             <AvatarFallback className="bg-muted text-foreground text-2xl">JH</AvatarFallback>
           </Avatar>
@@ -164,10 +164,10 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
         </div>
 
         {/* Info Sections */}
-        <div className="w-full space-y-4">
+        <div className="w-full space-y-3">
           {/* Name & Date of Birth Section */}
           <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
-            <InfoRow label="Name" value="Jim Hopper" />
+            <InfoRow label="Name" value="John Smith" />
             <div className="h-px bg-neutral-700/50 mx-5" />
             <InfoRow label="Date of birth" value="08 January 1998" />
           </div>
@@ -180,7 +180,7 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
           </div>
 
           {/* Address Section */}
-          <div className="space-y-3">
+          <div className="space-y-1.5">
             <h2 className="text-sm font-semibold text-neutral-400 tracking-wider">Address</h2>
             
             {/* Search Address Input */}

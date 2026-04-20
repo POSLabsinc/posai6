@@ -89,6 +89,10 @@ const ShiftAIChatPanel = ({ onClose, shiftContext, shiftActions, onUserInteracti
         shiftActions.downloadCSV();
         setMessages(prev => [...prev, addMsg("assistant", "Downloading CSV file...")]);
         return true;
+      case "cashdrop":
+        shiftActions.openCashDrop();
+        setMessages(prev => [...prev, addMsg("assistant", "Opening Cash Drop reconciliation...")]);
+        return true;
       case "summary": {
         const summary = buildSummaryText();
         setMessages(prev => [...prev, addMsg("assistant", summary)]);

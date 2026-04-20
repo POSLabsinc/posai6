@@ -981,88 +981,71 @@ export default function ShiftSummaryModal({
           </div>
         </div>
 
-        {/* Data table + AI side panel or AI full area */}
-        {aiExpanded && !isMobile ? (
-          <div className="flex-1 overflow-hidden flex flex-col">
-            <ShiftAIChatPanel
-              onClose={() => { setShowAIChat(false); setAiExpanded(false); }}
-              shiftContext={shiftContextForAI}
-              shiftActions={{
-                exportPDF: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("pdf"), 100); },
-                sendEmail: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("email"), 100); },
-                sendText: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("text"), 100); },
-                downloadCSV: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("download"), 100); },
-              }}
-              onUserInteraction={() => {}}
-            />
-          </div>
-        ) : (
-          <>
-            <div className={`flex-1 overflow-auto px-5 md:px-8 py-4 transition-all duration-300 ${showAIChat && !isMobile ? 'md:mr-[440px]' : ''}`}>
-              {loading ? (
-                <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
-              ) : (
-                <table className="w-full text-sm md:text-base">
-                  <thead className="sticky top-0 bg-[#1C1C1E] z-10">
-                    <tr className="border-b-2 border-white/10 text-left">
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider">Type</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Qty</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
-                      <th className="py-3 md:py-3.5 pl-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Cash Drop</th>
+        {/* Data table - always full width; AI is a separate full overlay */}
+        <div className="flex-1 overflow-auto px-5 md:px-8 py-4">
+          {loading ? (
+            <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
+          ) : (
+            <table className="w-full text-sm md:text-base">
+              <thead className="sticky top-0 bg-[#1C1C1E] z-10">
+                <tr className="border-b-2 border-white/10 text-left">
+                  <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider">Type</th>
+                  <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Qty</th>
+                  <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
+                  <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
+                  <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
+                  <th className="py-3 md:py-4 pl-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Cash Drop</th>
+                </tr>
+              </thead>
+              <tbody>
+                {paymentTypeSummary.map(row => {
+                  const isCash = row.type.toLowerCase() === "cash";
+                  const cashDropForRow = isCash ? Math.max(0, row.amount - cardTips) : 0;
+                  return (
+                    <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-lg font-semibold text-white">{row.type}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-lg text-neutral-300 text-right">{row.qty}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-lg font-semibold text-white text-right">$ {row.amount.toFixed(2)}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-lg text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-lg font-semibold text-white text-right">$ {row.totalTips.toFixed(2)}</td>
+                      <td className="py-4 md:py-5 pl-4 text-base md:text-lg font-semibold text-white text-right">$ {cashDropForRow.toFixed(2)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {paymentTypeSummary.map(row => {
-                      const isCash = row.type.toLowerCase() === "cash";
-                      // Cash Drop per row: Cash rows = amount (cash in hand), Card rows = 0 (digital)
-                      // But card tips need to be deducted from cash drop
-                      const cashDropForRow = isCash ? Math.max(0, row.amount - cardTips) : 0;
-                      return (
-                        <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white">{row.type}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">{row.qty}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
-                          <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-medium text-white text-right">$ {cashDropForRow.toFixed(2)}</td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                  <tfoot>
-                    <tr className="bg-neutral-800/50">
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white">Total</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">{paidOrders.length}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              )}
-            </div>
+                  );
+                })}
+              </tbody>
+              <tfoot>
+                <tr className="bg-neutral-800/50">
+                  <td className="py-4 md:py-5 pr-4 text-base md:text-lg font-bold text-white">Total</td>
+                  <td className="py-4 md:py-5 pr-4 text-base md:text-lg font-bold text-white text-right">{paidOrders.length}</td>
+                  <td className="py-4 md:py-5 pr-4 text-base md:text-lg font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
+                  <td className="py-4 md:py-5 pr-4 text-base md:text-lg font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
+                  <td className="py-4 md:py-5 pr-4 text-base md:text-lg font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
+                  <td className="py-4 md:py-5 pl-4 text-base md:text-lg font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
+                </tr>
+              </tfoot>
+            </table>
+          )}
+        </div>
 
-            {/* Right-side AI panel (not expanded yet) */}
-            {showAIChat && !isMobile && (
-              <div className="absolute right-0 top-0 bottom-0 w-[440px] z-[20] flex flex-col bg-[#1C1C1E] border-l border-white/10 shadow-2xl rounded-r-2xl overflow-hidden">
-                <ShiftAIChatPanel
-                  onClose={() => { setShowAIChat(false); setAiExpanded(false); }}
-                  shiftContext={shiftContextForAI}
-                  shiftActions={{
-                    exportPDF: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("pdf"), 100); },
-                    sendEmail: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("email"), 100); },
-                    sendText: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("text"), 100); },
-                    downloadCSV: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("download"), 100); },
-                  }}
-                  onUserInteraction={() => setAiExpanded(true)}
-                />
-              </div>
-            )}
-          </>
+        {/* Desktop AI Chat - full overlay above modal, does not shrink layout */}
+        {showAIChat && !isMobile && (
+          <div className="fixed inset-0 z-[10010] flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={() => { setShowAIChat(false); setAiExpanded(false); }} />
+            <div className="relative z-10 w-[560px] max-w-[92vw] h-[78vh] max-h-[760px] bg-[#1C1C1E] border border-white/10 shadow-2xl rounded-2xl overflow-hidden flex flex-col">
+              <ShiftAIChatPanel
+                onClose={() => { setShowAIChat(false); setAiExpanded(false); }}
+                shiftContext={shiftContextForAI}
+                shiftActions={{
+                  exportPDF: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("pdf"), 100); },
+                  sendEmail: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("email"), 100); },
+                  sendText: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("text"), 100); },
+                  downloadCSV: () => { setShowAIChat(false); setAiExpanded(false); setTimeout(() => handleShare("download"), 100); },
+                }}
+              />
+            </div>
+          </div>
         )}
+
 
         {/* Cash Drop Popup */}
         {showCashDropPopup && (

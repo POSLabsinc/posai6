@@ -349,27 +349,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         <div>
           <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Saved Themes</p>
 
-          {showSaveInput && (
-            <div className="bg-neutral-800/60 rounded-2xl p-4 mb-3">
-              <div className="flex items-center gap-3">
-                <input
-                  type="text"
-                  value={saveName}
-                  onChange={(e) => setSaveName(e.target.value)}
-                  placeholder="Theme name (optional)"
-                  className="flex-1 text-sm bg-neutral-700/50 border border-neutral-600 rounded-xl px-3 py-2 text-foreground placeholder:text-neutral-500"
-                  onKeyDown={(e) => e.key === 'Enter' && handleSaveTheme()}
-                />
-                <button onClick={handleSaveTheme} className="px-4 py-2 rounded-xl bg-foreground text-background text-sm font-medium hover:bg-foreground/90 transition-colors">
-                  Save
-                </button>
-                <button onClick={() => { setShowSaveInput(false); setSaveName(""); }} className="px-3 py-2 rounded-xl bg-neutral-700/50 text-sm text-neutral-400 hover:text-foreground transition-colors">
-                  Cancel
-                </button>
-              </div>
-            </div>
-          )}
-
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             {savedThemes.length === 0 ? (
               <div className="py-6 flex flex-col items-center gap-1.5">

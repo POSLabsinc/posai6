@@ -526,6 +526,7 @@ export default function ShiftSummaryModal({
             sendEmail: () => { setShowAIChat(false); setTimeout(() => handleShare("email"), 100); },
             sendText: () => { setShowAIChat(false); setTimeout(() => handleShare("text"), 100); },
             downloadCSV: () => { setShowAIChat(false); setTimeout(() => handleShare("download"), 100); },
+            openCashDrop: () => { setShowAIChat(false); setTimeout(() => setShowCashDropPopup(true), 100); },
           }}
         />
       </div>

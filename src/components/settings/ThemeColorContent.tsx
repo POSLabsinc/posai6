@@ -250,20 +250,45 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                   <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                 </div>
 
-                {/* HEX / RGB / CMYK in a single row */}
-                <div className="flex items-start gap-2">
-                  {/* HEX */}
-                  <div className="flex-shrink-0" style={{ width: '88px' }}>
-                    <input
-                      type="text"
-                      value={hexInput.replace('#', '')}
-                      onChange={(e) => handleHexChange(e.target.value)}
-                      maxLength={6}
-                      className="w-full text-xs bg-neutral-700/50 border border-neutral-600 rounded-md px-2 py-1.5 text-foreground font-mono uppercase text-center"
-                      placeholder="000000"
-                    />
-                    <p className="text-[9px] text-neutral-500 uppercase font-medium mt-0.5 text-center tracking-wider">HEX</p>
+                {/* HEX / RGB / CMYK in a single row with dividers */}
+                <div className="flex items-start gap-3">
+                  {/* HEX + Pick (stacked) */}
+                  <div className="flex-shrink-0 flex flex-col gap-2" style={{ width: '88px' }}>
+                    <div>
+                      <input
+                        type="text"
+                        value={hexInput.replace('#', '')}
+                        onChange={(e) => handleHexChange(e.target.value)}
+                        maxLength={6}
+                        className="w-full text-xs bg-neutral-700/50 border border-neutral-600 rounded-md px-2 py-1.5 text-foreground font-mono uppercase text-center"
+                        placeholder="000000"
+                      />
+                      <p className="text-[9px] text-neutral-500 uppercase font-medium mt-0.5 text-center tracking-wider">HEX</p>
+                    </div>
+                    <div className="flex flex-col items-center">
+                      <button
+                        type="button"
+                        onClick={async () => {
+                          const anyWin = window as any;
+                          if (anyWin.EyeDropper) {
+                            try {
+                              const ed = new anyWin.EyeDropper();
+                              const res = await ed.open();
+                              if (res?.sRGBHex) applyColor(res.sRGBHex.toUpperCase());
+                            } catch {}
+                          }
+                        }}
+                        className="w-full h-[30px] rounded-md bg-neutral-700/60 flex items-center justify-center text-neutral-300 hover:text-foreground transition-colors"
+                        title="Pick color from screen"
+                      >
+                        <Pipette className="w-4 h-4" />
+                      </button>
+                      <p className="text-[9px] text-neutral-500 uppercase font-medium mt-0.5 text-center tracking-wider">Pick</p>
+                    </div>
                   </div>
+
+                  {/* Divider */}
+                  <div className="w-px self-stretch bg-neutral-700/70" />
 
                   {/* RGB */}
                   <div className="flex-1 min-w-0">
@@ -284,6 +309,9 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                     </div>
                   </div>
 
+                  {/* Divider */}
+                  <div className="w-px self-stretch bg-neutral-700/70" />
+
                   {/* CMYK */}
                   <div className="flex-1 min-w-0">
                     <div className="grid grid-cols-4 gap-1.5">
@@ -301,28 +329,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                         </div>
                       ))}
                     </div>
-                  </div>
-
-                  {/* Eyedropper - placed to the right after the inputs */}
-                  <div className="flex-shrink-0">
-                    <button
-                      type="button"
-                      onClick={async () => {
-                        const anyWin = window as any;
-                        if (anyWin.EyeDropper) {
-                          try {
-                            const ed = new anyWin.EyeDropper();
-                            const res = await ed.open();
-                            if (res?.sRGBHex) applyColor(res.sRGBHex.toUpperCase());
-                          } catch {}
-                        }
-                      }}
-                      className="w-8 h-[30px] rounded-md bg-neutral-700/60 flex items-center justify-center text-neutral-300 hover:text-foreground transition-colors"
-                      title="Pick color from screen"
-                    >
-                      <Pipette className="w-4 h-4" />
-                    </button>
-                    <p className="text-[9px] text-neutral-500 uppercase font-medium mt-0.5 text-center tracking-wider">Pick</p>
                   </div>
                 </div>
               </div>

@@ -756,7 +756,7 @@ export default function ShiftSummaryModal({
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className={`relative z-10 bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col
         w-full h-full md:h-auto
-        md:w-[1200px] md:max-h-[92vh] md:rounded-2xl`}
+        md:w-[95vw] md:max-w-[1480px] md:max-h-[94vh] md:rounded-2xl`}
       >
         {/* Modal size increased */}
         <div className="flex items-center justify-between px-5 md:px-8 py-4 md:py-5 border-b border-white/10 shrink-0">

@@ -152,20 +152,17 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     toast({ title: "Default theme restored", description: "All colors reset to defaults." });
   };
 
-  const handleSaveTheme = () => {
-    if (!themeColor) {
-      toast({ title: "No theme to save", description: "Please select a theme color first.", variant: "destructive" });
-      return;
-    }
-    const name = saveName.trim() || `Theme ${savedThemes.length + 1}`;
-    const newTheme: SavedTheme = { id: crypto.randomUUID(), name, themeColor, savedAt: new Date().toISOString() };
-    const updated = [...savedThemes, newTheme];
+  const handleSaveTheme = useCallback((hex: string) => {
+    if (!hex) return;
+    // Avoid duplicates of the same color
+    const existing = getSavedThemes();
+    if (existing.some(t => t.themeColor.toUpperCase() === hex.toUpperCase())) return;
+    const name = `Theme ${existing.length + 1}`;
+    const newTheme: SavedTheme = { id: crypto.randomUUID(), name, themeColor: hex, savedAt: new Date().toISOString() };
+    const updated = [...existing, newTheme];
     saveSavedThemes(updated);
     setSavedThemes(updated);
-    setSaveName("");
-    setShowSaveInput(false);
-    toast({ title: "Theme saved", description: `"${name}" has been saved.` });
-  };
+  }, []);
 
   const handleLoadTheme = (theme: SavedTheme) => {
     applyColor(theme.themeColor);

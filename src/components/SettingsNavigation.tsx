@@ -344,11 +344,11 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
             </Avatar>
             <div className="flex-1">
               <h2 className="text-[0.95rem] font-semibold text-foreground leading-tight">{employeeName}</h2>
-              <p className="text-[0.8rem] text-muted-foreground leading-tight mt-0.5">{employeeRole}</p>
+              <p className="text-[0.9rem] font-bold text-foreground leading-tight mt-0.5">{employeeRole}</p>
             </div>
           </div>
           <div className="mt-1.5 flex items-center gap-2 pl-14">
-            <span className="text-[0.75rem] text-muted-foreground">
+            <span className="text-[0.7rem] font-normal text-muted-foreground/80">
               {clockInTimeFormatted ? `Clocked In At ${clockInTimeFormatted}` : "Not Clocked In"}
             </span>
             {clockInTimeFormatted && <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>}

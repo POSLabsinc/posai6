@@ -158,7 +158,7 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
 
         {/* Date & Time Filters */}
         <div className="mb-6">
-          <h3 className="text-xs font-medium text-muted-foreground tracking-wider mb-1">Date & Time Range</h3>
+          <h3 className="text-base font-medium text-muted-foreground mb-0.5 px-1">Date & Time Range</h3>
           <div className="bg-card rounded-2xl overflow-hidden">
             {fieldRow("Start Date", calIcon, format(startDate, "dd/MM/yyyy"), () => setShowStartDatePicker(true), startDateRef)}
             {divider}
@@ -217,7 +217,7 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
           <>
             {/* Order Summary */}
             <div className="mb-6">
-              <h3 className="text-xs font-medium text-muted-foreground tracking-wider mb-1">Order Summary</h3>
+              <h3 className="text-base font-medium text-muted-foreground mb-0.5 px-1">Order Summary</h3>
               <div className="bg-card rounded-2xl overflow-hidden">
                 {orderSummary.map((item, i) => (
                   <div key={item.label}>
@@ -233,7 +233,7 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
 
             {/* Sales by Payment Type */}
             <div className="mb-6">
-              <h3 className="text-xs font-medium text-muted-foreground tracking-wider mb-1">Sales By Payment Type</h3>
+              <h3 className="text-base font-medium text-muted-foreground mb-0.5 px-1">Sales By Payment Type</h3>
               <div className="bg-card rounded-2xl overflow-hidden">
                 <div className="flex items-center py-3 px-4 border-b border-border">
                   <span className="flex-1 text-xs font-semibold text-foreground">Payment Type</span>
@@ -258,7 +258,7 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
 
             {/* Sales by Category */}
             <div className="mb-6">
-              <h3 className="text-xs font-medium text-muted-foreground tracking-wider mb-1">Sales By Category</h3>
+              <h3 className="text-base font-medium text-muted-foreground mb-0.5 px-1">Sales By Category</h3>
               <div className="bg-card rounded-2xl overflow-hidden">
                 <div className="flex items-center py-3 px-4 border-b border-border">
                   <span className="flex-1 text-xs font-semibold text-foreground">Category</span>

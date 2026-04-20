@@ -68,8 +68,8 @@ const HardwareContent = ({ showHeader = true, onBack, onNavigate, onAIClick }: H
         </div>
 
         {/* Hardware Shortcuts Section */}
-        <div className="mb-3">
-          <span className="text-sm font-semibold text-neutral-400 tracking-wider">Hardware Shortcuts</span>
+        <div className="mb-0.5">
+          <span className="text-base font-medium text-muted-foreground px-1">Hardware Shortcuts</span>
         </div>
 
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

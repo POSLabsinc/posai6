@@ -58,8 +58,8 @@ const ServerConnectionContent = ({ showHeader = true, onBack, onAIClick }: Serve
 
         {/* CLOUD SERVER Section */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-semibold text-neutral-400 tracking-wider">Cloud Server</span>
+          <div className="flex items-center justify-between mb-0.5 px-1">
+            <span className="text-base font-medium text-muted-foreground">Cloud Server</span>
             <Switch
               checked={cloudServerEnabled}
               onCheckedChange={handleCloudToggle}
@@ -122,8 +122,8 @@ const ServerConnectionContent = ({ showHeader = true, onBack, onAIClick }: Serve
 
         {/* edgeOS + CLOUD SERVER Section */}
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-semibold text-neutral-400 tracking-wider">edgeOS + Cloud Server</span>
+          <div className="flex items-center justify-between mb-0.5 px-1">
+            <span className="text-base font-medium text-muted-foreground">edgeOS + Cloud Server</span>
             <Switch
               checked={edgeOSEnabled}
               onCheckedChange={handleEdgeOSToggle}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, Check, RotateCcw, Save, Trash2, Palette, Monitor, Moon, Droplets, Sparkles, Paintbrush } from "lucide-react";
+import { ChevronLeft, Check, RotateCcw, Trash2, Palette, Monitor, Moon, Droplets, Sparkles, Paintbrush, Pipette } from "lucide-react";
+import { HexColorPicker } from "react-colorful";
 import { useAppearance, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SPLASH_BG_COLOR, DEFAULT_TOP_BAR_COLOR, DEFAULT_SETTINGS_ICON_COLOR, type IconStyle } from "@/contexts/AppearanceContext";
 import { toast } from "@/hooks/use-toast";
 

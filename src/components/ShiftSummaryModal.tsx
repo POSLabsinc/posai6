@@ -756,7 +756,7 @@ export default function ShiftSummaryModal({
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className={`relative z-10 bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col
         w-full h-full md:h-auto
-        md:w-[1200px] md:max-h-[92vh] md:rounded-2xl`}
+        md:w-[95vw] md:max-w-[1400px] md:max-h-[92vh] md:rounded-2xl`}
       >
         {/* Modal size increased */}
         <div className="flex items-center justify-between px-5 md:px-8 py-4 md:py-5 border-b border-white/10 shrink-0">
@@ -930,8 +930,8 @@ export default function ShiftSummaryModal({
               <CreditCard className="w-4 h-4 md:w-5 md:h-5 text-emerald-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Card Sales</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Card Sales</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -939,8 +939,8 @@ export default function ShiftSummaryModal({
               <Banknote className="w-4 h-4 md:w-5 md:h-5 text-amber-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Sales</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Cash Sales</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -948,8 +948,8 @@ export default function ShiftSummaryModal({
               <Receipt className="w-4 h-4 md:w-5 md:h-5 text-purple-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Total Tips</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Total Tips</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -957,8 +957,8 @@ export default function ShiftSummaryModal({
               <Banknote className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Tips Payable</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Tips Payable</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -966,8 +966,8 @@ export default function ShiftSummaryModal({
               <DollarSign className="w-4 h-4 md:w-5 md:h-5 text-cyan-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Total</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Total</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -975,8 +975,8 @@ export default function ShiftSummaryModal({
               <ArrowDownToLine className="w-4 h-4 md:w-5 md:h-5 text-orange-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] md:text-[11px] text-neutral-500 uppercase tracking-wide font-medium truncate">Cash Drop</p>
-              <p className="text-base md:text-xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+              <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Cash Drop</p>
+              <p className="text-base md:text-2xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -1005,12 +1005,12 @@ export default function ShiftSummaryModal({
                 <table className="w-full text-sm md:text-base">
                   <thead className="sticky top-0 bg-[#1C1C1E] z-10">
                     <tr className="border-b-2 border-white/10 text-left">
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider">Type</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Qty</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Amount</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Tip</th>
-                      <th className="py-3 md:py-3.5 pr-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Total Tips</th>
-                      <th className="py-3 md:py-3.5 pl-4 text-xs md:text-sm font-bold text-white/60 uppercase tracking-wider text-right">Cash Drop</th>
+                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider">Type</th>
+                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Qty</th>
+                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Amount</th>
+                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Tip</th>
+                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Total Tips</th>
+                      <th className="py-3 md:py-4 pl-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Cash Drop</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1021,24 +1021,24 @@ export default function ShiftSummaryModal({
                       const cashDropForRow = isCash ? Math.max(0, row.amount - cardTips) : 0;
                       return (
                         <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white">{row.type}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">{row.qty}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.amount.toFixed(2)}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base text-neutral-300 text-right">$ {row.tips.toFixed(2)}</td>
-                          <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-medium text-white text-right">$ {row.totalTips.toFixed(2)}</td>
-                          <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-medium text-white text-right">$ {cashDropForRow.toFixed(2)}</td>
+                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white">{row.type}</td>
+                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] text-white text-right">{row.qty}</td>
+                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white text-right">$ {row.amount.toFixed(2)}</td>
+                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] text-white text-right">$ {row.tips.toFixed(2)}</td>
+                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white text-right">$ {row.totalTips.toFixed(2)}</td>
+                          <td className="py-4 md:py-5 pl-4 text-base md:text-[17px] font-semibold text-white text-right">$ {cashDropForRow.toFixed(2)}</td>
                         </tr>
                       );
                     })}
                   </tbody>
                   <tfoot>
                     <tr className="bg-neutral-800/50">
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white">Total</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">{paidOrders.length}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pr-4 text-[15px] md:text-base font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
-                      <td className="py-3.5 md:py-4 pl-4 text-[15px] md:text-base font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white">Total</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">{paidOrders.length}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
+                      <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">$ {paymentTypeSummary.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
+                      <td className="py-4 md:py-5 pl-4 text-base md:text-[17px] font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
                     </tr>
                   </tfoot>
                 </table>

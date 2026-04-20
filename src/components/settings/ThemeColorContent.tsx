@@ -219,23 +219,11 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
       </div>
 
       <div className="px-6 pb-28 space-y-5">
-        {/* Active Theme Indicator */}
-        {themeColor && (
-          <div className="bg-neutral-800/60 rounded-2xl p-4 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl border-2 border-neutral-600" style={{ backgroundColor: themeColor }} />
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground">Active Theme</p>
-              <p className="text-[11px] text-neutral-400 font-mono uppercase">{themeColor}</p>
-            </div>
-            <Check className="w-4 h-4 text-emerald-400" />
-          </div>
-        )}
-
         {/* Compact Color Picker */}
         <div>
           <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Color Picker</p>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="flex items-start gap-4">
+            <div className="flex items-start gap-5">
               {/* LEFT: Picker + eyedropper/swatch */}
               <div className="flex-shrink-0 space-y-3">
                 <div className="theme-color-picker">
@@ -263,58 +251,69 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                 </div>
               </div>
 
-              {/* RIGHT: HEX / RGB / CMYK inputs stacked */}
+              {/* RIGHT: Active Theme + HEX / RGB / CMYK inputs in a single row */}
               <div className="flex-1 min-w-0 space-y-3">
-                {/* HEX */}
-                <div>
-                  <p className="text-[10px] text-neutral-500 uppercase font-medium mb-1 tracking-wider">HEX</p>
-                  <input
-                    type="text"
-                    value={hexInput.replace('#', '')}
-                    onChange={(e) => handleHexChange(e.target.value)}
-                    maxLength={6}
-                    className="w-full text-xs bg-neutral-700/50 border border-neutral-600 rounded-md px-2 py-1.5 text-foreground font-mono uppercase text-center"
-                    placeholder="000000"
-                  />
-                </div>
-
-                {/* RGB */}
-                <div>
-                  <p className="text-[10px] text-neutral-500 uppercase font-medium mb-1 tracking-wider">RGB</p>
-                  <div className="grid grid-cols-3 gap-1.5">
-                    {(['r', 'g', 'b'] as const).map((ch) => (
-                      <div key={ch}>
-                        <input
-                          type="number"
-                          min={0}
-                          max={255}
-                          value={rgbInput[ch]}
-                          onChange={(e) => handleRgbChange(ch, e.target.value)}
-                          className="w-full text-xs bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
-                        />
-                        <p className="text-[9px] text-neutral-500 uppercase font-medium mt-0.5 text-center tracking-wider">{ch}</p>
-                      </div>
-                    ))}
+                {/* Active Theme */}
+                <div className="bg-neutral-700/40 rounded-xl p-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg border-2 border-neutral-600 flex-shrink-0" style={{ backgroundColor: themeColor || pickerColor }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground">Active Theme</p>
+                    <p className="text-[11px] text-neutral-400 font-mono uppercase">{themeColor || pickerColor}</p>
                   </div>
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                 </div>
 
-                {/* CMYK */}
-                <div>
-                  <p className="text-[10px] text-neutral-500 uppercase font-medium mb-1 tracking-wider">CMYK</p>
-                  <div className="grid grid-cols-4 gap-1.5">
-                    {(['c', 'm', 'y', 'k'] as const).map((ch) => (
-                      <div key={ch}>
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          value={cmykInput[ch]}
-                          onChange={(e) => handleCmykChange(ch, e.target.value)}
-                          className="w-full text-xs bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
-                        />
-                        <p className="text-[9px] text-neutral-500 uppercase font-medium mt-0.5 text-center tracking-wider">{ch}</p>
-                      </div>
-                    ))}
+                {/* HEX / RGB / CMYK in a single row */}
+                <div className="flex items-start gap-2">
+                  {/* HEX */}
+                  <div className="flex-shrink-0" style={{ width: '88px' }}>
+                    <input
+                      type="text"
+                      value={hexInput.replace('#', '')}
+                      onChange={(e) => handleHexChange(e.target.value)}
+                      maxLength={6}
+                      className="w-full text-xs bg-neutral-700/50 border border-neutral-600 rounded-md px-2 py-1.5 text-foreground font-mono uppercase text-center"
+                      placeholder="000000"
+                    />
+                    <p className="text-[9px] text-neutral-500 uppercase font-medium mt-0.5 text-center tracking-wider">HEX</p>
+                  </div>
+
+                  {/* RGB */}
+                  <div className="flex-1 min-w-0">
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {(['r', 'g', 'b'] as const).map((ch) => (
+                        <div key={ch}>
+                          <input
+                            type="number"
+                            min={0}
+                            max={255}
+                            value={rgbInput[ch]}
+                            onChange={(e) => handleRgbChange(ch, e.target.value)}
+                            className="w-full text-xs bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
+                          />
+                          <p className="text-[9px] text-neutral-500 uppercase font-medium mt-0.5 text-center tracking-wider">{ch}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* CMYK */}
+                  <div className="flex-1 min-w-0">
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {(['c', 'm', 'y', 'k'] as const).map((ch) => (
+                        <div key={ch}>
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            value={cmykInput[ch]}
+                            onChange={(e) => handleCmykChange(ch, e.target.value)}
+                            className="w-full text-xs bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
+                          />
+                          <p className="text-[9px] text-neutral-500 uppercase font-medium mt-0.5 text-center tracking-wider">{ch}</p>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

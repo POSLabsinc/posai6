@@ -308,9 +308,9 @@ export default function ShiftSummaryModal({
       return [
         { type: "Cash", qty: 2, amount: 120.00, tips: 20.00, totalTips: 20.00 },
         { type: "Card", qty: 3, amount: 250.00, tips: 20.00, totalTips: 20.00 },
-        { type: "Mobile Pay", qty: 2, amount: 95.50, tips: 12.00, totalTips: 12.00 },
-        { type: "Gift Card", qty: 1, amount: 45.00, tips: 5.00, totalTips: 5.00 },
-        { type: "Online Order", qty: 4, amount: 180.75, tips: 22.50, totalTips: 22.50 },
+        { type: "Loyalty", qty: 2, amount: 95.50, tips: 0, totalTips: 0 },
+        { type: "Gift Card", qty: 1, amount: 45.00, tips: 0, totalTips: 0 },
+        { type: "Online Order", qty: 4, amount: 180.75, tips: 0, totalTips: 0 },
       ];
     }
     return result;

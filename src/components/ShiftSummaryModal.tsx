@@ -990,7 +990,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Cash Drop</p>
-              <p className="text-sm md:text-base font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+              <p className="font-bold text-white whitespace-nowrap text-[clamp(0.95rem,1.55vw,1.35rem)]">$ {totalCashDrop.toFixed(2)}</p>
             </div>
           </div>
         </div>

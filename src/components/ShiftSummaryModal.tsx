@@ -260,16 +260,21 @@ export default function ShiftSummaryModal({
     })).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
   }, [ticketOrders]);
 
-  // Metrics
+  // Metrics — sales are net of tips so Card Sales + Cash Sales + Total Tips = Total Sales
   const paidOrders = useMemo(() => ticketOrders.filter(o => o.status === "PAID" || o.payment_status === "completed"), [ticketOrders]);
   const hasRealData = paidOrders.length > 0;
-  const totalCardSales = useMemo(() => hasRealData ? paidOrders.filter(o => { const pt = (o.payment_type || "").toLowerCase(); return pt !== "cash"; }).reduce((s, o) => s + Number(o.total), 0) : 250.00, [paidOrders, hasRealData]);
-  const totalCashSales = useMemo(() => hasRealData ? paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + Number(o.total), 0) : 120.00, [paidOrders, hasRealData]);
+  const totalCardSales = useMemo(() => hasRealData
+    ? paidOrders.filter(o => (o.payment_type || "").toLowerCase() !== "cash").reduce((s, o) => s + (Number(o.total) - Number(o.tip)), 0)
+    : 250.00, [paidOrders, hasRealData]);
+  const totalCashSales = useMemo(() => hasRealData
+    ? paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + (Number(o.total) - Number(o.tip)), 0)
+    : 120.00, [paidOrders, hasRealData]);
   const totalTips = useMemo(() => hasRealData ? paidOrders.reduce((s, o) => s + Number(o.tip), 0) : 40.00, [paidOrders, hasRealData]);
   const totalCashTips = useMemo(() => hasRealData ? paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + Number(o.tip), 0) : 20.00, [paidOrders, hasRealData]);
   const tipsPayable = totalTips - totalCashTips;
 
-  const overallTotal = useMemo(() => hasRealData ? paidOrders.reduce((s, o) => s + Number(o.total), 0) : 370.00, [paidOrders, hasRealData]);
+  // Total Sales = Card Sales + Cash Sales + Total Tips (i.e. gross paid order totals)
+  const overallTotal = useMemo(() => hasRealData ? paidOrders.reduce((s, o) => s + Number(o.total), 0) : 410.00, [paidOrders, hasRealData]);
   const totalPayIn = useMemo(() => cashTxs.filter(c => c.type === "pay_in").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
   const totalPayOut = useMemo(() => cashTxs.filter(c => c.type === "pay_out").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
   

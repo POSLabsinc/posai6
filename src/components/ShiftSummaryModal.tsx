@@ -963,7 +963,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Total Tips</p>
-              <p className="text-sm md:text-base font-bold text-white">$ {totalTips.toFixed(2)}</p>
+              <p className="font-bold text-white whitespace-nowrap text-[clamp(0.95rem,1.55vw,1.35rem)]">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">

@@ -1116,24 +1116,24 @@ export default function ShiftSummaryModal({
               {/* Summary cards */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-4 bg-white/5 rounded-xl">
-                  <p className="text-[11px] text-neutral-400 uppercase tracking-wide mb-1.5">Cash in Hand</p>
-                  <p className="text-xl font-bold text-white">$ {cashInHand.toFixed(2)}</p>
+                  <p className="text-sm text-neutral-400 uppercase tracking-wide mb-1.5">Cash in Hand</p>
+                  <p className="text-2xl font-bold text-white">$ {cashInHand.toFixed(2)}</p>
                 </div>
                 <div className="p-4 bg-white/5 rounded-xl">
-                  <p className="text-[11px] text-neutral-400 uppercase tracking-wide mb-1.5">Card Tips (excluded)</p>
-                  <p className="text-xl font-bold text-red-400">- $ {cardTips.toFixed(2)}</p>
+                  <p className="text-sm text-neutral-400 uppercase tracking-wide mb-1.5">Total Tip</p>
+                  <p className="text-2xl font-bold text-red-400">- $ {totalTips.toFixed(2)}</p>
                 </div>
               </div>
 
               {/* Cash Drop Amount (auto-calculated) */}
               <div className="p-5 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-                <p className="text-[11px] text-neutral-400 uppercase tracking-wide mb-1.5">Expected Cash Drop</p>
+                <p className="text-sm text-neutral-400 uppercase tracking-wide mb-1.5">Expected Cash Drop</p>
                 {totalCashDrop > 0 ? (
                   <p className="text-3xl font-bold text-emerald-400">$ {totalCashDrop.toFixed(2)}</p>
                 ) : (
                   <p className="text-2xl font-bold text-amber-400">$ 0.00</p>
                 )}
-                <p className="text-xs text-neutral-500 mt-2">Card tips are excluded as they are processed digitally.</p>
+                <p className="text-xs text-neutral-500 mt-2">Total tips are excluded from the cash drop.</p>
               </div>
 
               {totalCashDrop === 0 && (

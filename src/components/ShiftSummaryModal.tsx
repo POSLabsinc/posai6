@@ -282,11 +282,10 @@ export default function ShiftSummaryModal({
   const cardTips = useMemo(() => hasRealData 
     ? paidOrders.filter(o => (o.payment_type || "").toLowerCase() !== "cash").reduce((s, o) => s + Number(o.tip), 0) 
     : 20.00, [paidOrders, hasRealData]);
-  // Cash in Hand = total cash sales (includes cash tips collected physically)
+  // Cash in Hand = total cash sales
   const cashInHand = totalCashSales;
-  // Cash Drop = Cash in Hand - Card Tips (card tips are digital, not in drawer)
-  // If card tips > cash in hand, cash drop = 0
-  const totalCashDrop = Math.max(0, cashInHand - cardTips);
+  // Cash Drop = Total Cash Sales - Total Tips
+  const totalCashDrop = Math.max(0, totalCashSales - totalTips);
 
   const initials = getInitials(employeeName);
 
@@ -309,9 +308,9 @@ export default function ShiftSummaryModal({
       return [
         { type: "Cash", qty: 2, amount: 120.00, tips: 20.00, totalTips: 20.00 },
         { type: "Card", qty: 3, amount: 250.00, tips: 20.00, totalTips: 20.00 },
-        { type: "Mobile Pay", qty: 2, amount: 95.50, tips: 12.00, totalTips: 12.00 },
-        { type: "Gift Card", qty: 1, amount: 45.00, tips: 5.00, totalTips: 5.00 },
-        { type: "Online Order", qty: 4, amount: 180.75, tips: 22.50, totalTips: 22.50 },
+        { type: "Loyalty", qty: 2, amount: 95.50, tips: 0, totalTips: 0 },
+        { type: "Gift Card", qty: 1, amount: 45.00, tips: 0, totalTips: 0 },
+        { type: "Online Order", qty: 4, amount: 180.75, tips: 0, totalTips: 0 },
       ];
     }
     return result;
@@ -946,7 +945,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Card Sales</p>
-              <p className="text-sm md:text-base font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
+              <p className="font-bold text-white whitespace-nowrap text-[clamp(0.95rem,1.55vw,1.35rem)]">$ {totalCardSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -955,7 +954,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Cash Sales</p>
-              <p className="text-sm md:text-base font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
+              <p className="font-bold text-white whitespace-nowrap text-[clamp(0.95rem,1.55vw,1.35rem)]">$ {totalCashSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -964,7 +963,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Total Tips</p>
-              <p className="text-sm md:text-base font-bold text-white">$ {totalTips.toFixed(2)}</p>
+              <p className="font-bold text-white whitespace-nowrap text-[clamp(0.95rem,1.55vw,1.35rem)]">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -973,7 +972,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Tips Payable</p>
-              <p className="text-sm md:text-base font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
+              <p className="font-bold text-white whitespace-nowrap text-[clamp(0.95rem,1.55vw,1.35rem)]">$ {tipsPayable.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -982,7 +981,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Total</p>
-              <p className="text-sm md:text-base font-bold text-white">$ {overallTotal.toFixed(2)}</p>
+              <p className="font-bold text-white whitespace-nowrap text-[clamp(0.95rem,1.55vw,1.35rem)]">$ {overallTotal.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -991,7 +990,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Cash Drop</p>
-              <p className="text-sm md:text-base font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+              <p className="font-bold text-white whitespace-nowrap text-[clamp(0.95rem,1.55vw,1.35rem)]">$ {totalCashDrop.toFixed(2)}</p>
             </div>
           </div>
         </div>
@@ -1117,24 +1116,24 @@ export default function ShiftSummaryModal({
               {/* Summary cards */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="p-4 bg-white/5 rounded-xl">
-                  <p className="text-[11px] text-neutral-400 uppercase tracking-wide mb-1.5">Cash in Hand</p>
-                  <p className="text-xl font-bold text-white">$ {cashInHand.toFixed(2)}</p>
+                  <p className="text-sm text-neutral-400 uppercase tracking-wide mb-1.5">Cash in Hand</p>
+                  <p className="text-2xl font-bold text-white">$ {cashInHand.toFixed(2)}</p>
                 </div>
                 <div className="p-4 bg-white/5 rounded-xl">
-                  <p className="text-[11px] text-neutral-400 uppercase tracking-wide mb-1.5">Card Tips (excluded)</p>
-                  <p className="text-xl font-bold text-red-400">- $ {cardTips.toFixed(2)}</p>
+                  <p className="text-sm text-neutral-400 uppercase tracking-wide mb-1.5">Total Tip</p>
+                  <p className="text-2xl font-bold text-red-400">- $ {totalTips.toFixed(2)}</p>
                 </div>
               </div>
 
               {/* Cash Drop Amount (auto-calculated) */}
               <div className="p-5 bg-emerald-500/10 rounded-xl border border-emerald-500/20">
-                <p className="text-[11px] text-neutral-400 uppercase tracking-wide mb-1.5">Expected Cash Drop</p>
+                <p className="text-sm text-neutral-400 uppercase tracking-wide mb-1.5">Expected Cash Drop</p>
                 {totalCashDrop > 0 ? (
                   <p className="text-3xl font-bold text-emerald-400">$ {totalCashDrop.toFixed(2)}</p>
                 ) : (
                   <p className="text-2xl font-bold text-amber-400">$ 0.00</p>
                 )}
-                <p className="text-xs text-neutral-500 mt-2">Card tips are excluded as they are processed digitally.</p>
+                <p className="text-xs text-neutral-500 mt-2">Total tips are excluded from the cash drop.</p>
               </div>
 
               {totalCashDrop === 0 && (
@@ -1200,7 +1199,7 @@ export default function ShiftSummaryModal({
                 disabled={!cashDropAmount || (cashDropMismatch && !cashDropReason.trim())}
                 className="w-full py-3.5 bg-white text-black font-semibold rounded-xl text-base hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Confirm Cash Drop
+                Confirm
               </button>
             </div>
           </div>

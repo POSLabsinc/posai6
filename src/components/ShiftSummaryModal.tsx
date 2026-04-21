@@ -1199,7 +1199,7 @@ export default function ShiftSummaryModal({
                 disabled={!cashDropAmount || (cashDropMismatch && !cashDropReason.trim())}
                 className="w-full py-3.5 bg-white text-black font-semibold rounded-xl text-base hover:bg-white/90 transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                Confirm Cash Drop
+                Confirm
               </button>
             </div>
           </div>

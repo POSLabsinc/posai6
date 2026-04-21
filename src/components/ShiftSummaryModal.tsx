@@ -260,16 +260,21 @@ export default function ShiftSummaryModal({
     })).sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
   }, [ticketOrders]);
 
-  // Metrics
+  // Metrics — sales are net of tips so Card Sales + Cash Sales + Total Tips = Total Sales
   const paidOrders = useMemo(() => ticketOrders.filter(o => o.status === "PAID" || o.payment_status === "completed"), [ticketOrders]);
   const hasRealData = paidOrders.length > 0;
-  const totalCardSales = useMemo(() => hasRealData ? paidOrders.filter(o => { const pt = (o.payment_type || "").toLowerCase(); return pt !== "cash"; }).reduce((s, o) => s + Number(o.total), 0) : 250.00, [paidOrders, hasRealData]);
-  const totalCashSales = useMemo(() => hasRealData ? paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + Number(o.total), 0) : 120.00, [paidOrders, hasRealData]);
+  const totalCardSales = useMemo(() => hasRealData
+    ? paidOrders.filter(o => (o.payment_type || "").toLowerCase() !== "cash").reduce((s, o) => s + (Number(o.total) - Number(o.tip)), 0)
+    : 250.00, [paidOrders, hasRealData]);
+  const totalCashSales = useMemo(() => hasRealData
+    ? paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + (Number(o.total) - Number(o.tip)), 0)
+    : 120.00, [paidOrders, hasRealData]);
   const totalTips = useMemo(() => hasRealData ? paidOrders.reduce((s, o) => s + Number(o.tip), 0) : 40.00, [paidOrders, hasRealData]);
   const totalCashTips = useMemo(() => hasRealData ? paidOrders.filter(o => (o.payment_type || "").toLowerCase() === "cash").reduce((s, o) => s + Number(o.tip), 0) : 20.00, [paidOrders, hasRealData]);
   const tipsPayable = totalTips - totalCashTips;
 
-  const overallTotal = useMemo(() => hasRealData ? paidOrders.reduce((s, o) => s + Number(o.total), 0) : 370.00, [paidOrders, hasRealData]);
+  // Total Sales = Card Sales + Cash Sales + Total Tips (i.e. gross paid order totals)
+  const overallTotal = useMemo(() => hasRealData ? paidOrders.reduce((s, o) => s + Number(o.total), 0) : 410.00, [paidOrders, hasRealData]);
   const totalPayIn = useMemo(() => cashTxs.filter(c => c.type === "pay_in").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
   const totalPayOut = useMemo(() => cashTxs.filter(c => c.type === "pay_out").reduce((s, c) => s + Number(c.amount), 0), [cashTxs]);
   
@@ -941,7 +946,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Card Sales</p>
-              <p className="text-base md:text-2xl font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
+              <p className="text-sm md:text-base font-bold text-white">$ {totalCardSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -950,7 +955,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Cash Sales</p>
-              <p className="text-base md:text-2xl font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
+              <p className="text-sm md:text-base font-bold text-white">$ {totalCashSales.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -959,7 +964,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Total Tips</p>
-              <p className="text-base md:text-2xl font-bold text-white">$ {totalTips.toFixed(2)}</p>
+              <p className="text-sm md:text-base font-bold text-white">$ {totalTips.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -968,7 +973,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Tips Payable</p>
-              <p className="text-base md:text-2xl font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
+              <p className="text-sm md:text-base font-bold text-white">$ {tipsPayable.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -977,7 +982,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Total</p>
-              <p className="text-base md:text-2xl font-bold text-white">$ {overallTotal.toFixed(2)}</p>
+              <p className="text-sm md:text-base font-bold text-white">$ {overallTotal.toFixed(2)}</p>
             </div>
           </div>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 rounded-xl p-3 md:p-4">
@@ -986,7 +991,7 @@ export default function ShiftSummaryModal({
             </div>
             <div className="min-w-0">
               <p className="text-[10px] md:text-[11px] text-white uppercase tracking-wide font-semibold truncate">Cash Drop</p>
-              <p className="text-base md:text-2xl font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
+              <p className="text-sm md:text-base font-bold text-white">$ {totalCashDrop.toFixed(2)}</p>
             </div>
           </div>
         </div>

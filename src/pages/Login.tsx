@@ -1280,7 +1280,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     className="bg-foreground rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                     data-tour="qr-code"
                   >
-                    <QRCodeSVG value={activationQrValue} size={200} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
+                    <QRCodeSVG value={activationQrValue} size={160} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                   </button>
                   <p className="text-base text-foreground/50 leading-relaxed text-left w-full">
                     Tap the link that appears and follow the steps on your mobile device.
@@ -1304,7 +1304,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </button>
                 </div>
                 <h2 className="text-2xl font-bold text-foreground mb-7">Use a browser</h2>
-                <div className="space-y-7">
+                <div className="space-y-7" data-tour="browser-steps">
                   <div className="flex items-start gap-4">
                     <span className="text-2xl font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
                     <div>
@@ -7537,7 +7537,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     }}
                     className="bg-foreground rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                   >
-                    <QRCodeSVG value={activationQrValueExisting} size={200} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
+                    <QRCodeSVG value={activationQrValueExisting} size={160} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                   </button>
                   <p className="text-base text-foreground/50 leading-relaxed text-left w-full">
                     Tap the link that appears and follow the steps on your mobile device.

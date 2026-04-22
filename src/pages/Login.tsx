@@ -114,6 +114,7 @@ const Login = () => {
   const [showAIChat, setShowAIChat] = useState(false);
   const [showSignInAIChat, setShowSignInAIChat] = useState(false);
   const [showTutorialOverlay, setShowTutorialOverlay] = useState(false);
+  const [tutorialInitialStep, setTutorialInitialStep] = useState(0);
   
   // Company Device - First-time device setup state
   const [showDeviceSetup, setShowDeviceSetup] = useState(false);

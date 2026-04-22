@@ -230,14 +230,14 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         <div>
           <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Color Picker</p>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-              {/* Left: Color Picker */}
-              <div className="theme-color-picker">
+            <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
+              {/* Left: Color Picker (30%) */}
+              <div className="theme-color-picker lg:col-span-3">
                 <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
               </div>
 
-              {/* Right: Active Theme + Color codes */}
-              <div className="flex flex-col gap-3">
+              {/* Right: Active Theme + Color codes (70%) */}
+              <div className="flex flex-col gap-3 lg:col-span-7">
                 {/* Active Theme */}
                 <div className="bg-neutral-700/40 rounded-xl p-3 flex items-center gap-3">
                   <div className="w-9 h-9 rounded-lg border-2 border-neutral-600 flex-shrink-0" style={{ backgroundColor: themeColor || pickerColor }} />

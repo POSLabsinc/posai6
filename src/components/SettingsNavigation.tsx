@@ -207,26 +207,6 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
         {/* Header */}
         <h1 className="text-3xl font-bold text-foreground mb-5">Settings</h1>
 
-        {/* User Profile Card */}
-        <button 
-          onClick={onUserProfileClick}
-          data-tour="profile"
-          className="w-full active:opacity-70 transition-opacity text-left mb-5"
-        >
-          <div className="bg-surface rounded-2xl overflow-hidden">
-            <div className="flex items-center gap-4 p-4">
-              <Avatar className="w-14 h-14">
-                {employeeAvatar && <AvatarImage src={employeeAvatar} alt={employeeName} />}
-                <AvatarFallback className="bg-muted text-foreground">{employeeInitials}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold text-foreground">{employeeName}</h2>
-                <p className="text-sm font-bold text-foreground">{employeeRole}</p>
-              </div>
-            </div>
-          </div>
-        </button>
-
         {!hasResults && searchQuery && (
           <div className="bg-surface rounded-2xl p-6 mb-4 text-center">
             <p className="text-muted-foreground">No settings found for "{searchQuery}"</p>
@@ -305,35 +285,10 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
 
   // Tablet/Desktop Layout
   const TabletLayout = () => (
-    <div className="h-full flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto scrollbar-hide overscroll-contain px-3.5 pt-3.5 pb-8">
+    <div className="h-full flex flex-col overflow-hidden relative">
+      <div className="flex-1 overflow-y-auto scrollbar-hide overscroll-contain px-3.5 pt-3.5 pb-24">
         {/* Header */}
         <h1 className="text-[1.65rem] font-bold text-foreground mb-3">Settings</h1>
-
-        {/* Inline Search Bar */}
-        <div className="flex items-center gap-2 mb-3">
-          <div className="flex-1 min-w-0 bg-surface rounded-full px-3.5 py-[0.4rem] flex items-center gap-2.5">
-            <Search className="w-[1.1rem] h-[1.1rem] text-muted-foreground flex-shrink-0" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-[0.9rem]"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery("")}
-                className="p-1 active:opacity-70 transition-opacity text-muted-foreground text-xs flex-shrink-0"
-              >
-                Clear
-              </button>
-            )}
-            <button className="p-0.5 active:opacity-70 transition-opacity flex-shrink-0">
-              <Mic className="w-[1.1rem] h-[1.1rem] text-muted-foreground" />
-            </button>
-          </div>
-        </div>
 
         {!hasResults && searchQuery && (
           <div className="bg-surface rounded-2xl p-4 mb-3 text-center">
@@ -374,6 +329,31 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
             ))}
           </div>
         )}
+      </div>
+
+      {/* Floating Glass Search Bar (matches mobile style) */}
+      <div className="absolute bottom-3 left-3 right-3 z-50">
+        <div className="bg-surface/70 backdrop-blur-xl rounded-full px-3.5 py-[0.45rem] flex items-center gap-2.5 shadow-lg border border-divider/60">
+          <Search className="w-[1.1rem] h-[1.1rem] text-muted-foreground flex-shrink-0" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-[0.9rem]"
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery("")}
+              className="p-1 active:opacity-70 transition-opacity text-muted-foreground text-xs flex-shrink-0"
+            >
+              Clear
+            </button>
+          )}
+          <button className="p-0.5 active:opacity-70 transition-opacity flex-shrink-0">
+            <Mic className="w-[1.1rem] h-[1.1rem] text-muted-foreground" />
+          </button>
+        </div>
       </div>
     </div>
   );

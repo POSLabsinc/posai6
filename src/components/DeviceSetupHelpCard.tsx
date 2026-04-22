@@ -154,7 +154,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     return () => { window.removeEventListener("resize", measureTarget); window.removeEventListener("scroll", handleInteraction, true); cancelAnimationFrame(rafRef.current); };
   }, [open, measureTarget]);
 
-  useEffect(() => { if (open) { setCurrentStep(0); setHighlightRect(null); } }, [open]);
+  useEffect(() => { if (open) { setCurrentStep(initialStep); setHighlightRect(null); } }, [open, initialStep]);
 
   const handleClose = () => { setCurrentStep(0); (onSwitchToDefaultView || onSwitchToBrowser)?.(); onClose(); };
   const handleNext = () => { if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1); else handleClose(); };

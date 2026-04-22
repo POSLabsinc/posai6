@@ -1280,7 +1280,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     className="bg-foreground rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                     data-tour="qr-code"
                   >
-                    <QRCodeSVG value={activationQrValue} size={240} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
+                    <QRCodeSVG value={activationQrValue} size={200} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                   </button>
                   <p className="text-base text-foreground/50 leading-relaxed text-left w-full">
                     Tap the link that appears and follow the steps on your mobile device.
@@ -1296,10 +1296,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </div>
 
               {/* Option 2: Use a browser */}
-              <div className="flex-1 px-6 lg:px-8 xl:px-10">
+              <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="browser-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
-                  <button onClick={() => { setTutorialInitialStep(1); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                  <button onClick={() => { setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
@@ -1338,10 +1338,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </div>
 
               {/* Option 3: Activate with Code (email/phone) */}
-              <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="email-input-area">
+              <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="code-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
-                  <button onClick={() => { setTutorialInitialStep(3); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                  <button onClick={() => { setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
@@ -7537,7 +7537,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     }}
                     className="bg-foreground rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                   >
-                    <QRCodeSVG value={activationQrValueExisting} size={240} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
+                    <QRCodeSVG value={activationQrValueExisting} size={200} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                   </button>
                   <p className="text-base text-foreground/50 leading-relaxed text-left w-full">
                     Tap the link that appears and follow the steps on your mobile device.
@@ -7553,10 +7553,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </div>
 
               {/* Option 2: Use a browser */}
-              <div className="flex-1 px-6 lg:px-8 xl:px-10">
+              <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="browser-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
-                  <button onClick={() => { setTutorialInitialStep(1); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                  <button onClick={() => { setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
@@ -7595,10 +7595,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </div>
 
               {/* Option 3: Sign in with Code (email/phone) */}
-              <div className="flex-1 px-6 lg:px-8 xl:px-10">
+              <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="code-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
-                  <button onClick={() => { setTutorialInitialStep(3); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                  <button onClick={() => { setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                     <Info className="w-5 h-5" />
                   </button>
                 </div>

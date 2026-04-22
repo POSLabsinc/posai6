@@ -1269,7 +1269,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-2xl font-bold text-foreground mb-7">Point the camera on your phone or tablet at the QR code.</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-7">Point your phone or tablet camera at the QR code.</h2>
                 <div className="flex flex-col items-center gap-6">
                   <button
                     onClick={() => {
@@ -1303,7 +1303,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-2xl font-bold text-foreground mb-7">Use a browser</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-7">Use a browser</h2>
                 <div className="space-y-7" data-tour="browser-steps">
                   <div className="flex items-start gap-4">
                     <span className="text-2xl font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
@@ -1348,7 +1348,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <AnimatePresence mode="wait">
                   {!activationCodeSent ? (
                     <motion.div key="email-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <h2 className="text-2xl font-bold text-foreground mb-2">Activate with Code</h2>
+                      <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Activate with Code</h2>
                       <p className="text-base text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
                       <div className="space-y-4">
                         <div className="relative" data-tour="email-input-field">
@@ -1367,7 +1367,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     </motion.div>
                   ) : (
                     <motion.div key="otp-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <h2 className="text-2xl font-bold text-foreground mb-2">Enter Code</h2>
+                      <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Enter Code</h2>
                       <p className="text-base text-foreground/50 mb-6">Enter the 6-digit code sent to <span className="font-semibold text-foreground">{activationContactValue}</span></p>
                       <div className="flex gap-2 mb-5" data-tour="otp-code-area">
                         {Array.from({ length: 6 }).map((_, i) => (
@@ -7522,7 +7522,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-2xl font-bold text-foreground mb-7">Point the camera on your phone or tablet at the QR code.</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-7">Point your phone or tablet camera at the QR code.</h2>
                 <div className="flex flex-col items-center gap-6">
                   <button
                     data-tour="qr-code"
@@ -7560,7 +7560,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-2xl font-bold text-foreground mb-7">Use a browser</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-7">Use a browser</h2>
                 <div className="space-y-7" data-tour="browser-steps">
                   <div className="flex items-start gap-4">
                     <span className="text-2xl font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
@@ -7605,7 +7605,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <AnimatePresence mode="wait">
                   {!existingUserCodeSent ? (
                     <motion.div key="email-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <h2 className="text-2xl font-bold text-foreground mb-2">Sign in with Code</h2>
+                      <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Sign in with Code</h2>
                       <p className="text-base text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
                       <div className="space-y-4">
                         <div className="relative" data-tour="email-input-field">
@@ -7632,7 +7632,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     </motion.div>
                   ) : (
                     <motion.div key="otp-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <h2 className="text-2xl font-bold text-foreground mb-2">Enter Code</h2>
+                      <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Enter Code</h2>
                       <p className="text-base text-foreground/50 mb-6">Enter the 6-digit code sent to <span className="font-semibold text-foreground">{existingUserContact}</span></p>
                       <div className="flex gap-2 mb-5" data-tour="otp-code-area">
                         {Array.from({ length: 6 }).map((_, i) => (

@@ -7463,6 +7463,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               onSwitchToBrowserTab={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
               onSwitchToDefaultView={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
               onSwitchToOtp={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(true); }}
+              initialStep={tutorialInitialStep}
             />
           )}
         </div>

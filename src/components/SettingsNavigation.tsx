@@ -10,6 +10,7 @@ import { format } from "date-fns";
 // Import custom icons
 import systemIcon from "@/assets/icons/settings-system.png";
  import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import accountIcon from "@/assets/icons/account-personal.png";
 import paymentsIcon from "@/assets/icons/settings-payments.png";
 import menuIcon from "@/assets/icons/settings-menu.png";
 

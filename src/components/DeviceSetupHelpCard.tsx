@@ -23,10 +23,11 @@ interface Props {
   onSwitchToBrowserTab?: () => void;
   onSwitchToDefaultView?: () => void;
   onSwitchToOtp?: () => void;
+  initialStep?: number;
 }
 
-const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToBrowserTab, onSwitchToDefaultView, onSwitchToOtp }: Props) => {
-  const [currentStep, setCurrentStep] = useState(0);
+const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToBrowserTab, onSwitchToDefaultView, onSwitchToOtp, initialStep = 0 }: Props) => {
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const rafRef = useRef<number>(0);
@@ -153,9 +154,9 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     return () => { window.removeEventListener("resize", measureTarget); window.removeEventListener("scroll", handleInteraction, true); cancelAnimationFrame(rafRef.current); };
   }, [open, measureTarget]);
 
-  useEffect(() => { if (open) { setCurrentStep(0); setHighlightRect(null); } }, [open]);
+  useEffect(() => { if (open) { setCurrentStep(initialStep); setHighlightRect(null); } }, [open, initialStep]);
 
-  const handleClose = () => { setCurrentStep(0); (onSwitchToDefaultView || onSwitchToBrowser)?.(); onClose(); };
+  const handleClose = () => { setCurrentStep(initialStep); (onSwitchToDefaultView || onSwitchToBrowser)?.(); onClose(); };
   const handleNext = () => { if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1); else handleClose(); };
   const handlePrev = () => { if (currentStep > 0) setCurrentStep(currentStep - 1); };
 

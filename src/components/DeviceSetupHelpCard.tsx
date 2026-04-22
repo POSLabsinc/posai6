@@ -9,6 +9,7 @@ interface WalkthroughStep {
   instructions: string[];
   helperNote?: string;
   tourTarget: string;
+  tourTargets?: string[];
   desktopCardPosition: "right" | "left" | "bottom" | "top";
   icon: React.ReactNode;
   beforeShow?: () => void;
@@ -47,7 +48,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     { id: "email-phone-button", title: "Option 3: Alternative Activation", subtitle: "Use email or phone instead", instructions: ["Tap this option to switch to activation using your email address or phone number."], tourTarget: "email-phone-button", desktopCardPosition: "top", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
     { id: "email-input", title: "Step 1: Enter Contact Information", subtitle: "Email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-field", desktopCardPosition: "left", icon: <MessageSquare className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
     { id: "otp-entry", title: "Step 2: Enter Verification Code", subtitle: "Complete activation", instructions: ["Enter the 6-digit verification code sent to your email or phone."], tourTarget: "otp-code-area", desktopCardPosition: "left", icon: <Phone className="w-5 h-5" />, beforeShow: onSwitchToOtp },
-    { id: "browser-steps", title: "Option 2: Use a Browser", subtitle: "Open the URL and enter the code", instructions: ["Open any web browser and go to the URL shown.", "When prompted, enter the activation code displayed on this screen."], tourTarget: "browser-steps", desktopCardPosition: "top", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
+    { id: "browser-steps", title: "Option 2: Use a Browser", subtitle: "Open the URL and enter the code", instructions: ["Open any web browser and go to the URL shown.", "When prompted, enter the activation code displayed on this screen."], tourTarget: "activation-link", tourTargets: ["activation-link", "activation-code"], desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
     { id: "code-input", title: "Option 3: Sign in with Code", subtitle: "Use email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-field", desktopCardPosition: "top", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
   ];
 
@@ -86,11 +87,33 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     return null;
   }, []);
 
+  const getUnionRect = useCallback((targets: string[]): DOMRect | null => {
+    const rects: DOMRect[] = [];
+    for (const t of targets) {
+      const el = findVisibleTourElement(t);
+      if (el) {
+        const r = el.getBoundingClientRect();
+        if (r.width > 0 && r.height > 0) rects.push(r);
+      }
+    }
+    if (rects.length === 0) return null;
+    const left = Math.min(...rects.map(r => r.left));
+    const top = Math.min(...rects.map(r => r.top));
+    const right = Math.max(...rects.map(r => r.right));
+    const bottom = Math.max(...rects.map(r => r.bottom));
+    return new DOMRect(left, top, right - left, bottom - top);
+  }, [findVisibleTourElement]);
+
   const measureAndScroll = useCallback((tourTarget: string) => {
-    const el = findVisibleTourElement(tourTarget);
-    if (!el) return false;
-    const rect = el.getBoundingClientRect();
-    if (rect.width <= 0 || rect.height <= 0) return false;
+    const s = steps[currentStep];
+    let rect: DOMRect | null = null;
+    if (s?.tourTargets && s.tourTargets.length > 0) {
+      rect = getUnionRect(s.tourTargets);
+    } else {
+      const el = findVisibleTourElement(tourTarget);
+      if (el) rect = el.getBoundingClientRect();
+    }
+    if (!rect || rect.width <= 0 || rect.height <= 0) return false;
 
     if (isMobile) {
       const pad = 20;
@@ -103,11 +126,12 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
       const currentTop = rect.top;
       const diff = currentTop - desiredTop;
       if (Math.abs(diff) > 30) {
-        const scrollContainer = el.closest('.overflow-y-auto, .overflow-auto') || document.scrollingElement || document.documentElement;
+        const anchorEl = findVisibleTourElement(s?.tourTargets?.[0] || tourTarget);
+        const scrollContainer = anchorEl?.closest('.overflow-y-auto, .overflow-auto') || document.scrollingElement || document.documentElement;
         if (scrollContainer) scrollContainer.scrollTop += diff;
         setTimeout(() => {
-          const newRect = el.getBoundingClientRect();
-          if (newRect.width > 0 && newRect.height > 0) setHighlightRect(newRect);
+          const newRect = s?.tourTargets ? getUnionRect(s.tourTargets) : findVisibleTourElement(tourTarget)?.getBoundingClientRect();
+          if (newRect && newRect.width > 0 && newRect.height > 0) setHighlightRect(newRect as DOMRect);
         }, 400);
         return true;
       }
@@ -115,16 +139,21 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
     setHighlightRect(rect);
     return true;
-  }, [isMobile, findVisibleTourElement]);
+  }, [isMobile, findVisibleTourElement, getUnionRect, currentStep, step]);
 
   const measureTarget = useCallback(() => {
     if (!step || !open) return;
+    if (step.tourTargets && step.tourTargets.length > 0) {
+      const rect = getUnionRect(step.tourTargets);
+      if (rect && rect.width > 0 && rect.height > 0) setHighlightRect(rect);
+      return;
+    }
     const el = findVisibleTourElement(step.tourTarget);
     if (el) {
       const rect = el.getBoundingClientRect();
       if (rect.width > 0 && rect.height > 0) setHighlightRect(rect);
     }
-  }, [step, open, findVisibleTourElement]);
+  }, [step, open, findVisibleTourElement, getUnionRect]);
 
   useEffect(() => {
     if (!open) return;

@@ -124,6 +124,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
 
   const activeItemId = useMemo(() => {
     const path = location.pathname;
+    if (path === '/settings' || path.startsWith('/settings/account')) return 'account';
     if (path.startsWith('/settings/system')) return 'system';
     if (path.startsWith('/settings/payments')) return 'payments';
     if (path.startsWith('/settings/menu')) return 'menu';
@@ -140,6 +141,14 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
   }, [location.pathname]);
 
   const handleItemClick = (itemId: string) => {
+    if (itemId === "account") {
+      if (onUserProfileClick) {
+        onUserProfileClick();
+        return;
+      }
+      navigate('/settings/account');
+      return;
+    }
     if (onSettingsItemClick) {
       onSettingsItemClick(itemId);
     } else if (itemId === "system") {

@@ -1221,7 +1221,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-auto">
         <div className="absolute inset-0 gradient-mesh opacity-30" />
         
-        <div className="relative z-10 w-full max-w-5xl px-4 sm:px-6 md:px-8 py-6 sm:py-8 flex flex-col items-center">
+        <div className="relative z-10 w-full max-w-[1600px] px-4 sm:px-6 md:px-12 lg:px-16 xl:px-20 py-6 sm:py-8 flex flex-col items-center">
           {/* Logo + Title - Centered */}
           <motion.div
             initial={{ opacity: 0, y: -10 }}

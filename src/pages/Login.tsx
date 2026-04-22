@@ -5257,6 +5257,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           onSwitchToBrowserTab={() => { setMobileSignInTab?.("browser"); setExistingUserCodeSent(false); }}
           onSwitchToDefaultView={() => { setMobileSignInTab?.(null); setExistingUserCodeSent(false); }}
           onSwitchToOtp={() => { setMobileSignInTab?.("email"); setExistingUserCodeSent(true); }}
+          initialStep={tutorialInitialStep}
         />
 
 
@@ -7867,6 +7868,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           onSwitchToBrowserTab={() => { setMobileSignInTab?.("browser"); setExistingUserCodeSent(false); }}
           onSwitchToDefaultView={() => { setMobileSignInTab?.(null); setExistingUserCodeSent(false); }}
           onSwitchToOtp={() => { setMobileSignInTab?.("email"); setExistingUserCodeSent(true); }}
+          initialStep={tutorialInitialStep}
         />
       </div>
     );

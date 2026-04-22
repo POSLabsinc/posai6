@@ -7561,7 +7561,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </button>
                 </div>
                 <h2 className="text-2xl font-bold text-foreground mb-7">Use a browser</h2>
-                <div className="space-y-7">
+                <div className="space-y-7" data-tour="browser-steps">
                   <div className="flex items-start gap-4">
                     <span className="text-2xl font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
                     <div>

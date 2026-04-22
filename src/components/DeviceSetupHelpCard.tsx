@@ -9,6 +9,7 @@ interface WalkthroughStep {
   instructions: string[];
   helperNote?: string;
   tourTarget: string;
+  tourTargets?: string[];
   desktopCardPosition: "right" | "left" | "bottom" | "top";
   icon: React.ReactNode;
   beforeShow?: () => void;

@@ -226,90 +226,95 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
       </div>
 
       <div className="px-6 pb-28 space-y-5">
-        {/* Compact Color Picker */}
+        {/* Color Picker - 2 column layout */}
         <div>
           <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Color Picker</p>
-          <div className="bg-neutral-800/60 rounded-2xl p-4 space-y-4">
-            {/* Picker on top - full width */}
-            <div className="theme-color-picker">
-              <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
-            </div>
-
-            {/* Active Theme below picker */}
-            <div className="bg-neutral-700/40 rounded-xl p-3 flex items-center gap-3">
-              <div className="w-9 h-9 rounded-lg border-2 border-neutral-600 flex-shrink-0" style={{ backgroundColor: themeColor || pickerColor }} />
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-foreground">Active Theme</p>
-                <p className="text-[11px] text-neutral-400 font-mono uppercase">{themeColor || pickerColor}</p>
+          <div className="bg-neutral-800/60 rounded-2xl p-4">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* Left: Color Picker */}
+              <div className="theme-color-picker">
+                <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
               </div>
-              <button
-                type="button"
-                onClick={async () => {
-                  const anyWin = window as any;
-                  if (anyWin.EyeDropper) {
-                    try {
-                      const ed = new anyWin.EyeDropper();
-                      const res = await ed.open();
-                      if (res?.sRGBHex) applyColor(res.sRGBHex.toUpperCase());
-                    } catch {}
-                  }
-                }}
-                className="w-9 h-9 rounded-lg bg-neutral-700/60 flex items-center justify-center text-neutral-300 hover:text-foreground transition-colors flex-shrink-0"
-                title="Pick color from screen"
-              >
-                <Pipette className="w-4 h-4" />
-              </button>
-              <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
-            </div>
 
-            {/* HEX row */}
-            <div className="flex items-center gap-3">
-              <p className="text-xs text-neutral-400 uppercase font-medium tracking-wider w-12 flex-shrink-0">Hex</p>
-              <input
-                type="text"
-                value={hexInput.replace('#', '')}
-                onChange={(e) => handleHexChange(e.target.value)}
-                maxLength={6}
-                className="flex-1 text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-3 py-2 text-foreground font-mono uppercase"
-                placeholder="000000"
-              />
-            </div>
+              {/* Right: Active Theme + Color codes */}
+              <div className="flex flex-col gap-3">
+                {/* Active Theme */}
+                <div className="bg-neutral-700/40 rounded-xl p-3 flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-lg border-2 border-neutral-600 flex-shrink-0" style={{ backgroundColor: themeColor || pickerColor }} />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-foreground">Active Theme</p>
+                    <p className="text-[11px] text-neutral-400 font-mono uppercase">{themeColor || pickerColor}</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const anyWin = window as any;
+                      if (anyWin.EyeDropper) {
+                        try {
+                          const ed = new anyWin.EyeDropper();
+                          const res = await ed.open();
+                          if (res?.sRGBHex) applyColor(res.sRGBHex.toUpperCase());
+                        } catch {}
+                      }
+                    }}
+                    className="w-9 h-9 rounded-lg bg-neutral-700/60 flex items-center justify-center text-neutral-300 hover:text-foreground transition-colors flex-shrink-0"
+                    title="Pick color from screen"
+                  >
+                    <Pipette className="w-4 h-4" />
+                  </button>
+                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                </div>
 
-            {/* RGB row */}
-            <div className="flex items-center gap-3">
-              <p className="text-xs text-neutral-400 uppercase font-medium tracking-wider w-12 flex-shrink-0">RGB</p>
-              <div className="flex-1 grid grid-cols-3 gap-2">
-                {(['r', 'g', 'b'] as const).map((ch) => (
+                {/* HEX row */}
+                <div className="flex items-center gap-3">
+                  <p className="text-xs text-neutral-400 uppercase font-medium tracking-wider w-12 flex-shrink-0">Hex</p>
                   <input
-                    key={ch}
-                    type="number"
-                    min={0}
-                    max={255}
-                    value={rgbInput[ch]}
-                    onChange={(e) => handleRgbChange(ch, e.target.value)}
-                    className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-3 py-2 text-foreground font-mono text-center"
-                    aria-label={ch.toUpperCase()}
+                    type="text"
+                    value={hexInput.replace('#', '')}
+                    onChange={(e) => handleHexChange(e.target.value)}
+                    maxLength={6}
+                    className="flex-1 text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-3 py-2 text-foreground font-mono uppercase"
+                    placeholder="000000"
                   />
-                ))}
-              </div>
-            </div>
+                </div>
 
-            {/* CMYK row */}
-            <div className="flex items-center gap-3">
-              <p className="text-xs text-neutral-400 uppercase font-medium tracking-wider w-12 flex-shrink-0">CMYK</p>
-              <div className="flex-1 grid grid-cols-4 gap-2">
-                {(['c', 'm', 'y', 'k'] as const).map((ch) => (
-                  <input
-                    key={ch}
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={cmykInput[ch]}
-                    onChange={(e) => handleCmykChange(ch, e.target.value)}
-                    className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-3 py-2 text-foreground font-mono text-center"
-                    aria-label={ch.toUpperCase()}
-                  />
-                ))}
+                {/* RGB row */}
+                <div className="flex items-center gap-3">
+                  <p className="text-xs text-neutral-400 uppercase font-medium tracking-wider w-12 flex-shrink-0">RGB</p>
+                  <div className="flex-1 grid grid-cols-3 gap-2">
+                    {(['r', 'g', 'b'] as const).map((ch) => (
+                      <input
+                        key={ch}
+                        type="number"
+                        min={0}
+                        max={255}
+                        value={rgbInput[ch]}
+                        onChange={(e) => handleRgbChange(ch, e.target.value)}
+                        className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-2 py-2 text-foreground font-mono text-center"
+                        aria-label={ch.toUpperCase()}
+                      />
+                    ))}
+                  </div>
+                </div>
+
+                {/* CMYK row */}
+                <div className="flex items-center gap-3">
+                  <p className="text-xs text-neutral-400 uppercase font-medium tracking-wider w-12 flex-shrink-0">CMYK</p>
+                  <div className="flex-1 grid grid-cols-4 gap-2">
+                    {(['c', 'm', 'y', 'k'] as const).map((ch) => (
+                      <input
+                        key={ch}
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={cmykInput[ch]}
+                        onChange={(e) => handleCmykChange(ch, e.target.value)}
+                        className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-2 py-2 text-foreground font-mono text-center"
+                        aria-label={ch.toUpperCase()}
+                      />
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </div>

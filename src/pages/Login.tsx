@@ -1210,6 +1210,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               onSwitchToEmailPhone={() => { setShowOtherOptions(true); setActivationCodeSent(false); }}
               onSwitchToBrowser={() => { setShowOtherOptions(false); setActivationCodeSent(false); }}
               onSwitchToOtp={() => { setShowOtherOptions(true); setActivationCodeSent(true); }}
+              initialStep={tutorialInitialStep}
             />
           )}
         </div>

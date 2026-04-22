@@ -23,10 +23,11 @@ interface Props {
   onSwitchToBrowserTab?: () => void;
   onSwitchToDefaultView?: () => void;
   onSwitchToOtp?: () => void;
+  initialStep?: number;
 }
 
-const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToBrowserTab, onSwitchToDefaultView, onSwitchToOtp }: Props) => {
-  const [currentStep, setCurrentStep] = useState(0);
+const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToBrowserTab, onSwitchToDefaultView, onSwitchToOtp, initialStep = 0 }: Props) => {
+  const [currentStep, setCurrentStep] = useState(initialStep);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const rafRef = useRef<number>(0);

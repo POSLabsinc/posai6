@@ -33,6 +33,9 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   const [isMobile, setIsMobile] = useState(false);
   const rafRef = useRef<number>(0);
   const cardRef = useRef<HTMLDivElement>(null);
+  const stepSequences: Record<number, number[]> = {
+    6: [1, 2],
+  };
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -185,11 +188,49 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     return () => { window.removeEventListener("resize", measureTarget); window.removeEventListener("scroll", handleInteraction, true); cancelAnimationFrame(rafRef.current); };
   }, [open, measureTarget]);
 
-  useEffect(() => { if (open) { setCurrentStep(initialStep); setHighlightRect(null); } }, [open, initialStep]);
+  const activeSequence = stepSequences[initialStep] ?? null;
+  const sequenceIndex = activeSequence ? activeSequence.indexOf(currentStep) : -1;
+  const displayStep = activeSequence ? Math.max(sequenceIndex, 0) + 1 : currentStep + 1;
+  const totalSteps = activeSequence?.length ?? steps.length;
+  const isLastStep = activeSequence ? sequenceIndex === activeSequence.length - 1 : currentStep === steps.length - 1;
 
-  const handleClose = () => { setCurrentStep(initialStep); (onSwitchToDefaultView || onSwitchToBrowser)?.(); onClose(); };
-  const handleNext = () => { if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1); else handleClose(); };
-  const handlePrev = () => { if (currentStep > 0) setCurrentStep(currentStep - 1); };
+  useEffect(() => {
+    if (open) {
+      setCurrentStep(activeSequence?.[0] ?? initialStep);
+      setHighlightRect(null);
+    }
+  }, [open, initialStep]);
+
+  const handleClose = () => {
+    setCurrentStep(activeSequence?.[0] ?? initialStep);
+    (onSwitchToDefaultView || onSwitchToBrowser)?.();
+    onClose();
+  };
+
+  const handleNext = () => {
+    if (activeSequence) {
+      if (sequenceIndex >= 0 && sequenceIndex < activeSequence.length - 1) {
+        setCurrentStep(activeSequence[sequenceIndex + 1]);
+        return;
+      }
+      handleClose();
+      return;
+    }
+
+    if (currentStep < steps.length - 1) setCurrentStep(currentStep + 1);
+    else handleClose();
+  };
+
+  const handlePrev = () => {
+    if (activeSequence) {
+      if (sequenceIndex > 0) {
+        setCurrentStep(activeSequence[sequenceIndex - 1]);
+      }
+      return;
+    }
+
+    if (currentStep > 0) setCurrentStep(currentStep - 1);
+  };
 
   if (!step || !open) return null;
 
@@ -312,7 +353,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
                 </div>
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{step.subtitle}</p>
               </div>
-              <span className="ml-auto text-xs shrink-0" style={{ color: "rgba(255,255,255,0.35)" }}>{currentStep + 1}/{steps.length}</span>
+                  <span className="ml-auto text-xs shrink-0" style={{ color: "rgba(255,255,255,0.35)" }}>{displayStep}/{totalSteps}</span>
             </div>
 
             {/* Instructions */}
@@ -357,8 +398,8 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
                 className="flex items-center gap-1 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-colors"
                 style={{ background: "#F59E0B", color: "#fff" }}
               >
-                {currentStep === steps.length - 1 ? "Got it" : "Next"}
-                {currentStep < steps.length - 1 && <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />}
+                {isLastStep ? "Got it" : "Next"}
+                {!isLastStep && <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />}
               </button>
             </div>
           </div>

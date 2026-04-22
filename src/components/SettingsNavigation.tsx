@@ -10,6 +10,7 @@ import { format } from "date-fns";
 // Import custom icons
 import systemIcon from "@/assets/icons/settings-system.png";
  import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import accountIcon from "@/assets/icons/account-personal.png";
 import paymentsIcon from "@/assets/icons/settings-payments.png";
 import menuIcon from "@/assets/icons/settings-menu.png";
 
@@ -85,6 +86,7 @@ const MobileSettingsItem = ({ iconSrc, label, iconBgColor, onClick, tourId }: Se
 
 // Tablet/Desktop/Mobile settings items (unified)
 const allSettingsItems: SettingsItemData[] = [
+  { id: "account", iconSrc: accountIcon, label: "Account", iconBgColor: "#0A84FF", group: "main" },
   { id: "system", iconSrc: systemIcon, label: "System", iconBgColor: "#34A885", group: "main" },
   { id: "payments", iconSrc: paymentsIcon, label: "Payments", iconBgColor: "#4200FF", group: "main" },
   { id: "menu", iconSrc: menuIcon, label: "Menu", iconBgColor: "#F82536", group: "main" },
@@ -122,6 +124,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
 
   const activeItemId = useMemo(() => {
     const path = location.pathname;
+    if (path === '/settings' || path.startsWith('/settings/account')) return 'account';
     if (path.startsWith('/settings/system')) return 'system';
     if (path.startsWith('/settings/payments')) return 'payments';
     if (path.startsWith('/settings/menu')) return 'menu';
@@ -138,6 +141,14 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
   }, [location.pathname]);
 
   const handleItemClick = (itemId: string) => {
+    if (itemId === "account") {
+      if (onUserProfileClick) {
+        onUserProfileClick();
+        return;
+      }
+      navigate('/settings/account');
+      return;
+    }
     if (onSettingsItemClick) {
       onSettingsItemClick(itemId);
     } else if (itemId === "system") {
@@ -323,24 +334,6 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
             </button>
           </div>
         </div>
-
-        {/* User Profile Card */}
-        <button 
-          onClick={onUserProfileClick}
-          data-tour="profile"
-          className="w-full active:opacity-70 transition-opacity text-left mb-3"
-        >
-          <div className="flex items-center gap-3">
-            <Avatar className="w-11 h-11">
-              {employeeAvatar && <AvatarImage src={employeeAvatar} alt={employeeName} />}
-              <AvatarFallback className="bg-muted text-foreground text-sm">{employeeInitials}</AvatarFallback>
-            </Avatar>
-            <div className="flex-1">
-              <h2 className="text-[0.95rem] font-semibold text-foreground leading-tight">{employeeName}</h2>
-              <p className="text-[0.78rem] font-bold text-foreground leading-tight mt-0.5">{employeeRole}</p>
-            </div>
-          </div>
-        </button>
 
         {!hasResults && searchQuery && (
           <div className="bg-surface rounded-2xl p-4 mb-3 text-center">

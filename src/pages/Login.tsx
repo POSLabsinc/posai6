@@ -1571,6 +1571,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           onSwitchToBrowserTab={() => { setMobileActivationTab?.("browser"); setShowOtherOptions?.(false); setActivationCodeSent(false); }}
           onSwitchToDefaultView={() => { setMobileActivationTab?.(null); setShowOtherOptions?.(false); setActivationCodeSent(false); }}
           onSwitchToOtp={() => { setMobileActivationTab?.("email"); setShowOtherOptions?.(true); setActivationCodeSent(true); }}
+          initialStep={tutorialInitialStep}
         />
       </div>
     );
@@ -2100,6 +2101,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           onSwitchToBrowserTab={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
           onSwitchToDefaultView={() => { setExistingUserSelectedOption(null); setExistingUserCodeSent(false); }}
           onSwitchToOtp={() => { setExistingUserSelectedOption("code"); setExistingUserCodeSent(true); }}
+          initialStep={tutorialInitialStep}
         />
       </div>
     );

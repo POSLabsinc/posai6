@@ -207,26 +207,6 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
         {/* Header */}
         <h1 className="text-3xl font-bold text-foreground mb-5">Settings</h1>
 
-        {/* User Profile Card */}
-        <button 
-          onClick={onUserProfileClick}
-          data-tour="profile"
-          className="w-full active:opacity-70 transition-opacity text-left mb-5"
-        >
-          <div className="bg-surface rounded-2xl overflow-hidden">
-            <div className="flex items-center gap-4 p-4">
-              <Avatar className="w-14 h-14">
-                {employeeAvatar && <AvatarImage src={employeeAvatar} alt={employeeName} />}
-                <AvatarFallback className="bg-muted text-foreground">{employeeInitials}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1">
-                <h2 className="text-lg font-semibold text-foreground">{employeeName}</h2>
-                <p className="text-sm font-bold text-foreground">{employeeRole}</p>
-              </div>
-            </div>
-          </div>
-        </button>
-
         {!hasResults && searchQuery && (
           <div className="bg-surface rounded-2xl p-6 mb-4 text-center">
             <p className="text-muted-foreground">No settings found for "{searchQuery}"</p>

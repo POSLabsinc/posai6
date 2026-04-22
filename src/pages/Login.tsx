@@ -1262,66 +1262,66 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               className="flex flex-row items-stretch gap-0 w-full"
             >
               {/* Option 1: QR Code */}
-              <div className="flex-1 px-6">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <p className="text-sm font-medium text-foreground/40 uppercase tracking-wider">Option 1</p>
-                  <button onClick={() => setShowTutorialOverlay(true)} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
-                    <Info className="w-4 h-4" />
+              <div className="flex-1 px-6 lg:px-8 xl:px-10">
+                <div className="flex items-center gap-2 mb-2">
+                  <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 1</p>
+                  <button onClick={() => { setTutorialInitialStep(0); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                    <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-lg font-bold text-foreground mb-5">Point the camera on your phone or tablet at the QR code.</h2>
-                <div className="flex flex-col items-center gap-5">
+                <h2 className="text-2xl font-bold text-foreground mb-7">Point the camera on your phone or tablet at the QR code.</h2>
+                <div className="flex flex-col items-center gap-6">
                   <button
                     onClick={() => {
                       setShowDeviceConnected(true);
                       setDeviceName("Rustic Table POS 1");
                       setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500);
                     }}
-                    className="bg-foreground rounded-2xl p-5 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                    className="bg-foreground rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                     data-tour="qr-code"
                   >
-                    <QRCodeSVG value={activationQrValue} size={160} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
+                    <QRCodeSVG value={activationQrValue} size={240} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                   </button>
-                  <p className="text-sm text-foreground/50 leading-relaxed text-left w-full">
+                  <p className="text-base text-foreground/50 leading-relaxed text-left w-full">
                     Tap the link that appears and follow the steps on your mobile device.
                   </p>
                 </div>
               </div>
 
               {/* Divider */}
-              <div className="flex flex-col items-center justify-center px-2 self-stretch">
+              <div className="flex flex-col items-center justify-center px-3 self-stretch">
                 <div className="w-px flex-1 bg-foreground/10" />
-                <span className="text-xs font-medium text-foreground/30 py-2">OR</span>
+                <span className="text-sm font-medium text-foreground/30 py-3">OR</span>
                 <div className="w-px flex-1 bg-foreground/10" />
               </div>
 
               {/* Option 2: Use a browser */}
-              <div className="flex-1 px-6">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <p className="text-sm font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
-                  <button onClick={() => setShowTutorialOverlay(true)} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
-                    <Info className="w-4 h-4" />
+              <div className="flex-1 px-6 lg:px-8 xl:px-10">
+                <div className="flex items-center gap-2 mb-2">
+                  <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
+                  <button onClick={() => { setTutorialInitialStep(1); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                    <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-lg font-bold text-foreground mb-5">Use a browser</h2>
-                <div className="space-y-5">
-                  <div className="flex items-start gap-3">
-                    <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
+                <h2 className="text-2xl font-bold text-foreground mb-7">Use a browser</h2>
+                <div className="space-y-7">
+                  <div className="flex items-start gap-4">
+                    <span className="text-2xl font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
                     <div>
-                      <p className="text-sm text-foreground/70 mb-2">Go to this link:</p>
-                      <div className="inline-block px-4 py-2 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]" data-tour="activation-link">
-                        <span className="text-sm font-semibold text-foreground tracking-wide">posai.com/pair</span>
+                      <p className="text-base text-foreground/70 mb-3">Go to this link:</p>
+                      <div className="inline-block px-5 py-3 rounded-xl bg-foreground/[0.08] border border-foreground/[0.1]" data-tour="activation-link">
+                        <span className="text-base font-semibold text-foreground tracking-wide">posai.com/pair</span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-start gap-3">
-                    <span className="text-lg font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
+                  <div className="flex items-start gap-4">
+                    <span className="text-2xl font-bold text-foreground/30 mt-0.5 flex-shrink-0">2</span>
                     <div>
-                      <p className="text-sm text-foreground/70 mb-3">When asked, enter this code:</p>
-                      <div className="flex gap-1.5" data-tour="activation-code">
+                      <p className="text-base text-foreground/70 mb-3">When asked, enter this code:</p>
+                      <div className="flex gap-2" data-tour="activation-code">
                         {generatedDeviceCode.split('').map((char, i) => (
-                          <div key={i} className="w-9 h-11 rounded-lg bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center">
-                            <span className="text-base font-bold text-foreground">{char}</span>
+                          <div key={i} className="w-12 h-14 rounded-lg bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center">
+                            <span className="text-xl font-bold text-foreground">{char}</span>
                           </div>
                         ))}
                       </div>
@@ -1331,47 +1331,47 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </div>
 
               {/* Divider */}
-              <div className="flex flex-col items-center justify-center px-2 self-stretch">
+              <div className="flex flex-col items-center justify-center px-3 self-stretch">
                 <div className="w-px flex-1 bg-foreground/10" />
-                <span className="text-xs font-medium text-foreground/30 py-2">OR</span>
+                <span className="text-sm font-medium text-foreground/30 py-3">OR</span>
                 <div className="w-px flex-1 bg-foreground/10" />
               </div>
 
               {/* Option 3: Activate with Code (email/phone) */}
-              <div className="flex-1 px-6" data-tour="email-input-area">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <p className="text-sm font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
-                  <button onClick={() => setShowTutorialOverlay(true)} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
-                    <Info className="w-4 h-4" />
+              <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="email-input-area">
+                <div className="flex items-center gap-2 mb-2">
+                  <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
+                  <button onClick={() => { setTutorialInitialStep(3); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                    <Info className="w-5 h-5" />
                   </button>
                 </div>
                 <AnimatePresence mode="wait">
                   {!activationCodeSent ? (
                     <motion.div key="email-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <h2 className="text-lg font-bold text-foreground mb-2">Activate with Code</h2>
-                      <p className="text-sm text-foreground/50 mb-5">Enter your email or mobile number to receive a code</p>
-                      <div className="space-y-3">
+                      <h2 className="text-2xl font-bold text-foreground mb-2">Activate with Code</h2>
+                      <p className="text-base text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
+                      <div className="space-y-4">
                         <div className="relative" data-tour="email-input-field">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-5 h-5" /></div>
                           <input type="text" placeholder="Email or phone number" value={activationContactValue} onChange={(e) => setActivationContactValue(e.target.value)}
-                            className="w-full h-12 pl-12 pr-4 rounded-2xl bg-foreground/[0.04] border border-foreground/[0.08] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/20 transition-colors text-sm" />
+                            className="w-full h-14 pl-12 pr-4 rounded-2xl bg-foreground/[0.04] border border-foreground/[0.08] text-foreground placeholder:text-foreground/30 focus:outline-none focus:border-foreground/20 transition-colors text-base" />
                         </div>
                         <button
                           data-tour="email-phone-button"
                           onClick={() => { if (!activationContactValue.trim()) return; setActivationSendingCode(true); setTimeout(() => { setActivationCodeSent(true); setActivationSendingCode(false); toast({ title: "Verification code sent", description: `Check ${activationContactValue} for your code` }); }, 800); }}
                           disabled={!activationContactValue.trim() || activationSendingCode}
-                          className="w-full h-12 rounded-2xl bg-foreground/[0.08] hover:bg-foreground/[0.12] text-foreground font-semibold text-sm flex items-center justify-center gap-2 transition-colors disabled:opacity-40">
+                          className="w-full h-14 rounded-2xl bg-foreground/[0.08] hover:bg-foreground/[0.12] text-foreground font-semibold text-base flex items-center justify-center gap-2 transition-colors disabled:opacity-40">
                           {activationSendingCode ? <Loader2 className="w-5 h-5 animate-spin" /> : <><Send className="w-4 h-4" />Send Code</>}
                         </button>
                       </div>
                     </motion.div>
                   ) : (
                     <motion.div key="otp-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <h2 className="text-lg font-bold text-foreground mb-2">Enter Code</h2>
-                      <p className="text-sm text-foreground/50 mb-5">Enter the 6-digit code sent to <span className="font-semibold text-foreground">{activationContactValue}</span></p>
-                      <div className="flex gap-1.5 mb-4" data-tour="otp-code-area">
+                      <h2 className="text-2xl font-bold text-foreground mb-2">Enter Code</h2>
+                      <p className="text-base text-foreground/50 mb-6">Enter the 6-digit code sent to <span className="font-semibold text-foreground">{activationContactValue}</span></p>
+                      <div className="flex gap-2 mb-5" data-tour="otp-code-area">
                         {Array.from({ length: 6 }).map((_, i) => (
-                          <div key={i} className={`w-9 h-11 rounded-lg border-2 flex items-center justify-center text-lg font-bold transition-all ${activationCode[i] ? "border-primary bg-primary/5 text-foreground" : i === activationCode.length ? "border-primary/50 bg-foreground/[0.03]" : "border-foreground/10 bg-foreground/[0.03]"}`}>
+                          <div key={i} className={`w-12 h-14 rounded-lg border-2 flex items-center justify-center text-xl font-bold transition-all ${activationCode[i] ? "border-primary bg-primary/5 text-foreground" : i === activationCode.length ? "border-primary/50 bg-foreground/[0.03]" : "border-foreground/10 bg-foreground/[0.03]"}`}>
                             {activationCode[i] || ""}
                           </div>
                         ))}
@@ -1379,7 +1379,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       <input type="text" inputMode="numeric" maxLength={6} value={activationCode}
                         onChange={(e) => { const val = e.target.value.replace(/\D/g, '').slice(0, 6); setActivationCode(val); if (val.length === 6) { setShowDeviceConnected(true); setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500); } }}
                         className="sr-only" autoFocus />
-                      <div className="flex items-center justify-between text-sm">
+                      <div className="flex items-center justify-between text-base">
                         <button onClick={() => { setActivationCodeSent(false); setActivationCode(""); }} className="text-foreground/40 hover:text-foreground/60 transition-colors">Change contact</button>
                         <span className="text-foreground/30">Resend in 55s</span>
                       </div>

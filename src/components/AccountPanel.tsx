@@ -214,8 +214,8 @@ const AccountPanel = ({
         {!hidePerformanceSummary && (
           <div className="w-full px-6 mb-3">
             {/* Title and Filter Tabs Row */}
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-2 mb-2">
-              <h3 className="text-sm font-medium text-neutral-400 mb-0">Performance Summary</h3>
+            <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-2 mb-2">
+              <h3 className="text-sm font-medium text-neutral-400 mb-0 leading-none pb-2">Performance Summary</h3>
               
               {/* Filter Tabs */}
               <div className="flex gap-2 flex-wrap">

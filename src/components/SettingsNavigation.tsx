@@ -86,6 +86,7 @@ const MobileSettingsItem = ({ iconSrc, label, iconBgColor, onClick, tourId }: Se
 
 // Tablet/Desktop/Mobile settings items (unified)
 const allSettingsItems: SettingsItemData[] = [
+  { id: "account", iconSrc: accountIcon, label: "Account", iconBgColor: "#0A84FF", group: "main" },
   { id: "system", iconSrc: systemIcon, label: "System", iconBgColor: "#34A885", group: "main" },
   { id: "payments", iconSrc: paymentsIcon, label: "Payments", iconBgColor: "#4200FF", group: "main" },
   { id: "menu", iconSrc: menuIcon, label: "Menu", iconBgColor: "#F82536", group: "main" },

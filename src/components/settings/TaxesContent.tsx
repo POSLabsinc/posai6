@@ -16,7 +16,10 @@ import {
 import AddTaxContent from "./AddTaxContent";
 import EditTaxContent from "./EditTaxContent";
 import SwipeableTaxItem from "./SwipeableTaxItem";
+import { SortableHeader, useSortableData } from "./SortableHeader";
 import { supabase } from "@/integrations/supabase/client";
+
+type TaxSortKey = "name" | "amount" | "type";
 
 interface Tax {
   id: string;

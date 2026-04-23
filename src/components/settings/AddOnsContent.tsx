@@ -18,6 +18,9 @@ import {
 import infoIcon from "@/assets/icons/info.png";
 import addonsIcon from "@/assets/icons/menu-addons.png";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
+import { SortableHeader, useSortableData } from "./SortableHeader";
+
+type AddOnSortKey = "name" | "price";
 
 interface AddOn {
   id: string;
@@ -94,6 +97,12 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
     });
   }, [addOns, searchQuery, showArchived]);
 
+  const { sortedItems, sort: addOnSort, requestSort: sortAddOns } =
+    useSortableData<AddOn, AddOnSortKey>(filteredItems, (item, key) => {
+      if (key === "price") return item.price;
+      return item.name;
+    });
+
   // Desktop / Tablet layout
   if (!isMobile) {
     return (
@@ -161,16 +170,16 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
 
           {/* Table */}
           <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
-            <div className="grid grid-cols-[1.2fr_100px_24px] items-center px-8 py-5 border-b border-neutral-700/50">
-              <span className="text-[15px] font-semibold text-foreground">Name</span>
-              <span className="text-[15px] font-semibold text-foreground text-right">Price</span>
+            <div className="grid grid-cols-[1.2fr_100px_24px] items-center px-8 py-5 border-b border-neutral-700/50 text-[15px] text-foreground">
+              <SortableHeader<AddOnSortKey> label="Name" sortKey="name" sort={addOnSort} onSort={sortAddOns} />
+              <SortableHeader<AddOnSortKey> label="Price" sortKey="price" sort={addOnSort} onSort={sortAddOns} align="right" />
               <span />
             </div>
 
             {loading ? (
               <div className="px-8 py-10 text-center text-[hsl(var(--text-subtle))]">Loading...</div>
-            ) : filteredItems.length > 0 ? (
-              filteredItems.map((item, index) => (
+            ) : sortedItems.length > 0 ? (
+              sortedItems.map((item, index) => (
                 <div key={item.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50" />}
                   <button
@@ -274,16 +283,16 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
         {/* Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-[1fr_70px] items-center py-4 px-4 border-b border-neutral-700/50">
-            <span className="text-neutral-400 text-base font-medium text-left">Name</span>
-            <span className="text-neutral-400 text-base font-medium text-right pr-6">Price</span>
+          <div className="grid grid-cols-[1fr_70px] items-center py-4 px-4 border-b border-neutral-700/50 text-neutral-400 text-base">
+            <SortableHeader<AddOnSortKey> label="Name" sortKey="name" sort={addOnSort} onSort={sortAddOns} bold={false} />
+            <SortableHeader<AddOnSortKey> label="Price" sortKey="price" sort={addOnSort} onSort={sortAddOns} align="right" bold={false} className="pr-6" />
           </div>
 
           {/* Rows */}
           {loading ? (
             <div className="py-8 text-center text-neutral-500">Loading...</div>
-          ) : filteredItems.length > 0 ? (
-            filteredItems.map((item, index) => (
+          ) : sortedItems.length > 0 ? (
+            sortedItems.map((item, index) => (
               <div key={item.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                 <SwipeableSettingsItem

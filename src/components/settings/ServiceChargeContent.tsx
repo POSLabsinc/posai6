@@ -20,6 +20,9 @@ import SwipeableServiceChargeItem from "./SwipeableServiceChargeItem";
 import infoIcon from "@/assets/icons/info.png";
 import serviceChargeIcon from "@/assets/icons/service-charge.png";
 import { supabase } from "@/integrations/supabase/client";
+import { SortableHeader, useSortableData } from "./SortableHeader";
+
+type ServiceChargeSortKey = "name" | "amount" | "taxApplicable";
 
 interface ServiceCharge {
   id: string;
@@ -161,6 +164,13 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
     return matchesSearch && matchesArchiveFilter;
   });
 
+  const { sortedItems: sortedCharges, sort: chargeSort, requestSort: sortCharges } =
+    useSortableData<ServiceCharge, ServiceChargeSortKey>(filteredCharges, (item, key) => {
+      if (key === "amount") return item.amount;
+      if (key === "taxApplicable") return item.taxApplicable || "";
+      return item.name;
+    });
+
   const formatAmount = (charge: ServiceCharge) => {
     return charge.type === "Percentage" ? `${charge.amount}%` : `$${charge.amount.toFixed(2)}`;
   };
@@ -241,16 +251,16 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
           {/* Service Charge List */}
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-[1fr_80px_100px_20px] items-center py-4 px-4 border-b border-neutral-700/50">
-              <span className="text-neutral-400 text-sm font-medium text-left">Service Charge Name</span>
-              <span className="text-neutral-400 text-sm font-medium text-center">Amount</span>
-              <span className="text-neutral-400 text-sm font-medium text-right pr-2">Tax Applicable</span>
+            <div className="grid grid-cols-[1fr_80px_100px_20px] items-center py-4 px-4 border-b border-neutral-700/50 text-neutral-400 text-sm">
+              <SortableHeader<ServiceChargeSortKey> label="Service Charge Name" sortKey="name" sort={chargeSort} onSort={sortCharges} bold={false} />
+              <SortableHeader<ServiceChargeSortKey> label="Amount" sortKey="amount" sort={chargeSort} onSort={sortCharges} align="center" bold={false} />
+              <SortableHeader<ServiceChargeSortKey> label="Tax Applicable" sortKey="taxApplicable" sort={chargeSort} onSort={sortCharges} align="right" bold={false} className="pr-2" />
               <span />
             </div>
 
             {/* Service Charge Rows */}
-            {filteredCharges.length > 0 ? (
-              filteredCharges.map((charge, index) => (
+            {sortedCharges.length > 0 ? (
+              sortedCharges.map((charge, index) => (
                 <div key={charge.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                   <SwipeableServiceChargeItem
@@ -385,16 +395,16 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
         {/* Service Charge Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-[1.2fr_120px_140px_24px] items-center py-4 px-6 border-b border-neutral-700/50">
-            <span className="text-neutral-400 text-base font-medium text-left">Service Charge Name</span>
-            <span className="text-neutral-400 text-base font-medium text-center">Amount</span>
-            <span className="text-neutral-400 text-base font-medium text-right">Tax Applicable</span>
+          <div className="grid grid-cols-[1.2fr_120px_140px_24px] items-center py-4 px-6 border-b border-neutral-700/50 text-neutral-400 text-base">
+            <SortableHeader<ServiceChargeSortKey> label="Service Charge Name" sortKey="name" sort={chargeSort} onSort={sortCharges} bold={false} />
+            <SortableHeader<ServiceChargeSortKey> label="Amount" sortKey="amount" sort={chargeSort} onSort={sortCharges} align="center" bold={false} />
+            <SortableHeader<ServiceChargeSortKey> label="Tax Applicable" sortKey="taxApplicable" sort={chargeSort} onSort={sortCharges} align="right" bold={false} />
             <span />
           </div>
 
           {/* Service Charge Rows */}
-          {filteredCharges.length > 0 ? (
-            filteredCharges.map((charge, index) => (
+          {sortedCharges.length > 0 ? (
+            sortedCharges.map((charge, index) => (
               <div key={charge.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-6" />}
                 <button

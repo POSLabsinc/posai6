@@ -60,6 +60,9 @@ All colors MUST be HSL.
     --surface-inset: 0 0% 98%;
     --divider: 0 0% 90%;
     --text-subtle: 0 0% 45%;
+    --switch-track-active: 28 100% 55%;
+    --switch-track-inactive: 214 15% 82%;
+    --switch-thumb: 0 0% 100%;
 
     --revenue-center-dine: 43 96% 56%;
     --revenue-center-main: 213 94% 68%;
@@ -118,6 +121,9 @@ All colors MUST be HSL.
     --surface-inset: 220 18% 8%;
     --divider: 0 0% 28%;
     --text-subtle: 0 0% 55%;
+    --switch-track-active: 28 100% 55%;
+    --switch-track-inactive: 220 10% 24%;
+    --switch-thumb: 0 0% 100%;
   }
 }
 

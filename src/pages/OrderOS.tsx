@@ -1306,6 +1306,8 @@ const OrderOS = () => {
   const [mobileChipIndex, setMobileChipIndex] = useState(1); // 0=DINE IN, 1=ONLINE, 2=SCHEDULED
   const [orders, setOrders] = useState<OnlineOrder[]>(mockOrders);
   const [selectedOrder, setSelectedOrder] = useState<OnlineOrder | null>(null);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [paymentOrder, setPaymentOrder] = useState<OnlineOrder | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   
   // Ref-based countdown storage to avoid re-renders on every tick

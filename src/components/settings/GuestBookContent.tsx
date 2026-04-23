@@ -13,6 +13,8 @@ import PaymentTabContent from "@/components/settings/PaymentTabContent";
 import FeedbackTabContent from "@/components/settings/FeedbackTabContent";
 import OrderHistoryTabContent from "@/components/settings/OrderHistoryTabContent";
 import AddGuestForm from "@/components/AddGuestForm";
+import SwipeableGuestItem from "@/components/settings/SwipeableGuestItem";
+import GuestBookArchiveScreen from "@/components/settings/GuestBookArchiveScreen";
 
 interface Guest {
   id: string;

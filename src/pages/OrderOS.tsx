@@ -44,6 +44,7 @@ import doordashIcon from "@/assets/icons/platforms/doordash-full.svg";
 import directIcon from "@/assets/icons/platforms/direct-full.svg";
 import deliveryOsIcon from "@/assets/icons/platforms/deliveryos-full.svg";
 import orderOsLogo from "@/assets/icons/order-os.svg";
+import PaymentDialog from "@/components/PaymentDialog";
 
 // Types
 interface ModifierItem {
@@ -1305,6 +1306,8 @@ const OrderOS = () => {
   const [mobileChipIndex, setMobileChipIndex] = useState(1); // 0=DINE IN, 1=ONLINE, 2=SCHEDULED
   const [orders, setOrders] = useState<OnlineOrder[]>(mockOrders);
   const [selectedOrder, setSelectedOrder] = useState<OnlineOrder | null>(null);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [paymentOrder, setPaymentOrder] = useState<OnlineOrder | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   
   // Ref-based countdown storage to avoid re-renders on every tick
@@ -3325,6 +3328,10 @@ const OrderOS = () => {
                   </button>
                   {selectedOrder.orderType === 'DINE IN' && (
                     <button 
+                      onClick={() => {
+                        setPaymentOrder(selectedOrder);
+                        setShowPaymentDialog(true);
+                      }}
                       className="flex-1 basis-0 py-3 rounded-full text-white text-sm font-bold transition-all hover:scale-[1.02]" 
                       style={{ background: "linear-gradient(180deg, #5A5A5A 0%, #3A3A3A 100%)", border: "1px solid rgba(255,255,255,0.2)" }}
                     >
@@ -3344,6 +3351,10 @@ const OrderOS = () => {
                   </button>
                   {selectedOrder.orderType === 'DINE IN' && (
                     <button 
+                      onClick={() => {
+                        setPaymentOrder(selectedOrder);
+                        setShowPaymentDialog(true);
+                      }}
                       className="flex-1 basis-0 py-3 rounded-full text-white text-sm font-bold transition-all hover:scale-[1.02]" 
                       style={{ background: "linear-gradient(180deg, #5A5A5A 0%, #3A3A3A 100%)", border: "1px solid rgba(255,255,255,0.2)" }}
                     >
@@ -3859,6 +3870,41 @@ const OrderOS = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Payment Dialog - same flow as new order screen */}
+      {paymentOrder && (
+        <PaymentDialog
+          open={showPaymentDialog}
+          onOpenChange={(open) => {
+            setShowPaymentDialog(open);
+            if (!open) setPaymentOrder(null);
+          }}
+          orderDetails={{
+            guest: paymentOrder.customerName,
+            phone: paymentOrder.phone,
+            table: paymentOrder.tableNumber,
+            check: paymentOrder.orderNumber,
+            orderType: paymentOrder.orderType,
+            orderNumber: paymentOrder.orderNumber,
+            orderTime: paymentOrder.orderedAt,
+            items: paymentOrder.items.map((it, idx) => ({
+              id: idx,
+              qty: it.qty,
+              name: it.name,
+              price: it.price,
+            })),
+          }}
+          subtotal={paymentOrder.subtotal}
+          tax={paymentOrder.tax}
+          total={paymentOrder.total}
+          onPaymentComplete={() => {
+            setOrders(prev => prev.map(o => o.id === paymentOrder.id ? { ...o, isPaid: true } : o));
+            setShowPaymentDialog(false);
+            setPaymentOrder(null);
+            toast({ title: "Payment completed", description: `Order #${paymentOrder.orderNumber} has been paid.` });
+          }}
+        />
+      )}
     </>
   );
 };

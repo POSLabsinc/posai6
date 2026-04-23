@@ -1,10 +1,11 @@
 import { useState, useRef } from "react";
-import { Archive, ArchiveRestore } from "lucide-react";
+import { Archive, ArchiveRestore, Trash2 } from "lucide-react";
 
 interface SwipeableGuestItemProps {
   children: React.ReactNode;
   onTap: () => void;
   onArchive: () => void;
+  onRemove?: () => void;
   isArchived?: boolean;
 }
 
@@ -12,6 +13,7 @@ const SwipeableGuestItem = ({
   children,
   onTap,
   onArchive,
+  onRemove,
   isArchived = false,
 }: SwipeableGuestItemProps) => {
   const [translateX, setTranslateX] = useState(0);
@@ -20,7 +22,9 @@ const SwipeableGuestItem = ({
   const currentX = useRef(0);
   const hasMoved = useRef(false);
 
-  const swipeWidth = -72;
+  // When archived with remove option, show two buttons (144px), otherwise one (72px)
+  const showDualActions = isArchived && !!onRemove;
+  const swipeWidth = showDualActions ? -144 : -72;
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;

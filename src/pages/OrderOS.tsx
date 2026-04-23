@@ -3870,7 +3870,6 @@ const OrderOS = () => {
           </div>
         </DialogContent>
       </Dialog>
-      </Dialog>
 
       {/* Payment Dialog - same flow as new order screen */}
       {paymentOrder && (

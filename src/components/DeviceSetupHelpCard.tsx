@@ -34,6 +34,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   const rafRef = useRef<number>(0);
   const cardRef = useRef<HTMLDivElement>(null);
   const stepSequences: Record<number, number[]> = {
+    0: [0],
     6: [1, 2],
   };
 

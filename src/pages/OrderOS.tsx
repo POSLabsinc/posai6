@@ -2969,6 +2969,7 @@ const OrderOS = () => {
   
   const OrderDetailPanel = () => {
     if (!selectedOrder || !liveSelectedOrder) return null;
+    const displayOrder = liveSelectedOrder;
     
     const orderReports = reportedItems.get(selectedOrder.id) || [];
     const getItemReport = (itemIndex: number) => orderReports.find(r => r.itemIndex === itemIndex);
@@ -3269,24 +3270,29 @@ const OrderOS = () => {
         
         {/* Action Buttons */}
         <div className="px-4 py-3 border-t border-border">
+          {displayOrder.orderType === 'DINE IN' && displayOrder.isPaid && (displayOrder.status === 'PREPARING' || displayOrder.status === 'READY') && (
+            <div className="mb-3 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm font-semibold text-primary">
+              Payment Successful
+            </div>
+          )}
           {/* Scheduled orders always show Accept/Cancel/Report regardless of status */}
-          {selectedOrder.isScheduled && selectedOrder.isWaiting ? (
+          {displayOrder.isScheduled && displayOrder.isWaiting ? (
             <div className="flex items-center gap-2">
               <button 
-                onClick={() => handleAcceptOrder(selectedOrder.id)}
+                onClick={() => handleAcceptOrder(displayOrder.id)}
                 className="flex-1 py-3 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02] whitespace-nowrap" 
                 style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
               >
                 Accept Order
               </button>
               <button 
-                onClick={() => openCancelDialog(selectedOrder)}
+                onClick={() => openCancelDialog(displayOrder)}
                 className="py-3 px-4 rounded-full text-[#FF6B6B] text-sm font-bold border border-[#FF6B6B] hover:bg-[#FF6B6B]/10 transition-colors whitespace-nowrap"
               >
                 Cancel Order
               </button>
               <button 
-                onClick={() => openReportDialog(selectedOrder)}
+                onClick={() => openReportDialog(displayOrder)}
                 className="py-3 px-4 rounded-full text-amber-500 text-sm font-bold border border-amber-500/50 hover:bg-amber-500/10 transition-colors whitespace-nowrap"
               >
                 Report
@@ -3294,85 +3300,85 @@ const OrderOS = () => {
             </div>
           ) : (
             <>
-              {selectedOrder.status === 'NEW' && (
+              {displayOrder.status === 'NEW' && (
                 <div className="flex items-center gap-2">
                   <button 
-                    onClick={() => handleAcceptOrder(selectedOrder.id)}
+                    onClick={() => handleAcceptOrder(displayOrder.id)}
                     className="flex-1 py-3 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02] whitespace-nowrap" 
                     style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                   >
                     Accept Order
                   </button>
                   <button 
-                    onClick={() => openCancelDialog(selectedOrder)}
+                    onClick={() => openCancelDialog(displayOrder)}
                     className="py-3 px-4 rounded-full text-[#FF6B6B] text-sm font-bold border border-[#FF6B6B] hover:bg-[#FF6B6B]/10 transition-colors whitespace-nowrap"
                   >
                     Cancel Order
                   </button>
                   <button 
-                    onClick={() => openReportDialog(selectedOrder)}
+                    onClick={() => openReportDialog(displayOrder)}
                     className="py-3 px-4 rounded-full text-amber-500 text-sm font-bold border border-amber-500/50 hover:bg-amber-500/10 transition-colors whitespace-nowrap"
                   >
                     Report
                   </button>
                 </div>
               )}
-              {selectedOrder.status === 'PREPARING' && (
+              {displayOrder.status === 'PREPARING' && (
                 <div className="flex items-center gap-2">
                   <button 
-                    onClick={() => handleMakeReady(selectedOrder.id)}
-                    className={`${selectedOrder.orderType === 'DINE IN' && !selectedOrder.isPaid ? 'flex-1 basis-0' : 'flex-1'} py-3 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02]`}
+                    onClick={() => handleMakeReady(displayOrder.id)}
+                    className={`${displayOrder.orderType === 'DINE IN' && !displayOrder.isPaid ? 'flex-1 basis-0' : 'flex-1'} py-3 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02]`}
                     style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                   >
                     Make Ready
                   </button>
-                  {selectedOrder.orderType === 'DINE IN' && !selectedOrder.isPaid && (
+                  {displayOrder.orderType === 'DINE IN' && !displayOrder.isPaid && (
                     <button 
                       onClick={() => {
-                        setPaymentOrder(selectedOrder);
+                        setPaymentOrder(displayOrder);
                         setShowPaymentDialog(true);
                       }}
                       className="flex-1 basis-0 py-3 rounded-full text-white text-sm font-bold transition-all hover:scale-[1.02]" 
                       style={{ background: "linear-gradient(180deg, #5A5A5A 0%, #3A3A3A 100%)", border: "1px solid rgba(255,255,255,0.2)" }}
                     >
-                      Charge ${selectedOrder.total.toFixed(2)}
+                      Charge ${displayOrder.total.toFixed(2)}
                     </button>
                   )}
                 </div>
               )}
-              {selectedOrder.status === 'READY' && (
+              {displayOrder.status === 'READY' && (
                 <div className="flex items-center gap-2">
                   <button 
-                    onClick={() => handleReadyForPickup(selectedOrder.id, selectedOrder.orderType)}
-                    className={`${selectedOrder.orderType === 'DINE IN' && !selectedOrder.isPaid ? 'flex-1 basis-0' : 'flex-1'} py-3 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02]`}
+                    onClick={() => handleReadyForPickup(displayOrder.id, displayOrder.orderType)}
+                    className={`${displayOrder.orderType === 'DINE IN' && !displayOrder.isPaid ? 'flex-1 basis-0' : 'flex-1'} py-3 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02]`}
                     style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                   >
-                    {selectedOrder.orderType === 'DELIVERY' ? 'Dispatch' : selectedOrder.orderType === 'DINE IN' ? 'Completed' : 'Ready for Pick Up'}
+                    {displayOrder.orderType === 'DELIVERY' ? 'Dispatch' : displayOrder.orderType === 'DINE IN' ? 'Completed' : 'Ready for Pick Up'}
                   </button>
-                  {selectedOrder.orderType === 'DINE IN' && !selectedOrder.isPaid && (
+                  {displayOrder.orderType === 'DINE IN' && !displayOrder.isPaid && (
                     <button 
                       onClick={() => {
-                        setPaymentOrder(selectedOrder);
+                        setPaymentOrder(displayOrder);
                         setShowPaymentDialog(true);
                       }}
                       className="flex-1 basis-0 py-3 rounded-full text-white text-sm font-bold transition-all hover:scale-[1.02]" 
                       style={{ background: "linear-gradient(180deg, #5A5A5A 0%, #3A3A3A 100%)", border: "1px solid rgba(255,255,255,0.2)" }}
                     >
-                      Charge ${selectedOrder.total.toFixed(2)}
+                      Charge ${displayOrder.total.toFixed(2)}
                     </button>
                   )}
                 </div>
               )}
-              {selectedOrder.status === 'OUT_FOR_DELIVERY' && (
+              {displayOrder.status === 'OUT_FOR_DELIVERY' && (
                 <button 
-                  onClick={() => handleMarkDelivered(selectedOrder.id)}
+                  onClick={() => handleMarkDelivered(displayOrder.id)}
                   className="w-full py-3 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02]" 
                   style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                 >
                   Mark as Delivered
                 </button>
               )}
-              {(selectedOrder.status === 'COMPLETED' || selectedOrder.status === 'CANCELLED') && (
+              {(displayOrder.status === 'COMPLETED' || displayOrder.status === 'CANCELLED') && (
                 <button className="w-full py-3 rounded-full text-foreground text-sm font-bold border border-border hover:bg-muted transition-colors">
                   Connect Printer
                 </button>
@@ -3898,10 +3904,12 @@ const OrderOS = () => {
           tax={paymentOrder.tax}
           total={paymentOrder.total}
           onPaymentComplete={() => {
-            setOrders(prev => prev.map(o => o.id === paymentOrder.id ? { ...o, isPaid: true } : o));
+            const paidOrder = { ...paymentOrder, isPaid: true };
+            setOrders(prev => prev.map(o => o.id === paymentOrder.id ? paidOrder : o));
+            setSelectedOrder(prev => prev?.id === paymentOrder.id ? paidOrder : prev);
             setShowPaymentDialog(false);
             setPaymentOrder(null);
-            toast({ title: "Payment completed", description: `Order #${paymentOrder.orderNumber} has been paid.` });
+            toast({ title: "Payment Successful", description: `Order #${paymentOrder.orderNumber} has been paid.` });
           }}
         />
       )}

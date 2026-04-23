@@ -115,40 +115,12 @@ export function AutoLockProvider({ children }: { children: ReactNode }) {
     <AutoLockContext.Provider value={{ resetTimer }}>
       {children}
 
-      {/* Lock screen overlay */}
-      {isLocked && (
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background">
-          <div className="flex flex-col items-center gap-4 w-full max-w-sm px-6">
-            {/* Live Clock */}
-            <LiveClock />
-
-            {/* Lock icon + message */}
-            {lockReason === "pin-lockout" && (
-              <div className="flex flex-col items-center gap-2 mb-2">
-                <div className="w-14 h-14 rounded-full bg-destructive/15 flex items-center justify-center">
-                  <Lock className="w-7 h-7 text-destructive" />
-                </div>
-                <p className="text-sm text-muted-foreground text-center">
-                  Too many incorrect PIN attempts
-                </p>
-              </div>
-            )}
-
-            {lockReason === "timer" && (
-              <p className="text-sm text-muted-foreground text-center mb-2">
-                Enter PIN to unlock
-              </p>
-            )}
-
-            {/* PIN Screen */}
-            <div className="w-full">
-              <ManagerPinScreen
-                onSuccess={handleUnlock}
-              />
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Lock screen — shows the Clock In / Clock Out PIN interface */}
+      <ClockOutOverlay
+        isOpen={isLocked}
+        onClose={handleUnlock}
+        onClockOut={handleUnlock}
+      />
     </AutoLockContext.Provider>
   );
 }

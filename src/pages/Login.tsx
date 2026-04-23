@@ -1520,6 +1520,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <motion.div key="mobile-email-active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   {/* Email content at top */}
                   <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
+                      <button onClick={() => { setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </div>
                     <p className="text-sm font-semibold text-foreground mb-3">Activate via email / phone</p>
                     {!activationCodeSent ? (
                       <div className="space-y-4" data-tour="email-input-area">

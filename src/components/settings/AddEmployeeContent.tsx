@@ -359,9 +359,9 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
             <span className="text-sm text-foreground font-medium">Dashboard Access</span>
             <button
               onClick={() => setDashboardAccess(!dashboardAccess)}
-              className={`w-12 h-7 rounded-full transition-colors ${dashboardAccess ? "bg-white" : "bg-neutral-700"} relative`}
+              className={`w-12 h-7 rounded-full transition-colors ${dashboardAccess ? "bg-[hsl(24_94%_53%)]" : "bg-neutral-700"} relative`}
             >
-              <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${dashboardAccess ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
+              <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${dashboardAccess ? "translate-x-[22px] bg-white" : "translate-x-[3px] bg-white"}`} />
             </button>
           </div>
           <div className="flex items-center justify-between px-4 py-3.5 border-b border-neutral-700/30">
@@ -666,9 +666,9 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
             <span className="text-sm text-foreground font-medium">Payroll</span>
             <button
               onClick={() => setPayrollEnabled(!payrollEnabled)}
-              className={`w-12 h-7 rounded-full transition-colors ${payrollEnabled ? "bg-white" : "bg-neutral-700"} relative`}
+              className={`w-12 h-7 rounded-full transition-colors ${payrollEnabled ? "bg-[hsl(24_94%_53%)]" : "bg-neutral-700"} relative`}
             >
-              <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${payrollEnabled ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
+              <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${payrollEnabled ? "translate-x-[22px] bg-white" : "translate-x-[3px] bg-white"}`} />
             </button>
           </div>
 

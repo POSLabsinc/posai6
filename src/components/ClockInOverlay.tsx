@@ -705,7 +705,7 @@ export const ClockInOverlay = ({
                   <EyeOff className="w-4 h-4 text-white/60" />
                   <span className="text-white/80 text-sm">Share anonymously</span>
                 </div>
-                <button onClick={() => setIsAnonymous(!isAnonymous)} className={`w-12 h-7 rounded-full transition-colors relative ${isAnonymous ? 'bg-emerald-500' : 'bg-white/20'}`}>
+                <button onClick={() => setIsAnonymous(!isAnonymous)} className={`w-12 h-7 rounded-full transition-colors relative ${isAnonymous ? 'bg-[hsl(24_94%_53%)]' : 'bg-white/20'}`}>
                   <span className={`absolute top-1 w-5 h-5 bg-white rounded-full transition-transform ${isAnonymous ? 'translate-x-6' : 'translate-x-1'}`} />
                 </button>
               </div>
@@ -1352,7 +1352,7 @@ export const ClockInOverlay = ({
           <button
             onClick={() => setIsAnonymous(!isAnonymous)}
             className={`w-12 h-7 rounded-full transition-colors relative ${
-              isAnonymous ? 'bg-emerald-500' : 'bg-white/20'
+              isAnonymous ? 'bg-[hsl(24_94%_53%)]' : 'bg-white/20'
             }`}
           >
             <span

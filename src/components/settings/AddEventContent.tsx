@@ -172,9 +172,9 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
       <span className="text-sm text-foreground font-medium">{label}</span>
       <button
         onClick={onChange}
-        className={`w-12 h-7 rounded-full transition-colors ${value ? "bg-white" : "bg-neutral-700"} relative`}
+        className={`w-12 h-7 rounded-full transition-colors ${value ? "bg-[hsl(24_94%_53%)]" : "bg-neutral-700"} relative`}
       >
-        <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${value ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
+        <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${value ? "translate-x-[22px] bg-white" : "translate-x-[3px] bg-white"}`} />
       </button>
     </div>
   );

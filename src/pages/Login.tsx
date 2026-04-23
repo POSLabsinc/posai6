@@ -1398,6 +1398,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <motion.div key="mobile-default" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   {/* QR Code Section */}
                   <div className="flex flex-col items-start mb-5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 1</p>
+                      <button onClick={() => { setTutorialInitialStep(0); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </div>
                     <h2 className="text-lg font-bold text-foreground mb-3">Point the camera at the QR code</h2>
                     <button
                       onClick={() => { setShowDeviceConnected(true); setDeviceName("Rustic Table POS 1"); setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500); }}

@@ -18,6 +18,9 @@ import {
 import infoIcon from "@/assets/icons/info.png";
 import addonsIcon from "@/assets/icons/menu-addons.png";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
+import { SortableHeader, useSortableData } from "./SortableHeader";
+
+type AddOnSortKey = "name" | "price";
 
 interface AddOn {
   id: string;

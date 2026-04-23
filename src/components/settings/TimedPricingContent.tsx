@@ -14,6 +14,9 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { SortableHeader, useSortableData } from "./SortableHeader";
+
+type TimedPricingSortKey = "name" | "startTime" | "endTime" | "days";
 
 interface TimedPricingRule {
   id: string;

@@ -17,6 +17,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import infoIcon from "@/assets/icons/info.png";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
+import { SortableHeader, useSortableData } from "./SortableHeader";
+
+type DefaultModifierSortKey = "name" | "type";
 
 interface DefaultModifier {
   id: string;

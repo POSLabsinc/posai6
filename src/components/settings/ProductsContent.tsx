@@ -18,6 +18,9 @@ import infoIcon from "@/assets/icons/info.png";
 import productsIcon from "@/assets/icons/menu-products.png";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
 import { getAllUnifiedProducts, setArchivedId, UnifiedProduct } from "@/lib/productStore";
+import { SortableHeader, useSortableData } from "./SortableHeader";
+
+type ProductSortKey = "name" | "category" | "sku" | "price";
 
 interface ProductsContentProps {
   showHeader?: boolean;

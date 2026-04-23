@@ -19,6 +19,9 @@ import {
 import infoIcon from "@/assets/icons/info.png";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
 import { format } from "date-fns";
+import { SortableHeader, useSortableData } from "./SortableHeader";
+
+type MenuSortKey = "name" | "created_at" | "updated_at" | "enabled";
 
 interface DbMenu {
   id: string;

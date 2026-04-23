@@ -19,6 +19,9 @@ import infoIcon from "@/assets/icons/info.png";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
 import AddModifierContent from "./AddModifierContent";
 import EditModifierContent from "./EditModifierContent";
+import { SortableHeader, useSortableData } from "./SortableHeader";
+
+type ModifierSortKey = "name" | "type" | "selectedOptions" | "price";
 
 interface Modifier {
   id: string;

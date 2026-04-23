@@ -263,7 +263,7 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
       )}
 
       {/* Content */}
-      <div className={`flex flex-col items-center ${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-8`}>
+      <div className={`flex flex-col items-center ${showHeader ? 'pt-0' : 'pt-0'} px-4 md:px-6 pb-8`}>
         <div className="w-full">
           {/* Password Section - Read Only Notice */}
           <div className="mb-3">

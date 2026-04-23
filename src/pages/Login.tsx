@@ -1398,6 +1398,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <motion.div key="mobile-default" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   {/* QR Code Section */}
                   <div className="flex flex-col items-start mb-5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 1</p>
+                      <button onClick={() => { setTutorialInitialStep(0); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </div>
                     <h2 className="text-lg font-bold text-foreground mb-3">Point the camera at the QR code</h2>
                     <button
                       onClick={() => { setShowDeviceConnected(true); setDeviceName("Rustic Table POS 1"); setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500); }}
@@ -1420,17 +1426,33 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
                   {/* Two option buttons */}
                   <div className="flex gap-2">
-                    <button onClick={() => setMobileActivationTab("browser")}
-                      className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                      <Globe className="w-4 h-4 mx-auto mb-1" />
-                      Use a browser
-                    </button>
-                    <button onClick={() => setMobileActivationTab("email")}
-                      className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]"
-                      data-tour="email-phone-button">
-                      <Mail className="w-4 h-4 mx-auto mb-1" />
-                      Activate via email / phone
-                    </button>
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <p className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
+                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                          <Info className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <button onClick={() => setMobileActivationTab("browser")}
+                        className="w-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
+                        <Globe className="w-4 h-4 mx-auto mb-1" />
+                        Use a browser
+                      </button>
+                    </div>
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <p className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
+                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                          <Info className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <button onClick={() => setMobileActivationTab("email")}
+                        className="w-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]"
+                        data-tour="email-phone-button">
+                        <Mail className="w-4 h-4 mx-auto mb-1" />
+                        Activate via email / phone
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
 
@@ -1439,6 +1461,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <motion.div key="mobile-browser-active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   {/* Browser content at top */}
                   <div className="space-y-5 mb-6">
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
+                      <button onClick={() => { setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </div>
                     <p className="text-sm font-semibold text-foreground">Use a browser</p>
                     <div className="flex items-start gap-3">
                       <span className="text-base font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
@@ -1492,6 +1520,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <motion.div key="mobile-email-active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   {/* Email content at top */}
                   <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
+                      <button onClick={() => { setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </div>
                     <p className="text-sm font-semibold text-foreground mb-3">Activate via email / phone</p>
                     {!activationCodeSent ? (
                       <div className="space-y-4" data-tour="email-input-area">
@@ -7683,6 +7717,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 /* Default: QR on top, two tab buttons below */
                 <motion.div key="mobile-signin-default" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   <div className="flex flex-col items-start mb-5">
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 1</p>
+                      <button onClick={() => { setTutorialInitialStep(0); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </div>
                     <h2 className="text-lg font-bold text-foreground mb-3">Point the camera at the QR code</h2>
                     <button
                       data-tour="qr-code"
@@ -7711,17 +7751,33 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </div>
 
                   <div className="flex gap-2">
-                    <button onClick={() => setMobileSignInTab("browser")}
-                      className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                      <Globe className="w-4 h-4 mx-auto mb-1" />
-                      Use a browser
-                    </button>
-                    <button onClick={() => setMobileSignInTab("email")}
-                      data-tour="email-phone-button"
-                      className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                      <Mail className="w-4 h-4 mx-auto mb-1" />
-                      Sign in via email / phone
-                    </button>
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <p className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
+                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                          <Info className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <button onClick={() => setMobileSignInTab("browser")}
+                        className="w-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
+                        <Globe className="w-4 h-4 mx-auto mb-1" />
+                        Use a browser
+                      </button>
+                    </div>
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <p className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
+                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                          <Info className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <button onClick={() => setMobileSignInTab("email")}
+                        data-tour="email-phone-button"
+                        className="w-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
+                        <Mail className="w-4 h-4 mx-auto mb-1" />
+                        Sign in via email / phone
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
 
@@ -7729,6 +7785,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 /* Browser selected */
                 <motion.div key="mobile-signin-browser" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   <div className="space-y-5 mb-6">
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
+                      <button onClick={() => { setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </div>
                     <p className="text-sm font-semibold text-foreground">Use a browser</p>
                     <div className="flex items-start gap-3">
                       <span className="text-base font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
@@ -7779,6 +7841,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 /* Email selected */
                 <motion.div key="mobile-signin-email" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
+                      <button onClick={() => { setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </div>
                     <p className="text-sm font-semibold text-foreground mb-3">Sign in via email / phone</p>
                     {!existingUserCodeSent ? (
                       <div className="space-y-4">

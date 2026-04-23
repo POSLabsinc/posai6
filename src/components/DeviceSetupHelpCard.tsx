@@ -34,6 +34,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   const rafRef = useRef<number>(0);
   const cardRef = useRef<HTMLDivElement>(null);
   const stepSequences: Record<number, number[]> = {
+    0: [0],
     6: [1, 2],
   };
 
@@ -393,14 +394,16 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
                   Skip
                 </button>
               </div>
-              <button
-                onClick={handleNext}
-                className="flex items-center gap-1 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-colors"
-                style={{ background: "#F59E0B", color: "#fff" }}
-              >
-                {isLastStep ? "Got it" : "Next"}
-                {!isLastStep && <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />}
-              </button>
+              {totalSteps > 1 && (
+                <button
+                  onClick={handleNext}
+                  className="flex items-center gap-1 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-colors"
+                  style={{ background: "#F59E0B", color: "#fff" }}
+                >
+                  {isLastStep ? "Got it" : "Next"}
+                  {!isLastStep && <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />}
+                </button>
+              )}
             </div>
           </div>
         </motion.div>

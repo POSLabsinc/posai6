@@ -998,5 +998,5 @@ button[role="switch"] > [data-state="unchecked"] {
   border-width: 2px;
 }
 .theme-color-picker-compact .react-colorful {
-  height: 180px;
+  height: 130px;
 }

@@ -164,6 +164,13 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
     return matchesSearch && matchesArchiveFilter;
   });
 
+  const { sortedItems: sortedCharges, sort: chargeSort, requestSort: sortCharges } =
+    useSortableData<ServiceCharge, ServiceChargeSortKey>(filteredCharges, (item, key) => {
+      if (key === "amount") return item.amount;
+      if (key === "taxApplicable") return item.taxApplicable || "";
+      return item.name;
+    });
+
   const formatAmount = (charge: ServiceCharge) => {
     return charge.type === "Percentage" ? `${charge.amount}%` : `$${charge.amount.toFixed(2)}`;
   };

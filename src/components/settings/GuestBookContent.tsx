@@ -736,12 +736,14 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
         </div>
       ) : (
         <div className="mb-6">
-          {/* Title Row: Back + Title centered */}
+          {/* Title Row: Back + Title centered (back arrow hidden on mobile — outer wrapper provides it) */}
           <div className="flex items-center relative mb-5">
-            <button onClick={() => setActiveTab("profile")} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
-            <h2 className="absolute left-1/2 -translate-x-1/2 text-lg font-semibold text-foreground flex items-center gap-2">
+            {!isMobile && (
+              <button onClick={() => setActiveTab("profile")} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+            )}
+            <h2 className={`text-lg font-semibold text-foreground flex items-center gap-2 ${isMobile ? "mx-auto" : "absolute left-1/2 -translate-x-1/2"}`}>
               {tabs.find(t => t.id === activeTab)?.label}
               {activeTab === "history" && (
                 <Popover>

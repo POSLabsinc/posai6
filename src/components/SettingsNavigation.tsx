@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Search, Mic, ChevronRight } from "lucide-react";
+import { Search, Mic, ChevronRight, X } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
@@ -287,13 +287,14 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
               inputRef.current?.focus();
               setIsSearchActive(true);
             }}
+            aria-label="Clear search"
             className={
               isMobileVariant
-                ? "p-1 active:opacity-70 transition-opacity text-muted-foreground text-sm"
-                : "p-1 active:opacity-70 transition-opacity text-muted-foreground text-xs flex-shrink-0"
+                ? "flex items-center justify-center w-5 h-5 rounded-full bg-muted-foreground/40 hover:bg-muted-foreground/60 active:opacity-70 transition-colors flex-shrink-0"
+                : "flex items-center justify-center w-[1.05rem] h-[1.05rem] rounded-full bg-muted-foreground/40 hover:bg-muted-foreground/60 active:opacity-70 transition-colors flex-shrink-0"
             }
           >
-            Clear
+            <X className={isMobileVariant ? "w-3 h-3 text-background" : "w-2.5 h-2.5 text-background"} strokeWidth={3} />
           </button>
         )}
         <button className={isMobileVariant ? "p-1 active:opacity-70 transition-opacity" : "p-0.5 active:opacity-70 transition-opacity flex-shrink-0"}>

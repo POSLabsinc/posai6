@@ -1461,6 +1461,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <motion.div key="mobile-browser-active" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   {/* Browser content at top */}
                   <div className="space-y-5 mb-6">
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
+                      <button onClick={() => { setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </div>
                     <p className="text-sm font-semibold text-foreground">Use a browser</p>
                     <div className="flex items-start gap-3">
                       <span className="text-base font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>

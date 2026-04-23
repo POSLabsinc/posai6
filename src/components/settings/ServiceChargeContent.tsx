@@ -395,16 +395,16 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
         {/* Service Charge Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-[1.2fr_120px_140px_24px] items-center py-4 px-6 border-b border-neutral-700/50">
-            <span className="text-neutral-400 text-base font-medium text-left">Service Charge Name</span>
-            <span className="text-neutral-400 text-base font-medium text-center">Amount</span>
-            <span className="text-neutral-400 text-base font-medium text-right">Tax Applicable</span>
+          <div className="grid grid-cols-[1.2fr_120px_140px_24px] items-center py-4 px-6 border-b border-neutral-700/50 text-neutral-400 text-base">
+            <SortableHeader<ServiceChargeSortKey> label="Service Charge Name" sortKey="name" sort={chargeSort} onSort={sortCharges} bold={false} />
+            <SortableHeader<ServiceChargeSortKey> label="Amount" sortKey="amount" sort={chargeSort} onSort={sortCharges} align="center" bold={false} />
+            <SortableHeader<ServiceChargeSortKey> label="Tax Applicable" sortKey="taxApplicable" sort={chargeSort} onSort={sortCharges} align="right" bold={false} />
             <span />
           </div>
 
           {/* Service Charge Rows */}
-          {filteredCharges.length > 0 ? (
-            filteredCharges.map((charge, index) => (
+          {sortedCharges.length > 0 ? (
+            sortedCharges.map((charge, index) => (
               <div key={charge.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-6" />}
                 <button

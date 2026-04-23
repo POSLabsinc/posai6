@@ -3321,12 +3321,12 @@ const OrderOS = () => {
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={() => handleMakeReady(selectedOrder.id)}
-                    className={`${selectedOrder.orderType === 'DINE IN' ? 'flex-1 basis-0' : 'flex-1'} py-3 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02]`}
+                    className={`${selectedOrder.orderType === 'DINE IN' && !selectedOrder.isPaid ? 'flex-1 basis-0' : 'flex-1'} py-3 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02]`}
                     style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                   >
                     Make Ready
                   </button>
-                  {selectedOrder.orderType === 'DINE IN' && (
+                  {selectedOrder.orderType === 'DINE IN' && !selectedOrder.isPaid && (
                     <button 
                       onClick={() => {
                         setPaymentOrder(selectedOrder);
@@ -3344,12 +3344,12 @@ const OrderOS = () => {
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={() => handleReadyForPickup(selectedOrder.id, selectedOrder.orderType)}
-                    className={`${selectedOrder.orderType === 'DINE IN' ? 'flex-1 basis-0' : 'flex-1'} py-3 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02]`}
+                    className={`${selectedOrder.orderType === 'DINE IN' && !selectedOrder.isPaid ? 'flex-1 basis-0' : 'flex-1'} py-3 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02]`}
                     style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                   >
                     {selectedOrder.orderType === 'DELIVERY' ? 'Dispatch' : selectedOrder.orderType === 'DINE IN' ? 'Completed' : 'Ready for Pick Up'}
                   </button>
-                  {selectedOrder.orderType === 'DINE IN' && (
+                  {selectedOrder.orderType === 'DINE IN' && !selectedOrder.isPaid && (
                     <button 
                       onClick={() => {
                         setPaymentOrder(selectedOrder);

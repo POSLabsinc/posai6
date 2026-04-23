@@ -241,16 +241,16 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
           {/* Discount List */}
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-[1fr_70px_70px_90px] items-center py-4 px-4 border-b border-neutral-700/50">
-              <span className="text-neutral-400 text-sm font-medium text-left">Name</span>
-              <span className="text-neutral-400 text-sm font-medium text-center">Amount</span>
-              <span className="text-neutral-400 text-sm font-medium text-center">PIN</span>
-              <span className="text-neutral-400 text-sm font-medium text-right pr-5">Products</span>
+            <div className="grid grid-cols-[1fr_70px_70px_90px] items-center py-4 px-4 border-b border-neutral-700/50 text-neutral-400 text-sm">
+              <SortableHeader<DiscountSortKey> label="Name" sortKey="name" sort={discountSort} onSort={sortDiscounts} bold={false} />
+              <SortableHeader<DiscountSortKey> label="Amount" sortKey="amount" sort={discountSort} onSort={sortDiscounts} align="center" bold={false} />
+              <SortableHeader<DiscountSortKey> label="PIN" sortKey="managerPin" sort={discountSort} onSort={sortDiscounts} align="center" bold={false} />
+              <SortableHeader<DiscountSortKey> label="Products" sortKey="products" sort={discountSort} onSort={sortDiscounts} align="right" bold={false} className="pr-5" />
             </div>
 
             {/* Discount Rows */}
-            {filteredDiscounts.length > 0 ? (
-              filteredDiscounts.map((discount, index) => (
+            {sortedDiscounts.length > 0 ? (
+              sortedDiscounts.map((discount, index) => (
                 <div key={discount.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                   <SwipeableDiscountItem
@@ -388,17 +388,17 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
         {/* Discount Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-[1.2fr_100px_100px_140px_24px] items-center py-4 px-6 border-b border-neutral-700/50">
-            <span className="text-neutral-400 text-base font-medium text-left">Discount Name</span>
-            <span className="text-neutral-400 text-base font-medium text-center">Amount</span>
-            <span className="text-neutral-400 text-base font-medium text-center">Manager PIN</span>
-            <span className="text-neutral-400 text-base font-medium text-right">Products</span>
+          <div className="grid grid-cols-[1.2fr_100px_100px_140px_24px] items-center py-4 px-6 border-b border-neutral-700/50 text-neutral-400 text-base">
+            <SortableHeader<DiscountSortKey> label="Discount Name" sortKey="name" sort={discountSort} onSort={sortDiscounts} bold={false} />
+            <SortableHeader<DiscountSortKey> label="Amount" sortKey="amount" sort={discountSort} onSort={sortDiscounts} align="center" bold={false} />
+            <SortableHeader<DiscountSortKey> label="Manager PIN" sortKey="managerPin" sort={discountSort} onSort={sortDiscounts} align="center" bold={false} />
+            <SortableHeader<DiscountSortKey> label="Products" sortKey="products" sort={discountSort} onSort={sortDiscounts} align="right" bold={false} />
             <span />
           </div>
 
           {/* Discount Rows */}
-          {filteredDiscounts.length > 0 ? (
-            filteredDiscounts.map((discount, index) => (
+          {sortedDiscounts.length > 0 ? (
+            sortedDiscounts.map((discount, index) => (
               <div key={discount.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-6" />}
                 <button

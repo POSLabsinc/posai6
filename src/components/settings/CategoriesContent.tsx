@@ -278,16 +278,16 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           </section>
 
           <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
-            <div className="grid grid-cols-[1.5fr_1fr_1fr_80px_24px] items-center px-8 py-5 border-b border-neutral-700/50">
-              <span className="text-[15px] font-semibold text-foreground">Category Name</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Parent</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Category Position</span>
-              <span className="text-[15px] font-semibold text-foreground text-right">Course</span>
+            <div className="grid grid-cols-[1.5fr_1fr_1fr_80px_24px] items-center px-8 py-5 border-b border-neutral-700/50 text-[15px] text-foreground">
+              <SortableHeader<CategorySortKey> label="Category Name" sortKey="name" sort={catSort} onSort={sortCats} />
+              <SortableHeader<CategorySortKey> label="Parent" sortKey="parent" sort={catSort} onSort={sortCats} align="center" />
+              <SortableHeader<CategorySortKey> label="Category Position" sortKey="position" sort={catSort} onSort={sortCats} align="center" />
+              <SortableHeader<CategorySortKey> label="Course" sortKey="course" sort={catSort} onSort={sortCats} align="right" />
               <span />
             </div>
 
-            {filteredItems.length > 0 ? (
-              filteredItems.map((item, index) => (
+            {sortedItems.length > 0 ? (
+              sortedItems.map((item, index) => (
                 <div key={item.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50" />}
                   <SwipeableSettingsItem
@@ -391,15 +391,15 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
         </div>
 
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          <div className="grid grid-cols-[1fr_60px_50px_40px] items-center py-4 px-4 border-b border-neutral-700/50">
-            <span className="text-neutral-400 text-sm font-medium text-left">Name</span>
-            <span className="text-neutral-400 text-sm font-medium text-center">Parent</span>
-            <span className="text-neutral-400 text-sm font-medium text-center">Point of Sale</span>
-            <span className="text-neutral-400 text-sm font-medium text-right pr-5">Crs</span>
+          <div className="grid grid-cols-[1fr_60px_50px_40px] items-center py-4 px-4 border-b border-neutral-700/50 text-neutral-400 text-sm">
+            <SortableHeader<CategorySortKey> label="Name" sortKey="name" sort={catSort} onSort={sortCats} bold={false} />
+            <SortableHeader<CategorySortKey> label="Parent" sortKey="parent" sort={catSort} onSort={sortCats} align="center" bold={false} />
+            <SortableHeader<CategorySortKey> label="Point of Sale" sortKey="position" sort={catSort} onSort={sortCats} align="center" bold={false} />
+            <SortableHeader<CategorySortKey> label="Crs" sortKey="course" sort={catSort} onSort={sortCats} align="right" bold={false} className="pr-5" />
           </div>
 
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item, index) => (
+          {sortedItems.length > 0 ? (
+            sortedItems.map((item, index) => (
               <div key={item.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                 <SwipeableSettingsItem

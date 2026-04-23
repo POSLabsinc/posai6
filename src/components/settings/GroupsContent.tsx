@@ -144,14 +144,14 @@ const GroupsContent = ({ showHeader = true, onBack, onAIClick }: GroupsContentPr
           </section>
 
           <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
-            <div className="grid grid-cols-[1.2fr_1fr_24px] items-center px-8 py-5 border-b border-neutral-700/50">
-              <span className="text-[15px] font-semibold text-foreground">Group Name</span>
-              <span className="text-[15px] font-semibold text-foreground">Type</span>
+            <div className="grid grid-cols-[1.2fr_1fr_24px] items-center px-8 py-5 border-b border-neutral-700/50 text-[15px] text-foreground">
+              <SortableHeader<GroupSortKey> label="Group Name" sortKey="name" sort={groupSort} onSort={sortGroups} />
+              <SortableHeader<GroupSortKey> label="Type" sortKey="type" sort={groupSort} onSort={sortGroups} />
               <span />
             </div>
 
-            {filteredItems.length > 0 ? (
-              filteredItems.map((item, index) => (
+            {sortedItems.length > 0 ? (
+              sortedItems.map((item, index) => (
                 <div key={item.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50" />}
                   <button onClick={() => navigate(`/settings/menu/groups/edit/${item.id}`)} className="grid grid-cols-[1.2fr_1fr_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors text-left">
@@ -219,13 +219,13 @@ const GroupsContent = ({ showHeader = true, onBack, onAIClick }: GroupsContentPr
         </div>
 
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          <div className="grid grid-cols-[1fr_1fr] items-center py-4 px-4 border-b border-neutral-700/50">
-            <span className="text-neutral-400 text-base font-medium text-left">Group Name</span>
-            <span className="text-neutral-400 text-base font-medium text-left">Type</span>
+          <div className="grid grid-cols-[1fr_1fr] items-center py-4 px-4 border-b border-neutral-700/50 text-neutral-400 text-base">
+            <SortableHeader<GroupSortKey> label="Group Name" sortKey="name" sort={groupSort} onSort={sortGroups} bold={false} />
+            <SortableHeader<GroupSortKey> label="Type" sortKey="type" sort={groupSort} onSort={sortGroups} bold={false} />
           </div>
 
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item, index) => (
+          {sortedItems.length > 0 ? (
+            sortedItems.map((item, index) => (
               <div key={item.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                 <SwipeableSettingsItem onTap={() => navigate(`/settings/menu/groups/edit/${item.id}`)} onArchive={() => handleArchiveItem(item)} isArchived={item.archived}>

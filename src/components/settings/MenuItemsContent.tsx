@@ -198,16 +198,16 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
 
           {/* Table */}
           <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
-            <div className="grid grid-cols-[1.5fr_120px_120px_80px_24px] items-center px-8 py-5 border-b border-neutral-700/50">
-              <span className="text-[15px] font-semibold text-foreground">Menu Name</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Created</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Updated</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Status</span>
+            <div className="grid grid-cols-[1.5fr_120px_120px_80px_24px] items-center px-8 py-5 border-b border-neutral-700/50 text-[15px] text-foreground">
+              <SortableHeader<MenuSortKey> label="Menu Name" sortKey="name" sort={menuSort} onSort={sortMenus} />
+              <SortableHeader<MenuSortKey> label="Created" sortKey="created_at" sort={menuSort} onSort={sortMenus} align="center" />
+              <SortableHeader<MenuSortKey> label="Updated" sortKey="updated_at" sort={menuSort} onSort={sortMenus} align="center" />
+              <SortableHeader<MenuSortKey> label="Status" sortKey="enabled" sort={menuSort} onSort={sortMenus} align="center" />
               <span />
             </div>
 
-            {filteredItems.length > 0 ? (
-              filteredItems.map((item, index) => (
+            {sortedItems.length > 0 ? (
+              sortedItems.map((item, index) => (
                 <div key={item.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50" />}
                   <SwipeableSettingsItem
@@ -332,15 +332,15 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
         {/* Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-[1fr_80px_24px] items-center py-4 px-4 border-b border-neutral-700/50">
-            <span className="text-neutral-400 text-base font-medium text-left">Menu Name</span>
-            <span className="text-neutral-400 text-base font-medium text-center">Status</span>
+          <div className="grid grid-cols-[1fr_80px_24px] items-center py-4 px-4 border-b border-neutral-700/50 text-neutral-400 text-base">
+            <SortableHeader<MenuSortKey> label="Menu Name" sortKey="name" sort={menuSort} onSort={sortMenus} bold={false} />
+            <SortableHeader<MenuSortKey> label="Status" sortKey="enabled" sort={menuSort} onSort={sortMenus} align="center" bold={false} />
             <span />
           </div>
 
           {/* Rows */}
-          {filteredItems.length > 0 ? (
-            filteredItems.map((item, index) => (
+          {sortedItems.length > 0 ? (
+            sortedItems.map((item, index) => (
               <div key={item.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                 <SwipeableSettingsItem

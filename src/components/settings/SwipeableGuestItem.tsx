@@ -1,10 +1,11 @@
 import { useState, useRef } from "react";
-import { Archive, ArchiveRestore } from "lucide-react";
+import { Archive, ArchiveRestore, Trash2 } from "lucide-react";
 
 interface SwipeableGuestItemProps {
   children: React.ReactNode;
   onTap: () => void;
   onArchive: () => void;
+  onRemove?: () => void;
   isArchived?: boolean;
 }
 
@@ -12,6 +13,7 @@ const SwipeableGuestItem = ({
   children,
   onTap,
   onArchive,
+  onRemove,
   isArchived = false,
 }: SwipeableGuestItemProps) => {
   const [translateX, setTranslateX] = useState(0);
@@ -20,7 +22,9 @@ const SwipeableGuestItem = ({
   const currentX = useRef(0);
   const hasMoved = useRef(false);
 
-  const swipeWidth = -72;
+  // When archived with remove option, show two buttons (144px), otherwise one (72px)
+  const showDualActions = isArchived && !!onRemove;
+  const swipeWidth = showDualActions ? -144 : -72;
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
@@ -93,7 +97,7 @@ const SwipeableGuestItem = ({
   };
 
   const isRevealed = translateX < 0;
-  const Icon = isArchived ? ArchiveRestore : Archive;
+  const ArchiveIcon = isArchived ? ArchiveRestore : Archive;
 
   return (
     <div className="relative overflow-hidden rounded-xl">
@@ -103,11 +107,20 @@ const SwipeableGuestItem = ({
             onClick={() => handleAction(onArchive)}
             className="w-[72px] h-full flex flex-col items-center justify-center gap-1 bg-neutral-600 transition-colors active:opacity-70"
           >
-            <Icon className="w-5 h-5 text-white" />
+            <ArchiveIcon className="w-5 h-5 text-white" />
             <span className="text-[10px] text-white font-medium">
               {isArchived ? "Restore" : "Archive"}
             </span>
           </button>
+          {showDualActions && onRemove && (
+            <button
+              onClick={() => handleAction(onRemove)}
+              className="w-[72px] h-full flex flex-col items-center justify-center gap-1 bg-destructive transition-colors active:opacity-70"
+            >
+              <Trash2 className="w-5 h-5 text-white" />
+              <span className="text-[10px] text-white font-medium">Remove</span>
+            </button>
+          )}
         </div>
       )}
 

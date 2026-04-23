@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, ChevronRight, ArchiveRestore } from "lucide-react";
+import { ChevronLeft, ArchiveRestore, Trash2 } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -61,34 +61,39 @@ const GuestBookArchiveScreen = ({ onBack }: GuestBookArchiveScreenProps) => {
     setArchived(prev => prev.filter(g => g.id !== id));
   };
 
+  const handleRemove = async (id: string) => {
+    await (supabase as any).from("guests").delete().eq("id", id);
+    setArchived(prev => prev.filter(g => g.id !== id));
+  };
+
   return (
-    <div className="h-full overflow-y-auto scrollbar-hide">
-      {/* Header */}
-      <div className="px-6 pt-5 pb-3">
+    <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain bg-background">
+      {/* Header — icon-only back, matches other settings screens */}
+      <div className="flex items-center pt-3 pb-2 px-4">
         <button
           onClick={onBack}
-          className="flex items-center gap-1 text-sm text-foreground active:opacity-70 transition-opacity"
+          className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+          aria-label="Back"
         >
-          <ChevronLeft className="w-5 h-5" />
-          <span>Back</span>
+          <ChevronLeft className="w-5 h-5 text-foreground" />
         </button>
       </div>
 
-      {/* Hero */}
+      {/* Hero — left-aligned icon + text, single-line description using full width */}
       <div className="px-6 pb-6">
-        <div className="bg-card rounded-2xl px-6 py-8 flex flex-col items-center text-center">
+        <div className="bg-card rounded-2xl px-6 py-6 flex items-center gap-5">
           <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
+            className="w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0"
             style={{ backgroundColor: getIconBgColor("#F9900E") }}
           >
             <img src={guestBookIcon} alt="Archive Guest" className="w-7 h-7 object-contain" />
           </div>
-          <h2 className="text-xl font-semibold text-foreground mb-2">Archive Guest</h2>
-          <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
-            The guest book feature remembers your guests' dietary needs, allergies, and favorite dishes.
-            It organizes dining preferences for a customized and memorable experience, ensuring each visit
-            is tailored to their individual needs.
-          </p>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-xl font-semibold text-foreground mb-1">Archive Guest</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed whitespace-nowrap overflow-hidden text-ellipsis">
+              The guest book feature remembers your guests' dietary needs, allergies, and favorite dishes.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -109,6 +114,7 @@ const GuestBookArchiveScreen = ({ onBack }: GuestBookArchiveScreenProps) => {
                 key={g.id}
                 onTap={() => {}}
                 onArchive={() => handleRestore(g.id)}
+                onRemove={() => handleRemove(g.id)}
                 isArchived
               >
                 <div className="bg-card rounded-xl p-3 flex items-center gap-3">
@@ -167,14 +173,24 @@ const GuestBookArchiveScreen = ({ onBack }: GuestBookArchiveScreenProps) => {
                     <TableCell className="text-sm text-muted-foreground">{g.loyalty || "—"}</TableCell>
                     <TableCell className="text-sm text-muted-foreground">{formatDate(g.since)}</TableCell>
                     <TableCell>
-                      <button
-                        onClick={() => handleRestore(g.id)}
-                        className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
-                        title="Restore guest"
-                      >
-                        <span>{formatDate(g.updated_at)}</span>
-                        <ChevronRight className="w-4 h-4 opacity-60 group-hover:opacity-100" />
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => handleRestore(g.id)}
+                          className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                          title="Restore guest"
+                        >
+                          <ArchiveRestore className="w-4 h-4" />
+                          <span>{formatDate(g.updated_at)}</span>
+                        </button>
+                        <button
+                          onClick={() => handleRemove(g.id)}
+                          className="text-muted-foreground hover:text-destructive transition-colors"
+                          title="Remove permanently"
+                          aria-label="Remove permanently"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

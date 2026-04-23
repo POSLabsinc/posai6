@@ -164,6 +164,9 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
   const { clockInSession } = useDeviceAuth();
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const [isClockScreenOpen, setIsClockScreenOpen] = useState(
+    typeof document !== "undefined" && document.body.dataset.clockScreenOpen === "true"
+  );
   // Tracks whether the user is actively focused in the search input.
   // We only want the input to "release" focus when they click outside
   // the search bar — clicking on a result counts as outside (and then we navigate).
@@ -185,6 +188,18 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  useEffect(() => {
+    const handleClockScreenVisibility = (event: Event) => {
+      const customEvent = event as CustomEvent<{ isOpen?: boolean }>;
+      setIsClockScreenOpen(Boolean(customEvent.detail?.isOpen));
+    };
+
+    window.addEventListener("clock-screen-visibility-change", handleClockScreenVisibility as EventListener);
+    return () => {
+      window.removeEventListener("clock-screen-visibility-change", handleClockScreenVisibility as EventListener);
+    };
   }, []);
 
   const activeItemId = useMemo(() => {
@@ -363,9 +378,11 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
         </div>
 
         {/* Floating Search Bar */}
-        <div className="fixed bottom-20 left-4 right-4 z-50">
-          <div className="flex items-center gap-3">{renderSearchBar("mobile")}</div>
-        </div>
+        {!isClockScreenOpen && (
+          <div className="fixed bottom-20 left-4 right-4 z-50">
+            <div className="flex items-center gap-3">{renderSearchBar("mobile")}</div>
+          </div>
+        )}
       </div>
     );
   }
@@ -426,7 +443,9 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
       </div>
 
       {/* Floating Glass Search Bar */}
-      <div className="absolute bottom-3 left-3 right-3 z-50">{renderSearchBar("tablet")}</div>
+      {!isClockScreenOpen && (
+        <div className="absolute bottom-3 left-3 right-3 z-50">{renderSearchBar("tablet")}</div>
+      )}
     </div>
   );
 };

@@ -199,6 +199,24 @@ export const ClockOutOverlay = ({
     return () => clearInterval(timer);
   }, []);
 
+  useEffect(() => {
+    document.body.dataset.clockScreenOpen = isOpen ? "true" : "false";
+    window.dispatchEvent(
+      new CustomEvent("clock-screen-visibility-change", {
+        detail: { isOpen },
+      })
+    );
+
+    return () => {
+      document.body.dataset.clockScreenOpen = "false";
+      window.dispatchEvent(
+        new CustomEvent("clock-screen-visibility-change", {
+          detail: { isOpen: false },
+        })
+      );
+    };
+  }, [isOpen]);
+
   // Check if user is clocked in and reset state when overlay opens
   useEffect(() => {
     if (isOpen) {

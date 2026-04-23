@@ -232,8 +232,17 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
               <span />
             </div>
 
-            {filteredTaxes.length > 0 ? (
-              filteredTaxes.map((tax, index) => (
+          {/* Table */}
+          <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
+            <div className="grid grid-cols-[1.2fr_140px_160px_24px] items-center px-8 py-5 border-b border-neutral-700/50 text-[15px] text-foreground">
+              <SortableHeader<TaxSortKey> label="Tax Name" sortKey="name" sort={taxSort} onSort={sortTaxes} />
+              <SortableHeader<TaxSortKey> label="Amount" sortKey="amount" sort={taxSort} onSort={sortTaxes} align="center" />
+              <SortableHeader<TaxSortKey> label="Type" sortKey="type" sort={taxSort} onSort={sortTaxes} align="right" />
+              <span />
+            </div>
+
+            {sortedTaxes.length > 0 ? (
+              sortedTaxes.map((tax, index) => (
                 <div key={tax.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50" />}
                   {/* Keep swipe component (desktop users will just click; no behavior change) */}

@@ -16,7 +16,6 @@ const ACTIVITY_EVENTS = ["mousedown", "mousemove", "keydown", "touchstart", "scr
 const EXEMPT_ROUTES = ["/login", "/signup", "/auth"];
 
 export function AutoLockProvider({ children }: { children: ReactNode }) {
-  const navigate = useNavigate();
   const location = useLocation();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const settingsRef = useRef(SettingsManager.getControlCenterSettings());

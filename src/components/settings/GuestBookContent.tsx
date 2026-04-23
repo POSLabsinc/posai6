@@ -13,6 +13,8 @@ import PaymentTabContent from "@/components/settings/PaymentTabContent";
 import FeedbackTabContent from "@/components/settings/FeedbackTabContent";
 import OrderHistoryTabContent from "@/components/settings/OrderHistoryTabContent";
 import AddGuestForm from "@/components/AddGuestForm";
+import SwipeableGuestItem from "@/components/settings/SwipeableGuestItem";
+import GuestBookArchiveScreen from "@/components/settings/GuestBookArchiveScreen";
 
 interface Guest {
   id: string;
@@ -1352,6 +1354,13 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     }).eq("id", updated.id);
   }, []);
   const [showAddGuest, setShowAddGuest] = useState(false);
+  const [showArchive, setShowArchive] = useState(false);
+
+  const handleArchiveGuest = useCallback(async (guestId: string) => {
+    await (supabase as any).from("guests").update({ is_archived: true }).eq("id", guestId);
+    setGuests(prev => prev.filter(g => g.id !== guestId));
+    if (selectedGuestId === guestId) setSelectedGuestId(null);
+  }, [selectedGuestId]);
 
   // Mobile: show list or detail
   if (isMobile) {
@@ -1395,7 +1404,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
             <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
               <Plus className="w-4 h-4 text-foreground" />
             </button>
-            <button className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+            <button onClick={() => setShowArchive(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
               <Archive className="w-4 h-4 text-foreground" />
             </button>
             <button
@@ -1415,9 +1424,15 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           </div>
         </div>
         {/* Guest List */}
-        <div className="flex-1 overflow-y-auto px-4 pb-28 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto px-4 pb-28 scrollbar-hide space-y-1">
           {filteredGuests.map(guest => (
-            <GuestListItem key={guest.id} guest={guest} isSelected={false} onClick={() => setSelectedGuestId(guest.id)} />
+            <SwipeableGuestItem
+              key={guest.id}
+              onTap={() => setSelectedGuestId(guest.id)}
+              onArchive={() => handleArchiveGuest(guest.id)}
+            >
+              <GuestListItem guest={guest} isSelected={false} onClick={() => setSelectedGuestId(guest.id)} />
+            </SwipeableGuestItem>
           ))}
         </div>
 
@@ -1432,6 +1447,13 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
                 onBack={() => { setShowAddGuest(false); fetchGuests(); }}
               />
             </div>
+          </div>
+        )}
+
+        {/* Archive Screen */}
+        {showArchive && (
+          <div className="absolute inset-0 z-40 bg-background flex flex-col">
+            <GuestBookArchiveScreen onBack={() => { setShowArchive(false); fetchGuests(); }} />
           </div>
         )}
       </div>
@@ -1459,7 +1481,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
                 <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
                   <Plus className="w-4 h-4 text-foreground" />
                 </button>
-                <button className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                <button onClick={() => setShowArchive(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
                   <Archive className="w-4 h-4 text-foreground" />
                 </button>
                 <button
@@ -1479,9 +1501,15 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
               </div>
             </div>
             {/* List */}
-            <div className="flex-1 overflow-y-auto px-2 pb-4 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto px-2 pb-4 scrollbar-hide space-y-1">
               {filteredGuests.map(guest => (
-                <GuestListItem key={guest.id} guest={guest} isSelected={selectedGuestId === guest.id} onClick={() => setSelectedGuestId(guest.id)} />
+                <SwipeableGuestItem
+                  key={guest.id}
+                  onTap={() => setSelectedGuestId(guest.id)}
+                  onArchive={() => handleArchiveGuest(guest.id)}
+                >
+                  <GuestListItem guest={guest} isSelected={selectedGuestId === guest.id} onClick={() => setSelectedGuestId(guest.id)} />
+                </SwipeableGuestItem>
               ))}
             </div>
           </div>
@@ -1515,6 +1543,13 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
               onBack={() => { setShowAddGuest(false); fetchGuests(); }}
             />
           </div>
+        </div>
+      )}
+
+      {/* Archive Screen - within content area */}
+      {showArchive && (
+        <div className="absolute inset-0 z-40 bg-background flex flex-col">
+          <GuestBookArchiveScreen onBack={() => { setShowArchive(false); fetchGuests(); }} />
         </div>
       )}
     </div>

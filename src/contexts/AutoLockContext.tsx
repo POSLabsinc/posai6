@@ -1,9 +1,8 @@
 import { createContext, useContext, useEffect, useRef, useCallback, useState, ReactNode } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import { SettingsManager } from "@/lib/settingsManager";
 import { resetFailedAttempts } from "@/lib/pinAttemptTracker";
-import { Lock } from "lucide-react";
-import ManagerPinScreen from "@/components/ManagerPinScreen";
+import { ClockOutOverlay } from "@/components/ClockOutOverlay";
 
 interface AutoLockContextType {
   resetTimer: () => void;
@@ -15,37 +14,6 @@ const ACTIVITY_EVENTS = ["mousedown", "mousemove", "keydown", "touchstart", "scr
 
 // Routes that should NOT trigger auto-lock
 const EXEMPT_ROUTES = ["/login", "/signup", "/auth"];
-
-function LiveClock() {
-  const [time, setTime] = useState(new Date());
-
-  useEffect(() => {
-    const interval = setInterval(() => setTime(new Date()), 1000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const hours = time.getHours();
-  const minutes = time.getMinutes();
-  const ampm = hours >= 12 ? "PM" : "AM";
-  const displayHours = hours % 12 || 12;
-  const displayMinutes = minutes.toString().padStart(2, "0");
-
-  const dateStr = time.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
-
-  return (
-    <div className="flex flex-col items-center gap-1 mb-6">
-      <span className="text-6xl font-light text-foreground tracking-tight">
-        {displayHours}:{displayMinutes}
-      </span>
-      <span className="text-lg text-muted-foreground font-medium">{ampm}</span>
-      <span className="text-sm text-muted-foreground mt-1">{dateStr}</span>
-    </div>
-  );
-}
 
 export function AutoLockProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();

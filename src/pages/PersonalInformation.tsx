@@ -138,7 +138,7 @@ const PersonalInformation = () => {
       </div>
 
       {/* Info Sections */}
-      <div className="space-y-4 px-2">
+      <div className="space-y-4">
         <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
           <InfoRow label="Name" value="Jim Hopper" />
           <div className="h-px bg-neutral-700/50 mx-5" />

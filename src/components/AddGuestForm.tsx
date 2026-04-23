@@ -625,7 +625,7 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
 
         {/* Profile Photo + Form Fields */}
         <div className="px-4 py-4">
-          <div className="flex gap-5">
+          <div className="flex flex-col md:flex-row gap-5 items-center md:items-start">
             {/* Avatar */}
             <div className="flex flex-col items-center flex-shrink-0">
               <input type="file" ref={fileInputRef} onChange={handleFileUpload} accept="image/*" className="hidden" />
@@ -653,8 +653,8 @@ const AddGuestForm = ({ onClose, onSave, hideHeader, onBack, compact }: AddGuest
               </Popover>
             </div>
 
-            {/* Two column card groups */}
-            <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
+            {/* Two column card groups (stack on mobile, full-width) */}
+            <div className="w-full flex-1 grid grid-cols-1 md:grid-cols-2 gap-4 min-w-0">
               {/* Left Card - Contact Info */}
               <div className="bg-white dark:bg-neutral-800/60 rounded-2xl overflow-hidden">
                 <div className="flex items-center justify-between px-4 py-3 min-h-[44px]">

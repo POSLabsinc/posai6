@@ -471,7 +471,7 @@ const CashDrawerDetailsContent = ({
         </div>
       )}
 
-      <div className="pt-0 px-6 pb-28">
+      <div className="pt-0 px-4 md:px-6 pb-28">
         {/* 1. Cash Drawer */}
         <h2 className="text-base text-neutral-500 font-medium px-1 mb-0.5">Cash Drawer</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
@@ -725,7 +725,7 @@ const CashDrawerDetailsContent = ({
             </div>
 
             {/* Confirm Button */}
-            <div className="px-6 pb-6 pt-2">
+            <div className="px-4 md:px-6 pb-6 pt-2">
               <button 
                 onClick={handleConfirmEndDrawer}
                 disabled={!canConfirmEndDrawer}

@@ -84,7 +84,7 @@ const SupportContactContent = ({
         </div>
         }
 
-      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-4 md:px-6 pb-28`}>
         <div className="mb-4">
           <p className="text-base text-neutral-400 leading-relaxed">
             Get help through live chat, contact our team, share your live PIN for remote assistance, or upload logs for troubleshooting.

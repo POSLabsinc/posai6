@@ -58,7 +58,7 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
         </div>
       )}
 
-      <div className="pt-0 px-6 pb-28">
+      <div className="pt-0 px-4 md:px-6 pb-28">
         {/* Description */}
         <div className="mb-4 px-1">
           <p className="text-sm text-muted-foreground leading-relaxed">

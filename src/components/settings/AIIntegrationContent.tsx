@@ -238,7 +238,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
         </div>
       )}
 
-      <div className="pt-0 px-6 pb-28">
+      <div className="pt-0 px-4 md:px-6 pb-28">
         {/* Description */}
         <p className="text-sm text-neutral-400 leading-relaxed mb-6 md:text-balance">
           Configure external AI providers using your own API keys. AI-powered features across the platform will use this integration when enabled.

@@ -48,7 +48,7 @@ const OrdersSettingsContent = ({
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {showHeader && onBack && !isMobile}
 
-      <div className={`${showHeader ? 'pt-2' : 'pt-0'} px-6 pb-8`}>
+      <div className={`${showHeader ? 'pt-2' : 'pt-0'} px-4 md:px-6 pb-8`}>
         {/* Header Card */}
         <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{

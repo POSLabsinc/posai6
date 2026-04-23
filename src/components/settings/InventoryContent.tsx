@@ -122,7 +122,7 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
   );
 
   const content = (
-    <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-28 pt-0">
+    <div className="flex-1 overflow-y-auto scrollbar-hide px-4 md:px-6 pb-28 pt-0">
       {/* Description */}
       <div className="mt-4 mb-4 px-1">
         <p className="text-sm text-muted-foreground leading-relaxed">

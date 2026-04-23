@@ -90,7 +90,7 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
         </div>
       )}
 
-      <div className={`flex flex-col items-center ${showHeader ? 'pt-4' : 'pt-0'} px-4 md:px-6 pb-8`}>
+      <div className={`flex flex-col items-center ${showHeader ? 'pt-4' : 'pt-0'} px-4 md:px-4 md:px-6 pb-8`}>
         <div className="mb-4">
           <Avatar className="w-24 h-24 border-4 border-neutral-600">
             <AvatarImage

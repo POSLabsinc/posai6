@@ -129,7 +129,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack, onAIClick }: Printe
         </div>
       )}
 
-      <div className="px-6 pb-28">
+      <div className="px-4 md:px-6 pb-28">
         <div className="mb-4 px-1 pt-2">
           <p className="text-sm text-muted-foreground leading-relaxed">
             Configure advanced printing preferences for bills, receipts, kitchen tickets, and more.

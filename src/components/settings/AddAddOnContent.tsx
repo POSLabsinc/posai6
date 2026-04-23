@@ -112,7 +112,7 @@ const AddAddOnContent = ({ onBack, onSave, editData }: AddAddOnContentProps) => 
         <div className="w-10" />
       </div>
 
-      <div className="flex-1 overflow-y-auto scrollbar-hide pt-0 px-6 pb-28">
+      <div className="flex-1 overflow-y-auto scrollbar-hide pt-0 px-4 md:px-6 pb-28">
         {/* APPLIES TO */}
         <div className="mb-1">
           <span className="text-sm font-semibold text-neutral-400 tracking-wider mb-1 block">

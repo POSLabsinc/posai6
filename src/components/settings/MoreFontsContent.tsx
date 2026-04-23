@@ -67,7 +67,7 @@ const MoreFontsContent = ({ showHeader = true, onBack, onAIClick }: MoreFontsCon
         </div>
       )}
 
-      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-4 md:px-6 pb-28`}>
         <p className="text-sm text-neutral-400 mb-6 px-1">
           Tap on a font to download it. Downloaded fonts will appear in My Fonts.
         </p>

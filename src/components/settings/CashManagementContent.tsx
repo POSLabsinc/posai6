@@ -408,7 +408,7 @@ const CashManagementContent = ({
           <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Cash Management</h1>
         </div>
       )}
-      <div className="pt-0 px-6 pb-28">
+      <div className="pt-0 px-4 md:px-6 pb-28">
         {/* Description */}
         <div className="mb-4 px-1">
           <p className="text-sm text-muted-foreground leading-relaxed">

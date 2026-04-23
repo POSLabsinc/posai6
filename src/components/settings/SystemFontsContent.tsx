@@ -51,7 +51,7 @@ const SystemFontsContent = ({ showHeader = true, onBack, onAIClick }: SystemFont
         </div>
       )}
 
-      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-4 md:px-6 pb-28`}>
         {/* Preview */}
         <div className="bg-neutral-800/60 rounded-2xl p-5 mb-6">
           <p className="text-lg text-foreground leading-relaxed" style={{ fontFamily: fontCSSMap[fontFamily] }}>

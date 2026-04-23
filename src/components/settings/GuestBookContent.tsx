@@ -711,7 +711,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
   };
 
   return (
-    <div className="h-full overflow-y-auto scrollbar-hide px-6 pt-0 pb-28">
+    <div className="h-full overflow-y-auto scrollbar-hide px-4 md:px-6 pt-0 pb-28">
       {/* Header: mobile profile keeps only back button, desktop keeps Guest Book card */}
       {activeTab === "profile" ? (
         <div className="mb-6">

@@ -212,7 +212,7 @@ const AccountPanel = ({
 
         {/* Employee Stats Summary - conditionally rendered */}
         {!hidePerformanceSummary && (
-          <div className="w-full px-4 md:px-6 mb-3">
+          <div className="w-full px-0 md:px-6 mb-3">
             {/* Title and Filter Tabs Row */}
             <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-2 mb-2">
               <h3 className="text-sm font-medium text-neutral-400 mb-0 leading-none pb-2">Performance Summary</h3>
@@ -286,7 +286,7 @@ const AccountPanel = ({
         )}
 
         {/* Options Container - Full width with consistent padding */}
-        <div className="w-full px-4 md:px-6">
+        <div className="w-full px-0 md:px-6">
           <div className="bg-neutral-800/40 rounded-2xl overflow-hidden mb-4">
             <AccountOption icon={personalIcon} label="Personal Information" iconBgColor="#525252" onClick={() => navigate(getNavigationPath('/personal-information'))} />
             <div className="h-px bg-neutral-700/50 mx-5" />

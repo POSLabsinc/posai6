@@ -145,7 +145,7 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
       )}
 
       {/* Content */}
-      <div className="flex flex-col items-center pt-4 px-6 pb-8">
+      <div className="flex flex-col items-center pt-4 px-4 md:px-6 pb-8">
 
         {/* Profile Avatar with Edit Button */}
         <div className="relative mb-4">

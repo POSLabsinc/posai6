@@ -54,12 +54,9 @@ function LayoutContent({ children }: LayoutProps) {
     };
     // Listen for custom event dispatched within the same tab
     const handleSessionChange = () => {
-      // If a session now exists (employee clocked in via ClockOutOverlay),
-      // reset the dismissed flag so the PIN pad can appear after clock-out.
-      const posSession = localStorage.getItem("pos_session");
-      if (posSession) {
-        userDismissedRef.current = false;
-      }
+      // Reset the dismissed flag on any session change so the PIN pad
+      // reappears after clock-out (no session) or clock-in (new session).
+      userDismissedRef.current = false;
       checkClockInState();
     };
     window.addEventListener("storage", handleStorageChange);

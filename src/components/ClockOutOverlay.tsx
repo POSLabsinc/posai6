@@ -515,7 +515,8 @@ export const ClockOutOverlay = ({
     }
     onClose();
     if (wasClockOut) {
-      // Dispatch after close with delay to ensure Layout re-checks
+      // Notify Layout to show the Clock In PIN pad overlay
+      window.dispatchEvent(new Event("pos_session_changed"));
       requestAnimationFrame(() => {
         window.dispatchEvent(new Event("pos_session_changed"));
       });

@@ -63,7 +63,7 @@ const ServerConnectionContent = ({ showHeader = true, onBack, onAIClick }: Serve
             <Switch
               checked={cloudServerEnabled}
               onCheckedChange={handleCloudToggle}
-              className="data-[state=checked]:bg-green-500" />
+            />
 
           </div>
 
@@ -127,7 +127,7 @@ const ServerConnectionContent = ({ showHeader = true, onBack, onAIClick }: Serve
             <Switch
               checked={edgeOSEnabled}
               onCheckedChange={handleEdgeOSToggle}
-              className="data-[state=checked]:bg-red-500 data-[state=unchecked]:bg-red-500/30" />
+            />
 
           </div>
 

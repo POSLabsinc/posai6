@@ -337,15 +337,15 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
         {/* Tax Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-[1fr_80px_100px] items-center py-4 px-4 border-b border-neutral-700/50">
-            <span className="text-neutral-400 text-base font-medium text-left">Tax Name</span>
-            <span className={`text-neutral-400 text-base font-medium ${isMobile ? 'text-center' : 'text-right'}`}>Amount</span>
-            <span className="text-neutral-400 text-base font-medium text-right pr-6">Type</span>
+          <div className="grid grid-cols-[1fr_80px_100px] items-center py-4 px-4 border-b border-neutral-700/50 text-neutral-400 text-base">
+            <SortableHeader<TaxSortKey> label="Tax Name" sortKey="name" sort={taxSort} onSort={sortTaxes} bold={false} />
+            <SortableHeader<TaxSortKey> label="Amount" sortKey="amount" sort={taxSort} onSort={sortTaxes} align="center" bold={false} />
+            <SortableHeader<TaxSortKey> label="Type" sortKey="type" sort={taxSort} onSort={sortTaxes} align="right" bold={false} className="pr-6" />
           </div>
 
           {/* Tax Rows */}
-          {filteredTaxes.length > 0 ? (
-            filteredTaxes.map((tax, index) => (
+          {sortedTaxes.length > 0 ? (
+            sortedTaxes.map((tax, index) => (
               <div key={tax.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                 <SwipeableTaxItem

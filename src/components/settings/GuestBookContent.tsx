@@ -1354,6 +1354,13 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     }).eq("id", updated.id);
   }, []);
   const [showAddGuest, setShowAddGuest] = useState(false);
+  const [showArchive, setShowArchive] = useState(false);
+
+  const handleArchiveGuest = useCallback(async (guestId: string) => {
+    await (supabase as any).from("guests").update({ is_archived: true }).eq("id", guestId);
+    setGuests(prev => prev.filter(g => g.id !== guestId));
+    if (selectedGuestId === guestId) setSelectedGuestId(null);
+  }, [selectedGuestId]);
 
   // Mobile: show list or detail
   if (isMobile) {

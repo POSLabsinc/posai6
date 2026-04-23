@@ -227,7 +227,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Theme Color</h1>
       </div>
 
-      <div className="px-6 pb-28 space-y-5">
+      <div className="px-4 md:px-6 pb-28 space-y-5">
         {/* Color Picker - 2 column layout */}
         <div>
           <h2 className={sectionTitleClassName}>Color Picker</h2>

@@ -316,7 +316,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
         )}
 
         {/* Content */}
-        <div className={`${showHeader ? 'pt-2' : 'pt-0'} px-6 pb-8`}>
+        <div className={`${showHeader ? 'pt-2' : 'pt-0'} px-4 md:px-6 pb-8`}>
 
           {/* App Restart Section */}
           <p className="text-neutral-500 text-base font-medium mb-0.5 px-1">App Restart</p>

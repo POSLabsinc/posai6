@@ -158,7 +158,7 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
           <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Gratuity</h1>
         </div>
       )}
-      <div className="px-6 pb-28 pt-0">
+      <div className="px-4 md:px-6 pb-28 pt-0">
         {/* Description */}
         <div className="mb-4 px-1">
           <p className="text-sm text-muted-foreground leading-relaxed">

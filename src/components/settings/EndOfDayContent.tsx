@@ -116,7 +116,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
   if (showSummary) {
     return (
       <div className="relative flex flex-col h-full bg-background">
-      <div className="flex-1 overflow-y-auto pt-0 px-6 pb-28">
+      <div className="flex-1 overflow-y-auto pt-0 px-4 md:px-6 pb-28">
           {/* Header with back button and centered title */}
           <div className="flex items-center mb-3 relative">
             <button
@@ -197,7 +197,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
           )}
         </div>
       )}
-      <div className={`flex-1 overflow-y-auto ${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
+      <div className={`flex-1 overflow-y-auto ${showHeader ? 'pt-0' : 'pt-0'} px-4 md:px-6 pb-28`}>
         {/* Header card */}
         <div className="bg-surface rounded-2xl p-6 mb-4 flex flex-col items-start">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ backgroundColor: getIconBgColor("#7300FF") }}>

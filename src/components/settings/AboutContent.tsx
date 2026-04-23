@@ -55,7 +55,7 @@ const AboutContent = ({ showHeader = true, onBack, onAIClick }: AboutContentProp
         </div>
       }
 
-      <div className="px-6 pb-28">
+      <div className="px-4 md:px-6 pb-28">
         <div className="mb-4">
           
 

@@ -56,7 +56,7 @@ const AddDefaultModifierContent = ({ showHeader = true, onBack }: AddDefaultModi
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
+        <div className="flex-1 overflow-y-auto scrollbar-hide px-4 md:px-6 pb-6">
           <section className="rounded-2xl bg-[#26262699] overflow-hidden mt-6 mb-1">
             <div className="flex items-center justify-between w-full px-8 py-5">
               <span className="text-[15px] text-foreground">Add Default Modifiers</span>

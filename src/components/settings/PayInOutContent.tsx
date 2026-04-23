@@ -225,7 +225,7 @@ const PayInOutContent = ({
         </div>
       )}
 
-      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-4 md:px-6 pb-28`}>
         {/* Amount Section */}
         <h2 className="text-base text-neutral-500 font-medium px-1 mb-0.5">Amount</h2>
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-6">

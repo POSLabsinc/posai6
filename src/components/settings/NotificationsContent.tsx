@@ -143,7 +143,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
         </div>
       )}
 
-      <div className="pt-0 px-6 pb-28">
+      <div className="pt-0 px-4 md:px-6 pb-28">
         {/* Header Card */}
         <div className="bg-neutral-800/60 rounded-2xl flex flex-col items-start p-5 mb-4">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor("#ED1C24") }}>

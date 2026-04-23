@@ -183,7 +183,7 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
+        <div className="flex-1 overflow-y-auto scrollbar-hide px-4 md:px-6 pb-6">
           {/* Description */}
           <div className="mt-4 mb-4 px-1">
             <p className="text-sm text-muted-foreground leading-relaxed">

@@ -87,7 +87,7 @@ const ScheduleInformationContent = ({
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      <div className="pt-0 px-6 pb-28">
+      <div className="pt-0 px-4 md:px-6 pb-28">
         {showHeader && (
           <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-0">
             {onBack && (

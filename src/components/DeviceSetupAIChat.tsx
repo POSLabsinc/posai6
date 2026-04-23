@@ -1339,7 +1339,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                       </div>
                       <div className="flex items-center justify-center gap-2">
                         {["Z", "6", "5", "J", "2", "U"].map((char, i) => (
-                          <span key={i} className="w-10 h-12 flex items-center justify-center rounded-xl border border-white/20 bg-neutral-900 text-lg font-bold text-white tracking-widest">
+                          <span key={i} className="w-10 h-12 flex items-center justify-center rounded-xl border border-foreground/20 bg-background text-lg font-bold text-foreground tracking-widest">
                             {char}
                           </span>
                         ))}

@@ -16,10 +16,13 @@ import {
 import AddDiscountContent from "./AddDiscountContent";
 import EditDiscountContent from "./EditDiscountContent";
 import SwipeableDiscountItem from "./SwipeableDiscountItem";
+import { SortableHeader, useSortableData } from "./SortableHeader";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import infoIcon from "@/assets/icons/info.png";
 import discountsIcon from "@/assets/icons/discounts.png";
 import { supabase } from "@/integrations/supabase/client";
+
+type DiscountSortKey = "name" | "amount" | "managerPin" | "products";
 
 interface Discount {
   id: string;
@@ -149,6 +152,14 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     const matchesArchiveFilter = showArchived ? discount.archived : !discount.archived;
     return matchesSearch && matchesArchiveFilter;
   });
+
+  const { sortedItems: sortedDiscounts, sort: discountSort, requestSort: sortDiscounts } =
+    useSortableData<Discount, DiscountSortKey>(filteredDiscounts, (item, key) => {
+      if (key === "amount") return item.amount;
+      if (key === "managerPin") return item.requiresManagerPin ? 1 : 0;
+      if (key === "products") return item.applicableTo || "All Products";
+      return item.name;
+    });
 
   const formatAmount = (discount: Discount) => {
     return discount.type === "Percentage" ? `${discount.amount}%` : `$${discount.amount}`;

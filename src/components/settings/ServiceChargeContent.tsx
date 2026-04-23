@@ -259,8 +259,8 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
             </div>
 
             {/* Service Charge Rows */}
-            {filteredCharges.length > 0 ? (
-              filteredCharges.map((charge, index) => (
+            {sortedCharges.length > 0 ? (
+              sortedCharges.map((charge, index) => (
                 <div key={charge.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                   <SwipeableServiceChargeItem

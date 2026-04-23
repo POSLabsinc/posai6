@@ -1586,11 +1586,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               )}
             </AnimatePresence>
 
-            {/* Mobile footer */}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-6 flex flex-col items-center gap-3">
-              <button onClick={() => setShowTutorialOverlay(true)} className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors">Need Help?</button>
-            </motion.div>
           </div>
+
         </div>
 
         <ContactAdminDialog 
@@ -7917,11 +7914,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               )}
             </AnimatePresence>
 
-            {/* Mobile footer */}
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="mt-6 flex flex-col items-center gap-3">
-              <button onClick={() => setShowTutorialOverlay(true)} className="text-sm text-foreground/30 hover:text-foreground/50 transition-colors">Need Help?</button>
-            </motion.div>
           </div>
+
         </div>
 
         <ContactAdminDialog 

@@ -736,12 +736,14 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
         </div>
       ) : (
         <div className="mb-6">
-          {/* Title Row: Back + Title centered */}
+          {/* Title Row: Back + Title centered (back arrow hidden on mobile — outer wrapper provides it) */}
           <div className="flex items-center relative mb-5">
-            <button onClick={() => setActiveTab("profile")} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
-            <h2 className="absolute left-1/2 -translate-x-1/2 text-lg font-semibold text-foreground flex items-center gap-2">
+            {!isMobile && (
+              <button onClick={() => setActiveTab("profile")} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+            )}
+            <h2 className={`text-lg font-semibold text-foreground flex items-center gap-2 ${isMobile ? "mx-auto" : "absolute left-1/2 -translate-x-1/2"}`}>
               {tabs.find(t => t.id === activeTab)?.label}
               {activeTab === "history" && (
                 <Popover>
@@ -1367,7 +1369,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     if (selectedGuest) {
       return (
         <div className="h-full flex flex-col">
-          <div className="px-6 pt-5">
+          <div className="px-4 pt-5">
             <button onClick={() => setSelectedGuestId(null)} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
@@ -1380,14 +1382,14 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     return (
       <div className="h-full flex flex-col overflow-hidden relative">
         {showHeader && onBack && (
-          <div className="px-6 pt-5">
+          <div className="px-4 pt-5">
             <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           </div>
         )}
         {/* Icon, title, subtext header */}
-        <div className="px-6 pt-4 pb-3">
+        <div className="px-4 pt-4 pb-3">
           <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
               <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
@@ -1399,7 +1401,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           </div>
         </div>
         {/* Action icons row */}
-        <div className="px-6 pt-2 pb-2 flex items-center justify-end">
+        <div className="px-4 pt-2 pb-2 flex items-center justify-end">
           <div className="flex items-center gap-2">
             <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
               <Plus className="w-4 h-4 text-foreground" />
@@ -1416,7 +1418,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           </div>
         </div>
         {/* Search */}
-        <div className="px-6 mb-3">
+        <div className="px-4 mb-3">
           <div className="bg-neutral-800/40 rounded-full px-4 py-2.5 flex items-center gap-3">
             <Search className="w-4 h-4 text-neutral-500" />
             <input type="text" placeholder="Search guests..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}

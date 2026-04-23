@@ -201,7 +201,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     { id: 'cmyk', label: 'CMYK' },
   ];
 
-  const sectionTitleClassName = "text-base font-medium text-neutral-500 mb-4 px-1";
+  const sectionTitleClassName = "text-base font-medium text-neutral-500 mb-2 px-1";
 
   // Auto-save current theme when leaving the screen (back button or unmount)
   useEffect(() => {

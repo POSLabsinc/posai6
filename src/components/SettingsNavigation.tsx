@@ -1,15 +1,13 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Search, Mic, ChevronRight } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useDeviceAuth } from "@/hooks/useDeviceAuth";
-import { format } from "date-fns";
+import { searchSettings, groupIconColor, SettingsSearchEntry } from "@/lib/settingsSearchIndex";
 
 // Import custom icons
 import systemIcon from "@/assets/icons/settings-system.png";
- import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import accountIcon from "@/assets/icons/account-personal.png";
 import paymentsIcon from "@/assets/icons/settings-payments.png";
 import menuIcon from "@/assets/icons/settings-menu.png";
@@ -38,6 +36,22 @@ interface SettingsItemProps {
   onClick?: () => void;
   showArrow?: boolean;
 }
+
+// Map a search entry's group → icon image used in result rows
+const groupIcon: Record<SettingsSearchEntry["group"], string> = {
+  account: accountIcon,
+  system: systemIcon,
+  payments: paymentsIcon,
+  menu: menuIcon,
+  "end-of-day": endOfDayIcon,
+  "guest-book": guestBookIcon,
+  workforce: workforceIcon,
+  "reports-analytics": reportsIcon,
+  notifications: notificationsIcon,
+  hardware: hardwareIcon,
+  network: networkIcon,
+  support: supportIcon,
+};
 
 // Desktop/Tablet version of settings item (no arrow, no container)
 const SettingsItem = ({ iconSrc, label, iconBgColor, onClick, isActive, tourId }: SettingsItemProps & { isActive?: boolean; tourId?: string }) => {
@@ -84,6 +98,41 @@ const MobileSettingsItem = ({ iconSrc, label, iconBgColor, onClick, tourId }: Se
   );
 };
 
+// A single search-result row (used in both layouts)
+const SearchResultRow = ({
+  entry,
+  onClick,
+  size = "default",
+}: {
+  entry: SettingsSearchEntry;
+  onClick: () => void;
+  size?: "default" | "compact";
+}) => {
+  const { getIconBgColor } = useAppearance();
+  const iconSize = size === "compact" ? "w-[1.9rem] h-[1.9rem]" : "w-[2.15rem] h-[2.15rem]";
+  const imgSize = size === "compact" ? "w-[1.1rem] h-[1.1rem]" : "w-[1.25rem] h-[1.25rem]";
+  const labelSize = size === "compact" ? "text-[0.9rem]" : "text-[1rem]";
+  const parentSize = size === "compact" ? "text-[0.7rem]" : "text-[0.75rem]";
+  return (
+    <button
+      onClick={onClick}
+      className="flex items-center gap-3 w-full py-2 px-3 active:opacity-70 transition-all rounded-xl hover:bg-[hsl(var(--surface-elevated)/0.6)] text-left"
+    >
+      <div
+        className={`${iconSize} rounded-[0.5rem] flex items-center justify-center flex-shrink-0`}
+        style={{ backgroundColor: getIconBgColor(groupIconColor[entry.group]) }}
+      >
+        <img src={groupIcon[entry.group]} alt="" className={`${imgSize} object-contain`} />
+      </div>
+      <div className="flex flex-col min-w-0 flex-1">
+        <span className={`${labelSize} font-medium text-foreground leading-tight truncate`}>{entry.label}</span>
+        <span className={`${parentSize} text-muted-foreground leading-tight truncate`}>{entry.parentPath}</span>
+      </div>
+      <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+    </button>
+  );
+};
+
 // Tablet/Desktop/Mobile settings items (unified)
 const allSettingsItems: SettingsItemData[] = [
   { id: "account", iconSrc: accountIcon, label: "Account", iconBgColor: "#0A84FF", group: "main" },
@@ -113,14 +162,30 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
   const navigate = useNavigate();
   const location = useLocation();
   const { clockInSession } = useDeviceAuth();
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  // Tracks whether the user is actively focused in the search input.
+  // We only want the input to "release" focus when they click outside
+  // the search bar — clicking on a result counts as outside (and then we navigate).
+  const [isSearchActive, setIsSearchActive] = useState(false);
 
-  const employeeName = clockInSession?.employeeName || "Employee";
-  const employeeRole = clockInSession?.employeeRole || "Server";
-  const employeeAvatar = clockInSession?.employeeAvatar || "";
-  const employeeInitials = employeeName.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
-  const clockInTimeFormatted = clockInSession?.loginTime
-    ? format(new Date(clockInSession.loginTime), "h:mm a")
-    : null;
+  // Keep input focused while typing — refocus if React re-renders cause blur
+  useEffect(() => {
+    if (isSearchActive && document.activeElement !== inputRef.current) {
+      inputRef.current?.focus();
+    }
+  }, [searchQuery, isSearchActive]);
+
+  // Detect clicks outside the search bar to release focus
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(e.target as Node)) {
+        setIsSearchActive(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const activeItemId = useMemo(() => {
     const path = location.pathname;
@@ -176,189 +241,193 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
     }
   };
 
-  const handleAIClick = () => {
-    if (onAIClick) {
-      onAIClick();
-    } else {
-      navigate('/settings/ai-assistant');
-    }
+  // Comprehensive search across all sub-pages and sub-sub options
+  const searchResults = useMemo(() => searchSettings(searchQuery), [searchQuery]);
+  const isSearching = searchQuery.trim().length > 0;
+
+  const handleResultClick = (entry: SettingsSearchEntry) => {
+    setSearchQuery("");
+    setIsSearchActive(false);
+    navigate(entry.path);
   };
 
-  const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return allSettingsItems;
-    const query = searchQuery.toLowerCase();
-    return allSettingsItems.filter(item => 
-      item.label.toLowerCase().includes(query)
-    );
-  }, [searchQuery]);
+  const mainItems = allSettingsItems.filter((i) => i.group === "main");
+  const systemItems = allSettingsItems.filter((i) => i.group === "system");
 
-  const getGroupItems = (group: string) => 
-    filteredItems.filter(item => item.group === group);
-
-  const mainItems = getGroupItems("main");
-  const systemItems = getGroupItems("system");
-
-  const hasResults = filteredItems.length > 0;
-
-  // Mobile Layout
-  const MobileLayout = () => (
-    <div className="h-full flex flex-col overflow-hidden">
-      <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
-        {/* Header */}
-        <h1 className="text-3xl font-bold text-foreground mb-5">Settings</h1>
-
-        {!hasResults && searchQuery && (
-          <div className="bg-surface rounded-2xl p-6 mb-4 text-center">
-            <p className="text-muted-foreground">No settings found for "{searchQuery}"</p>
-          </div>
+  // Shared search bar (rendered inline in each layout for positioning)
+  const renderSearchBar = (variant: "mobile" | "tablet") => {
+    const isMobileVariant = variant === "mobile";
+    return (
+      <div
+        ref={searchContainerRef}
+        className={
+          isMobileVariant
+            ? "flex-1 bg-surface/90 backdrop-blur-sm rounded-full px-4 py-2.5 flex items-center gap-3 shadow-lg border border-divider"
+            : "bg-surface/70 backdrop-blur-xl rounded-full px-3.5 py-[0.45rem] flex items-center gap-2.5 shadow-lg border border-divider/60"
+        }
+      >
+        <Search className={isMobileVariant ? "w-5 h-5 text-muted-foreground" : "w-[1.1rem] h-[1.1rem] text-muted-foreground flex-shrink-0"} />
+        <input
+          ref={inputRef}
+          type="text"
+          placeholder="Search"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          onFocus={() => setIsSearchActive(true)}
+          className={
+            isMobileVariant
+              ? "flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-base"
+              : "flex-1 min-w-0 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-[0.9rem]"
+          }
+        />
+        {searchQuery && (
+          <button
+            onClick={() => {
+              setSearchQuery("");
+              inputRef.current?.focus();
+              setIsSearchActive(true);
+            }}
+            className={
+              isMobileVariant
+                ? "p-1 active:opacity-70 transition-opacity text-muted-foreground text-sm"
+                : "p-1 active:opacity-70 transition-opacity text-muted-foreground text-xs flex-shrink-0"
+            }
+          >
+            Clear
+          </button>
         )}
-
-        {/* Main Settings Group */}
-        {mainItems.length > 0 && (
-          <div className="bg-surface rounded-2xl overflow-hidden mb-4">
-            {mainItems.map((item, index) => (
-              <div key={item.id}>
-                <MobileSettingsItem
-                  iconSrc={item.iconSrc}
-                  label={item.label}
-                  iconBgColor={item.iconBgColor}
-                  onClick={() => handleItemClick(item.id)}
-                  tourId={item.id}
-                />
-                {index < mainItems.length - 1 && (
-                  <div className="h-px bg-divider mx-4" />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-
-        {/* System Settings Group */}
-        {systemItems.length > 0 && (
-          <div className="bg-surface rounded-2xl overflow-hidden mb-4">
-            {systemItems.map((item, index) => (
-              <div key={item.id}>
-                <MobileSettingsItem
-                  iconSrc={item.iconSrc}
-                  label={item.label}
-                  iconBgColor={item.iconBgColor}
-                  onClick={() => handleItemClick(item.id)}
-                  tourId={item.id}
-                />
-                {index < systemItems.length - 1 && (
-                  <div className="h-px bg-divider mx-4" />
-                )}
-              </div>
-            ))}
-          </div>
-        )}
+        <button className={isMobileVariant ? "p-1 active:opacity-70 transition-opacity" : "p-0.5 active:opacity-70 transition-opacity flex-shrink-0"}>
+          <Mic className={isMobileVariant ? "w-5 h-5 text-muted-foreground" : "w-[1.1rem] h-[1.1rem] text-muted-foreground"} />
+        </button>
       </div>
+    );
+  };
 
-      {/* Floating Search Bar with AI Icon outside */}
-      <div className="fixed bottom-20 left-4 right-4 z-50">
-        <div className="flex items-center gap-3">
-          <div className="flex-1 bg-surface/90 backdrop-blur-sm rounded-full px-4 py-2.5 flex items-center gap-3 shadow-lg border border-divider">
-            <Search className="w-5 h-5 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-base"
-            />
-            {searchQuery && (
-              <button 
-                onClick={() => setSearchQuery("")}
-                className="p-1 active:opacity-70 transition-opacity text-muted-foreground text-sm"
-              >
-                Clear
-              </button>
-            )}
-            <button className="p-1 active:opacity-70 transition-opacity">
-              <Mic className="w-5 h-5 text-muted-foreground" />
-           </button>
-          </div>
+  // ===== Mobile Layout =====
+  if (isMobile) {
+    return (
+      <div className="h-full flex flex-col overflow-hidden">
+        <div className="flex-1 overflow-y-auto px-4 pt-4 pb-32">
+          <h1 className="text-3xl font-bold text-foreground mb-5">Settings</h1>
+
+          {isSearching ? (
+            searchResults.length > 0 ? (
+              <div className="bg-surface rounded-2xl overflow-hidden mb-4 p-2">
+                {searchResults.map((entry) => (
+                  <SearchResultRow key={entry.id} entry={entry} onClick={() => handleResultClick(entry)} />
+                ))}
+              </div>
+            ) : (
+              <div className="bg-surface rounded-2xl p-6 mb-4 text-center">
+                <p className="text-muted-foreground">No settings found for "{searchQuery}"</p>
+              </div>
+            )
+          ) : (
+            <>
+              {mainItems.length > 0 && (
+                <div className="bg-surface rounded-2xl overflow-hidden mb-4">
+                  {mainItems.map((item, index) => (
+                    <div key={item.id}>
+                      <MobileSettingsItem
+                        iconSrc={item.iconSrc}
+                        label={item.label}
+                        iconBgColor={item.iconBgColor}
+                        onClick={() => handleItemClick(item.id)}
+                        tourId={item.id}
+                      />
+                      {index < mainItems.length - 1 && <div className="h-px bg-divider mx-4" />}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {systemItems.length > 0 && (
+                <div className="bg-surface rounded-2xl overflow-hidden mb-4">
+                  {systemItems.map((item, index) => (
+                    <div key={item.id}>
+                      <MobileSettingsItem
+                        iconSrc={item.iconSrc}
+                        label={item.label}
+                        iconBgColor={item.iconBgColor}
+                        onClick={() => handleItemClick(item.id)}
+                        tourId={item.id}
+                      />
+                      {index < systemItems.length - 1 && <div className="h-px bg-divider mx-4" />}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Floating Search Bar */}
+        <div className="fixed bottom-20 left-4 right-4 z-50">
+          <div className="flex items-center gap-3">{renderSearchBar("mobile")}</div>
         </div>
       </div>
-    </div>
-  );
+    );
+  }
 
-  // Tablet/Desktop Layout
-  const TabletLayout = () => (
+  // ===== Tablet/Desktop Layout =====
+  return (
     <div className="h-full flex flex-col overflow-hidden relative">
       <div className="flex-1 overflow-y-auto scrollbar-hide overscroll-contain px-3.5 pt-3.5 pb-24">
-        {/* Header */}
         <h1 className="text-[1.65rem] font-bold text-foreground mb-3">Settings</h1>
 
-        {!hasResults && searchQuery && (
-          <div className="bg-surface rounded-2xl p-4 mb-3 text-center">
-            <p className="text-muted-foreground text-sm">No settings found for "{searchQuery}"</p>
-          </div>
-        )}
+        {isSearching ? (
+          searchResults.length > 0 ? (
+            <div className="flex flex-col gap-0.5">
+              {searchResults.map((entry) => (
+                <SearchResultRow key={entry.id} entry={entry} onClick={() => handleResultClick(entry)} size="compact" />
+              ))}
+            </div>
+          ) : (
+            <div className="bg-surface rounded-2xl p-4 mb-3 text-center">
+              <p className="text-muted-foreground text-sm">No settings found for "{searchQuery}"</p>
+            </div>
+          )
+        ) : (
+          <>
+            {mainItems.length > 0 && (
+              <div className="mb-2">
+                {mainItems.map((item) => (
+                  <SettingsItem
+                    key={item.id}
+                    iconSrc={item.iconSrc}
+                    label={item.label}
+                    iconBgColor={item.iconBgColor}
+                    onClick={() => handleItemClick(item.id)}
+                    isActive={activeItemId === item.id}
+                    tourId={item.id}
+                  />
+                ))}
+              </div>
+            )}
 
-        {/* Main Settings Group */}
-        {mainItems.length > 0 && (
-          <div className="mb-2">
-            {mainItems.map(item => (
-              <SettingsItem
-                key={item.id}
-                iconSrc={item.iconSrc}
-                label={item.label}
-                iconBgColor={item.iconBgColor}
-                onClick={() => handleItemClick(item.id)}
-                isActive={activeItemId === item.id}
-                tourId={item.id}
-              />
-            ))}
-          </div>
-        )}
-
-        {/* System Settings Group */}
-        {systemItems.length > 0 && (
-          <div>
-            {systemItems.map(item => (
-              <SettingsItem
-                key={item.id}
-                iconSrc={item.iconSrc}
-                label={item.label}
-                iconBgColor={item.iconBgColor}
-                onClick={() => handleItemClick(item.id)}
-                isActive={activeItemId === item.id}
-                tourId={item.id}
-              />
-            ))}
-          </div>
+            {systemItems.length > 0 && (
+              <div>
+                {systemItems.map((item) => (
+                  <SettingsItem
+                    key={item.id}
+                    iconSrc={item.iconSrc}
+                    label={item.label}
+                    iconBgColor={item.iconBgColor}
+                    onClick={() => handleItemClick(item.id)}
+                    isActive={activeItemId === item.id}
+                    tourId={item.id}
+                  />
+                ))}
+              </div>
+            )}
+          </>
         )}
       </div>
 
-      {/* Floating Glass Search Bar (matches mobile style) */}
-      <div className="absolute bottom-3 left-3 right-3 z-50">
-        <div className="bg-surface/70 backdrop-blur-xl rounded-full px-3.5 py-[0.45rem] flex items-center gap-2.5 shadow-lg border border-divider/60">
-          <Search className="w-[1.1rem] h-[1.1rem] text-muted-foreground flex-shrink-0" />
-          <input
-            type="text"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-[0.9rem]"
-          />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              className="p-1 active:opacity-70 transition-opacity text-muted-foreground text-xs flex-shrink-0"
-            >
-              Clear
-            </button>
-          )}
-          <button className="p-0.5 active:opacity-70 transition-opacity flex-shrink-0">
-            <Mic className="w-[1.1rem] h-[1.1rem] text-muted-foreground" />
-          </button>
-        </div>
-      </div>
+      {/* Floating Glass Search Bar */}
+      <div className="absolute bottom-3 left-3 right-3 z-50">{renderSearchBar("tablet")}</div>
     </div>
   );
-
-  return isMobile ? <MobileLayout /> : <TabletLayout />;
 };
 
 export default SettingsNavigation;

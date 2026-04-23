@@ -88,6 +88,12 @@ const GroupsContent = ({ showHeader = true, onBack, onAIClick }: GroupsContentPr
     });
   }, [groups, searchQuery, showArchived]);
 
+  const { sortedItems, sort: groupSort, requestSort: sortGroups } =
+    useSortableData<Group, GroupSortKey>(filteredItems, (item, key) => {
+      if (key === "type") return item.type;
+      return item.name;
+    });
+
   if (loading) {
     return <div className="h-full flex items-center justify-center text-muted-foreground">Loading...</div>;
   }

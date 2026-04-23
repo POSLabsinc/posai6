@@ -88,6 +88,12 @@ const DefaultModifiersContent = ({ showHeader = true, onBack, onAIClick }: Defau
     });
   }, [modifiers, searchQuery, showArchived]);
 
+  const { sortedItems, sort: dmSort, requestSort: sortDms } =
+    useSortableData<DefaultModifier, DefaultModifierSortKey>(filteredItems, (item, key) => {
+      if (key === "type") return item.type;
+      return item.name;
+    });
+
   if (loading) {
     return <div className="h-full flex items-center justify-center text-muted-foreground">Loading...</div>;
   }

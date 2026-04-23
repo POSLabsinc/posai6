@@ -120,6 +120,14 @@ const ModifiersContent = ({ showHeader = true, onBack, onAIClick }: ModifiersCon
     });
   }, [modifiers, searchQuery, showArchived]);
 
+  const { sortedItems, sort: modSort, requestSort: sortMods } =
+    useSortableData<Modifier, ModifierSortKey>(filteredItems, (item, key) => {
+      if (key === "selectedOptions") return item.selectedOptions;
+      if (key === "price") return item.price ?? 0;
+      if (key === "type") return item.type;
+      return item.name;
+    });
+
   const handleAddModifier = async (data: {
     name: string;
     orderTypeTags: string[];

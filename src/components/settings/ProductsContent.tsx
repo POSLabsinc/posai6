@@ -73,6 +73,14 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick, onAdd }: Produc
     });
   }, [products, searchQuery, showArchived]);
 
+  const { sortedItems, sort: productSort, requestSort: sortProducts } =
+    useSortableData<UnifiedProduct, ProductSortKey>(filteredItems, (item, key) => {
+      if (key === "price") return item.price;
+      if (key === "sku") return item.sku || "";
+      if (key === "category") return item.category || "";
+      return item.name;
+    });
+
   // Desktop / Tablet layout
   if (!isMobile) {
     return (

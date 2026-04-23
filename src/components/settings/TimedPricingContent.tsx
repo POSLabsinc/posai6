@@ -102,6 +102,14 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
     r.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const { sortedItems: sortedRules, sort: ruleSort, requestSort: sortRules } =
+    useSortableData<TimedPricingRule, TimedPricingSortKey>(filteredRules, (item, key) => {
+      if (key === "startTime") return item.startTime;
+      if (key === "endTime") return item.endTime;
+      if (key === "days") return item.days.join(",");
+      return item.name;
+    });
+
   if (loading) {
     return <div className="h-full flex items-center justify-center text-muted-foreground">Loading...</div>;
   }

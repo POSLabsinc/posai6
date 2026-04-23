@@ -164,6 +164,14 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
     });
   }, [categories, searchQuery, showArchived]);
 
+  const { sortedItems, sort: catSort, requestSort: sortCats } =
+    useSortableData<Category, CategorySortKey>(filteredItems, (item, key) => {
+      if (key === "position") return item.position;
+      if (key === "course") return item.course ?? Number.NEGATIVE_INFINITY;
+      if (key === "parent") return item.parent;
+      return item.name;
+    });
+
   // Compute dynamic parent category names
   const parentCategoryNames = useMemo(() => {
     return categories

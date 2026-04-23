@@ -122,6 +122,13 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
     });
   }, [menus, searchQuery, showArchived]);
 
+  const { sortedItems, sort: menuSort, requestSort: sortMenus } =
+    useSortableData<DbMenu, MenuSortKey>(filteredItems, (item, key) => {
+      if (key === "enabled") return item.enabled ? 1 : 0;
+      if (key === "created_at" || key === "updated_at") return new Date(item[key]).getTime();
+      return item.name;
+    });
+
   const archivedCount = useMemo(() => menus.filter(m => m.archived === true).length, [menus]);
 
   // Desktop / Tablet layout

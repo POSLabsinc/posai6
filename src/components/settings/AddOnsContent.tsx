@@ -97,6 +97,12 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
     });
   }, [addOns, searchQuery, showArchived]);
 
+  const { sortedItems, sort: addOnSort, requestSort: sortAddOns } =
+    useSortableData<AddOn, AddOnSortKey>(filteredItems, (item, key) => {
+      if (key === "price") return item.price;
+      return item.name;
+    });
+
   // Desktop / Tablet layout
   if (!isMobile) {
     return (

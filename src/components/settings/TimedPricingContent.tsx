@@ -152,16 +152,16 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
           </section>
 
           <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
-            <div className="grid grid-cols-[1.5fr_1fr_1fr_1.2fr_32px] items-center px-8 py-4 border-b border-neutral-700/50">
-              <span className="text-sm font-medium text-muted-foreground">Timed Pricing Name</span>
-              <span className="text-sm font-medium text-muted-foreground">Start Date</span>
-              <span className="text-sm font-medium text-muted-foreground">End Date</span>
-              <span className="text-sm font-medium text-muted-foreground text-right">Days</span>
+            <div className="grid grid-cols-[1.5fr_1fr_1fr_1.2fr_32px] items-center px-8 py-4 border-b border-neutral-700/50 text-sm text-muted-foreground">
+              <SortableHeader<TimedPricingSortKey> label="Timed Pricing Name" sortKey="name" sort={ruleSort} onSort={sortRules} bold={false} />
+              <SortableHeader<TimedPricingSortKey> label="Start Date" sortKey="startTime" sort={ruleSort} onSort={sortRules} bold={false} />
+              <SortableHeader<TimedPricingSortKey> label="End Date" sortKey="endTime" sort={ruleSort} onSort={sortRules} bold={false} />
+              <SortableHeader<TimedPricingSortKey> label="Days" sortKey="days" sort={ruleSort} onSort={sortRules} align="right" bold={false} />
               <span />
             </div>
 
-            {filteredRules.length > 0 ? (
-              filteredRules.map((rule, index) => (
+            {sortedRules.length > 0 ? (
+              sortedRules.map((rule, index) => (
                 <div key={rule.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/30" />}
                   <button onClick={() => navigate(`/settings/menu/timed-pricing/edit/${rule.id}`)} className="grid grid-cols-[1.5fr_1fr_1fr_1.2fr_32px] items-center px-8 py-5 w-full hover:bg-neutral-700/20 transition-colors cursor-pointer">

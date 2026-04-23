@@ -251,10 +251,10 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
           {/* Service Charge List */}
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             {/* Table Header */}
-            <div className="grid grid-cols-[1fr_80px_100px_20px] items-center py-4 px-4 border-b border-neutral-700/50">
-              <span className="text-neutral-400 text-sm font-medium text-left">Service Charge Name</span>
-              <span className="text-neutral-400 text-sm font-medium text-center">Amount</span>
-              <span className="text-neutral-400 text-sm font-medium text-right pr-2">Tax Applicable</span>
+            <div className="grid grid-cols-[1fr_80px_100px_20px] items-center py-4 px-4 border-b border-neutral-700/50 text-neutral-400 text-sm">
+              <SortableHeader<ServiceChargeSortKey> label="Service Charge Name" sortKey="name" sort={chargeSort} onSort={sortCharges} bold={false} />
+              <SortableHeader<ServiceChargeSortKey> label="Amount" sortKey="amount" sort={chargeSort} onSort={sortCharges} align="center" bold={false} />
+              <SortableHeader<ServiceChargeSortKey> label="Tax Applicable" sortKey="taxApplicable" sort={chargeSort} onSort={sortCharges} align="right" bold={false} className="pr-2" />
               <span />
             </div>
 

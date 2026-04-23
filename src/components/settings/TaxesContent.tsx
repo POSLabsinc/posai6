@@ -16,7 +16,10 @@ import {
 import AddTaxContent from "./AddTaxContent";
 import EditTaxContent from "./EditTaxContent";
 import SwipeableTaxItem from "./SwipeableTaxItem";
+import { SortableHeader, useSortableData } from "./SortableHeader";
 import { supabase } from "@/integrations/supabase/client";
+
+type TaxSortKey = "name" | "amount" | "type";
 
 interface Tax {
   id: string;
@@ -137,6 +140,13 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
     });
   }, [taxes, searchQuery, showArchived]);
 
+  const { sortedItems: sortedTaxes, sort: taxSort, requestSort: sortTaxes } =
+    useSortableData<Tax, TaxSortKey>(filteredTaxes, (item, key) => {
+      if (key === "amount") return item.amount;
+      if (key === "type") return item.type;
+      return item.name;
+    });
+
   if (showAddScreen) {
     return (
       <AddTaxContent 
@@ -215,15 +225,16 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
 
           {/* Table */}
           <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
-            <div className="grid grid-cols-[1.2fr_140px_160px_24px] items-center px-8 py-5 border-b border-neutral-700/50">
-              <span className="text-[15px] font-semibold text-foreground">Tax Name</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Amount</span>
-              <span className="text-[15px] font-semibold text-foreground text-right">Type</span>
+            <div className="grid grid-cols-[1.2fr_140px_160px_24px] items-center px-8 py-5 border-b border-neutral-700/50 text-[15px] text-foreground">
+              <SortableHeader<TaxSortKey> label="Tax Name" sortKey="name" sort={taxSort} onSort={sortTaxes} />
+              <SortableHeader<TaxSortKey> label="Amount" sortKey="amount" sort={taxSort} onSort={sortTaxes} align="center" />
+              <SortableHeader<TaxSortKey> label="Type" sortKey="type" sort={taxSort} onSort={sortTaxes} align="right" />
               <span />
             </div>
 
-            {filteredTaxes.length > 0 ? (
-              filteredTaxes.map((tax, index) => (
+
+            {sortedTaxes.length > 0 ? (
+              sortedTaxes.map((tax, index) => (
                 <div key={tax.id}>
                   {index > 0 && <div className="h-px bg-neutral-700/50" />}
                   {/* Keep swipe component (desktop users will just click; no behavior change) */}
@@ -326,15 +337,15 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
         {/* Tax Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-[1fr_80px_100px] items-center py-4 px-4 border-b border-neutral-700/50">
-            <span className="text-neutral-400 text-base font-medium text-left">Tax Name</span>
-            <span className={`text-neutral-400 text-base font-medium ${isMobile ? 'text-center' : 'text-right'}`}>Amount</span>
-            <span className="text-neutral-400 text-base font-medium text-right pr-6">Type</span>
+          <div className="grid grid-cols-[1fr_80px_100px] items-center py-4 px-4 border-b border-neutral-700/50 text-neutral-400 text-base">
+            <SortableHeader<TaxSortKey> label="Tax Name" sortKey="name" sort={taxSort} onSort={sortTaxes} bold={false} />
+            <SortableHeader<TaxSortKey> label="Amount" sortKey="amount" sort={taxSort} onSort={sortTaxes} align="center" bold={false} />
+            <SortableHeader<TaxSortKey> label="Type" sortKey="type" sort={taxSort} onSort={sortTaxes} align="right" bold={false} className="pr-6" />
           </div>
 
           {/* Tax Rows */}
-          {filteredTaxes.length > 0 ? (
-            filteredTaxes.map((tax, index) => (
+          {sortedTaxes.length > 0 ? (
+            sortedTaxes.map((tax, index) => (
               <div key={tax.id}>
                 {index > 0 && <div className="h-px bg-neutral-700/50 mx-4" />}
                 <SwipeableTaxItem

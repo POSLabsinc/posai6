@@ -239,8 +239,8 @@ const AddOpenShiftContent = ({ showHeader = true, onBack }: AddOpenShiftContentP
   const ToggleRow = ({ label, value, onChange }: { label: string; value: boolean; onChange: () => void; }) => (
     <div className="flex items-center justify-between px-4 py-3.5">
       <span className="text-sm text-foreground font-medium">{label}</span>
-      <button onClick={onChange} className={`w-12 h-7 rounded-full transition-colors ${value ? "bg-white" : "bg-neutral-700"} relative`}>
-        <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${value ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
+      <button onClick={onChange} className={`w-12 h-7 rounded-full transition-colors ${value ? "bg-[hsl(24_94%_53%)]" : "bg-neutral-700"} relative`}>
+        <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${value ? "translate-x-[22px] bg-white" : "translate-x-[3px] bg-white"}`} />
       </button>
     </div>
   );
@@ -368,8 +368,8 @@ const AddOpenShiftContent = ({ showHeader = true, onBack }: AddOpenShiftContentP
                             <Divider />
                             <div className="flex items-center justify-between px-8 py-3.5">
                               <span className="text-sm text-foreground font-medium">Next day</span>
-                              <button onClick={() => setNextDay(!nextDay)} className={`w-12 h-7 rounded-full transition-colors ${nextDay ? "bg-white" : "bg-neutral-700"} relative`}>
-                                <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${nextDay ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
+                              <button onClick={() => setNextDay(!nextDay)} className={`w-12 h-7 rounded-full transition-colors ${nextDay ? "bg-[hsl(24_94%_53%)]" : "bg-neutral-700"} relative`}>
+                                <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${nextDay ? "translate-x-[22px] bg-white" : "translate-x-[3px] bg-white"}`} />
                               </button>
                             </div>
                             <Divider />
@@ -424,8 +424,8 @@ const AddOpenShiftContent = ({ showHeader = true, onBack }: AddOpenShiftContentP
                   <Divider />
                   <div className="flex items-center justify-between px-4 py-3.5">
                     <span className="text-sm text-foreground font-medium">Next day</span>
-                    <button onClick={() => setNextDay(!nextDay)} className={`w-12 h-7 rounded-full transition-colors ${nextDay ? "bg-white" : "bg-neutral-700"} relative`}>
-                      <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${nextDay ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
+                    <button onClick={() => setNextDay(!nextDay)} className={`w-12 h-7 rounded-full transition-colors ${nextDay ? "bg-[hsl(24_94%_53%)]" : "bg-neutral-700"} relative`}>
+                      <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${nextDay ? "translate-x-[22px] bg-white" : "translate-x-[3px] bg-white"}`} />
                     </button>
                   </div>
                   <Divider />
@@ -439,8 +439,8 @@ const AddOpenShiftContent = ({ showHeader = true, onBack }: AddOpenShiftContentP
               <Divider />
               <div className="flex items-center justify-between px-4 py-3.5">
                 <span className="text-sm text-foreground font-medium">Recurring</span>
-                <button onClick={() => setRecurring(!recurring)} className={`w-12 h-7 rounded-full transition-colors ${recurring ? "bg-white" : "bg-neutral-700"} relative`}>
-                  <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${recurring ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
+                <button onClick={() => setRecurring(!recurring)} className={`w-12 h-7 rounded-full transition-colors ${recurring ? "bg-[hsl(24_94%_53%)]" : "bg-neutral-700"} relative`}>
+                  <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${recurring ? "translate-x-[22px] bg-white" : "translate-x-[3px] bg-white"}`} />
                 </button>
               </div>
             </div>

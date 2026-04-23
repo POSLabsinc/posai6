@@ -829,7 +829,7 @@ export const ClockOutOverlay = ({
                 <button
                   onClick={() => setIsAnonymous(!isAnonymous)}
                   className={`w-12 h-7 rounded-full transition-colors relative ${
-                    isAnonymous ? 'bg-emerald-500' : 'bg-white/20'
+                    isAnonymous ? 'bg-[hsl(24_94%_53%)]' : 'bg-white/20'
                   }`}
                 >
                   <span
@@ -1417,7 +1417,7 @@ export const ClockOutOverlay = ({
           <button
             onClick={() => setIsAnonymous(!isAnonymous)}
             className={`w-12 h-7 rounded-full transition-colors relative ${
-              isAnonymous ? 'bg-emerald-500' : 'bg-white/20'
+              isAnonymous ? 'bg-[hsl(24_94%_53%)]' : 'bg-white/20'
             }`}
           >
             <span

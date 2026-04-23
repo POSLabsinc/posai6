@@ -273,7 +273,8 @@ const getContentForRoute = (
   // AI chat is now rendered as an overlay panel, not replacing content
   
   if (pathname === '/settings/account' || pathname === '/settings') {
-    return <AccountPanel showHeader={true} onAIClick={() => setShowAIChat(true)} />;
+    const accountPanel = <AccountPanel showHeader={true} onAIClick={() => setShowAIChat(true)} />;
+    return isMobile ? <div className="h-full px-4 md:px-0">{accountPanel}</div> : accountPanel;
   }
   if (pathname === '/settings/account/personal-information') {
     return <PersonalInformationContent showHeader={true} onBack={() => navigate('/settings/account')} onAIClick={() => setShowAIChat(true)} />;

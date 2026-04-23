@@ -3340,6 +3340,7 @@ const OrderOS = () => {
                   )}
                 </div>
               )}
+              {selectedOrder.status === 'READY' && (
                 <div className="flex items-center gap-2">
                   <button 
                     onClick={() => handleReadyForPickup(selectedOrder.id, selectedOrder.orderType)}
@@ -3350,6 +3351,10 @@ const OrderOS = () => {
                   </button>
                   {selectedOrder.orderType === 'DINE IN' && (
                     <button 
+                      onClick={() => {
+                        setPaymentOrder(selectedOrder);
+                        setShowPaymentDialog(true);
+                      }}
                       className="flex-1 basis-0 py-3 rounded-full text-white text-sm font-bold transition-all hover:scale-[1.02]" 
                       style={{ background: "linear-gradient(180deg, #5A5A5A 0%, #3A3A3A 100%)", border: "1px solid rgba(255,255,255,0.2)" }}
                     >

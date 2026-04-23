@@ -253,6 +253,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
             <Switch
               checked={enabled}
               onCheckedChange={handleToggleEnabled}
+              className="data-[state=checked]:bg-green-500"
             />
           </div>
         </div>

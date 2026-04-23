@@ -1,6 +1,18 @@
 import { useState, useMemo, useCallback } from "react";
 import expandArrowsIcon from "@/assets/icons/expand-arrows.svg";
 
+const sortIconMaskStyle: React.CSSProperties = {
+  WebkitMaskImage: `url(${expandArrowsIcon})`,
+  maskImage: `url(${expandArrowsIcon})`,
+  WebkitMaskRepeat: "no-repeat",
+  maskRepeat: "no-repeat",
+  WebkitMaskPosition: "center",
+  maskPosition: "center",
+  WebkitMaskSize: "contain",
+  maskSize: "contain",
+  backgroundColor: "currentColor",
+};
+
 export type SortDirection = "asc" | "desc" | null;
 
 export interface SortState<K extends string = string> {

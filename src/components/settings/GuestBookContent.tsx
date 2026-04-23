@@ -1424,9 +1424,15 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           </div>
         </div>
         {/* Guest List */}
-        <div className="flex-1 overflow-y-auto px-4 pb-28 scrollbar-hide">
+        <div className="flex-1 overflow-y-auto px-4 pb-28 scrollbar-hide space-y-1">
           {filteredGuests.map(guest => (
-            <GuestListItem key={guest.id} guest={guest} isSelected={false} onClick={() => setSelectedGuestId(guest.id)} />
+            <SwipeableGuestItem
+              key={guest.id}
+              onTap={() => setSelectedGuestId(guest.id)}
+              onArchive={() => handleArchiveGuest(guest.id)}
+            >
+              <GuestListItem guest={guest} isSelected={false} onClick={() => setSelectedGuestId(guest.id)} />
+            </SwipeableGuestItem>
           ))}
         </div>
 

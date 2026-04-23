@@ -201,7 +201,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     { id: 'cmyk', label: 'CMYK' },
   ];
 
-  const sectionTitleClassName = "text-base font-medium text-neutral-500 mb-4 px-1";
+  const sectionTitleClassName = "text-base font-medium text-neutral-500 mb-2 px-1";
 
   // Auto-save current theme when leaving the screen (back button or unmount)
   useEffect(() => {
@@ -233,8 +233,8 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
           <h2 className={sectionTitleClassName}>Color Picker</h2>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
             <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
-              {/* Left: Color Picker (30%) */}
-              <div className="theme-color-picker lg:col-span-3">
+              {/* Left: Color Picker (30%) - reduced height */}
+              <div className="theme-color-picker theme-color-picker-compact lg:col-span-3">
                 <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
               </div>
 
@@ -264,57 +264,63 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                   >
                     <Pipette className="w-4 h-4" />
                   </button>
-                  <Check className="w-4 h-4 text-emerald-400 flex-shrink-0" />
                 </div>
 
-                {/* HEX row */}
-                <div className="flex items-center gap-3">
-                  <p className="text-xs text-neutral-400 uppercase font-medium tracking-wider w-12 flex-shrink-0">Hex</p>
-                  <input
-                    type="text"
-                    value={hexInput.replace('#', '')}
-                    onChange={(e) => handleHexChange(e.target.value)}
-                    maxLength={6}
-                    className="flex-1 text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-3 py-2 text-foreground font-mono uppercase"
-                    placeholder="000000"
-                  />
-                </div>
-
-                {/* RGB row */}
-                <div className="flex items-center gap-3">
-                  <p className="text-xs text-neutral-400 uppercase font-medium tracking-wider w-12 flex-shrink-0">RGB</p>
-                  <div className="flex-1 grid grid-cols-3 gap-2">
-                    {(['r', 'g', 'b'] as const).map((ch) => (
-                      <input
-                        key={ch}
-                        type="number"
-                        min={0}
-                        max={255}
-                        value={rgbInput[ch]}
-                        onChange={(e) => handleRgbChange(ch, e.target.value)}
-                        className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-2 py-2 text-foreground font-mono text-center"
-                        aria-label={ch.toUpperCase()}
-                      />
-                    ))}
+                {/* HEX / RGB / CMYK in a single row with dividers */}
+                <div className="bg-neutral-700/40 rounded-xl p-3 flex items-stretch">
+                  {/* HEX */}
+                  <div className="flex-1 min-w-0 px-2">
+                    <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-1.5 text-center">Hex</p>
+                    <input
+                      type="text"
+                      value={hexInput.replace('#', '')}
+                      onChange={(e) => handleHexChange(e.target.value)}
+                      maxLength={6}
+                      className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-2 py-1.5 text-foreground font-mono uppercase text-center"
+                      placeholder="000000"
+                    />
                   </div>
-                </div>
 
-                {/* CMYK row */}
-                <div className="flex items-center gap-3">
-                  <p className="text-xs text-neutral-400 uppercase font-medium tracking-wider w-12 flex-shrink-0">CMYK</p>
-                  <div className="flex-1 grid grid-cols-4 gap-2">
-                    {(['c', 'm', 'y', 'k'] as const).map((ch) => (
-                      <input
-                        key={ch}
-                        type="number"
-                        min={0}
-                        max={100}
-                        value={cmykInput[ch]}
-                        onChange={(e) => handleCmykChange(ch, e.target.value)}
-                        className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-2 py-2 text-foreground font-mono text-center"
-                        aria-label={ch.toUpperCase()}
-                      />
-                    ))}
+                  <div className="w-px bg-neutral-600/60 mx-1 self-stretch" />
+
+                  {/* RGB */}
+                  <div className="flex-[1.4] min-w-0 px-2">
+                    <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-1.5 text-center">RGB</p>
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {(['r', 'g', 'b'] as const).map((ch) => (
+                        <input
+                          key={ch}
+                          type="number"
+                          min={0}
+                          max={255}
+                          value={rgbInput[ch]}
+                          onChange={(e) => handleRgbChange(ch, e.target.value)}
+                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
+                          aria-label={ch.toUpperCase()}
+                        />
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="w-px bg-neutral-600/60 mx-1 self-stretch" />
+
+                  {/* CMYK */}
+                  <div className="flex-[1.8] min-w-0 px-2">
+                    <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-1.5 text-center">CMYK</p>
+                    <div className="grid grid-cols-4 gap-1.5">
+                      {(['c', 'm', 'y', 'k'] as const).map((ch) => (
+                        <input
+                          key={ch}
+                          type="number"
+                          min={0}
+                          max={100}
+                          value={cmykInput[ch]}
+                          onChange={(e) => handleCmykChange(ch, e.target.value)}
+                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
+                          aria-label={ch.toUpperCase()}
+                        />
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>

@@ -121,11 +121,10 @@ export function SortableHeader<K extends string>({
       >
         {label}
       </span>
-      <img
-        src={expandArrowsIcon}
-        alt=""
+      <span
         aria-hidden
-        className={`w-3 h-3 shrink-0 transition-opacity ${
+        style={sortIconMaskStyle}
+        className={`w-3 h-3 shrink-0 inline-block text-foreground transition-opacity ${
           isActive ? "opacity-90" : "opacity-40"
         } ${
           sort.key === sortKey && sort.direction === "desc" ? "rotate-180" : ""

@@ -1434,8 +1434,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         </button>
                       </div>
                       <button onClick={() => setMobileActivationTab("browser")}
-                        className="w-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                        <Globe className="w-4 h-4 mx-auto mb-1" />
+                        className="w-full h-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08] flex flex-col items-center justify-center">
+                        <Globe className="w-4 h-4 mb-1" />
                         Use a browser
                       </button>
                     </div>
@@ -1447,9 +1447,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         </button>
                       </div>
                       <button onClick={() => setMobileActivationTab("email")}
-                        className="w-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]"
+                        className="w-full h-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08] flex flex-col items-center justify-center"
                         data-tour="email-phone-button">
-                        <Mail className="w-4 h-4 mx-auto mb-1" />
+                        <Mail className="w-4 h-4 mb-1" />
                         Activate via email / phone
                       </button>
                     </div>
@@ -7756,8 +7756,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         </button>
                       </div>
                       <button onClick={() => setMobileSignInTab("browser")}
-                        className="w-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                        <Globe className="w-4 h-4 mx-auto mb-1" />
+                        className="w-full h-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08] flex flex-col items-center justify-center">
+                        <Globe className="w-4 h-4 mb-1" />
                         Use a browser
                       </button>
                     </div>
@@ -7770,8 +7770,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       </div>
                       <button onClick={() => setMobileSignInTab("email")}
                         data-tour="email-phone-button"
-                        className="w-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                        <Mail className="w-4 h-4 mx-auto mb-1" />
+                        className="w-full h-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08] flex flex-col items-center justify-center">
+                        <Mail className="w-4 h-4 mb-1" />
                         Sign in via email / phone
                       </button>
                     </div>

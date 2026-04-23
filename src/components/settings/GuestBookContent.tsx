@@ -1545,6 +1545,13 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           </div>
         </div>
       )}
+
+      {/* Archive Screen - within content area */}
+      {showArchive && (
+        <div className="absolute inset-0 z-40 bg-background flex flex-col">
+          <GuestBookArchiveScreen onBack={() => { setShowArchive(false); fetchGuests(); }} />
+        </div>
+      )}
     </div>
   );
 };

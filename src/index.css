@@ -899,9 +899,17 @@ All colors MUST be HSL.
 }
 
 /* Radix checked switches & checkboxes */
-[data-state="checked"] {
+button[role="switch"][data-state="checked"],
+[role="checkbox"][data-state="checked"] {
   background-color: var(--custom-selection-color) !important;
   border-color: var(--custom-selection-color) !important;
+}
+
+/* Keep switch thumbs white in both OFF and ON states */
+button[role="switch"] > span,
+button[role="switch"] > [data-state="checked"],
+button[role="switch"] > [data-state="unchecked"] {
+  background-color: hsl(0 0% 100%) !important;
 }
 
 /* Radix selected radio items */

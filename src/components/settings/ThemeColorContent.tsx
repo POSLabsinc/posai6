@@ -201,6 +201,8 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     { id: 'cmyk', label: 'CMYK' },
   ];
 
+  const sectionTitleClassName = "text-base font-medium text-neutral-500 mb-4 px-1";
+
   // Auto-save current theme when leaving the screen (back button or unmount)
   useEffect(() => {
     return () => {
@@ -228,7 +230,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
       <div className="px-6 pb-28 space-y-5">
         {/* Color Picker - 2 column layout */}
         <div>
-          <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Color Picker</p>
+          <h2 className={sectionTitleClassName}>Color Picker</h2>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
             <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
               {/* Left: Color Picker (30%) */}
@@ -322,7 +324,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
 
         {/* Derived Colors */}
         <div>
-          <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Derived Colors</p>
+          <h2 className={sectionTitleClassName}>Derived Colors</h2>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             {derivedColors.map((item, idx) => (
               <div key={item.key}>
@@ -357,7 +359,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
 
         {/* Saved Themes */}
         <div>
-          <p className="text-xs font-medium text-neutral-500 mb-1 px-1 uppercase tracking-wider">Saved Themes</p>
+          <h2 className={sectionTitleClassName}>Saved Themes</h2>
 
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
             {savedThemes.length === 0 ? (

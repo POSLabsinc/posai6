@@ -20,6 +20,9 @@ import SwipeableServiceChargeItem from "./SwipeableServiceChargeItem";
 import infoIcon from "@/assets/icons/info.png";
 import serviceChargeIcon from "@/assets/icons/service-charge.png";
 import { supabase } from "@/integrations/supabase/client";
+import { SortableHeader, useSortableData } from "./SortableHeader";
+
+type ServiceChargeSortKey = "name" | "amount" | "taxApplicable";
 
 interface ServiceCharge {
   id: string;

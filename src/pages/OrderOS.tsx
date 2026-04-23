@@ -44,6 +44,7 @@ import doordashIcon from "@/assets/icons/platforms/doordash-full.svg";
 import directIcon from "@/assets/icons/platforms/direct-full.svg";
 import deliveryOsIcon from "@/assets/icons/platforms/deliveryos-full.svg";
 import orderOsLogo from "@/assets/icons/order-os.svg";
+import PaymentDialog from "@/components/PaymentDialog";
 
 // Types
 interface ModifierItem {

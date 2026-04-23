@@ -3,7 +3,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
 import { useAppearance } from "@/contexts/AppearanceContext";
 import guestBookIcon from "@/assets/icons/settings-guest-book.png";
 import SwipeableGuestItem from "@/components/settings/SwipeableGuestItem";
@@ -132,54 +132,45 @@ const GuestBookArchiveScreen = ({ onBack }: GuestBookArchiveScreenProps) => {
           </div>
         ) : (
           <div className="bg-card rounded-2xl overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="border-b border-border/50 hover:bg-transparent">
-                  <TableHead onClick={() => handleSort("name")} className="text-foreground font-medium">Name</TableHead>
-                  <TableHead onClick={() => handleSort("phone")} className="text-foreground font-medium">Phone</TableHead>
-                  <TableHead onClick={() => handleSort("email")} className="text-foreground font-medium">Email</TableHead>
-                  <TableHead onClick={() => handleSort("loyalty")} className="text-foreground font-medium">Loyalty No</TableHead>
-                  <TableHead onClick={() => handleSort("since")} className="text-foreground font-medium">Since</TableHead>
-                  <TableHead onClick={() => handleSort("updated_at")} className="text-foreground font-medium">Archive</TableHead>
-                  <TableHead sortable={false} className="w-8" />
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {sorted.map(g => (
-                  <TableRow key={g.id} className="border-b border-border/30 last:border-0">
-                    <TableCell colSpan={7} className="p-0">
-                      <SwipeableGuestItem
-                        onTap={() => {}}
-                        onArchive={() => handleRestore(g.id)}
-                        onRemove={() => handleRemove(g.id)}
-                        isArchived
+            {/* Header */}
+            <div className="grid grid-cols-[2fr_1.6fr_2fr_1.2fr_1.2fr_auto] items-center gap-4 px-4 py-3 border-b border-border/50">
+              <button onClick={() => handleSort("name")} className="text-sm text-foreground font-medium text-left">Name</button>
+              <button onClick={() => handleSort("phone")} className="text-sm text-foreground font-medium text-left">Phone</button>
+              <button onClick={() => handleSort("email")} className="text-sm text-foreground font-medium text-left">Email</button>
+              <button onClick={() => handleSort("since")} className="text-sm text-foreground font-medium text-left">Since</button>
+              <button onClick={() => handleSort("updated_at")} className="text-sm text-foreground font-medium text-left">Archived</button>
+              <span className="w-4" />
+            </div>
+            {/* Rows */}
+            {sorted.map(g => (
+              <SwipeableGuestItem
+                key={g.id}
+                onTap={() => {}}
+                onArchive={() => handleRestore(g.id)}
+                onRemove={() => handleRemove(g.id)}
+                isArchived
+              >
+                <div className="grid grid-cols-[2fr_1.6fr_2fr_1.2fr_1.2fr_auto] items-center gap-4 px-4 py-3 bg-card hover:bg-muted/30 transition-colors border-b border-border/30 last:border-0">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <Avatar className="w-9 h-9 flex-shrink-0">
+                      {g.avatar_url ? <AvatarImage src={g.avatar_url} alt={g.name} /> : null}
+                      <AvatarFallback
+                        style={{ backgroundColor: g.avatar_bg || "#6B7280" }}
+                        className="text-white text-xs font-medium"
                       >
-                        <div className="grid grid-cols-[2fr_1.4fr_1.8fr_1fr_1fr_1fr_auto] items-center gap-4 px-4 py-3 bg-card hover:bg-muted/30 transition-colors">
-                          <div className="flex items-center gap-3 min-w-0">
-                            <Avatar className="w-9 h-9 flex-shrink-0">
-                              {g.avatar_url ? <AvatarImage src={g.avatar_url} alt={g.name} /> : null}
-                              <AvatarFallback
-                                style={{ backgroundColor: g.avatar_bg || "#6B7280" }}
-                                className="text-white text-xs font-medium"
-                              >
-                                {g.initials || g.name.slice(0, 2).toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
-                            <span className="text-sm text-foreground truncate">{g.name}</span>
-                          </div>
-                          <span className="text-sm text-muted-foreground truncate">{g.phone || "—"}</span>
-                          <span className="text-sm text-muted-foreground truncate">{g.email || "—"}</span>
-                          <span className="text-sm text-muted-foreground truncate">{g.loyalty || "—"}</span>
-                          <span className="text-sm text-muted-foreground truncate">{formatDate(g.since)}</span>
-                          <span className="text-sm text-muted-foreground truncate">{formatDate(g.updated_at)}</span>
-                          <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                        </div>
-                      </SwipeableGuestItem>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                        {g.initials || g.name.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="text-sm text-foreground truncate">{g.name}</span>
+                  </div>
+                  <span className="text-sm text-muted-foreground truncate">{g.phone || "—"}</span>
+                  <span className="text-sm text-muted-foreground truncate">{g.email || "—"}</span>
+                  <span className="text-sm text-muted-foreground truncate">{formatDate(g.since)}</span>
+                  <span className="text-sm text-muted-foreground truncate">{formatDate(g.updated_at)}</span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                </div>
+              </SwipeableGuestItem>
+            ))}
           </div>
         )}
       </div>

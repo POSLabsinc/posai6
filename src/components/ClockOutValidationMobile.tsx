@@ -195,6 +195,17 @@ export const ClockOutValidationMobile = ({
   const openCount = openChecks.length;
   const allChecksResolved = unpaidChecks.filter(c => !c.transferredTo).length === 0 && openCount === 0;
 
+  // Auto-proceed to clock out summary once all checks are resolved.
+  // This avoids requiring the user to re-enter their PIN or click Clock Out again.
+  useEffect(() => {
+    if (!isOpen) return;
+    if (!allChecksResolved) return;
+    const timer = setTimeout(() => {
+      onProceedClockOut();
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [isOpen, allChecksResolved, onProceedClockOut]);
+
   const transferredChecks = currentChecks.filter(c => c.transferredTo);
   const nonTransferredChecks = currentChecks.filter(c => !c.transferredTo);
   

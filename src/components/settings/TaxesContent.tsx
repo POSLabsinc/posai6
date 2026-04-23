@@ -140,6 +140,13 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
     });
   }, [taxes, searchQuery, showArchived]);
 
+  const { sortedItems: sortedTaxes, sort: taxSort, requestSort: sortTaxes } =
+    useSortableData<Tax, TaxSortKey>(filteredTaxes, (item, key) => {
+      if (key === "amount") return item.amount;
+      if (key === "type") return item.type;
+      return item.name;
+    });
+
   if (showAddScreen) {
     return (
       <AddTaxContent 

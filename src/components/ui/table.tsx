@@ -60,7 +60,21 @@ const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
       <span className="inline-flex items-center gap-1.5">
         {children}
         {sortable && (
-          <img src={expandArrowsIcon} alt="" className="w-3 h-3 opacity-40 shrink-0" />
+          <span
+            aria-hidden
+            style={{
+              WebkitMaskImage: `url(${expandArrowsIcon})`,
+              maskImage: `url(${expandArrowsIcon})`,
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+              backgroundColor: "currentColor",
+            }}
+            className="w-3 h-3 opacity-40 shrink-0 inline-block text-foreground"
+          />
         )}
       </span>
     </th>

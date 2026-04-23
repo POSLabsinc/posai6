@@ -105,20 +105,18 @@ const SwipeableGuestItem = ({
         <div className="absolute right-0 top-0 bottom-0 flex items-center">
           <button
             onClick={() => handleAction(onArchive)}
-            className="w-[72px] h-full flex flex-col items-center justify-center gap-1 bg-neutral-600 transition-colors active:opacity-70"
+            className="w-[72px] h-full flex items-center justify-center bg-neutral-600 transition-colors active:opacity-70"
+            aria-label={isArchived ? "Restore" : "Archive"}
           >
             <ArchiveIcon className="w-5 h-5 text-white" />
-            <span className="text-[10px] text-white font-medium">
-              {isArchived ? "Restore" : "Archive"}
-            </span>
           </button>
           {showDualActions && onRemove && (
             <button
               onClick={() => handleAction(onRemove)}
-              className="w-[72px] h-full flex flex-col items-center justify-center gap-1 bg-destructive transition-colors active:opacity-70"
+              className="w-[72px] h-full flex items-center justify-center bg-destructive transition-colors active:opacity-70"
+              aria-label="Remove"
             >
               <Trash2 className="w-5 h-5 text-white" />
-              <span className="text-[10px] text-white font-medium">Remove</span>
             </button>
           )}
         </div>

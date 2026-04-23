@@ -7751,17 +7751,33 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </div>
 
                   <div className="flex gap-2">
-                    <button onClick={() => setMobileSignInTab("browser")}
-                      className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                      <Globe className="w-4 h-4 mx-auto mb-1" />
-                      Use a browser
-                    </button>
-                    <button onClick={() => setMobileSignInTab("email")}
-                      data-tour="email-phone-button"
-                      className="flex-1 py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
-                      <Mail className="w-4 h-4 mx-auto mb-1" />
-                      Sign in via email / phone
-                    </button>
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <p className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
+                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                          <Info className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <button onClick={() => setMobileSignInTab("browser")}
+                        className="w-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
+                        <Globe className="w-4 h-4 mx-auto mb-1" />
+                        Use a browser
+                      </button>
+                    </div>
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex items-center gap-1.5 mb-1.5">
+                        <p className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
+                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                          <Info className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <button onClick={() => setMobileSignInTab("email")}
+                        data-tour="email-phone-button"
+                        className="w-full py-3 px-3 rounded-xl text-sm font-medium transition-all border bg-foreground/[0.04] border-foreground/[0.08] text-foreground/50 hover:bg-foreground/[0.08]">
+                        <Mail className="w-4 h-4 mx-auto mb-1" />
+                        Sign in via email / phone
+                      </button>
+                    </div>
                   </div>
                 </motion.div>
 
@@ -7769,6 +7785,12 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 /* Browser selected */
                 <motion.div key="mobile-signin-browser" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }}>
                   <div className="space-y-5 mb-6">
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
+                      <button onClick={() => { setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <Info className="w-4 h-4" />
+                      </button>
+                    </div>
                     <p className="text-sm font-semibold text-foreground">Use a browser</p>
                     <div className="flex items-start gap-3">
                       <span className="text-base font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>

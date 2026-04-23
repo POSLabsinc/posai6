@@ -1339,28 +1339,13 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                       </div>
                       <div className="flex items-center justify-center gap-2">
                         {["Z", "6", "5", "J", "2", "U"].map((char, i) => (
-                          <span key={i} className="w-10 h-12 flex items-center justify-center rounded-xl border border-foreground/[0.12] bg-foreground/[0.05] text-lg font-bold text-foreground tracking-widest">
+                          <span key={i} className="w-10 h-12 flex items-center justify-center rounded-xl border border-foreground/20 bg-background text-lg font-bold text-foreground tracking-widest">
                             {char}
                           </span>
                         ))}
                       </div>
                     </div>
                     <div className="flex gap-2 pt-1">
-                      <button
-                        onClick={() => {
-                          const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Done, I entered the code" };
-                          const assistantMsg: Message = {
-                            id: (Date.now() + 1).toString(),
-                            role: "assistant",
-                            content: "Great, verifying your device..."
-                          };
-                          setMessages(prev => [...prev, userMsg, assistantMsg]);
-                          setCurrentStep("chat-browser-connected");
-                        }}
-                        className="px-4 py-2 rounded-full text-sm font-medium border border-primary/30 bg-primary/10 hover:bg-primary/20 text-primary transition-all hover:scale-[1.02] active:scale-[0.98]"
-                      >
-                        Done
-                      </button>
                       <button
                         onClick={() => {
                           const userMsg: Message = { id: Date.now().toString(), role: "user", content: "Need help with browser activation" };

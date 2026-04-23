@@ -3870,6 +3870,42 @@ const OrderOS = () => {
           </div>
         </DialogContent>
       </Dialog>
+      </Dialog>
+
+      {/* Payment Dialog - same flow as new order screen */}
+      {paymentOrder && (
+        <PaymentDialog
+          open={showPaymentDialog}
+          onOpenChange={(open) => {
+            setShowPaymentDialog(open);
+            if (!open) setPaymentOrder(null);
+          }}
+          orderDetails={{
+            guest: paymentOrder.customerName,
+            phone: paymentOrder.phone,
+            table: paymentOrder.tableNumber,
+            check: paymentOrder.orderNumber,
+            orderType: paymentOrder.orderType,
+            orderNumber: paymentOrder.orderNumber,
+            orderTime: paymentOrder.orderedAt,
+            items: paymentOrder.items.map((it, idx) => ({
+              id: idx,
+              qty: it.qty,
+              name: it.name,
+              price: it.price,
+            })),
+          }}
+          subtotal={paymentOrder.subtotal}
+          tax={paymentOrder.tax}
+          total={paymentOrder.total}
+          onPaymentComplete={() => {
+            setOrders(prev => prev.map(o => o.id === paymentOrder.id ? { ...o, isPaid: true } : o));
+            setShowPaymentDialog(false);
+            setPaymentOrder(null);
+            toast({ title: "Payment completed", description: `Order #${paymentOrder.orderNumber} has been paid.` });
+          }}
+        />
+      )}
     </>
   );
 };

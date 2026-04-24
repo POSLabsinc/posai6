@@ -136,7 +136,7 @@ interface ChatMessage {
 }
 
 // ── Intent detection: only fetch relevant DB tables ─────────────────────────
-type Intent = "menus" | "categories" | "products" | "modifiers" | "addons" | "reports" | "general";
+type Intent = "menus" | "categories" | "products" | "modifiers" | "addons" | "defaultModifiers" | "groups" | "timedPricing" | "inventory" | "taxes" | "discounts" | "serviceCharges" | "reports" | "general";
 
 // ── Context → Scope mapping ─────────────────────────────────────────────────
 // Maps the `context` prop sent from the client (the active settings module)
@@ -158,14 +158,16 @@ const CONTEXT_SCOPE_MAP: Record<string, ContextScope> = {
   "menu-categories": { label: "Categories", intents: ["categories"], instruction: "Only discuss Categories: list, add, rename, reorder, archive. Do not reference products, menus, payments, or any other module." },
   "menu-modifiers": { label: "Modifiers", intents: ["modifiers"], instruction: "Only discuss Modifiers and modifier groups. Do not reference products, payments, or any other module." },
   "menu-add-ons": { label: "Add-ons", intents: ["addons"], instruction: "Only discuss Add-ons. Do not reference modifiers, products, payments, or any other module." },
-  "menu-default-modifiers": { label: "Default Modifiers", intents: ["modifiers"], instruction: "Only discuss Default Modifiers. Do not reference products, payments, or any other module." },
-  "menu-groups": { label: "Groups", intents: ["categories", "products"], instruction: "Only discuss Groups (product/category groupings). Do not reference payments, system, or any other module." },
+  "menu-default-modifiers": { label: "Default Modifiers", intents: ["defaultModifiers"], instruction: "Only discuss Default Modifiers. Do not reference products, payments, or any other module." },
+  "menu-groups": { label: "Groups", intents: ["groups", "modifiers", "addons", "defaultModifiers"], instruction: "Only discuss Groups. Do not reference payments, system, or any other module." },
   "menu-menus": { label: "Menus", intents: ["menus", "categories"], instruction: "Only discuss Menus: list, add, schedules, revenue centers, assigned categories. Do not reference payments, system, account, or any other module." },
-  payments: { label: "Payments", intents: [], instruction: "Only discuss Payments: taxes, gratuity, discounts, service charge, payment methods, cash management, checkout options. Do not reference menu, products, categories, modifiers, account, or any other module." },
-  "payments-taxes": { label: "Taxes", intents: [], instruction: "Only discuss Taxes (rates, exemptions, pricing modes). Do not reference menu, products, or any other module." },
+  "menu-timed-pricing": { label: "Timed Pricing", intents: ["timedPricing"], instruction: "Only discuss Timed Pricing rules. Do not reference payments, system, account, or any other module." },
+  "menu-inventory": { label: "Inventory", intents: ["inventory", "products", "categories"], instruction: "Only discuss Inventory and stock configuration. Do not reference payments, system, account, or any other module." },
+  payments: { label: "Payments", intents: ["taxes", "discounts", "serviceCharges"], instruction: "Only discuss Payments: taxes, gratuity, discounts, service charge, payment methods, cash management, checkout options. Do not reference menu, products, categories, modifiers, account, or any other module." },
+  "payments-taxes": { label: "Taxes", intents: ["taxes", "products", "categories"], instruction: "Only discuss Taxes (rates, exemptions, pricing modes). Do not reference menu, products, or any other module." },
   "payments-gratuity": { label: "Gratuity", intents: [], instruction: "Only discuss Gratuity (tip presets, auto-gratuity, distribution). Do not reference menu, products, or any other module." },
-  "payments-discounts": { label: "Discounts", intents: [], instruction: "Only discuss Discounts (rules, eligibility, manager PIN). Do not reference menu, products, or any other module." },
-  "payments-service-charge": { label: "Service Charge", intents: [], instruction: "Only discuss Service Charge configuration. Do not reference menu, products, or any other module." },
+  "payments-discounts": { label: "Discounts", intents: ["discounts", "products", "categories"], instruction: "Only discuss Discounts (rules, eligibility, manager PIN). Do not reference menu, products, or any other module." },
+  "payments-service-charge": { label: "Service Charge", intents: ["serviceCharges"], instruction: "Only discuss Service Charge configuration. Do not reference menu, products, or any other module." },
   "payments-payment-methods": { label: "Payment Methods", intents: [], instruction: "Only discuss Payment Methods (accepted types, visibility). Do not reference menu, products, or any other module." },
   "payments-cash-management": { label: "Cash Management", intents: [], instruction: "Only discuss Cash Management (drawer, pay in/out, reconciliation). Do not reference menu, products, or any other module." },
   "payments-checkout-options": { label: "Checkout Options", intents: [], instruction: "Only discuss Checkout Options (split check, signature, tip screen, receipts). Do not reference menu, products, or any other module." },
@@ -213,7 +215,14 @@ function detectIntent(messages: any[]): Set<Intent> {
   if (/categor/.test(combined)) intents.add("categories");
   if (/product|price|sku|stock/.test(combined)) intents.add("products");
   if (/modifier|mod group/.test(combined)) intents.add("modifiers");
+  if (/default modifier/.test(combined)) intents.add("defaultModifiers");
+  if (/\bgroup\b/.test(combined)) intents.add("groups");
   if (/add.?on/.test(combined)) intents.add("addons");
+  if (/timed pricing|happy hour|early bird|late night/.test(combined)) intents.add("timedPricing");
+  if (/inventory|stock|out of stock|86\b|negative inventory/.test(combined)) intents.add("inventory");
+  if (/\btax\b|vat|gst/.test(combined)) intents.add("taxes");
+  if (/discount|coupon|promo/.test(combined)) intents.add("discounts");
+  if (/service charge|surcharge|auto gratuity/.test(combined)) intents.add("serviceCharges");
   if (/report|sales|revenue|analytics|total.*sales|daily.*sales|weekly|monthly|order.*summary/.test(combined)) intents.add("reports");
 
   // If creating a menu, we need categories too
@@ -319,6 +328,55 @@ async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string,
       if (addOns?.length) {
         parts.push(`### Add-Ons (${addOns.length}): ${addOns.map((a: any) => `${a.name}=$${Number(a.price).toFixed(2)}(${a.id})`).join("; ")}`);
       }
+    })());
+  }
+
+  if (fetchAll || intents.has("defaultModifiers")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("default_modifiers").select("id, name, type").eq("archived", false).order("sort_order");
+      if (data?.length) parts.push(`### Default Modifiers (${data.length}): ${data.map((d: any) => `${d.name}[${d.type}](${d.id})`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("groups")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("groups").select("id, name, type, display_name, has_max_selections, max_selections").eq("archived", false).order("sort_order");
+      if (data?.length) parts.push(`### Groups (${data.length}): ${data.map((g: any) => `${g.name}[${g.type}](${g.id})${g.display_name ? ` display:${g.display_name}` : ""}${g.has_max_selections ? ` max:${g.max_selections}` : ""}`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("timedPricing")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("timed_pricing_rules").select("id, name, type, start_time, end_time, adjustment, days, enabled").order("created_at", { ascending: false });
+      if (data?.length) parts.push(`### Timed Pricing (${data.length}): ${data.map((r: any) => `${r.name}(${r.id}) ${r.type} ${r.start_time}-${r.end_time} adj:${r.adjustment} days:${(r.days || []).join(",")} ${r.enabled ? "ON" : "OFF"}`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("inventory")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("products").select("id, name, stock_count, out_of_stock, inventory_tracking, negative_inventory").eq("archived", false).order("name").limit(100);
+      if (data?.length) parts.push(`### Inventory (${data.length}): ${data.map((p: any) => `${p.name}(${p.id}) stock:${p.stock_count ?? 0}${p.out_of_stock ? "[OOS]" : ""}${p.inventory_tracking ? "[TRACK]" : ""}${p.negative_inventory ? "[NEG]" : ""}`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("taxes")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("taxes").select("id, name, amount, type, applicable_to, archived").eq("archived", false).order("sort_order");
+      if (data?.length) parts.push(`### Taxes (${data.length}): ${data.map((t: any) => `${t.name}=${t.amount}${t.type === "Inclusive" ? "% incl" : "% excl"}(${t.id}) applies:${t.applicable_to || "All Products"}`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("discounts")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("discounts").select("id, name, amount, type, applicable_to, requires_manager_pin, archived").eq("archived", false).order("sort_order");
+      if (data?.length) parts.push(`### Discounts (${data.length}): ${data.map((d: any) => `${d.name}=${d.amount}${d.type === "Percentage" ? "%" : "$"}(${d.id}) applies:${d.applicable_to || "All Products"}${d.requires_manager_pin ? "[PIN]" : ""}`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("serviceCharges")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("service_charges").select("id, name, amount, type, order_type, tax_applicable, automatic_apply, min_seats, archived").eq("archived", false).order("sort_order");
+      if (data?.length) parts.push(`### Service Charges (${data.length}): ${data.map((s: any) => `${s.name}=${s.amount}${s.type === "Percentage" ? "%" : "$"}(${s.id}) order:${s.order_type || "All Orders"} tax:${s.tax_applicable || "Taxable"}${s.automatic_apply ? ` auto minSeats:${s.min_seats ?? 0}` : ""}`).join("; ")}`);
     })());
   }
 

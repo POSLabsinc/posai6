@@ -283,6 +283,8 @@ function detectIntent(messages: any[]): Set<Intent> {
   if (/discount|coupon|promo/.test(combined)) intents.add("discounts");
   if (/service charge|surcharge|auto gratuity/.test(combined)) intents.add("serviceCharges");
   if (/report|sales|revenue|analytics|total.*sales|daily.*sales|weekly|monthly|order.*summary/.test(combined)) intents.add("reports");
+  if (/guest|customer|view guests|add guest|guest book/.test(combined)) intents.add("guests");
+  if (/archive|archived/.test(combined) && /guest|customer/.test(combined)) intents.add("archivedGuests");
 
   // If creating a menu, we need categories too
   if (intents.has("menus")) intents.add("categories");

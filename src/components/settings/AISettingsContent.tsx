@@ -1407,38 +1407,79 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         }
         case "product": {
           if (operation === "add") {
-            // If categoryName provided but no categoryId, look it up
-            let categoryId = data.categoryId;
-            if (!categoryId && data.categoryName) {
-              const { data: cats } = await (supabase as any).from("categories").select("id").ilike("name", data.categoryName).limit(1);
-              if (cats && cats.length > 0) categoryId = cats[0].id;
-            }
-            if (!categoryId) {
-              toast({ title: "Category required", description: "Please specify a valid category for this product.", variant: "destructive" });
+            const categoryName = data.category || data.categoryName;
+            if (!data.name || !categoryName) {
+              toast({ title: "Missing product details", description: "Product name and category are required.", variant: "destructive" });
               return false;
             }
-            const { error } = await (supabase as any).from("products").insert({
+            await createProduct({
               name: data.name,
-              price: data.price || 0,
-              category_id: categoryId,
               description: data.description || "",
-            });
-            if (error) throw error;
+              category: categoryName,
+              price: Number(data.price) || 0,
+              priceType: data.priceType || "fixed",
+              sku: data.sku || "",
+              imageUrl: data.imageUrl,
+              active: data.active !== false,
+              dineIn: data.dineIn !== false,
+              takeaway: data.takeaway !== false,
+              delivery: !!data.delivery,
+              addToMenu: data.addToMenu !== false,
+              outOfStock: !!data.outOfStock,
+              inventoryTracking: !!data.inventoryTracking,
+              negativeInventory: !!data.negativeInventory,
+              modifiers: data.modifiers || [],
+              addOns: data.addOns || [],
+              taxes: data.taxes || [],
+              discounts: data.discounts || [],
+              isCustom: true,
+            }, Array.isArray(data.variants) ? data.variants : []);
           } else if (operation === "update") {
-            const updates: any = {};
-            if (data.name) updates.name = data.name;
-            if (data.price !== undefined) updates.price = data.price;
-            if (data.description !== undefined) updates.description = data.description;
-            if (data.active !== undefined) updates.active = data.active;
-            const { error } = await (supabase as any).from("products").update(updates).eq("id", data.id);
-            if (error) throw error;
+            const target = data.id ? { id: data.id } : await resolveByName("products", data);
+            if (!target) return notFoundToast("Product", data.name);
+            const existing = getCustomProducts().find((p) => p.id === target.id);
+            await updateProduct(target.id, {
+              name: data.newName || data.name || existing?.name,
+              description: data.description ?? existing?.description ?? "",
+              category: data.category || data.categoryName || existing?.category,
+              price: data.price !== undefined ? Number(data.price) : existing?.price,
+              priceType: data.priceType || existing?.priceType || "fixed",
+              sku: data.sku ?? existing?.sku ?? "",
+              imageUrl: data.imageUrl ?? existing?.imageUrl,
+              active: data.active ?? existing?.active ?? true,
+              dineIn: data.dineIn ?? existing?.dineIn ?? true,
+              takeaway: data.takeaway ?? existing?.takeaway ?? true,
+              delivery: data.delivery ?? existing?.delivery ?? false,
+              addToMenu: data.addToMenu ?? existing?.addToMenu ?? true,
+              outOfStock: data.outOfStock ?? existing?.outOfStock ?? false,
+              inventoryTracking: data.inventoryTracking ?? existing?.inventoryTracking ?? false,
+              negativeInventory: data.negativeInventory ?? existing?.negativeInventory ?? false,
+              modifiers: data.modifiers ?? existing?.modifiers ?? [],
+              addOns: data.addOns ?? existing?.addOns ?? [],
+              taxes: data.taxes ?? existing?.taxes ?? [],
+              discounts: data.discounts ?? existing?.discounts ?? [],
+              isCustom: true,
+            }, Array.isArray(data.variants) ? data.variants : existing?.variants || []);
           } else if (operation === "archive") {
-            const { error } = await (supabase as any).from("products").update({ archived: true }).eq("id", data.id);
+            const target = data.id ? { id: data.id } : await resolveByName("products", data);
+            if (!target) return notFoundToast("Product", data.name);
+            const { error } = await (supabase as any).from("products").update({ archived: true }).eq("id", target.id);
             if (error) throw error;
+            setArchivedId(target.id, true);
           } else if (operation === "enable" || operation === "disable") {
+            const target = data.id ? { id: data.id } : await resolveByName("products", data);
+            if (!target) return notFoundToast("Product", data.name);
             const active = operation === "enable" || data.active === true;
-            const { error } = await (supabase as any).from("products").update({ active }).eq("id", data.id);
+            const { error } = await (supabase as any).from("products").update({ active }).eq("id", target.id);
             if (error) throw error;
+            const existing = getCustomProducts().find((p) => p.id === target.id);
+            if (existing) saveCustomProduct({ ...existing, active, updatedAt: new Date().toISOString() });
+          } else if (operation === "remove" || operation === "delete") {
+            const target = data.id ? { id: data.id } : await resolveByName("products", data);
+            if (!target) return notFoundToast("Product", data.name);
+            const { error } = await (supabase as any).from("products").delete().eq("id", target.id);
+            if (error) throw error;
+            deleteCustomProduct(target.id);
           }
           break;
         }

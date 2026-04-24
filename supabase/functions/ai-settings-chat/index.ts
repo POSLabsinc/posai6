@@ -156,7 +156,61 @@ Step 11 — Summary + Confirm. Show a clean readable summary of ALL collected fi
 ## VIEW GUESTS / ARCHIVE GUEST FLOWS:
 - "View guests" / "Show guests" / "Show me all guests": Use ONLY the live guest data in Database Context (active guests, is_archived=false). Format the message as a numbered readable list: "1. <Name> — <phone> — <email> (id:<id>)". Do NOT emit update_setting. quickReplies: ["Add Guest","Archive Guest"].
 - "Archive Guest" / "Show archived guests": Use ONLY the archived guest list in Database Context (is_archived=true). Format the same way and offer per-guest restore. quickReplies: ["Add Guest","View Guests"].
-- NEVER show "Guest preferences" or "Guest history" anywhere — those options were removed.
+
+## GUIDED EMPLOYEE CREATION (settingType:"employee", operation:"add") — MANDATORY step-by-step:
+The Settings AI MUST collect every employee field one question at a time, mirroring the manual Add New Employee form. Never skip a step. Never emit update_setting until the final Confirm step. Use {"type":"info"} for each intermediate question and ALWAYS include focused quickReplies. Do NOT mix in unrelated chips like "View Employees", "Manage Shifts" or "Archive Employees" while the flow is in progress.
+Step 1 — First Name (free text, REQUIRED, max 50 chars). quickReplies: ["Cancel"].
+Step 2 — Last Name (free text, REQUIRED, max 50 chars). quickReplies: ["Cancel"].
+Step 3 — Job Role (REQUIRED). quickReplies: ["Server","Manager","Host","Admin","Cashier","Chef","Bartender","Barista","Runner","Cancel"].
+Step 4 — Job Type. quickReplies: ["Full Time","Part Time","Contract","Temporary","Seasonal","Intern","Freelance","On-Call","Volunteer","Skip","Cancel"].
+Step 5 — Revenue Center. quickReplies: ["Bar","Restaurant","Takeout","Delivery","Catering","Patio","Lounge","Drive-Thru","All","Skip","Cancel"].
+Step 6 — Phone (numeric, optional, ask country code if needed; default +1). quickReplies: ["Skip","Cancel"].
+Step 7 — Email (optional). quickReplies: ["Skip","Cancel"].
+Step 8 — Employee Code (optional internal code). quickReplies: ["Skip","Cancel"].
+Step 9 — Hourly Rate (numeric in dollars, optional). quickReplies: ["Skip","Cancel"].
+Step 10 — 4-digit PIN (optional, must be exactly 4 digits if provided). quickReplies: ["Skip","Cancel"].
+Step 11 — Dashboard Access? quickReplies: ["Yes","No","Cancel"].
+Step 12 — Payroll Enabled? quickReplies: ["Yes","No","Cancel"].
+Step 13 — Photo (LAST field before summary): ask "Want to upload a photo for this employee? Tap the paperclip icon below to attach an image, then reply Done. Or Skip." quickReplies: ["Skip","Done","Cancel"].
+Step 14 — Summary + Confirm. Show a clean readable summary of every collected field (First Name, Last Name, Role, Job Type, Revenue Center, Phone, Email, Employee Code, Hourly Rate, PIN: "Set" or "Default", Dashboard Access, Payroll, Photo: "Attached" or "None"). Then ask "Confirm to save this employee. You can still upload/replace the photo using the paperclip icon below." quickReplies: ["Confirm","Upload Photo","Cancel"]. On "Confirm" emit:
+  {"type":"update_setting","setting":"Employee","path":"Workforce → Employee","settingType":"employee","operation":"add","data":{"firstName":"","lastName":"","fullName":"","role":"","jobType":"","revenueCenter":"","phone":"","email":"","employeeCode":"","hourlyRate":0,"pin":"","dashboardAccess":false,"payrollEnabled":false,"avatarUrl":"<data-url-if-attached>"},"autoApply":true}
+
+## VIEW EMPLOYEES / ARCHIVE EMPLOYEES FLOWS:
+- "View Employees" / "Show employees" / "Show me all employees": Use ONLY the live employee data in Database Context (Active Employees). Format the message as a numbered readable list: "1. <Name> — <Role> — <phone> — <email> (id:<id>)". Do NOT emit update_setting. quickReplies: ["Add New Employee","Archive Employees"].
+- "Archive Employees" / "Show archived employees": Use ONLY the Archived Employees list in Database Context. Format the same way and offer per-employee restore. quickReplies: ["Add New Employee","View Employees"].
+- "Archive <Name>" → confirm "Archive <Name>?" quickReplies ["Yes, archive","Cancel"]. On Yes emit {"type":"update_setting","settingType":"employee","operation":"archive","data":{"id":"<uuid>","name":"<Name>"},"autoApply":true}.
+- "Restore <Name>" → confirm, then emit {"type":"update_setting","settingType":"employee","operation":"restore","data":{"id":"<uuid>","name":"<Name>"},"autoApply":true}.
+
+## GUIDED SHIFT CREATION (settingType:"shift", operation:"add") — MANDATORY step-by-step (mirrors Add Shift form):
+Step 1 — Shift Name (REQUIRED, free text). quickReplies: ["Cancel"].
+Step 2 — Shift Type. quickReplies: ["Regular","Overtime","Split","Double","Holiday","Cancel"].
+Step 3 — Job Role. quickReplies: ["Server","Manager","Host","Bartender","Barista","Runner","Chef","Cashier","Skip","Cancel"].
+Step 4 — Select Employees (REQUIRED, multiSelect:true). quickReplies from Active Employees list (names) plus "Done","Cancel".
+Step 5 — Date Range Start (YYYY-MM-DD). quickReplies: ["Today","Tomorrow","Cancel"].
+Step 6 — Date Range End (YYYY-MM-DD). quickReplies: ["Same as start","Cancel"].
+Step 7 — Days of Week (multiSelect:true). quickReplies: ["All Days","Mon-Fri","Weekends","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday","Done","Cancel"].
+Step 8 — Start Time (e.g. "12:00 PM"). quickReplies: ["6:00 AM","9:00 AM","12:00 PM","3:00 PM","Custom time","Cancel"].
+Step 9 — End Time (e.g. "5:00 PM"). quickReplies: ["12:00 PM","5:00 PM","9:00 PM","12:00 AM","Custom time","Cancel"].
+Step 10 — Allow Overtime? quickReplies: ["Yes","No","Cancel"].
+Step 11 — Add Break? quickReplies: ["Yes","No","Cancel"]. If Yes, ask Break Name + Duration (minutes) + Start Time.
+Step 12 — Shift Note (optional, max 1000 words). quickReplies: ["Skip","Cancel"].
+Step 13 — Summary + Confirm. Show every collected field. quickReplies: ["Confirm","Cancel"]. On Confirm emit:
+  {"type":"update_setting","setting":"Shift","path":"Workforce → Shift","settingType":"shift","operation":"add","data":{"shiftName":"","shiftType":"","jobRole":"","employeeIds":["<uuid>"],"startDate":"YYYY-MM-DD","endDate":"YYYY-MM-DD","selectedDays":["Monday"],"startTime":"12:00 PM","endTime":"5:00 PM","allowOvertime":false,"breaks":[{"name":"","durationMinutes":15,"startTime":"12:00 PM"}],"shiftNote":""},"autoApply":true}
+
+## VIEW SHIFTS FLOW:
+- "View Shifts" / "Show shifts" / "Manage shifts": Use ONLY the live Employee Shifts data in Database Context. Format as numbered readable list grouped by date: "1. <Date> — <EmployeeName> — <Type> <Start>–<End> <Status>". Do NOT emit update_setting. quickReplies: ["Add Shift","View Schedule"].
+
+## GUIDED SCHEDULE CREATION (settingType:"schedule", operation:"add") — MANDATORY step-by-step (mirrors Add Schedule form):
+Step 1 — Schedule Name (REQUIRED). quickReplies: ["Cancel"].
+Step 2 — Start Date (YYYY-MM-DD). quickReplies: ["Today","Cancel"].
+Step 3 — End Date (YYYY-MM-DD). quickReplies: ["Same as start","Cancel"].
+Step 4 — Days (multiSelect:true, REQUIRED ≥1). quickReplies: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday","Done","Cancel"].
+Step 5 — For EACH selected day in order, ask Start Time then End Time. quickReplies for each: ["6:00 AM","9:00 AM","12:00 PM","3:00 PM","6:00 PM","9:00 PM","Custom time","Copy from previous day","Cancel"].
+Step 6 — Summary + Confirm. Show schedule name, date range, and each day's hours. quickReplies: ["Confirm","Cancel"]. On Confirm emit:
+  {"type":"update_setting","setting":"Schedule","path":"Workforce → Schedule Information","settingType":"schedule","operation":"add","data":{"name":"","startDate":"YYYY-MM-DD","endDate":"YYYY-MM-DD","days":{"Monday":{"startTime":"9:00 AM","endTime":"5:00 PM"}}},"autoApply":true}
+
+## VIEW SCHEDULE INFORMATION FLOW:
+- "View Schedules" / "Show schedule information" / "Schedule information": Use ONLY the Employee Shifts/Open Shifts data in Database Context. Group by week and present a readable summary. Do NOT emit update_setting. quickReplies: ["Add Schedule","View Shifts"].
 
 ## GUIDED DISCOUNT CREATION (7 steps):
 Step 1: Name → Step 2: Type (Percentage/Fixed as quickReplies) → Step 3: Amount (numeric) → Step 4: Applicable To (All Products/Specific Products/Specific Categories as quickReplies) → Step 5: If Specific, ask which (multiSelect) → Step 6: Require Manager PIN? (Yes/No) → Step 7: Confirm.
@@ -195,7 +249,7 @@ interface ChatMessage {
 }
 
 // ── Intent detection: only fetch relevant DB tables ─────────────────────────
-type Intent = "menus" | "categories" | "products" | "modifiers" | "addons" | "defaultModifiers" | "groups" | "timedPricing" | "inventory" | "taxes" | "discounts" | "serviceCharges" | "reports" | "guests" | "archivedGuests" | "general";
+type Intent = "menus" | "categories" | "products" | "modifiers" | "addons" | "defaultModifiers" | "groups" | "timedPricing" | "inventory" | "taxes" | "discounts" | "serviceCharges" | "reports" | "guests" | "archivedGuests" | "employees" | "archivedEmployees" | "employeeShifts" | "openShifts" | "general";
 
 // ── Context → Scope mapping ─────────────────────────────────────────────────
 // Maps the `context` prop sent from the client (the active settings module)
@@ -234,7 +288,11 @@ const CONTEXT_SCOPE_MAP: Record<string, ContextScope> = {
   "system-appearance": { label: "Appearance", intents: [], instruction: "Only discuss Appearance: theme, theme color, text size, brightness, bold text, icon style. Do not reference menu, products, payments, or any other module." },
   "system-control-center": { label: "Control Center", intents: [], instruction: "Only discuss Control Center toggles (debug mode, force clock-in, auto-lock). Do not reference menu, products, payments, or any other module." },
   "system-ai-integration": { label: "AI Integration", intents: [], instruction: "Only discuss AI Integration: providers, API keys, models. Do not reference menu, products, payments, or any other module." },
-  workforce: { label: "Workforce", intents: [], instruction: "Only discuss Workforce: employees, roles, shifts, clock-in. Do not reference menu, products, or other modules." },
+  workforce: { label: "Workforce", intents: ["employees", "archivedEmployees", "employeeShifts", "openShifts"], instruction: "Only discuss Workforce: employees, shifts, schedules, clock-in/out. Do not reference menu, products, payments, or other modules. Available actions: View Employees, Add New Employee (run GUIDED EMPLOYEE CREATION step-by-step), Archive Employees, View Shifts, Add Shift (run GUIDED SHIFT CREATION step-by-step), Schedule Information (View / Add Schedule run GUIDED SCHEDULE CREATION step-by-step)." },
+  "workforce-employee": { label: "Employee", intents: ["employees", "archivedEmployees"], instruction: "Only discuss Employees. Available actions: View Employees (active list from Database Context), Archive Employees (list archived from Database Context with restore option), Add New Employee (run GUIDED EMPLOYEE CREATION step-by-step). Do NOT skip steps. Do NOT reference menu, products, payments, shifts, or schedules unless user explicitly asks to switch." },
+  "workforce-shift": { label: "Shift", intents: ["employeeShifts", "employees", "openShifts"], instruction: "Only discuss Shifts. Available actions: View Shifts (list current shifts from Database Context), Add Shift (run GUIDED SHIFT CREATION step-by-step). Do NOT skip steps. Do NOT reference menu, products, payments, employees archive, or schedules unless user asks." },
+  "workforce-schedule-information": { label: "Schedule Information", intents: ["employeeShifts", "openShifts"], instruction: "Only discuss Schedule Information. Available actions: View Schedules (list scheduled shifts from Database Context), Add Schedule (run GUIDED SCHEDULE CREATION step-by-step). Do NOT skip steps. Do NOT reference menu, products, payments, or employees unless user asks." },
+  "workforce-schedule": { label: "Schedule Information", intents: ["employeeShifts", "openShifts"], instruction: "Only discuss Schedule Information. Available actions: View Schedules (list scheduled shifts from Database Context), Add Schedule (run GUIDED SCHEDULE CREATION step-by-step). Do NOT skip steps. Do NOT reference menu, products, payments, or employees unless user asks." },
   "end-of-day": { label: "End of Day", intents: [], instruction: "Only discuss the End of Day (EOD) module. You can: start EOD, run EOD automation now, print the EOD report, clock out employees, close the cash drawer, close paid orders, cancel unpaid tickets, and configure all EOD toggles (reminder, auto-run, clock out, close cash drawer, close paid orders, cancel unpaid, print report, include employee data, print summary on clock out, end of day device, daily report recipients). Do not reference menus, products, payments, or other modules." },
   "guest-book": { label: "Guest Book", intents: ["guests", "archivedGuests"], instruction: "Only discuss Guest Book. Available actions: View guests (active), Archive Guest (list archived), Add Guest (run GUIDED GUEST CREATION step-by-step). Do NOT reference menu, products, payments, or other modules. Do NOT mention 'Guest preferences' or 'Guest history' — those options were removed." },
   reports: { label: "Reports & Analytics", intents: ["reports"], instruction: "Only discuss Reports & Analytics: sales, revenue, summaries. Do not reference menu, products, or other modules." },
@@ -285,6 +343,11 @@ function detectIntent(messages: any[]): Set<Intent> {
   if (/report|sales|revenue|analytics|total.*sales|daily.*sales|weekly|monthly|order.*summary/.test(combined)) intents.add("reports");
   if (/guest|customer|view guests|add guest|guest book/.test(combined)) intents.add("guests");
   if (/archive|archived/.test(combined) && /guest|customer/.test(combined)) intents.add("archivedGuests");
+  if (/employee|staff|view employees|add (new )?employee|hire/.test(combined)) intents.add("employees");
+  if (/archive|archived/.test(combined) && /employee|staff/.test(combined)) intents.add("archivedEmployees");
+  if (/shift|clock.?in|clock.?out|roster|schedule.*shift|add shift|view shifts/.test(combined)) intents.add("employeeShifts");
+  if (/open shift|unassigned shift/.test(combined)) intents.add("openShifts");
+  if (/schedule information|view schedule|add schedule|weekly schedule/.test(combined)) intents.add("employeeShifts");
 
   // If creating a menu, we need categories too
   if (intents.has("menus")) intents.add("categories");
@@ -478,6 +541,95 @@ async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string,
         });
       } else {
         parts.push("### Archived Guests: none.");
+      }
+    })());
+  }
+
+  // Active Employees
+  if (fetchAll || intents.has("employees")) {
+    promises.push((async () => {
+      const { data } = await supabase
+        .from("employees")
+        .select("id, full_name, role, phone, email, hourly_rate, assigned_job_types, revenue_center, is_archived, is_on_leave")
+        .eq("is_archived", false)
+        .order("full_name")
+        .limit(200);
+      if (data?.length) {
+        parts.push(`### Active Employees (${data.length}):`);
+        data.forEach((e: any, idx: number) => {
+          const jobs = (e.assigned_job_types || []).join(",");
+          parts.push(`${idx + 1}. ${e.full_name} — ${e.role}${jobs ? ` [${jobs}]` : ""} — ${e.phone || "no phone"} — ${e.email || "no email"}${e.hourly_rate ? ` rate:$${Number(e.hourly_rate).toFixed(2)}/h` : ""}${e.is_on_leave ? " [ON LEAVE]" : ""} (id:${e.id})`);
+        });
+      } else {
+        parts.push("### Active Employees: none yet. Suggest 'Add New Employee' to create one.");
+      }
+    })());
+  }
+
+  // Archived Employees
+  if (fetchAll || intents.has("archivedEmployees")) {
+    promises.push((async () => {
+      const { data } = await supabase
+        .from("employees")
+        .select("id, full_name, role, phone, email")
+        .eq("is_archived", true)
+        .order("full_name")
+        .limit(200);
+      if (data?.length) {
+        parts.push(`### Archived Employees (${data.length}):`);
+        data.forEach((e: any, idx: number) => {
+          parts.push(`${idx + 1}. ${e.full_name} — ${e.role} — ${e.phone || "no phone"} — ${e.email || "no email"} (id:${e.id})`);
+        });
+      } else {
+        parts.push("### Archived Employees: none.");
+      }
+    })());
+  }
+
+  // Employee Shifts (recent + upcoming 14 days)
+  if (fetchAll || intents.has("employeeShifts")) {
+    promises.push((async () => {
+      const today = new Date();
+      const past = new Date(today.getTime() - 7 * 86400000).toISOString().slice(0, 10);
+      const future = new Date(today.getTime() + 14 * 86400000).toISOString().slice(0, 10);
+      const [{ data: shifts }, { data: emps }] = await Promise.all([
+        supabase.from("employee_shifts")
+          .select("id, employee_id, shift_date, shift_type, start_time, end_time, job_type, clock_in, clock_out, break_minutes, shift_notes")
+          .gte("shift_date", past).lte("shift_date", future)
+          .order("shift_date").limit(200),
+        supabase.from("employees").select("id, full_name").eq("is_archived", false),
+      ]);
+      const empMap: Record<string, string> = {};
+      (emps || []).forEach((e: any) => { empMap[e.id] = e.full_name; });
+      if (shifts?.length) {
+        parts.push(`### Employee Shifts — last 7d / next 14d (${shifts.length}):`);
+        shifts.forEach((s: any, idx: number) => {
+          const name = empMap[s.employee_id] || "Unassigned";
+          const status = s.clock_in && s.clock_out ? "DONE" : s.clock_in ? "WORKING" : "SCHEDULED";
+          parts.push(`${idx + 1}. ${s.shift_date} — ${name} — ${s.shift_type || "Regular"}${s.job_type ? ` [${s.job_type}]` : ""} ${s.start_time || "?"}–${s.end_time || "?"} ${status} (id:${s.id})`);
+        });
+      } else {
+        parts.push("### Employee Shifts: none in current window.");
+      }
+    })());
+  }
+
+  // Open / Unassigned Shifts
+  if (fetchAll || intents.has("openShifts")) {
+    promises.push((async () => {
+      const { data } = await supabase
+        .from("open_shifts")
+        .select("id, shift_name, shift_date, shift_type, start_time, end_time, recurring, selected_days, allow_overtime, shift_note")
+        .order("shift_date", { ascending: false })
+        .limit(100);
+      if (data?.length) {
+        parts.push(`### Open Shifts (${data.length}):`);
+        data.forEach((s: any, idx: number) => {
+          const days = (s.selected_days || []).join(",");
+          parts.push(`${idx + 1}. ${s.shift_name} — ${s.shift_date} ${s.shift_type || "Regular"} ${s.start_time || "?"}–${s.end_time || "?"}${days ? ` days:[${days}]` : ""}${s.recurring ? " [recurring]" : ""} (id:${s.id})`);
+        });
+      } else {
+        parts.push("### Open Shifts: none.");
       }
     })());
   }

@@ -9,6 +9,9 @@ const corsHeaders = {
 // ── Compact system prompt (~60% smaller than original) ──────────────────────
 const SYSTEM_PROMPT = `You are an AI assistant for a POS system. Help users manage settings and menu data through conversation.
 
+## ACTIVE SCOPE (HIGHEST PRIORITY):
+{SCOPE_BLOCK}
+
 ## RULES:
 1. "message" must be plain text only — NO JSON, code, backticks. Staff see this on a touch screen.
 2. Respond with valid JSON: {"message","action","quickReplies","multiSelect"}
@@ -16,6 +19,7 @@ const SYSTEM_PROMPT = `You are an AI assistant for a POS system. Help users mana
 4. NEVER fabricate data — only reference Live Database Context below.
 5. ALWAYS include quickReplies (2-10 options). Staff use touch screens.
 6. For enable/disable: autoApply: true. For add: autoApply: false.
+7. SCOPE ENFORCEMENT: Strictly follow the ACTIVE SCOPE above. Do NOT reference, list, or suggest data, settings, or modules outside the active scope. If the user asks about something outside scope, briefly tell them which module to switch to and offer that as a quickReply navigation, but do NOT show out-of-scope data.
 
 ## Action Types:
 - view: {"type":"view","category":"menus|products|categories|modifiers|addOns|discounts|taxes|serviceCharges|gratuity|all"}
@@ -78,6 +82,57 @@ interface ChatMessage {
 
 // ── Intent detection: only fetch relevant DB tables ─────────────────────────
 type Intent = "menus" | "categories" | "products" | "modifiers" | "addons" | "reports" | "general";
+
+// ── Context → Scope mapping ─────────────────────────────────────────────────
+// Maps the `context` prop sent from the client (the active settings module)
+// to: a human-readable scope label, the DB intents that are relevant, and a
+// strict instruction telling the AI what it MUST and MUST NOT discuss.
+type ContextScope = {
+  label: string;
+  intents: Intent[];
+  instruction: string;
+};
+
+const CONTEXT_SCOPE_MAP: Record<string, ContextScope> = {
+  account: { label: "Account", intents: [], instruction: "Only discuss the user's Account: profile, restaurant information, security, and personal information. Do not reference menus, products, categories, modifiers, payments, or other modules unless the user explicitly asks to switch context." },
+  "account-personal-information": { label: "Personal Information", intents: [], instruction: "Only discuss the user's Personal Information fields (name, email, phone, avatar, language). Do not reference menus, products, payments, or other modules." },
+  "account-restaurant-information": { label: "Restaurant Information", intents: [], instruction: "Only discuss Restaurant Information fields (restaurant name, address, contact details, business hours, currency, time zone, logo). Do not reference menus, products, categories, payments, or any other module." },
+  "account-security": { label: "Security", intents: [], instruction: "Only discuss Security settings (PIN, password, two-factor, lock timer). Do not reference menus, products, or other modules." },
+  menu: { label: "Menu", intents: ["menus", "categories", "products", "modifiers", "addons"], instruction: "Only discuss the Menu module: products, categories, modifiers, add-ons, default modifiers, groups, and menus. Do not reference payments, taxes, gratuity, system, account, workforce, or other modules." },
+  "menu-products": { label: "Products", intents: ["products", "categories"], instruction: "Only discuss Products: list, add, edit, archive, pricing, stock, search. Do not reference menus, modifiers, payments, taxes, or any other module." },
+  "menu-categories": { label: "Categories", intents: ["categories"], instruction: "Only discuss Categories: list, add, rename, reorder, archive. Do not reference products, menus, payments, or any other module." },
+  "menu-modifiers": { label: "Modifiers", intents: ["modifiers"], instruction: "Only discuss Modifiers and modifier groups. Do not reference products, payments, or any other module." },
+  "menu-add-ons": { label: "Add-ons", intents: ["addons"], instruction: "Only discuss Add-ons. Do not reference modifiers, products, payments, or any other module." },
+  "menu-default-modifiers": { label: "Default Modifiers", intents: ["modifiers"], instruction: "Only discuss Default Modifiers. Do not reference products, payments, or any other module." },
+  "menu-groups": { label: "Groups", intents: ["categories", "products"], instruction: "Only discuss Groups (product/category groupings). Do not reference payments, system, or any other module." },
+  "menu-menus": { label: "Menus", intents: ["menus", "categories"], instruction: "Only discuss Menus: list, add, schedules, revenue centers, assigned categories. Do not reference payments, system, account, or any other module." },
+  payments: { label: "Payments", intents: [], instruction: "Only discuss Payments: taxes, gratuity, discounts, service charge, payment methods, cash management, checkout options. Do not reference menu, products, categories, modifiers, account, or any other module." },
+  "payments-taxes": { label: "Taxes", intents: [], instruction: "Only discuss Taxes (rates, exemptions, pricing modes). Do not reference menu, products, or any other module." },
+  "payments-gratuity": { label: "Gratuity", intents: [], instruction: "Only discuss Gratuity (tip presets, auto-gratuity, distribution). Do not reference menu, products, or any other module." },
+  "payments-discounts": { label: "Discounts", intents: [], instruction: "Only discuss Discounts (rules, eligibility, manager PIN). Do not reference menu, products, or any other module." },
+  "payments-service-charge": { label: "Service Charge", intents: [], instruction: "Only discuss Service Charge configuration. Do not reference menu, products, or any other module." },
+  "payments-payment-methods": { label: "Payment Methods", intents: [], instruction: "Only discuss Payment Methods (accepted types, visibility). Do not reference menu, products, or any other module." },
+  "payments-cash-management": { label: "Cash Management", intents: [], instruction: "Only discuss Cash Management (drawer, pay in/out, reconciliation). Do not reference menu, products, or any other module." },
+  "payments-checkout-options": { label: "Checkout Options", intents: [], instruction: "Only discuss Checkout Options (split check, signature, tip screen, receipts). Do not reference menu, products, or any other module." },
+  system: { label: "System", intents: [], instruction: "Only discuss System settings: appearance, control center, AI integration. Do not reference menu, products, payments, or other modules." },
+  "system-appearance": { label: "Appearance", intents: [], instruction: "Only discuss Appearance: theme, theme color, text size, brightness, bold text, icon style. Do not reference menu, products, payments, or any other module." },
+  "system-control-center": { label: "Control Center", intents: [], instruction: "Only discuss Control Center toggles (debug mode, force clock-in, auto-lock). Do not reference menu, products, payments, or any other module." },
+  "system-ai-integration": { label: "AI Integration", intents: [], instruction: "Only discuss AI Integration: providers, API keys, models. Do not reference menu, products, payments, or any other module." },
+  workforce: { label: "Workforce", intents: [], instruction: "Only discuss Workforce: employees, roles, shifts, clock-in. Do not reference menu, products, or other modules." },
+  "end-of-day": { label: "End of Day", intents: ["reports"], instruction: "Only discuss End of Day: closing tasks, reports, reconciliation. Do not reference menu, products, or other modules." },
+  "guest-book": { label: "Guest Book", intents: [], instruction: "Only discuss Guest Book: guests, reservations, feedback, order history. Do not reference menu, products, payments, or other modules." },
+  reports: { label: "Reports & Analytics", intents: ["reports"], instruction: "Only discuss Reports & Analytics: sales, revenue, summaries. Do not reference menu, products, or other modules." },
+  notifications: { label: "Notifications", intents: [], instruction: "Only discuss Notifications settings. Do not reference menu, products, or other modules." },
+  hardware: { label: "Hardware", intents: [], instruction: "Only discuss Hardware: printers, card readers, cash drawers. Do not reference menu, products, or other modules." },
+  network: { label: "Network", intents: [], instruction: "Only discuss Network settings. Do not reference menu, products, or other modules." },
+  support: { label: "Support", intents: [], instruction: "Only discuss Support: contacts, help, documentation. Do not reference menu, products, or other modules." },
+};
+
+function resolveContextScope(context: string | undefined): ContextScope | null {
+  if (!context) return null;
+  return CONTEXT_SCOPE_MAP[context] || null;
+}
+
 
 function detectIntent(messages: any[]): Set<Intent> {
   const intents = new Set<Intent>();
@@ -348,7 +403,7 @@ serve(async (req) => {
   }
 
   try {
-    const { messages, settingsContext, provider, model: requestedModel, deviceId } = await req.json();
+    const { messages, settingsContext, provider, model: requestedModel, deviceId, context } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
@@ -401,12 +456,27 @@ serve(async (req) => {
       ? messages.slice(-10)
       : [];
 
-    // ── Detect intent from recent messages ────────────────────────────────
-    const intents = detectIntent(recentMessages);
-    console.log("Detected intents:", [...intents].join(", "), "| Messages:", recentMessages.length);
+    // ── Resolve active scope from current settings module ────────────────
+    const scope = resolveContextScope(context);
+    const scopeBlock = scope
+      ? `Module: ${scope.label}\n${scope.instruction}`
+      : "No active module scope. Answer general settings questions only.";
 
-    let databaseContext = "Database not available";
-    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+    // ── Detect intent from recent messages, then constrain by scope ──────
+    let intents = detectIntent(recentMessages);
+    if (scope) {
+      // Only fetch DB tables that are relevant to the active module.
+      // Empty intents = no DB data needed (e.g. Account, Appearance, Payments settings).
+      const allowed = new Set<Intent>(scope.intents);
+      const filtered = new Set<Intent>([...intents].filter(i => allowed.has(i)));
+      intents = filtered.size > 0 ? filtered : (allowed.size > 0 ? allowed : new Set<Intent>());
+    }
+    console.log("Context:", context || "none", "| Scope:", scope?.label || "none", "| Intents:", [...intents].join(", ") || "none", "| Messages:", recentMessages.length);
+
+    let databaseContext = scope && intents.size === 0
+      ? "(No database tables are relevant to this module. Do not reference menus/products/categories/modifiers/add-ons.)"
+      : "Database not available";
+    if (intents.size > 0 && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
       try {
         databaseContext = await fetchDatabaseContext(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, intents);
       } catch (e) {
@@ -431,6 +501,7 @@ serve(async (req) => {
       : (settingsContext || "");
 
     const systemPromptWithContext = SYSTEM_PROMPT
+      .replace("{SCOPE_BLOCK}", scopeBlock)
       .replace("{DATABASE_CONTEXT}", databaseContext)
       .replace("{SETTINGS_CONTEXT}", trimmedSettings)
       .replace("{AI_RULES_CONTEXT}", aiRulesContext);

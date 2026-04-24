@@ -1330,7 +1330,26 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           } else if (operation === "update") {
             const updates: any = {};
             if (data.name) updates.name = data.name;
-            const { error } = await (supabase as any).from("categories").update(updates).eq("id", data.id);
+            if (data.icon !== undefined) updates.icon = data.icon;
+            if (data.sortOrder !== undefined) updates.sort_order = data.sortOrder;
+            const target = await resolveByName("categories", data);
+            if (!target) return notFoundToast("Category", data.name);
+            const { error } = await (supabase as any).from("categories").update(updates).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "archive" || operation === "disable") {
+            const target = await resolveByName("categories", data);
+            if (!target) return notFoundToast("Category", data.name);
+            const { error } = await (supabase as any).from("categories").update({ active: false }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "enable") {
+            const target = await resolveByName("categories", data);
+            if (!target) return notFoundToast("Category", data.name);
+            const { error } = await (supabase as any).from("categories").update({ active: true }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete") {
+            const target = await resolveByName("categories", data);
+            if (!target) return notFoundToast("Category", data.name);
+            const { error } = await (supabase as any).from("categories").delete().eq("id", target.id);
             if (error) throw error;
           }
           break;
@@ -1342,6 +1361,30 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
               required: data.required || false,
               multi_select: data.multiSelect || false,
             });
+            if (error) throw error;
+          } else if (operation === "update") {
+            const target = await resolveByName("modifier_groups", data);
+            if (!target) return notFoundToast("Modifier group", data.name);
+            const updates: any = {};
+            if (data.newName || data.name) updates.name = data.newName || data.name;
+            if (data.required !== undefined) updates.required = data.required;
+            if (data.multiSelect !== undefined) updates.multi_select = data.multiSelect;
+            const { error } = await (supabase as any).from("modifier_groups").update(updates).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "archive" || operation === "disable") {
+            const target = await resolveByName("modifier_groups", data);
+            if (!target) return notFoundToast("Modifier group", data.name);
+            const { error } = await (supabase as any).from("modifier_groups").update({ active: false }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "enable") {
+            const target = await resolveByName("modifier_groups", data);
+            if (!target) return notFoundToast("Modifier group", data.name);
+            const { error } = await (supabase as any).from("modifier_groups").update({ active: true }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete") {
+            const target = await resolveByName("modifier_groups", data);
+            if (!target) return notFoundToast("Modifier group", data.name);
+            const { error } = await (supabase as any).from("modifier_groups").delete().eq("id", target.id);
             if (error) throw error;
           }
           break;
@@ -1363,6 +1406,29 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
               modifier_group_id: modifierGroupId,
             });
             if (error) throw error;
+          } else if (operation === "update") {
+            const target = await resolveByName("modifiers", data);
+            if (!target) return notFoundToast("Modifier", data.name);
+            const updates: any = {};
+            if (data.newName || data.name) updates.name = data.newName || data.name;
+            if (data.price !== undefined) updates.price = data.price;
+            const { error } = await (supabase as any).from("modifiers").update(updates).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "archive" || operation === "disable") {
+            const target = await resolveByName("modifiers", data);
+            if (!target) return notFoundToast("Modifier", data.name);
+            const { error } = await (supabase as any).from("modifiers").update({ active: false }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "enable") {
+            const target = await resolveByName("modifiers", data);
+            if (!target) return notFoundToast("Modifier", data.name);
+            const { error } = await (supabase as any).from("modifiers").update({ active: true }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete") {
+            const target = await resolveByName("modifiers", data);
+            if (!target) return notFoundToast("Modifier", data.name);
+            const { error } = await (supabase as any).from("modifiers").delete().eq("id", target.id);
+            if (error) throw error;
           }
           break;
         }
@@ -1374,17 +1440,167 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
             });
             if (error) throw error;
           } else if (operation === "update") {
+            const target = data.id ? { id: data.id } : await resolveByName("add_ons", data);
+            if (!target) return notFoundToast("Add-on", data.name);
             const updates: any = {};
-            if (data.name) updates.name = data.name;
+            if (data.newName || data.name) updates.name = data.newName || data.name;
             if (data.price !== undefined) updates.price = data.price;
-            const { error } = await (supabase as any).from("add_ons").update(updates).eq("id", data.id);
+            const { error } = await (supabase as any).from("add_ons").update(updates).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "archive" || operation === "disable") {
+            const target = await resolveByName("add_ons", data);
+            if (!target) return notFoundToast("Add-on", data.name);
+            const { error } = await (supabase as any).from("add_ons").update({ active: false }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "enable") {
+            const target = await resolveByName("add_ons", data);
+            if (!target) return notFoundToast("Add-on", data.name);
+            const { error } = await (supabase as any).from("add_ons").update({ active: true }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete") {
+            const target = await resolveByName("add_ons", data);
+            if (!target) return notFoundToast("Add-on", data.name);
+            const { error } = await (supabase as any).from("add_ons").delete().eq("id", target.id);
             if (error) throw error;
           }
+          break;
+        }
+        case "defaultModifier": {
+          if (operation === "add") {
+            const { error } = await (supabase as any).from("default_modifiers").insert({
+              name: data.name,
+              type: data.type || "Normal",
+            });
+            if (error) throw error;
+          } else if (operation === "update") {
+            const target = await resolveByName("default_modifiers", data);
+            if (!target) return notFoundToast("Default modifier", data.name);
+            const updates: any = {};
+            if (data.newName || data.name) updates.name = data.newName || data.name;
+            if (data.type) updates.type = data.type;
+            const { error } = await (supabase as any).from("default_modifiers").update(updates).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "archive" || operation === "disable") {
+            const target = await resolveByName("default_modifiers", data);
+            if (!target) return notFoundToast("Default modifier", data.name);
+            const { error } = await (supabase as any).from("default_modifiers").update({ archived: true }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "enable") {
+            const target = await resolveByName("default_modifiers", data);
+            if (!target) return notFoundToast("Default modifier", data.name);
+            const { error } = await (supabase as any).from("default_modifiers").update({ archived: false }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete") {
+            const target = await resolveByName("default_modifiers", data);
+            if (!target) return notFoundToast("Default modifier", data.name);
+            const { error } = await (supabase as any).from("default_modifiers").delete().eq("id", target.id);
+            if (error) throw error;
+          }
+          break;
+        }
+        case "group": {
+          if (operation === "add") {
+            const { error } = await (supabase as any).from("groups").insert({
+              name: data.name,
+              type: data.type || "Add-On",
+              display_name: data.displayName || "",
+              has_max_selections: !!data.hasMaxSelections,
+              max_selections: data.maxSelections || 1,
+              selected_modifiers: data.selectedModifiers || [],
+              selected_add_ons: data.selectedAddOns || [],
+              selected_default_modifiers: data.selectedDefaultModifiers || [],
+            });
+            if (error) throw error;
+          } else if (operation === "update") {
+            const target = await resolveByName("groups", data);
+            if (!target) return notFoundToast("Group", data.name);
+            const updates: any = {};
+            if (data.newName || data.name) updates.name = data.newName || data.name;
+            if (data.type) updates.type = data.type;
+            if (data.displayName !== undefined) updates.display_name = data.displayName;
+            if (data.hasMaxSelections !== undefined) updates.has_max_selections = data.hasMaxSelections;
+            if (data.maxSelections !== undefined) updates.max_selections = data.maxSelections;
+            const { error } = await (supabase as any).from("groups").update(updates).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "archive" || operation === "disable") {
+            const target = await resolveByName("groups", data);
+            if (!target) return notFoundToast("Group", data.name);
+            const { error } = await (supabase as any).from("groups").update({ archived: true }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "enable") {
+            const target = await resolveByName("groups", data);
+            if (!target) return notFoundToast("Group", data.name);
+            const { error } = await (supabase as any).from("groups").update({ archived: false }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete") {
+            const target = await resolveByName("groups", data);
+            if (!target) return notFoundToast("Group", data.name);
+            const { error } = await (supabase as any).from("groups").delete().eq("id", target.id);
+            if (error) throw error;
+          }
+          break;
+        }
+        case "timedPricing": {
+          if (operation === "add") {
+            const { error } = await (supabase as any).from("timed_pricing_rules").insert({
+              name: data.name,
+              type: data.type || "happy_hour",
+              start_time: data.startTime || "4:00 PM",
+              end_time: data.endTime || "6:00 PM",
+              adjustment: data.adjustment ?? 0,
+              days: Array.isArray(data.days) ? data.days : [],
+              enabled: data.enabled !== false,
+            });
+            if (error) throw error;
+          } else if (operation === "update") {
+            const target = await resolveByName("timed_pricing_rules", data);
+            if (!target) return notFoundToast("Timed pricing rule", data.name);
+            const updates: any = {};
+            if (data.newName || data.name) updates.name = data.newName || data.name;
+            if (data.type) updates.type = data.type;
+            if (data.startTime) updates.start_time = data.startTime;
+            if (data.endTime) updates.end_time = data.endTime;
+            if (data.adjustment !== undefined) updates.adjustment = data.adjustment;
+            if (Array.isArray(data.days)) updates.days = data.days;
+            if (data.enabled !== undefined) updates.enabled = data.enabled;
+            const { error } = await (supabase as any).from("timed_pricing_rules").update(updates).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "enable" || operation === "disable") {
+            const target = await resolveByName("timed_pricing_rules", data);
+            if (!target) return notFoundToast("Timed pricing rule", data.name);
+            const { error } = await (supabase as any).from("timed_pricing_rules").update({ enabled: operation === "enable" }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete" || operation === "archive") {
+            const target = await resolveByName("timed_pricing_rules", data);
+            if (!target) return notFoundToast("Timed pricing rule", data.name);
+            const { error } = await (supabase as any).from("timed_pricing_rules").delete().eq("id", target.id);
+            if (error) throw error;
+          }
+          break;
+        }
+        case "inventory": {
+          // Inventory updates: set stock_count, toggle inventory_tracking, mark out_of_stock
+          const target = data.id ? { id: data.id } : await resolveByName("products", data);
+          if (!target) return notFoundToast("Product", data.name);
+          const updates: any = {};
+          if (data.stockCount !== undefined) updates.stock_count = data.stockCount;
+          if (data.outOfStock !== undefined) updates.out_of_stock = data.outOfStock;
+          if (data.inventoryTracking !== undefined) updates.inventory_tracking = data.inventoryTracking;
+          if (data.negativeInventory !== undefined) updates.negative_inventory = data.negativeInventory;
+          if (Object.keys(updates).length === 0) {
+            toast({ title: "Nothing to update", description: "No inventory fields specified.", variant: "destructive" });
+            return false;
+          }
+          const { error } = await (supabase as any).from("products").update(updates).eq("id", target.id);
+          if (error) throw error;
           break;
         }
         default:
           return false;
       }
+      // Broadcast global change so all listening module pages refresh
+      window.dispatchEvent(new CustomEvent("pos-data-changed", { detail: { settingType, operation } }));
+      window.dispatchEvent(new CustomEvent("products-updated"));
       toast({ title: "Success", description: `${data.name || "Record"} has been ${operation === "add" ? "created" : operation + "d"} successfully.` });
       return true;
     } catch (error: any) {
@@ -1392,6 +1608,23 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       toast({ title: "Database Error", description: error.message || "Failed to execute the change.", variant: "destructive" });
       return false;
     }
+  };
+
+  // ── Helpers used by executeDbAction ─────────────────────────────────────
+  const resolveByName = async (table: string, data: any): Promise<{ id: string } | null> => {
+    if (data?.id) return { id: data.id };
+    if (!data?.name) return null;
+    const { data: rows } = await (supabase as any)
+      .from(table)
+      .select("id")
+      .ilike("name", data.name)
+      .limit(1);
+    return rows && rows.length > 0 ? rows[0] : null;
+  };
+
+  const notFoundToast = (label: string, name?: string): false => {
+    toast({ title: `${label} not found`, description: name ? `Could not find "${name}".` : "Item not found.", variant: "destructive" });
+    return false;
   };
 
   // Preset colors for inline theme picker

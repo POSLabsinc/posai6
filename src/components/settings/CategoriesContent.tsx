@@ -74,6 +74,9 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
 
   useEffect(() => {
     fetchCategories();
+    const refresh = () => fetchCategories();
+    window.addEventListener("pos-data-changed", refresh);
+    return () => window.removeEventListener("pos-data-changed", refresh);
   }, []);
 
   // Fetch product names from Supabase for the product selector

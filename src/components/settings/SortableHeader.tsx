@@ -83,7 +83,7 @@ export function SortableHeader<K extends string>({
   className = "",
   bold = true,
 }: SortableHeaderProps<K>) {
-  const iconUrl = useResolvedSortIcon();
+  const iconUrl = useSortIconUrl();
   const isActive = sort.key === sortKey && sort.direction !== null;
   const justify =
     align === "right"

@@ -448,7 +448,11 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
   const brandLogoInputRef = useRef<HTMLInputElement>(null);
 
   // ── Order mode state ──
-  const ORDER_INTENT_KEYWORDS = ["create order", "new order", "add product", "place order", "start order", "add to order", "order type", "browse menu", "show menu", "add burger", "add pizza", "add salad", "add drink", "add item"];
+  // NOTE: Settings AI must NEVER enter POS order mode. "Add product" inside Settings
+  // means "create a new product in the catalog", not "add a product to an order".
+  // We keep the variables for legacy code paths but the intent list is intentionally empty
+  // so the order-chat overlay (Browse Menu, Order Type, View Summary, Go to Orders, Summary, Clear) never appears here.
+  const ORDER_INTENT_KEYWORDS: string[] = [];
   const [orderMode, setOrderMode] = useState(false);
   const [orderBrowseActive, setOrderBrowseActive] = useState(false);
   const [orderBrowseStep, setOrderBrowseStep] = useState<"menu" | "category" | "products">("menu");

@@ -136,7 +136,7 @@ interface ChatMessage {
 }
 
 // ── Intent detection: only fetch relevant DB tables ─────────────────────────
-type Intent = "menus" | "categories" | "products" | "modifiers" | "addons" | "reports" | "general";
+type Intent = "menus" | "categories" | "products" | "modifiers" | "addons" | "defaultModifiers" | "groups" | "timedPricing" | "inventory" | "taxes" | "discounts" | "serviceCharges" | "reports" | "general";
 
 // ── Context → Scope mapping ─────────────────────────────────────────────────
 // Maps the `context` prop sent from the client (the active settings module)
@@ -158,14 +158,16 @@ const CONTEXT_SCOPE_MAP: Record<string, ContextScope> = {
   "menu-categories": { label: "Categories", intents: ["categories"], instruction: "Only discuss Categories: list, add, rename, reorder, archive. Do not reference products, menus, payments, or any other module." },
   "menu-modifiers": { label: "Modifiers", intents: ["modifiers"], instruction: "Only discuss Modifiers and modifier groups. Do not reference products, payments, or any other module." },
   "menu-add-ons": { label: "Add-ons", intents: ["addons"], instruction: "Only discuss Add-ons. Do not reference modifiers, products, payments, or any other module." },
-  "menu-default-modifiers": { label: "Default Modifiers", intents: ["modifiers"], instruction: "Only discuss Default Modifiers. Do not reference products, payments, or any other module." },
-  "menu-groups": { label: "Groups", intents: ["categories", "products"], instruction: "Only discuss Groups (product/category groupings). Do not reference payments, system, or any other module." },
+  "menu-default-modifiers": { label: "Default Modifiers", intents: ["defaultModifiers"], instruction: "Only discuss Default Modifiers. Do not reference products, payments, or any other module." },
+  "menu-groups": { label: "Groups", intents: ["groups", "modifiers", "addons", "defaultModifiers"], instruction: "Only discuss Groups. Do not reference payments, system, or any other module." },
   "menu-menus": { label: "Menus", intents: ["menus", "categories"], instruction: "Only discuss Menus: list, add, schedules, revenue centers, assigned categories. Do not reference payments, system, account, or any other module." },
-  payments: { label: "Payments", intents: [], instruction: "Only discuss Payments: taxes, gratuity, discounts, service charge, payment methods, cash management, checkout options. Do not reference menu, products, categories, modifiers, account, or any other module." },
-  "payments-taxes": { label: "Taxes", intents: [], instruction: "Only discuss Taxes (rates, exemptions, pricing modes). Do not reference menu, products, or any other module." },
+  "menu-timed-pricing": { label: "Timed Pricing", intents: ["timedPricing"], instruction: "Only discuss Timed Pricing rules. Do not reference payments, system, account, or any other module." },
+  "menu-inventory": { label: "Inventory", intents: ["inventory", "products", "categories"], instruction: "Only discuss Inventory and stock configuration. Do not reference payments, system, account, or any other module." },
+  payments: { label: "Payments", intents: ["taxes", "discounts", "serviceCharges"], instruction: "Only discuss Payments: taxes, gratuity, discounts, service charge, payment methods, cash management, checkout options. Do not reference menu, products, categories, modifiers, account, or any other module." },
+  "payments-taxes": { label: "Taxes", intents: ["taxes", "products", "categories"], instruction: "Only discuss Taxes (rates, exemptions, pricing modes). Do not reference menu, products, or any other module." },
   "payments-gratuity": { label: "Gratuity", intents: [], instruction: "Only discuss Gratuity (tip presets, auto-gratuity, distribution). Do not reference menu, products, or any other module." },
-  "payments-discounts": { label: "Discounts", intents: [], instruction: "Only discuss Discounts (rules, eligibility, manager PIN). Do not reference menu, products, or any other module." },
-  "payments-service-charge": { label: "Service Charge", intents: [], instruction: "Only discuss Service Charge configuration. Do not reference menu, products, or any other module." },
+  "payments-discounts": { label: "Discounts", intents: ["discounts", "products", "categories"], instruction: "Only discuss Discounts (rules, eligibility, manager PIN). Do not reference menu, products, or any other module." },
+  "payments-service-charge": { label: "Service Charge", intents: ["serviceCharges"], instruction: "Only discuss Service Charge configuration. Do not reference menu, products, or any other module." },
   "payments-payment-methods": { label: "Payment Methods", intents: [], instruction: "Only discuss Payment Methods (accepted types, visibility). Do not reference menu, products, or any other module." },
   "payments-cash-management": { label: "Cash Management", intents: [], instruction: "Only discuss Cash Management (drawer, pay in/out, reconciliation). Do not reference menu, products, or any other module." },
   "payments-checkout-options": { label: "Checkout Options", intents: [], instruction: "Only discuss Checkout Options (split check, signature, tip screen, receipts). Do not reference menu, products, or any other module." },
@@ -213,7 +215,14 @@ function detectIntent(messages: any[]): Set<Intent> {
   if (/categor/.test(combined)) intents.add("categories");
   if (/product|price|sku|stock/.test(combined)) intents.add("products");
   if (/modifier|mod group/.test(combined)) intents.add("modifiers");
+  if (/default modifier/.test(combined)) intents.add("defaultModifiers");
+  if (/\bgroup\b/.test(combined)) intents.add("groups");
   if (/add.?on/.test(combined)) intents.add("addons");
+  if (/timed pricing|happy hour|early bird|late night/.test(combined)) intents.add("timedPricing");
+  if (/inventory|stock|out of stock|86\b|negative inventory/.test(combined)) intents.add("inventory");
+  if (/\btax\b|vat|gst/.test(combined)) intents.add("taxes");
+  if (/discount|coupon|promo/.test(combined)) intents.add("discounts");
+  if (/service charge|surcharge|auto gratuity/.test(combined)) intents.add("serviceCharges");
   if (/report|sales|revenue|analytics|total.*sales|daily.*sales|weekly|monthly|order.*summary/.test(combined)) intents.add("reports");
 
   // If creating a menu, we need categories too

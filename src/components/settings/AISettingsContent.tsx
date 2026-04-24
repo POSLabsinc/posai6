@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useNavigate } from "react-router-dom";
-import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap, Printer, ShoppingCart, UtensilsCrossed, Users, FileText, Trash2, StickyNote, ArrowLeft, Plus, Minus, Palette, Image, Upload } from "lucide-react";
+import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap, Printer, ShoppingCart, UtensilsCrossed, Users, FileText, Trash2, StickyNote, ArrowLeft, Plus, Minus, Palette, Image, Upload, Archive, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useTheme } from "next-themes";
@@ -218,9 +218,8 @@ const endOfDaySuggestionChips: SuggestionChip[] = [
 
 const guestBookSuggestionChips: SuggestionChip[] = [
   { label: "View guests", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all guests" },
-  { label: "Add guest", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Add a new guest" },
-  { label: "Guest preferences", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show guest preferences settings" },
-  { label: "Guest history", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show guest visit history" },
+  { label: "Add guest", icon: <UserPlus className="w-3.5 h-3.5" />, prompt: "Add a new guest" },
+  { label: "Archive Guest", icon: <Archive className="w-3.5 h-3.5" />, prompt: "Show me all archived guests" },
 ];
 
 const supportSuggestionChips: SuggestionChip[] = [
@@ -1005,6 +1004,19 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           "- selectedEmployees (array of employee names — daily report recipients)",
         ].join("\n");
       }
+      case "guest-book":
+        return [
+          "## Guest Book",
+          "Available actions on the guests table:",
+          "- View active guests: format the live guest list (Database Context) as a readable list in the message text. DO NOT emit update_setting for view requests.",
+          "- View archived guests: when user picks 'Archive Guest' or asks for archived, list archived guests from Database Context.",
+          "- Add a new guest (settingType:\"guest\", operation:\"add\"). MUST run GUIDED GUEST CREATION step-by-step.",
+          "- Archive a guest (settingType:\"guest\", operation:\"archive\").",
+          "- Restore an archived guest (settingType:\"guest\", operation:\"restore\").",
+          "- Update a guest (settingType:\"guest\", operation:\"update\").",
+          "",
+          "Guest data fields (camelCase): firstName, middleName, lastName, email, phone, address, birthday (YYYY-MM-DD), anniversary (YYYY-MM-DD), vehicle, licensePlate, tags (array), allergies (array), note (max 250 chars).",
+        ].join("\n");
       default:
         if (context?.startsWith("menu")) return "## Menu Module\nUse only the live menu, category, product, modifier, and add-on data for this section.";
         if (context?.startsWith("payments")) return "## Payments Module\nUse only payments settings relevant to the active payments section.";
@@ -1022,7 +1034,6 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       toast({ title: "Invalid file", description: "Please upload an image file.", variant: "destructive" });
       return;
     }
-    
     if (file.size > 10 * 1024 * 1024) {
       toast({ title: "File too large", description: "Please upload an image smaller than 10MB.", variant: "destructive" });
       return;
@@ -1202,7 +1213,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       // default modifiers, groups, timed pricing rules, inventory adjustments)
       const dbTypes = [
         "menu", "product", "category", "modifierGroup", "modifier", "addOn",
-        "defaultModifier", "group", "timedPricing", "inventory",
+        "defaultModifier", "group", "timedPricing", "inventory", "guest",
       ];
       
       if (dbTypes.includes(settingType)) {
@@ -1884,6 +1895,74 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           }
           const { error } = await (supabase as any).from("products").update(updates).eq("id", target.id);
           if (error) throw error;
+          break;
+        }
+        case "guest": {
+          // Guest Book CRUD via AI
+          if (operation === "add") {
+            // Build guest payload from collected fields
+            const firstName = (data.firstName || "").trim();
+            const lastName = (data.lastName || "").trim();
+            const fullName = (data.name || `${firstName} ${data.middleName ? data.middleName + " " : ""}${lastName}`).trim();
+            if (!fullName) {
+              toast({ title: "Missing guest name", description: "Guest name is required.", variant: "destructive" });
+              return false;
+            }
+            const initials = fullName.split(/\s+/).map((n: string) => n[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "G";
+            const palette = ["#6366F1","#10B981","#F59E0B","#EF4444","#8B5CF6","#EC4899","#14B8A6","#0EA5E9"];
+            const avatarBg = palette[Math.floor(Math.random() * palette.length)];
+            const insertPayload: any = {
+              name: fullName,
+              middle_name: data.middleName || "",
+              email: data.email || "",
+              phone: data.phone || data.phoneNumber || "",
+              address: data.address || "",
+              birthday: data.birthday || data.dateOfBirth || "",
+              anniversary: data.anniversary || "",
+              license_plate: data.licensePlate || "",
+              vehicle: data.vehicle || "",
+              notes_general: data.note || data.notes || "",
+              tags: Array.isArray(data.tags) ? data.tags : [],
+              allergies: Array.isArray(data.allergies) ? data.allergies : [],
+              initials,
+              avatar_bg: avatarBg,
+              since: new Date().toISOString().split("T")[0],
+              is_archived: false,
+            };
+            const { error } = await (supabase as any).from("guests").insert(insertPayload);
+            if (error) throw error;
+          } else if (operation === "archive") {
+            const target = data.id ? { id: data.id } : await resolveByName("guests", data);
+            if (!target) return notFoundToast("Guest", data.name);
+            const { error } = await (supabase as any).from("guests").update({ is_archived: true }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "restore" || operation === "unarchive") {
+            const target = data.id ? { id: data.id } : await resolveByName("guests", data);
+            if (!target) return notFoundToast("Guest", data.name);
+            const { error } = await (supabase as any).from("guests").update({ is_archived: false }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete") {
+            const target = data.id ? { id: data.id } : await resolveByName("guests", data);
+            if (!target) return notFoundToast("Guest", data.name);
+            const { error } = await (supabase as any).from("guests").delete().eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "update") {
+            const target = data.id ? { id: data.id } : await resolveByName("guests", data);
+            if (!target) return notFoundToast("Guest", data.name);
+            const updates: any = {};
+            if (data.name) updates.name = data.name;
+            if (data.email !== undefined) updates.email = data.email;
+            if (data.phone !== undefined) updates.phone = data.phone;
+            if (data.address !== undefined) updates.address = data.address;
+            if (data.birthday !== undefined) updates.birthday = data.birthday;
+            if (data.anniversary !== undefined) updates.anniversary = data.anniversary;
+            if (data.note !== undefined) updates.notes_general = data.note;
+            if (Array.isArray(data.tags)) updates.tags = data.tags;
+            if (Array.isArray(data.allergies)) updates.allergies = data.allergies;
+            const { error } = await (supabase as any).from("guests").update(updates).eq("id", target.id);
+            if (error) throw error;
+          }
+          window.dispatchEvent(new CustomEvent("guests-updated"));
           break;
         }
         default:

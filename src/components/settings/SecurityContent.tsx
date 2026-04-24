@@ -18,7 +18,7 @@ interface ChangePinDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
+export const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
   const { toast } = useToast();
   
   const [step, setStep] = useState<PinStep>("current");

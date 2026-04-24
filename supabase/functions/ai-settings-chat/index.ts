@@ -456,12 +456,27 @@ serve(async (req) => {
       ? messages.slice(-10)
       : [];
 
-    // ── Detect intent from recent messages ────────────────────────────────
-    const intents = detectIntent(recentMessages);
-    console.log("Detected intents:", [...intents].join(", "), "| Messages:", recentMessages.length);
+    // ── Resolve active scope from current settings module ────────────────
+    const scope = resolveContextScope(context);
+    const scopeBlock = scope
+      ? `Module: ${scope.label}\n${scope.instruction}`
+      : "No active module scope. Answer general settings questions only.";
 
-    let databaseContext = "Database not available";
-    if (SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
+    // ── Detect intent from recent messages, then constrain by scope ──────
+    let intents = detectIntent(recentMessages);
+    if (scope) {
+      // Only fetch DB tables that are relevant to the active module.
+      // Empty intents = no DB data needed (e.g. Account, Appearance, Payments settings).
+      const allowed = new Set<Intent>(scope.intents);
+      const filtered = new Set<Intent>([...intents].filter(i => allowed.has(i)));
+      intents = filtered.size > 0 ? filtered : (allowed.size > 0 ? allowed : new Set<Intent>());
+    }
+    console.log("Context:", context || "none", "| Scope:", scope?.label || "none", "| Intents:", [...intents].join(", ") || "none", "| Messages:", recentMessages.length);
+
+    let databaseContext = scope && intents.size === 0
+      ? "(No database tables are relevant to this module. Do not reference menus/products/categories/modifiers/add-ons.)"
+      : "Database not available";
+    if (intents.size > 0 && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
       try {
         databaseContext = await fetchDatabaseContext(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, intents);
       } catch (e) {
@@ -486,6 +501,7 @@ serve(async (req) => {
       : (settingsContext || "");
 
     const systemPromptWithContext = SYSTEM_PROMPT
+      .replace("{SCOPE_BLOCK}", scopeBlock)
       .replace("{DATABASE_CONTEXT}", databaseContext)
       .replace("{SETTINGS_CONTEXT}", trimmedSettings)
       .replace("{AI_RULES_CONTEXT}", aiRulesContext);

@@ -1885,6 +1885,74 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           if (error) throw error;
           break;
         }
+        case "guest": {
+          // Guest Book CRUD via AI
+          if (operation === "add") {
+            // Build guest payload from collected fields
+            const firstName = (data.firstName || "").trim();
+            const lastName = (data.lastName || "").trim();
+            const fullName = (data.name || `${firstName} ${data.middleName ? data.middleName + " " : ""}${lastName}`).trim();
+            if (!fullName) {
+              toast({ title: "Missing guest name", description: "Guest name is required.", variant: "destructive" });
+              return false;
+            }
+            const initials = fullName.split(/\s+/).map((n: string) => n[0]).filter(Boolean).slice(0, 2).join("").toUpperCase() || "G";
+            const palette = ["#6366F1","#10B981","#F59E0B","#EF4444","#8B5CF6","#EC4899","#14B8A6","#0EA5E9"];
+            const avatarBg = palette[Math.floor(Math.random() * palette.length)];
+            const insertPayload: any = {
+              name: fullName,
+              middle_name: data.middleName || "",
+              email: data.email || "",
+              phone: data.phone || data.phoneNumber || "",
+              address: data.address || "",
+              birthday: data.birthday || data.dateOfBirth || "",
+              anniversary: data.anniversary || "",
+              license_plate: data.licensePlate || "",
+              vehicle: data.vehicle || "",
+              notes_general: data.note || data.notes || "",
+              tags: Array.isArray(data.tags) ? data.tags : [],
+              allergies: Array.isArray(data.allergies) ? data.allergies : [],
+              initials,
+              avatar_bg: avatarBg,
+              since: new Date().toISOString().split("T")[0],
+              is_archived: false,
+            };
+            const { error } = await (supabase as any).from("guests").insert(insertPayload);
+            if (error) throw error;
+          } else if (operation === "archive") {
+            const target = data.id ? { id: data.id } : await resolveByName("guests", data);
+            if (!target) return notFoundToast("Guest", data.name);
+            const { error } = await (supabase as any).from("guests").update({ is_archived: true }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "restore" || operation === "unarchive") {
+            const target = data.id ? { id: data.id } : await resolveByName("guests", data);
+            if (!target) return notFoundToast("Guest", data.name);
+            const { error } = await (supabase as any).from("guests").update({ is_archived: false }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete") {
+            const target = data.id ? { id: data.id } : await resolveByName("guests", data);
+            if (!target) return notFoundToast("Guest", data.name);
+            const { error } = await (supabase as any).from("guests").delete().eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "update") {
+            const target = data.id ? { id: data.id } : await resolveByName("guests", data);
+            if (!target) return notFoundToast("Guest", data.name);
+            const updates: any = {};
+            if (data.name) updates.name = data.name;
+            if (data.email !== undefined) updates.email = data.email;
+            if (data.phone !== undefined) updates.phone = data.phone;
+            if (data.address !== undefined) updates.address = data.address;
+            if (data.birthday !== undefined) updates.birthday = data.birthday;
+            if (data.anniversary !== undefined) updates.anniversary = data.anniversary;
+            if (data.note !== undefined) updates.notes_general = data.note;
+            if (Array.isArray(data.tags)) updates.tags = data.tags;
+            if (Array.isArray(data.allergies)) updates.allergies = data.allergies;
+            const { error } = await (supabase as any).from("guests").update(updates).eq("id", target.id);
+            if (error) throw error;
+          }
+          window.dispatchEvent(new CustomEvent("guests-updated"));
+          break;
+        }
         default:
           return false;
       }

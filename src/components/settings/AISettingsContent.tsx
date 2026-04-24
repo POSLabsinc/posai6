@@ -3232,11 +3232,9 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                             onClick={() => {
                               // Map settings module labels to hierarchical navigation
                               if (handleSettingsQuickReply(reply)) return;
-                              // Map order quick-action labels to direct actions
-                              if (reply === "Browse Menu") { startOrderBrowse(); return; }
-                              if (reply === "Order Type") { setShowOrderTypes(prev => !prev); return; }
-                              if (reply === "View Summary") { handleOrderMessage("Show me the current order summary"); return; }
-                              if (reply === "Go to Orders") { goToOrdersWithData(); return; }
+                              // Settings AI does NOT support order-mode quick actions.
+                              // Ignore any legacy "Browse Menu / Order Type / View Summary / Go to Orders / Summary / Clear" replies.
+                              if (["Browse Menu", "Order Type", "View Summary", "Go to Orders", "Summary", "Clear"].includes(reply)) return;
                               handleSendMessage(reply);
                             }}
                             disabled={isTyping}

@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import expandArrowsIcon from "@/assets/icons/expand-arrows.svg";
+import { useSortIconUrl, getSortIconMaskStyle } from "@/lib/sort-icon";
 
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (

@@ -289,6 +289,11 @@ function detectIntent(messages: any[]): Set<Intent> {
   if (/report|sales|revenue|analytics|total.*sales|daily.*sales|weekly|monthly|order.*summary/.test(combined)) intents.add("reports");
   if (/guest|customer|view guests|add guest|guest book/.test(combined)) intents.add("guests");
   if (/archive|archived/.test(combined) && /guest|customer/.test(combined)) intents.add("archivedGuests");
+  if (/employee|staff|view employees|add (new )?employee|hire/.test(combined)) intents.add("employees");
+  if (/archive|archived/.test(combined) && /employee|staff/.test(combined)) intents.add("archivedEmployees");
+  if (/shift|clock.?in|clock.?out|roster|schedule.*shift|add shift|view shifts/.test(combined)) intents.add("employeeShifts");
+  if (/open shift|unassigned shift/.test(combined)) intents.add("openShifts");
+  if (/schedule information|view schedule|add schedule|weekly schedule/.test(combined)) intents.add("employeeShifts");
 
   // If creating a menu, we need categories too
   if (intents.has("menus")) intents.add("categories");

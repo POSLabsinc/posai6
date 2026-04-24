@@ -195,7 +195,7 @@ interface ChatMessage {
 }
 
 // ── Intent detection: only fetch relevant DB tables ─────────────────────────
-type Intent = "menus" | "categories" | "products" | "modifiers" | "addons" | "defaultModifiers" | "groups" | "timedPricing" | "inventory" | "taxes" | "discounts" | "serviceCharges" | "reports" | "guests" | "archivedGuests" | "general";
+type Intent = "menus" | "categories" | "products" | "modifiers" | "addons" | "defaultModifiers" | "groups" | "timedPricing" | "inventory" | "taxes" | "discounts" | "serviceCharges" | "reports" | "guests" | "archivedGuests" | "employees" | "archivedEmployees" | "employeeShifts" | "openShifts" | "general";
 
 // ── Context → Scope mapping ─────────────────────────────────────────────────
 // Maps the `context` prop sent from the client (the active settings module)

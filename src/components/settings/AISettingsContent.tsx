@@ -1020,8 +1020,26 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     if (!file.type.startsWith('image/')) {
       toast({ title: "Invalid file", description: "Please upload an image file.", variant: "destructive" });
       return;
-    }
-    
+      }
+      case "guest-book":
+        return [
+          "## Guest Book",
+          "Available actions the AI can perform on the guests table:",
+          "- View all active guests: when the user asks to see/list/show guests, format the live guest list from Database Context as a readable list in the message text. DO NOT emit update_setting for view requests.",
+          "- Add a new guest (settingType:\"guest\", operation:\"add\"). Always run the GUIDED GUEST CREATION flow first.",
+          "- Archive a guest (settingType:\"guest\", operation:\"archive\").",
+          "- Restore an archived guest (settingType:\"guest\", operation:\"restore\").",
+          "- Update a guest's details (settingType:\"guest\", operation:\"update\").",
+          "- View archived guests: when the user clicks 'Archive Guest' or asks for archived guests, list the archived guests from Database Context.",
+          "",
+          "Guest fields (camelCase keys for AI data payload):",
+          "- firstName, middleName, lastName (combined into 'name')",
+          "- email, phone (with country code), address",
+          "- birthday (YYYY-MM-DD), anniversary (YYYY-MM-DD)",
+          "- vehicle (Type/Brand/Color), licensePlate",
+          "- tags (array), allergies (array)",
+          "- note (general note, max 250 chars)",
+        ].join("\n");
     if (file.size > 10 * 1024 * 1024) {
       toast({ title: "File too large", description: "Please upload an image smaller than 10MB.", variant: "destructive" });
       return;

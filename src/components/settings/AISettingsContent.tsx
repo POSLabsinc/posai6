@@ -504,6 +504,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     'menu-default-modifiers': { title: "Default Modifiers", description: "Set and manage default modifier presets:" },
     'menu-groups': { title: "Groups", description: "Create groups to organize and manage products:" },
     'menu-menus': { title: "Menus", description: "Create menus, assign categories, and manage schedules:" },
+    'end-of-day': { title: "End of Day", description: "I can run your full end-of-day flow: start EOD, run automation, print reports, clock out employees, close the cash drawer, close paid orders, cancel unpaid tickets, and configure reminders. What would you like to do?" },
   };
 
   const prevContextRef = useRef<string | undefined>(undefined);

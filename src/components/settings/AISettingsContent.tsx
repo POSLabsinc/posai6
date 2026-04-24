@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useNavigate } from "react-router-dom";
-import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap, Printer, ShoppingCart, UtensilsCrossed, Users, FileText, Trash2, StickyNote, ArrowLeft, Plus, Minus, Palette, Image, Upload } from "lucide-react";
+import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff, ImagePlus, Settings, ChevronDown, Sparkles, Bot, Zap, Printer, ShoppingCart, UtensilsCrossed, Users, FileText, Trash2, StickyNote, ArrowLeft, Plus, Minus, Palette, Image, Upload, Archive, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { SettingsManager } from "@/lib/settingsManager";
 import { useTheme } from "next-themes";
@@ -218,9 +218,8 @@ const endOfDaySuggestionChips: SuggestionChip[] = [
 
 const guestBookSuggestionChips: SuggestionChip[] = [
   { label: "View guests", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all guests" },
-  { label: "Add guest", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Add a new guest" },
-  { label: "Guest preferences", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show guest preferences settings" },
-  { label: "Guest history", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show guest visit history" },
+  { label: "Add guest", icon: <UserPlus className="w-3.5 h-3.5" />, prompt: "Add a new guest" },
+  { label: "Archive Guest", icon: <Archive className="w-3.5 h-3.5" />, prompt: "Show me all archived guests" },
 ];
 
 const supportSuggestionChips: SuggestionChip[] = [

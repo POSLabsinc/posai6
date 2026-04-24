@@ -1924,6 +1924,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
               notes_general: data.note || data.notes || "",
               tags: Array.isArray(data.tags) ? data.tags : [],
               allergies: Array.isArray(data.allergies) ? data.allergies : [],
+              avatar_url: data.avatarUrl || data.avatar_url || data.photo || uploadedImage || null,
               initials,
               avatar_bg: avatarBg,
               since: new Date().toISOString().split("T")[0],
@@ -1931,6 +1932,11 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
             };
             const { error } = await (supabase as any).from("guests").insert(insertPayload);
             if (error) throw error;
+            // Clear any attached image after consumption so it doesn't bleed into next message
+            if (uploadedImage) {
+              setUploadedImage(null);
+              setUploadedImageFile(null);
+            }
           } else if (operation === "archive") {
             const target = data.id ? { id: data.id } : await resolveByName("guests", data);
             if (!target) return notFoundToast("Guest", data.name);

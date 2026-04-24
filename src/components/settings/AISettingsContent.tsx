@@ -999,9 +999,87 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     setUploadedImageFile(null);
   };
 
+  // Map AI's human-readable setting label to the actual SettingsManager key
+  const SETTING_KEY_MAP: Record<string, { type: string; key: string }> = {
+    // Appearance
+    "bold text": { type: "appearance", key: "boldText" },
+    "theme": { type: "appearance", key: "theme" },
+    "dark mode": { type: "appearance", key: "theme" },
+    "light mode": { type: "appearance", key: "theme" },
+    "text size": { type: "appearance", key: "textSize" },
+    "icon size": { type: "appearance", key: "iconSize" },
+    "icon style": { type: "appearance", key: "iconStyle" },
+    "brightness": { type: "appearance", key: "brightness" },
+    "theme color": { type: "appearance", key: "themeColor" },
+    // Control Center
+    "debug mode": { type: "controlCenter", key: "debugMode" },
+    "force clock-in": { type: "controlCenter", key: "forceClockIn" },
+    "force clock in": { type: "controlCenter", key: "forceClockIn" },
+    "auto-lock timer": { type: "controlCenter", key: "autoLockTimer" },
+    "auto lock timer": { type: "controlCenter", key: "autoLockTimer" },
+    "restart app": { type: "controlCenter", key: "restartApp" },
+    "switch to kds": { type: "controlCenter", key: "switchToKDS" },
+    "kds notification": { type: "controlCenter", key: "kdsNotification" },
+    "lock after failed": { type: "controlCenter", key: "lockAfterFailed" },
+    "open register without pin": { type: "controlCenter", key: "openRegisterWithoutPIN" },
+    "built-in display": { type: "controlCenter", key: "builtInDisplay" },
+    "hide performance summary": { type: "controlCenter", key: "hidePerformanceSummary" },
+    "hide break button": { type: "controlCenter", key: "hideBreakButton" },
+    "hide employee feedback": { type: "controlCenter", key: "hideEmployeeFeedback" },
+    "hide seat selector": { type: "controlCenter", key: "hideSeatSelector" },
+    "reset tables daily": { type: "controlCenter", key: "resetTablesDaily" },
+    "enable write-off": { type: "controlCenter", key: "enableWriteOff" },
+    // Checkout
+    "split check": { type: "checkoutOptions", key: "splitCheck" },
+    "skip tip screen": { type: "checkoutOptions", key: "skipTipScreen" },
+    "skip signature": { type: "checkoutOptions", key: "skipSignature" },
+    "signature threshold": { type: "checkoutOptions", key: "signatureThreshold" },
+    "print receipt": { type: "checkoutOptions", key: "printReceipt" },
+    "email receipt": { type: "checkoutOptions", key: "emailReceipt" },
+    "sms receipt": { type: "checkoutOptions", key: "smsReceipt" },
+    "qr bill payment": { type: "checkoutOptions", key: "qrBillPayment" },
+    "show order summary": { type: "checkoutOptions", key: "showOrderSummary" },
+    "show itemized tax": { type: "checkoutOptions", key: "showItemizedTax" },
+    "enable tips": { type: "checkoutOptions", key: "enableTips" },
+    "enable hold and fire": { type: "checkoutOptions", key: "enableHoldFire" },
+    "enable payment sounds": { type: "checkoutOptions", key: "enablePaymentSounds" },
+    "guest notes": { type: "checkoutOptions", key: "guestNotesEnabled" },
+    "require guest name": { type: "checkoutOptions", key: "requireGuestName" },
+    "require order type": { type: "checkoutOptions", key: "requireOrderType" },
+    "auto close ticket": { type: "checkoutOptions", key: "autoCloseTicket" },
+    // Gratuity
+    "enable tip": { type: "gratuity", key: "enableTip" },
+    "tip on cfd": { type: "gratuity", key: "disableTipOnCFD" },
+    "show tip on receipt": { type: "gratuity", key: "showOnReceipt" },
+    "allow custom tip": { type: "gratuity", key: "allowCustom" },
+  };
+
+  // Coerce AI's free-form value into the right shape for the target key
+  const coerceValue = (rawValue: any, targetKey: string): any => {
+    // Theme: light/dark
+    if (targetKey === "theme") {
+      const v = String(rawValue ?? "").toLowerCase();
+      if (v.includes("light")) return "light";
+      if (v.includes("dark")) return "dark";
+      return rawValue;
+    }
+    // Number-like settings
+    if (["textSize", "brightness", "autoLockTimer", "signatureThreshold"].includes(targetKey)) {
+      const n = parseInt(String(rawValue).replace(/[^0-9.-]/g, ""), 10);
+      return isNaN(n) ? rawValue : n;
+    }
+    // Boolean settings (default for most toggles)
+    if (typeof rawValue === "boolean") return rawValue;
+    if (rawValue === null || rawValue === undefined) return true;
+    const v = String(rawValue).trim().toLowerCase();
+    if (["true", "yes", "on", "enable", "enabled", "active", "1"].includes(v)) return true;
+    if (["false", "no", "off", "disable", "disabled", "inactive", "0"].includes(v)) return false;
+    return rawValue;
+  };
+
   // Execute the pending action based on type and data
   const executeAction = useCallback(async (pendingChange: PendingChange): Promise<boolean> => {
-    const { settingType, operation } = pendingChange;
+    let { settingType, operation } = pendingChange;
     // Fallback: if data is missing, try parsing newValue (AI sometimes puts menu object there)
     let data = pendingChange.data;
     if (!data && pendingChange.newValue) {
@@ -1011,7 +1089,27 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         try { data = JSON.parse(pendingChange.newValue); } catch { /* not JSON */ }
       }
     }
-    
+
+    // Smart fallback: derive data from `setting` label + newValue when AI omits proper data shape
+    if ((!data || typeof data !== "object" || Object.keys(data).length === 0) && pendingChange.setting) {
+      const label = pendingChange.setting.toLowerCase().trim();
+      const mapping = SETTING_KEY_MAP[label];
+      if (mapping) {
+        if (!settingType) settingType = mapping.type;
+        const coerced = coerceValue(pendingChange.newValue, mapping.key);
+        data = { [mapping.key]: coerced };
+      }
+    }
+
+    // If data exists but values are wrong type (e.g., "Enabled" instead of true), coerce them
+    if (data && typeof data === "object" && settingType) {
+      const coercedData: Record<string, any> = {};
+      Object.entries(data).forEach(([k, v]) => {
+        coercedData[k] = coerceValue(v, k);
+      });
+      data = coercedData;
+    }
+
     if (!settingType || !data) return false;
 
       try {

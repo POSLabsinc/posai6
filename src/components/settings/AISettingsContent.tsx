@@ -2652,22 +2652,20 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   )}
 
                   {/* Quick Reply Buttons (banned navigation labels filtered out) */}
-                  {(() => {
+                  {message.quickReplies && message.quickReplies.length > 0 && (() => {
                     const BANNED_REPLIES = new Set([
                       "view menu", "view menus", "view product", "view products",
                       "view discount", "view discounts", "go to setting", "go to settings",
                     ]);
-                    const filteredReplies = (message.quickReplies || []).filter(
+                    const replies = message.quickReplies.filter(
                       (r) => typeof r === "string" && !BANNED_REPLIES.has(r.trim().toLowerCase())
                     );
-                    if (filteredReplies.length === 0) return null;
-                    const displayMessage = { ...message, quickReplies: filteredReplies };
+                    if (replies.length === 0) return null;
                     return (
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {(() => { const message = displayMessage; return (<>
+                    <div className="mt-3 flex flex-wrap gap-2">
                       {message.multiSelect ? (
                         <>
-                          {message.quickReplies.filter(r => r !== "Done" && r !== "Skip").map((reply) => {
+                          {replies.filter(r => r !== "Done" && r !== "Skip").map((reply) => {
                             const selected = (multiSelectState[message.id] || []).includes(reply);
                             return (
                               <button
@@ -2676,7 +2674,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                                   setMultiSelectState(prev => {
                                     const current = prev[message.id] || [];
                                     if (reply === "All" || reply === "All Devices") {
-                                      const allOptions = message.quickReplies!.filter(r => r !== "Done" && r !== "Skip" && r !== "All" && r !== "All Devices");
+                                      const allOptions = replies.filter(r => r !== "Done" && r !== "Skip" && r !== "All" && r !== "All Devices");
                                       return { ...prev, [message.id]: allOptions };
                                     }
                                     return {
@@ -2718,7 +2716,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                           >
                             ✓ Done
                           </button>
-                          {message.quickReplies.includes("Skip") && (
+                          {replies.includes("Skip") && (
                             <button
                               onClick={() => handleSendMessage("Skip")}
                               disabled={isTyping}
@@ -2729,7 +2727,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                           )}
                         </>
                       ) : (
-                        message.quickReplies.map((reply) => (
+                        replies.map((reply) => (
                           <button
                             key={reply}
                             onClick={() => {
@@ -2750,7 +2748,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                         ))
                       )}
                     </div>
-                  )}
+                    );
+                  })()}
                 </div>
                 {message.role === "user" && (
                   <Avatar className="w-8 h-8 rounded-lg flex-shrink-0">

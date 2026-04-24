@@ -1188,6 +1188,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           console.warn("Unknown setting type:", settingType);
           return false;
       }
+      // Broadcast settings change for any listening UI components
+      window.dispatchEvent(new CustomEvent("pos-data-changed", { detail: { settingType, operation } }));
       return true;
     } catch (error) {
       console.error("Error executing action:", error);

@@ -24,7 +24,7 @@ const SYSTEM_PROMPT = `You are an AI assistant for a POS system. Help users mana
 
 ## Action Types:
 - view: {"type":"view","category":"menus|products|categories|modifiers|addOns|discounts|taxes|serviceCharges|gratuity|all"}
-- update_setting: {"type":"update_setting","setting":"Name","path":"Path","currentValue":"Old","newValue":"New","settingType":"menu|product|category|modifierGroup|modifier|addOn|gratuity|discount|tax|serviceCharge|appearance|controlCenter|checkoutOptions|orders|securityPin","operation":"add|update|archive|enable|disable|change_pin","data":{...},"autoApply":true|false}
+- update_setting: {"type":"update_setting","setting":"Name","path":"Path","currentValue":"Old","newValue":"New","settingType":"menu|product|category|modifierGroup|modifier|addOn|gratuity|discount|tax|serviceCharge|appearance|controlCenter|checkoutOptions|orders|securityPin|endOfDay","operation":"add|update|archive|enable|disable|change_pin|trigger","data":{...},"autoApply":true|false}
   CRITICAL: For toggle/enable/disable settings, "data" MUST be a JSON object using the exact backend key with a boolean/number value (NOT a string like "Enabled"). Examples:
     • Bold Text → data:{"boldText":true}, settingType:"appearance"
     • Debug Mode → data:{"debugMode":true}, settingType:"controlCenter"
@@ -62,7 +62,18 @@ Device keys: "Point Of Sale"=pos, "Point Of Purchase"=pop, "KIOSK"=kiosk, "Order
 ## ControlCenter update: {"debugMode":false,"forceClockIn":true,"autoLockTimer":5}
 ## CheckoutOptions update: {"splitCheck":true,"skipTipScreen":false,"signatureThreshold":25}
 ## Orders update: {"orderCreationRules":true,"holdAndRecall":true}
+## EndOfDay actions/toggles: settingType:"endOfDay"
+  • Action triggers (operation:"trigger", autoApply:true): data:{"action":"start_eod|run_eod_now|print_eod_report|clock_out_employees|close_cash_drawer|close_paid_orders|cancel_unpaid_tickets"}
+  • Toggle/value updates (operation:"update", autoApply:true): data may include any of: endOfDayReminder(boolean), autoEndOfDayTime("11:00 PM"), runEndOfDay(boolean), autoRunTime("11:00 PM"), clockOutEmployees(boolean), closeCashDrawer(boolean), closePaidOrders(boolean), cancelUnpaidTickets(boolean), printReport(boolean), includeEmployeeData(boolean), printSummaryOnClockOut(boolean), selectedDevice("POS 1.2"), selectedEmployees(["John Smith","Jane Doe"])
 ## Security PIN change: {"type":"update_setting","setting":"Change PIN","path":"Account → Security","currentValue":"••••","newValue":"Open Change PIN Flow","settingType":"securityPin","operation":"change_pin","data":{"openDialog":true},"autoApply":true}
+
+## GUIDED END OF DAY FLOWS:
+- "Start End of Day" / "Run EOD" / "Print report" / "Clock out" / "Close cash drawer" / "Close paid orders" / "Cancel unpaid tickets": confirm with quickReplies ["Yes, do it","Cancel"], then emit update_setting with settingType:"endOfDay", operation:"trigger", data:{"action":"..."}, autoApply:true.
+- EOD Reminder setup: Step 1 ask Enable? (Yes/No) → if Yes, Step 2 ask time (quickReplies "9:00 PM","10:00 PM","11:00 PM","Custom time") → confirm. Emit data:{endOfDayReminder:true, autoEndOfDayTime:"11:00 PM"}.
+- Auto Run EOD setup: Step 1 Enable? → Step 2 time → confirm. data:{runEndOfDay:true, autoRunTime:"11:00 PM"}.
+- Send Daily Reports: ask "Which employees should receive reports?" multiSelect from EMPLOYEES list (John Smith, Jane Doe, Mike Johnson, Sarah Williams, David Brown, Emily Davis, Chris Wilson, Amanda Taylor) → confirm. data:{selectedEmployees:["..."]}.
+- EOD Device: ask which device (POS 1.1 / POS 1.2 / POS 2.1 / POS 2.2 / POS 3.1) → confirm. data:{selectedDevice:"POS 1.2"}.
+- Single boolean toggles (Include Employee Data, Print Report, Print Summary on Clock-Out, Clock Out Employees, Close Cash Drawer, Close Paid Orders, Cancel Unpaid Tickets): confirm Yes/No → emit single-key data with autoApply:true.
 
 ## CRITICAL DYNAMIC QUESTION FLOW RULES:
 For ANY add/edit operation, you MUST collect every required field via sequential questions. NEVER skip a required field. NEVER fabricate values. Use {"type":"info"} for intermediate question steps and only emit update_setting on the final confirmation step. Always provide quickReplies for each step.
@@ -176,7 +187,7 @@ const CONTEXT_SCOPE_MAP: Record<string, ContextScope> = {
   "system-control-center": { label: "Control Center", intents: [], instruction: "Only discuss Control Center toggles (debug mode, force clock-in, auto-lock). Do not reference menu, products, payments, or any other module." },
   "system-ai-integration": { label: "AI Integration", intents: [], instruction: "Only discuss AI Integration: providers, API keys, models. Do not reference menu, products, payments, or any other module." },
   workforce: { label: "Workforce", intents: [], instruction: "Only discuss Workforce: employees, roles, shifts, clock-in. Do not reference menu, products, or other modules." },
-  "end-of-day": { label: "End of Day", intents: ["reports"], instruction: "Only discuss End of Day: closing tasks, reports, reconciliation. Do not reference menu, products, or other modules." },
+  "end-of-day": { label: "End of Day", intents: [], instruction: "Only discuss the End of Day (EOD) module. You can: start EOD, run EOD automation now, print the EOD report, clock out employees, close the cash drawer, close paid orders, cancel unpaid tickets, and configure all EOD toggles (reminder, auto-run, clock out, close cash drawer, close paid orders, cancel unpaid, print report, include employee data, print summary on clock out, end of day device, daily report recipients). Do not reference menus, products, payments, or other modules." },
   "guest-book": { label: "Guest Book", intents: [], instruction: "Only discuss Guest Book: guests, reservations, feedback, order history. Do not reference menu, products, payments, or other modules." },
   reports: { label: "Reports & Analytics", intents: ["reports"], instruction: "Only discuss Reports & Analytics: sales, revenue, summaries. Do not reference menu, products, or other modules." },
   notifications: { label: "Notifications", intents: [], instruction: "Only discuss Notifications settings. Do not reference menu, products, or other modules." },

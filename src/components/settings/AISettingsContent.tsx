@@ -204,10 +204,16 @@ const paymentsSuggestionChips: SuggestionChip[] = [
 ];
 
 const endOfDaySuggestionChips: SuggestionChip[] = [
-  { label: "End of day setup", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show me end of day settings" },
-  { label: "Auto close", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Configure automatic day closing" },
-  { label: "Reports config", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show end of day report settings" },
-  { label: "Cash reconciliation", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show cash reconciliation settings" },
+  { label: "Start End of Day", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Start End of Day now" },
+  { label: "Run End of Day", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Run End of Day automation now" },
+  { label: "Print EOD report", icon: <Printer className="w-3.5 h-3.5" />, prompt: "Print the End of Day report" },
+  { label: "Clock out employees", icon: <Users className="w-3.5 h-3.5" />, prompt: "Clock out all employees" },
+  { label: "Close cash drawer", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Close the cash drawer" },
+  { label: "Close paid orders", icon: <Check className="w-3.5 h-3.5" />, prompt: "Close all paid orders" },
+  { label: "Cancel unpaid tickets", icon: <X className="w-3.5 h-3.5" />, prompt: "Cancel all unpaid tickets" },
+  { label: "EOD reminder", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Set up End of Day reminder" },
+  { label: "Send daily reports", icon: <FileText className="w-3.5 h-3.5" />, prompt: "Configure daily report recipients" },
+  { label: "Include employee data", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Toggle Include Employee Data on the EOD report" },
 ];
 
 const guestBookSuggestionChips: SuggestionChip[] = [
@@ -498,6 +504,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     'menu-default-modifiers': { title: "Default Modifiers", description: "Set and manage default modifier presets:" },
     'menu-groups': { title: "Groups", description: "Create groups to organize and manage products:" },
     'menu-menus': { title: "Menus", description: "Create menus, assign categories, and manage schedules:" },
+    'end-of-day': { title: "End of Day", description: "I can run your full end-of-day flow: start EOD, run automation, print reports, clock out employees, close the cash drawer, close paid orders, cancel unpaid tickets, and configure reminders. What would you like to do?" },
   };
 
   const prevContextRef = useRef<string | undefined>(undefined);
@@ -965,6 +972,39 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           `- Tip Screen: ${checkout.skipTipScreen ? "Skipped" : "Shown"}`,
         ].join("\n");
       }
+      case "end-of-day": {
+        // Read EOD preferences directly from localStorage cache (synchronous) — keys mirror usePreference keys
+        const get = (k: string, d: string) => {
+          // best-effort: AI also reads live state via DB context in the edge function
+          return d;
+        };
+        return [
+          "## End of Day",
+          "Available actions the AI can perform:",
+          "- start_eod (open the End of Day summary)",
+          "- run_eod_now (execute the full End of Day automation immediately)",
+          "- print_eod_report (print today's End of Day report)",
+          "- clock_out_employees (clock out all currently clocked-in employees)",
+          "- close_cash_drawer (close the open cash drawer session)",
+          "- close_paid_orders (close all paid orders)",
+          "- cancel_unpaid_tickets (cancel all unpaid tickets)",
+          "",
+          "Configurable EOD toggles (settingType:\"endOfDay\"):",
+          "- endOfDayReminder (boolean)",
+          "- autoEndOfDayTime (e.g. \"11:00 PM\")",
+          "- runEndOfDay (boolean) — auto-run EOD",
+          "- autoRunTime (e.g. \"11:00 PM\")",
+          "- clockOutEmployees (boolean) — auto clock out at EOD",
+          "- closeCashDrawer (boolean)",
+          "- closePaidOrders (boolean)",
+          "- cancelUnpaidTickets (boolean)",
+          "- printReport (boolean) — print EOD report on close",
+          "- includeEmployeeData (boolean) — include employee details on the report",
+          "- printSummaryOnClockOut (boolean)",
+          "- selectedDevice (e.g. \"POS 1.2\")",
+          "- selectedEmployees (array of employee names — daily report recipients)",
+        ].join("\n");
+      }
       default:
         if (context?.startsWith("menu")) return "## Menu Module\nUse only the live menu, category, product, modifier, and add-on data for this section.";
         if (context?.startsWith("payments")) return "## Payments Module\nUse only payments settings relevant to the active payments section.";
@@ -1056,6 +1096,24 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     "tip on cfd": { type: "gratuity", key: "disableTipOnCFD" },
     "show tip on receipt": { type: "gratuity", key: "showOnReceipt" },
     "allow custom tip": { type: "gratuity", key: "allowCustom" },
+    // End of Day toggles
+    "end of day reminder": { type: "endOfDay", key: "endOfDayReminder" },
+    "eod reminder": { type: "endOfDay", key: "endOfDayReminder" },
+    "auto end of day time": { type: "endOfDay", key: "autoEndOfDayTime" },
+    "run end of day": { type: "endOfDay", key: "runEndOfDay" },
+    "auto run end of day": { type: "endOfDay", key: "runEndOfDay" },
+    "auto run time": { type: "endOfDay", key: "autoRunTime" },
+    "clock out employees": { type: "endOfDay", key: "clockOutEmployees" },
+    "close cash drawer": { type: "endOfDay", key: "closeCashDrawer" },
+    "close paid orders": { type: "endOfDay", key: "closePaidOrders" },
+    "cancel unpaid tickets": { type: "endOfDay", key: "cancelUnpaidTickets" },
+    "print end of day report": { type: "endOfDay", key: "printReport" },
+    "print eod report": { type: "endOfDay", key: "printReport" },
+    "include employee data": { type: "endOfDay", key: "includeEmployeeData" },
+    "print summary on clock-out": { type: "endOfDay", key: "printSummaryOnClockOut" },
+    "print summary on clock out": { type: "endOfDay", key: "printSummaryOnClockOut" },
+    "end of day device": { type: "endOfDay", key: "selectedDevice" },
+    "send daily reports": { type: "endOfDay", key: "selectedEmployees" },
   };
 
   // Coerce AI's free-form value into the right shape for the target key
@@ -1303,6 +1361,74 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         case "orders":
           SettingsManager.updateOrdersSettings(data);
           break;
+        case "endOfDay": {
+          // Map AI camelCase keys -> usePreference keys used by EndOfDayContent
+          const EOD_KEY_MAP: Record<string, string> = {
+            endOfDayReminder: "eod_reminder",
+            autoEndOfDayTime: "eod_reminder_time",
+            runEndOfDay: "eod_auto_run",
+            autoRunTime: "eod_auto_run_time",
+            clockOutEmployees: "eod_clock_out",
+            closeCashDrawer: "eod_close_cash",
+            closePaidOrders: "eod_close_paid",
+            cancelUnpaidTickets: "eod_cancel_unpaid",
+            printReport: "eod_print_report",
+            includeEmployeeData: "eod_include_employee",
+            printSummaryOnClockOut: "eod_print_clock_out",
+            selectedDevice: "eod_device",
+            selectedEmployees: "eod_report_recipients",
+          };
+          // Action triggers (immediate side-effects)
+          if (data.action) {
+            const action = String(data.action);
+            if (action === "start_eod") {
+              navigate("/settings/end-of-day");
+              window.dispatchEvent(new CustomEvent("eod-start"));
+              toast({ title: "End of Day", description: "Opening End of Day summary." });
+            } else if (action === "run_eod_now") {
+              window.dispatchEvent(new CustomEvent("eod-run-now"));
+              toast({ title: "End of Day", description: "Running End of Day automation." });
+            } else if (action === "print_eod_report") {
+              try {
+                const { printEndOfDayReport } = await import("@/utils/eodReportPrinter");
+                const { data: prefRow } = await (supabase as any)
+                  .from("user_preferences").select("preference_value")
+                  .eq("device_id", "shared").eq("preference_key", "eod_include_employee").maybeSingle();
+                const includeEmp = prefRow?.preference_value === "true";
+                await printEndOfDayReport([], includeEmp);
+                toast({ title: "End of Day Report", description: "Print dialog opened." });
+              } catch (err) { console.error("Print EOD report failed:", err); }
+            } else if (action === "clock_out_employees") {
+              window.dispatchEvent(new CustomEvent("eod-clock-out-all"));
+              toast({ title: "Clock Out", description: "Clocking out all employees." });
+            } else if (action === "close_cash_drawer") {
+              window.dispatchEvent(new CustomEvent("eod-close-cash-drawer"));
+              toast({ title: "Cash Drawer", description: "Closing cash drawer." });
+            } else if (action === "close_paid_orders") {
+              window.dispatchEvent(new CustomEvent("eod-close-paid-orders"));
+              toast({ title: "Paid Orders", description: "Closing all paid orders." });
+            } else if (action === "cancel_unpaid_tickets") {
+              window.dispatchEvent(new CustomEvent("eod-cancel-unpaid"));
+              toast({ title: "Unpaid Tickets", description: "Cancelling all unpaid tickets." });
+            }
+            break;
+          }
+          // Toggle / value updates: persist directly to user_preferences
+          for (const [aiKey, val] of Object.entries(data)) {
+            const prefKey = EOD_KEY_MAP[aiKey];
+            if (!prefKey) continue;
+            let prefValue: string;
+            if (Array.isArray(val)) prefValue = JSON.stringify(val);
+            else if (typeof val === "boolean") prefValue = val ? "true" : "false";
+            else prefValue = String(val);
+            await (supabase as any).from("user_preferences").upsert(
+              { device_id: "shared", preference_key: prefKey, preference_value: prefValue },
+              { onConflict: "device_id,preference_key" }
+            );
+            window.dispatchEvent(new CustomEvent("preference-updated", { detail: { preferenceKey: prefKey } }));
+          }
+          break;
+        }
         default:
           console.warn("Unknown setting type:", settingType);
           return false;

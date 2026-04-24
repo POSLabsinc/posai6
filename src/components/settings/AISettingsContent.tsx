@@ -1117,8 +1117,12 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           return true;
         }
 
-      // Database-backed types (menus, products, categories, modifiers, add-ons)
-      const dbTypes = ["menu", "product", "category", "modifierGroup", "modifier", "addOn"];
+      // Database-backed types (menus, products, categories, modifiers, add-ons,
+      // default modifiers, groups, timed pricing rules, inventory adjustments)
+      const dbTypes = [
+        "menu", "product", "category", "modifierGroup", "modifier", "addOn",
+        "defaultModifier", "group", "timedPricing", "inventory",
+      ];
       
       if (dbTypes.includes(settingType)) {
         return await executeDbAction(settingType, operation || "add", data);

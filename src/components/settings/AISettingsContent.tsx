@@ -11,6 +11,8 @@ import { toast } from "@/hooks/use-toast";
 import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
 import { supabase } from "@/integrations/supabase/client";
 import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
+import { createProduct, updateProduct } from "@/services/productService";
+import { deleteCustomProduct, getCustomProducts, saveCustomProduct, setArchivedId } from "@/lib/productStore";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
 // AI Provider definitions for in-chat model switching
@@ -1054,24 +1056,41 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   // Coerce AI's free-form value into the right shape for the target key
   const coerceValue = (rawValue: any, targetKey: string): any => {
-    // Theme: light/dark
-    if (targetKey === "theme") {
+    const normalizedKey = String(targetKey || "").trim();
+
+    if (rawValue === null || rawValue === undefined || rawValue === "") {
+      return rawValue;
+    }
+
+    if (normalizedKey === "theme") {
       const v = String(rawValue ?? "").toLowerCase();
       if (v.includes("light")) return "light";
       if (v.includes("dark")) return "dark";
       return rawValue;
     }
-    // Number-like settings
-    if (["textSize", "brightness", "autoLockTimer", "signatureThreshold"].includes(targetKey)) {
-      const n = parseInt(String(rawValue).replace(/[^0-9.-]/g, ""), 10);
-      return isNaN(n) ? rawValue : n;
+
+    const floatKeys = new Set([
+      "amount", "price", "timedPrice", "adjustment", "signatureThreshold",
+    ]);
+    const intKeys = new Set([
+      "textSize", "brightness", "autoLockTimer", "stockCount", "maxSelections", "minSeats", "sortOrder",
+    ]);
+
+    if (floatKeys.has(normalizedKey)) {
+      const n = Number(String(rawValue).replace(/[^0-9.-]/g, ""));
+      return Number.isNaN(n) ? rawValue : n;
     }
-    // Boolean settings (default for most toggles)
+
+    if (intKeys.has(normalizedKey)) {
+      const n = parseInt(String(rawValue).replace(/[^0-9.-]/g, ""), 10);
+      return Number.isNaN(n) ? rawValue : n;
+    }
+
     if (typeof rawValue === "boolean") return rawValue;
-    if (rawValue === null || rawValue === undefined) return true;
     const v = String(rawValue).trim().toLowerCase();
     if (["true", "yes", "on", "enable", "enabled", "active", "1"].includes(v)) return true;
     if (["false", "no", "off", "disable", "disabled", "inactive", "0"].includes(v)) return false;
+
     return rawValue;
   };
 

@@ -543,7 +543,7 @@ const getContentForRoute = (
     return <AddScheduleContent onBack={() => navigate('/settings/workforce/schedule-information')} />;
   }
   if (pathname === '/settings/ai-assistant') {
-    return <AISettingsContent showHeader={true} onBack={() => navigate('/settings')} />;
+    return <AISettingsContent showHeader={true} onBack={() => navigate('/settings')} context={locationState?.context} />;
   }
   // Default to Account panel
   return <AccountPanel showHeader={true} />;
@@ -622,7 +622,7 @@ const Settings = () => {
 
   const handleAIClick = () => {
     if (isMobile) {
-      navigate('/settings/ai-assistant');
+      navigate('/settings/ai-assistant', { state: { context: aiContext } });
     } else {
       setShowAIChat(true);
     }

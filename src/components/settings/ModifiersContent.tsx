@@ -96,6 +96,9 @@ const ModifiersContent = ({ showHeader = true, onBack, onAIClick }: ModifiersCon
 
   useEffect(() => {
     fetchModifiers();
+    const refresh = () => fetchModifiers();
+    window.addEventListener("pos-data-changed", refresh);
+    return () => window.removeEventListener("pos-data-changed", refresh);
   }, []);
 
   const handleArchiveItem = (item: Modifier) => {

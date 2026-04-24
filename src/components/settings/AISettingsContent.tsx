@@ -1201,7 +1201,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       // default modifiers, groups, timed pricing rules, inventory adjustments)
       const dbTypes = [
         "menu", "product", "category", "modifierGroup", "modifier", "addOn",
-        "defaultModifier", "group", "timedPricing", "inventory",
+        "defaultModifier", "group", "timedPricing", "inventory", "guest",
       ];
       
       if (dbTypes.includes(settingType)) {

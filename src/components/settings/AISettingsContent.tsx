@@ -1004,6 +1004,19 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           "- selectedEmployees (array of employee names — daily report recipients)",
         ].join("\n");
       }
+      case "guest-book":
+        return [
+          "## Guest Book",
+          "Available actions on the guests table:",
+          "- View active guests: format the live guest list (Database Context) as a readable list in the message text. DO NOT emit update_setting for view requests.",
+          "- View archived guests: when user picks 'Archive Guest' or asks for archived, list archived guests from Database Context.",
+          "- Add a new guest (settingType:\"guest\", operation:\"add\"). MUST run GUIDED GUEST CREATION step-by-step.",
+          "- Archive a guest (settingType:\"guest\", operation:\"archive\").",
+          "- Restore an archived guest (settingType:\"guest\", operation:\"restore\").",
+          "- Update a guest (settingType:\"guest\", operation:\"update\").",
+          "",
+          "Guest data fields (camelCase): firstName, middleName, lastName, email, phone, address, birthday (YYYY-MM-DD), anniversary (YYYY-MM-DD), vehicle, licensePlate, tags (array), allergies (array), note (max 250 chars).",
+        ].join("\n");
       default:
         if (context?.startsWith("menu")) return "## Menu Module\nUse only the live menu, category, product, modifier, and add-on data for this section.";
         if (context?.startsWith("payments")) return "## Payments Module\nUse only payments settings relevant to the active payments section.";

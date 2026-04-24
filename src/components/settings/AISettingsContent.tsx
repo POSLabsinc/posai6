@@ -1923,7 +1923,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   const handleChipClick = (chip: SuggestionChip) => {
     if (chip.prompt === "__UPLOAD_IMAGE__") {
-      fileInputRef.current?.click();
+      // Image upload removed
       return;
     }
     handleSendMessage(chip.prompt);

@@ -1,17 +1,5 @@
 import { useState, useMemo, useCallback } from "react";
-import expandArrowsIcon from "@/assets/icons/expand-arrows.svg";
-
-const sortIconMaskStyle: React.CSSProperties = {
-  WebkitMaskImage: `url(${expandArrowsIcon})`,
-  maskImage: `url(${expandArrowsIcon})`,
-  WebkitMaskRepeat: "no-repeat",
-  maskRepeat: "no-repeat",
-  WebkitMaskPosition: "center",
-  maskPosition: "center",
-  WebkitMaskSize: "contain",
-  maskSize: "contain",
-  backgroundColor: "currentColor",
-};
+import { useSortIconUrl, getSortIconMaskStyle } from "@/lib/sort-icon";
 
 export type SortDirection = "asc" | "desc" | null;
 
@@ -95,6 +83,7 @@ export function SortableHeader<K extends string>({
   className = "",
   bold = true,
 }: SortableHeaderProps<K>) {
+  const iconUrl = useSortIconUrl();
   const isActive = sort.key === sortKey && sort.direction !== null;
   const justify =
     align === "right"
@@ -123,7 +112,7 @@ export function SortableHeader<K extends string>({
       </span>
       <span
         aria-hidden
-        style={sortIconMaskStyle}
+        style={getSortIconMaskStyle(iconUrl)}
         className={`w-3 h-3 shrink-0 inline-block text-foreground transition-opacity ${
           isActive ? "opacity-90" : "opacity-40"
         } ${

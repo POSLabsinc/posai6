@@ -441,7 +441,47 @@ async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string,
     })());
   }
 
-  await Promise.all(promises);
+  // Guests — active (View guests)
+  if (fetchAll || intents.has("guests")) {
+    promises.push((async () => {
+      const { data } = await supabase
+        .from("guests")
+        .select("id, name, phone, email, tags, allergies, loyalty_points_balance, order_count, is_archived")
+        .eq("is_archived", false)
+        .order("name")
+        .limit(100);
+      if (data?.length) {
+        parts.push(`### Active Guests (${data.length}):`);
+        data.forEach((g: any, idx: number) => {
+          const tags = (g.tags || []).join(",");
+          parts.push(`${idx + 1}. ${g.name} — ${g.phone || "no phone"} — ${g.email || "no email"}${tags ? ` [${tags}]` : ""} pts:${g.loyalty_points_balance || 0} orders:${g.order_count || 0} (id:${g.id})`);
+        });
+      } else {
+        parts.push("### Active Guests: none yet. Suggest 'Add Guest' to create one.");
+      }
+    })());
+  }
+
+  // Archived guests
+  if (fetchAll || intents.has("archivedGuests")) {
+    promises.push((async () => {
+      const { data } = await supabase
+        .from("guests")
+        .select("id, name, phone, email, is_archived")
+        .eq("is_archived", true)
+        .order("name")
+        .limit(100);
+      if (data?.length) {
+        parts.push(`### Archived Guests (${data.length}):`);
+        data.forEach((g: any, idx: number) => {
+          parts.push(`${idx + 1}. ${g.name} — ${g.phone || "no phone"} — ${g.email || "no email"} (id:${g.id})`);
+        });
+      } else {
+        parts.push("### Archived Guests: none.");
+      }
+    })());
+  }
+
   return parts.join("\n") || "No relevant data found.";
 }
 

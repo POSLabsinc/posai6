@@ -88,6 +88,13 @@ const InventoryContent = ({ showHeader = true, onBack, onAIClick }: InventoryCon
       setLoading(false);
     };
     fetchData();
+    const refresh = () => fetchData();
+    window.addEventListener("pos-data-changed", refresh);
+    window.addEventListener("products-updated", refresh);
+    return () => {
+      window.removeEventListener("pos-data-changed", refresh);
+      window.removeEventListener("products-updated", refresh);
+    };
   }, []);
 
   const filtered = useMemo(() => {

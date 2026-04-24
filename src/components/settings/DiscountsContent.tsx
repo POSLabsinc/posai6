@@ -78,6 +78,9 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
 
   useEffect(() => {
     fetchDiscounts();
+    const refresh = () => fetchDiscounts();
+    window.addEventListener("pos-data-changed", refresh);
+    return () => window.removeEventListener("pos-data-changed", refresh);
   }, [fetchDiscounts]);
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);

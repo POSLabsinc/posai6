@@ -1603,6 +1603,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       // Broadcast global change so all listening module pages refresh
       window.dispatchEvent(new CustomEvent("pos-data-changed", { detail: { settingType, operation } }));
       window.dispatchEvent(new CustomEvent("products-updated"));
+      window.dispatchEvent(new CustomEvent("menus-updated"));
+      window.dispatchEvent(new CustomEvent("settings-updated", { detail: { type: settingType, operation } }));
       toast({ title: "Success", description: `${data.name || "Record"} has been ${operation === "add" ? "created" : operation + "d"} successfully.` });
       return true;
     } catch (error: any) {

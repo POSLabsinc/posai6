@@ -70,6 +70,9 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
 
   useEffect(() => {
     fetchTaxes();
+    const refresh = () => fetchTaxes();
+    window.addEventListener("pos-data-changed", refresh);
+    return () => window.removeEventListener("pos-data-changed", refresh);
   }, [fetchTaxes]);
 
   const [searchQuery, setSearchQuery] = useState("");

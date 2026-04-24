@@ -64,6 +64,9 @@ const DefaultModifiersContent = ({ showHeader = true, onBack, onAIClick }: Defau
 
   useEffect(() => {
     fetchModifiers();
+    const refresh = () => fetchModifiers();
+    window.addEventListener("pos-data-changed", refresh);
+    return () => window.removeEventListener("pos-data-changed", refresh);
   }, []);
 
   const handleArchiveItem = (item: DefaultModifier) => {

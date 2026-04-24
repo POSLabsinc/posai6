@@ -482,6 +482,7 @@ async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string,
     })());
   }
 
+  await Promise.all(promises);
   return parts.join("\n") || "No relevant data found.";
 }
 

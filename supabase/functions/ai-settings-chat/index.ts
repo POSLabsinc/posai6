@@ -331,6 +331,55 @@ async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string,
     })());
   }
 
+  if (fetchAll || intents.has("defaultModifiers")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("default_modifiers").select("id, name, type").eq("archived", false).order("sort_order");
+      if (data?.length) parts.push(`### Default Modifiers (${data.length}): ${data.map((d: any) => `${d.name}[${d.type}](${d.id})`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("groups")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("groups").select("id, name, type, display_name, has_max_selections, max_selections").eq("archived", false).order("sort_order");
+      if (data?.length) parts.push(`### Groups (${data.length}): ${data.map((g: any) => `${g.name}[${g.type}](${g.id})${g.display_name ? ` display:${g.display_name}` : ""}${g.has_max_selections ? ` max:${g.max_selections}` : ""}`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("timedPricing")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("timed_pricing_rules").select("id, name, type, start_time, end_time, adjustment, days, enabled").order("created_at", { ascending: false });
+      if (data?.length) parts.push(`### Timed Pricing (${data.length}): ${data.map((r: any) => `${r.name}(${r.id}) ${r.type} ${r.start_time}-${r.end_time} adj:${r.adjustment} days:${(r.days || []).join(",")} ${r.enabled ? "ON" : "OFF"}`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("inventory")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("products").select("id, name, stock_count, out_of_stock, inventory_tracking, negative_inventory").eq("archived", false).order("name").limit(100);
+      if (data?.length) parts.push(`### Inventory (${data.length}): ${data.map((p: any) => `${p.name}(${p.id}) stock:${p.stock_count ?? 0}${p.out_of_stock ? "[OOS]" : ""}${p.inventory_tracking ? "[TRACK]" : ""}${p.negative_inventory ? "[NEG]" : ""}`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("taxes")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("taxes").select("id, name, amount, type, applicable_to, archived").eq("archived", false).order("sort_order");
+      if (data?.length) parts.push(`### Taxes (${data.length}): ${data.map((t: any) => `${t.name}=${t.amount}${t.type === "Inclusive" ? "% incl" : "% excl"}(${t.id}) applies:${t.applicable_to || "All Products"}`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("discounts")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("discounts").select("id, name, amount, type, applicable_to, requires_manager_pin, archived").eq("archived", false).order("sort_order");
+      if (data?.length) parts.push(`### Discounts (${data.length}): ${data.map((d: any) => `${d.name}=${d.amount}${d.type === "Percentage" ? "%" : "$"}(${d.id}) applies:${d.applicable_to || "All Products"}${d.requires_manager_pin ? "[PIN]" : ""}`).join("; ")}`);
+    })());
+  }
+
+  if (fetchAll || intents.has("serviceCharges")) {
+    promises.push((async () => {
+      const { data } = await supabase.from("service_charges").select("id, name, amount, type, order_type, tax_applicable, automatic_apply, min_seats, archived").eq("archived", false).order("sort_order");
+      if (data?.length) parts.push(`### Service Charges (${data.length}): ${data.map((s: any) => `${s.name}=${s.amount}${s.type === "Percentage" ? "%" : "$"}(${s.id}) order:${s.order_type || "All Orders"} tax:${s.tax_applicable || "Taxable"}${s.automatic_apply ? ` auto minSeats:${s.min_seats ?? 0}` : ""}`).join("; ")}`);
+    })());
+  }
+
   await Promise.all(promises);
   return parts.join("\n") || "No relevant data found.";
 }

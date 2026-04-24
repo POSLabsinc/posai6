@@ -413,6 +413,10 @@ const contextChipsMap: Record<string, SuggestionChip[]> = {
   notifications: notificationsSuggestionChips,
   reports: reportsSuggestionChips,
   workforce: workforceSuggestionChips,
+  'workforce-employee': workforceEmployeeChips,
+  'workforce-shift': workforceShiftChips,
+  'workforce-schedule': workforceScheduleChips,
+  'workforce-schedule-information': workforceScheduleChips,
   account: accountSuggestionChips,
   // System sub-routes
   'system-appearance': systemAppearanceChips,

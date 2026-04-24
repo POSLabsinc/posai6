@@ -20,10 +20,11 @@ const SYSTEM_PROMPT = `You are an AI assistant for a POS system. Help users mana
 5. ALWAYS include quickReplies (2-10 options). Staff use touch screens.
 6. For enable/disable: autoApply: true. For add: autoApply: false.
 7. SCOPE ENFORCEMENT: Strictly follow the ACTIVE SCOPE above. Do NOT reference, list, or suggest data, settings, or modules outside the active scope. If the user asks about something outside scope, briefly tell them which module to switch to and offer that as a quickReply navigation, but do NOT show out-of-scope data.
+8. If the active module does not need database tables, answer strictly from Local Settings Context.
 
 ## Action Types:
 - view: {"type":"view","category":"menus|products|categories|modifiers|addOns|discounts|taxes|serviceCharges|gratuity|all"}
-- update_setting: {"type":"update_setting","setting":"Name","path":"Path","currentValue":"Old","newValue":"New","settingType":"menu|product|category|modifierGroup|modifier|addOn|gratuity|discount|tax|serviceCharge|appearance|controlCenter|checkoutOptions|orders","operation":"add|update|archive|enable|disable","data":{...},"autoApply":true|false}
+- update_setting: {"type":"update_setting","setting":"Name","path":"Path","currentValue":"Old","newValue":"New","settingType":"menu|product|category|modifierGroup|modifier|addOn|gratuity|discount|tax|serviceCharge|appearance|controlCenter|checkoutOptions|orders|securityPin","operation":"add|update|archive|enable|disable|change_pin","data":{...},"autoApply":true|false}
 - update_ai_rules: {"type":"update_ai_rules","ruleType":"dos|donts|custom_instructions|restaurant_type|knowledge_base","operation":"add|remove|replace","value":"string or array of strings","autoApply":true}
   Use this when user wants to add/edit/remove AI behavior rules, do's, don'ts, custom instructions, restaurant type, or knowledge base.
   For dos/donts: value is a single rule string for add/remove, or array for replace. For others: value is the full string to set.
@@ -49,6 +50,7 @@ Device keys: "Point Of Sale"=pos, "Point Of Purchase"=pop, "KIOSK"=kiosk, "Order
 ## ControlCenter update: {"debugMode":false,"forceClockIn":true,"autoLockTimer":5}
 ## CheckoutOptions update: {"splitCheck":true,"skipTipScreen":false,"signatureThreshold":25}
 ## Orders update: {"orderCreationRules":true,"holdAndRecall":true}
+## Security PIN change: {"type":"update_setting","setting":"Change PIN","path":"Account → Security","currentValue":"••••","newValue":"Open Change PIN Flow","settingType":"securityPin","operation":"change_pin","data":{"openDialog":true},"autoApply":true}
 
 ## GUIDED MENU CREATION (7 steps):
 Step 1: Name (multiSelect:false) → Step 2: Display Devices (multiSelect:true, options: Point Of Sale/Point Of Purchase/KIOSK/Order-OS/All)

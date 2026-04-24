@@ -873,8 +873,108 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
 
   // Get current settings context for AI
   const getSettingsContext = useCallback(() => {
-    return SettingsManager.getAllSettingsSummary();
-  }, []);
+    const session = (() => {
+      try {
+        return JSON.parse(localStorage.getItem("pos_session") || "null");
+      } catch {
+        return null;
+      }
+    })();
+    const controlCenter = SettingsManager.getControlCenterSettings();
+    const appearance = SettingsManager.getAppearanceSettings();
+    const safeProfile = profile as any;
+
+    switch (context) {
+      case "account-personal-information":
+        return [
+          "## Personal Information",
+          `- Name: ${session?.employeeName || safeProfile?.full_name || "John Smith"}`,
+          `- Email: ${safeProfile?.email || "jimhopper@eatos.com"}`,
+          `- Phone: ${safeProfile?.phone || "(123) 456 - 7890"}`,
+          "- Language: English",
+        ].join("\n");
+      case "account-restaurant-information":
+        return [
+          "## Restaurant Information",
+          "- Name: Bollywood Bites",
+          "- Type: Fine Dining",
+          "- Email: info@bollywoodbites.co.uk",
+          "- Phone: +44 20 7946 0958",
+          "- Address: 42 Kings Road, Chelsea, London SW3 4ND, UK",
+          `- Revenue Center: ${session?.revenueCenter || "Not Set"}`,
+          `- Business Hours: ${controlCenter.businessHoursStart} – ${controlCenter.businessHoursEnd}`,
+          "- Language: English",
+          "- Currency: GBP £",
+        ].join("\n");
+      case "account-security":
+        return [
+          "## Security Settings",
+          "- Password Management: Restricted to Manager Dashboard",
+          "- Two Factor Authentication: Available in this section",
+          "- Change PIN: Available and functional via Change PIN flow",
+          `- Auto Lock Timer: ${controlCenter.autoLockTimer === "never" ? "Never" : `${controlCenter.autoLockTimer} minutes`}`,
+        ].join("\n");
+      case "system-appearance":
+        return [
+          "## Appearance Settings",
+          `- Theme: ${appearance.theme}`,
+          `- Theme Color: ${themeColor || "Default"}`,
+          `- Icon Style: ${appearance.iconStyle}`,
+          `- Icon Size: ${appearance.iconSize}`,
+          `- Text Size: ${appearance.textSize}px`,
+          `- Bold Text: ${appearance.boldText ? "Enabled" : "Disabled"}`,
+          `- Brightness: ${appearance.brightness}%`,
+        ].join("\n");
+      case "system-control-center":
+        return [
+          "## Control Center Settings",
+          `- Debug Mode: ${controlCenter.debugMode ? "Enabled" : "Disabled"}`,
+          `- Force Clock-In: ${controlCenter.forceClockIn ? "Enabled" : "Disabled"}`,
+          `- Auto Lock Timer: ${controlCenter.autoLockTimer === "never" ? "Never" : `${controlCenter.autoLockTimer} minutes`}`,
+          `- Switch To KDS: ${controlCenter.switchToKDS ? "Enabled" : "Disabled"}`,
+        ].join("\n");
+      case "payments-taxes":
+        return [
+          "## Taxes",
+          ...SettingsManager.getActiveTaxes().map((tax) => `- ${tax.name}: ${tax.amount}% (${tax.type})`),
+        ].join("\n");
+      case "payments-discounts":
+        return [
+          "## Discounts",
+          ...SettingsManager.getActiveDiscounts().map((discount) => `- ${discount.name}: ${discount.type === "Percentage" ? `${discount.amount}%` : `$${discount.amount}`}`),
+        ].join("\n");
+      case "payments-service-charge":
+        return [
+          "## Service Charges",
+          ...SettingsManager.getActiveServiceCharges().map((charge) => `- ${charge.name}: ${charge.type === "Percentage" ? `${charge.amount}%` : `$${charge.amount}`}`),
+        ].join("\n");
+      case "payments-gratuity": {
+        const gratuity = SettingsManager.getGratuitySettings();
+        return [
+          "## Gratuity",
+          `- Tips: ${gratuity.enableTip ? "Enabled" : "Disabled"}`,
+          `- Show on Receipt: ${gratuity.showOnReceipt ? "Yes" : "No"}`,
+          `- Preset Type: ${gratuity.presetType}`,
+          `- Active Presets: ${gratuity.selectedTipPresets.join(", ")}`,
+        ].join("\n");
+      }
+      case "payments-checkout-options": {
+        const checkout = SettingsManager.getCheckoutOptionsSettings();
+        return [
+          "## Checkout Options",
+          `- Split Check: ${checkout.splitCheck ? "Enabled" : "Disabled"}`,
+          `- Quick Amounts: ${checkout.enableQuickAmounts ? "Enabled" : "Disabled"}`,
+          `- Signature Threshold: $${checkout.signatureThreshold}`,
+          `- Tip Screen: ${checkout.skipTipScreen ? "Skipped" : "Shown"}`,
+        ].join("\n");
+      }
+      default:
+        if (context?.startsWith("menu")) return "## Menu Module\nUse only the live menu, category, product, modifier, and add-on data for this section.";
+        if (context?.startsWith("payments")) return "## Payments Module\nUse only payments settings relevant to the active payments section.";
+        if (context?.startsWith("system")) return "## System Module\nUse only system settings relevant to the active system section.";
+        return "## Active Settings Context\nUse only data relevant to the current section.";
+    }
+  }, [context, profile, themeColor]);
 
   // Image upload handler
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -921,7 +1021,13 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     
     if (!settingType || !data) return false;
 
-    try {
+      try {
+        if (settingType === "securityPin") {
+          navigate('/settings/account/security');
+          window.dispatchEvent(new CustomEvent('open-security-change-pin'));
+          return true;
+        }
+
       // Database-backed types (menus, products, categories, modifiers, add-ons)
       const dbTypes = ["menu", "product", "category", "modifierGroup", "modifier", "addOn"];
       

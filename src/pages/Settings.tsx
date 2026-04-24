@@ -543,7 +543,7 @@ const getContentForRoute = (
     return <AddScheduleContent onBack={() => navigate('/settings/workforce/schedule-information')} />;
   }
   if (pathname === '/settings/ai-assistant') {
-    return <AISettingsContent showHeader={true} onBack={() => navigate('/settings')} />;
+    return <AISettingsContent showHeader={true} onBack={() => navigate('/settings')} context={locationState?.context} />;
   }
   // Default to Account panel
   return <AccountPanel showHeader={true} />;
@@ -622,7 +622,7 @@ const Settings = () => {
 
   const handleAIClick = () => {
     if (isMobile) {
-      navigate('/settings/ai-assistant');
+      navigate('/settings/ai-assistant', { state: { context: aiContext } });
     } else {
       setShowAIChat(true);
     }
@@ -631,6 +631,9 @@ const Settings = () => {
   const getAiContext = (pathname: string): string | undefined => {
     const segments = pathname.replace('/settings/', '').split('/').filter(Boolean);
     if (segments.length === 0 || pathname === '/settings' || pathname === '/settings/account') return 'account';
+    if (pathname.startsWith('/settings/account/personal-information')) return 'account-personal-information';
+    if (pathname.startsWith('/settings/account/restaurant-information')) return 'account-restaurant-information';
+    if (pathname.startsWith('/settings/account/security')) return 'account-security';
     if (pathname.startsWith('/settings/account/')) return 'account';
     // For sub-routes like /settings/system/appearance produce "system-appearance"
     const parentMap: Record<string, string> = {

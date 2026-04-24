@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, Delete } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -18,7 +18,7 @@ interface ChangePinDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
+export const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
   const { toast } = useToast();
   
   const [step, setStep] = useState<PinStep>("current");
@@ -244,6 +244,12 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
   const navigate = useNavigate();
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
+
+  useEffect(() => {
+    const handleOpenPin = () => setPinDialogOpen(true);
+    window.addEventListener('open-security-change-pin', handleOpenPin);
+    return () => window.removeEventListener('open-security-change-pin', handleOpenPin);
+  }, []);
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">

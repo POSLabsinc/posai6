@@ -258,10 +258,28 @@ const reportsSuggestionChips: SuggestionChip[] = [
 ];
 
 const workforceSuggestionChips: SuggestionChip[] = [
-  { label: "View employees", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all employees" },
-  { label: "Manage shifts", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show me shift schedules" },
-  { label: "Roles and permissions", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Show me employee roles and permissions" },
-  { label: "Time tracking", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show time tracking settings" },
+  { label: "View Employees", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all employees" },
+  { label: "Add New Employee", icon: <UserPlus className="w-3.5 h-3.5" />, prompt: "Add a new employee" },
+  { label: "Archive Employees", icon: <Archive className="w-3.5 h-3.5" />, prompt: "Show me all archived employees" },
+  { label: "View Shifts", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show me all shifts" },
+  { label: "Add Shift", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new shift" },
+  { label: "Schedule Information", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Show schedule information" },
+];
+
+const workforceEmployeeChips: SuggestionChip[] = [
+  { label: "View Employees", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all employees" },
+  { label: "Add New Employee", icon: <UserPlus className="w-3.5 h-3.5" />, prompt: "Add a new employee" },
+  { label: "Archive Employees", icon: <Archive className="w-3.5 h-3.5" />, prompt: "Show me all archived employees" },
+];
+
+const workforceShiftChips: SuggestionChip[] = [
+  { label: "View Shifts", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all shifts" },
+  { label: "Add Shift", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new shift" },
+];
+
+const workforceScheduleChips: SuggestionChip[] = [
+  { label: "View Schedules", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show schedule information" },
+  { label: "Add Schedule", icon: <Plus className="w-3.5 h-3.5" />, prompt: "Add a new schedule" },
 ];
 
 const accountSuggestionChips: SuggestionChip[] = [

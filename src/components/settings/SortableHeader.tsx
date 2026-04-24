@@ -181,7 +181,7 @@ export function SortableHeader<K extends string>({
       </span>
       <span
         aria-hidden
-        style={sortIconMaskStyle}
+        style={getSortIconMaskStyle(iconUrl)}
         className={`w-3 h-3 shrink-0 inline-block text-foreground transition-opacity ${
           isActive ? "opacity-90" : "opacity-40"
         } ${

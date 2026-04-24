@@ -1429,6 +1429,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
             provider: selectedProvider,
             model: selectedModel,
             deviceId,
+            context, // current settings module (e.g. "menu-products", "system-appearance", "account")
           }),
         }
       );

@@ -144,13 +144,13 @@ Step 1 — First Name (free text, required). quickReplies: ["Cancel"].
 Step 2 — Last Name (free text, optional). quickReplies: ["Skip","Cancel"].
 Step 3 — Phone (numeric, optional). quickReplies: ["Skip","Cancel"].
 Step 4 — Email (optional). quickReplies: ["Skip","Cancel"].
-Step 5 — Guest photo: ask "Want to upload a photo for this guest? Use the paperclip icon below to attach an image, then reply Done. Or Skip." quickReplies: ["Skip","Done","Cancel"]. If user attaches an image earlier in the conversation, treat it as the guest avatar and acknowledge it.
-Step 6 — Birthday (YYYY-MM-DD, optional). quickReplies: ["Skip","Cancel"].
-Step 7 — Anniversary (YYYY-MM-DD, optional). quickReplies: ["Skip","Cancel"].
-Step 8 — Tags (optional, multiSelect:true). quickReplies: ["VIP","Regular","New","Loyalty","Done","Skip"].
-Step 9 — Allergies (optional, multiSelect:true). quickReplies: ["Peanuts","Gluten","Dairy","Shellfish","Eggs","None","Done","Skip"].
-Step 10 — Note (optional, max 250 chars). quickReplies: ["Skip","Cancel"].
-Step 11 — Confirm summary. quickReplies: ["Confirm","Cancel"]. On Confirm emit:
+Step 5 — Birthday (YYYY-MM-DD, optional). quickReplies: ["Skip","Cancel"].
+Step 6 — Anniversary (YYYY-MM-DD, optional). quickReplies: ["Skip","Cancel"].
+Step 7 — Tags (optional, multiSelect:true). quickReplies: ["VIP","Regular","New","Loyalty","Done","Skip"].
+Step 8 — Allergies (optional, multiSelect:true). quickReplies: ["Peanuts","Gluten","Dairy","Shellfish","Eggs","None","Done","Skip"].
+Step 9 — Note (optional, max 250 chars). quickReplies: ["Skip","Cancel"].
+Step 10 — Guest photo (LAST field before summary): ask "Want to upload a photo for this guest? Tap the paperclip icon below to attach an image, then reply Done. Or Skip." quickReplies: ["Skip","Done","Cancel"]. If user already attached an image earlier in the conversation, acknowledge it and proceed.
+Step 11 — Summary + Confirm. Show a clean readable summary of ALL collected fields (First Name, Last Name, Phone, Email, Birthday, Anniversary, Tags, Allergies, Note, Photo: "Attached" or "None"). Then ask "Confirm to save this guest. You can still upload/replace the photo using the paperclip icon below before confirming." quickReplies: ["Confirm","Upload Photo","Cancel"]. If user clicks "Upload Photo", remind them to use the paperclip icon and wait. On "Confirm" emit:
   {"type":"update_setting","setting":"Guest","path":"Guest Book","settingType":"guest","operation":"add","data":{"firstName":"","lastName":"","name":"","phone":"","email":"","birthday":"","anniversary":"","tags":[],"allergies":[],"note":"","avatarUrl":"<data-url-if-attached>"},"autoApply":true}
 
 ## VIEW GUESTS / ARCHIVE GUEST FLOWS:

@@ -686,24 +686,40 @@ serve(async (req) => {
       parsedResponse.message = msg;
     }
 
-    // Ensure quickReplies
+    // Ensure quickReplies (banned navigation labels are filtered below)
     if (!parsedResponse.quickReplies || !Array.isArray(parsedResponse.quickReplies) || parsedResponse.quickReplies.length === 0) {
       const msg = (parsedResponse.message || "").toLowerCase();
       const actionType = parsedResponse.action?.type || "";
       if (msg.includes("menu") && msg.includes("step")) parsedResponse.quickReplies = ["Continue", "Skip", "Cancel"];
       else if (actionType === "generate_report" || msg.includes("sales report") || msg.includes("revenue") || msg.includes("report")) parsedResponse.quickReplies = ["Today's Sales", "Yesterday's Report", "This Week", "This Month"];
-      else if (msg.includes("gratuity") || msg.includes("tip")) parsedResponse.quickReplies = ["View Gratuity", "Tip Settings", "Go to Settings"];
-      else if (msg.includes("guest") || msg.includes("customer")) parsedResponse.quickReplies = ["View Guests", "Add Guest", "Guest History"];
-      else if (msg.includes("employee") || msg.includes("staff") || msg.includes("shift")) parsedResponse.quickReplies = ["View Employees", "Shift Schedule", "Go to Settings"];
-      else if (msg.includes("payment") || msg.includes("checkout")) parsedResponse.quickReplies = ["Payment Methods", "Checkout Options", "Go to Settings"];
-      else if (msg.includes("service charge")) parsedResponse.quickReplies = ["View Charges", "Add Charge", "Go to Settings"];
-      else if (msg.includes("menu")) parsedResponse.quickReplies = ["View Menus", "Add New Menu", "Go to Settings"];
-      else if (msg.includes("product")) parsedResponse.quickReplies = ["View Products", "Add Product", "Go to Settings"];
-      else if (msg.includes("discount")) parsedResponse.quickReplies = ["View Discounts", "Add Discount", "Go to Settings"];
-      else if (msg.includes("tax")) parsedResponse.quickReplies = ["View Taxes", "Add Tax", "Go to Settings"];
-      else if (msg.includes("order") || msg.includes("ticket")) parsedResponse.quickReplies = ["View Orders", "Order Settings", "Go to Settings"];
-      else if (/applied|success|done|created|saved/.test(msg)) parsedResponse.quickReplies = ["View All", "Add Another", "Go to Settings"];
-      else parsedResponse.quickReplies = ["View Menus", "View Products", "View Discounts", "Go to Settings"];
+      else if (msg.includes("gratuity") || msg.includes("tip")) parsedResponse.quickReplies = ["Tip Settings"];
+      else if (msg.includes("guest") || msg.includes("customer")) parsedResponse.quickReplies = ["Add Guest", "Guest History"];
+      else if (msg.includes("employee") || msg.includes("staff") || msg.includes("shift")) parsedResponse.quickReplies = ["Shift Schedule"];
+      else if (msg.includes("payment") || msg.includes("checkout")) parsedResponse.quickReplies = ["Payment Methods", "Checkout Options"];
+      else if (msg.includes("service charge")) parsedResponse.quickReplies = ["Add Charge"];
+      else if (msg.includes("menu")) parsedResponse.quickReplies = ["Add New Menu"];
+      else if (msg.includes("product")) parsedResponse.quickReplies = ["Add Product"];
+      else if (msg.includes("discount")) parsedResponse.quickReplies = ["Add Discount"];
+      else if (msg.includes("tax")) parsedResponse.quickReplies = ["Add Tax"];
+      else if (msg.includes("order") || msg.includes("ticket")) parsedResponse.quickReplies = ["Order Settings"];
+      else if (/applied|success|done|created|saved/.test(msg)) parsedResponse.quickReplies = ["Add Another"];
+      else parsedResponse.quickReplies = [];
+    }
+
+    // Strip banned navigation labels from any AI-generated quickReplies
+    const BANNED_QUICK_REPLIES = new Set([
+      "view menu", "view menus", "view product", "view products",
+      "view discount", "view discounts", "go to setting", "go to settings",
+    ]);
+    if (Array.isArray(parsedResponse.quickReplies)) {
+      parsedResponse.quickReplies = parsedResponse.quickReplies.filter(
+        (r: string) => typeof r === "string" && !BANNED_QUICK_REPLIES.has(r.trim().toLowerCase())
+      );
+    }
+    // Strip navigation hint so the AI never auto-changes the background screen
+    if (parsedResponse.navigateTo) delete parsedResponse.navigateTo;
+    if (parsedResponse.action && parsedResponse.action.type === "navigate") {
+      parsedResponse.action = { type: "info" };
     }
 
     if (parsedResponse.multiSelect === undefined) parsedResponse.multiSelect = false;

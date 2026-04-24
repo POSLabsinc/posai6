@@ -587,12 +587,13 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     return null;
   };
 
-  // Handle settings quick-reply clicks with drill-down
+  // Handle settings quick-reply clicks. AI must NOT change the background screen,
+  // so leaf-node navigation and "Go to X" shortcuts are intentionally disabled.
   const handleSettingsQuickReply = (reply: string) => {
     const hierarchy = SETTINGS_HIERARCHY[reply];
     if (hierarchy?.children) {
-      // Has children - show sub-options inline
-      const subOptions = [...hierarchy.children, `Go to ${reply}`, "← Back"];
+      // Has children - show sub-options inline (no "Go to" shortcut)
+      const subOptions = [...hierarchy.children, "← Back"];
       const assistantMessage: Message = {
         id: Date.now().toString(),
         role: "assistant",
@@ -606,19 +607,12 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       ]);
       return true;
     }
-    // Check "Go to X" pattern
-    const goToMatch = reply.match(/^Go to (.+)$/);
-    if (goToMatch) {
-      const target = goToMatch[1];
-      const targetHierarchy = SETTINGS_HIERARCHY[target];
-      if (targetHierarchy?.path) {
-        navigate(targetHierarchy.path);
-        return true;
-      }
+    // Swallow any legacy "Go to X" replies without navigating
+    if (/^Go to /i.test(reply)) {
+      return true;
     }
     // Check "Back" button
     if (reply === "← Back") {
-      // Go back to top-level settings modules
       const assistantMessage: Message = {
         id: Date.now().toString(),
         role: "assistant",
@@ -632,10 +626,9 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       ]);
       return true;
     }
-    // Check leaf node
+    // Leaf nodes: do NOT navigate the background screen. Treat as conversation.
     if (SETTINGS_LEAF_NAV[reply]) {
-      navigate(SETTINGS_LEAF_NAV[reply]);
-      return true;
+      return false;
     }
     return false;
   };
@@ -2389,7 +2382,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   {message.pendingChange && renderPendingChange(message.id, message.pendingChange)}
                   
                   {/* Navigate Button */}
-                  {message.navigateTo && renderNavigateButton(message.navigateTo)}
+                  {/* Background-screen navigation suppressed: AI must not redirect the user. */}
+                  {/* {message.navigateTo && renderNavigateButton(message.navigateTo)} */}
 
                   {/* Inline Theme Color Picker */}
                   {message.inlineAction === "theme-color-picker" && (
@@ -2657,12 +2651,21 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                     </div>
                   )}
 
-                  {/* Quick Reply Buttons */}
-                  {message.quickReplies && message.quickReplies.length > 0 && (
+                  {/* Quick Reply Buttons (banned navigation labels filtered out) */}
+                  {message.quickReplies && message.quickReplies.length > 0 && (() => {
+                    const BANNED_REPLIES = new Set([
+                      "view menu", "view menus", "view product", "view products",
+                      "view discount", "view discounts", "go to setting", "go to settings",
+                    ]);
+                    const replies = message.quickReplies.filter(
+                      (r) => typeof r === "string" && !BANNED_REPLIES.has(r.trim().toLowerCase())
+                    );
+                    if (replies.length === 0) return null;
+                    return (
                     <div className="mt-3 flex flex-wrap gap-2">
                       {message.multiSelect ? (
                         <>
-                          {message.quickReplies.filter(r => r !== "Done" && r !== "Skip").map((reply) => {
+                          {replies.filter(r => r !== "Done" && r !== "Skip").map((reply) => {
                             const selected = (multiSelectState[message.id] || []).includes(reply);
                             return (
                               <button
@@ -2671,7 +2674,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                                   setMultiSelectState(prev => {
                                     const current = prev[message.id] || [];
                                     if (reply === "All" || reply === "All Devices") {
-                                      const allOptions = message.quickReplies!.filter(r => r !== "Done" && r !== "Skip" && r !== "All" && r !== "All Devices");
+                                      const allOptions = replies.filter(r => r !== "Done" && r !== "Skip" && r !== "All" && r !== "All Devices");
                                       return { ...prev, [message.id]: allOptions };
                                     }
                                     return {
@@ -2713,7 +2716,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                           >
                             ✓ Done
                           </button>
-                          {message.quickReplies.includes("Skip") && (
+                          {replies.includes("Skip") && (
                             <button
                               onClick={() => handleSendMessage("Skip")}
                               disabled={isTyping}
@@ -2724,7 +2727,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                           )}
                         </>
                       ) : (
-                        message.quickReplies.map((reply) => (
+                        replies.map((reply) => (
                           <button
                             key={reply}
                             onClick={() => {
@@ -2745,7 +2748,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                         ))
                       )}
                     </div>
-                  )}
+                    );
+                  })()}
                 </div>
                 {message.role === "user" && (
                   <Avatar className="w-8 h-8 rounded-lg flex-shrink-0">

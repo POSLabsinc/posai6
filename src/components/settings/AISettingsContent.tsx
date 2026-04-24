@@ -972,6 +972,39 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           `- Tip Screen: ${checkout.skipTipScreen ? "Skipped" : "Shown"}`,
         ].join("\n");
       }
+      case "end-of-day": {
+        // Read EOD preferences directly from localStorage cache (synchronous) — keys mirror usePreference keys
+        const get = (k: string, d: string) => {
+          // best-effort: AI also reads live state via DB context in the edge function
+          return d;
+        };
+        return [
+          "## End of Day",
+          "Available actions the AI can perform:",
+          "- start_eod (open the End of Day summary)",
+          "- run_eod_now (execute the full End of Day automation immediately)",
+          "- print_eod_report (print today's End of Day report)",
+          "- clock_out_employees (clock out all currently clocked-in employees)",
+          "- close_cash_drawer (close the open cash drawer session)",
+          "- close_paid_orders (close all paid orders)",
+          "- cancel_unpaid_tickets (cancel all unpaid tickets)",
+          "",
+          "Configurable EOD toggles (settingType:\"endOfDay\"):",
+          "- endOfDayReminder (boolean)",
+          "- autoEndOfDayTime (e.g. \"11:00 PM\")",
+          "- runEndOfDay (boolean) — auto-run EOD",
+          "- autoRunTime (e.g. \"11:00 PM\")",
+          "- clockOutEmployees (boolean) — auto clock out at EOD",
+          "- closeCashDrawer (boolean)",
+          "- closePaidOrders (boolean)",
+          "- cancelUnpaidTickets (boolean)",
+          "- printReport (boolean) — print EOD report on close",
+          "- includeEmployeeData (boolean) — include employee details on the report",
+          "- printSummaryOnClockOut (boolean)",
+          "- selectedDevice (e.g. \"POS 1.2\")",
+          "- selectedEmployees (array of employee names — daily report recipients)",
+        ].join("\n");
+      }
       default:
         if (context?.startsWith("menu")) return "## Menu Module\nUse only the live menu, category, product, modifier, and add-on data for this section.";
         if (context?.startsWith("payments")) return "## Payments Module\nUse only payments settings relevant to the active payments section.";

@@ -47,38 +47,31 @@ interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
 }
 
 const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
-  ({ className, sortable = true, children, ...props }, ref) => (
-    <th
-      ref={ref}
-      className={cn(
-        "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
-        sortable && "cursor-pointer select-none",
-        className,
-      )}
-      {...props}
-    >
-      <span className="inline-flex items-center gap-1.5">
-        {children}
-        {sortable && (
-          <span
-            aria-hidden
-            style={{
-              WebkitMaskImage: `url(${expandArrowsIcon})`,
-              maskImage: `url(${expandArrowsIcon})`,
-              WebkitMaskRepeat: "no-repeat",
-              maskRepeat: "no-repeat",
-              WebkitMaskPosition: "center",
-              maskPosition: "center",
-              WebkitMaskSize: "contain",
-              maskSize: "contain",
-              backgroundColor: "currentColor",
-            }}
-            className="w-3 h-3 opacity-40 shrink-0 inline-block text-foreground"
-          />
+  ({ className, sortable = true, children, ...props }, ref) => {
+    const iconUrl = useSortIconUrl();
+    return (
+      <th
+        ref={ref}
+        className={cn(
+          "h-12 px-4 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0",
+          sortable && "cursor-pointer select-none",
+          className,
         )}
-      </span>
-    </th>
-  ),
+        {...props}
+      >
+        <span className="inline-flex items-center gap-1.5">
+          {children}
+          {sortable && (
+            <span
+              aria-hidden
+              style={getSortIconMaskStyle(iconUrl)}
+              className="w-3 h-3 opacity-40 shrink-0 inline-block text-foreground"
+            />
+          )}
+        </span>
+      </th>
+    );
+  },
 );
 TableHead.displayName = "TableHead";
 

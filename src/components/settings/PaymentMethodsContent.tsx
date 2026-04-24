@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ChevronLeft } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -85,8 +85,41 @@ const PaymentMethodsContent = ({ showHeader = true, onBack, onAIClick }: Payment
     return getDefaultState();
   });
 
-  // Persist to localStorage and DB whenever state changes
+  // Listen for external updates (e.g. AI assistant) and sync local state.
+  // Use a ref guard so we don't re-broadcast updates we just received.
+  const skipNextPersist = useRef(false);
   useEffect(() => {
+    const handleSettingsUpdate = (event: Event) => {
+      const detail = (event as CustomEvent).detail;
+      if (detail?.type === 'paymentMethods' && detail?.data) {
+        skipNextPersist.current = true;
+        setMethodStates({ ...getDefaultState(), ...detail.data });
+      }
+    };
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === STORAGE_KEY && event.newValue) {
+        try {
+          skipNextPersist.current = true;
+          setMethodStates({ ...getDefaultState(), ...JSON.parse(event.newValue) });
+        } catch { /* ignore */ }
+      }
+    };
+    window.addEventListener('settings-updated', handleSettingsUpdate as EventListener);
+    window.addEventListener('storage', handleStorage);
+    return () => {
+      window.removeEventListener('settings-updated', handleSettingsUpdate as EventListener);
+      window.removeEventListener('storage', handleStorage);
+    };
+  }, []);
+
+  // Persist to localStorage and DB whenever state changes locally.
+  useEffect(() => {
+    if (skipNextPersist.current) {
+      skipNextPersist.current = false;
+      // Still mirror to localStorage so other tabs stay in sync.
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(methodStates)); } catch { /* ignore */ }
+      return;
+    }
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(methodStates));
       // Sync to dedicated payment_methods table

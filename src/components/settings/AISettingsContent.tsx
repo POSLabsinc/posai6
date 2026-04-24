@@ -1377,6 +1377,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
             printSummaryOnClockOut: "eod_print_clock_out",
             selectedDevice: "eod_device",
             selectedEmployees: "eod_report_recipients",
+            sendDailyReports: "eod_send_daily_reports",
           };
           // Action triggers (immediate side-effects)
           if (data.action) {

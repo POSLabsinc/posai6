@@ -1361,6 +1361,74 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         case "orders":
           SettingsManager.updateOrdersSettings(data);
           break;
+        case "endOfDay": {
+          // Map AI camelCase keys -> usePreference keys used by EndOfDayContent
+          const EOD_KEY_MAP: Record<string, string> = {
+            endOfDayReminder: "eod_reminder",
+            autoEndOfDayTime: "eod_reminder_time",
+            runEndOfDay: "eod_auto_run",
+            autoRunTime: "eod_auto_run_time",
+            clockOutEmployees: "eod_clock_out",
+            closeCashDrawer: "eod_close_cash",
+            closePaidOrders: "eod_close_paid",
+            cancelUnpaidTickets: "eod_cancel_unpaid",
+            printReport: "eod_print_report",
+            includeEmployeeData: "eod_include_employee",
+            printSummaryOnClockOut: "eod_print_clock_out",
+            selectedDevice: "eod_device",
+            selectedEmployees: "eod_report_recipients",
+          };
+          // Action triggers (immediate side-effects)
+          if (data.action) {
+            const action = String(data.action);
+            if (action === "start_eod") {
+              navigate("/settings/end-of-day");
+              window.dispatchEvent(new CustomEvent("eod-start"));
+              toast({ title: "End of Day", description: "Opening End of Day summary." });
+            } else if (action === "run_eod_now") {
+              window.dispatchEvent(new CustomEvent("eod-run-now"));
+              toast({ title: "End of Day", description: "Running End of Day automation." });
+            } else if (action === "print_eod_report") {
+              try {
+                const { printEndOfDayReport } = await import("@/utils/eodReportPrinter");
+                const { data: prefRow } = await (supabase as any)
+                  .from("user_preferences").select("preference_value")
+                  .eq("device_id", "shared").eq("preference_key", "eod_include_employee").maybeSingle();
+                const includeEmp = prefRow?.preference_value === "true";
+                await printEndOfDayReport([], includeEmp);
+                toast({ title: "End of Day Report", description: "Print dialog opened." });
+              } catch (err) { console.error("Print EOD report failed:", err); }
+            } else if (action === "clock_out_employees") {
+              window.dispatchEvent(new CustomEvent("eod-clock-out-all"));
+              toast({ title: "Clock Out", description: "Clocking out all employees." });
+            } else if (action === "close_cash_drawer") {
+              window.dispatchEvent(new CustomEvent("eod-close-cash-drawer"));
+              toast({ title: "Cash Drawer", description: "Closing cash drawer." });
+            } else if (action === "close_paid_orders") {
+              window.dispatchEvent(new CustomEvent("eod-close-paid-orders"));
+              toast({ title: "Paid Orders", description: "Closing all paid orders." });
+            } else if (action === "cancel_unpaid_tickets") {
+              window.dispatchEvent(new CustomEvent("eod-cancel-unpaid"));
+              toast({ title: "Unpaid Tickets", description: "Cancelling all unpaid tickets." });
+            }
+            break;
+          }
+          // Toggle / value updates: persist directly to user_preferences
+          for (const [aiKey, val] of Object.entries(data)) {
+            const prefKey = EOD_KEY_MAP[aiKey];
+            if (!prefKey) continue;
+            let prefValue: string;
+            if (Array.isArray(val)) prefValue = JSON.stringify(val);
+            else if (typeof val === "boolean") prefValue = val ? "true" : "false";
+            else prefValue = String(val);
+            await (supabase as any).from("user_preferences").upsert(
+              { device_id: "shared", preference_key: prefKey, preference_value: prefValue },
+              { onConflict: "device_id,preference_key" }
+            );
+            window.dispatchEvent(new CustomEvent("preference-updated", { detail: { preferenceKey: prefKey } }));
+          }
+          break;
+        }
         default:
           console.warn("Unknown setting type:", settingType);
           return false;

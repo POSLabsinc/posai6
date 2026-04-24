@@ -491,6 +491,95 @@ async function fetchDatabaseContext(supabaseUrl: string, serviceRoleKey: string,
     })());
   }
 
+  // Active Employees
+  if (fetchAll || intents.has("employees")) {
+    promises.push((async () => {
+      const { data } = await supabase
+        .from("employees")
+        .select("id, full_name, role, phone, email, hourly_rate, assigned_job_types, revenue_center, is_archived, is_on_leave")
+        .eq("is_archived", false)
+        .order("full_name")
+        .limit(200);
+      if (data?.length) {
+        parts.push(`### Active Employees (${data.length}):`);
+        data.forEach((e: any, idx: number) => {
+          const jobs = (e.assigned_job_types || []).join(",");
+          parts.push(`${idx + 1}. ${e.full_name} — ${e.role}${jobs ? ` [${jobs}]` : ""} — ${e.phone || "no phone"} — ${e.email || "no email"}${e.hourly_rate ? ` rate:$${Number(e.hourly_rate).toFixed(2)}/h` : ""}${e.is_on_leave ? " [ON LEAVE]" : ""} (id:${e.id})`);
+        });
+      } else {
+        parts.push("### Active Employees: none yet. Suggest 'Add New Employee' to create one.");
+      }
+    })());
+  }
+
+  // Archived Employees
+  if (fetchAll || intents.has("archivedEmployees")) {
+    promises.push((async () => {
+      const { data } = await supabase
+        .from("employees")
+        .select("id, full_name, role, phone, email")
+        .eq("is_archived", true)
+        .order("full_name")
+        .limit(200);
+      if (data?.length) {
+        parts.push(`### Archived Employees (${data.length}):`);
+        data.forEach((e: any, idx: number) => {
+          parts.push(`${idx + 1}. ${e.full_name} — ${e.role} — ${e.phone || "no phone"} — ${e.email || "no email"} (id:${e.id})`);
+        });
+      } else {
+        parts.push("### Archived Employees: none.");
+      }
+    })());
+  }
+
+  // Employee Shifts (recent + upcoming 14 days)
+  if (fetchAll || intents.has("employeeShifts")) {
+    promises.push((async () => {
+      const today = new Date();
+      const past = new Date(today.getTime() - 7 * 86400000).toISOString().slice(0, 10);
+      const future = new Date(today.getTime() + 14 * 86400000).toISOString().slice(0, 10);
+      const [{ data: shifts }, { data: emps }] = await Promise.all([
+        supabase.from("employee_shifts")
+          .select("id, employee_id, shift_date, shift_type, start_time, end_time, job_type, clock_in, clock_out, break_minutes, shift_notes")
+          .gte("shift_date", past).lte("shift_date", future)
+          .order("shift_date").limit(200),
+        supabase.from("employees").select("id, full_name").eq("is_archived", false),
+      ]);
+      const empMap: Record<string, string> = {};
+      (emps || []).forEach((e: any) => { empMap[e.id] = e.full_name; });
+      if (shifts?.length) {
+        parts.push(`### Employee Shifts — last 7d / next 14d (${shifts.length}):`);
+        shifts.forEach((s: any, idx: number) => {
+          const name = empMap[s.employee_id] || "Unassigned";
+          const status = s.clock_in && s.clock_out ? "DONE" : s.clock_in ? "WORKING" : "SCHEDULED";
+          parts.push(`${idx + 1}. ${s.shift_date} — ${name} — ${s.shift_type || "Regular"}${s.job_type ? ` [${s.job_type}]` : ""} ${s.start_time || "?"}–${s.end_time || "?"} ${status} (id:${s.id})`);
+        });
+      } else {
+        parts.push("### Employee Shifts: none in current window.");
+      }
+    })());
+  }
+
+  // Open / Unassigned Shifts
+  if (fetchAll || intents.has("openShifts")) {
+    promises.push((async () => {
+      const { data } = await supabase
+        .from("open_shifts")
+        .select("id, shift_name, shift_date, shift_type, start_time, end_time, recurring, selected_days, allow_overtime, shift_note")
+        .order("shift_date", { ascending: false })
+        .limit(100);
+      if (data?.length) {
+        parts.push(`### Open Shifts (${data.length}):`);
+        data.forEach((s: any, idx: number) => {
+          const days = (s.selected_days || []).join(",");
+          parts.push(`${idx + 1}. ${s.shift_name} — ${s.shift_date} ${s.shift_type || "Regular"} ${s.start_time || "?"}–${s.end_time || "?"}${days ? ` days:[${days}]` : ""}${s.recurring ? " [recurring]" : ""} (id:${s.id})`);
+        });
+      } else {
+        parts.push("### Open Shifts: none.");
+      }
+    })());
+  }
+
   await Promise.all(promises);
   return parts.join("\n") || "No relevant data found.";
 }

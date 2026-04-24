@@ -2986,41 +2986,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       {/* Input Area - hidden when More tab is active */}
       {!(isAppearanceContext && activeTab === 'more') && (
       <div className="flex-shrink-0 p-4 border-t border-neutral-800">
-        {/* Image preview */}
-        {uploadedImage && (
-          <div className="mb-3 flex items-start gap-2">
-            <div className="relative">
-              <img src={uploadedImage} alt="Upload preview" className="w-20 h-20 rounded-xl object-cover border border-neutral-700" />
-              <button
-                onClick={clearUploadedImage}
-                className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs"
-              >
-                <X className="w-3 h-3" />
-              </button>
-            </div>
-            <span className="text-xs text-muted-foreground mt-1">Menu image attached</span>
-          </div>
-        )}
-        
         <form onSubmit={handleSubmit} className="flex gap-3 items-center">
-          {/* Image Upload Button */}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*"
-            capture="environment"
-            onChange={handleImageSelect}
-            className="hidden"
-          />
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            disabled={isTyping}
-            className="w-12 h-12 rounded-full bg-neutral-800/60 text-muted-foreground hover:bg-neutral-700/60 hover:text-foreground flex items-center justify-center transition-all flex-shrink-0 disabled:opacity-40"
-            title="Upload menu image"
-          >
-            <ImagePlus className="w-5 h-5" />
-          </button>
 
           {/* Microphone Button */}
           {isVoiceSupported && (

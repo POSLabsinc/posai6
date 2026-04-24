@@ -631,6 +631,9 @@ const Settings = () => {
   const getAiContext = (pathname: string): string | undefined => {
     const segments = pathname.replace('/settings/', '').split('/').filter(Boolean);
     if (segments.length === 0 || pathname === '/settings' || pathname === '/settings/account') return 'account';
+    if (pathname.startsWith('/settings/account/personal-information')) return 'account-personal-information';
+    if (pathname.startsWith('/settings/account/restaurant-information')) return 'account-restaurant-information';
+    if (pathname.startsWith('/settings/account/security')) return 'account-security';
     if (pathname.startsWith('/settings/account/')) return 'account';
     // For sub-routes like /settings/system/appearance produce "system-appearance"
     const parentMap: Record<string, string> = {

@@ -19,6 +19,7 @@ import ClosingGracePeriodModal from "@/components/ClosingGracePeriodModal";
 import { AutoLockProvider } from "@/contexts/AutoLockContext";
 import { VoucherModeProvider } from "@/contexts/VoucherModeContext";
 import { SettingsManager } from "@/lib/settingsManager";
+import ThemeBridge from "@/components/ThemeBridge";
 
 // Lazy-loaded route pages for code-splitting
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -193,6 +194,7 @@ const AppInner = () => {
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="pos-app-theme">
+      <ThemeBridge />
       <TooltipProvider>
         <AppProvider onRestart={() => window.location.reload()}>
           <AppearanceProvider>

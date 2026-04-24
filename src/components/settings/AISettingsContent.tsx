@@ -204,10 +204,16 @@ const paymentsSuggestionChips: SuggestionChip[] = [
 ];
 
 const endOfDaySuggestionChips: SuggestionChip[] = [
-  { label: "End of day setup", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show me end of day settings" },
-  { label: "Auto close", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Configure automatic day closing" },
-  { label: "Reports config", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show end of day report settings" },
-  { label: "Cash reconciliation", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show cash reconciliation settings" },
+  { label: "Start End of Day", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Start End of Day now" },
+  { label: "Run End of Day", icon: <Settings className="w-3.5 h-3.5" />, prompt: "Run End of Day automation now" },
+  { label: "Print EOD report", icon: <Printer className="w-3.5 h-3.5" />, prompt: "Print the End of Day report" },
+  { label: "Clock out employees", icon: <Users className="w-3.5 h-3.5" />, prompt: "Clock out all employees" },
+  { label: "Close cash drawer", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Close the cash drawer" },
+  { label: "Close paid orders", icon: <Check className="w-3.5 h-3.5" />, prompt: "Close all paid orders" },
+  { label: "Cancel unpaid tickets", icon: <X className="w-3.5 h-3.5" />, prompt: "Cancel all unpaid tickets" },
+  { label: "EOD reminder", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Set up End of Day reminder" },
+  { label: "Send daily reports", icon: <FileText className="w-3.5 h-3.5" />, prompt: "Configure daily report recipients" },
+  { label: "Include employee data", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Toggle Include Employee Data on the EOD report" },
 ];
 
 const guestBookSuggestionChips: SuggestionChip[] = [

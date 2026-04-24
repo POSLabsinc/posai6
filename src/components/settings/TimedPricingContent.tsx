@@ -81,6 +81,9 @@ const TimedPricingContent = ({ showHeader = true, onBack, onAIClick }: TimedPric
 
   useEffect(() => {
     fetchRules();
+    const refresh = () => fetchRules();
+    window.addEventListener("pos-data-changed", refresh);
+    return () => window.removeEventListener("pos-data-changed", refresh);
   }, []);
 
   const handleToggle = async (id: string, enabled: boolean) => {

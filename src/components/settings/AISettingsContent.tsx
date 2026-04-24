@@ -1133,45 +1133,141 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
         case "gratuity":
           SettingsManager.updateGratuitySettings(data);
           break;
-        case "discount":
+        case "discount": {
           if (operation === "add") {
-            SettingsManager.addDiscount({ name: data.name, amount: data.amount, type: data.type || "Percentage", archived: false, applicableTo: data.applicableTo || "All Products", requiresManagerPin: data.requiresManagerPin || false });
+            const { error } = await (supabase as any).from("discounts").insert({
+              device_id: "shared",
+              name: data.name,
+              amount: data.amount,
+              type: data.type || "Percentage",
+              applicable_to: data.applicableTo || "All Products",
+              applicable_products: data.applicableProducts || [],
+              requires_manager_pin: !!data.requiresManagerPin,
+              schedule_enabled: !!data.scheduleEnabled,
+              archived: false,
+            });
+            if (error) throw error;
           } else if (operation === "update") {
-            const discount = SettingsManager.findDiscountByName(data.name);
-            if (!discount) { toast({ title: "Not found", description: `Discount "${data.name}" not found.`, variant: "destructive" }); return false; }
-            SettingsManager.updateDiscount(discount.id, data);
-          } else if (operation === "archive") {
-            const discount = SettingsManager.findDiscountByName(data.name);
-            if (!discount) { toast({ title: "Not found", description: `Discount "${data.name}" not found.`, variant: "destructive" }); return false; }
-            SettingsManager.archiveDiscount(discount.id);
+            const target = await resolveByName("discounts", data);
+            if (!target) return notFoundToast("Discount", data.name);
+            const updates: any = {};
+            if (data.newName) updates.name = data.newName;
+            if (data.amount !== undefined) updates.amount = data.amount;
+            if (data.type) updates.type = data.type;
+            if (data.applicableTo) updates.applicable_to = data.applicableTo;
+            if (data.applicableProducts !== undefined) updates.applicable_products = data.applicableProducts;
+            if (data.requiresManagerPin !== undefined) updates.requires_manager_pin = data.requiresManagerPin;
+            if (data.scheduleEnabled !== undefined) updates.schedule_enabled = data.scheduleEnabled;
+            const { error } = await (supabase as any).from("discounts").update(updates).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "archive" || operation === "disable") {
+            const target = await resolveByName("discounts", data);
+            if (!target) return notFoundToast("Discount", data.name);
+            const { error } = await (supabase as any).from("discounts").update({ archived: true }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "enable") {
+            const target = await resolveByName("discounts", data);
+            if (!target) return notFoundToast("Discount", data.name);
+            const { error } = await (supabase as any).from("discounts").update({ archived: false }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete") {
+            const target = await resolveByName("discounts", data);
+            if (!target) return notFoundToast("Discount", data.name);
+            const { error } = await (supabase as any).from("discounts").delete().eq("id", target.id);
+            if (error) throw error;
           }
           break;
-        case "tax":
+        }
+        case "tax": {
           if (operation === "add") {
-            SettingsManager.addTax({ name: data.name, amount: data.amount, type: data.type || "Exclusive", archived: false });
+            const { error } = await (supabase as any).from("taxes").insert({
+              device_id: "shared",
+              name: data.name,
+              amount: data.amount,
+              type: data.type || "Exclusive",
+              applicable_to: data.applicableTo || "All Products",
+              applicable_products: data.applicableProducts || [],
+              archived: false,
+            });
+            if (error) throw error;
           } else if (operation === "update") {
-            const tax = SettingsManager.findTaxByName(data.name);
-            if (!tax) { toast({ title: "Not found", description: `Tax "${data.name}" not found.`, variant: "destructive" }); return false; }
-            SettingsManager.updateTax(tax.id, data);
-          } else if (operation === "archive") {
-            const tax = SettingsManager.findTaxByName(data.name);
-            if (!tax) { toast({ title: "Not found", description: `Tax "${data.name}" not found.`, variant: "destructive" }); return false; }
-            SettingsManager.archiveTax(tax.id);
+            const target = await resolveByName("taxes", data);
+            if (!target) return notFoundToast("Tax", data.name);
+            const updates: any = {};
+            if (data.newName) updates.name = data.newName;
+            if (data.amount !== undefined) updates.amount = data.amount;
+            if (data.type) updates.type = data.type;
+            if (data.applicableTo) updates.applicable_to = data.applicableTo;
+            if (data.applicableProducts !== undefined) updates.applicable_products = data.applicableProducts;
+            const { error } = await (supabase as any).from("taxes").update(updates).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "archive" || operation === "disable") {
+            const target = await resolveByName("taxes", data);
+            if (!target) return notFoundToast("Tax", data.name);
+            const { error } = await (supabase as any).from("taxes").update({ archived: true }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "enable") {
+            const target = await resolveByName("taxes", data);
+            if (!target) return notFoundToast("Tax", data.name);
+            const { error } = await (supabase as any).from("taxes").update({ archived: false }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete") {
+            const target = await resolveByName("taxes", data);
+            if (!target) return notFoundToast("Tax", data.name);
+            const { error } = await (supabase as any).from("taxes").delete().eq("id", target.id);
+            if (error) throw error;
           }
           break;
-        case "serviceCharge":
+        }
+        case "serviceCharge": {
           if (operation === "add") {
-            SettingsManager.addServiceCharge({ name: data.name, amount: data.amount, type: data.type || "Fixed", archived: false, orderType: data.orderType || "All Orders", automaticApply: data.automaticApply || false, minSeats: data.minSeats, taxApplicable: data.taxApplicable || "Taxable" });
+            const orderType = Array.isArray(data.orderType) ? data.orderType.join(", ") : (data.orderType || "All Orders");
+            const { error } = await (supabase as any).from("service_charges").insert({
+              device_id: "shared",
+              name: data.name,
+              amount: data.amount,
+              type: data.type || "Fixed",
+              tax_applicable: data.taxApplicable || "Taxable",
+              order_type: orderType,
+              applied_as: data.appliedAs || "Per Check",
+              automatic_apply: !!data.automaticApply,
+              min_seats: data.minSeats || 0,
+              requires_manager_pin: !!data.requiresManagerPin,
+              archived: false,
+            });
+            if (error) throw error;
           } else if (operation === "update") {
-            const charge = SettingsManager.findServiceChargeByName(data.name);
-            if (!charge) { toast({ title: "Not found", description: `Service charge "${data.name}" not found.`, variant: "destructive" }); return false; }
-            SettingsManager.updateServiceCharge(charge.id, data);
-          } else if (operation === "archive") {
-            const charge = SettingsManager.findServiceChargeByName(data.name);
-            if (!charge) { toast({ title: "Not found", description: `Service charge "${data.name}" not found.`, variant: "destructive" }); return false; }
-            SettingsManager.archiveServiceCharge(charge.id);
+            const target = await resolveByName("service_charges", data);
+            if (!target) return notFoundToast("Service charge", data.name);
+            const updates: any = {};
+            if (data.newName) updates.name = data.newName;
+            if (data.amount !== undefined) updates.amount = data.amount;
+            if (data.type) updates.type = data.type;
+            if (data.taxApplicable) updates.tax_applicable = data.taxApplicable;
+            if (data.orderType) updates.order_type = Array.isArray(data.orderType) ? data.orderType.join(", ") : data.orderType;
+            if (data.automaticApply !== undefined) updates.automatic_apply = data.automaticApply;
+            if (data.minSeats !== undefined) updates.min_seats = data.minSeats;
+            if (data.requiresManagerPin !== undefined) updates.requires_manager_pin = data.requiresManagerPin;
+            const { error } = await (supabase as any).from("service_charges").update(updates).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "archive" || operation === "disable") {
+            const target = await resolveByName("service_charges", data);
+            if (!target) return notFoundToast("Service charge", data.name);
+            const { error } = await (supabase as any).from("service_charges").update({ archived: true }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "enable") {
+            const target = await resolveByName("service_charges", data);
+            if (!target) return notFoundToast("Service charge", data.name);
+            const { error } = await (supabase as any).from("service_charges").update({ archived: false }).eq("id", target.id);
+            if (error) throw error;
+          } else if (operation === "remove" || operation === "delete") {
+            const target = await resolveByName("service_charges", data);
+            if (!target) return notFoundToast("Service charge", data.name);
+            const { error } = await (supabase as any).from("service_charges").delete().eq("id", target.id);
+            if (error) throw error;
           }
           break;
+        }
         case "appearance":
           SettingsManager.updateAppearanceSettings(data);
           break;
@@ -1190,6 +1286,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       }
       // Broadcast settings change for any listening UI components
       window.dispatchEvent(new CustomEvent("pos-data-changed", { detail: { settingType, operation } }));
+      window.dispatchEvent(new CustomEvent("settings-updated", { detail: { type: settingType, operation } }));
+      toast({ title: "Success", description: data?.name ? `${data.name} ${operation === "add" ? "created" : operation + "d"}.` : "Settings updated." });
       return true;
     } catch (error) {
       console.error("Error executing action:", error);
@@ -1603,6 +1701,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       // Broadcast global change so all listening module pages refresh
       window.dispatchEvent(new CustomEvent("pos-data-changed", { detail: { settingType, operation } }));
       window.dispatchEvent(new CustomEvent("products-updated"));
+      window.dispatchEvent(new CustomEvent("menus-updated"));
+      window.dispatchEvent(new CustomEvent("settings-updated", { detail: { type: settingType, operation } }));
       toast({ title: "Success", description: `${data.name || "Record"} has been ${operation === "add" ? "created" : operation + "d"} successfully.` });
       return true;
     } catch (error: any) {

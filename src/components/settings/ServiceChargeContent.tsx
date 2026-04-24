@@ -84,6 +84,9 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
 
   useEffect(() => {
     fetchServiceCharges();
+    const refresh = () => fetchServiceCharges();
+    window.addEventListener("pos-data-changed", refresh);
+    return () => window.removeEventListener("pos-data-changed", refresh);
   }, [fetchServiceCharges]);
 
   const [searchQuery, setSearchQuery] = useState("");

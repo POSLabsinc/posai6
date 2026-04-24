@@ -2382,7 +2382,8 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                   {message.pendingChange && renderPendingChange(message.id, message.pendingChange)}
                   
                   {/* Navigate Button */}
-                  {message.navigateTo && renderNavigateButton(message.navigateTo)}
+                  {/* Background-screen navigation suppressed: AI must not redirect the user. */}
+                  {/* {message.navigateTo && renderNavigateButton(message.navigateTo)} */}
 
                   {/* Inline Theme Color Picker */}
                   {message.inlineAction === "theme-color-picker" && (
@@ -2650,9 +2651,20 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
                     </div>
                   )}
 
-                  {/* Quick Reply Buttons */}
-                  {message.quickReplies && message.quickReplies.length > 0 && (
-                    <div className="mt-3 flex flex-wrap gap-2">
+                  {/* Quick Reply Buttons (banned navigation labels filtered out) */}
+                  {(() => {
+                    const BANNED_REPLIES = new Set([
+                      "view menu", "view menus", "view product", "view products",
+                      "view discount", "view discounts", "go to setting", "go to settings",
+                    ]);
+                    const filteredReplies = (message.quickReplies || []).filter(
+                      (r) => typeof r === "string" && !BANNED_REPLIES.has(r.trim().toLowerCase())
+                    );
+                    if (filteredReplies.length === 0) return null;
+                    const displayMessage = { ...message, quickReplies: filteredReplies };
+                    return (
+                  <div className="mt-3 flex flex-wrap gap-2">
+                    {(() => { const message = displayMessage; return (<>
                       {message.multiSelect ? (
                         <>
                           {message.quickReplies.filter(r => r !== "Done" && r !== "Skip").map((reply) => {

@@ -587,12 +587,13 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     return null;
   };
 
-  // Handle settings quick-reply clicks with drill-down
+  // Handle settings quick-reply clicks. AI must NOT change the background screen,
+  // so leaf-node navigation and "Go to X" shortcuts are intentionally disabled.
   const handleSettingsQuickReply = (reply: string) => {
     const hierarchy = SETTINGS_HIERARCHY[reply];
     if (hierarchy?.children) {
-      // Has children - show sub-options inline
-      const subOptions = [...hierarchy.children, `Go to ${reply}`, "← Back"];
+      // Has children - show sub-options inline (no "Go to" shortcut)
+      const subOptions = [...hierarchy.children, "← Back"];
       const assistantMessage: Message = {
         id: Date.now().toString(),
         role: "assistant",
@@ -606,19 +607,12 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       ]);
       return true;
     }
-    // Check "Go to X" pattern
-    const goToMatch = reply.match(/^Go to (.+)$/);
-    if (goToMatch) {
-      const target = goToMatch[1];
-      const targetHierarchy = SETTINGS_HIERARCHY[target];
-      if (targetHierarchy?.path) {
-        navigate(targetHierarchy.path);
-        return true;
-      }
+    // Swallow any legacy "Go to X" replies without navigating
+    if (/^Go to /i.test(reply)) {
+      return true;
     }
     // Check "Back" button
     if (reply === "← Back") {
-      // Go back to top-level settings modules
       const assistantMessage: Message = {
         id: Date.now().toString(),
         role: "assistant",
@@ -632,10 +626,9 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
       ]);
       return true;
     }
-    // Check leaf node
+    // Leaf nodes: do NOT navigate the background screen. Treat as conversation.
     if (SETTINGS_LEAF_NAV[reply]) {
-      navigate(SETTINGS_LEAF_NAV[reply]);
-      return true;
+      return false;
     }
     return false;
   };

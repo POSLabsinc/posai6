@@ -1096,6 +1096,24 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
     "tip on cfd": { type: "gratuity", key: "disableTipOnCFD" },
     "show tip on receipt": { type: "gratuity", key: "showOnReceipt" },
     "allow custom tip": { type: "gratuity", key: "allowCustom" },
+    // End of Day toggles
+    "end of day reminder": { type: "endOfDay", key: "endOfDayReminder" },
+    "eod reminder": { type: "endOfDay", key: "endOfDayReminder" },
+    "auto end of day time": { type: "endOfDay", key: "autoEndOfDayTime" },
+    "run end of day": { type: "endOfDay", key: "runEndOfDay" },
+    "auto run end of day": { type: "endOfDay", key: "runEndOfDay" },
+    "auto run time": { type: "endOfDay", key: "autoRunTime" },
+    "clock out employees": { type: "endOfDay", key: "clockOutEmployees" },
+    "close cash drawer": { type: "endOfDay", key: "closeCashDrawer" },
+    "close paid orders": { type: "endOfDay", key: "closePaidOrders" },
+    "cancel unpaid tickets": { type: "endOfDay", key: "cancelUnpaidTickets" },
+    "print end of day report": { type: "endOfDay", key: "printReport" },
+    "print eod report": { type: "endOfDay", key: "printReport" },
+    "include employee data": { type: "endOfDay", key: "includeEmployeeData" },
+    "print summary on clock-out": { type: "endOfDay", key: "printSummaryOnClockOut" },
+    "print summary on clock out": { type: "endOfDay", key: "printSummaryOnClockOut" },
+    "end of day device": { type: "endOfDay", key: "selectedDevice" },
+    "send daily reports": { type: "endOfDay", key: "selectedEmployees" },
   };
 
   // Coerce AI's free-form value into the right shape for the target key

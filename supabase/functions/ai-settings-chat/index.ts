@@ -906,7 +906,7 @@ serve(async (req) => {
       if (msg.includes("menu") && msg.includes("step")) parsedResponse.quickReplies = ["Continue", "Skip", "Cancel"];
       else if (actionType === "generate_report" || msg.includes("sales report") || msg.includes("revenue") || msg.includes("report")) parsedResponse.quickReplies = ["Today's Sales", "Yesterday's Report", "This Week", "This Month"];
       else if (msg.includes("gratuity") || msg.includes("tip")) parsedResponse.quickReplies = ["Tip Settings"];
-      else if (msg.includes("guest") || msg.includes("customer")) parsedResponse.quickReplies = ["Add Guest", "Guest History"];
+      else if (msg.includes("guest") || msg.includes("customer")) parsedResponse.quickReplies = ["View Guests", "Add Guest", "Archive Guest"];
       else if (msg.includes("employee") || msg.includes("staff") || msg.includes("shift")) parsedResponse.quickReplies = ["Shift Schedule"];
       else if (msg.includes("payment") || msg.includes("checkout")) parsedResponse.quickReplies = ["Payment Methods", "Checkout Options"];
       else if (msg.includes("service charge")) parsedResponse.quickReplies = ["Add Charge"];

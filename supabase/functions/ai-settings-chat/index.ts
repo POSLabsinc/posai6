@@ -24,7 +24,7 @@ const SYSTEM_PROMPT = `You are an AI assistant for a POS system. Help users mana
 
 ## Action Types:
 - view: {"type":"view","category":"menus|products|categories|modifiers|addOns|discounts|taxes|serviceCharges|gratuity|all"}
-- update_setting: {"type":"update_setting","setting":"Name","path":"Path","currentValue":"Old","newValue":"New","settingType":"menu|product|category|modifierGroup|modifier|addOn|gratuity|discount|tax|serviceCharge|appearance|controlCenter|checkoutOptions|orders|securityPin","operation":"add|update|archive|enable|disable|change_pin","data":{...},"autoApply":true|false}
+- update_setting: {"type":"update_setting","setting":"Name","path":"Path","currentValue":"Old","newValue":"New","settingType":"menu|product|category|modifierGroup|modifier|addOn|gratuity|discount|tax|serviceCharge|appearance|controlCenter|checkoutOptions|orders|securityPin|endOfDay","operation":"add|update|archive|enable|disable|change_pin|trigger","data":{...},"autoApply":true|false}
   CRITICAL: For toggle/enable/disable settings, "data" MUST be a JSON object using the exact backend key with a boolean/number value (NOT a string like "Enabled"). Examples:
     • Bold Text → data:{"boldText":true}, settingType:"appearance"
     • Debug Mode → data:{"debugMode":true}, settingType:"controlCenter"

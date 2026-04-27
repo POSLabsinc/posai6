@@ -27,7 +27,7 @@ export function useSortableData<T, K extends string = string>(
     setSort((prev) => {
       if (prev.key !== key) return { key, direction: "asc" };
       if (prev.direction === "asc") return { key, direction: "desc" };
-      if (prev.direction === "desc") return { key, null, direction: null };
+      if (prev.direction === "desc") return { key, direction: null };
       return { key, direction: "asc" };
     });
   }, []);

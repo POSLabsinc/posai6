@@ -114,7 +114,7 @@ export function SortableHeader<K extends string>({
         aria-hidden
         style={getSortIconMaskStyle(iconUrl)}
         className={`w-3 h-3 shrink-0 inline-block text-foreground transition-opacity ${
-          isActive ? "opacity-90" : "opacity-40"
+          isActive ? "opacity-100" : "opacity-80 dark:opacity-90"
         } ${
           sort.key === sortKey && sort.direction === "desc" ? "rotate-180" : ""
         }`}

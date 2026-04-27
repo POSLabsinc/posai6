@@ -65,7 +65,7 @@ const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
             <span
               aria-hidden
               style={getSortIconMaskStyle(iconUrl)}
-              className="w-3 h-3 opacity-40 shrink-0 inline-block text-foreground"
+              className="w-3 h-3 shrink-0 inline-block text-foreground opacity-90 dark:opacity-100"
             />
           )}
         </span>

@@ -1,4 +1,5 @@
 import { lazy, Suspense, useCallback } from "react";
+import type { ComponentType } from "react";
 import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -21,50 +22,72 @@ import { VoucherModeProvider } from "@/contexts/VoucherModeContext";
 import { SettingsManager } from "@/lib/settingsManager";
 import ThemeBridge from "@/components/ThemeBridge";
 
+const lazyWithImportRecovery = <T extends ComponentType<unknown>>(
+  loader: () => Promise<{ default: T }>,
+) =>
+  lazy(() =>
+    loader().catch((error) => {
+      const message = error instanceof Error ? error.message : String(error);
+      const isDynamicImportError = /Failed to fetch dynamically imported module|Importing a module script failed|error loading dynamically imported module/i.test(message);
+
+      if (isDynamicImportError && typeof window !== "undefined") {
+        const retryKey = "posai:dynamic-import-retry";
+        const retryCount = Number(window.sessionStorage.getItem(retryKey) ?? "0");
+
+        if (retryCount < 1) {
+          window.sessionStorage.setItem(retryKey, String(retryCount + 1));
+          window.location.replace(`${window.location.pathname}${window.location.search}${window.location.search ? "&" : "?"}reload=${Date.now()}`);
+        }
+      }
+
+      throw error;
+    }),
+  );
+
 // Lazy-loaded route pages for code-splitting
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const Orders = lazy(() => import("./pages/Orders"));
-const OrdersDesign1 = lazy(() => import("./pages/OrdersDesign1"));
-const OrdersDesign2 = lazy(() => import("./pages/OrdersDesign2"));
-const OrdersDesign3 = lazy(() => import("./pages/OrdersDesign3"));
-const OrdersDesign4 = lazy(() => import("./pages/OrdersDesign4"));
-const OrdersA = lazy(() => import("./pages/OrdersA"));
-const OrdersD = lazy(() => import("./pages/OrdersD"));
-const OrdersF = lazy(() => import("./pages/OrdersF"));
-const LiquidGlassDashboard = lazy(() => import("./pages/LiquidGlassDashboard"));
-const LiquidGlassOrders = lazy(() => import("./pages/LiquidGlassOrders"));
-const LiquidGlassMenu = lazy(() => import("./pages/LiquidGlassMenu"));
-const LiquidGlassCheckout = lazy(() => import("./pages/LiquidGlassCheckout"));
-const LiquidGlassOrders1A = lazy(() => import("./pages/LiquidGlassOrders1A"));
-const LiquidGlassOrders1B = lazy(() => import("./pages/LiquidGlassOrders1B"));
-const LiquidGlassOrders2A = lazy(() => import("./pages/LiquidGlassOrders2A"));
-const LiquidGlassOrders2B = lazy(() => import("./pages/LiquidGlassOrders2B"));
-const LiquidGlassOrders3A = lazy(() => import("./pages/LiquidGlassOrders3A"));
-const LiquidGlassOrders3B = lazy(() => import("./pages/LiquidGlassOrders3B"));
-const LiquidGlassOrders4A = lazy(() => import("./pages/LiquidGlassOrders4A"));
-const LiquidGlassOrders4B = lazy(() => import("./pages/LiquidGlassOrders4B"));
-const LiquidGlassOrders5A = lazy(() => import("./pages/LiquidGlassOrders5A"));
-const LiquidGlassOrders5B = lazy(() => import("./pages/LiquidGlassOrders5B"));
-const TableOrder = lazy(() => import("./pages/TableOrder"));
-const TableOrderA = lazy(() => import("./pages/TableOrderA"));
-const TableOrderB = lazy(() => import("./pages/TableOrderB"));
-const TableOrderDetails = lazy(() => import("./pages/TableOrderDetails"));
-const MergeOrders = lazy(() => import("./pages/MergeOrders"));
-const TransferOrders = lazy(() => import("./pages/TransferOrders"));
-const Tickets = lazy(() => import("./pages/Tickets"));
-const Settings = lazy(() => import("./pages/Settings"));
-const DiscountsRoute = lazy(() => import("./components/routes/DiscountsRoute"));
-const Account = lazy(() => import("./pages/Account"));
-const ReportsRoute = lazy(() => import("./components/routes/ReportsRoute"));
-const NotFound = lazy(() => import("./pages/NotFound"));
-const FullReservationsView = lazy(() => import("./pages/FullReservationsView"));
-const Voucher = lazy(() => import("./pages/Voucher"));
-const OrderOS = lazy(() => import("./pages/OrderOS"));
-const ClosedTickets = lazy(() => import("./pages/ClosedTickets"));
-const Login = lazy(() => import("./pages/Login"));
-const KDSMessages = lazy(() => import("./pages/KDSMessages"));
-const KDS = lazy(() => import("./pages/KDS"));
-const ClosingGracePeriod = lazy(() => import("./pages/ClosingGracePeriod"));
+const Dashboard = lazyWithImportRecovery(() => import("./pages/Dashboard"));
+const Orders = lazyWithImportRecovery(() => import("./pages/Orders"));
+const OrdersDesign1 = lazyWithImportRecovery(() => import("./pages/OrdersDesign1"));
+const OrdersDesign2 = lazyWithImportRecovery(() => import("./pages/OrdersDesign2"));
+const OrdersDesign3 = lazyWithImportRecovery(() => import("./pages/OrdersDesign3"));
+const OrdersDesign4 = lazyWithImportRecovery(() => import("./pages/OrdersDesign4"));
+const OrdersA = lazyWithImportRecovery(() => import("./pages/OrdersA"));
+const OrdersD = lazyWithImportRecovery(() => import("./pages/OrdersD"));
+const OrdersF = lazyWithImportRecovery(() => import("./pages/OrdersF"));
+const LiquidGlassDashboard = lazyWithImportRecovery(() => import("./pages/LiquidGlassDashboard"));
+const LiquidGlassOrders = lazyWithImportRecovery(() => import("./pages/LiquidGlassOrders"));
+const LiquidGlassMenu = lazyWithImportRecovery(() => import("./pages/LiquidGlassMenu"));
+const LiquidGlassCheckout = lazyWithImportRecovery(() => import("./pages/LiquidGlassCheckout"));
+const LiquidGlassOrders1A = lazyWithImportRecovery(() => import("./pages/LiquidGlassOrders1A"));
+const LiquidGlassOrders1B = lazyWithImportRecovery(() => import("./pages/LiquidGlassOrders1B"));
+const LiquidGlassOrders2A = lazyWithImportRecovery(() => import("./pages/LiquidGlassOrders2A"));
+const LiquidGlassOrders2B = lazyWithImportRecovery(() => import("./pages/LiquidGlassOrders2B"));
+const LiquidGlassOrders3A = lazyWithImportRecovery(() => import("./pages/LiquidGlassOrders3A"));
+const LiquidGlassOrders3B = lazyWithImportRecovery(() => import("./pages/LiquidGlassOrders3B"));
+const LiquidGlassOrders4A = lazyWithImportRecovery(() => import("./pages/LiquidGlassOrders4A"));
+const LiquidGlassOrders4B = lazyWithImportRecovery(() => import("./pages/LiquidGlassOrders4B"));
+const LiquidGlassOrders5A = lazyWithImportRecovery(() => import("./pages/LiquidGlassOrders5A"));
+const LiquidGlassOrders5B = lazyWithImportRecovery(() => import("./pages/LiquidGlassOrders5B"));
+const TableOrder = lazyWithImportRecovery(() => import("./pages/TableOrder"));
+const TableOrderA = lazyWithImportRecovery(() => import("./pages/TableOrderA"));
+const TableOrderB = lazyWithImportRecovery(() => import("./pages/TableOrderB"));
+const TableOrderDetails = lazyWithImportRecovery(() => import("./pages/TableOrderDetails"));
+const MergeOrders = lazyWithImportRecovery(() => import("./pages/MergeOrders"));
+const TransferOrders = lazyWithImportRecovery(() => import("./pages/TransferOrders"));
+const Tickets = lazyWithImportRecovery(() => import("./pages/Tickets"));
+const Settings = lazyWithImportRecovery(() => import("./pages/Settings"));
+const DiscountsRoute = lazyWithImportRecovery(() => import("./components/routes/DiscountsRoute"));
+const Account = lazyWithImportRecovery(() => import("./pages/Account"));
+const ReportsRoute = lazyWithImportRecovery(() => import("./components/routes/ReportsRoute"));
+const NotFound = lazyWithImportRecovery(() => import("./pages/NotFound"));
+const FullReservationsView = lazyWithImportRecovery(() => import("./pages/FullReservationsView"));
+const Voucher = lazyWithImportRecovery(() => import("./pages/Voucher"));
+const OrderOS = lazyWithImportRecovery(() => import("./pages/OrderOS"));
+const ClosedTickets = lazyWithImportRecovery(() => import("./pages/ClosedTickets"));
+const Login = lazyWithImportRecovery(() => import("./pages/Login"));
+const KDSMessages = lazyWithImportRecovery(() => import("./pages/KDSMessages"));
+const KDS = lazyWithImportRecovery(() => import("./pages/KDS"));
+const ClosingGracePeriod = lazyWithImportRecovery(() => import("./pages/ClosingGracePeriod"));
 
 const queryClient = new QueryClient();
 

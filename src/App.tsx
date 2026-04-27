@@ -21,6 +21,7 @@ import { AutoLockProvider } from "@/contexts/AutoLockContext";
 import { VoucherModeProvider } from "@/contexts/VoucherModeContext";
 import { SettingsManager } from "@/lib/settingsManager";
 import ThemeBridge from "@/components/ThemeBridge";
+import Dashboard from "./pages/Dashboard";
 
 const lazyWithImportRecovery = <T extends ComponentType<unknown>>(
   loader: () => Promise<{ default: T }>,
@@ -45,7 +46,6 @@ const lazyWithImportRecovery = <T extends ComponentType<unknown>>(
   );
 
 // Lazy-loaded route pages for code-splitting
-const Dashboard = lazyWithImportRecovery(() => import("./pages/Dashboard"));
 const Orders = lazyWithImportRecovery(() => import("./pages/Orders"));
 const OrdersDesign1 = lazyWithImportRecovery(() => import("./pages/OrdersDesign1"));
 const OrdersDesign2 = lazyWithImportRecovery(() => import("./pages/OrdersDesign2"));

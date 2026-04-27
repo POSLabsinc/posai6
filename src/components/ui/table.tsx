@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
-import { useSortIconUrl, getSortIconMaskStyle } from "@/lib/sort-icon";
+import { SortIcon } from "@/lib/sort-icon";
 
 const Table = React.forwardRef<HTMLTableElement, React.HTMLAttributes<HTMLTableElement>>(
   ({ className, ...props }, ref) => (
@@ -48,7 +48,6 @@ interface TableHeadProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
 
 const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
   ({ className, sortable = true, children, ...props }, ref) => {
-    const iconUrl = useSortIconUrl();
     return (
       <th
         ref={ref}
@@ -62,11 +61,9 @@ const TableHead = React.forwardRef<HTMLTableCellElement, TableHeadProps>(
         <span className="inline-flex items-center gap-1.5">
           {children}
           {sortable && (
-            <span
-              aria-hidden
-              style={getSortIconMaskStyle(iconUrl)}
-              className="w-3 h-3 shrink-0 inline-block text-foreground opacity-90 dark:opacity-100"
-            />
+            <span className="shrink-0 inline-block text-muted-foreground opacity-60">
+              <SortIcon direction={null} size={14} />
+            </span>
           )}
         </span>
       </th>

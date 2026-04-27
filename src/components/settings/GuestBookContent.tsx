@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { format } from "date-fns";
 import { supabase } from "@/integrations/supabase/client";
-import { ChevronLeft, Search, Plus, Phone, Mail, Star, Calendar, UtensilsCrossed, Car, AlertTriangle, ClipboardList, MessageSquare, Tag, Archive, ArrowDownAZ, X, Pencil, Clock, Users, ChevronRight, Info } from "lucide-react";
+import { ChevronLeft, Search, Plus, Phone, Mail, Star, Calendar, UtensilsCrossed, Car, AlertTriangle, ClipboardList, MessageSquare, Tag, Archive, ArrowUpDown, X, Pencil, Clock, Users, ChevronRight, Info } from "lucide-react";
 
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -1413,7 +1413,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
               onClick={() => setSortAZ(prev => !prev)}
               className={`w-8 h-8 rounded-full flex items-center justify-center active:opacity-70 transition-all ${sortAZ ? 'bg-foreground' : 'bg-neutral-800/60'}`}
             >
-              <ArrowDownAZ className={`w-4 h-4 ${sortAZ ? 'text-background' : 'text-foreground'}`} />
+              <ArrowUpDown className={`w-4 h-4 ${sortAZ ? 'text-background' : 'text-foreground'}`} />
             </button>
           </div>
         </div>
@@ -1490,7 +1490,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
                   onClick={() => setSortAZ(prev => !prev)}
                   className={`w-8 h-8 rounded-full flex items-center justify-center active:opacity-70 transition-all ${sortAZ ? 'bg-foreground' : 'bg-neutral-800/60'}`}
                 >
-                  <ArrowDownAZ className={`w-4 h-4 ${sortAZ ? 'text-background' : 'text-foreground'}`} />
+                  <ArrowUpDown className={`w-4 h-4 ${sortAZ ? 'text-background' : 'text-foreground'}`} />
                 </button>
               </div>
             </div>

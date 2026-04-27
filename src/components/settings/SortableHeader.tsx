@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from "react";
-import { useSortIconUrl, getSortIconMaskStyle } from "@/lib/sort-icon";
+import { SortIcon, SortDirection as LibSortDirection } from "@/lib/sort-icon";
 
-export type SortDirection = "asc" | "desc" | null;
+export type SortDirection = LibSortDirection;
 
 export interface SortState<K extends string = string> {
   key: K | null;
@@ -27,7 +27,7 @@ export function useSortableData<T, K extends string = string>(
     setSort((prev) => {
       if (prev.key !== key) return { key, direction: "asc" };
       if (prev.direction === "asc") return { key, direction: "desc" };
-      if (prev.direction === "desc") return { key: null, direction: null };
+      if (prev.direction === "desc") return { key, null, direction: null };
       return { key, direction: "asc" };
     });
   }, []);
@@ -71,7 +71,7 @@ interface SortableHeaderProps<K extends string> {
 }
 
 /**
- * Header cell that renders the column label + expand-arrows icon.
+ * Header cell that renders the column label + clean arrow icon.
  * Click toggles sort. Visually highlights the icon when this column is active.
  */
 export function SortableHeader<K extends string>({
@@ -83,7 +83,6 @@ export function SortableHeader<K extends string>({
   className = "",
   bold = true,
 }: SortableHeaderProps<K>) {
-  const iconUrl = useSortIconUrl();
   const isActive = sort.key === sortKey && sort.direction !== null;
   const justify =
     align === "right"
@@ -91,6 +90,10 @@ export function SortableHeader<K extends string>({
       : align === "center"
       ? "justify-center"
       : "justify-start";
+
+  // Determine icon direction based on sort state for this column
+  const iconDirection: SortDirection =
+    sort.key === sortKey ? sort.direction : null;
 
   return (
     <button
@@ -111,14 +114,16 @@ export function SortableHeader<K extends string>({
         {label}
       </span>
       <span
-        aria-hidden
-        style={getSortIconMaskStyle(iconUrl)}
-        className={`w-3 h-3 shrink-0 inline-block text-foreground transition-opacity ${
-          isActive ? "opacity-100" : "opacity-80 dark:opacity-90"
-        } ${
-          sort.key === sortKey && sort.direction === "desc" ? "rotate-180" : ""
+        className={`shrink-0 inline-block text-muted-foreground transition-colors ${
+          isActive ? "text-foreground" : ""
         }`}
-      />
+      >
+        <SortIcon
+          direction={iconDirection}
+          size={14}
+          className={isActive ? "opacity-100" : "opacity-60"}
+        />
+      </span>
     </button>
   );
 }

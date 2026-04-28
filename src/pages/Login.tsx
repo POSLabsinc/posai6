@@ -1237,18 +1237,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               transition={{ duration: 0.4 }}
             />
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-1">
-              Activate this device
+              Activate your device to start using the POS.
             </h1>
             <p className="text-sm sm:text-base text-foreground/50 text-center max-w-md md:max-w-none">
               To start using this Point of Sale, activate your device using one of the options below
             </p>
-            <button
-              onClick={() => setShowAIChat(true)}
-              className="mt-4 px-6 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
-              <span>Activate with AI</span>
-            </button>
           </motion.div>
 
           <div className="mt-4 sm:mt-6 md:mt-8" />
@@ -1269,7 +1262,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-[1.65rem] font-bold text-foreground mb-7">Point your phone or tablet camera at the QR code.</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Scan this QR code</h2>
+                <p className="text-base text-foreground/50 mb-7">Point your phone or tablet camera at the QR code.</p>
                 <div className="flex flex-col items-center gap-6">
                   <button
                     onClick={() => {
@@ -1282,9 +1276,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   >
                     <QRCodeSVG value={activationQrValue} size={160} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                   </button>
-                  <p className="text-base text-foreground/50 leading-relaxed text-left w-full">
-                    Tap the link that appears and follow the steps on your mobile device.
-                  </p>
                 </div>
               </div>
 
@@ -1303,7 +1294,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-[1.65rem] font-bold text-foreground mb-7">Use a browser</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Use a browser</h2>
+                <p className="text-base text-foreground/50 mb-7">Open the link below on any device and enter the code shown.</p>
                 <div className="space-y-7" data-tour="browser-steps">
                   <div className="flex items-start gap-4">
                     <span className="text-2xl font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
@@ -1388,6 +1380,24 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 </AnimatePresence>
               </div>
             </motion.div>
+          </div>
+
+          {/* Activate with AI button (desktop, below options) */}
+          <div className="hidden md:flex items-center justify-center gap-3 mt-8">
+            <button
+              onClick={() => setShowAIChat(true)}
+              className="px-3 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
+              <span>Activate with AI</span>
+            </button>
+            <button
+              onClick={() => { setTutorialInitialStep(0); setShowTutorialOverlay(true); }}
+              aria-label="About Activate with AI"
+              className="text-foreground/40 hover:text-foreground/70 transition-colors"
+            >
+              <Info className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Mobile: QR first, then collapsible tabs */}

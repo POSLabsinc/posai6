@@ -1392,7 +1392,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <span>Activate with AI</span>
             </button>
             <button
-              onClick={() => { setTutorialInitialStep(0); setShowTutorialOverlay(true); }}
+              onClick={() => { setTutorialInitialStep(3); setShowTutorialOverlay(true); }}
               aria-label="About Activate with AI"
               className="text-foreground/40 hover:text-foreground/70 transition-colors"
             >

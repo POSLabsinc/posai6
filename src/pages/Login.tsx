@@ -1237,10 +1237,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               transition={{ duration: 0.4 }}
             />
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-1">
-              Activate your device to start using the POS.
+              Activate your device
             </h1>
             <p className="text-sm sm:text-base text-foreground/50 text-center max-w-md md:max-w-none">
-              To start using this Point of Sale, activate your device using one of the options below
+              Start using this Point of Sale by activating your device with one of the options below.
             </p>
           </motion.div>
 
@@ -1262,7 +1262,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Scan this QR code</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Scan this QR code</h2>
                 <p className="text-base text-foreground/50 mb-7">Point your phone or tablet camera at the QR code.</p>
                 <div className="flex flex-col items-center gap-6">
                   <button
@@ -1294,7 +1294,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Use a browser</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Use a browser</h2>
                 <p className="text-base text-foreground/50 mb-7">Open the link below on any device and enter the code shown.</p>
                 <div className="space-y-7" data-tour="browser-steps">
                   <div className="flex items-start gap-4">
@@ -1340,7 +1340,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <AnimatePresence mode="wait">
                   {!activationCodeSent ? (
                     <motion.div key="email-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Activate with Code</h2>
+                      <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Activate with Code</h2>
                       <p className="text-base text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
                       <div className="space-y-4">
                         <div className="relative" data-tour="email-input-field">

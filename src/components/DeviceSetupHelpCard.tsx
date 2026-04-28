@@ -50,16 +50,28 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const steps: WalkthroughStep[] = [
+  const baseSteps: WalkthroughStep[] = [
     // 0: Option 1 - Scan QR code
     { id: "option-1-qr", title: "Option 1: Scan QR code", subtitle: "Use your phone to scan", instructions: ["Open the camera app on your phone or tablet and point it at the QR code displayed on this screen."], tourTarget: "qr-code", desktopCardPosition: "right", icon: <QrCode className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
-    // 1: Option 2 - Use a browser
-    { id: "option-2-browser", title: "Option 2: Use a browser", subtitle: "Open the URL and enter the code", instructions: ["Open a browser on your phone or computer and enter the URL shown on this screen (https://www.posai.com/pair) into the address bar.", "You can also tap the copy icon to quickly copy the link."], tourTarget: "activation-link", tourTargets: ["activation-link", "activation-code"], desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, showCopyIcon: true },
+    // 1: Option 2 - Use a browser (two sub-steps: URL, then Code)
+    { id: "option-2-browser", title: "Option 2: Use a browser", subtitle: "Open the URL and enter the code", instructions: [], tourTarget: "activation-link", desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, subSteps: [
+      { tourTarget: "activation-link", instructions: ["Open a browser on your phone or computer and enter the URL shown on this screen (https://www.posai.com/pair) into the address bar.", "You can also tap the copy icon to quickly copy the link."], showCopyIcon: true },
+      { tourTarget: "activation-code", instructions: ["Once the page loads, enter the 6-character activation code shown on this screen to pair your device."] },
+    ] },
     // 2: Option 3 - Activate with Code
     { id: "option-3-code", title: "Option 3: Activate with Code", subtitle: "Use email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-field", desktopCardPosition: "left", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
     // 3: Activate with AI
     { id: "activate-with-ai", title: "Activate with AI", subtitle: "Let AI guide your activation", instructions: ["Tap 'Activate with AI' to start a guided conversation.", "The AI assistant will walk you through activating this device step by step, no QR code or manual input needed."], tourTarget: "activate-with-ai", desktopCardPosition: "top", icon: <Sparkles className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
   ];
+
+  // Resolve current step with substep overrides applied
+  const resolveStep = (s: WalkthroughStep, sub: number): WalkthroughStep => {
+    if (!s.subSteps || s.subSteps.length === 0) return s;
+    const ss = s.subSteps[Math.min(sub, s.subSteps.length - 1)];
+    return { ...s, instructions: ss.instructions, tourTarget: ss.tourTarget, tourTargets: undefined, showCopyIcon: ss.showCopyIcon };
+  };
+
+  const steps: WalkthroughStep[] = baseSteps.map((s, i) => i === currentStep ? resolveStep(s, subStepIndex) : s);
 
   const step = steps[currentStep];
 

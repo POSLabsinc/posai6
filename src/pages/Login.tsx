@@ -1255,7 +1255,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               className="flex flex-row items-stretch gap-0 w-full"
             >
               {/* Option 1: QR Code */}
-              <div className="flex-1 px-6 lg:px-8 xl:px-10">
+              <div className="flex-1 px-3 lg:px-4 xl:px-5">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 1</p>
                   <button onClick={() => { setTutorialInitialStep(0); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
@@ -1263,7 +1263,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </button>
                 </div>
                 <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Scan this QR code</h2>
-                <p className="text-base text-foreground/50 mb-7">Point your phone or tablet camera at the QR code.</p>
+                <p className="text-base text-foreground/50 mb-3">Point your phone or tablet camera at the QR code.</p>
                 <div className="flex flex-col items-center gap-6">
                   <button
                     onClick={() => {
@@ -1287,7 +1287,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </div>
 
               {/* Option 2: Use a browser */}
-              <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="browser-section">
+              <div className="flex-1 px-3 lg:px-4 xl:px-5" data-tour="browser-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
                   <button onClick={() => { setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
@@ -1295,7 +1295,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </button>
                 </div>
                 <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Use a browser</h2>
-                <p className="text-base text-foreground/50 mb-7">Open the link below on any device and enter the code shown.</p>
+                <p className="text-base text-foreground/50 mb-3">Open the link below on any device and enter the code shown.</p>
                 <div className="space-y-7" data-tour="browser-steps">
                   <div className="flex items-start gap-4">
                     <span className="text-2xl font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
@@ -1330,7 +1330,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </div>
 
               {/* Option 3: Activate with Code (email/phone) */}
-              <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="code-section">
+              <div className="flex-1 px-3 lg:px-4 xl:px-5" data-tour="code-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
                   <button onClick={() => { setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
@@ -1341,7 +1341,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   {!activationCodeSent ? (
                     <motion.div key="email-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                       <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Activate with Code</h2>
-                      <p className="text-base text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
+                      <p className="text-base text-foreground/50 mb-3">Enter your email or mobile number to receive a code</p>
                       <div className="space-y-4">
                         <div className="relative" data-tour="email-input-field">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-5 h-5" /></div>

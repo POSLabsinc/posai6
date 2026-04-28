@@ -351,11 +351,17 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
                 </div>
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{step.subtitle}</p>
               </div>
-                  <span className="ml-auto text-xs shrink-0" style={{ color: "rgba(255,255,255,0.35)" }}>{displayStep}/{totalSteps}</span>
+              <button
+                onClick={handleClose}
+                aria-label="Close"
+                className="ml-auto w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors hover:bg-white/10 active:bg-white/20"
+              >
+                <X className="w-4 h-4" style={{ color: "rgba(255,255,255,0.55)" }} />
+              </button>
             </div>
 
             {/* Instructions */}
-            <div className="px-4 md:px-5 pb-3 md:pb-4 flex flex-col gap-1.5 md:gap-2.5">
+            <div className="px-4 md:px-5 pb-4 md:pb-5 flex flex-col gap-1.5 md:gap-2.5">
               {step.instructions.map((inst, i) => (
                 <div key={i} className="flex gap-2.5 items-start">
                   <div className="w-[6px] h-[6px] min-w-[6px] rounded-full bg-amber-500 mt-[7px]" />
@@ -366,42 +372,10 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
             {/* Helper note callout */}
             {step.helperNote && (
-              <div className="mx-4 md:mx-5 mb-3 md:mb-4 p-2.5 md:p-3 rounded-xl" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
+              <div className="mx-4 md:mx-5 mb-4 md:mb-5 p-2.5 md:p-3 rounded-xl" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
                 <p className="text-[11px] md:text-xs leading-relaxed" style={{ color: "rgba(245,158,11,0.85)" }}>{step.helperNote}</p>
               </div>
             )}
-
-            {/* Footer - Arrow back + Skip + Next */}
-            <div className="px-4 md:px-5 pb-3 md:pb-5 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                {currentStep > 0 && (
-                  <button
-                    onClick={handlePrev}
-                    className="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-colors"
-                    style={{ background: "rgba(255,255,255,0.08)" }}
-                  >
-                    <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" style={{ color: "rgba(255,255,255,0.6)" }} />
-                  </button>
-                )}
-                <button
-                  onClick={handleClose}
-                  className="text-xs md:text-sm font-medium transition-colors px-2"
-                  style={{ color: "rgba(255,255,255,0.45)" }}
-                >
-                  Skip
-                </button>
-              </div>
-              {totalSteps > 1 && (
-                <button
-                  onClick={handleNext}
-                  className="flex items-center gap-1 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-colors"
-                  style={{ background: "#F59E0B", color: "#fff" }}
-                >
-                  {isLastStep ? "Got it" : "Next"}
-                  {!isLastStep && <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />}
-                </button>
-              )}
-            </div>
           </div>
         </motion.div>
       )}

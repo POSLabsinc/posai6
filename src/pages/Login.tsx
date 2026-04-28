@@ -1340,7 +1340,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <AnimatePresence mode="wait">
                   {!activationCodeSent ? (
                     <motion.div key="email-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Activate with Code</h2>
+                      <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Activate with Code</h2>
                       <p className="text-base text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
                       <div className="space-y-4">
                         <div className="relative" data-tour="email-input-field">

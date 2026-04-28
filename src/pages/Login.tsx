@@ -1237,10 +1237,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               transition={{ duration: 0.4 }}
             />
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-1">
-              Activate your device to start using the POS.
+              Activate your device
             </h1>
             <p className="text-sm sm:text-base text-foreground/50 text-center max-w-md md:max-w-none">
-              To start using this Point of Sale, activate your device using one of the options below
+              Start using this Point of Sale by activating your device with one of the options below.
             </p>
           </motion.div>
 

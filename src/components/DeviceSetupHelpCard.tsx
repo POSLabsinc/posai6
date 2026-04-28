@@ -36,6 +36,7 @@ interface Props {
 
 const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToBrowserTab, onSwitchToDefaultView, onSwitchToOtp, initialStep = 0 }: Props) => {
   const [currentStep, setCurrentStep] = useState(initialStep);
+  const [subStepIndex, setSubStepIndex] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const rafRef = useRef<number>(0);

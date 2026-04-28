@@ -2,6 +2,12 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { QrCode, Link2, Mail, Sparkles, Copy, X } from "lucide-react";
 
+interface SubStep {
+  tourTarget: string;
+  instructions: string[];
+  showCopyIcon?: boolean;
+}
+
 interface WalkthroughStep {
   id: string;
   title: string;
@@ -10,6 +16,7 @@ interface WalkthroughStep {
   helperNote?: string;
   tourTarget: string;
   tourTargets?: string[];
+  subSteps?: SubStep[];
   desktopCardPosition: "right" | "left" | "bottom" | "top";
   icon: React.ReactNode;
   beforeShow?: () => void;

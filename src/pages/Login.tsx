@@ -1382,6 +1382,24 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             </motion.div>
           </div>
 
+          {/* Activate with AI button (desktop, below options) */}
+          <div className="hidden md:flex items-center justify-center gap-3 mt-8">
+            <button
+              onClick={() => setShowAIChat(true)}
+              className="px-3 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
+              <span>Activate with AI</span>
+            </button>
+            <button
+              onClick={() => { setTutorialInitialStep(0); setShowTutorialOverlay(true); }}
+              aria-label="About Activate with AI"
+              className="text-foreground/40 hover:text-foreground/70 transition-colors"
+            >
+              <Info className="w-5 h-5" />
+            </button>
+          </div>
+
           {/* Mobile: QR first, then collapsible tabs */}
           <div className="md:hidden w-full">
             <AnimatePresence mode="wait">

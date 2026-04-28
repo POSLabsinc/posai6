@@ -215,9 +215,17 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   useEffect(() => {
     if (open) {
       setCurrentStep(activeSequence?.[0] ?? initialStep);
+      setSubStepIndex(0);
       setHighlightRect(null);
     }
   }, [open, initialStep]);
+
+  // Reset substep when moving between top-level steps
+  useEffect(() => { setSubStepIndex(0); }, [currentStep]);
+
+  const currentBaseStep = baseSteps[currentStep];
+  const totalSubSteps = currentBaseStep?.subSteps?.length ?? 0;
+  const hasMoreSubSteps = totalSubSteps > 0 && subStepIndex < totalSubSteps - 1;
 
   const handleClose = () => {
     setCurrentStep(activeSequence?.[0] ?? initialStep);

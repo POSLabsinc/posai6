@@ -33,10 +33,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   const [isMobile, setIsMobile] = useState(false);
   const rafRef = useRef<number>(0);
   const cardRef = useRef<HTMLDivElement>(null);
-  const stepSequences: Record<number, number[]> = {
-    0: [0],
-    6: [1, 2],
-  };
+  const stepSequences: Record<number, number[]> = {};
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -46,14 +43,14 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   }, []);
 
   const steps: WalkthroughStep[] = [
-    { id: "qr-highlight", title: "Step 1: Scan QR Code", subtitle: "Use your phone to scan", instructions: ["Open the camera app on your phone or tablet and point it at the QR code displayed on this screen."], tourTarget: "qr-code", desktopCardPosition: "right", icon: <QrCode className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
-    { id: "link-highlight", title: "Step 1: Open the Activation", subtitle: "Open this URL in a browser", instructions: ["Open any web browser on your phone or computer and enter the URL https://www.posai.com/pair shown on this screen into the address bar.", "You can also tap the copy icon to quickly copy the link."], tourTarget: "activation-link", desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, showCopyIcon: true },
-    { id: "code-reconfirm", title: "Step 2: Enter the Code", subtitle: "Complete the activation", instructions: ["Go to https://www.posai.com/pair and enter the activation code on your phone, tablet, or computer to continue.", "Tap the copy icon to copy the URL if needed."], tourTarget: "activation-code", desktopCardPosition: "left", icon: <ShieldCheck className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, showCopyIcon: true },
-    { id: "email-phone-button", title: "Option 3: Alternative Activation", subtitle: "Use email or phone instead", instructions: ["Tap this option to switch to activation using your email address or phone number."], tourTarget: "email-phone-button", desktopCardPosition: "top", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
-    { id: "email-input", title: "Step 1: Enter Contact Information", subtitle: "Email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-field", desktopCardPosition: "left", icon: <MessageSquare className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
-    { id: "otp-entry", title: "Step 2: Enter Verification Code", subtitle: "Complete activation", instructions: ["Enter the 6-digit verification code sent to your email or phone."], tourTarget: "otp-code-area", desktopCardPosition: "left", icon: <Phone className="w-5 h-5" />, beforeShow: onSwitchToOtp },
-    { id: "browser-steps", title: "Option 2: Use a Browser", subtitle: "Open the URL and enter the code", instructions: ["Open any web browser and go to the URL shown.", "When prompted, enter the activation code displayed on this screen."], tourTarget: "activation-link", tourTargets: ["activation-link", "activation-code"], desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
-    { id: "code-input", title: "Option 3: Sign in with Code", subtitle: "Use email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-field", desktopCardPosition: "top", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
+    // 0: Option 1 - Scan QR code
+    { id: "option-1-qr", title: "Option 1: Scan QR code", subtitle: "Use your phone to scan", instructions: ["Open the camera app on your phone or tablet and point it at the QR code displayed on this screen."], tourTarget: "qr-code", desktopCardPosition: "right", icon: <QrCode className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
+    // 1: Option 2 - Use a browser
+    { id: "option-2-browser", title: "Option 2: Use a browser", subtitle: "Open the URL and enter the code", instructions: ["Open a browser on your phone or computer and enter the URL shown on this screen (https://www.posai.com/pair) into the address bar.", "You can also tap the copy icon to quickly copy the link."], tourTarget: "activation-link", tourTargets: ["activation-link", "activation-code"], desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, showCopyIcon: true },
+    // 2: Option 3 - Activate with Code
+    { id: "option-3-code", title: "Option 3: Activate with Code", subtitle: "Use email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-field", desktopCardPosition: "left", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
+    // 3: Activate with AI
+    { id: "activate-with-ai", title: "Activate with AI", subtitle: "Let AI guide your activation", instructions: ["Tap 'Activate with AI' to start a guided conversation.", "The AI assistant will walk you through activating this device step by step, no QR code or manual input needed."], tourTarget: "activate-with-ai", desktopCardPosition: "top", icon: <Sparkles className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
   ];
 
   const step = steps[currentStep];

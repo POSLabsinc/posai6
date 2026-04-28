@@ -2,6 +2,12 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { motion } from "framer-motion";
 import { QrCode, Link2, Mail, Sparkles, Copy, X } from "lucide-react";
 
+interface SubStep {
+  tourTarget: string;
+  instructions: string[];
+  showCopyIcon?: boolean;
+}
+
 interface WalkthroughStep {
   id: string;
   title: string;
@@ -10,6 +16,7 @@ interface WalkthroughStep {
   helperNote?: string;
   tourTarget: string;
   tourTargets?: string[];
+  subSteps?: SubStep[];
   desktopCardPosition: "right" | "left" | "bottom" | "top";
   icon: React.ReactNode;
   beforeShow?: () => void;
@@ -29,6 +36,7 @@ interface Props {
 
 const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBrowser, onSwitchToBrowserTab, onSwitchToDefaultView, onSwitchToOtp, initialStep = 0 }: Props) => {
   const [currentStep, setCurrentStep] = useState(initialStep);
+  const [subStepIndex, setSubStepIndex] = useState(0);
   const [highlightRect, setHighlightRect] = useState<DOMRect | null>(null);
   const [isMobile, setIsMobile] = useState(false);
   const rafRef = useRef<number>(0);
@@ -42,16 +50,28 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     return () => window.removeEventListener("resize", check);
   }, []);
 
-  const steps: WalkthroughStep[] = [
+  const baseSteps: WalkthroughStep[] = [
     // 0: Option 1 - Scan QR code
     { id: "option-1-qr", title: "Option 1: Scan QR code", subtitle: "Use your phone to scan", instructions: ["Open the camera app on your phone or tablet and point it at the QR code displayed on this screen."], tourTarget: "qr-code", desktopCardPosition: "right", icon: <QrCode className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
-    // 1: Option 2 - Use a browser
-    { id: "option-2-browser", title: "Option 2: Use a browser", subtitle: "Open the URL and enter the code", instructions: ["Open a browser on your phone or computer and enter the URL shown on this screen (https://www.posai.com/pair) into the address bar.", "You can also tap the copy icon to quickly copy the link."], tourTarget: "activation-link", tourTargets: ["activation-link", "activation-code"], desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, showCopyIcon: true },
+    // 1: Option 2 - Use a browser (two sub-steps: URL, then Code)
+    { id: "option-2-browser", title: "Option 2: Use a browser", subtitle: "Open the URL and enter the code", instructions: [], tourTarget: "activation-link", desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, subSteps: [
+      { tourTarget: "activation-link", instructions: ["Open a browser on your phone or computer and enter the URL shown on this screen (https://www.posai.com/pair) into the address bar.", "You can also tap the copy icon to quickly copy the link."], showCopyIcon: true },
+      { tourTarget: "activation-code", instructions: ["Once the page loads, enter the 6-character activation code shown on this screen to pair your device."] },
+    ] },
     // 2: Option 3 - Activate with Code
     { id: "option-3-code", title: "Option 3: Activate with Code", subtitle: "Use email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-field", desktopCardPosition: "left", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
     // 3: Activate with AI
     { id: "activate-with-ai", title: "Activate with AI", subtitle: "Let AI guide your activation", instructions: ["Tap 'Activate with AI' to start a guided conversation.", "The AI assistant will walk you through activating this device step by step, no QR code or manual input needed."], tourTarget: "activate-with-ai", desktopCardPosition: "top", icon: <Sparkles className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
   ];
+
+  // Resolve current step with substep overrides applied
+  const resolveStep = (s: WalkthroughStep, sub: number): WalkthroughStep => {
+    if (!s.subSteps || s.subSteps.length === 0) return s;
+    const ss = s.subSteps[Math.min(sub, s.subSteps.length - 1)];
+    return { ...s, instructions: ss.instructions, tourTarget: ss.tourTarget, tourTargets: undefined, showCopyIcon: ss.showCopyIcon };
+  };
+
+  const steps: WalkthroughStep[] = baseSteps.map((s, i) => i === currentStep ? resolveStep(s, subStepIndex) : s);
 
   const step = steps[currentStep];
 
@@ -195,9 +215,17 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   useEffect(() => {
     if (open) {
       setCurrentStep(activeSequence?.[0] ?? initialStep);
+      setSubStepIndex(0);
       setHighlightRect(null);
     }
   }, [open, initialStep]);
+
+  // Reset substep when moving between top-level steps
+  useEffect(() => { setSubStepIndex(0); }, [currentStep]);
+
+  const currentBaseStep = baseSteps[currentStep];
+  const totalSubSteps = currentBaseStep?.subSteps?.length ?? 0;
+  const hasMoreSubSteps = totalSubSteps > 0 && subStepIndex < totalSubSteps - 1;
 
   const handleClose = () => {
     setCurrentStep(activeSequence?.[0] ?? initialStep);
@@ -238,7 +266,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   const getDesktopCardStyle = (): React.CSSProperties => {
     if (!highlightRect) return { position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
-    const cardW = 380, gap = 32;
+    const cardW = 380, gap = 56;
     // Use actual card height if available, otherwise estimate
     const cardH = cardRef.current?.offsetHeight || 220;
     const arrowCenterY = highlightRect.top + highlightRect.height / 2;
@@ -252,7 +280,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   const getArrowInfo = (): { pos: React.CSSProperties; dir: string } | null => {
     if (!highlightRect || isMobile) return null;
-    const gap = 4;
+    const gap = 12;
     if (step.desktopCardPosition === "right") return { pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.right + gap }, dir: "right" };
     if (step.desktopCardPosition === "left") return { pos: { position: "fixed", top: highlightRect.top + highlightRect.height / 2 - 16, left: highlightRect.left - gap - 32 }, dir: "left" };
     if (step.desktopCardPosition === "top") return { pos: { position: "fixed", top: highlightRect.top - gap - 32, left: highlightRect.left + highlightRect.width / 2 - 16 }, dir: "up" };
@@ -369,6 +397,42 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
                 </div>
               ))}
             </div>
+
+            {/* Sub-step Next button (only when current step has remaining sub-steps) */}
+            {totalSubSteps > 1 && (
+              <div className="px-4 md:px-5 pb-4 md:pb-5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: totalSubSteps }).map((_, i) => (
+                    <span
+                      key={i}
+                      className="rounded-full transition-all"
+                      style={{
+                        width: i === subStepIndex ? 18 : 6,
+                        height: 6,
+                        background: i === subStepIndex ? "#F59E0B" : "rgba(255,255,255,0.25)",
+                      }}
+                    />
+                  ))}
+                </div>
+                {hasMoreSubSteps ? (
+                  <button
+                    onClick={() => setSubStepIndex((i) => i + 1)}
+                    className="px-4 h-9 rounded-full text-xs font-semibold text-black transition-colors"
+                    style={{ background: "#F59E0B" }}
+                  >
+                    Next
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleClose}
+                    className="px-4 h-9 rounded-full text-xs font-semibold text-black transition-colors"
+                    style={{ background: "#F59E0B" }}
+                  >
+                    Got it
+                  </button>
+                )}
+              </div>
+            )}
 
             {/* Helper note callout */}
             {step.helperNote && (

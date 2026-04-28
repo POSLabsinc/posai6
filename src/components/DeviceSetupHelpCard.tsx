@@ -266,7 +266,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
   const getDesktopCardStyle = (): React.CSSProperties => {
     if (!highlightRect) return { position: "fixed", top: "50%", left: "50%", transform: "translate(-50%, -50%)" };
-    const cardW = 380, gap = 32;
+    const cardW = 380, gap = 56;
     // Use actual card height if available, otherwise estimate
     const cardH = cardRef.current?.offsetHeight || 220;
     const arrowCenterY = highlightRect.top + highlightRect.height / 2;

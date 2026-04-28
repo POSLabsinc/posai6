@@ -1262,7 +1262,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-[1.65rem] font-bold text-foreground mb-7">Point your phone or tablet camera at the QR code.</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Scan this QR code</h2>
+                <p className="text-base text-foreground/50 mb-7">Point your phone or tablet camera at the QR code.</p>
                 <div className="flex flex-col items-center gap-6">
                   <button
                     onClick={() => {
@@ -1275,9 +1276,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   >
                     <QRCodeSVG value={activationQrValue} size={160} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                   </button>
-                  <p className="text-base text-foreground/50 leading-relaxed text-left w-full">
-                    Tap the link that appears and follow the steps on your mobile device.
-                  </p>
                 </div>
               </div>
 

@@ -1237,18 +1237,11 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               transition={{ duration: 0.4 }}
             />
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground mb-1">
-              Activate this device
+              Activate your device to start using the POS.
             </h1>
             <p className="text-sm sm:text-base text-foreground/50 text-center max-w-md md:max-w-none">
               To start using this Point of Sale, activate your device using one of the options below
             </p>
-            <button
-              onClick={() => setShowAIChat(true)}
-              className="mt-4 px-6 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
-              <span>Activate with AI</span>
-            </button>
           </motion.div>
 
           <div className="mt-4 sm:mt-6 md:mt-8" />

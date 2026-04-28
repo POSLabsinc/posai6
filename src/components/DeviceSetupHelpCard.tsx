@@ -59,7 +59,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     // 1: Option 2 - Use a browser (two sub-steps: URL, then Code)
     { id: "option-2-browser", title: "Option 2: Use a browser", subtitle: "Open the URL and enter the code", instructions: [], tourTarget: "activation-link", desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, subSteps: [
       { tourTarget: "activation-link", instructions: ["Open a browser on your phone or computer and enter the URL shown on this screen (https://www.posai.com/pair) into the address bar.", "You can also tap the copy icon to quickly copy the link."], showCopyIcon: true, title: "Option 2: Use a browser", subtitle: "Step 1 - Open the URL" },
-      { tourTarget: "activation-code", instructions: ["Enter this 6-character highlighted code on the paired browser page to activate your device."], title: "Option 2: Use a browser", subtitle: "Step 2 - Enter the highlighted code", desktopCardPosition: "bottom" },
+      { tourTarget: "activation-code", instructions: ["Enter this 6-character highlighted code on the paired browser page to activate your device."], title: "Option 2: Use a browser", subtitle: "Step 2 - Enter the highlighted code", desktopCardPosition: "left" },
     ] },
     // 2: Option 3 - Activate with Code
     { id: "option-3-code", title: "Option 3: Activate with Code", subtitle: "Use email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-field", desktopCardPosition: "left", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },

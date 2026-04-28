@@ -414,21 +414,13 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
                     />
                   ))}
                 </div>
-                {hasMoreSubSteps ? (
+                {hasMoreSubSteps && (
                   <button
                     onClick={() => setSubStepIndex((i) => i + 1)}
                     className="px-4 h-9 rounded-full text-xs font-semibold text-black transition-colors"
                     style={{ background: "#F59E0B" }}
                   >
                     Next
-                  </button>
-                ) : (
-                  <button
-                    onClick={handleClose}
-                    className="px-4 h-9 rounded-full text-xs font-semibold text-black transition-colors"
-                    style={{ background: "#F59E0B" }}
-                  >
-                    Got it
                   </button>
                 )}
               </div>

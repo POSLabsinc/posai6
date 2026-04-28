@@ -7538,15 +7538,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               Sign in to your device
             </h1>
             <p className="text-sm sm:text-base text-foreground/50 text-center max-w-md md:max-w-none">
-              To access this Point of Sale, sign in using one of the options below
+              Sign in to your device to start using your Point of sale with the options below.
             </p>
-            <button
-              onClick={() => setShowSignInAIChat(true)}
-              className="mt-4 px-6 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
-            >
-              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
-              <span>Sign in with AI</span>
-            </button>
           </motion.div>
 
           <div className="mt-4 sm:mt-6 md:mt-8" />
@@ -7560,14 +7553,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               className="flex flex-row items-stretch gap-0 w-full"
             >
               {/* Option 1: QR Code */}
-              <div className="flex-1 px-6 lg:px-8 xl:px-10">
+              <div className="flex-1 px-3 lg:px-4 xl:px-5">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 1</p>
                   <button onClick={() => { setTutorialInitialStep(0); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-[1.65rem] font-bold text-foreground mb-7">Point your phone or tablet camera at the QR code.</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Scan this QR code</h2>
+                <p className="text-base text-foreground/50 mb-3">Point your phone or tablet camera at the QR code.</p>
                 <div className="flex flex-col items-center gap-6">
                   <button
                     data-tour="qr-code"
@@ -7584,9 +7578,6 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   >
                     <QRCodeSVG value={activationQrValueExisting} size={160} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                   </button>
-                  <p className="text-base text-foreground/50 leading-relaxed text-left w-full">
-                    Tap the link that appears and follow the steps on your mobile device.
-                  </p>
                 </div>
               </div>
 
@@ -7598,14 +7589,15 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </div>
 
               {/* Option 2: Use a browser */}
-              <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="browser-section">
+              <div className="flex-1 px-3 lg:px-4 xl:px-5" data-tour="browser-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
                   <button onClick={() => { setTutorialInitialStep(1); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-[1.65rem] font-bold text-foreground mb-7">Use a browser</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Use a browser</h2>
+                <p className="text-base text-foreground/50 mb-3">Open the link below on any device and enter the code shown.</p>
                 <div className="space-y-7" data-tour="browser-steps">
                   <div className="flex items-start gap-4">
                     <span className="text-2xl font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
@@ -7640,7 +7632,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               </div>
 
               {/* Option 3: Sign in with Code (email/phone) */}
-              <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="code-section">
+              <div className="flex-1 px-3 lg:px-4 xl:px-5" data-tour="code-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
                   <button onClick={() => { setTutorialInitialStep(2); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
@@ -7650,8 +7642,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <AnimatePresence mode="wait">
                   {!existingUserCodeSent ? (
                     <motion.div key="email-step" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                      <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Sign in with Code</h2>
-                      <p className="text-base text-foreground/50 mb-6">Enter your email or mobile number to receive a code</p>
+                      <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Sign in with Code</h2>
+                      <p className="text-base text-foreground/50 mb-3">Enter your email or mobile number to receive a code</p>
                       <div className="space-y-4">
                         <div className="relative" data-tour="email-input-field">
                           <div className="absolute left-4 top-1/2 -translate-y-1/2 text-foreground/30"><Mail className="w-5 h-5" /></div>
@@ -7716,6 +7708,24 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 </AnimatePresence>
               </div>
             </motion.div>
+          </div>
+
+          {/* Sign in with AI button (desktop, below options) */}
+          <div className="hidden md:flex items-center justify-center gap-3 mt-8">
+            <button
+              onClick={() => setShowSignInAIChat(true)}
+              className="px-3 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2.5 hover:scale-[1.02] active:scale-[0.98]"
+            >
+              <img src={aiColorfulIcon} alt="AI" className="w-5 h-5" />
+              <span>Sign in with AI</span>
+            </button>
+            <button
+              onClick={() => { setTutorialInitialStep(3); setShowTutorialOverlay(true); }}
+              aria-label="About Sign in with AI"
+              className="text-foreground/40 hover:text-foreground/70 transition-colors"
+            >
+              <Info className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Mobile: QR first, then collapsible tabs - same pattern as activation */}

@@ -398,6 +398,42 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
               ))}
             </div>
 
+            {/* Sub-step Next button (only when current step has remaining sub-steps) */}
+            {totalSubSteps > 1 && (
+              <div className="px-4 md:px-5 pb-4 md:pb-5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-1.5">
+                  {Array.from({ length: totalSubSteps }).map((_, i) => (
+                    <span
+                      key={i}
+                      className="rounded-full transition-all"
+                      style={{
+                        width: i === subStepIndex ? 18 : 6,
+                        height: 6,
+                        background: i === subStepIndex ? "#F59E0B" : "rgba(255,255,255,0.25)",
+                      }}
+                    />
+                  ))}
+                </div>
+                {hasMoreSubSteps ? (
+                  <button
+                    onClick={() => setSubStepIndex((i) => i + 1)}
+                    className="px-4 h-9 rounded-full text-xs font-semibold text-black transition-colors"
+                    style={{ background: "#F59E0B" }}
+                  >
+                    Next
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleClose}
+                    className="px-4 h-9 rounded-full text-xs font-semibold text-black transition-colors"
+                    style={{ background: "#F59E0B" }}
+                  >
+                    Got it
+                  </button>
+                )}
+              </div>
+            )}
+
             {/* Helper note callout */}
             {step.helperNote && (
               <div className="mx-4 md:mx-5 mb-4 md:mb-5 p-2.5 md:p-3 rounded-xl" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>

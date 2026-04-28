@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, ChevronRight, QrCode, Search, Link2, ShieldCheck, Mail, MessageSquare, Phone } from "lucide-react";
+import { QrCode, Link2, ShieldCheck, Sparkles, X } from "lucide-react";
 
 interface TutorialStep {
   title: string;
@@ -13,211 +13,77 @@ interface TutorialStep {
   arrowDirection: "left" | "right" | "down" | "up";
 }
 
+// Each step is a standalone popup tied to a specific option/button on the screen.
 const newUserSteps: TutorialStep[] = [
   {
-    title: "Step 1: Scan QR Code",
+    title: "Option 1: Scan QR code",
     subtitle: "Use your phone to scan",
     icon: <QrCode className="w-5 h-5 text-primary" />,
     iconBg: "bg-primary/15",
     instructions: [
-      "Open the camera app on your phone or tablet",
-      "Point it at the QR code displayed on this screen",
-      "A link will appear on your device, tap it to proceed",
-      "Follow the on-screen instructions to complete activation",
+      "Open the camera app on your phone or tablet and point it at the QR code displayed on this screen.",
     ],
-    callout: "Most modern phones support QR scanning natively through the camera app.",
     highlightArea: { top: "26%", left: "10%", width: "32%", height: "52%" },
     arrowDirection: "right",
   },
   {
-    title: "Step 2: Activation Code",
-    subtitle: "Your unique pairing code",
-    icon: <Search className="w-5 h-5 text-primary" />,
-    iconBg: "bg-primary/15",
-    instructions: [
-      "This is your unique activation code for this device",
-      "You will need this code during the activation process",
-      "Enter it when prompted on your mobile device or browser",
-      "The code refreshes periodically for security",
-    ],
-    highlightArea: { top: "55%", left: "50%", width: "38%", height: "12%" },
-    arrowDirection: "left",
-  },
-  {
-    title: "Step 3: Activation Link",
+    title: "Option 2: Use a browser",
     subtitle: "Open this URL in a browser",
     icon: <Link2 className="w-5 h-5 text-primary" />,
     iconBg: "bg-primary/15",
     instructions: [
-      "If QR scanning is not available, use this link instead",
-      "Open any browser on your phone or computer",
-      "Type the URL shown here into the address bar",
-      "You will be prompted to enter the activation code",
+      "Open a browser on your phone or computer and enter the URL shown on this screen (https://www.posai.com/pair) into the address bar.",
+      "You can also tap the copy icon to quickly copy the link.",
     ],
-    highlightArea: { top: "37%", left: "50%", width: "38%", height: "8%" },
+    highlightArea: { top: "26%", left: "38%", width: "26%", height: "52%" },
     arrowDirection: "left",
   },
   {
-    title: "Step 4: Enter the Code",
-    subtitle: "Complete the activation",
+    title: "Option 3: Activate with Code",
+    subtitle: "Use email or phone number",
     icon: <ShieldCheck className="w-5 h-5 text-primary" />,
     iconBg: "bg-primary/15",
     instructions: [
-      "After opening the link, you will see a code entry screen",
-      "Enter the activation code shown on this device",
-      "Make sure to enter the code exactly as displayed",
-      "Once verified, your device will be activated automatically",
+      "Enter your registered email address or phone number.",
+      "Tap 'Send Code' to receive a 6-digit verification code.",
     ],
-    callout: "If the code expires, a new one will be generated automatically.",
-    highlightArea: { top: "55%", left: "50%", width: "38%", height: "12%" },
+    highlightArea: { top: "26%", left: "65%", width: "28%", height: "52%" },
     arrowDirection: "left",
   },
   {
-    title: "Step 5: Alternative Activation",
-    subtitle: "Use email or phone instead",
-    icon: <Mail className="w-5 h-5 text-primary" />,
+    title: "Activate with AI",
+    subtitle: "Let AI guide your activation",
+    icon: <Sparkles className="w-5 h-5 text-primary" />,
     iconBg: "bg-primary/15",
     instructions: [
-      "Tap this button to switch to email or phone activation",
-      "You can verify your identity using a code sent to your email",
-      "Or receive a verification code via SMS to your phone",
+      "Tap 'Activate with AI' to start a guided conversation.",
+      "The AI assistant will walk you through activating this device step by step, no QR code or manual input needed.",
     ],
-    highlightArea: { top: "80%", left: "35%", width: "30%", height: "6%" },
+    highlightArea: { top: "84%", left: "42%", width: "16%", height: "7%" },
     arrowDirection: "down",
-  },
-  {
-    title: "Step 6: Enter Contact Info",
-    subtitle: "Email or phone number",
-    icon: <MessageSquare className="w-5 h-5 text-primary" />,
-    iconBg: "bg-primary/15",
-    instructions: [
-      "Enter your registered email address or phone number",
-      "Tap 'Send Code' to receive a 6-digit verification code",
-      "Check your inbox or messages for the code",
-    ],
-    callout: "If you don't receive the code, you can resend it after a few seconds.",
-    highlightArea: { top: "26%", left: "50%", width: "38%", height: "30%" },
-    arrowDirection: "left",
-  },
-  {
-    title: "Step 7: Enter Verification Code",
-    subtitle: "Complete activation",
-    icon: <Phone className="w-5 h-5 text-primary" />,
-    iconBg: "bg-primary/15",
-    instructions: [
-      "Enter the 6-digit code received on your email or phone",
-      "Each digit goes in a separate box",
-      "Your device will activate automatically once verified",
-    ],
-    highlightArea: { top: "40%", left: "50%", width: "38%", height: "15%" },
-    arrowDirection: "left",
   },
 ];
 
-const existingUserSteps: TutorialStep[] = [
-  {
-    title: "Step 1: Scan QR Code",
-    subtitle: "Use your phone to scan",
-    icon: <QrCode className="w-5 h-5 text-primary" />,
-    iconBg: "bg-primary/15",
-    instructions: [
-      "Open the camera app on your phone or tablet",
-      "Point it at the QR code displayed on this screen",
-      "A link will appear on your device, tap it to proceed",
-      "Follow the on-screen instructions to sign in",
-    ],
-    callout: "Most modern phones support QR scanning natively through the camera app.",
-    highlightArea: { top: "26%", left: "10%", width: "32%", height: "52%" },
-    arrowDirection: "right",
-  },
-  {
-    title: "Step 2: Activation Code",
-    subtitle: "Your unique pairing code",
-    icon: <Search className="w-5 h-5 text-primary" />,
-    iconBg: "bg-primary/15",
-    instructions: [
-      "This is your unique sign-in code for this device",
-      "You will need this code during the sign-in process",
-      "Enter it when prompted on your mobile device or browser",
-      "The code refreshes periodically for security",
-    ],
-    highlightArea: { top: "55%", left: "50%", width: "38%", height: "12%" },
-    arrowDirection: "left",
-  },
-  {
-    title: "Step 3: Activation Link",
-    subtitle: "Open this URL in a browser",
-    icon: <Link2 className="w-5 h-5 text-primary" />,
-    iconBg: "bg-primary/15",
-    instructions: [
-      "If QR scanning is not available, use this link instead",
-      "Open any browser on your phone or computer",
-      "Type the URL shown here into the address bar",
-      "You will be prompted to enter the sign-in code",
-    ],
-    highlightArea: { top: "37%", left: "50%", width: "38%", height: "8%" },
-    arrowDirection: "left",
-  },
-  {
-    title: "Step 4: Enter the Code",
-    subtitle: "Complete sign-in",
-    icon: <ShieldCheck className="w-5 h-5 text-primary" />,
-    iconBg: "bg-primary/15",
-    instructions: [
-      "After opening the link, you will see a code entry screen",
-      "Enter the sign-in code shown on this device",
-      "Make sure to enter the code exactly as displayed",
-      "Once verified, you will be signed in automatically",
-    ],
-    callout: "If the code expires, a new one will be generated automatically.",
-    highlightArea: { top: "55%", left: "50%", width: "38%", height: "12%" },
-    arrowDirection: "left",
-  },
-  {
-    title: "Step 5: Other Sign-In Options",
-    subtitle: "Additional methods available",
-    icon: <Mail className="w-5 h-5 text-primary" />,
-    iconBg: "bg-primary/15",
-    instructions: [
-      "Tap here for additional sign-in methods",
-      "Options include activation code entry",
-      "Or access demo mode to explore the system",
-    ],
-    highlightArea: { top: "80%", left: "35%", width: "30%", height: "6%" },
-    arrowDirection: "down",
-  },
-];
+const existingUserSteps: TutorialStep[] = newUserSteps;
 
 interface Props {
   open: boolean;
   onClose: () => void;
   variant: "new" | "existing";
+  initialStep?: number;
 }
 
-const DeviceSetupTutorialOverlay = ({ open, onClose, variant }: Props) => {
-  const [currentStep, setCurrentStep] = useState(0);
+const DeviceSetupTutorialOverlay = ({ open, onClose, variant, initialStep = 0 }: Props) => {
   const steps = variant === "new" ? newUserSteps : existingUserSteps;
+  const [currentStep, setCurrentStep] = useState(initialStep);
 
   useEffect(() => {
-    if (open) setCurrentStep(0);
-  }, [open]);
-
-  const handleNext = () => {
-    if (currentStep < steps.length - 1) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      onClose();
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentStep > 0) setCurrentStep(currentStep - 1);
-  };
+    if (open) setCurrentStep(Math.min(initialStep, steps.length - 1));
+  }, [open, initialStep, steps.length]);
 
   const step = steps[currentStep];
   const h = step.highlightArea;
 
-  // Arrow SVG pointing from card to highlighted area
   const arrowPaths: Record<string, string> = {
     right: "M6 16L26 16M26 16L18 8M26 16L18 24",
     left: "M26 16L6 16M6 16L14 8M6 16L14 24",
@@ -246,35 +112,18 @@ const DeviceSetupTutorialOverlay = ({ open, onClose, variant }: Props) => {
     return { ...base, top: `calc(${h.top} + ${h.height} + 6px)`, left: `calc(${h.left} + ${h.width} / 2 - ${arrowSize / 2}px)` };
   };
 
-  // Card position near highlighted area
   const getCardPosition = (): React.CSSProperties => {
     const dir = step.arrowDirection;
     if (dir === "right") {
-      return {
-        top: "50%",
-        left: `calc(${h.left} + ${h.width} + 60px)`,
-        transform: "translateY(-50%)",
-      };
+      return { top: "50%", left: `calc(${h.left} + ${h.width} + 60px)`, transform: "translateY(-50%)" };
     }
     if (dir === "left") {
-      return {
-        top: "50%",
-        right: `calc(100% - ${h.left} + 60px)`,
-        transform: "translateY(-50%)",
-      };
+      return { top: "50%", right: `calc(100% - ${h.left} + 60px)`, transform: "translateY(-50%)" };
     }
     if (dir === "down") {
-      return {
-        bottom: `calc(100% - ${h.top} + 50px)`,
-        left: `calc(${h.left} + ${h.width} / 2)`,
-        transform: "translateX(-50%)",
-      };
+      return { bottom: `calc(100% - ${h.top} + 50px)`, left: `calc(${h.left} + ${h.width} / 2)`, transform: "translateX(-50%)" };
     }
-    return {
-      top: `calc(${h.top} + ${h.height} + 50px)`,
-      left: `calc(${h.left} + ${h.width} / 2)`,
-      transform: "translateX(-50%)",
-    };
+    return { top: `calc(${h.top} + ${h.height} + 50px)`, left: `calc(${h.left} + ${h.width} / 2)`, transform: "translateX(-50%)" };
   };
 
   return (
@@ -286,6 +135,7 @@ const DeviceSetupTutorialOverlay = ({ open, onClose, variant }: Props) => {
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           className="fixed inset-0 z-[10000] pointer-events-auto"
+          onClick={onClose}
         >
           {/* Highlight cutout */}
           <motion.div
@@ -330,27 +180,34 @@ const DeviceSetupTutorialOverlay = ({ open, onClose, variant }: Props) => {
             transition={{ delay: 0.1, duration: 0.3 }}
             className="absolute z-30 w-[420px]"
             style={getCardPosition()}
+            onClick={(e) => e.stopPropagation()}
           >
-            <div className="rounded-2xl bg-[#1E1E22] border border-white/10 shadow-2xl p-5">
+            <div className="relative rounded-2xl bg-[#1E1E22] border border-white/10 shadow-2xl p-5">
+              {/* Close (X) at top-right */}
+              <button
+                onClick={onClose}
+                aria-label="Close"
+                className="absolute top-3 right-3 w-7 h-7 rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
               {/* Header */}
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-xl ${step.iconBg} flex items-center justify-center`}>
-                    {step.icon}
-                  </div>
-                  <div>
-                    <h3 className="text-[15px] font-bold text-white">{step.title}</h3>
-                    <p className="text-xs text-white/50">{step.subtitle}</p>
-                  </div>
+              <div className="flex items-center gap-3 mb-4 pr-8">
+                <div className={`w-10 h-10 rounded-xl ${step.iconBg} flex items-center justify-center`}>
+                  {step.icon}
                 </div>
-                <span className="text-xs text-white/40 font-medium">{currentStep + 1}/{steps.length}</span>
+                <div>
+                  <h3 className="text-[15px] font-bold text-white">{step.title}</h3>
+                  <p className="text-xs text-white/50">{step.subtitle}</p>
+                </div>
               </div>
 
               {/* Instructions */}
-              <div className="space-y-3 mb-4">
+              <div className="space-y-3">
                 {step.instructions.map((instruction, i) => (
                   <div key={i} className="flex items-start gap-3">
-                    <span className="text-primary font-bold text-sm min-w-[16px]">{i + 1}</span>
+                    <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-primary flex-shrink-0" />
                     <p className="text-sm text-white/80 leading-relaxed">{instruction}</p>
                   </div>
                 ))}
@@ -358,37 +215,10 @@ const DeviceSetupTutorialOverlay = ({ open, onClose, variant }: Props) => {
 
               {/* Callout */}
               {step.callout && (
-                <div className="rounded-lg bg-amber-500/10 border border-amber-500/20 px-3.5 py-2.5 mb-4">
+                <div className="mt-4 rounded-lg bg-amber-500/10 border border-amber-500/20 px-3.5 py-2.5">
                   <p className="text-xs text-amber-400/90 leading-relaxed">{step.callout}</p>
                 </div>
               )}
-
-              {/* Footer */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  {currentStep > 0 && (
-                    <button
-                      onClick={handlePrev}
-                      className="flex items-center gap-1 text-sm text-white/50 hover:text-white/80 transition-colors"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                  )}
-                  <button
-                    onClick={onClose}
-                    className="text-sm text-white/50 hover:text-white/80 transition-colors"
-                  >
-                    Skip
-                  </button>
-                </div>
-                <button
-                  onClick={handleNext}
-                  className="flex items-center gap-1.5 px-5 py-2 rounded-full bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
-                >
-                  {currentStep === steps.length - 1 ? "Got it" : "Next"}
-                  {currentStep < steps.length - 1 && <ChevronRight className="w-4 h-4" />}
-                </button>
-              </div>
             </div>
           </motion.div>
         </motion.div>

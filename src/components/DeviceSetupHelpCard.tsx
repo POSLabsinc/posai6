@@ -198,7 +198,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
     // Re-measure after card renders so centering uses real card height
     const reMeasure = setTimeout(() => measureTarget(), 500);
     return () => { clearTimeout(timer); clearTimeout(reMeasure); };
-  }, [currentStep, open]);
+  }, [currentStep, subStepIndex, open]);
 
   useEffect(() => {
     if (!open) return;
@@ -317,7 +317,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
       {/* Spotlight with boxShadow overlay */}
       <motion.div
-        key={`spotlight-${currentStep}`}
+        key={`spotlight-${currentStep}-${subStepIndex}`}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.3 }}
@@ -335,7 +335,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
       {/* Arrow (desktop) */}
       {arrowData && highlightRect && (
         <motion.div
-          key={`arrow-${currentStep}`}
+          key={`arrow-${currentStep}-${subStepIndex}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2, duration: 0.25 }}
@@ -356,7 +356,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
       {highlightRect && (
         <motion.div
           ref={cardRef}
-          key={`card-${currentStep}`}
+          key={`card-${currentStep}-${subStepIndex}`}
           initial={{ opacity: 0, y: isMobile ? 20 : 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15, duration: 0.3 }}

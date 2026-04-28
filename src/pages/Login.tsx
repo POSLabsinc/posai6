@@ -1290,7 +1290,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <div className="flex-1 px-3 lg:px-4 xl:px-5" data-tour="browser-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
-                  <button onClick={() => { setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                  <button onClick={() => { setTutorialInitialStep(1); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
@@ -1333,7 +1333,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <div className="flex-1 px-3 lg:px-4 xl:px-5" data-tour="code-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
-                  <button onClick={() => { setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                  <button onClick={() => { setTutorialInitialStep(2); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
@@ -1439,7 +1439,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <div className="flex-1 flex flex-col">
                       <div className="flex items-center gap-1.5 mb-1.5">
                         <p className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
-                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(1); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                           <Info className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -1452,7 +1452,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <div className="flex-1 flex flex-col">
                       <div className="flex items-center gap-1.5 mb-1.5">
                         <p className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
-                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(2); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                           <Info className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -1473,7 +1473,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <div className="space-y-5 mb-6">
                     <div className="flex items-center gap-2">
                       <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
-                      <button onClick={() => { setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                      <button onClick={() => { setTutorialInitialStep(1); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                         <Info className="w-4 h-4" />
                       </button>
                     </div>
@@ -1532,7 +1532,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-2">
                       <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
-                      <button onClick={() => { setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                      <button onClick={() => { setTutorialInitialStep(2); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                         <Info className="w-4 h-4" />
                       </button>
                     </div>
@@ -7600,7 +7600,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="browser-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
-                  <button onClick={() => { setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                  <button onClick={() => { setTutorialInitialStep(1); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
@@ -7642,7 +7642,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <div className="flex-1 px-6 lg:px-8 xl:px-10" data-tour="code-section">
                 <div className="flex items-center gap-2 mb-2">
                   <p className="text-base font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
-                  <button onClick={() => { setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                  <button onClick={() => { setTutorialInitialStep(2); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
@@ -7761,7 +7761,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <div className="flex-1 flex flex-col">
                       <div className="flex items-center gap-1.5 mb-1.5">
                         <p className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
-                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(1); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                           <Info className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -7774,7 +7774,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <div className="flex-1 flex flex-col">
                       <div className="flex items-center gap-1.5 mb-1.5">
                         <p className="text-[10px] font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
-                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                        <button onClick={(e) => { e.stopPropagation(); setTutorialInitialStep(2); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                           <Info className="w-3.5 h-3.5" />
                         </button>
                       </div>
@@ -7794,7 +7794,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <div className="space-y-5 mb-6">
                     <div className="flex items-center gap-2">
                       <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 2</p>
-                      <button onClick={() => { setTutorialInitialStep(6); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                      <button onClick={() => { setTutorialInitialStep(1); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                         <Info className="w-4 h-4" />
                       </button>
                     </div>
@@ -7850,7 +7850,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-2">
                       <p className="text-xs font-medium text-foreground/40 uppercase tracking-wider">Option 3</p>
-                      <button onClick={() => { setTutorialInitialStep(7); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
+                      <button onClick={() => { setTutorialInitialStep(2); setShowTutorialOverlay(true); }} aria-label="Help" className="text-foreground/30 hover:text-foreground/60 transition-colors">
                         <Info className="w-4 h-4" />
                       </button>
                     </div>

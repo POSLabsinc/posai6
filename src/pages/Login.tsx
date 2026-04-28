@@ -1262,7 +1262,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <Info className="w-5 h-5" />
                   </button>
                 </div>
-                <h2 className="text-[1.65rem] font-bold text-foreground mb-2">Scan this QR code</h2>
+                <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Scan this QR code</h2>
                 <p className="text-base text-foreground/50 mb-7">Point your phone or tablet camera at the QR code.</p>
                 <div className="flex flex-col items-center gap-6">
                   <button

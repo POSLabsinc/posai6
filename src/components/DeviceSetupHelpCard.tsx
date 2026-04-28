@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { ChevronRight, ChevronLeft, QrCode, KeyRound, Link2, ShieldCheck, Mail, Phone, MessageSquare, Copy } from "lucide-react";
+import { motion } from "framer-motion";
+import { QrCode, Link2, Mail, Sparkles, Copy, X } from "lucide-react";
 
 interface WalkthroughStep {
   id: string;
@@ -33,10 +33,7 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   const [isMobile, setIsMobile] = useState(false);
   const rafRef = useRef<number>(0);
   const cardRef = useRef<HTMLDivElement>(null);
-  const stepSequences: Record<number, number[]> = {
-    0: [0],
-    6: [1, 2],
-  };
+  const stepSequences: Record<number, number[]> = {};
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth < 768);
@@ -46,14 +43,14 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
   }, []);
 
   const steps: WalkthroughStep[] = [
-    { id: "qr-highlight", title: "Step 1: Scan QR Code", subtitle: "Use your phone to scan", instructions: ["Open the camera app on your phone or tablet and point it at the QR code displayed on this screen."], tourTarget: "qr-code", desktopCardPosition: "right", icon: <QrCode className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
-    { id: "link-highlight", title: "Step 1: Open the Activation", subtitle: "Open this URL in a browser", instructions: ["Open any web browser on your phone or computer and enter the URL https://www.posai.com/pair shown on this screen into the address bar.", "You can also tap the copy icon to quickly copy the link."], tourTarget: "activation-link", desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, showCopyIcon: true },
-    { id: "code-reconfirm", title: "Step 2: Enter the Code", subtitle: "Complete the activation", instructions: ["Go to https://www.posai.com/pair and enter the activation code on your phone, tablet, or computer to continue.", "Tap the copy icon to copy the URL if needed."], tourTarget: "activation-code", desktopCardPosition: "left", icon: <ShieldCheck className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, showCopyIcon: true },
-    { id: "email-phone-button", title: "Option 3: Alternative Activation", subtitle: "Use email or phone instead", instructions: ["Tap this option to switch to activation using your email address or phone number."], tourTarget: "email-phone-button", desktopCardPosition: "top", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
-    { id: "email-input", title: "Step 1: Enter Contact Information", subtitle: "Email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-field", desktopCardPosition: "left", icon: <MessageSquare className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
-    { id: "otp-entry", title: "Step 2: Enter Verification Code", subtitle: "Complete activation", instructions: ["Enter the 6-digit verification code sent to your email or phone."], tourTarget: "otp-code-area", desktopCardPosition: "left", icon: <Phone className="w-5 h-5" />, beforeShow: onSwitchToOtp },
-    { id: "browser-steps", title: "Option 2: Use a Browser", subtitle: "Open the URL and enter the code", instructions: ["Open any web browser and go to the URL shown.", "When prompted, enter the activation code displayed on this screen."], tourTarget: "activation-link", tourTargets: ["activation-link", "activation-code"], desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser },
-    { id: "code-input", title: "Option 3: Sign in with Code", subtitle: "Use email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-field", desktopCardPosition: "top", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
+    // 0: Option 1 - Scan QR code
+    { id: "option-1-qr", title: "Option 1: Scan QR code", subtitle: "Use your phone to scan", instructions: ["Open the camera app on your phone or tablet and point it at the QR code displayed on this screen."], tourTarget: "qr-code", desktopCardPosition: "right", icon: <QrCode className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
+    // 1: Option 2 - Use a browser
+    { id: "option-2-browser", title: "Option 2: Use a browser", subtitle: "Open the URL and enter the code", instructions: ["Open a browser on your phone or computer and enter the URL shown on this screen (https://www.posai.com/pair) into the address bar.", "You can also tap the copy icon to quickly copy the link."], tourTarget: "activation-link", tourTargets: ["activation-link", "activation-code"], desktopCardPosition: "left", icon: <Link2 className="w-5 h-5" />, beforeShow: onSwitchToBrowserTab || onSwitchToBrowser, showCopyIcon: true },
+    // 2: Option 3 - Activate with Code
+    { id: "option-3-code", title: "Option 3: Activate with Code", subtitle: "Use email or phone number", instructions: ["Enter your registered email address or phone number.", "Tap 'Send Code' to receive a 6-digit verification code."], tourTarget: "email-input-field", desktopCardPosition: "left", icon: <Mail className="w-5 h-5" />, beforeShow: onSwitchToEmailPhone },
+    // 3: Activate with AI
+    { id: "activate-with-ai", title: "Activate with AI", subtitle: "Let AI guide your activation", instructions: ["Tap 'Activate with AI' to start a guided conversation.", "The AI assistant will walk you through activating this device step by step, no QR code or manual input needed."], tourTarget: "activate-with-ai", desktopCardPosition: "top", icon: <Sparkles className="w-5 h-5" />, beforeShow: onSwitchToDefaultView || onSwitchToBrowser },
   ];
 
   const step = steps[currentStep];
@@ -354,11 +351,17 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
                 </div>
                 <p className="text-xs" style={{ color: "rgba(255,255,255,0.45)" }}>{step.subtitle}</p>
               </div>
-                  <span className="ml-auto text-xs shrink-0" style={{ color: "rgba(255,255,255,0.35)" }}>{displayStep}/{totalSteps}</span>
+              <button
+                onClick={handleClose}
+                aria-label="Close"
+                className="ml-auto w-7 h-7 rounded-full flex items-center justify-center shrink-0 transition-colors hover:bg-white/10 active:bg-white/20"
+              >
+                <X className="w-4 h-4" style={{ color: "rgba(255,255,255,0.55)" }} />
+              </button>
             </div>
 
             {/* Instructions */}
-            <div className="px-4 md:px-5 pb-3 md:pb-4 flex flex-col gap-1.5 md:gap-2.5">
+            <div className="px-4 md:px-5 pb-4 md:pb-5 flex flex-col gap-1.5 md:gap-2.5">
               {step.instructions.map((inst, i) => (
                 <div key={i} className="flex gap-2.5 items-start">
                   <div className="w-[6px] h-[6px] min-w-[6px] rounded-full bg-amber-500 mt-[7px]" />
@@ -369,42 +372,10 @@ const DeviceSetupHelpCard = ({ open, onClose, onSwitchToEmailPhone, onSwitchToBr
 
             {/* Helper note callout */}
             {step.helperNote && (
-              <div className="mx-4 md:mx-5 mb-3 md:mb-4 p-2.5 md:p-3 rounded-xl" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
+              <div className="mx-4 md:mx-5 mb-4 md:mb-5 p-2.5 md:p-3 rounded-xl" style={{ background: "rgba(245,158,11,0.08)", border: "1px solid rgba(245,158,11,0.15)" }}>
                 <p className="text-[11px] md:text-xs leading-relaxed" style={{ color: "rgba(245,158,11,0.85)" }}>{step.helperNote}</p>
               </div>
             )}
-
-            {/* Footer - Arrow back + Skip + Next */}
-            <div className="px-4 md:px-5 pb-3 md:pb-5 flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                {currentStep > 0 && (
-                  <button
-                    onClick={handlePrev}
-                    className="w-8 h-8 md:w-9 md:h-9 rounded-full flex items-center justify-center transition-colors"
-                    style={{ background: "rgba(255,255,255,0.08)" }}
-                  >
-                    <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" style={{ color: "rgba(255,255,255,0.6)" }} />
-                  </button>
-                )}
-                <button
-                  onClick={handleClose}
-                  className="text-xs md:text-sm font-medium transition-colors px-2"
-                  style={{ color: "rgba(255,255,255,0.45)" }}
-                >
-                  Skip
-                </button>
-              </div>
-              {totalSteps > 1 && (
-                <button
-                  onClick={handleNext}
-                  className="flex items-center gap-1 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-semibold transition-colors"
-                  style={{ background: "#F59E0B", color: "#fff" }}
-                >
-                  {isLastStep ? "Got it" : "Next"}
-                  {!isLastStep && <ChevronRight className="w-3.5 h-3.5 md:w-4 md:h-4" />}
-                </button>
-              )}
-            </div>
           </div>
         </motion.div>
       )}

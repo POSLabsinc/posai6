@@ -6,6 +6,8 @@ interface SubStep {
   tourTarget: string;
   instructions: string[];
   showCopyIcon?: boolean;
+  title?: string;
+  subtitle?: string;
 }
 
 interface WalkthroughStep {

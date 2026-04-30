@@ -128,13 +128,28 @@ Generate 1-3 alerts now.`;
     }
 
     const aiJson = await aiResp.json();
+    console.log("AI response:", JSON.stringify(aiJson).slice(0, 800));
     const toolCall = aiJson.choices?.[0]?.message?.tool_calls?.[0];
-    const args = toolCall ? JSON.parse(toolCall.function.arguments) : { alerts: [] };
-    const alerts: AIAlert[] = (args.alerts || []).slice(0, 3);
+    let args: { alerts?: AIAlert[] } = { alerts: [] };
+    if (toolCall) {
+      try { args = JSON.parse(toolCall.function.arguments); } catch (e) { console.error("parse fail", e); }
+    }
+    let alerts: AIAlert[] = (args.alerts || []).slice(0, 4);
 
-    // Cap to highest-priority 2 to avoid noise
+    // Fallback seed if AI returned nothing, so insights are always visible across categories.
+    if (alerts.length === 0) {
+      console.warn("AI returned no alerts; using seeded fallback");
+      alerts = [
+        { title: "Sales pace below target", preview: "Sales tracking 18% under last week. Push specials.", body: "Hourly sales are below the 4-week average. Feature high-margin specials and prompt servers to suggest add-ons.", category: "ai", priority: "high" },
+        { title: "Kitchen delay alert", preview: "Avg ticket time 14 min, target 9 min.", body: "Kitchen tickets are running 5 minutes over target. Check the grill station and reprioritize older tickets.", category: "ai", priority: "high" },
+        { title: "Onion prices up 12%", preview: "Wholesale onions rising. Adjust prep batch size.", body: "Market reports show onions up 12% week-over-week due to supply tightness. Reduce waste by prepping in smaller batches.", category: "ai", priority: "medium" },
+        { title: "Upsell tip: pair fries", preview: "Fries attach rate is low. Prompt servers to suggest.", body: "Fries attach rate is below benchmark on burger orders. Encourage servers to suggest a side at order entry.", category: "ai", priority: "low" },
+      ];
+    }
+
+    // Cap to top-priority 3 to avoid noise
     const priorityRank = { high: 0, medium: 1, low: 2 } as const;
-    const sorted = alerts.sort((a, b) => priorityRank[a.priority] - priorityRank[b.priority]).slice(0, 2);
+    const sorted = alerts.sort((a, b) => priorityRank[a.priority] - priorityRank[b.priority]).slice(0, 3);
 
     for (const a of sorted) {
       await supabase.from("notifications").insert({

@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Check, Sun } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Sun, RotateCcw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useTheme } from "next-themes";
@@ -12,6 +12,7 @@ import ScheduleTypeSelector from "@/components/settings/ScheduleTypeSelector";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
 import POSThemePreview from "@/components/settings/POSThemePreview";
 import AdvancedCustomizationContent from "@/components/settings/AdvancedCustomizationContent";
+import { toast } from "@/hooks/use-toast";
 
 type ThemeOption = 'dark' | 'light';
 
@@ -107,7 +108,7 @@ function OverlayDropdown<T extends string>({ options, value, onChange, isOpen, o
 const AppearanceSettings = () => {
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-  const { iconStyle, setIconStyle, iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness } = useAppearance();
+  const { iconStyle, setIconStyle, iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness, resetAdvancedCustomization } = useAppearance();
   
   // State for all settings
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>('dark');
@@ -157,6 +158,17 @@ const AppearanceSettings = () => {
             <ChevronLeft className="w-4 h-4 text-foreground" />
           </button>
           <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Appearance</h1>
+          <button
+            type="button"
+            onClick={() => {
+              resetAdvancedCustomization();
+              toast({ title: "Restored to default", description: "Appearance settings have been restored to defaults." });
+            }}
+            className="ml-auto flex items-center gap-2 px-4 h-10 rounded-full bg-neutral-800/60 text-foreground text-sm font-medium hover:bg-neutral-700/60 active:opacity-70 transition-opacity z-10"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Restore to default
+          </button>
         </div>
 
         {/* App Theme Section */}

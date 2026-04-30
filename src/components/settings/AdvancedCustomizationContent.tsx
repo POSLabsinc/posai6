@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { RotateCcw, Upload, Image, Palette, ChevronRight } from "lucide-react";
+import { Upload, Image, Palette, ChevronRight } from "lucide-react";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
@@ -12,7 +12,6 @@ export default function AdvancedCustomizationContent() {
   const {
     themeColor,
     partnerLogoUrl, setPartnerLogoUrl,
-    resetAdvancedCustomization,
   } = useAppearance();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -45,12 +44,6 @@ export default function AdvancedCustomizationContent() {
     setPreviewUrl('');
     setPartnerLogoUrl('');
     toast({ title: "Logo removed", description: "Brand logo has been reset to default." });
-  };
-
-  const handleResetAll = () => {
-    resetAdvancedCustomization();
-    setPreviewUrl('');
-    toast({ title: "Reset complete", description: "All advanced customization settings have been reset to defaults." });
   };
 
   return (
@@ -144,14 +137,6 @@ export default function AdvancedCustomizationContent() {
         </div>
       </div>
 
-      {/* Use Default Theme - Primary Button at Bottom */}
-      <button
-        onClick={handleResetAll}
-        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
-      >
-        <RotateCcw className="w-4 h-4" />
-        Use Default Theme
-      </button>
     </div>
   );
 }

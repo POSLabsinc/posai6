@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ChevronRight, ChevronLeft, Sun, Monitor, Moon, Droplets, Sparkles, Paintbrush, Check } from "lucide-react";
+import { ChevronRight, ChevronLeft, Sun, Monitor, Moon, Droplets, Sparkles, Paintbrush, Check, RotateCcw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";
@@ -14,6 +14,7 @@ import appearanceIcon from "@/assets/icons/appearance.png";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
 import POSThemePreview from "@/components/settings/POSThemePreview";
 import AdvancedCustomizationContent from "@/components/settings/AdvancedCustomizationContent";
+import { toast } from "@/hooks/use-toast";
 
 // Icon style definitions
 const ICON_STYLES: { id: IconStyle; label: string; icon: React.ReactNode; description: string }[] = [
@@ -124,7 +125,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
-  const { iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness, iconStyle, setIconStyle, themeColor } = useAppearance();
+  const { iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness, iconStyle, setIconStyle, themeColor, resetAdvancedCustomization } = useAppearance();
 
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>('dark');
   const [automaticTheme, setAutomaticTheme] = useState(false);
@@ -165,6 +166,16 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
             </button>
         }
           <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Appearance</h1>
+          <button
+            onClick={() => {
+              resetAdvancedCustomization();
+              toast({ title: "Restored to default", description: "Appearance settings have been restored to defaults." });
+            }}
+            className="ml-auto flex items-center gap-2 px-4 h-10 rounded-full bg-surface text-foreground text-sm font-medium hover:bg-surface/80 active:opacity-70 transition-opacity"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Restore to default
+          </button>
         </div>
       }
 

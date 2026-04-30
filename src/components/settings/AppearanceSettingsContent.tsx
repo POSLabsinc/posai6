@@ -166,16 +166,6 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
             </button>
         }
           <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Appearance</h1>
-          <button
-            onClick={() => {
-              resetAdvancedCustomization();
-              toast({ title: "Restored to default", description: "Appearance settings have been restored to defaults." });
-            }}
-            className="ml-auto flex items-center gap-2 px-4 h-10 rounded-full bg-surface text-foreground text-sm font-medium hover:bg-surface/80 active:opacity-70 transition-opacity"
-          >
-            <RotateCcw className="w-4 h-4" />
-            Restore to default
-          </button>
         </div>
       }
 
@@ -184,7 +174,19 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
 
         {/* App Theme Section */}
         <div className="mb-6">
-          <h2 className="text-base font-medium text-muted-foreground mb-0.5 px-1">App Theme</h2>
+          <div className="flex items-center justify-between mb-0.5 px-1">
+            <h2 className="text-base font-medium text-muted-foreground">App Theme</h2>
+            <button
+              onClick={() => {
+                resetAdvancedCustomization();
+                toast({ title: "Restored to default", description: "Appearance settings have been restored to defaults." });
+              }}
+              className="flex items-center gap-2 px-3 h-8 rounded-full bg-surface text-foreground text-xs font-medium hover:bg-surface/80 active:opacity-70 transition-opacity"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Restore to default
+            </button>
+          </div>
           
           <div className="bg-surface rounded-2xl p-4 w-full">
             <div className="flex items-start justify-center gap-12 w-full mb-4 py-2">

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Monitor, ChefHat, Tv, LayoutGrid, ChevronDown, Lock, Check } from "lucide-react";
+import { Monitor, ChefHat, Tv, LayoutGrid, ChevronDown, Lock, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SettingsManager, type ScreenModeId, type ScreenModeSettings } from "@/lib/settingsManager";
 import MPINDialog from "@/components/MPINDialog";
@@ -145,33 +145,30 @@ const ScreenModeSwitcher = () => {
         <div className="fixed inset-0 z-[9998] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60" onClick={() => setConfirming(null)} />
           <div className="relative z-10 w-[420px] max-w-[92vw] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden p-6">
-            <div className="flex items-start gap-4">
-              <div className="w-12 h-12 rounded-xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center shrink-0">
-                {ConfirmIcon && <ConfirmIcon className="w-6 h-6 text-blue-300" />}
+            <button
+              onClick={() => setConfirming(null)}
+              aria-label="Close"
+              className="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-neutral-400 hover:text-white hover:bg-white/10 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex flex-col items-center text-center pt-2">
+              <div className="w-14 h-14 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center mb-4">
+                {ConfirmIcon && <ConfirmIcon className="w-7 h-7 text-blue-300" />}
               </div>
-              <div className="flex-1">
-                <h3 className="text-base font-semibold text-white">
-                  Switch to {MODES.find((m) => m.id === confirming)!.label}?
-                </h3>
-                <p className="text-xs text-neutral-400 mt-1 leading-relaxed">
-                  {MODES.find((m) => m.id === confirming)!.description}
-                </p>
-              </div>
+              <h3 className="text-base font-semibold text-white">
+                Switch to {MODES.find((m) => m.id === confirming)!.label}?
+              </h3>
+              <p className="text-xs text-neutral-400 mt-1.5 leading-relaxed max-w-[320px]">
+                {MODES.find((m) => m.id === confirming)!.description}
+              </p>
             </div>
-            <div className="flex items-center justify-end gap-2 mt-6">
-              <button
-                onClick={() => setConfirming(null)}
-                className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-sm font-medium text-white transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={confirmSwitch}
-                className="px-4 py-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-sm font-semibold text-white transition-colors"
-              >
-                {settings.requireManagerPin ? "Continue" : `Switch to ${MODES.find((m) => m.id === confirming)!.label}`}
-              </button>
-            </div>
+            <button
+              onClick={confirmSwitch}
+              className="w-full mt-6 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-sm font-semibold text-white transition-colors"
+            >
+              {settings.requireManagerPin ? "Continue" : `Switch to ${MODES.find((m) => m.id === confirming)!.label}`}
+            </button>
           </div>
         </div>
       )}

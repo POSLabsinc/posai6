@@ -1,7 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, Check, RotateCcw, Trash2, Palette, Monitor, Moon, Droplets, Sparkles, Paintbrush, Pipette } from "lucide-react";
 import { HexColorPicker } from "react-colorful";
+import { useTheme } from "next-themes";
 import { useAppearance, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SPLASH_BG_COLOR, DEFAULT_TOP_BAR_COLOR, DEFAULT_SETTINGS_ICON_COLOR, type IconStyle } from "@/contexts/AppearanceContext";
+import POSThemePreview from "@/components/settings/POSThemePreview";
 import { toast } from "@/hooks/use-toast";
 
 // --- Color format conversion utilities ---

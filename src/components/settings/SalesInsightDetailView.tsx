@@ -145,10 +145,9 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
         </div>
       </div>
 
-      {/* Two-column layout */}
-      <div className="flex-1 grid grid-cols-1 xl:grid-cols-[1.3fr_1fr] gap-5 min-h-0">
-        {/* LEFT: Chart + insights */}
-        <div className="flex flex-col gap-4 min-h-0 overflow-y-auto scrollbar-hide pr-1">
+      {/* Full-width content */}
+      <div className="flex-1 flex flex-col min-h-0">
+        <div className="flex-1 flex flex-col gap-4 min-h-0 overflow-y-auto scrollbar-hide pr-1">
           {/* Chart */}
           <div className={card} style={cardStyle}>
             <div className="flex items-center justify-between mb-3">

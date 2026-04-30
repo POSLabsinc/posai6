@@ -36,12 +36,27 @@ const ThemePresets = () => {
         <div className="p-6">
           {/* Large Preview of Selected Theme */}
           {selectedTheme && (
-            <div className="mb-6">
-              <div className="bg-neutral-800/60 rounded-2xl p-4 overflow-hidden mb-3">
-                <ThemePresetCard theme={selectedTheme} size="lg" />
+            <div className="mb-6 flex flex-col items-center">
+              <div className="w-full max-w-[320px]">
+                <div className="bg-neutral-800/60 rounded-2xl p-3 overflow-hidden mb-4">
+                  <ThemePresetCard theme={selectedTheme} size="lg" />
+                </div>
+                <div className="flex items-center justify-center gap-3">
+                  <button
+                    onClick={() => toast({ title: "Theme applied", description: `${selectedTheme.name} is now active.` })}
+                    className="px-6 h-10 rounded-full bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors"
+                  >
+                    Apply
+                  </button>
+                  <button
+                    onClick={downloadThemes}
+                    className="flex items-center gap-2 px-4 h-10 rounded-full bg-neutral-800/60 text-foreground text-sm font-medium active:opacity-70 transition-opacity"
+                  >
+                    <Download className="w-4 h-4" />
+                    Download
+                  </button>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">{selectedTheme.name}</h3>
-              <p className="text-sm text-neutral-400">{selectedTheme.description}</p>
             </div>
           )}
 

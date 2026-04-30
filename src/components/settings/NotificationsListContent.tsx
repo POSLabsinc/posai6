@@ -19,6 +19,9 @@ const getCategoryIcon = (notification: NotificationItem): { icon?: any; bg: stri
   if (notification.category === "weather") {
     return { icon: CloudSun, bg: "bg-sky-500/15", color: "text-sky-500" };
   }
+  if (notification.category === "ai") {
+    return { icon: Sparkles, bg: "bg-violet-500/15", color: "text-violet-500" };
+  }
   const t = notification.title.toLowerCase();
   // Kitchen reply notifications
   if (t.includes("kitchen reply")) {

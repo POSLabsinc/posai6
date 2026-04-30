@@ -16,6 +16,8 @@ import { useApp } from "@/contexts/AppContext";
 import { ClockOutOverlay } from "@/components/ClockOutOverlay";
 import AppleAlertDialog from "@/components/AppleAlertDialog";
 import { supabase } from "@/integrations/supabase/client";
+import { useWeatherNotification } from "@/hooks/useWeatherNotification";
+import { usePosAIInsights } from "@/hooks/usePosAIInsights";
 import {
   Tooltip,
   TooltipContent,
@@ -60,6 +62,9 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   useApp();
+  // Hourly auto-notifications: weather + AI-generated POS insights
+  useWeatherNotification();
+  usePosAIInsights();
   const [session, setSession] = useState<SessionData | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showClockOut, setShowClockOut] = useState(false);

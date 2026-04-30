@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { RotateCcw, Upload, Image, Palette, ChevronRight } from "lucide-react";
+import { Upload, Image, Palette, ChevronRight } from "lucide-react";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { toast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";

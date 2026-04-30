@@ -6,10 +6,14 @@ const POSThemePreview = ({
   variant,
   isSelected,
   onClick,
+  accentColor,
+  hideLabel = false,
 }: {
   variant: 'dark' | 'light';
   isSelected: boolean;
   onClick: () => void;
+  accentColor?: string;
+  hideLabel?: boolean;
 }) => {
   const isDark = variant === 'dark';
 
@@ -18,7 +22,7 @@ const POSThemePreview = ({
   const headerBg = '#212121';
   const cartBg = isDark ? '#1e1e1e' : '#f0f0f0';
   const cardBg = isDark ? '#2a2a2a' : '#ffffff';
-  const accent = '#f97316';
+  const accent = accentColor || '#f97316';
   const textMuted = isDark ? '#555' : '#999';
   const divider = isDark ? '#333' : '#ddd';
   const pillBorder = isDark ? '#555' : '#aaa';

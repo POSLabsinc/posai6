@@ -116,7 +116,7 @@ interface NotificationsListContentProps {
 const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: NotificationsListContentProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { groups, totalUnread, loading, error, markAsRead, markAllAsRead, notifications: rawNotifications } = useNotifications();
+  const { groups, totalUnread: rawTotalUnread, loading, error, markAsRead, markAllAsRead, notifications: rawNotifications } = useNotifications();
   useWeatherNotification();
   const roleFilter = useNotificationRolePermissions();
 
@@ -126,6 +126,7 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
     [rawNotifications, roleFilter.role, roleFilter.permissions]
   );
 
+  const totalUnread = useMemo(() => notifications.filter((n) => !n.is_read).length, [notifications]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");

@@ -312,6 +312,9 @@ const getContentForRoute = (
   if (pathname === '/settings/system/control-center') {
     return <ControlCenterContent showHeader={true} onBack={() => navigate('/settings/system')} onAIClick={() => setShowAIChat(true)} />;
   }
+  if (pathname === '/settings/system/screen-mode') {
+    return <ScreenModeSettingsContent showHeader={true} onBack={() => navigate('/settings/system')} />;
+  }
   if (pathname === '/settings/payments') {
     return <PaymentsSettingsContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
   }

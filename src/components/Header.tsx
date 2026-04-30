@@ -62,6 +62,9 @@ const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
   useApp();
+  // Hourly auto-notifications: weather + AI-generated POS insights
+  useWeatherNotification();
+  usePosAIInsights();
   const [session, setSession] = useState<SessionData | null>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
   const [showClockOut, setShowClockOut] = useState(false);

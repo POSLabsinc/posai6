@@ -28,6 +28,7 @@ const STORAGE_KEYS = {
   CHECKOUT_OPTIONS: "checkout-options-settings",
   ORDERS: "orders-settings",
   PAYMENT_METHODS: "payment-methods-state",
+  SCREEN_MODE: "screen-mode-settings",
 };
 
 // All settings keys that should be synced to the database

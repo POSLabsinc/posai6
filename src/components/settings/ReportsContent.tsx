@@ -175,6 +175,19 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
         </div>
 
 
+        {/* Quick Ranges */}
+        <div className="mb-3 flex flex-wrap gap-2">
+          {QUICK_RANGES.map((r) => (
+            <button
+              key={r.key}
+              onClick={() => applyQuickRange(r.key)}
+              className="text-xs px-3 py-1.5 rounded-full bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors"
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+
         {/* Date & Time Filters */}
         <div className="mb-6">
           <h3 className="text-base font-medium text-muted-foreground mb-0.5 px-1">Date & Time Range</h3>

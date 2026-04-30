@@ -101,6 +101,9 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
   });
   const [savedThemes, setSavedThemes] = useState<SavedTheme[]>(getSavedThemes);
 
+  const { resolvedTheme } = useTheme();
+  const previewVariant: 'dark' | 'light' = resolvedTheme === 'light' ? 'light' : 'dark';
+
   // Sync all formats when a color is applied
   const syncAllFormats = useCallback((hex: string) => {
     setPickerColor(hex);
@@ -112,12 +115,18 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     }
   }, []);
 
+  // Update only the local preview color (does NOT apply to the app)
   const applyColor = useCallback((hex: string) => {
     if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
-    setThemeColor(hex);
-    applyThemeColor(hex);
     syncAllFormats(hex);
-  }, [setThemeColor, applyThemeColor, syncAllFormats]);
+  }, [syncAllFormats]);
+
+  const handleApplyTheme = useCallback(() => {
+    if (!/^#[0-9A-Fa-f]{6}$/.test(pickerColor)) return;
+    setThemeColor(pickerColor);
+    applyThemeColor(pickerColor);
+    toast({ title: "Theme applied", description: `${pickerColor.toUpperCase()} is now your active theme.` });
+  }, [pickerColor, setThemeColor, applyThemeColor]);
 
   const handlePickerChange = (hex: string) => {
     applyColor(hex);

@@ -135,7 +135,7 @@ const Header = () => {
     fetchNotifs();
     const interval = setInterval(fetchNotifs, 15000);
     return () => clearInterval(interval);
-  }, []);
+  }, [roleFilter.role, roleFilter.permissions]);
 
   // Close popover on outside click
   useEffect(() => {

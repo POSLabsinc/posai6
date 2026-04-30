@@ -276,7 +276,6 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
               </div>
             </div>
           </div>
-        </div>
 
           {/* Inline conversation (only after user interacts) */}
           {messages.length > 1 && (

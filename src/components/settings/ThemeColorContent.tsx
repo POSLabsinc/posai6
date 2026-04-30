@@ -39,6 +39,19 @@ function cmykToRgb(c: number, m: number, y: number, k: number): { r: number; g: 
 
 type ColorMode = 'hex' | 'rgb' | 'cmyk';
 
+// Returns '#000000' or '#FFFFFF' depending on which has better contrast on the given hex
+function getContrastText(hex: string): string {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return '#FFFFFF';
+  // Relative luminance per WCAG
+  const toLin = (c: number) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  const L = 0.2126 * toLin(rgb.r) + 0.7152 * toLin(rgb.g) + 0.0722 * toLin(rgb.b);
+  return L > 0.5 ? '#000000' : '#FFFFFF';
+}
+
 // --- Icon style definitions ---
 const ICON_STYLES: { id: IconStyle; label: string; icon: React.ReactNode; description: string }[] = [
   { id: 'Default', label: 'Default', icon: <Monitor className="w-5 h-5" />, description: 'Colorful system defaults' },
@@ -87,12 +100,19 @@ function ThemePreviewMini({ accent }: { accent: string }) {
   const divider = '#333';
   const pillBorder = '#555';
   const textMuted = '#555';
+  const onAccent = getContrastText(accent);
 
   return (
     <div
-      className="w-full aspect-[4/3] rounded-xl overflow-hidden border border-neutral-700"
+      className="w-full aspect-[4/3] rounded-xl overflow-hidden border border-neutral-700 relative"
       style={{ background: bg }}
     >
+      <div
+        className="absolute top-1 right-1 z-10 rounded-md px-1.5 py-0.5 text-[8px] font-bold leading-none"
+        style={{ background: accent, color: onAccent }}
+      >
+        Aa
+      </div>
       <div className="w-full h-full flex" style={{ fontSize: 0 }}>
         {/* Left sidebar */}
         <div className="flex flex-col items-center pt-[6px] gap-[6px]" style={{ background: sidebarBg, width: '6%' }}>
@@ -220,14 +240,19 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     syncAllFormats(hex);
   }, [syncAllFormats]);
 
-  // Commit the previewed color to the entire application
+  // Commit the previewed color (and contrast-aware text color) to the entire application
   const handleApply = useCallback(() => {
     const hex = pickerColor;
     if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
+    const onAccent = getContrastText(hex);
     setThemeColor(hex);
     applyThemeColor(hex);
+    // Expose contrast text color globally so primary surfaces can pick it up
+    try {
+      document.documentElement.style.setProperty('--theme-on-primary', onAccent);
+    } catch {}
     handleSaveTheme(hex);
-    toast({ title: "Theme applied", description: `Theme color set to ${hex.toUpperCase()}.` });
+    toast({ title: "Theme applied", description: `Theme color set to ${hex.toUpperCase()} with ${onAccent === '#FFFFFF' ? 'light' : 'dark'} text.` });
   }, [pickerColor, setThemeColor, applyThemeColor]);
 
   const handlePickerChange = (hex: string) => {
@@ -345,9 +370,9 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         <div>
           <h2 className={sectionTitleClassName}>Color Picker</h2>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-6 items-center justify-items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] gap-8 items-start">
               {/* LEFT: Preview screen + Apply Theme */}
-              <div className="flex flex-col gap-3 w-full max-w-[320px]">
+              <div className="flex flex-col gap-4 w-full max-w-[300px] mx-auto">
                 <div className="bg-neutral-700/40 rounded-xl p-3">
                   <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-2 text-center">Preview Screen</p>
                   <ThemePreviewMini accent={pickerColor} />
@@ -355,8 +380,8 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                 <button
                   onClick={handleApply}
                   disabled={(themeColor || '#F97316').toUpperCase() === pickerColor.toUpperCase()}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: pickerColor }}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: pickerColor, color: getContrastText(pickerColor) }}
                 >
                   <Check className="w-3.5 h-3.5" />
                   Apply Theme
@@ -364,7 +389,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
               </div>
 
               {/* RIGHT: Color picker + Current/Preview + HEX/RGB/CMYK */}
-              <div className="flex flex-col gap-3 w-full max-w-[460px]">
+              <div className="flex flex-col gap-4 w-full max-w-[560px] mx-auto">
                 <div className="theme-color-picker theme-color-picker-compact">
                   <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
                 </div>

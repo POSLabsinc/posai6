@@ -13,6 +13,7 @@ import { useNotifications, type NotificationItem, type NotificationGroup } from 
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
 import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
 import { OnionPriceInsightView } from "@/components/settings/OnionPriceInsightView";
+import { WeatherInsightView } from "@/components/settings/WeatherInsightView";
 
 type FilterType = "all" | "system" | "announcements" | "updates" | "team" | "weather" | "ai";
 
@@ -411,6 +412,11 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
 
 export const NotificationDetailView = ({ notification }: { notification: NotificationItem }) => {
   const isWeather = notification.category === "weather";
+
+  // Weather notification: full-chat weather experience
+  if (isWeather) {
+    return <WeatherInsightView notification={notification} />;
+  }
 
   // Sales-pace AI insight: render the rich analytics + chat experience
   const titleLower = (notification.title || "").toLowerCase();

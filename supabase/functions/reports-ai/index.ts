@@ -113,6 +113,39 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ answer }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    if (mode === "weather") {
+      const ctx = context || {};
+      const hourlyStr = (ctx.hourly || []).slice(0, 12).map((h: any) => `${h.time}:${h.temp}°F/${h.precip}%`).join(", ");
+      const weeklyStr = (ctx.weekly || []).map((d: any) => `${d.day}:${d.low}-${d.high}°F ${d.condition}`).join("; ");
+      const summary = [
+        `Location: ${ctx.location}`,
+        `Now: ${ctx.currentTemp}°F, ${ctx.condition} (feels ${ctx.feelsLike}°F)`,
+        `Wind: ${ctx.windSpeed} mph, Humidity: ${ctx.humidity}%, Rain chance: ${ctx.precipChance}%, Visibility: ${ctx.visibility} mi`,
+        hourlyStr && `Next 12h: ${hourlyStr}`,
+        weeklyStr && `7-day: ${weeklyStr}`,
+        ctx.impact && `Business impact: ${ctx.impact}`,
+        ctx.reasoning && `Reasoning: ${ctx.reasoning}`,
+        ctx.suggestions?.length && `Suggestions: ${ctx.suggestions.join("; ")}`,
+      ].filter(Boolean).join("\n");
+      const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${lovableKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-lite",
+          messages: [
+            { role: "system", content: "You answer restaurant operator questions about how today's weather affects their sales and operations, using ONLY the supplied weather summary. Be concise (2-4 sentences max), specific, and actionable. No markdown. If the summary lacks the data needed, say so briefly." },
+            { role: "user", content: `Weather summary:\n${summary}\n\nQuestion: ${question}` },
+          ],
+        }),
+      });
+      if (!aiResp.ok) {
+        return new Response(JSON.stringify({ answer: "Sorry, I couldn't generate an answer right now." }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const json = await aiResp.json();
+      const answer = json.choices?.[0]?.message?.content || "No answer.";
+      return new Response(JSON.stringify({ answer }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     if (mode === "ask") {
       const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",

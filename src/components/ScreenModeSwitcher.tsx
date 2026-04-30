@@ -13,10 +13,10 @@ interface ModeMeta {
 }
 
 const MODES: ModeMeta[] = [
-  { id: "pos", label: "POS", description: "Full order taking, payments, and table management", Icon: Monitor },
-  { id: "kds", label: "KDS", description: "Kitchen display for ticket management and fulfillment", Icon: ChefHat },
-  { id: "cfd", label: "CFD", description: "Customer-facing display showing order and total", Icon: Tv },
-  { id: "kiosk", label: "Kiosk", description: "Self-service ordering for guests at the counter", Icon: LayoutGrid },
+  { id: "pos", label: "Point of Sale", description: "Full order taking, payments, and table management", Icon: Monitor },
+  { id: "kds", label: "Kitchen Display System", description: "Kitchen display for ticket management and fulfillment", Icon: ChefHat },
+  { id: "cfd", label: "Customer Facing Display", description: "Customer-facing display showing order and total", Icon: Tv },
+  { id: "kiosk", label: "Self-Service Kiosk", description: "Self-service ordering for guests at the counter", Icon: LayoutGrid },
 ];
 
 const ScreenModeSwitcher = () => {

@@ -12,6 +12,7 @@ import ScheduleTypeSelector from "@/components/settings/ScheduleTypeSelector";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
 import POSThemePreview from "@/components/settings/POSThemePreview";
 import AdvancedCustomizationContent from "@/components/settings/AdvancedCustomizationContent";
+import { toast } from "@/hooks/use-toast";
 
 type ThemeOption = 'dark' | 'light';
 

@@ -121,8 +121,8 @@ const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
             );
           })}
         </div>
-        <p className="text-xs text-neutral-500 px-1 mb-4">
-          Hidden modes will not appear in the top-bar switcher. POS is always available.
+        <p className="text-sm text-neutral-500 mt-1.5 px-1 mb-4 leading-relaxed">
+          Hidden modes will not appear in the top-bar switcher. Point of Sale is always available.
         </p>
       </div>
     </div>

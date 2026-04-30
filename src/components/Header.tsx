@@ -18,6 +18,7 @@ import AppleAlertDialog from "@/components/AppleAlertDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
 import { usePosAIInsights } from "@/hooks/usePosAIInsights";
+import { useNotificationRolePermissions } from "@/hooks/useNotificationRolePermissions";
 import {
   Tooltip,
   TooltipContent,
@@ -75,6 +76,7 @@ const Header = () => {
   const [recentNotifs, setRecentNotifs] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const notifRef = useRef<HTMLDivElement>(null);
+  const roleFilter = useNotificationRolePermissions();
 
   useEffect(() => {
     // Load session from localStorage
@@ -116,23 +118,24 @@ const Header = () => {
     return () => clearInterval(sessionTimer);
   }, []);
 
-  // Fetch recent notifications
+  // Fetch recent notifications (role-filtered for AI/weather topics)
   useEffect(() => {
     const fetchNotifs = async () => {
       const { data } = await (supabase as any)
         .from("notifications")
-        .select("id, title, preview, created_at, is_read, category")
+        .select("id, title, preview, headline, created_at, is_read, category")
         .order("created_at", { ascending: false })
-        .limit(3);
+        .limit(20);
       if (data) {
-        setRecentNotifs(data);
-        setUnreadCount(data.filter((n: any) => !n.is_read).length);
+        const filtered = data.filter((n: any) => roleFilter.isAllowed(n)).slice(0, 3);
+        setRecentNotifs(filtered);
+        setUnreadCount(filtered.filter((n: any) => !n.is_read).length);
       }
     };
     fetchNotifs();
     const interval = setInterval(fetchNotifs, 15000);
     return () => clearInterval(interval);
-  }, []);
+  }, [roleFilter.role, roleFilter.permissions]);
 
   // Close popover on outside click
   useEffect(() => {

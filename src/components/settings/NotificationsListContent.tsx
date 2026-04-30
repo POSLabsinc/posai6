@@ -11,6 +11,7 @@ import filterMegaphoneIcon from "@/assets/icons/filter-megaphone.png";
 import filterTeamIcon from "@/assets/icons/filter-team.png";
 import { useNotifications, type NotificationItem, type NotificationGroup } from "@/hooks/useNotifications";
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
+import { useNotificationRolePermissions } from "@/hooks/useNotificationRolePermissions";
 import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
 import { CommodityPriceInsightView } from "@/components/settings/CommodityPriceInsightView";
 import { UpsellingInsightView } from "@/components/settings/UpsellingInsightView";
@@ -115,8 +116,17 @@ interface NotificationsListContentProps {
 const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: NotificationsListContentProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { groups, totalUnread, loading, error, markAsRead, markAllAsRead, notifications } = useNotifications();
+  const { groups, totalUnread: rawTotalUnread, loading, error, markAsRead, markAllAsRead, notifications: rawNotifications } = useNotifications();
   useWeatherNotification();
+  const roleFilter = useNotificationRolePermissions();
+
+  // Apply role-based visibility before any other filtering. Re-runs when role/perms change.
+  const notifications = useMemo(
+    () => rawNotifications.filter((n) => roleFilter.isAllowed(n)),
+    [rawNotifications, roleFilter.role, roleFilter.permissions]
+  );
+
+  const totalUnread = useMemo(() => notifications.filter((n) => !n.is_read).length, [notifications]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");

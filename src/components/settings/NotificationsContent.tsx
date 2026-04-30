@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronRight, ChevronLeft, Check, Bell, Volume2, BellRing } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, Bell, Volume2, BellRing, ShieldCheck } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import notificationsIcon from "@/assets/icons/settings-notifications.png";
@@ -7,6 +7,11 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePreference } from "@/hooks/usePreference";
 import { Switch } from "@/components/ui/switch";
 import { requestNotificationPermission, getNotificationPermissionStatus, cacheSoundPreference } from "@/lib/alertService";
+import {
+  useNotificationRolePermissions,
+  type NotificationTopic,
+  type RoleKey,
+} from "@/hooks/useNotificationRolePermissions";
 
 type NotificationStyleType = "Count" | "Stack" | "List";
 
@@ -155,6 +160,9 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
           </p>
         </div>
 
+        {/* Role-based visibility */}
+        <RolePermissionsSection />
+
 
         {/* All Notifications Section */}
         <div className="mb-6">
@@ -267,4 +275,87 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
   );
 };
 
+const ROLE_LABELS: Record<RoleKey, string> = {
+  manager: "Manager",
+  cook: "Cook",
+  server: "Server",
+  other: "Other staff",
+};
+
+const TOPIC_LABELS: { key: NotificationTopic; label: string; desc: string }[] = [
+  { key: "sales", label: "Sales insights", desc: "Revenue / sales pace alerts" },
+  { key: "price", label: "Product price alerts", desc: "Onion, chicken, beef, etc." },
+  { key: "weather", label: "Weather", desc: "Weather impact reports" },
+  { key: "upsell", label: "Upselling", desc: "Combo / promote suggestions" },
+  { key: "kitchen", label: "Kitchen alerts", desc: "KDS delays, prep insights" },
+  { key: "operations", label: "Operations", desc: "Staff utilisation, ops tips" },
+];
+
+const RolePermissionsSection = () => {
+  const { permissions, setPermissions, role: currentRole } = useNotificationRolePermissions();
+
+  const toggle = (role: RoleKey, topic: NotificationTopic) => {
+    const current = permissions[role] || [];
+    const next = current.includes(topic)
+      ? current.filter((t) => t !== topic)
+      : [...current, topic];
+    setPermissions({ ...permissions, [role]: next });
+  };
+
+  return (
+    <div className="mb-6">
+      <div className="flex items-center justify-between px-1 mb-0.5">
+        <p className="text-base font-medium text-muted-foreground">Role-based AI notifications</p>
+        <span className="text-[11px] text-muted-foreground/70">
+          Active role: <span className="text-foreground/90 font-semibold">{ROLE_LABELS[currentRole]}</span>
+        </span>
+      </div>
+      <div className="bg-neutral-800/60 rounded-2xl p-4">
+        <div className="flex items-center gap-2 mb-3">
+          <ShieldCheck className="w-4 h-4 text-emerald-400" />
+          <p className="text-xs text-muted-foreground">
+            Choose which AI notification categories each clocked-in role can see.
+          </p>
+        </div>
+        <div className="space-y-4">
+          {(Object.keys(ROLE_LABELS) as RoleKey[]).map((role) => (
+            <div key={role}>
+              <p className="text-sm font-semibold text-foreground mb-2">{ROLE_LABELS[role]}</p>
+              <div className="grid grid-cols-2 gap-2">
+                {TOPIC_LABELS.map((t) => {
+                  const enabled = (permissions[role] || []).includes(t.key);
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => toggle(role, t.key)}
+                      className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl border transition-all text-left ${
+                        enabled
+                          ? "bg-primary/10 border-primary/40"
+                          : "bg-card/40 border-border hover:bg-card/70"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <p className="text-[12px] font-medium text-foreground truncate">{t.label}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">{t.desc}</p>
+                      </div>
+                      <div
+                        className={`w-4 h-4 rounded-md flex items-center justify-center shrink-0 ${
+                          enabled ? "bg-primary" : "bg-transparent border border-border"
+                        }`}
+                      >
+                        {enabled && <Check className="w-3 h-3 text-primary-foreground" />}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 export default NotificationsContent;
+

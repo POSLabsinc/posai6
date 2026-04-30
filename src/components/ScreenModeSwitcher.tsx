@@ -13,10 +13,10 @@ interface ModeMeta {
 }
 
 const MODES: ModeMeta[] = [
-  { id: "pos", label: "POS", description: "Full order taking, payments, and table management", Icon: Monitor },
-  { id: "kds", label: "KDS", description: "Kitchen display for ticket management and fulfillment", Icon: ChefHat },
-  { id: "cfd", label: "CFD", description: "Customer-facing display showing order and total", Icon: Tv },
-  { id: "kiosk", label: "Kiosk", description: "Self-service ordering for guests at the counter", Icon: LayoutGrid },
+  { id: "pos", label: "Point of Sale", description: "Full order taking, payments, and table management", Icon: Monitor },
+  { id: "kds", label: "Kitchen Display System", description: "Kitchen display for ticket management and fulfillment", Icon: ChefHat },
+  { id: "cfd", label: "Customer Facing Display", description: "Customer-facing display showing order and total", Icon: Tv },
+  { id: "kiosk", label: "Self-Service Kiosk", description: "Self-service ordering for guests at the counter", Icon: LayoutGrid },
 ];
 
 const ScreenModeSwitcher = () => {
@@ -93,11 +93,12 @@ const ScreenModeSwitcher = () => {
       <div className="relative" ref={wrapRef}>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex items-center gap-1.5 px-2 md:px-2.5 py-1 md:py-1.5 rounded-full bg-white/10 hover:bg-white/15 transition-colors text-xs md:text-sm font-medium"
-          aria-label="Screen Mode"
+          className="flex items-center gap-1.5 px-2 md:px-2.5 py-1 md:py-1.5 rounded-full bg-white/10 hover:bg-white/15 transition-colors"
+          aria-label={`Screen Mode: ${current.label}`}
+          title={current.label}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <span>{current.label}</span>
+          <current.Icon className="w-4 h-4 text-white" />
           <ChevronDown className="w-3.5 h-3.5 opacity-70" />
         </button>
 

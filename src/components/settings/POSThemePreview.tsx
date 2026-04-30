@@ -231,26 +231,18 @@ const POSThemePreview = ({
       </div>
 
       {/* Theme label */}
-      <span className="text-base font-medium text-foreground capitalize">{variant}</span>
+      <span className="text-sm font-medium text-foreground capitalize">{variant}</span>
 
       {/* Radio indicator */}
       <div
-        className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
           isSelected
-            ? 'border-foreground bg-foreground'
+            ? 'border-primary bg-primary'
             : 'border-neutral-500 bg-transparent'
         }`}
       >
         {isSelected && (
-          <svg width="12" height="9" viewBox="0 0 14 10" fill="none">
-            <path
-              d="M1 5L5 9L13 1"
-              className="stroke-background"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          <div className="w-1.5 h-1.5 rounded-full bg-background" />
         )}
       </div>
     </button>

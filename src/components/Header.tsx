@@ -265,6 +265,8 @@ const Header = () => {
             </div>
           )}
 
+          <ScreenModeSwitcher />
+
           <div className="overflow-visible flex items-center justify-center">
             <AnimatedAIIcon size={20} onClick={() => {
               const path = location.pathname;

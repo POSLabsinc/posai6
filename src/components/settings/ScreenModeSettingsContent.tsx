@@ -64,20 +64,20 @@ const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
         </div>
 
         {/* Switching controls */}
-        <p className="text-xs uppercase tracking-wide text-neutral-500 px-1 mb-2">Switching</p>
+        <h2 className="text-base font-medium text-neutral-500 mb-2 px-1">Switching</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1.5">
           <div className="flex items-center justify-between py-4 px-4">
             <div className="pr-4">
-              <p className="text-foreground text-base font-medium">Enable Screen Mode Switching</p>
-              <p className="text-xs text-neutral-500 mt-0.5">Show the mode switcher in the top bar.</p>
+              <p className="text-lg font-medium text-foreground">Enable Screen Mode Switching</p>
+              <p className="text-sm text-neutral-500 mt-0.5">Show the mode switcher in the top bar.</p>
             </div>
             <Switch checked={settings.enableSwitching} onCheckedChange={(v) => update({ enableSwitching: v })} />
           </div>
           <div className="h-px bg-neutral-700/50 mx-4" />
           <div className="flex items-center justify-between py-4 px-4">
             <div className="pr-4">
-              <p className="text-foreground text-base font-medium">Require Manager PIN</p>
-              <p className="text-xs text-neutral-500 mt-0.5">Prompt for a manager PIN before switching modes.</p>
+              <p className="text-lg font-medium text-foreground">Require Manager PIN</p>
+              <p className="text-sm text-neutral-500 mt-0.5">Prompt for a manager PIN before switching modes.</p>
             </div>
             <Switch
               checked={settings.requireManagerPin}
@@ -86,12 +86,12 @@ const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
             />
           </div>
         </div>
-        <p className="text-xs text-neutral-500 px-1 mb-4">
+        <p className="text-sm text-neutral-500 mt-1.5 px-1 mb-6 leading-relaxed">
           When switching is disabled, the option is hidden from the top bar.
         </p>
 
         {/* Visible Modes */}
-        <p className="text-xs uppercase tracking-wide text-neutral-500 px-1 mb-2">Visible Modes</p>
+        <h2 className="text-base font-medium text-neutral-500 mb-2 px-1">Visible Modes</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1.5">
           {MODES.map((m, idx) => {
             const isPos = m.id === "pos";

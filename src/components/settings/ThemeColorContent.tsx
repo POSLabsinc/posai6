@@ -370,9 +370,9 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         <div>
           <h2 className={sectionTitleClassName}>Color Picker</h2>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)] gap-6 items-center justify-items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1.3fr)] gap-8 items-start">
               {/* LEFT: Preview screen + Apply Theme */}
-              <div className="flex flex-col gap-3 w-full max-w-[320px]">
+              <div className="flex flex-col gap-4 w-full max-w-[300px] mx-auto">
                 <div className="bg-neutral-700/40 rounded-xl p-3">
                   <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-2 text-center">Preview Screen</p>
                   <ThemePreviewMini accent={pickerColor} />
@@ -380,8 +380,8 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                 <button
                   onClick={handleApply}
                   disabled={(themeColor || '#F97316').toUpperCase() === pickerColor.toUpperCase()}
-                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-                  style={{ backgroundColor: pickerColor }}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: pickerColor, color: getContrastText(pickerColor) }}
                 >
                   <Check className="w-3.5 h-3.5" />
                   Apply Theme
@@ -389,7 +389,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
               </div>
 
               {/* RIGHT: Color picker + Current/Preview + HEX/RGB/CMYK */}
-              <div className="flex flex-col gap-3 w-full max-w-[460px]">
+              <div className="flex flex-col gap-4 w-full max-w-[560px] mx-auto">
                 <div className="theme-color-picker theme-color-picker-compact">
                   <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
                 </div>

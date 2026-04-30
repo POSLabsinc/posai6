@@ -165,9 +165,9 @@ const ScreenModeSwitcher = () => {
             </div>
             <button
               onClick={confirmSwitch}
-              className="w-full mt-6 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 text-sm font-semibold text-white transition-colors"
+              className="w-full mt-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-sm font-semibold text-primary-foreground transition-colors"
             >
-              {settings.requireManagerPin ? "Continue" : `Switch to ${MODES.find((m) => m.id === confirming)!.label}`}
+              Continue
             </button>
           </div>
         </div>

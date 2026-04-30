@@ -124,7 +124,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
   const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const isMobile = useIsMobile();
-  const { iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness, iconStyle, setIconStyle, themeColor } = useAppearance();
+  const { iconSize, setIconSize, textSize, setTextSize, boldText, setBoldText, brightness, setBrightness, iconStyle, setIconStyle, themeColor, resetAdvancedCustomization } = useAppearance();
 
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>('dark');
   const [automaticTheme, setAutomaticTheme] = useState(false);

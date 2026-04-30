@@ -2,3 +2,9 @@ project_id = "okazsjuusqbaptmvndvf"
 
 [functions.device-setup-chat]
 verify_jwt = false
+
+[functions.weather-notification]
+verify_jwt = false
+
+[functions.pos-ai-insights]
+verify_jwt = false

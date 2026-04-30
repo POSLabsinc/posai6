@@ -164,17 +164,21 @@ const AppearanceSettings = () => {
           <h2 className="text-base font-medium text-neutral-500 mb-4 px-1">App Theme</h2>
           
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <POSThemePreview 
-                variant="dark" 
-                isSelected={selectedTheme === 'dark'}
-                onClick={() => handleThemeChange('dark')}
-              />
-              <POSThemePreview 
-                variant="light" 
-                isSelected={selectedTheme === 'light'}
-                onClick={() => handleThemeChange('light')}
-              />
+            <div className="flex items-start gap-6 mb-4">
+              <div className="w-[140px]">
+                <POSThemePreview 
+                  variant="dark" 
+                  isSelected={selectedTheme === 'dark'}
+                  onClick={() => handleThemeChange('dark')}
+                />
+              </div>
+              <div className="w-[140px]">
+                <POSThemePreview 
+                  variant="light" 
+                  isSelected={selectedTheme === 'light'}
+                  onClick={() => handleThemeChange('light')}
+                />
+              </div>
             </div>
             
             {/* Divider */}

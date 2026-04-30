@@ -235,20 +235,24 @@ const POSThemePreview = ({
       </div>
 
       {/* Theme label */}
-      <span className="text-sm font-medium text-foreground capitalize">{variant}</span>
+      {!hideLabel && (
+        <>
+          <span className="text-sm font-medium text-foreground capitalize">{variant}</span>
 
-      {/* Radio indicator */}
-      <div
-        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-          isSelected
-            ? 'border-primary bg-primary'
-            : 'border-neutral-500 bg-transparent'
-        }`}
-      >
-        {isSelected && (
-          <div className="w-1.5 h-1.5 rounded-full bg-background" />
-        )}
-      </div>
+          {/* Radio indicator */}
+          <div
+            className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+              isSelected
+                ? 'border-primary bg-primary'
+                : 'border-neutral-500 bg-transparent'
+            }`}
+          >
+            {isSelected && (
+              <div className="w-1.5 h-1.5 rounded-full bg-background" />
+            )}
+          </div>
+        </>
+      )}
     </button>
   );
 };

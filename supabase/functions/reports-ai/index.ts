@@ -146,6 +146,41 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ answer }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
+    if (mode === "upsell") {
+      const ctx = context || {};
+      const top = (ctx.topSellers || []).map((t: any) => `${t.name}: ${t.units}u, ${t.margin}% margin`).join("; ");
+      const combos = (ctx.combos || []).map((c: any) => `${c.combo} (${c.attach}, ${c.lift})`).join("; ");
+      const high = (ctx.highMargin || []).map((p: any) => `${p.name}: ${p.margin}% margin – ${p.suggestion}`).join("; ");
+      const tips = (ctx.tips || []).join(" | ");
+      const reasoning = (ctx.reasoning || []).join(" | ");
+      const timing = (ctx.timing || []).map((t: any) => `${t.window}: ${t.action}`).join("; ");
+      const summary = [
+        top && `Top sellers: ${top}`,
+        combos && `Frequently bought together: ${combos}`,
+        high && `High margin products: ${high}`,
+        tips && `Tips: ${tips}`,
+        reasoning && `Reasoning: ${reasoning}`,
+        timing && `Timing windows: ${timing}`,
+      ].filter(Boolean).join("\n");
+      const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${lovableKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "google/gemini-2.5-flash-lite",
+          messages: [
+            { role: "system", content: "You answer restaurant operator questions about upselling, combos, and promotions using ONLY the supplied summary. Be concise (2-4 sentences max), specific, and actionable. No markdown. If the summary lacks the data needed, say so briefly." },
+            { role: "user", content: `Upselling summary:\n${summary}\n\nQuestion: ${question}` },
+          ],
+        }),
+      });
+      if (!aiResp.ok) {
+        return new Response(JSON.stringify({ answer: "Sorry, I couldn't generate an answer right now." }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const json = await aiResp.json();
+      const answer = json.choices?.[0]?.message?.content || "No answer.";
+      return new Response(JSON.stringify({ answer }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     if (mode === "ask") {
       const aiResp = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
         method: "POST",

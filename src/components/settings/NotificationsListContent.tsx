@@ -12,7 +12,9 @@ import filterTeamIcon from "@/assets/icons/filter-team.png";
 import { useNotifications, type NotificationItem, type NotificationGroup } from "@/hooks/useNotifications";
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
 import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
-import { OnionPriceInsightView } from "@/components/settings/OnionPriceInsightView";
+import { CommodityPriceInsightView } from "@/components/settings/CommodityPriceInsightView";
+import { UpsellingInsightView } from "@/components/settings/UpsellingInsightView";
+import { detectCommodity } from "@/components/settings/commodityData";
 import { WeatherInsightView } from "@/components/settings/WeatherInsightView";
 
 type FilterType = "all" | "system" | "announcements" | "updates" | "team" | "weather" | "ai";
@@ -431,13 +433,22 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
     return <SalesInsightDetailView notification={notification} />;
   }
 
-  // Onion / commodity price AI insight
-  const isOnionInsight =
+  // Upselling AI insight
+  const isUpsellInsight =
     notification.category === "ai" &&
-    (titleLower.includes("onion") || headlineLower.includes("onion") ||
-     titleLower.includes("price") || headlineLower.includes("price"));
-  if (isOnionInsight) {
-    return <OnionPriceInsightView notification={notification} />;
+    (titleLower.includes("upsell") || titleLower.includes("upselling") ||
+      headlineLower.includes("upsell") || titleLower.includes("promote") ||
+      titleLower.includes("combo"));
+  if (isUpsellInsight) {
+    return <UpsellingInsightView notification={notification} />;
+  }
+
+  // Commodity price AI insight (onion, tomato, chicken, beef, milk, eggs, generic price)
+  if (notification.category === "ai") {
+    const commodity = detectCommodity(notification);
+    if (commodity) {
+      return <CommodityPriceInsightView notification={notification} data={commodity} />;
+    }
   }
 
   return (

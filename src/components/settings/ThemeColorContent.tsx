@@ -370,14 +370,12 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         <div>
           <h2 className={sectionTitleClassName}>Color Picker</h2>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start justify-items-center">
               {/* LEFT: Preview screen + Apply Theme */}
-              <div className="flex flex-col gap-4 w-full h-full">
-                <div className="bg-neutral-700/40 rounded-xl p-3 flex-1 flex flex-col">
+              <div className="flex flex-col gap-4 w-full max-w-[460px]">
+                <div className="bg-neutral-700/40 rounded-xl p-3">
                   <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-2 text-center">Preview Screen</p>
-                  <div className="flex-1 flex items-center justify-center">
-                    <ThemePreviewMini accent={pickerColor} />
-                  </div>
+                  <ThemePreviewMini accent={pickerColor} />
                 </div>
                 <button
                   onClick={handleApply}
@@ -391,7 +389,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
               </div>
 
               {/* RIGHT: Color picker + Current/Preview + HEX/RGB/CMYK */}
-              <div className="flex flex-col gap-4 w-full h-full">
+              <div className="flex flex-col gap-4 w-full max-w-[460px]">
                 <div className="theme-color-picker theme-color-picker-wide">
                   <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
                 </div>

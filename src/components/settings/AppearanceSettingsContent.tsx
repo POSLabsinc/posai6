@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { ChevronRight, ChevronLeft, Sun, Monitor, Moon, Droplets, Sparkles, Paintbrush, Check } from "lucide-react";
+import { ChevronRight, ChevronLeft, Sun, Monitor, Moon, Droplets, Sparkles, Paintbrush, Check, RotateCcw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { Slider } from "@/components/ui/slider";

@@ -14,6 +14,7 @@ import appearanceIcon from "@/assets/icons/appearance.png";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
 import POSThemePreview from "@/components/settings/POSThemePreview";
 import AdvancedCustomizationContent from "@/components/settings/AdvancedCustomizationContent";
+import { toast } from "@/hooks/use-toast";
 
 // Icon style definitions
 const ICON_STYLES: { id: IconStyle; label: string; icon: React.ReactNode; description: string }[] = [

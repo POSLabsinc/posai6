@@ -12,13 +12,13 @@ interface OrderSummary {
   total: number;
 }
 
-interface PaymentTypeSummary {
+export interface PaymentTypeSummary {
   type: string;
   transactions: number;
   amount: number;
 }
 
-interface CategorySummary {
+export interface CategorySummary {
   name: string;
   products: number;
   sales: number;

@@ -176,7 +176,9 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
   }, []);
 
   const handleLoadTheme = (theme: SavedTheme) => {
-    applyColor(theme.themeColor);
+    syncAllFormats(theme.themeColor);
+    setThemeColor(theme.themeColor);
+    applyThemeColor(theme.themeColor);
     toast({ title: "Theme loaded", description: `"${theme.name}" applied.` });
   };
 

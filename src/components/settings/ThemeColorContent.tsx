@@ -391,7 +391,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
               </div>
 
               {/* RIGHT: Color picker + Current/Preview + HEX/RGB/CMYK */}
-              <div className="flex flex-col gap-4 w-full max-w-[460px]">
+              <div className="flex flex-col gap-4 w-full h-full">
                 <div className="theme-color-picker theme-color-picker-wide">
                   <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
                 </div>

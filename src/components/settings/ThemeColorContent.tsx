@@ -249,12 +249,21 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
 
               {/* Right: Active Theme + Color codes (70%) */}
               <div className="flex flex-col gap-3 lg:col-span-7">
-                {/* Active Theme */}
+                {/* Current vs Preview */}
                 <div className="bg-neutral-700/40 rounded-xl p-3 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg border-2 border-neutral-600 flex-shrink-0" style={{ backgroundColor: themeColor || pickerColor }} />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground">Active Theme</p>
-                    <p className="text-[11px] text-neutral-400 font-mono uppercase">{themeColor || pickerColor}</p>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="w-9 h-9 rounded-lg border-2 border-neutral-600 flex-shrink-0" style={{ backgroundColor: themeColor || '#F97316' }} />
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-neutral-400 uppercase tracking-wider">Current</p>
+                      <p className="text-[11px] text-neutral-300 font-mono uppercase truncate">{themeColor || '#F97316'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <div className="w-9 h-9 rounded-lg border-2 border-primary flex-shrink-0" style={{ backgroundColor: pickerColor }} />
+                    <div className="min-w-0">
+                      <p className="text-[11px] text-primary uppercase tracking-wider font-medium">Preview</p>
+                      <p className="text-[11px] text-foreground font-mono uppercase truncate">{pickerColor}</p>
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -264,7 +273,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                         try {
                           const ed = new anyWin.EyeDropper();
                           const res = await ed.open();
-                          if (res?.sRGBHex) applyColor(res.sRGBHex.toUpperCase());
+                          if (res?.sRGBHex) previewColor(res.sRGBHex.toUpperCase());
                         } catch {}
                       }
                     }}

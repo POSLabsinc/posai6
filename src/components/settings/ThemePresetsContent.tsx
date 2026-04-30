@@ -42,15 +42,30 @@ const ThemePresetsContent = ({
       {/* Content */}
       <div className="p-6">
         {/* Large Preview of Selected Theme */}
-        {selectedTheme && <div className="mb-6 mx-[120px]">
-            <div className="w-full max-w-[600px]">
-              <div className="rounded-2xl overflow-hidden mb-3">
+        {selectedTheme && (
+          <div className="mb-6 flex flex-col items-center">
+            <div className="w-full max-w-[420px]">
+              <div className="rounded-2xl overflow-hidden mb-4">
                 <ThemePresetCard theme={selectedTheme} size="lg" />
               </div>
-              <h3 className="text-lg font-semibold text-foreground mb-1">{selectedTheme.name}</h3>
-              <p className="text-sm text-neutral-400">{selectedTheme.description}</p>
+              <div className="flex items-center justify-center gap-3">
+                <button
+                  onClick={() => toast({ title: "Theme applied", description: `${selectedTheme.name} is now active.` })}
+                  className="px-6 h-10 rounded-full bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors"
+                >
+                  Apply
+                </button>
+                <button
+                  onClick={downloadThemes}
+                  className="flex items-center gap-2 px-5 h-10 rounded-full bg-surface text-foreground text-sm font-medium hover:bg-surface/80 transition-opacity"
+                >
+                  <Download className="w-4 h-4" />
+                  Download Themes
+                </button>
+              </div>
             </div>
-          </div>}
+          </div>
+        )}
 
         {/* All Themes Section */}
         <div className="mb-4">

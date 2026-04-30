@@ -28,6 +28,7 @@ const STORAGE_KEYS = {
   CHECKOUT_OPTIONS: "checkout-options-settings",
   ORDERS: "orders-settings",
   PAYMENT_METHODS: "payment-methods-state",
+  SCREEN_MODE: "screen-mode-settings",
 };
 
 // All settings keys that should be synced to the database
@@ -302,6 +303,15 @@ export interface OrdersSettings {
   orderNotifications: boolean;
 }
 
+export type ScreenModeId = "pos" | "kds" | "cfd" | "kiosk";
+
+export interface ScreenModeSettings {
+  enableSwitching: boolean;
+  requireManagerPin: boolean;
+  currentMode: ScreenModeId;
+  visibleModes: Record<ScreenModeId, boolean>;
+}
+
 // Default values
 const defaultGratuitySettings: GratuitySettings = {
   enableTip: true,
@@ -397,6 +407,13 @@ const defaultOrdersSettings: OrdersSettings = {
   holdAndRecall: true,
   orderSync: true,
   orderNotifications: true,
+};
+
+const defaultScreenModeSettings: ScreenModeSettings = {
+  enableSwitching: true,
+  requireManagerPin: true,
+  currentMode: "pos",
+  visibleModes: { pos: true, kds: true, cfd: true, kiosk: true },
 };
 
 // Settings Manager class
@@ -897,7 +914,37 @@ export class SettingsManager {
     return updated;
   }
 
-  // Appearance Settings
+  // Screen Mode Settings
+  static getScreenModeSettings(): ScreenModeSettings {
+    const stored = localStorage.getItem(STORAGE_KEYS.SCREEN_MODE);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        return {
+          ...defaultScreenModeSettings,
+          ...parsed,
+          visibleModes: { ...defaultScreenModeSettings.visibleModes, ...(parsed.visibleModes || {}) },
+        };
+      } catch {
+        return defaultScreenModeSettings;
+      }
+    }
+    return defaultScreenModeSettings;
+  }
+
+  static updateScreenModeSettings(updates: Partial<ScreenModeSettings>): ScreenModeSettings {
+    const current = this.getScreenModeSettings();
+    const updated: ScreenModeSettings = {
+      ...current,
+      ...updates,
+      visibleModes: { ...current.visibleModes, ...(updates.visibleModes || {}) },
+    };
+    localStorage.setItem(STORAGE_KEYS.SCREEN_MODE, JSON.stringify(updated));
+    syncToDatabase(STORAGE_KEYS.SCREEN_MODE, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'screenMode', data: updated } }));
+    return updated;
+  }
+
   static getAppearanceSettings(): AppearanceSettings {
     const theme = (localStorage.getItem('theme') as AppearanceSettings['theme']) || 'dark';
     const iconStyle = (localStorage.getItem('iconStyle') as AppearanceSettings['iconStyle']) || 'Default';

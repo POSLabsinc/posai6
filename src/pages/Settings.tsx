@@ -10,6 +10,7 @@ import SecurityContent from "@/components/settings/SecurityContent";
 import SystemSettingsContent from "@/components/settings/SystemSettingsContent";
 import AppearanceSettingsContent from "@/components/settings/AppearanceSettingsContent";
 import ControlCenterContent from "@/components/settings/ControlCenterContent";
+import ScreenModeSettingsContent from "@/components/settings/ScreenModeSettingsContent";
 import ThemePresetsContent from "@/components/settings/ThemePresetsContent";
 import FontsContent from "@/components/settings/FontsContent";
 import SystemFontsContent from "@/components/settings/SystemFontsContent";
@@ -311,6 +312,9 @@ const getContentForRoute = (
   }
   if (pathname === '/settings/system/control-center') {
     return <ControlCenterContent showHeader={true} onBack={() => navigate('/settings/system')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/system/screen-mode') {
+    return <ScreenModeSettingsContent showHeader={true} onBack={() => navigate('/settings/system')} />;
   }
   if (pathname === '/settings/payments') {
     return <PaymentsSettingsContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;

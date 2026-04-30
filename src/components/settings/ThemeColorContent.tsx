@@ -74,6 +74,110 @@ interface ThemeColorContentProps {
   onAIClick?: () => void;
 }
 
+/**
+ * Compact mini POS preview that reflects the picker's accent color.
+ * Render-only: does NOT mutate global theme state.
+ */
+function ThemePreviewMini({ accent }: { accent: string }) {
+  const bg = '#1a1a1a';
+  const sidebarBg = '#111111';
+  const headerBg = '#212121';
+  const cartBg = '#1e1e1e';
+  const cardBg = '#2a2a2a';
+  const divider = '#333';
+  const pillBorder = '#555';
+  const textMuted = '#555';
+
+  return (
+    <div
+      className="w-full aspect-[4/3] rounded-xl overflow-hidden border border-neutral-700"
+      style={{ background: bg }}
+    >
+      <div className="w-full h-full flex" style={{ fontSize: 0 }}>
+        {/* Left sidebar */}
+        <div className="flex flex-col items-center pt-[6px] gap-[6px]" style={{ background: sidebarBg, width: '6%' }}>
+          {[...Array(7)].map((_, i) => (
+            <div key={i} style={{ width: 5, height: 5, background: i === 0 ? accent : '#444', borderRadius: '50%' }} />
+          ))}
+        </div>
+
+        {/* Main */}
+        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <div className="flex items-center gap-[2px] px-[3px]" style={{ background: headerBg, height: '10%', minHeight: 8 }}>
+            <div style={{ background: accent, width: 10, height: 4, borderRadius: 999 }} />
+            {[...Array(3)].map((_, i) => (
+              <div key={i} style={{ border: `0.5px solid ${pillBorder}`, width: 9, height: 4, borderRadius: 999 }} />
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-[1px] px-[3px] py-[2px]">
+            <div className="flex gap-[1px]">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} style={{ border: `0.5px solid ${i === 0 ? accent : pillBorder}`, background: i === 0 ? `${accent}22` : 'transparent', width: 9, height: 3, borderRadius: 999 }} />
+              ))}
+            </div>
+            <div className="flex gap-[1px]">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} style={{ border: `0.5px solid ${pillBorder}`, width: i === 0 ? 11 : 8, height: 3, borderRadius: 999 }} />
+              ))}
+            </div>
+          </div>
+
+          <div className="flex-1 px-[3px] py-[1px] overflow-hidden">
+            <div className="grid grid-cols-3 gap-[2px]">
+              {[...Array(12)].map((_, i) => (
+                <div key={i} className="flex items-center justify-between px-[2px]" style={{ background: cardBg, height: 7, borderRadius: 1 }}>
+                  <div style={{ width: '55%', height: 2, background: '#777', borderRadius: 0.5 }} />
+                  <div style={{ width: 4, height: 4, background: accent, borderRadius: 0.5, flexShrink: 0 }} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right cart */}
+        <div className="flex flex-col" style={{ background: cartBg, width: '28%', borderLeft: `0.5px solid ${divider}` }}>
+          <div className="px-[2px] pt-[2px]">
+            <div style={{ height: 3, background: '#333', borderRadius: 1, width: '90%' }} />
+          </div>
+          <div className="flex gap-[1px] px-[2px] mt-[2px]">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} style={{ width: 7, height: 3, background: '#333', borderRadius: 1 }} />
+            ))}
+          </div>
+          <div className="px-[2px] mt-[2px]">
+            <div style={{ height: 4, background: '#333', borderRadius: 1, width: '100%' }} />
+          </div>
+          <div className="flex-1 flex flex-col gap-[1px] px-[2px] mt-[2px] overflow-hidden">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="flex items-center justify-between" style={{ height: 4 }}>
+                <div className="flex items-center gap-[1px]">
+                  <div style={{ width: 3, height: 3, borderRadius: '50%', background: accent, flexShrink: 0 }} />
+                  <div style={{ width: 12, height: 1.5, background: '#777', borderRadius: 0.5 }} />
+                </div>
+                <div style={{ width: 6, height: 1.5, background: '#666', borderRadius: 0.5 }} />
+              </div>
+            ))}
+          </div>
+          <div className="px-[2px] mb-[1px]">
+            <div style={{ borderTop: `0.5px solid ${divider}`, paddingTop: 1 }}>
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="flex justify-between mb-[0.5px]">
+                  <div style={{ width: 8, height: 1.5, background: textMuted, borderRadius: 0.5 }} />
+                  <div style={{ width: 5, height: 1.5, background: textMuted, borderRadius: 0.5 }} />
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="px-[2px] pb-[2px]">
+            <div style={{ height: 4, background: accent, borderRadius: 1, width: '100%' }} />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ThemeColorContent({ showHeader = false, onBack, onAIClick }: ThemeColorContentProps) {
   const {
     themeColor, setThemeColor, applyThemeColor,
@@ -237,18 +341,34 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
       </div>
 
       <div className="px-4 md:px-6 pb-28 space-y-5">
-        {/* Color Picker - 2 column layout */}
+        {/* Color Picker - Preview (left) + Picker & codes (right) */}
         <div>
           <h2 className={sectionTitleClassName}>Color Picker</h2>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
-              {/* Left: Color Picker (30%) - reduced height */}
-              <div className="theme-color-picker theme-color-picker-compact lg:col-span-3">
-                <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* LEFT: Preview screen + Apply Theme */}
+              <div className="flex flex-col gap-3">
+                <div className="bg-neutral-700/40 rounded-xl p-3">
+                  <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-2 text-center">Preview Screen</p>
+                  <ThemePreviewMini accent={pickerColor} />
+                </div>
+                <button
+                  onClick={handleApply}
+                  disabled={(themeColor || '#F97316').toUpperCase() === pickerColor.toUpperCase()}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: pickerColor }}
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  Apply Theme
+                </button>
               </div>
 
-              {/* Right: Active Theme + Color codes (70%) */}
-              <div className="flex flex-col gap-3 lg:col-span-7">
+              {/* RIGHT: Color picker + Current/Preview + HEX/RGB/CMYK */}
+              <div className="flex flex-col gap-3">
+                <div className="theme-color-picker theme-color-picker-compact">
+                  <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
+                </div>
+
                 {/* Current vs Preview */}
                 <div className="bg-neutral-700/40 rounded-xl p-3 flex items-center gap-3">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -284,9 +404,8 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                   </button>
                 </div>
 
-                {/* HEX / RGB / CMYK in a single row with dividers */}
+                {/* HEX / RGB / CMYK */}
                 <div className="bg-neutral-700/40 rounded-xl p-3 flex items-stretch">
-                  {/* HEX */}
                   <div className="flex-1 min-w-0 px-2">
                     <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-1.5 text-center">Hex</p>
                     <input
@@ -301,7 +420,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
 
                   <div className="w-px bg-neutral-600/60 mx-1 self-stretch" />
 
-                  {/* RGB */}
                   <div className="flex-[1.4] min-w-0 px-2">
                     <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-1.5 text-center">RGB</p>
                     <div className="grid grid-cols-3 gap-1.5">
@@ -322,7 +440,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
 
                   <div className="w-px bg-neutral-600/60 mx-1 self-stretch" />
 
-                  {/* CMYK */}
                   <div className="flex-[1.8] min-w-0 px-2">
                     <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-1.5 text-center">CMYK</p>
                     <div className="grid grid-cols-4 gap-1.5">
@@ -416,20 +533,11 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex items-center gap-3">
-          <button onClick={handleResetDefault} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors">
+        {/* Reset Action */}
+        <div className="flex items-center">
+          <button onClick={handleResetDefault} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors">
             <RotateCcw className="w-3.5 h-3.5" />
             Use Default Theme
-          </button>
-          <button
-            onClick={handleApply}
-            disabled={(themeColor || '#F97316').toUpperCase() === pickerColor.toUpperCase()}
-            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
-            style={{ backgroundColor: pickerColor }}
-          >
-            <Check className="w-3.5 h-3.5" />
-            Apply
           </button>
         </div>
       </div>

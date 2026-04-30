@@ -11,6 +11,7 @@ import filterMegaphoneIcon from "@/assets/icons/filter-megaphone.png";
 import filterTeamIcon from "@/assets/icons/filter-team.png";
 import { useNotifications, type NotificationItem, type NotificationGroup } from "@/hooks/useNotifications";
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
+import { useNotificationRolePermissions } from "@/hooks/useNotificationRolePermissions";
 import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
 import { CommodityPriceInsightView } from "@/components/settings/CommodityPriceInsightView";
 import { UpsellingInsightView } from "@/components/settings/UpsellingInsightView";

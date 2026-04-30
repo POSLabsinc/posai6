@@ -12,6 +12,7 @@ import filterTeamIcon from "@/assets/icons/filter-team.png";
 import { useNotifications, type NotificationItem, type NotificationGroup } from "@/hooks/useNotifications";
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
 import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
+import { OnionPriceInsightView } from "@/components/settings/OnionPriceInsightView";
 
 type FilterType = "all" | "system" | "announcements" | "updates" | "team" | "weather" | "ai";
 
@@ -422,6 +423,15 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
       headlineLower.includes("sales"));
   if (isSalesInsight) {
     return <SalesInsightDetailView notification={notification} />;
+  }
+
+  // Onion / commodity price AI insight
+  const isOnionInsight =
+    notification.category === "ai" &&
+    (titleLower.includes("onion") || headlineLower.includes("onion") ||
+     titleLower.includes("price") || headlineLower.includes("price"));
+  if (isOnionInsight) {
+    return <OnionPriceInsightView notification={notification} />;
   }
 
   return (

@@ -914,7 +914,37 @@ export class SettingsManager {
     return updated;
   }
 
-  // Appearance Settings
+  // Screen Mode Settings
+  static getScreenModeSettings(): ScreenModeSettings {
+    const stored = localStorage.getItem(STORAGE_KEYS.SCREEN_MODE);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        return {
+          ...defaultScreenModeSettings,
+          ...parsed,
+          visibleModes: { ...defaultScreenModeSettings.visibleModes, ...(parsed.visibleModes || {}) },
+        };
+      } catch {
+        return defaultScreenModeSettings;
+      }
+    }
+    return defaultScreenModeSettings;
+  }
+
+  static updateScreenModeSettings(updates: Partial<ScreenModeSettings>): ScreenModeSettings {
+    const current = this.getScreenModeSettings();
+    const updated: ScreenModeSettings = {
+      ...current,
+      ...updates,
+      visibleModes: { ...current.visibleModes, ...(updates.visibleModes || {}) },
+    };
+    localStorage.setItem(STORAGE_KEYS.SCREEN_MODE, JSON.stringify(updated));
+    syncToDatabase(STORAGE_KEYS.SCREEN_MODE, JSON.stringify(updated));
+    window.dispatchEvent(new CustomEvent('settings-updated', { detail: { type: 'screenMode', data: updated } }));
+    return updated;
+  }
+
   static getAppearanceSettings(): AppearanceSettings {
     const theme = (localStorage.getItem('theme') as AppearanceSettings['theme']) || 'dark';
     const iconStyle = (localStorage.getItem('iconStyle') as AppearanceSettings['iconStyle']) || 'Default';

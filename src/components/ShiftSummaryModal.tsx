@@ -1018,35 +1018,39 @@ export default function ShiftSummaryModal({
               {loading ? (
                 <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
               ) : (
+                <SortableShiftTable
+                  rows={paymentTypeSummary}
+                  cardTips={cardTips}
+                />
+              )}
+            </div>
+
+            {/* moved tfoot/table render into SortableShiftTable */}
+            {false && (
                 <table className="w-full text-sm md:text-base">
                   <thead className="sticky top-0 bg-[#1C1C1E] z-10">
                     <tr className="border-b-2 border-white/10 text-left">
-                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider">Type</th>
-                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Qty</th>
-                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Amount</th>
-                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Tip</th>
-                      <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Total Tips</th>
-                      <th className="py-3 md:py-4 pl-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider text-right">Cash Drop</th>
+                      <th>Type</th>
                     </tr>
                   </thead>
                   <tbody>
                     {paymentTypeSummary.map(row => {
                       const isCash = row.type.toLowerCase() === "cash";
-                      // Cash Drop per row: Cash rows = amount (cash in hand), Card rows = 0 (digital)
-                      // But card tips need to be deducted from cash drop
                       const cashDropForRow = isCash ? Math.max(0, row.amount - cardTips) : 0;
                       return (
-                        <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
-                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white">{row.type}</td>
-                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] text-white text-right">{row.qty}</td>
-                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white text-right">$ {row.amount.toFixed(2)}</td>
-                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] text-white text-right">$ {row.tips.toFixed(2)}</td>
-                          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white text-right">$ {row.totalTips.toFixed(2)}</td>
-                          <td className="py-4 md:py-5 pl-4 text-base md:text-[17px] font-semibold text-white text-right">$ {cashDropForRow.toFixed(2)}</td>
+                        <tr key={row.type}>
+                          <td>{row.type}</td>
+                          <td>{row.qty}</td>
+                          <td>$ {row.amount.toFixed(2)}</td>
+                          <td>$ {row.tips.toFixed(2)}</td>
+                          <td>$ {row.totalTips.toFixed(2)}</td>
+                          <td>$ {cashDropForRow.toFixed(2)}</td>
                         </tr>
                       );
                     })}
                   </tbody>
+                </table>
+              )}
                   <tfoot>
                     <tr className="bg-neutral-800/50">
                       <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white">Total</td>

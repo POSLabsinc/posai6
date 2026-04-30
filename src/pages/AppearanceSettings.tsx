@@ -164,15 +164,15 @@ const AppearanceSettings = () => {
           <h2 className="text-base font-medium text-neutral-500 mb-4 px-1">App Theme</h2>
           
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="flex items-start gap-6 mb-4">
-              <div className="w-[140px]">
+            <div className="flex flex-wrap items-start gap-x-5 gap-y-4 mb-4">
+              <div className="w-[120px] sm:w-[130px] md:w-[140px]">
                 <POSThemePreview 
                   variant="dark" 
                   isSelected={selectedTheme === 'dark'}
                   onClick={() => handleThemeChange('dark')}
                 />
               </div>
-              <div className="w-[140px]">
+              <div className="w-[120px] sm:w-[130px] md:w-[140px]">
                 <POSThemePreview 
                   variant="light" 
                   isSelected={selectedTheme === 'light'}

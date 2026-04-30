@@ -176,11 +176,12 @@ const Header = () => {
   const formattedTime = currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   // Compute clock-in time and duration
-  const clockInTime = session?.loginTime
-    ? new Date(session.loginTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  const loginTimeIso = session?.loginTime || session?.clockInTime;
+  const clockInTime = loginTimeIso
+    ? new Date(loginTimeIso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     : "--:--";
-  const clockInDate = session?.loginTime
-    ? new Date(session.loginTime).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
+  const clockInDate = loginTimeIso
+    ? new Date(loginTimeIso).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
     : "";
   const totalHours = (() => {
     if (!session?.loginTime) return "0.0";

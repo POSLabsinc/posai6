@@ -1,7 +1,18 @@
-import { ChevronLeft, Check } from "lucide-react";
+import { ChevronLeft, Check, Download } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useThemePresets, themePresets } from "@/contexts/ThemePresetsContext";
 import ThemePresetCard from "@/components/settings/ThemePresetCard";
+import { toast } from "@/hooks/use-toast";
+
+const downloadThemes = () => {
+  const blob = new Blob([JSON.stringify(themePresets, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "pos-theme-presets.json";
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
 const ThemePresets = () => {
   const navigate = useNavigate();

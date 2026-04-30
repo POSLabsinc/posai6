@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Check, Sun } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Sun, RotateCcw } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { useTheme } from "next-themes";

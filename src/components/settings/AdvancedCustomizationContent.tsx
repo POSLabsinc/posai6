@@ -46,12 +46,6 @@ export default function AdvancedCustomizationContent() {
     toast({ title: "Logo removed", description: "Brand logo has been reset to default." });
   };
 
-  const handleResetAll = () => {
-    resetAdvancedCustomization();
-    setPreviewUrl('');
-    toast({ title: "Reset complete", description: "All advanced customization settings have been reset to defaults." });
-  };
-
   return (
     <div className="space-y-6">
       {/* Section Header */}

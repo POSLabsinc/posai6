@@ -220,9 +220,9 @@ export function DraggableSidebar() {
                   className={`flex items-center justify-center ${isHorizontal ? 'h-full w-8' : 'w-full h-8'} hover:bg-white/20 rounded-lg transition-colors shrink-0`}
                 >
                   {isLocked ? (
-                    <Lock className="w-4 h-4 text-orange-400" />
+                    <Lock className="w-4 h-4 text-white" style={{ color: '#FFFFFF' }} />
                   ) : (
-                    <Unlock className="w-4 h-4 text-white/60" />
+                    <Unlock className="w-4 h-4 text-white/60" style={{ color: 'rgba(255,255,255,0.6)' }} />
                   )}
                 </button>
               </TooltipTrigger>

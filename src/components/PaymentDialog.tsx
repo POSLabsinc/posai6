@@ -917,6 +917,15 @@ export function PaymentDialog({
   const remainingDue = effectiveTotal - totalPaid;
   const isFullyPaid = remainingDue <= 0;
 
+  // When toggling between card and non-card, refresh the default payment amount
+  useEffect(() => {
+    if (!open) return;
+    if (paymentHistory.length > 0) return;
+    if (Object.keys(amountQuantities).length > 0) return;
+    setPaymentAmount(effectiveTotal.toFixed(2));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCardPayment]);
+
   if (!open) return null;
 
   // Fixed dialog width for split check mode - 780px total (460px left + 320px right)

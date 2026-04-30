@@ -394,7 +394,7 @@ export function PaymentDialog({
   // Reset states when dialog opens
   useEffect(() => {
     if (open) {
-      setPaymentAmount(effectiveTotal.toFixed(2));
+      setPaymentAmount(total.toFixed(2));
       setPaymentProcessed(false);
       setShowKeypad(false);
       setShowOtherPayments(false);

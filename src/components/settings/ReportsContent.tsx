@@ -247,6 +247,26 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
 
         {!loading && !error && (
           <>
+            {/* Charts & KPIs */}
+            <ReportsAnalytics
+              kpis={kpis}
+              salesByHour={salesByHour}
+              salesByDay={salesByDay}
+              topItems={topItems}
+              paymentTypes={paymentTypes}
+              categories={categories}
+            />
+
+            {/* AI Insights & Q&A */}
+            <ReportsAIPanel
+              kpis={kpis}
+              salesByHour={salesByHour}
+              salesByDay={salesByDay}
+              topItems={topItems}
+              paymentTypes={paymentTypes}
+              categories={categories}
+            />
+
             {/* Order Summary */}
             <div className="mb-6">
               <h3 className="text-base font-medium text-muted-foreground mb-0.5 px-1">Order Summary</h3>

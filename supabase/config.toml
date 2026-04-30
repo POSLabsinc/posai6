@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.pos-ai-insights]
 verify_jwt = false
+
+[functions.reports-ai]
+verify_jwt = false

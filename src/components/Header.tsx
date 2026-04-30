@@ -29,7 +29,9 @@ interface SessionData {
   employeeId: string;
   employeeName: string;
   employeeRole?: string;
-  loginTime: string;
+  jobType?: string;
+  loginTime?: string;
+  clockInTime?: string;
   onBreak?: boolean;
 }
 

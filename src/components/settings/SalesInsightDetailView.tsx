@@ -279,19 +279,21 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
           </div>
         </div>
 
-        {/* RIGHT: Chat */}
-        <div className="flex flex-col rounded-2xl min-h-0" style={cardStyle}>
-          <div className="flex items-center gap-2 px-4 py-3 border-b border-white/5 shrink-0">
-            <div className="w-7 h-7 rounded-full bg-violet-500/15 flex items-center justify-center">
+        {/* RIGHT: Full chat experience */}
+        <div className="flex flex-col rounded-2xl min-h-0 overflow-hidden" style={cardStyle}>
+          {/* Chat header */}
+          <div className="flex items-center gap-2.5 px-4 py-3 border-b border-white/5 shrink-0">
+            <div className="w-8 h-8 rounded-full bg-violet-500/15 flex items-center justify-center">
               <Sparkles className="w-4 h-4 text-violet-400" />
             </div>
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <p className="text-sm font-semibold text-foreground">Ask AI</p>
               <p className="text-[11px] text-muted-foreground/70">Answers based only on the data shown</p>
             </div>
           </div>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-hide px-4 py-3 space-y-3">
+          {/* Messages */}
+          <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4 space-y-3 min-h-0">
             {messages.map((m, i) => (
               <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div
@@ -314,39 +316,43 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
             )}
           </div>
 
-          {/* Chips */}
-          <div className="px-3 pt-2 pb-2 flex flex-wrap gap-1.5 shrink-0 border-t border-white/5">
-            {CHIPS.map((c) => (
-              <button
-                key={c}
-                onClick={() => ask(c)}
-                disabled={busy}
-                className="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 text-foreground/80 transition-colors disabled:opacity-50"
-              >
-                {c}
-              </button>
-            ))}
-          </div>
+          {/* Composer: chips + full-width input */}
+          <div className="shrink-0 border-t border-white/5 px-3 pt-2.5 pb-3 space-y-2.5">
+            {/* Suggestion chips */}
+            <div className="flex flex-wrap gap-1.5">
+              {CHIPS.map((c) => (
+                <button
+                  key={c}
+                  onClick={() => ask(c)}
+                  disabled={busy}
+                  className="text-[11px] px-2.5 py-1 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 text-foreground/80 transition-colors disabled:opacity-50"
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
 
-          {/* Input */}
-          <form
-            onSubmit={(e) => { e.preventDefault(); ask(input); }}
-            className="px-3 py-3 flex items-center gap-2 border-t border-white/5 shrink-0"
-          >
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask about today's sales..."
-              className="flex-1 bg-white/[0.04] border border-white/5 rounded-full px-4 py-2 text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50"
-            />
-            <button
-              type="submit"
-              disabled={busy || !input.trim()}
-              className="w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 active:scale-95 transition-transform"
+            {/* Full-width input with embedded send */}
+            <form
+              onSubmit={(e) => { e.preventDefault(); ask(input); }}
+              className="relative w-full"
             >
-              <Send className="w-4 h-4" />
-            </button>
-          </form>
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                placeholder="Ask about today's sales..."
+                className="w-full bg-white/[0.04] border border-white/5 rounded-full pl-4 pr-12 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50"
+              />
+              <button
+                type="submit"
+                disabled={busy || !input.trim()}
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 active:scale-95 transition-transform"
+                aria-label="Send"
+              >
+                <Send className="w-3.5 h-3.5" />
+              </button>
+            </form>
+          </div>
         </div>
       </div>
     </div>

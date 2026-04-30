@@ -103,11 +103,11 @@ const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
                       <m.Icon className="w-4.5 h-4.5 text-white" />
                     </div>
                     <div>
-                      <p className="text-foreground text-base font-medium flex items-center gap-2">
+                      <p className="text-lg font-medium text-foreground flex items-center gap-2">
                         {m.label}
                         {isPos && <span className="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-semibold uppercase">Default</span>}
                       </p>
-                      <p className="text-xs text-neutral-500 mt-0.5">{m.description}</p>
+                      <p className="text-sm text-neutral-500 mt-0.5">{m.description}</p>
                     </div>
                   </div>
                   <Switch

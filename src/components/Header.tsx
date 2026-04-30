@@ -18,6 +18,7 @@ import AppleAlertDialog from "@/components/AppleAlertDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
 import { usePosAIInsights } from "@/hooks/usePosAIInsights";
+import { useNotificationRolePermissions } from "@/hooks/useNotificationRolePermissions";
 import {
   Tooltip,
   TooltipContent,
@@ -75,6 +76,7 @@ const Header = () => {
   const [recentNotifs, setRecentNotifs] = useState<any[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const notifRef = useRef<HTMLDivElement>(null);
+  const roleFilter = useNotificationRolePermissions();
 
   useEffect(() => {
     // Load session from localStorage

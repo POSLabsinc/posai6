@@ -158,6 +158,17 @@ const AppearanceSettings = () => {
             <ChevronLeft className="w-4 h-4 text-foreground" />
           </button>
           <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Appearance</h1>
+          <button
+            type="button"
+            onClick={() => {
+              resetAdvancedCustomization();
+              toast({ title: "Restored to default", description: "Appearance settings have been restored to defaults." });
+            }}
+            className="ml-auto flex items-center gap-2 px-4 h-10 rounded-full bg-neutral-800/60 text-foreground text-sm font-medium hover:bg-neutral-700/60 active:opacity-70 transition-opacity z-10"
+          >
+            <RotateCcw className="w-4 h-4" />
+            Restore to default
+          </button>
         </div>
 
         {/* App Theme Section */}

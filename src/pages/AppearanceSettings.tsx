@@ -163,16 +163,16 @@ const AppearanceSettings = () => {
         <div className="mb-6">
           <h2 className="text-base font-medium text-neutral-500 mb-4 px-1">App Theme</h2>
           
-          <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="flex items-start justify-center gap-8 mb-4">
-              <div className="w-[90px]">
+          <div className="bg-neutral-800/60 rounded-2xl p-4 w-full max-w-[360px] md:w-1/3 md:min-w-[340px]">
+            <div className="grid grid-cols-2 place-items-center gap-8 w-full mb-4">
+              <div className="w-[86px] sm:w-[92px] md:w-[96px]">
                 <POSThemePreview 
                   variant="light" 
                   isSelected={selectedTheme === 'light'}
                   onClick={() => handleThemeChange('light')}
                 />
               </div>
-              <div className="w-[90px]">
+              <div className="w-[86px] sm:w-[92px] md:w-[96px]">
                 <POSThemePreview 
                   variant="dark" 
                   isSelected={selectedTheme === 'dark'}

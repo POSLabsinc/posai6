@@ -175,17 +175,21 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
         <div className="mb-6">
           <h2 className="text-base font-medium text-muted-foreground mb-0.5 px-1">App Theme</h2>
           
-          <div className="bg-surface rounded-2xl p-4">
-            <div className="grid grid-cols-2 gap-4 mb-4">
-              <POSThemePreview
-                variant="dark"
-                isSelected={selectedTheme === 'dark'}
-                onClick={() => handleThemeChange('dark')} />
+          <div className="bg-surface rounded-2xl p-4 w-full max-w-[360px] md:w-1/3 md:min-w-[340px]">
+            <div className="grid grid-cols-2 place-items-center gap-8 w-full mb-4">
+              <div className="w-[86px] sm:w-[92px] md:w-[96px]">
+                <POSThemePreview
+                  variant="light"
+                  isSelected={selectedTheme === 'light'}
+                  onClick={() => handleThemeChange('light')} />
+              </div>
 
-              <POSThemePreview
-                variant="light"
-                isSelected={selectedTheme === 'light'}
-                onClick={() => handleThemeChange('light')} />
+              <div className="w-[86px] sm:w-[92px] md:w-[96px]">
+                <POSThemePreview
+                  variant="dark"
+                  isSelected={selectedTheme === 'dark'}
+                  onClick={() => handleThemeChange('dark')} />
+              </div>
             </div>
             
             <div className="h-px bg-divider mb-4" />

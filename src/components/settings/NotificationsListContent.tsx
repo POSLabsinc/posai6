@@ -116,8 +116,16 @@ interface NotificationsListContentProps {
 const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: NotificationsListContentProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { groups, totalUnread, loading, error, markAsRead, markAllAsRead, notifications } = useNotifications();
+  const { groups, totalUnread, loading, error, markAsRead, markAllAsRead, notifications: rawNotifications } = useNotifications();
   useWeatherNotification();
+  const roleFilter = useNotificationRolePermissions();
+
+  // Apply role-based visibility before any other filtering. Re-runs when role/perms change.
+  const notifications = useMemo(
+    () => rawNotifications.filter((n) => roleFilter.isAllowed(n)),
+    [rawNotifications, roleFilter.role, roleFilter.permissions]
+  );
+
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState<FilterType>("all");

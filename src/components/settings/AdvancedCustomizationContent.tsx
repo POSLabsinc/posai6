@@ -144,14 +144,6 @@ export default function AdvancedCustomizationContent() {
         </div>
       </div>
 
-      {/* Use Default Theme - Primary Button at Bottom */}
-      <button
-        onClick={handleResetAll}
-        className="w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl bg-foreground text-background text-sm font-semibold hover:bg-foreground/90 transition-colors"
-      >
-        <RotateCcw className="w-4 h-4" />
-        Use Default Theme
-      </button>
     </div>
   );
 }

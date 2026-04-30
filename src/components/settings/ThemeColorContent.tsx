@@ -240,14 +240,19 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     syncAllFormats(hex);
   }, [syncAllFormats]);
 
-  // Commit the previewed color to the entire application
+  // Commit the previewed color (and contrast-aware text color) to the entire application
   const handleApply = useCallback(() => {
     const hex = pickerColor;
     if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
+    const onAccent = getContrastText(hex);
     setThemeColor(hex);
     applyThemeColor(hex);
+    // Expose contrast text color globally so primary surfaces can pick it up
+    try {
+      document.documentElement.style.setProperty('--theme-on-primary', onAccent);
+    } catch {}
     handleSaveTheme(hex);
-    toast({ title: "Theme applied", description: `Theme color set to ${hex.toUpperCase()}.` });
+    toast({ title: "Theme applied", description: `Theme color set to ${hex.toUpperCase()} with ${onAccent === '#FFFFFF' ? 'light' : 'dark'} text.` });
   }, [pickerColor, setThemeColor, applyThemeColor]);
 
   const handlePickerChange = (hex: string) => {

@@ -302,6 +302,15 @@ export interface OrdersSettings {
   orderNotifications: boolean;
 }
 
+export type ScreenModeId = "pos" | "kds" | "cfd" | "kiosk";
+
+export interface ScreenModeSettings {
+  enableSwitching: boolean;
+  requireManagerPin: boolean;
+  currentMode: ScreenModeId;
+  visibleModes: Record<ScreenModeId, boolean>;
+}
+
 // Default values
 const defaultGratuitySettings: GratuitySettings = {
   enableTip: true,

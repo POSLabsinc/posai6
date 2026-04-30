@@ -29,7 +29,9 @@ interface SessionData {
   employeeId: string;
   employeeName: string;
   employeeRole?: string;
-  loginTime: string;
+  jobType?: string;
+  loginTime?: string;
+  clockInTime?: string;
   onBreak?: boolean;
 }
 
@@ -168,32 +170,34 @@ const Header = () => {
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showShiftSummary, setShowShiftSummary] = useState(false);
   const employeeName = session?.employeeName || "Guest";
-  const employeeRole = session?.employeeRole || "Server";
+  // Dynamic role: prefer the jobType selected at clock-in, then any stored role, then fallback.
+  const employeeRole = (session?.jobType || session?.employeeRole || "Staff").toString();
   const initials = getInitials(employeeName);
   const formattedTime = currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 
   // Compute clock-in time and duration
-  const clockInTime = session?.loginTime
-    ? new Date(session.loginTime).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+  const loginTimeIso = session?.loginTime || session?.clockInTime;
+  const clockInTime = loginTimeIso
+    ? new Date(loginTimeIso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
     : "--:--";
-  const clockInDate = session?.loginTime
-    ? new Date(session.loginTime).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
+  const clockInDate = loginTimeIso
+    ? new Date(loginTimeIso).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
     : "";
   const totalHours = (() => {
-    if (!session?.loginTime) return "0.0";
-    const diff = Date.now() - new Date(session.loginTime).getTime();
+    if (!loginTimeIso) return "0.0";
+    const diff = Date.now() - new Date(loginTimeIso).getTime();
     return (diff / 3600000).toFixed(1);
   })();
   const durationStr = (() => {
-    if (!session?.loginTime) return "0h 0m";
-    const diff = Date.now() - new Date(session.loginTime).getTime();
+    if (!loginTimeIso) return "0h 0m";
+    const diff = Date.now() - new Date(loginTimeIso).getTime();
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     return `${h}h ${m}m`;
   })();
   const shiftEndStr = (() => {
-    if (!session?.loginTime) return "--:--";
-    const end = new Date(new Date(session.loginTime).getTime() + 8 * 3600000);
+    if (!loginTimeIso) return "--:--";
+    const end = new Date(new Date(loginTimeIso).getTime() + 8 * 3600000);
     return end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   })();
 

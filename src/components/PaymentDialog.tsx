@@ -951,7 +951,7 @@ export function PaymentDialog({
               </button>
               <div className="flex items-center gap-2">
                 <span className="text-white text-base font-medium">Total Due</span>
-                <span className="text-red-500 text-base font-bold">${total.toFixed(2)}</span>
+                <span className="text-red-500 text-base font-bold">${effectiveTotal.toFixed(2)}</span>
               </div>
               <button 
                 onClick={() => onOpenChange(false)}
@@ -1008,7 +1008,7 @@ export function PaymentDialog({
                   </span>
                 )}
               </div>
-              <span className="text-red-500 font-bold">${total.toFixed(2)}</span>
+              <span className="text-red-500 font-bold">${effectiveTotal.toFixed(2)}</span>
             </div>
             <div className="flex items-center gap-2 mt-1 text-neutral-400 text-xs">
               {orderDetails.phone && <span>{orderDetails.phone}</span>}
@@ -4124,7 +4124,7 @@ export function PaymentDialog({
                   </button>
                   <span className="text-white text-lg font-medium">Redeem Voucher</span>
                 </div>
-                <span className="text-red-500 text-lg font-bold">${remainingDue > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
+                <span className="text-red-500 text-lg font-bold">${remainingDue > 0 ? remainingDue.toFixed(2) : effectiveTotal.toFixed(2)}</span>
               </div>
               {(voucherStep === 'enter-code' || voucherStep === 'validating' || voucherStep === 'error') && (
                 <div className="flex-1 flex flex-col p-6">
@@ -4903,7 +4903,7 @@ export function PaymentDialog({
                   ) : (
                     <>
                       <span className={`text-white ${isMobile ? 'text-base' : 'text-lg'} font-medium`}>Total Due</span>
-                      <span className={`text-red-500 ${isMobile ? 'text-base' : 'text-lg'} font-bold ml-2`}>${remainingDue > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
+                      <span className={`text-red-500 ${isMobile ? 'text-base' : 'text-lg'} font-bold ml-2`}>${remainingDue > 0 ? remainingDue.toFixed(2) : effectiveTotal.toFixed(2)}</span>
                     </>
                   )}
                 </div>

@@ -11,6 +11,8 @@ import { InlineTimePicker } from "@/components/ui/inline-time-picker";
 import { cn } from "@/lib/utils";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useReportsData } from "@/hooks/useReportsData";
+import ReportsAnalytics from "@/components/settings/ReportsAnalytics";
+import ReportsAIPanel from "@/components/settings/ReportsAIPanel";
 
 interface ReportsContentProps {
   showHeader?: boolean;
@@ -71,7 +73,24 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
     return `${String(h).padStart(2, "0")}:${m}`;
   };
 
-  const { orderSummary: data, paymentTypes, categories, loading, error } = useReportsData(startDate, endDate, to24h(startTime), to24h(endTime));
+  const { orderSummary: data, paymentTypes, categories, kpis, salesByHour, salesByDay, topItems, loading, error } = useReportsData(startDate, endDate, to24h(startTime), to24h(endTime));
+
+  const applyQuickRange = (key: "today" | "yesterday" | "7d" | "30d" | "all") => {
+    const today = new Date();
+    if (key === "today") { setStartDate(today); setEndDate(today); }
+    else if (key === "yesterday") { const d = new Date(today); d.setDate(d.getDate() - 1); setStartDate(d); setEndDate(d); }
+    else if (key === "7d") { const d = new Date(today); d.setDate(d.getDate() - 6); setStartDate(d); setEndDate(today); }
+    else if (key === "30d") { const d = new Date(today); d.setDate(d.getDate() - 29); setStartDate(d); setEndDate(today); }
+    else if (key === "all") { setStartDate(new Date(2024, 0, 1)); setEndDate(today); }
+    setStartTime("12:00 AM"); setEndTime("11:30 PM");
+  };
+  const QUICK_RANGES: { key: "today" | "yesterday" | "7d" | "30d" | "all"; label: string }[] = [
+    { key: "today", label: "Today" },
+    { key: "yesterday", label: "Yesterday" },
+    { key: "7d", label: "Last 7 days" },
+    { key: "30d", label: "Last 30 days" },
+    { key: "all", label: "All time" },
+  ];
 
   if (!authenticated) {
     return (
@@ -156,6 +175,19 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
         </div>
 
 
+        {/* Quick Ranges */}
+        <div className="mb-3 flex flex-wrap gap-2">
+          {QUICK_RANGES.map((r) => (
+            <button
+              key={r.key}
+              onClick={() => applyQuickRange(r.key)}
+              className="text-xs px-3 py-1.5 rounded-full bg-muted text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors"
+            >
+              {r.label}
+            </button>
+          ))}
+        </div>
+
         {/* Date & Time Filters */}
         <div className="mb-6">
           <h3 className="text-base font-medium text-muted-foreground mb-0.5 px-1">Date & Time Range</h3>
@@ -215,6 +247,26 @@ const ReportsContent = ({ showHeader = true, onBack, onAIClick }: ReportsContent
 
         {!loading && !error && (
           <>
+            {/* Charts & KPIs */}
+            <ReportsAnalytics
+              kpis={kpis}
+              salesByHour={salesByHour}
+              salesByDay={salesByDay}
+              topItems={topItems}
+              paymentTypes={paymentTypes}
+              categories={categories}
+            />
+
+            {/* AI Insights & Q&A */}
+            <ReportsAIPanel
+              kpis={kpis}
+              salesByHour={salesByHour}
+              salesByDay={salesByDay}
+              topItems={topItems}
+              paymentTypes={paymentTypes}
+              categories={categories}
+            />
+
             {/* Order Summary */}
             <div className="mb-6">
               <h3 className="text-base font-medium text-muted-foreground mb-0.5 px-1">Order Summary</h3>

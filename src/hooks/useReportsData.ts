@@ -12,22 +12,38 @@ interface OrderSummary {
   total: number;
 }
 
-interface PaymentTypeSummary {
+export interface PaymentTypeSummary {
   type: string;
   transactions: number;
   amount: number;
 }
 
-interface CategorySummary {
+export interface CategorySummary {
   name: string;
   products: number;
   sales: number;
 }
 
+export interface KPIs {
+  totalSales: number;
+  orderCount: number;
+  averageOrderValue: number;
+  unitsSold: number;
+}
+
+export interface HourlyPoint { hour: string; sales: number; orders: number }
+export interface DailyPoint { date: string; sales: number; orders: number }
+export interface TopItem { name: string; units: number; revenue: number }
+
 export interface ReportsData {
   orderSummary: OrderSummary;
   paymentTypes: PaymentTypeSummary[];
   categories: CategorySummary[];
+  kpis: KPIs;
+  salesByHour: HourlyPoint[];
+  salesByDay: DailyPoint[];
+  topItems: TopItem[];
+  rawOrderCount: number;
   loading: boolean;
   error: string | null;
 }
@@ -144,5 +160,82 @@ export function useReportsData(
       .sort((a, b) => b.sales - a.sales);
   }, [orders, orderItems]);
 
-  return { orderSummary, paymentTypes, categories, loading, error };
+  const kpis = useMemo<KPIs>(() => {
+    const completed = orders.filter((o) => o.status === "completed");
+    const totalSales = completed.reduce((s, o) => s + Number(o.total || 0), 0);
+    const orderCount = completed.length;
+    const completedIds = new Set(completed.map((o) => o.id));
+    const unitsSold = orderItems
+      .filter((i) => completedIds.has(i.order_id))
+      .reduce((s, i) => s + Number(i.quantity || 0), 0);
+    return {
+      totalSales,
+      orderCount,
+      averageOrderValue: orderCount ? totalSales / orderCount : 0,
+      unitsSold,
+    };
+  }, [orders, orderItems]);
+
+  const salesByHour = useMemo<HourlyPoint[]>(() => {
+    const buckets = Array.from({ length: 24 }, (_, h) => ({
+      hour: `${String(h).padStart(2, "0")}:00`,
+      sales: 0,
+      orders: 0,
+    }));
+    orders
+      .filter((o) => o.status === "completed")
+      .forEach((o) => {
+        const h = new Date(o.created_at).getHours();
+        buckets[h].sales += Number(o.total || 0);
+        buckets[h].orders += 1;
+      });
+    return buckets;
+  }, [orders]);
+
+  const salesByDay = useMemo<DailyPoint[]>(() => {
+    const map = new Map<string, { sales: number; orders: number }>();
+    orders
+      .filter((o) => o.status === "completed")
+      .forEach((o) => {
+        const d = new Date(o.created_at);
+        const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        const cur = map.get(key) || { sales: 0, orders: 0 };
+        cur.sales += Number(o.total || 0);
+        cur.orders += 1;
+        map.set(key, cur);
+      });
+    return Array.from(map.entries())
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([date, v]) => ({ date, ...v }));
+  }, [orders]);
+
+  const topItems = useMemo<TopItem[]>(() => {
+    const completedIds = new Set(orders.filter((o) => o.status === "completed").map((o) => o.id));
+    const map = new Map<string, { units: number; revenue: number }>();
+    orderItems
+      .filter((i) => completedIds.has(i.order_id))
+      .forEach((i) => {
+        const cur = map.get(i.item_name) || { units: 0, revenue: 0 };
+        cur.units += Number(i.quantity || 0);
+        cur.revenue += Number(i.total_price || 0);
+        map.set(i.item_name, cur);
+      });
+    return Array.from(map.entries())
+      .map(([name, v]) => ({ name, ...v }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 8);
+  }, [orders, orderItems]);
+
+  return {
+    orderSummary,
+    paymentTypes,
+    categories,
+    kpis,
+    salesByHour,
+    salesByDay,
+    topItems,
+    rawOrderCount: orders.length,
+    loading,
+    error,
+  };
 }

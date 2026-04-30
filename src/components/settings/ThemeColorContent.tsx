@@ -100,12 +100,19 @@ function ThemePreviewMini({ accent }: { accent: string }) {
   const divider = '#333';
   const pillBorder = '#555';
   const textMuted = '#555';
+  const onAccent = getContrastText(accent);
 
   return (
     <div
-      className="w-full aspect-[4/3] rounded-xl overflow-hidden border border-neutral-700"
+      className="w-full aspect-[4/3] rounded-xl overflow-hidden border border-neutral-700 relative"
       style={{ background: bg }}
     >
+      <div
+        className="absolute top-1 right-1 z-10 rounded-md px-1.5 py-0.5 text-[8px] font-bold leading-none"
+        style={{ background: accent, color: onAccent }}
+      >
+        Aa
+      </div>
       <div className="w-full h-full flex" style={{ fontSize: 0 }}>
         {/* Left sidebar */}
         <div className="flex flex-col items-center pt-[6px] gap-[6px]" style={{ background: sidebarBg, width: '6%' }}>

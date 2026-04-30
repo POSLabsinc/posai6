@@ -93,11 +93,12 @@ const ScreenModeSwitcher = () => {
       <div className="relative" ref={wrapRef}>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="flex items-center gap-1.5 px-2 md:px-2.5 py-1 md:py-1.5 rounded-full bg-white/10 hover:bg-white/15 transition-colors text-xs md:text-sm font-medium"
-          aria-label="Screen Mode"
+          className="flex items-center gap-1.5 px-2 md:px-2.5 py-1 md:py-1.5 rounded-full bg-white/10 hover:bg-white/15 transition-colors"
+          aria-label={`Screen Mode: ${current.label}`}
+          title={current.label}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <span>{current.label}</span>
+          <current.Icon className="w-4 h-4 text-white" />
           <ChevronDown className="w-3.5 h-3.5 opacity-70" />
         </button>
 

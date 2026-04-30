@@ -16,6 +16,8 @@ import { useApp } from "@/contexts/AppContext";
 import { ClockOutOverlay } from "@/components/ClockOutOverlay";
 import AppleAlertDialog from "@/components/AppleAlertDialog";
 import { supabase } from "@/integrations/supabase/client";
+import { useWeatherNotification } from "@/hooks/useWeatherNotification";
+import { usePosAIInsights } from "@/hooks/usePosAIInsights";
 import {
   Tooltip,
   TooltipContent,

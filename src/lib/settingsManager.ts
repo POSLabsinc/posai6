@@ -409,6 +409,13 @@ const defaultOrdersSettings: OrdersSettings = {
   orderNotifications: true,
 };
 
+const defaultScreenModeSettings: ScreenModeSettings = {
+  enableSwitching: true,
+  requireManagerPin: true,
+  currentMode: "pos",
+  visibleModes: { pos: true, kds: true, cfd: true, kiosk: true },
+};
+
 // Settings Manager class
 export class SettingsManager {
   private static _initialized = false;

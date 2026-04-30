@@ -6,14 +6,10 @@ const POSThemePreview = ({
   variant,
   isSelected,
   onClick,
-  accentColor,
-  hideLabel = false,
 }: {
   variant: 'dark' | 'light';
   isSelected: boolean;
   onClick: () => void;
-  accentColor?: string;
-  hideLabel?: boolean;
 }) => {
   const isDark = variant === 'dark';
 
@@ -22,7 +18,7 @@ const POSThemePreview = ({
   const headerBg = '#212121';
   const cartBg = isDark ? '#1e1e1e' : '#f0f0f0';
   const cardBg = isDark ? '#2a2a2a' : '#ffffff';
-  const accent = accentColor || '#f97316';
+  const accent = '#f97316';
   const textMuted = isDark ? '#555' : '#999';
   const divider = isDark ? '#333' : '#ddd';
   const pillBorder = isDark ? '#555' : '#aaa';
@@ -235,24 +231,20 @@ const POSThemePreview = ({
       </div>
 
       {/* Theme label */}
-      {!hideLabel && (
-        <>
-          <span className="text-sm font-medium text-foreground capitalize">{variant}</span>
+      <span className="text-sm font-medium text-foreground capitalize">{variant}</span>
 
-          {/* Radio indicator */}
-          <div
-            className={`w-4 h-4 rounded-full border flex items-center justify-center ${
-              isSelected
-                ? 'border-primary bg-primary'
-                : 'border-neutral-500 bg-transparent'
-            }`}
-          >
-            {isSelected && (
-              <div className="w-1.5 h-1.5 rounded-full bg-background" />
-            )}
-          </div>
-        </>
-      )}
+      {/* Radio indicator */}
+      <div
+        className={`w-4 h-4 rounded-full border flex items-center justify-center ${
+          isSelected
+            ? 'border-primary bg-primary'
+            : 'border-neutral-500 bg-transparent'
+        }`}
+      >
+        {isSelected && (
+          <div className="w-1.5 h-1.5 rounded-full bg-background" />
+        )}
+      </div>
     </button>
   );
 };

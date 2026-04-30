@@ -1,9 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { ChevronLeft, Check, RotateCcw, Trash2, Palette, Monitor, Moon, Droplets, Sparkles, Paintbrush, Pipette } from "lucide-react";
 import { HexColorPicker } from "react-colorful";
-import { useTheme } from "next-themes";
 import { useAppearance, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SPLASH_BG_COLOR, DEFAULT_TOP_BAR_COLOR, DEFAULT_SETTINGS_ICON_COLOR, type IconStyle } from "@/contexts/AppearanceContext";
-import POSThemePreview from "@/components/settings/POSThemePreview";
 import { toast } from "@/hooks/use-toast";
 
 // --- Color format conversion utilities ---
@@ -101,9 +99,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
   });
   const [savedThemes, setSavedThemes] = useState<SavedTheme[]>(getSavedThemes);
 
-  const { resolvedTheme } = useTheme();
-  const previewVariant: 'dark' | 'light' = resolvedTheme === 'light' ? 'light' : 'dark';
-
   // Sync all formats when a color is applied
   const syncAllFormats = useCallback((hex: string) => {
     setPickerColor(hex);
@@ -115,18 +110,12 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     }
   }, []);
 
-  // Update only the local preview color (does NOT apply to the app)
   const applyColor = useCallback((hex: string) => {
     if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
+    setThemeColor(hex);
+    applyThemeColor(hex);
     syncAllFormats(hex);
-  }, [syncAllFormats]);
-
-  const handleApplyTheme = useCallback(() => {
-    if (!/^#[0-9A-Fa-f]{6}$/.test(pickerColor)) return;
-    setThemeColor(pickerColor);
-    applyThemeColor(pickerColor);
-    toast({ title: "Theme applied", description: `${pickerColor.toUpperCase()} is now your active theme.` });
-  }, [pickerColor, setThemeColor, applyThemeColor]);
+  }, [setThemeColor, applyThemeColor, syncAllFormats]);
 
   const handlePickerChange = (hex: string) => {
     applyColor(hex);
@@ -176,9 +165,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
   }, []);
 
   const handleLoadTheme = (theme: SavedTheme) => {
-    syncAllFormats(theme.themeColor);
-    setThemeColor(theme.themeColor);
-    applyThemeColor(theme.themeColor);
+    applyColor(theme.themeColor);
     toast({ title: "Theme loaded", description: `"${theme.name}" applied.` });
   };
 
@@ -241,55 +228,24 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
       </div>
 
       <div className="px-4 md:px-6 pb-28 space-y-5">
-        {/* Color Picker - 2 column layout: Preview (left) + Picker & Codes (right) */}
+        {/* Color Picker - 2 column layout */}
         <div>
           <h2 className={sectionTitleClassName}>Color Picker</h2>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
-              {/* Left: Live preview + Apply button */}
-              <div className="lg:col-span-5 flex flex-col gap-3">
-                <div className="w-full">
-                  <POSThemePreview
-                    variant={previewVariant}
-                    isSelected={false}
-                    onClick={() => {}}
-                    accentColor={pickerColor}
-                    hideLabel
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={handleApplyTheme}
-                  disabled={themeColor?.toUpperCase() === pickerColor.toUpperCase()}
-                  className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-opacity disabled:opacity-50"
-                  style={{ backgroundColor: pickerColor }}
-                >
-                  Apply Theme
-                </button>
+            <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
+              {/* Left: Color Picker (30%) - reduced height */}
+              <div className="theme-color-picker theme-color-picker-compact lg:col-span-3">
+                <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
               </div>
 
-              {/* Right: Picker swatch row + color codes */}
+              {/* Right: Active Theme + Color codes (70%) */}
               <div className="flex flex-col gap-3 lg:col-span-7">
-                {/* Row 1: small color picker box + Active Theme + pipette */}
+                {/* Active Theme */}
                 <div className="bg-neutral-700/40 rounded-xl p-3 flex items-center gap-3">
-                  {/* Color picker popover trigger - small swatch */}
-                  <div className="relative flex-shrink-0">
-                    <details className="group">
-                      <summary className="list-none cursor-pointer">
-                        <div
-                          className="w-10 h-10 rounded-lg border-2 border-neutral-600"
-                          style={{ backgroundColor: pickerColor }}
-                          title="Open color picker"
-                        />
-                      </summary>
-                      <div className="theme-color-picker theme-color-picker-compact absolute z-50 mt-2 left-0 bg-neutral-800 p-2 rounded-xl border border-neutral-700 shadow-xl">
-                        <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
-                      </div>
-                    </details>
-                  </div>
+                  <div className="w-9 h-9 rounded-lg border-2 border-neutral-600 flex-shrink-0" style={{ backgroundColor: themeColor || pickerColor }} />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-foreground">Active Theme</p>
-                    <p className="text-[11px] text-neutral-400 font-mono uppercase">{pickerColor}</p>
+                    <p className="text-[11px] text-neutral-400 font-mono uppercase">{themeColor || pickerColor}</p>
                   </div>
                   <button
                     type="button"
@@ -303,14 +259,14 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                         } catch {}
                       }
                     }}
-                    className="w-10 h-10 rounded-lg bg-neutral-700/60 flex items-center justify-center text-neutral-300 hover:text-foreground transition-colors flex-shrink-0"
+                    className="w-9 h-9 rounded-lg bg-neutral-700/60 flex items-center justify-center text-neutral-300 hover:text-foreground transition-colors flex-shrink-0"
                     title="Pick color from screen"
                   >
                     <Pipette className="w-4 h-4" />
                   </button>
                 </div>
 
-                {/* Row 2: HEX / RGB / CMYK */}
+                {/* HEX / RGB / CMYK in a single row with dividers */}
                 <div className="bg-neutral-700/40 rounded-xl p-3 flex items-stretch">
                   {/* HEX */}
                   <div className="flex-1 min-w-0 px-2">

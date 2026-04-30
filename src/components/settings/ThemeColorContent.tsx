@@ -417,10 +417,19 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center">
-          <button onClick={handleResetDefault} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors">
+        <div className="flex items-center gap-3">
+          <button onClick={handleResetDefault} className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors">
             <RotateCcw className="w-3.5 h-3.5" />
             Use Default Theme
+          </button>
+          <button
+            onClick={handleApply}
+            disabled={(themeColor || '#F97316').toUpperCase() === pickerColor.toUpperCase()}
+            className="flex-1 flex items-center justify-center gap-2 py-3 rounded-2xl text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ backgroundColor: pickerColor }}
+          >
+            <Check className="w-3.5 h-3.5" />
+            Apply
           </button>
         </div>
       </div>

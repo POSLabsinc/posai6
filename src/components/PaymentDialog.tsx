@@ -5140,15 +5140,15 @@ export function PaymentDialog({
                             <button 
                               onClick={() => {
                                 setAmountQuantities({});
-                                setPaymentAmount(total.toFixed(2));
+                                setPaymentAmount(effectiveTotal.toFixed(2));
                               }} 
                               className={`w-full ${isMobile ? 'py-4 text-base' : 'py-3 text-sm'} rounded-lg font-medium transition-colors ${
-                                paymentAmount === total.toFixed(2) && Object.keys(amountQuantities).length === 0 
+                                paymentAmount === effectiveTotal.toFixed(2) && Object.keys(amountQuantities).length === 0 
                                   ? 'bg-neutral-900 text-white border border-neutral-600' 
                                   : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
                               }`}
                             >
-                              ${total.toFixed(2)}
+                              ${effectiveTotal.toFixed(2)}
                             </button>
                           </div>
                           {quickAmounts.slice(0, isMobile ? 2 : 3).map(amount => {

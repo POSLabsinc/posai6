@@ -11,6 +11,7 @@ import filterMegaphoneIcon from "@/assets/icons/filter-megaphone.png";
 import filterTeamIcon from "@/assets/icons/filter-team.png";
 import { useNotifications, type NotificationItem, type NotificationGroup } from "@/hooks/useNotifications";
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
+import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
 
 type FilterType = "all" | "system" | "announcements" | "updates" | "team" | "weather" | "ai";
 
@@ -409,6 +410,19 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
 
 export const NotificationDetailView = ({ notification }: { notification: NotificationItem }) => {
   const isWeather = notification.category === "weather";
+
+  // Sales-pace AI insight: render the rich analytics + chat experience
+  const titleLower = (notification.title || "").toLowerCase();
+  const headlineLower = (notification.headline || "").toLowerCase();
+  const isSalesInsight =
+    notification.category === "ai" &&
+    (titleLower.includes("sales pace") ||
+      titleLower.includes("sales") ||
+      headlineLower.includes("sales pace") ||
+      headlineLower.includes("sales"));
+  if (isSalesInsight) {
+    return <SalesInsightDetailView notification={notification} />;
+  }
 
   return (
     <div className="h-full flex flex-col px-8 pt-6 pb-10 max-w-3xl">

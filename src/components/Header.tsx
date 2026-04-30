@@ -184,20 +184,20 @@ const Header = () => {
     ? new Date(loginTimeIso).toLocaleDateString([], { month: "short", day: "numeric", year: "numeric" })
     : "";
   const totalHours = (() => {
-    if (!session?.loginTime) return "0.0";
-    const diff = Date.now() - new Date(session.loginTime).getTime();
+    if (!loginTimeIso) return "0.0";
+    const diff = Date.now() - new Date(loginTimeIso).getTime();
     return (diff / 3600000).toFixed(1);
   })();
   const durationStr = (() => {
-    if (!session?.loginTime) return "0h 0m";
-    const diff = Date.now() - new Date(session.loginTime).getTime();
+    if (!loginTimeIso) return "0h 0m";
+    const diff = Date.now() - new Date(loginTimeIso).getTime();
     const h = Math.floor(diff / 3600000);
     const m = Math.floor((diff % 3600000) / 60000);
     return `${h}h ${m}m`;
   })();
   const shiftEndStr = (() => {
-    if (!session?.loginTime) return "--:--";
-    const end = new Date(new Date(session.loginTime).getTime() + 8 * 3600000);
+    if (!loginTimeIso) return "--:--";
+    const end = new Date(new Date(loginTimeIso).getTime() + 8 * 3600000);
     return end.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   })();
 

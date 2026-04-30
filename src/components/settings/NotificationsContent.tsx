@@ -160,6 +160,9 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
           </p>
         </div>
 
+        {/* Role-based visibility */}
+        <RolePermissionsSection />
+
 
         {/* All Notifications Section */}
         <div className="mb-6">

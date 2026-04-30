@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ChevronRight, ChevronLeft, Check, Bell, Volume2, BellRing, ShieldCheck } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, Bell, Volume2, BellRing } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import notificationsIcon from "@/assets/icons/settings-notifications.png";
@@ -7,11 +7,6 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePreference } from "@/hooks/usePreference";
 import { Switch } from "@/components/ui/switch";
 import { requestNotificationPermission, getNotificationPermissionStatus, cacheSoundPreference } from "@/lib/alertService";
-import {
-  useNotificationRolePermissions,
-  type NotificationTopic,
-  type RoleKey,
-} from "@/hooks/useNotificationRolePermissions";
 
 type NotificationStyleType = "Count" | "Stack" | "List";
 

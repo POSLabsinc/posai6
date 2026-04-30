@@ -906,10 +906,25 @@ export function PaymentDialog({
     onOpenChange(false);
   };
 
+  // CC Surcharge: 3% of (subtotal + tax) when paying by Card
+  const CC_SURCHARGE_RATE = 0.03;
+  const isCardPayment = selectedPaymentMethod === 'card';
+  const ccSurcharge = isCardPayment ? (subtotal + tax) * CC_SURCHARGE_RATE : 0;
+  const effectiveTotal = total + ccSurcharge;
+
   // Calculate remaining due
   const totalPaid = paymentHistory.reduce((sum, p) => sum + p.amount, 0);
-  const remainingDue = total - totalPaid;
+  const remainingDue = effectiveTotal - totalPaid;
   const isFullyPaid = remainingDue <= 0;
+
+  // When toggling between card and non-card, refresh the default payment amount
+  useEffect(() => {
+    if (!open) return;
+    if (paymentHistory.length > 0) return;
+    if (Object.keys(amountQuantities).length > 0) return;
+    setPaymentAmount(effectiveTotal.toFixed(2));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isCardPayment]);
 
   if (!open) return null;
 
@@ -945,7 +960,7 @@ export function PaymentDialog({
               </button>
               <div className="flex items-center gap-2">
                 <span className="text-white text-base font-medium">Total Due</span>
-                <span className="text-red-500 text-base font-bold">${total.toFixed(2)}</span>
+                <span className="text-red-500 text-base font-bold">${effectiveTotal.toFixed(2)}</span>
               </div>
               <button 
                 onClick={() => onOpenChange(false)}
@@ -1002,7 +1017,7 @@ export function PaymentDialog({
                   </span>
                 )}
               </div>
-              <span className="text-red-500 font-bold">${total.toFixed(2)}</span>
+              <span className="text-red-500 font-bold">${effectiveTotal.toFixed(2)}</span>
             </div>
             <div className="flex items-center gap-2 mt-1 text-neutral-400 text-xs">
               {orderDetails.phone && <span>{orderDetails.phone}</span>}
@@ -4118,7 +4133,7 @@ export function PaymentDialog({
                   </button>
                   <span className="text-white text-lg font-medium">Redeem Voucher</span>
                 </div>
-                <span className="text-red-500 text-lg font-bold">${remainingDue > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
+                <span className="text-red-500 text-lg font-bold">${remainingDue > 0 ? remainingDue.toFixed(2) : effectiveTotal.toFixed(2)}</span>
               </div>
               {(voucherStep === 'enter-code' || voucherStep === 'validating' || voucherStep === 'error') && (
                 <div className="flex-1 flex flex-col p-6">
@@ -4897,7 +4912,7 @@ export function PaymentDialog({
                   ) : (
                     <>
                       <span className={`text-white ${isMobile ? 'text-base' : 'text-lg'} font-medium`}>Total Due</span>
-                      <span className={`text-red-500 ${isMobile ? 'text-base' : 'text-lg'} font-bold ml-2`}>${remainingDue > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
+                      <span className={`text-red-500 ${isMobile ? 'text-base' : 'text-lg'} font-bold ml-2`}>${remainingDue > 0 ? remainingDue.toFixed(2) : effectiveTotal.toFixed(2)}</span>
                     </>
                   )}
                 </div>
@@ -5134,15 +5149,15 @@ export function PaymentDialog({
                             <button 
                               onClick={() => {
                                 setAmountQuantities({});
-                                setPaymentAmount(total.toFixed(2));
+                                setPaymentAmount(effectiveTotal.toFixed(2));
                               }} 
                               className={`w-full ${isMobile ? 'py-4 text-base' : 'py-3 text-sm'} rounded-lg font-medium transition-colors ${
-                                paymentAmount === total.toFixed(2) && Object.keys(amountQuantities).length === 0 
+                                paymentAmount === effectiveTotal.toFixed(2) && Object.keys(amountQuantities).length === 0 
                                   ? 'bg-neutral-900 text-white border border-neutral-600' 
                                   : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
                               }`}
                             >
-                              ${total.toFixed(2)}
+                              ${effectiveTotal.toFixed(2)}
                             </button>
                           </div>
                           {quickAmounts.slice(0, isMobile ? 2 : 3).map(amount => {
@@ -5502,6 +5517,12 @@ export function PaymentDialog({
               <span className="text-white/60 text-sm">Tax</span>
               <span className="text-white text-sm">${tax.toFixed(2)}</span>
             </div>
+            {isCardPayment && (
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 text-sm">CC Sur (3%)</span>
+                <span className="text-white text-sm">${ccSurcharge.toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between pt-2 border-t border-neutral-700">
               <span className="text-white font-medium">Total Due</span>
               <span className="text-red-500 font-bold">${remainingDue > 0 ? remainingDue.toFixed(2) : '0.00'}</span>

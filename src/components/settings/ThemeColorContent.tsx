@@ -110,22 +110,31 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     }
   }, []);
 
-  const applyColor = useCallback((hex: string) => {
+  // Preview-only: updates local state without applying to the app
+  const previewColor = useCallback((hex: string) => {
+    if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
+    syncAllFormats(hex);
+  }, [syncAllFormats]);
+
+  // Commit the previewed color to the entire application
+  const handleApply = useCallback(() => {
+    const hex = pickerColor;
     if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
     setThemeColor(hex);
     applyThemeColor(hex);
-    syncAllFormats(hex);
-  }, [setThemeColor, applyThemeColor, syncAllFormats]);
+    handleSaveTheme(hex);
+    toast({ title: "Theme applied", description: `Theme color set to ${hex.toUpperCase()}.` });
+  }, [pickerColor, setThemeColor, applyThemeColor]);
 
   const handlePickerChange = (hex: string) => {
-    applyColor(hex);
+    previewColor(hex);
   };
 
   const handleHexChange = (val: string) => {
     let v = val.toUpperCase();
     if (!v.startsWith('#')) v = '#' + v;
     setHexInput(v);
-    if (/^#[0-9A-Fa-f]{6}$/.test(v)) applyColor(v);
+    if (/^#[0-9A-Fa-f]{6}$/.test(v)) previewColor(v);
   };
 
   const handleRgbChange = (channel: 'r' | 'g' | 'b', val: string) => {
@@ -133,7 +142,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     const updated = { ...rgbInput, [channel]: n };
     setRgbInput(updated);
     const hex = rgbToHex(updated.r, updated.g, updated.b);
-    applyColor(hex);
+    previewColor(hex);
   };
 
   const handleCmykChange = (channel: 'c' | 'm' | 'y' | 'k', val: string) => {
@@ -142,7 +151,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     setCmykInput(updated);
     const rgb = cmykToRgb(updated.c, updated.m, updated.y, updated.k);
     const hex = rgbToHex(rgb.r, rgb.g, rgb.b);
-    applyColor(hex);
+    previewColor(hex);
   };
 
   const handleResetDefault = () => {

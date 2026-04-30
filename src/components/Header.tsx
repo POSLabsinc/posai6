@@ -170,7 +170,8 @@ const Header = () => {
   const [showProfilePopup, setShowProfilePopup] = useState(false);
   const [showShiftSummary, setShowShiftSummary] = useState(false);
   const employeeName = session?.employeeName || "Guest";
-  const employeeRole = session?.employeeRole || "Server";
+  // Dynamic role: prefer the jobType selected at clock-in, then any stored role, then fallback.
+  const employeeRole = (session?.jobType || session?.employeeRole || "Staff").toString();
   const initials = getInitials(employeeName);
   const formattedTime = currentTime.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 

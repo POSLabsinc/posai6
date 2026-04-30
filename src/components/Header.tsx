@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Coffee, LogOut, FlaskConical, ChefHat, ShoppingBag, Bell as BellIcon, Clock, Timer, X } from "lucide-react";
+import ScreenModeSwitcher from "@/components/ScreenModeSwitcher";
 import ShiftSummaryModal from "@/components/ShiftSummaryModal";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import dinnerIcon from "@/assets/icons/dinner.png";

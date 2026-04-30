@@ -11,7 +11,6 @@ export default function AdvancedCustomizationContent() {
   const navigate = useNavigate();
   const {
     themeColor,
-    themeColor,
     partnerLogoUrl, setPartnerLogoUrl,
   } = useAppearance();
 

@@ -421,7 +421,6 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
       headlineLower.includes("sales pace") ||
       headlineLower.includes("sales"));
   if (isSalesInsight) {
-    const { SalesInsightDetailView } = require("@/components/settings/SalesInsightDetailView");
     return <SalesInsightDetailView notification={notification} />;
   }
 

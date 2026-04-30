@@ -906,9 +906,15 @@ export function PaymentDialog({
     onOpenChange(false);
   };
 
+  // CC Surcharge: 3% of (subtotal + tax) when paying by Card
+  const CC_SURCHARGE_RATE = 0.03;
+  const isCardPayment = selectedPaymentMethod === 'card';
+  const ccSurcharge = isCardPayment ? (subtotal + tax) * CC_SURCHARGE_RATE : 0;
+  const effectiveTotal = total + ccSurcharge;
+
   // Calculate remaining due
   const totalPaid = paymentHistory.reduce((sum, p) => sum + p.amount, 0);
-  const remainingDue = total - totalPaid;
+  const remainingDue = effectiveTotal - totalPaid;
   const isFullyPaid = remainingDue <= 0;
 
   if (!open) return null;

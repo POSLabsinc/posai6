@@ -11,6 +11,7 @@ import filterMegaphoneIcon from "@/assets/icons/filter-megaphone.png";
 import filterTeamIcon from "@/assets/icons/filter-team.png";
 import { useNotifications, type NotificationItem, type NotificationGroup } from "@/hooks/useNotifications";
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
+import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
 
 type FilterType = "all" | "system" | "announcements" | "updates" | "team" | "weather" | "ai";
 

@@ -370,9 +370,9 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         <div>
           <h2 className={sectionTitleClassName}>Color Picker</h2>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)] gap-10 items-start">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start justify-items-center">
               {/* LEFT: Preview screen + Apply Theme */}
-              <div className="flex flex-col gap-4 w-full max-w-[300px]">
+              <div className="flex flex-col gap-4 w-full max-w-[460px]">
                 <div className="bg-neutral-700/40 rounded-xl p-3">
                   <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-2 text-center">Preview Screen</p>
                   <ThemePreviewMini accent={pickerColor} />

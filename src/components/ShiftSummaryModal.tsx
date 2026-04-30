@@ -8,6 +8,7 @@ import { OverlayTimePicker } from "@/components/ui/overlay-time-picker";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import ShiftAIChatPanel from "@/components/ShiftAIChatPanel";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { SortableHeader, useSortableData } from "@/components/settings/SortableHeader";
 
 interface ShiftSummaryModalProps {
   open: boolean;

@@ -11,8 +11,8 @@ export default function AdvancedCustomizationContent() {
   const navigate = useNavigate();
   const {
     themeColor,
+    themeColor,
     partnerLogoUrl, setPartnerLogoUrl,
-    resetAdvancedCustomization,
   } = useAppearance();
 
   const fileInputRef = useRef<HTMLInputElement>(null);

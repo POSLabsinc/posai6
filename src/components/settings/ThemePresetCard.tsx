@@ -19,197 +19,358 @@ interface Props {
 }
 
 /**
- * Renders a stylized POS preview unique per theme variant.
- * Each variant has a distinct layout feel, contrast and accent system.
+ * Renders a stylized POS "New Order" preview unique per theme variant.
+ * Every variant shows the real POS anatomy: header, categories, product grid, order panel + total.
+ * The arrangement, density and accents differ per variant so each theme feels distinct.
  */
 export default function ThemePresetCard({ theme, size = 'sm' }: Props) {
-  const style: CSSProperties = {
-    background: theme.bg,
-    color: theme.text,
-  };
-
-  const surface: CSSProperties = { background: theme.surface };
-  const accentBg: CSSProperties = { background: theme.accent };
-  const accent2Bg: CSSProperties = { background: theme.accent2 };
-  const mutedBg: CSSProperties = { background: theme.muted };
-
-  const padding = size === 'lg' ? 'p-4' : 'p-2.5';
-  const gap = size === 'lg' ? 'gap-3' : 'gap-1.5';
-
+  const style: CSSProperties = { background: theme.bg, color: theme.text };
   return (
-    <div className={`relative w-full aspect-[16/10] rounded-xl overflow-hidden ${padding}`} style={style}>
-      {renderVariant(theme, size, gap, surface, accentBg, accent2Bg, mutedBg)}
+    <div className={`relative w-full aspect-[16/10] rounded-xl overflow-hidden`} style={style}>
+      {renderVariant(theme, size)}
     </div>
   );
 }
 
-function renderVariant(
-  theme: ThemeStyle,
-  size: 'sm' | 'lg',
-  gap: string,
-  surface: CSSProperties,
-  accentBg: CSSProperties,
-  accent2Bg: CSSProperties,
-  mutedBg: CSSProperties,
-) {
-  const tile = size === 'lg' ? 'h-7' : 'h-3.5';
-  const dot = size === 'lg' ? 'w-2 h-2' : 'w-1 h-1';
-  const txt = size === 'lg' ? 'text-[10px]' : 'text-[6px]';
+function renderVariant(theme: ThemeStyle, size: 'sm' | 'lg') {
+  const lg = size === 'lg';
+  // Shared style helpers
+  const surface: CSSProperties = { background: theme.surface };
+  const accentBg: CSSProperties = { background: theme.accent };
+  const accent2Bg: CSSProperties = { background: theme.accent2 };
+  const muted: CSSProperties = { background: theme.muted };
+  const textSoft = { background: theme.text, opacity: 0.55 };
+  const textFaint = { background: theme.text, opacity: 0.25 };
+
+  const pad = lg ? 'p-3' : 'p-1.5';
+  const gap = lg ? 'gap-2' : 'gap-1';
+  const radius = lg ? 'rounded-lg' : 'rounded-md';
+  const radiusSm = lg ? 'rounded-md' : 'rounded-[3px]';
+  const barH = lg ? 'h-2' : 'h-[5px]';
+  const lineH = lg ? 'h-1.5' : 'h-[3px]';
+  const tabH = lg ? 'h-5' : 'h-2.5';
+  const dot = lg ? 'w-1.5 h-1.5' : 'w-[3px] h-[3px]';
+
+  // Reusable building blocks
+  const TopBar = ({ accentTab = 0, tabs = 4 }: { accentTab?: number; tabs?: number }) => (
+    <div className={`flex ${gap} items-center`}>
+      <div className={`${dot} rounded-full`} style={accentBg} />
+      <div className={`${dot} rounded-full`} style={muted} />
+      <div className={`${dot} rounded-full`} style={muted} />
+      <div className="flex-1" />
+      {Array.from({ length: tabs }).map((_, i) => (
+        <div key={i} className={`${tabH} ${radiusSm}`} style={{ width: lg ? 22 : 12, ...(i === accentTab ? accentBg : surface) }} />
+      ))}
+    </div>
+  );
+
+  const CategoryStrip = ({ active = 0, count = 5, pill = false }: { active?: number; count?: number; pill?: boolean }) => (
+    <div className={`flex ${gap}`}>
+      {Array.from({ length: count }).map((_, i) => (
+        <div
+          key={i}
+          className={`flex-1 ${tabH} ${pill ? 'rounded-full' : radiusSm}`}
+          style={i === active ? accentBg : surface}
+        />
+      ))}
+    </div>
+  );
+
+  const ProductTile = ({ accent = false, accent2 = false }: { accent?: boolean; accent2?: boolean }) => (
+    <div className={`${radius} flex flex-col justify-between ${lg ? 'p-1.5' : 'p-1'}`} style={accent ? accentBg : accent2 ? accent2Bg : surface}>
+      <div className={`${lineH} w-2/3 rounded-sm`} style={accent || accent2 ? textFaint : textSoft} />
+      <div className={`${lineH} w-1/3 rounded-sm`} style={accent || accent2 ? textFaint : textFaint} />
+    </div>
+  );
+
+  const OrderLine = ({ accent = false }: { accent?: boolean }) => (
+    <div className={`flex items-center ${gap}`}>
+      <div className={`${dot} rounded-sm`} style={accent ? accentBg : muted} />
+      <div className={`${lineH} flex-1 rounded-sm`} style={textSoft} />
+      <div className={`${lineH} rounded-sm`} style={{ width: lg ? 14 : 8, ...textFaint }} />
+    </div>
+  );
+
+  const TotalBar = ({ rounded = 'md', full = false }: { rounded?: 'md' | 'full'; full?: boolean }) => (
+    <div
+      className={`${tabH} ${rounded === 'full' ? 'rounded-full' : radiusSm} ${full ? 'w-full' : ''} flex items-center justify-between ${lg ? 'px-2' : 'px-1'}`}
+      style={accentBg}
+    >
+      <div className={`${lineH} rounded-sm`} style={{ width: lg ? 16 : 8, ...textFaint }} />
+      <div className={`${lineH} rounded-sm`} style={{ width: lg ? 12 : 6, ...textFaint }} />
+    </div>
+  );
 
   switch (theme.variant) {
     case 'aurora':
-      // Floating glass panels, top tabs, gradient halo
+      // Glassy floating panels: tabs top, product grid left, glass order card right with gradient total
       return (
-        <div className="h-full w-full flex flex-col gap-2">
-          <div className={`flex ${gap}`}>
-            <div className={`flex-1 ${tile} rounded-md`} style={accentBg} />
-            <div className={`flex-1 ${tile} rounded-md`} style={surface} />
-            <div className={`flex-1 ${tile} rounded-md`} style={surface} />
-            <div className={`flex-1 ${tile} rounded-md`} style={surface} />
-          </div>
-          <div className={`grid grid-cols-3 ${gap} flex-1`}>
-            <div className="rounded-md" style={surface} />
-            <div className="rounded-md" style={surface} />
-            <div className="rounded-md" style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent2})` }} />
+        <div className={`h-full w-full ${pad} flex flex-col ${gap}`}>
+          <TopBar tabs={4} accentTab={0} />
+          <div className={`flex ${gap} flex-1`}>
+            <div className={`flex-1 flex flex-col ${gap}`}>
+              <CategoryStrip count={4} pill />
+              <div className={`grid grid-cols-3 ${gap} flex-1`}>
+                <ProductTile />
+                <ProductTile accent2 />
+                <ProductTile />
+                <ProductTile />
+                <ProductTile />
+                <ProductTile accent />
+              </div>
+            </div>
+            <div className={`${lg ? 'w-[34%]' : 'w-[36%]'} ${radius} ${pad} flex flex-col ${gap}`} style={surface}>
+              <div className={`${lineH} w-1/2 rounded-sm`} style={textSoft} />
+              <OrderLine accent />
+              <OrderLine />
+              <OrderLine />
+              <div className="flex-1" />
+              <div
+                className={`${tabH} ${radiusSm}`}
+                style={{ background: `linear-gradient(135deg, ${theme.accent}, ${theme.accent2})` }}
+              />
+            </div>
           </div>
         </div>
       );
 
     case 'midnight':
-      // Sidebar + content, dark/contrast
+      // Operator dark layout: vertical icon rail, dense product grid, narrow order column with sticky total
       return (
-        <div className={`h-full w-full flex ${gap}`}>
-          <div className="w-1/5 rounded-md flex flex-col items-center py-1.5 gap-1" style={surface}>
-            <div className={`${dot} rounded-full`} style={accentBg} />
-            <div className={`${dot} rounded-full`} style={mutedBg} />
-            <div className={`${dot} rounded-full`} style={mutedBg} />
+        <div className={`h-full w-full ${pad} flex ${gap}`}>
+          <div className={`${lg ? 'w-6' : 'w-3'} ${radius} flex flex-col items-center ${lg ? 'py-2 gap-1.5' : 'py-1 gap-1'}`} style={surface}>
+            <div className={`${dot} rounded`} style={accentBg} />
+            <div className={`${dot} rounded`} style={muted} />
+            <div className={`${dot} rounded`} style={muted} />
+            <div className={`${dot} rounded`} style={muted} />
           </div>
-          <div className="flex-1 flex flex-col gap-1">
-            <div className={`${tile} rounded-md`} style={accentBg} />
-            <div className="flex-1 rounded-md" style={surface} />
+          <div className={`flex-1 flex flex-col ${gap}`}>
+            <TopBar tabs={3} />
+            <CategoryStrip count={6} active={1} />
+            <div className={`grid grid-cols-4 ${gap} flex-1`}>
+              {Array.from({ length: 8 }).map((_, i) => (
+                <ProductTile key={i} accent={i === 2} />
+              ))}
+            </div>
+          </div>
+          <div className={`${lg ? 'w-[30%]' : 'w-[32%]'} flex flex-col ${gap}`}>
+            <div className={`${radius} ${pad} flex-1 flex flex-col ${gap}`} style={surface}>
+              <div className={`${lineH} w-2/3 rounded-sm`} style={textSoft} />
+              <OrderLine />
+              <OrderLine accent />
+              <OrderLine />
+              <OrderLine />
+            </div>
+            <TotalBar />
           </div>
         </div>
       );
 
     case 'sunset':
-      // Two-row warm tabs with cards
+      // Warm bistro: rounded pill categories, two-column product cards, bottom order strip with total
       return (
-        <div className="h-full w-full flex flex-col gap-1.5">
-          <div className={`flex ${gap}`}>
-            {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className={`flex-1 ${tile} rounded-full`} style={i === 1 ? accentBg : surface} />
-            ))}
-          </div>
-          <div className={`grid grid-cols-4 ${gap} flex-1`}>
-            {Array.from({ length: 8 }).map((_, i) => (
-              <div key={i} className="rounded-md" style={i % 3 === 0 ? accent2Bg : surface} />
-            ))}
+        <div className={`h-full w-full ${pad} flex flex-col ${gap}`}>
+          <TopBar tabs={3} />
+          <CategoryStrip count={5} active={2} pill />
+          <div className={`flex ${gap} flex-1`}>
+            <div className={`flex-1 grid grid-cols-2 ${gap}`}>
+              <ProductTile accent />
+              <ProductTile />
+              <ProductTile />
+              <ProductTile accent2 />
+            </div>
+            <div className={`${lg ? 'w-[34%]' : 'w-[36%]'} ${radius} ${pad} flex flex-col ${gap}`} style={surface}>
+              <OrderLine accent />
+              <OrderLine />
+              <OrderLine />
+              <div className="flex-1" />
+              <TotalBar rounded="full" />
+            </div>
           </div>
         </div>
       );
 
     case 'forest':
-      // Vertical accordion list
+      // Calm accordion order list left, single accent product preview right
       return (
-        <div className={`h-full w-full flex flex-col ${gap}`}>
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex-1 rounded-md flex items-center px-2" style={i === 0 ? accentBg : surface}>
-              <div className={`${dot} rounded-full mr-1`} style={i === 0 ? { background: theme.text } : accentBg} />
-              <div className={`h-1 flex-1 rounded`} style={i === 0 ? { background: theme.text, opacity: 0.4 } : mutedBg} />
+        <div className={`h-full w-full ${pad} flex flex-col ${gap}`}>
+          <TopBar tabs={3} />
+          <div className={`flex ${gap} flex-1`}>
+            <div className={`flex-1 flex flex-col ${gap}`}>
+              <CategoryStrip count={4} active={0} />
+              <div className={`flex-1 flex flex-col ${gap}`}>
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div
+                    key={i}
+                    className={`flex-1 ${radius} flex items-center ${lg ? 'px-2 gap-2' : 'px-1 gap-1'}`}
+                    style={i === 0 ? accentBg : surface}
+                  >
+                    <div className={`${dot} rounded-full`} style={i === 0 ? textFaint : accentBg} />
+                    <div className={`${lineH} flex-1 rounded-sm`} style={i === 0 ? textFaint : textSoft} />
+                    <div className={`${lineH} rounded-sm`} style={{ width: lg ? 14 : 8, ...(i === 0 ? textFaint : textFaint) }} />
+                  </div>
+                ))}
+              </div>
             </div>
-          ))}
+            <div className={`${lg ? 'w-[32%]' : 'w-[34%]'} ${radius} flex flex-col ${gap} ${pad}`} style={surface}>
+              <div className={`flex-1 ${radiusSm}`} style={accent2Bg} />
+              <TotalBar />
+            </div>
+          </div>
         </div>
       );
 
     case 'royal':
-      // 3D card stack centered
+      // Premium velvet: large hero product card, side order list with elegant total chip
       return (
-        <div className="h-full w-full relative flex items-center justify-center">
-          <div className="absolute w-3/5 h-3/5 rounded-xl rotate-6" style={{ ...surface, opacity: 0.5 }} />
-          <div className="absolute w-3/5 h-3/5 rounded-xl -rotate-3" style={{ ...surface, opacity: 0.7 }} />
-          <div className="relative w-3/5 h-3/5 rounded-xl flex flex-col gap-1 p-2" style={accentBg}>
-            <div className="h-1 w-1/2 rounded" style={{ background: theme.text, opacity: 0.6 }} />
-            <div className="h-1 w-1/3 rounded" style={{ background: theme.text, opacity: 0.4 }} />
+        <div className={`h-full w-full ${pad} flex flex-col ${gap}`}>
+          <TopBar tabs={4} accentTab={1} />
+          <div className={`flex ${gap} flex-1`}>
+            <div className={`flex-1 flex flex-col ${gap}`}>
+              <div className={`flex-1 ${radius} ${pad} flex flex-col justify-between`} style={accentBg}>
+                <div className={`${lineH} w-1/2 rounded-sm`} style={textFaint} />
+                <div className="flex justify-between items-end">
+                  <div className={`${lineH} w-1/3 rounded-sm`} style={textFaint} />
+                  <div className={`${tabH} ${radiusSm}`} style={{ width: lg ? 24 : 14, ...accent2Bg }} />
+                </div>
+              </div>
+              <div className={`grid grid-cols-3 ${gap}`}>
+                <ProductTile />
+                <ProductTile />
+                <ProductTile accent2 />
+              </div>
+            </div>
+            <div className={`${lg ? 'w-[34%]' : 'w-[36%]'} ${radius} ${pad} flex flex-col ${gap}`} style={surface}>
+              <OrderLine />
+              <OrderLine accent />
+              <OrderLine />
+              <div className="flex-1" />
+              <TotalBar rounded="full" />
+            </div>
           </div>
         </div>
       );
 
     case 'crimson':
-      // Pill drawer bottom + grid
+      // Express ordering: huge product grid, slim bottom action bar with prominent pay button
       return (
-        <div className="h-full w-full flex flex-col gap-1.5">
-          <div className={`grid grid-cols-3 ${gap} flex-1`}>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="rounded-md" style={surface} />
+        <div className={`h-full w-full ${pad} flex flex-col ${gap}`}>
+          <TopBar tabs={3} />
+          <CategoryStrip count={5} active={3} />
+          <div className={`grid grid-cols-4 ${gap} flex-1`}>
+            {Array.from({ length: 8 }).map((_, i) => (
+              <ProductTile key={i} accent={i === 0} accent2={i === 5} />
             ))}
           </div>
-          <div className={`flex ${gap} justify-center`}>
-            <div className={`${tile} px-3 rounded-full flex-1 max-w-[70%]`} style={accentBg} />
+          <div className={`flex ${gap}`}>
+            <div className={`flex-1 ${tabH} ${radiusSm}`} style={surface} />
+            <div className={`${tabH} ${radiusSm} ${lg ? 'px-3' : 'px-1'}`} style={{ ...accentBg, width: lg ? 80 : 44 }} />
           </div>
         </div>
       );
 
     case 'mono':
-      // Minimal monochrome list
+      // Minimal monochrome: typographic order ticket left, sparse product list right
       return (
-        <div className={`h-full w-full flex flex-col ${gap}`}>
-          <div className={`${tile} rounded-sm w-1/3`} style={accentBg} />
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="flex items-center gap-1.5">
-              <div className={`${dot} rounded-sm`} style={accentBg} />
-              <div className="h-1 flex-1 rounded-sm" style={mutedBg} />
+        <div className={`h-full w-full ${pad} flex ${gap}`}>
+          <div className={`flex-1 flex flex-col ${gap}`}>
+            <div className={`${lineH} w-1/3 rounded-sm`} style={accentBg} />
+            <div className={`${lineH} w-1/2 rounded-sm`} style={textFaint} />
+            <div className={`flex-1 flex flex-col ${gap} ${lg ? 'mt-1' : ''}`}>
+              <OrderLine />
+              <OrderLine />
+              <OrderLine accent />
+              <OrderLine />
             </div>
-          ))}
+            <div className={`${barH} w-full rounded-sm`} style={{ background: theme.text }} />
+          </div>
+          <div className={`${lg ? 'w-[40%]' : 'w-[42%]'} flex flex-col ${gap}`}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className={`flex-1 ${radiusSm} flex items-center ${lg ? 'px-2 gap-2' : 'px-1 gap-1'}`} style={surface}>
+                <div className={`${lineH} flex-1 rounded-sm`} style={textSoft} />
+                <div className={`${dot} rounded-sm`} style={accentBg} />
+              </div>
+            ))}
+          </div>
         </div>
       );
 
     case 'ocean':
-      // Two-tier tabs with category cards
+      // Layered tabs: primary tabs + secondary chips, split product/order with cool accent total
       return (
-        <div className="h-full w-full flex flex-col gap-1.5">
-          <div className={`flex ${gap}`}>
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className={`flex-1 ${tile} rounded-md`} style={i === 0 ? accentBg : surface} />
-            ))}
-          </div>
-          <div className={`flex ${gap}`}>
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className={`flex-1 ${tile} rounded-md`} style={surface} />
-            ))}
-          </div>
-          <div className={`grid grid-cols-2 ${gap} flex-1`}>
-            <div className="rounded-md" style={accent2Bg} />
-            <div className="rounded-md" style={surface} />
+        <div className={`h-full w-full ${pad} flex flex-col ${gap}`}>
+          <TopBar tabs={4} />
+          <CategoryStrip count={4} active={0} />
+          <CategoryStrip count={6} active={2} pill />
+          <div className={`flex ${gap} flex-1`}>
+            <div className={`flex-1 grid grid-cols-3 ${gap}`}>
+              <ProductTile />
+              <ProductTile accent2 />
+              <ProductTile />
+              <ProductTile />
+              <ProductTile />
+              <ProductTile accent />
+            </div>
+            <div className={`${lg ? 'w-[30%]' : 'w-[32%]'} ${radius} ${pad} flex flex-col ${gap}`} style={surface}>
+              <OrderLine />
+              <OrderLine accent />
+              <div className="flex-1" />
+              <TotalBar />
+            </div>
           </div>
         </div>
       );
 
     case 'candy':
-      // Colorful card grid
+      // Playful: colorful tile mosaic on left, vertical order card right with bold pay button
       return (
-        <div className={`h-full w-full grid grid-cols-3 grid-rows-2 ${gap}`}>
-          <div className="rounded-md" style={accentBg} />
-          <div className="rounded-md" style={surface} />
-          <div className="rounded-md" style={accent2Bg} />
-          <div className="rounded-md" style={accent2Bg} />
-          <div className="rounded-md" style={accentBg} />
-          <div className="rounded-md" style={surface} />
+        <div className={`h-full w-full ${pad} flex ${gap}`}>
+          <div className={`flex-1 flex flex-col ${gap}`}>
+            <CategoryStrip count={4} active={1} pill />
+            <div className={`grid grid-cols-3 grid-rows-2 ${gap} flex-1`}>
+              <ProductTile accent />
+              <ProductTile />
+              <ProductTile accent2 />
+              <ProductTile accent2 />
+              <ProductTile accent />
+              <ProductTile />
+            </div>
+          </div>
+          <div className={`${lg ? 'w-[34%]' : 'w-[36%]'} ${radius} ${pad} flex flex-col ${gap}`} style={surface}>
+            <div className={`${lineH} w-2/3 rounded-sm`} style={textSoft} />
+            <OrderLine accent />
+            <OrderLine />
+            <OrderLine accent />
+            <div className="flex-1" />
+            <TotalBar rounded="full" />
+          </div>
         </div>
       );
 
     case 'platinum':
-      // Light theme, clean horizontal tabs + table
+      // Light, clean: top toolbar, table-like order list, totals row at bottom
       return (
-        <div className="h-full w-full flex flex-col gap-1.5">
+        <div className={`h-full w-full ${pad} flex flex-col ${gap}`}>
           <div className={`flex ${gap} items-center`}>
-            <div className={`${tile} w-1/4 rounded-md`} style={accentBg} />
-            <div className={`${tile} flex-1 rounded-md`} style={surface} />
+            <div className={`${tabH} ${radiusSm}`} style={{ width: lg ? 40 : 22, ...accentBg }} />
+            <div className={`flex-1 ${tabH} ${radiusSm}`} style={surface} />
+            <div className={`${tabH} ${radiusSm}`} style={{ width: lg ? 24 : 14, ...surface }} />
           </div>
-          <div className={`flex-1 rounded-md ${gap} p-1.5 flex flex-col gap-1`} style={surface}>
-            <div className="h-1 w-full rounded" style={mutedBg} />
-            <div className="h-1 w-5/6 rounded" style={mutedBg} />
-            <div className="h-1 w-2/3 rounded" style={mutedBg} />
-            <div className="h-1 w-3/4 rounded" style={mutedBg} />
+          <CategoryStrip count={5} active={0} />
+          <div className={`flex ${gap} flex-1`}>
+            <div className={`flex-1 grid grid-cols-3 ${gap}`}>
+              {Array.from({ length: 6 }).map((_, i) => (
+                <ProductTile key={i} accent2={i === 4} />
+              ))}
+            </div>
+            <div className={`${lg ? 'w-[34%]' : 'w-[36%]'} ${radius} ${pad} flex flex-col ${gap}`} style={surface}>
+              <OrderLine />
+              <OrderLine />
+              <OrderLine accent />
+              <OrderLine />
+              <div className={`${lineH} w-full rounded-sm`} style={textFaint} />
+              <TotalBar />
+            </div>
           </div>
         </div>
       );

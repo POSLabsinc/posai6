@@ -39,6 +39,19 @@ function cmykToRgb(c: number, m: number, y: number, k: number): { r: number; g: 
 
 type ColorMode = 'hex' | 'rgb' | 'cmyk';
 
+// Returns '#000000' or '#FFFFFF' depending on which has better contrast on the given hex
+function getContrastText(hex: string): string {
+  const rgb = hexToRgb(hex);
+  if (!rgb) return '#FFFFFF';
+  // Relative luminance per WCAG
+  const toLin = (c: number) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+  };
+  const L = 0.2126 * toLin(rgb.r) + 0.7152 * toLin(rgb.g) + 0.0722 * toLin(rgb.b);
+  return L > 0.5 ? '#000000' : '#FFFFFF';
+}
+
 // --- Icon style definitions ---
 const ICON_STYLES: { id: IconStyle; label: string; icon: React.ReactNode; description: string }[] = [
   { id: 'Default', label: 'Default', icon: <Monitor className="w-5 h-5" />, description: 'Colorful system defaults' },

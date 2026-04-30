@@ -410,6 +410,20 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
 export const NotificationDetailView = ({ notification }: { notification: NotificationItem }) => {
   const isWeather = notification.category === "weather";
 
+  // Sales-pace AI insight: render the rich analytics + chat experience
+  const titleLower = (notification.title || "").toLowerCase();
+  const headlineLower = (notification.headline || "").toLowerCase();
+  const isSalesInsight =
+    notification.category === "ai" &&
+    (titleLower.includes("sales pace") ||
+      titleLower.includes("sales") ||
+      headlineLower.includes("sales pace") ||
+      headlineLower.includes("sales"));
+  if (isSalesInsight) {
+    const { SalesInsightDetailView } = require("@/components/settings/SalesInsightDetailView");
+    return <SalesInsightDetailView notification={notification} />;
+  }
+
   return (
     <div className="h-full flex flex-col px-8 pt-6 pb-10 max-w-3xl">
       {/* Header card */}

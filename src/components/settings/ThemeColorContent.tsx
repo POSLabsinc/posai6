@@ -237,18 +237,34 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
       </div>
 
       <div className="px-4 md:px-6 pb-28 space-y-5">
-        {/* Color Picker - 2 column layout */}
+        {/* Color Picker - Preview (left) + Picker & codes (right) */}
         <div>
           <h2 className={sectionTitleClassName}>Color Picker</h2>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-10 gap-4">
-              {/* Left: Color Picker (30%) - reduced height */}
-              <div className="theme-color-picker theme-color-picker-compact lg:col-span-3">
-                <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {/* LEFT: Preview screen + Apply Theme */}
+              <div className="flex flex-col gap-3">
+                <div className="bg-neutral-700/40 rounded-xl p-3">
+                  <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-2 text-center">Preview Screen</p>
+                  <ThemePreviewMini accent={pickerColor} />
+                </div>
+                <button
+                  onClick={handleApply}
+                  disabled={(themeColor || '#F97316').toUpperCase() === pickerColor.toUpperCase()}
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-semibold text-white hover:opacity-90 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: pickerColor }}
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  Apply Theme
+                </button>
               </div>
 
-              {/* Right: Active Theme + Color codes (70%) */}
-              <div className="flex flex-col gap-3 lg:col-span-7">
+              {/* RIGHT: Color picker + Current/Preview + HEX/RGB/CMYK */}
+              <div className="flex flex-col gap-3">
+                <div className="theme-color-picker theme-color-picker-compact">
+                  <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
+                </div>
+
                 {/* Current vs Preview */}
                 <div className="bg-neutral-700/40 rounded-xl p-3 flex items-center gap-3">
                   <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -284,9 +300,8 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                   </button>
                 </div>
 
-                {/* HEX / RGB / CMYK in a single row with dividers */}
+                {/* HEX / RGB / CMYK */}
                 <div className="bg-neutral-700/40 rounded-xl p-3 flex items-stretch">
-                  {/* HEX */}
                   <div className="flex-1 min-w-0 px-2">
                     <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-1.5 text-center">Hex</p>
                     <input
@@ -301,7 +316,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
 
                   <div className="w-px bg-neutral-600/60 mx-1 self-stretch" />
 
-                  {/* RGB */}
                   <div className="flex-[1.4] min-w-0 px-2">
                     <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-1.5 text-center">RGB</p>
                     <div className="grid grid-cols-3 gap-1.5">
@@ -322,7 +336,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
 
                   <div className="w-px bg-neutral-600/60 mx-1 self-stretch" />
 
-                  {/* CMYK */}
                   <div className="flex-[1.8] min-w-0 px-2">
                     <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-1.5 text-center">CMYK</p>
                     <div className="grid grid-cols-4 gap-1.5">

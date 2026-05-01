@@ -13,6 +13,7 @@ import { useNotifications, type NotificationItem, type NotificationGroup } from 
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
 import { useNotificationRolePermissions } from "@/hooks/useNotificationRolePermissions";
 import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
+import LiveSalesDashboard from "@/components/dashboards/LiveSalesDashboard";
 import { CommodityPriceInsightView } from "@/components/settings/CommodityPriceInsightView";
 import { UpsellingInsightView } from "@/components/settings/UpsellingInsightView";
 import { detectCommodity } from "@/components/settings/commodityData";
@@ -120,10 +121,29 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
   useWeatherNotification();
   const roleFilter = useNotificationRolePermissions();
 
+  // Synthetic "Live Sales Dashboard" notification (manager-only, AI category).
+  // Lives only in memory; opens the LiveSalesDashboard in the detail panel.
+  const liveSalesNotification: NotificationItem = useMemo(() => ({
+    id: "live-sales-dashboard",
+    title: "Live Sales Dashboard",
+    preview: "Real-time sales, revenue, and AI insights with anomaly detection.",
+    version: "Live",
+    version_date: "Today",
+    time: "Now",
+    headline: "Live Sales & Revenue Dashboard",
+    body: "Real-time metrics, trends, and AI analysis.",
+    bullets: [],
+    footer: null,
+    has_update: false,
+    is_read: true,
+    created_at: new Date().toISOString(),
+    category: "ai",
+  }), []);
+
   // Apply role-based visibility before any other filtering. Re-runs when role/perms change.
   const notifications = useMemo(
-    () => rawNotifications.filter((n) => roleFilter.isAllowed(n)),
-    [rawNotifications, roleFilter.role, roleFilter.permissions]
+    () => [liveSalesNotification, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
+    [rawNotifications, roleFilter.role, roleFilter.permissions, liveSalesNotification]
   );
 
   const totalUnread = useMemo(() => notifications.filter((n) => !n.is_read).length, [notifications]);
@@ -428,6 +448,15 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
   // Weather notification: full-chat weather experience
   if (isWeather) {
     return <WeatherInsightView notification={notification} />;
+  }
+
+  // Live Sales Dashboard: render full real-time dashboard with AI panel
+  if (notification.id === "live-sales-dashboard") {
+    return (
+      <div className="h-full w-full overflow-hidden">
+        <LiveSalesDashboard />
+      </div>
+    );
   }
 
   // Sales-pace AI insight: render the rich analytics + chat experience

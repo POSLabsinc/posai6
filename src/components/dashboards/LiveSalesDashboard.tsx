@@ -342,6 +342,14 @@ export const LiveSalesDashboard = () => {
       {/* Main content (full width) */}
       <div className="flex-1 min-h-0 p-4 lg:p-6 overflow-hidden">
         <div className="h-full min-h-0 overflow-y-auto scrollbar-hide pr-1 space-y-4">
+          <MultiLocationFilters
+            filters={mlFilters}
+            onChange={setMlFilters}
+            rows={locationRows}
+            metric="revenue"
+            onAskAI={ask}
+          />
+
           {/* KPI strip */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {kpis.map((k) => (

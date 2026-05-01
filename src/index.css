@@ -1494,3 +1494,57 @@ html.light .bg-\[\#252525\] .text-neutral-300 {
 html.light .bg-\[\#131316\] .bg-primary {
   color: hsl(var(--primary-foreground)) !important;
 }
+
+/* ============================================================
+   LIGHT MODE: Shift Summary Modal stays dark (per request)
+   ShiftSummaryModal uses bg-[#1C1C1E] containers; keep dark
+   ============================================================ */
+html.light .shift-summary-root,
+html.light .shift-summary-root .bg-\[\#1C1C1E\] {
+  background-color: #1C1C1E !important;
+  color: #ffffff !important;
+}
+html.light .shift-summary-root *,
+html.light .shift-summary-root .text-white,
+html.light .shift-summary-root .text-neutral-200,
+html.light .shift-summary-root .text-neutral-300 {
+  color: inherit;
+}
+html.light .shift-summary-root .text-white { color: #ffffff !important; }
+html.light .shift-summary-root .text-neutral-300 { color: #d4d4d4 !important; }
+html.light .shift-summary-root .text-neutral-400 { color: #a3a3a3 !important; }
+html.light .shift-summary-root .text-neutral-500 { color: #737373 !important; }
+html.light .shift-summary-root .bg-neutral-800 { background-color: #2a2a2c !important; }
+html.light .shift-summary-root .bg-neutral-800\/60 { background-color: rgba(42,42,44,0.6) !important; }
+html.light .shift-summary-root .bg-neutral-700 { background-color: #404040 !important; }
+html.light .shift-summary-root .border-neutral-800 { border-color: rgba(255,255,255,0.08) !important; }
+html.light .shift-summary-root .border-white\/5,
+html.light .shift-summary-root .border-white\/10 { border-color: rgba(255,255,255,0.1) !important; }
+html.light .shift-summary-root .bg-white\/5 { background-color: rgba(255,255,255,0.05) !important; }
+html.light .shift-summary-root .bg-white\/10 { background-color: rgba(255,255,255,0.1) !important; }
+html.light .shift-summary-root .bg-black\/70,
+html.light .shift-summary-root .bg-black\/60 { background-color: rgba(0,0,0,0.6) !important; }
+
+/* Top header bar of shift summary keeps the dark style */
+html.light .shift-summary-root [class*="bg-header"],
+html.light .shift-summary-root .bg-header {
+  background-color: #131316 !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* ============================================================
+   LIGHT MODE: Dashboard order-number boxes match Ticket Screen
+   Both use bg-neutral-800 with text-white digits. Keep them
+   visually identical (dark box, white text) in light mode.
+   ============================================================ */
+html.light .order-number-box,
+html.light [data-order-number="true"] {
+  background-color: #1F2024 !important;
+  border-color: rgba(255,255,255,0.15) !important;
+}
+html.light .order-number-box .text-white,
+html.light .order-number-box span,
+html.light [data-order-number="true"] .text-white,
+html.light [data-order-number="true"] span {
+  color: #ffffff !important;
+}

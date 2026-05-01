@@ -469,7 +469,7 @@ export default function ShiftSummaryModal({
   if (sharePopup) {
     const isEmail = sharePopup === "email";
     return (
-      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
+      <div className="shift-summary-root fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
         <div className="absolute inset-0 bg-black/70" onClick={() => setSharePopup(null)} />
         <div className="relative z-10 w-full rounded-t-2xl md:w-[440px] md:rounded-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden">
           <div className="flex justify-center pt-2 pb-1 md:hidden">
@@ -522,7 +522,7 @@ export default function ShiftSummaryModal({
   // AI Chat view - mobile: full modal, desktop: side panel overlay
   if (showAIChat && isMobile) {
     return (
-      <div className="fixed inset-0 z-[9999] flex flex-col bg-[#1C1C1E]">
+      <div className="shift-summary-root fixed inset-0 z-[9999] flex flex-col bg-[#1C1C1E]">
         <ShiftAIChatPanel
           onClose={() => setShowAIChat(false)}
           shiftContext={shiftContextForAI}
@@ -541,7 +541,7 @@ export default function ShiftSummaryModal({
   // Check detail view
   if (selectedOrder) {
     return (
-      <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
+      <div className="shift-summary-root fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
         <div className="absolute inset-0 bg-black/70" onClick={() => setSelectedOrder(null)} />
         <div className="relative z-10 w-full max-h-[90vh] rounded-t-2xl md:w-[580px] md:max-h-[85vh] md:rounded-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col">
           <div className="flex justify-center pt-2 pb-1 md:hidden">
@@ -651,7 +651,7 @@ export default function ShiftSummaryModal({
   const renderFilterSheet = () => {
     if (!showFilterSheet) return null;
     return (
-      <div className="fixed inset-0 z-[10001] flex items-end justify-center">
+      <div className="shift-summary-root fixed inset-0 z-[10001] flex items-end justify-center">
         <div className="absolute inset-0 bg-black/60" onClick={() => { setShowFilterSheet(false); setFilterSheetView("main"); }} />
         <div className="relative z-10 w-full rounded-t-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden max-h-[70vh] flex flex-col">
           <div className="flex justify-center pt-2 pb-1 shrink-0">
@@ -763,7 +763,7 @@ export default function ShiftSummaryModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
+    <div className="shift-summary-root fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className={`relative z-10 bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col
         w-full h-full md:h-auto

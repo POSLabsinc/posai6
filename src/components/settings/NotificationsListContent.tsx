@@ -9,6 +9,7 @@ import filterClipboardIcon from "@/assets/icons/filter-clipboard.png";
 import filterMegaphoneIcon from "@/assets/icons/filter-megaphone.png";
 
 import filterTeamIcon from "@/assets/icons/filter-team.png";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useNotifications, type NotificationItem, type NotificationGroup } from "@/hooks/useNotifications";
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
 import { useNotificationRolePermissions } from "@/hooks/useNotificationRolePermissions";
@@ -23,12 +24,12 @@ import { WeatherInsightView } from "@/components/settings/WeatherInsightView";
 type FilterType = "all" | "system" | "announcements" | "updates" | "team" | "weather" | "ai";
 
 // Category-based icon and color mapping for notification avatars
-const getCategoryIcon = (notification: NotificationItem): { icon?: any; bg: string; color: string; useEatosProfile?: boolean } => {
+const getCategoryIcon = (notification: NotificationItem): { icon?: any; bg: string; color: string; useEatosProfile?: boolean; useAIIcon?: boolean } => {
   if (notification.category === "weather") {
     return { icon: CloudSun, bg: "bg-sky-500/15", color: "text-sky-500" };
   }
   if (notification.category === "ai") {
-    return { icon: Sparkles, bg: "bg-violet-500/15", color: "text-violet-500" };
+    return { useAIIcon: true, bg: "", color: "" };
   }
   const t = notification.title.toLowerCase();
   // Kitchen reply notifications
@@ -84,13 +85,16 @@ const getCategoryIcon = (notification: NotificationItem): { icon?: any; bg: stri
 };
 
 const NotificationAvatar = ({ notification, size = "sm" }: { notification: NotificationItem; size?: "sm" | "lg" }) => {
-  const { icon: Icon, bg, color, useEatosProfile } = getCategoryIcon(notification);
+  const { icon: Icon, bg, color, useEatosProfile, useAIIcon } = getCategoryIcon(notification);
   const dims = size === "lg" ? "w-11 h-11" : "w-9 h-9";
   const iconSize = size === "lg" ? "w-6 h-6" : "w-4.5 h-4.5";
+  const aiIconSize = size === "lg" ? 28 : 22;
 
   return (
-    <div className={`${dims} rounded-full overflow-hidden shrink-0 ${size === "sm" ? "mt-0.5" : ""}`}>
-      {useEatosProfile ? (
+    <div className={`${dims} rounded-full overflow-hidden shrink-0 flex items-center justify-center ${size === "sm" ? "mt-0.5" : ""}`}>
+      {useAIIcon ? (
+        <AnimatedAIIcon size={aiIconSize} />
+      ) : useEatosProfile ? (
         <img src={eatosProfile} alt="eatOS" className="w-full h-full object-cover" />
       ) : (
         <div className={`w-full h-full ${bg} flex items-center justify-center`}>

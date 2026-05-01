@@ -33,6 +33,12 @@ import {
   Utensils,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  MultiLocationFilters,
+  DEFAULT_ML_FILTERS,
+  useFilteredLocations,
+  type MultiLocationFiltersState,
+} from "./MultiLocationFilters";
 
 type RangeKey = "today" | "weekly" | "monthly";
 interface ChatMsg { role: "user" | "assistant"; content: string }
@@ -84,6 +90,8 @@ export const ProfitDashboard = () => {
   const navigate = useNavigate();
   const [range, setRange] = useState<RangeKey>("today");
   const [tick, setTick] = useState(0);
+  const [mlFilters, setMlFilters] = useState<MultiLocationFiltersState>(DEFAULT_ML_FILTERS);
+  const { rows: locationRows, scale: locationScale } = useFilteredLocations(mlFilters);
 
   useEffect(() => {
     const id = window.setInterval(() => setTick((t) => t + 1), 30000);
@@ -92,7 +100,7 @@ export const ProfitDashboard = () => {
 
   // ===== Derived totals =====
   const totals = useMemo(() => {
-    const mult = range === "today" ? 1 : range === "weekly" ? 7 : 30;
+    const mult = (range === "today" ? 1 : range === "weekly" ? 7 : 30) * locationScale;
     const revenue = SHIFT_DATA.reduce((s, r) => s + r.revenue, 0) * mult;
     const foodCost = SHIFT_DATA.reduce((s, r) => s + r.foodCost, 0) * mult;
     const laborCost = SHIFT_DATA.reduce((s, r) => s + r.laborCost, 0) * mult;
@@ -101,12 +109,12 @@ export const ProfitDashboard = () => {
     const refunds = SHIFT_DATA.reduce((s, r) => s + r.refunds, 0) * mult;
     const grossProfit = revenue - foodCost;
     const netProfit = revenue - foodCost - laborCost - otherCost - discounts - refunds;
-    const foodCostPct = (foodCost / revenue) * 100;
-    const laborCostPct = (laborCost / revenue) * 100;
-    const grossMarginPct = (grossProfit / revenue) * 100;
-    const netMarginPct = (netProfit / revenue) * 100;
+    const foodCostPct = revenue ? (foodCost / revenue) * 100 : 0;
+    const laborCostPct = revenue ? (laborCost / revenue) * 100 : 0;
+    const grossMarginPct = revenue ? (grossProfit / revenue) * 100 : 0;
+    const netMarginPct = revenue ? (netProfit / revenue) * 100 : 0;
     return { revenue, foodCost, laborCost, otherCost, discounts, refunds, grossProfit, netProfit, foodCostPct, laborCostPct, grossMarginPct, netMarginPct };
-  }, [range, tick]);
+  }, [range, tick, locationScale]);
 
   // Profit by shift
   const byShift = useMemo(() => {
@@ -358,6 +366,13 @@ export const ProfitDashboard = () => {
       {/* Main content */}
       <div className="flex-1 min-h-0 p-4 lg:p-6 overflow-hidden">
         <div className="h-full min-h-0 overflow-y-auto scrollbar-hide pr-1 space-y-4">
+          <MultiLocationFilters
+            filters={mlFilters}
+            onChange={setMlFilters}
+            rows={locationRows}
+            metric="profit"
+            onAskAI={ask}
+          />
           {/* KPI strip */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             {kpis.map((k) => (

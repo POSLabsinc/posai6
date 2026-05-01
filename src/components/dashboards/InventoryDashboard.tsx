@@ -33,6 +33,12 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  MultiLocationFilters,
+  DEFAULT_ML_FILTERS,
+  useFilteredLocations,
+  type MultiLocationFiltersState,
+} from "./MultiLocationFilters";
 
 type RangeKey = "today" | "weekly" | "monthly";
 interface ChatMsg { role: "user" | "assistant"; content: string }
@@ -104,6 +110,8 @@ export const InventoryDashboard = () => {
   const isMobile = useIsMobile();
   const [range, setRange] = useState<RangeKey>("today");
   const [tick, setTick] = useState(0);
+  const [mlFilters, setMlFilters] = useState<MultiLocationFiltersState>(DEFAULT_ML_FILTERS);
+  const { rows: locationRows } = useFilteredLocations(mlFilters);
 
   // Auto-refresh every 30s (re-derives client-side metrics)
   useEffect(() => {
@@ -350,6 +358,13 @@ export const InventoryDashboard = () => {
       {/* Main content (full width) */}
       <div className="flex-1 min-h-0 p-4 lg:p-6 overflow-hidden">
         <div className="h-full min-h-0 overflow-y-auto scrollbar-hide pr-1 space-y-4">
+          <MultiLocationFilters
+            filters={mlFilters}
+            onChange={setMlFilters}
+            rows={locationRows}
+            metric="inventory"
+            onAskAI={ask}
+          />
           {/* KPI strip */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {kpis.map((k) => (

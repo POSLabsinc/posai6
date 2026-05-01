@@ -34,6 +34,12 @@ import { useNavigate } from "react-router-dom";
 import { useReportsData } from "@/hooks/useReportsData";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  MultiLocationFilters,
+  DEFAULT_ML_FILTERS,
+  useFilteredLocations,
+  type MultiLocationFiltersState,
+} from "./MultiLocationFilters";
 
 type RangeKey = "today" | "hourly" | "daily" | "weekly";
 interface ChatMsg { role: "user" | "assistant"; content: string }
@@ -63,6 +69,8 @@ export const LiveSalesDashboard = () => {
   const isMobile = useIsMobile();
   const [range, setRange] = useState<RangeKey>("today");
   const [tick, setTick] = useState(0);
+  const [mlFilters, setMlFilters] = useState<MultiLocationFiltersState>(DEFAULT_ML_FILTERS);
+  const { rows: locationRows, scale: locationScale } = useFilteredLocations(mlFilters);
 
   // Compute date range based on selection
   const { start, end } = useMemo(() => {
@@ -257,11 +265,11 @@ export const LiveSalesDashboard = () => {
   const cardStyle = { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" } as const;
 
   const kpis = [
-    { label: "Total Sales", val: fmt(data.kpis.totalSales), icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-500/10" },
-    { label: "Revenue", val: fmt(data.orderSummary.netSales), icon: TrendingUp, color: "text-primary", bg: "bg-primary/10" },
-    { label: "Orders", val: String(data.kpis.orderCount), icon: ShoppingCart, color: "text-sky-400", bg: "bg-sky-500/10" },
+    { label: "Total Sales", val: fmt(data.kpis.totalSales * locationScale), icon: DollarSign, color: "text-emerald-400", bg: "bg-emerald-500/10" },
+    { label: "Revenue", val: fmt(data.orderSummary.netSales * locationScale), icon: TrendingUp, color: "text-primary", bg: "bg-primary/10" },
+    { label: "Orders", val: String(Math.round(data.kpis.orderCount * locationScale)), icon: ShoppingCart, color: "text-sky-400", bg: "bg-sky-500/10" },
     { label: "Avg Order", val: fmt(data.kpis.averageOrderValue), icon: Receipt, color: "text-violet-400", bg: "bg-violet-500/10" },
-    { label: "Items Sold", val: String(data.kpis.unitsSold), icon: Package, color: "text-amber-400", bg: "bg-amber-500/10" },
+    { label: "Items Sold", val: String(Math.round(data.kpis.unitsSold * locationScale)), icon: Package, color: "text-amber-400", bg: "bg-amber-500/10" },
   ];
 
   return (
@@ -334,6 +342,14 @@ export const LiveSalesDashboard = () => {
       {/* Main content (full width) */}
       <div className="flex-1 min-h-0 p-4 lg:p-6 overflow-hidden">
         <div className="h-full min-h-0 overflow-y-auto scrollbar-hide pr-1 space-y-4">
+          <MultiLocationFilters
+            filters={mlFilters}
+            onChange={setMlFilters}
+            rows={locationRows}
+            metric="revenue"
+            onAskAI={ask}
+          />
+
           {/* KPI strip */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {kpis.map((k) => (

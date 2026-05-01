@@ -34,7 +34,7 @@ const POSThemePreview = ({
     >
       {/* Preview Card */}
       <div
-        className={`w-full aspect-[4/3] rounded-2xl overflow-hidden border-2 ${
+        className={`w-full aspect-[5/4] rounded-2xl overflow-hidden border-2 ${
           isSelected ? 'border-foreground' : 'border-transparent'
         }`}
         style={{ background: bg }}

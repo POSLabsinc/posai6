@@ -33,6 +33,12 @@ import {
   Utensils,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import {
+  MultiLocationFilters,
+  DEFAULT_ML_FILTERS,
+  useFilteredLocations,
+  type MultiLocationFiltersState,
+} from "./MultiLocationFilters";
 
 type RangeKey = "today" | "weekly" | "monthly";
 interface ChatMsg { role: "user" | "assistant"; content: string }
@@ -84,6 +90,8 @@ export const ProfitDashboard = () => {
   const navigate = useNavigate();
   const [range, setRange] = useState<RangeKey>("today");
   const [tick, setTick] = useState(0);
+  const [mlFilters, setMlFilters] = useState<MultiLocationFiltersState>(DEFAULT_ML_FILTERS);
+  const { rows: locationRows, scale: locationScale } = useFilteredLocations(mlFilters);
 
   useEffect(() => {
     const id = window.setInterval(() => setTick((t) => t + 1), 30000);

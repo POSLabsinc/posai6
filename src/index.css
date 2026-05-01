@@ -1153,15 +1153,36 @@ html.light .ring-white\/20 {
   --tw-ring-color: rgba(0, 0, 0, 0.08) !important;
 }
 
-/* --- Header bar (dark by design, lighten in light mode) --- */
+/* --- Header bar (keep same layout/style as dark, optimized for light) ---
+   Use a soft light surface with a clean bottom divider and dark text so the
+   header reads correctly while preserving the original dark-mode structure. */
 html.light header.bg-header,
 html.light .bg-header {
-  background-color: #ffffff !important;
+  background-color: #f5f5f7 !important;
   color: var(--light-text-primary) !important;
+  border-bottom: 1px solid var(--light-border) !important;
 }
 html.light .bg-header .text-white,
 html.light .text-header-foreground {
   color: var(--light-text-primary) !important;
+}
+/* Header pill/avatar wrapper that uses bg-white/10 in dark mode */
+html.light .bg-header .bg-white\/10,
+html.light .bg-header .bg-white\/15,
+html.light .bg-header .bg-white\/20 {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+html.light .bg-header .hover\:bg-white\/15:hover,
+html.light .bg-header .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.08) !important;
+}
+/* Role badge text inside header (originally text-white over primary/20) */
+html.light .bg-header .bg-primary\/20.text-white {
+  color: hsl(var(--primary)) !important;
+}
+/* Vertical separators inside header */
+html.light .bg-header .bg-sidebar-foreground\/30 {
+  background-color: rgba(0, 0, 0, 0.15) !important;
 }
 
 /* --- Placeholders --- */

@@ -528,10 +528,10 @@ export const LiveSalesDashboard = () => {
                     <button
                       key={a.id}
                       onClick={() => ask(a.question)}
-                      className={`text-left rounded-xl p-3 border ${a.bg} ${a.border} hover:brightness-110 transition`}
+                      className={`text-left rounded-xl p-3 border ${sev.bg} ${sev.border} hover:brightness-110 transition`}
                     >
                       <div className="flex items-start gap-2.5">
-                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${a.bg} border ${a.border}`}>
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${sev.bg} border ${sev.border}`}>
                           <Icon className={`w-3.5 h-3.5 ${sev.icon}`} />
                         </div>
                         <div className="min-w-0 flex-1">

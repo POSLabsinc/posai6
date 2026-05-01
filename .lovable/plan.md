@@ -1,55 +1,98 @@
+# Import New KDS from "POSAI - Kitchen Display System (KDS)"
 
+Source project: [POSAI - Kitchen Display System (KDS)](/projects/3a5eb3d4-e432-4ee8-a856-17d95261c3ac)
 
-# Plan: Fix Cash Log Not Showing Transaction Data
+## Goal
 
-## Problem
-The Cash Log tab on the Cash Management page (`/settings/payments/cash-management`) is not displaying paid order transactions, even though the database contains 10+ PAID orders for today. The History tab correctly shows only closed drawer session summaries (confirmed as intended behavior).
+Bring the new KDS design into this POS project and route the screen-mode switcher to it when the user switches POS into KDS. Keep the existing `src/pages/KDS.tsx` intact as a fallback that can be re-enabled with one line.
 
-## Root Cause Analysis
-After inspecting the database, code, RLS policies, and network requests, I identified these issues:
+## Why this needs isolation
 
-1. **Timezone mismatch in date filtering**: The `loadCashLog` function creates `startOfDay` and `endOfDay` using the browser's local time, then calls `.toISOString()` which converts to UTC. If the user is in a timezone like UTC+5:30, "today at midnight" becomes "yesterday at 18:30 UTC", potentially missing orders or including wrong-day orders.
+The source KDS is a full standalone app, not a single screen:
 
-2. **Missing `updated_at` trigger on ticket_orders**: The `ticket_orders` table has no `updated_at` auto-update trigger. When payment is recorded via `updateOrder()`, the `updated_at` field IS explicitly set by the Supabase client's `.update()` call (it uses `now()` server-side), so this should work. However, the `useTicketOrders` hook's `unifiedToRow` function does NOT include `updated_at` in its mapping, meaning the `updated_at` column may not be updated when a payment is persisted through the hook.
+- ~30 components in `src/components/kds/`
+- 17 hooks (incl. its own `use-mobile`, `use-toast`, `use-theme`, `use-language`, `use-notifications`)
+- 30+ pages (main view, settings sub-pages, pin pad, splash, etc.)
+- Its own `lib/utils.ts`, `App.tsx`, `NotFound.tsx`
+- Multiple required context providers (KDSMode, KDSSettings, Sound, BadgeVisibility, StatusRules, OrderStore, PrinterAssignments, Portrait, KitchenMessages, Notifications, DockLayout, Theme, Language)
+- Mock data files and KDS-specific assets
 
-3. **`updated_at` not being set on payment**: In `use-ticket-orders.ts`, the `unifiedToRow` function (line 178-208) does not map any field to `updated_at`. When `updateOrderMutation` runs `supabase.from('ticket_orders').update(row)`, the `updated_at` field is NOT included in the update payload. If the table has no auto-update trigger, `updated_at` remains at the original `created_at` value. This means the Cash Log query filtering by `updated_at` within today's range may miss orders whose `updated_at` was never updated.
+Many filenames collide with this POS project. To prevent breaking the POS, everything is copied into a single sandboxed folder.
 
-**Confirmed by data**: Checking the DB rows, `updated_at` values DO exist and are close to `created_at` (within seconds), suggesting they ARE being set. But the key question is whether this is automatic (database trigger) or explicit. The schema shows no triggers exist (`There are no triggers in the database`). So `updated_at` is being set by the Supabase default `now()` only on INSERT, not on UPDATE.
+## Approach
 
-**This is the primary bug**: When an order is created (ORDERED status), `updated_at = now()`. When payment updates the status to PAID, the `updated_at` is NOT updated because:
-- No database trigger exists for auto-updating `updated_at`
-- The `unifiedToRow` function doesn't include `updated_at` in the update payload
+### 1. Sandbox folder
 
-Wait - looking at the actual data again: `created_at=2026-04-14T11:29:38` and `updated_at=2026-04-14T11:29:43` - these differ by 5 seconds. This means `updated_at` IS being updated somehow. Let me reconsider...
+Create `src/kds-new/` and mirror the source structure inside it:
 
-Actually, looking at the table definition: `updated_at (timestamp with time zone, NOT NULL, default: now())`. The default only applies on INSERT. But the data shows `updated_at` is different from `created_at` by a few seconds. This suggests the Supabase `.update()` call IS somehow updating it. Actually Supabase PostgREST doesn't auto-update `updated_at` - but looking at the payment code in `Orders.tsx` line 4224-4231, it calls `updateTicketOrder(dbId, {...})` which goes through `use-ticket-orders.ts` `updateOrderMutation`, which calls `supabase.from('ticket_orders').update(row)`. The `row` object from `unifiedToRow` does NOT include `updated_at`, but Supabase may have a default behavior... Actually no, it shouldn't.
+```text
+src/kds-new/
+  assets/        (icons, images from source src/assets)
+  components/    (kds/, settings/, ui/, NavLink, PosaiLogo)
+  contexts/      (none in source; providers live in hooks/)
+  data/          (mock-* files)
+  hooks/         (all 17 hooks, isolated from POS hooks)
+  lib/           (utils, kds-aging, kds-scale, dock-insets, settings-search-index)
+  pages/         (Index, settings/, KdsReplyPage, NotFound, etc.)
+  types/         (kds, kitchen-message, notification)
+  KdsApp.tsx     (new wrapper, replaces source App.tsx)
+```
 
-Wait - there IS a function `update_updated_at_column()` defined as a trigger function in the DB functions list! But the security scan says "There are no triggers in the database." So the function exists but no trigger uses it. The `updated_at` difference in the data could be from multiple sequential updates (initial insert + immediate payment update both happen within seconds).
+All internal imports inside `src/kds-new/**` keep the `@/...` alias **rewritten** to `@/kds-new/...` so the new KDS only resolves files inside its own folder. Nothing inside `src/kds-new/` imports from the rest of the POS, and nothing in the rest of the POS imports from `src/kds-new/` except the single route entry.
 
-**Final diagnosis**: The `updated_at` filtering approach works for most orders because the payment update happens shortly after creation. BUT the real problem is likely simpler - let me re-examine the query itself and the component rendering.
+### 2. KdsApp wrapper
 
-Actually, I think the issue is that the entire `loadCashLog` function works correctly BUT the code was recently modified and may have a build/deploy issue. Let me focus on making the solution robust.
+`src/kds-new/KdsApp.tsx` replaces the source `App.tsx`:
 
-## Solution
+- Wraps only the providers the new KDS needs (KDSMode, KDSSettings, Sound, BadgeVisibility, StatusRules, OrderStore, PrinterAssignments, Portrait, KitchenMessages, Notifications, DockLayout, Theme, Language) plus `TooltipProvider` and `Sonner`.
+- Does NOT mount its own `BrowserRouter` (POS already provides one). Instead it renders the source `Index` page directly and handles the few internal sub-routes via local state or nested `<Routes>` scoped to `/kds/*`.
+- Skips the source `QueryClientProvider` (POS already provides one) unless tests show it needs a separate client.
 
-### 1. Add `updated_at` trigger to `ticket_orders` table
-Create a database migration to attach the existing `update_updated_at_column()` trigger function to the `ticket_orders` table. This ensures `updated_at` is always current when payment status changes.
+### 3. Routing wiring (POS side)
 
-### 2. Fix `CashManagementContent.tsx` - Query reliability
-- Change the Cash Log query to filter by BOTH `created_at` OR `updated_at` within the date range, ensuring orders are captured regardless of which timestamp falls on the selected date
-- Add error logging to the Supabase query to surface any silent failures
-- Sort all entries chronologically after merging orders, pay in/out, and cash drops
+In `src/App.tsx`:
 
-### 3. Fix `CashDrawerDetailsContent.tsx` - Same query fix
-- Apply the same dual-timestamp query approach for the active drawer session view
-- Ensure the combined Cash Log entries (orders + transactions + drops) are properly sorted and deduplicated
+- Add a lazy import: `const KdsNew = lazyWithImportRecovery(() => import("./kds-new/KdsApp"));`
+- Add a route `<Route path="/kds-new/*" element={<KdsNew />} />` outside the POS `Layout` (the new KDS has its own shell).
+- Keep the existing `/kds` route untouched as the fallback.
 
-### 4. Add `updated_at` to `unifiedToRow` mapping
-In `use-ticket-orders.ts`, explicitly set `updated_at` in the row mapping so that every update call refreshes the timestamp, even without a trigger.
+In `src/components/ScreenModeSwitcher.tsx`:
 
-## Files to Modify
-1. **Database migration**: Add trigger `update_updated_at_column` on `ticket_orders`
-2. `src/components/settings/CashManagementContent.tsx` - Fix query filters and add error handling
-3. `src/components/settings/CashDrawerDetailsContent.tsx` - Fix query filters and add error handling  
-4. `src/hooks/use-ticket-orders.ts` - Add `updated_at` to row mapping
+- Change the KDS branch from `navigate("/kds")` to `navigate("/kds-new")`.
+- One-line revert if needed.
 
+### 4. Asset copy
+
+Copy these binary/SVG assets into `src/kds-new/assets/`:
+- `acknowledged-icon.svg`, `cooking-summary-icon.svg`, `eatos-logo.png`, `fire-icon.png`, `item-ready-icon.svg`, `kitchen-hero.jpg`, `note-bold.svg`, `person-simple-run-bold.svg`, `posai-logo-white.png`, `posai-logo.png`, `preparing-icon.svg`, `seen-icon.svg`, `undo-icon.svg`, `users-bold.svg`, `version-icon.png`, `version-icon.svg`, `icons/restaurant-logo.png`
+
+### 5. Backend / Supabase
+
+The source KDS imports `@/integrations/supabase/client`. POS already has its own Supabase client at the same path, so the import stays valid. No new edge functions or tables are required for the visual/behavioral parity. If specific tables are missing at runtime, we will surface those and address them in a follow-up.
+
+### 6. Files NOT copied
+
+- Source `src/App.tsx`, `src/main.tsx`, `src/index.css`, `tailwind.config.ts`, `vite.config.ts` — POS keeps its own.
+- Source `components/ui/*` is copied only for components actually referenced inside `src/kds-new/`; duplicate primitives (button, input, tooltip, sonner, toaster) are copied to keep KDS self-contained and immune to POS shadcn drift.
+- Source tests (`__tests__/`) skipped.
+
+## What you'll see after approval
+
+1. Open POS, top-bar screen mode switcher → select Kitchen Display System.
+2. POS navigates to `/kds-new` and the new KDS app loads (with its own sidebar, dock, order cards, settings).
+3. Switching back to POS from inside the new KDS returns you to the POS shell.
+4. The old `/kds` route still works if visited directly, so nothing is lost.
+
+## Risks and mitigations
+
+- **Filename collisions** — eliminated by the `src/kds-new/` sandbox and rewritten `@/kds-new/...` imports.
+- **Provider conflicts** — KDS providers are mounted only inside `KdsApp`, scoped to the `/kds-new/*` subtree.
+- **Bundle size** — KDS is lazy-loaded; it only downloads when the user switches into KDS mode.
+- **Theme / fonts** — KDS uses its own `use-theme`; POS theme is unaffected. Montserrat from POS still applies globally.
+- **Supabase data** — Reuses POS's existing client and any tables already in this project; if a table is missing we'll add it as a follow-up migration.
+
+## Out of scope (this pass)
+
+- Merging KDS settings into POS Settings (they remain inside the KDS shell at `/kds-new/full/settings`).
+- Removing the old `src/pages/KDS.tsx` (kept as fallback per your instruction).
+- Cross-syncing orders between POS and the new KDS in real time beyond what shared Supabase tables already provide.

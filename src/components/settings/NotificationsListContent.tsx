@@ -14,6 +14,7 @@ import { useWeatherNotification } from "@/hooks/useWeatherNotification";
 import { useNotificationRolePermissions } from "@/hooks/useNotificationRolePermissions";
 import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
 import LiveSalesDashboard from "@/components/dashboards/LiveSalesDashboard";
+import InventoryDashboard from "@/components/dashboards/InventoryDashboard";
 import { CommodityPriceInsightView } from "@/components/settings/CommodityPriceInsightView";
 import { UpsellingInsightView } from "@/components/settings/UpsellingInsightView";
 import { detectCommodity } from "@/components/settings/commodityData";
@@ -140,10 +141,29 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
     category: "ai",
   }), []);
 
+  // Synthetic "Inventory Management" notification (manager + cook).
+  // Classified by text ("inventory", "stock") so role permissions still apply.
+  const inventoryNotification: NotificationItem = useMemo(() => ({
+    id: "inventory-dashboard",
+    title: "Live Inventory & Stock Alerts",
+    preview: "Real-time stock levels, smart replenishment and depletion forecasts.",
+    version: "Live",
+    version_date: "Today",
+    time: "Now",
+    headline: "AI Inventory Management",
+    body: "Stock levels, alerts, replenishment, and predictive forecasting.",
+    bullets: [],
+    footer: null,
+    has_update: false,
+    is_read: true,
+    created_at: new Date(Date.now() - 1000).toISOString(),
+    category: "ai",
+  }), []);
+
   // Apply role-based visibility before any other filtering. Re-runs when role/perms change.
   const notifications = useMemo(
-    () => [liveSalesNotification, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
-    [rawNotifications, roleFilter.role, roleFilter.permissions, liveSalesNotification]
+    () => [liveSalesNotification, inventoryNotification, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
+    [rawNotifications, roleFilter.role, roleFilter.permissions, liveSalesNotification, inventoryNotification]
   );
 
   const totalUnread = useMemo(() => notifications.filter((n) => !n.is_read).length, [notifications]);
@@ -455,6 +475,15 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
     return (
       <div className="h-full w-full overflow-hidden">
         <LiveSalesDashboard />
+      </div>
+    );
+  }
+
+  // Inventory Dashboard: AI-driven inventory management
+  if (notification.id === "inventory-dashboard") {
+    return (
+      <div className="h-full w-full overflow-hidden">
+        <InventoryDashboard />
       </div>
     );
   }

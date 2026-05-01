@@ -1375,7 +1375,7 @@ const Dashboard = () => {
             // Mobile Layout for split check
             <div className="flex items-stretch w-full p-3">
               <div className="flex-shrink-0 px-2 py-2 flex items-center">
-                <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600 overflow-hidden">
+                <div data-order-number="true" className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600 overflow-hidden">
                   <div className="w-full overflow-hidden">
                     <span className={`block text-center font-bold text-white whitespace-nowrap ${String(parentOrder.orderNumber || 0).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(parentOrder.orderNumber || 0)}</span>
                   </div>
@@ -1418,7 +1418,7 @@ const Dashboard = () => {
             // Desktop Layout for split check - 45%/35%/20% layout
             <div className="hidden md:flex items-stretch">
               <div className="flex-1 flex items-stretch gap-3 p-3">
-                <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1 overflow-hidden" style={{ background: '#1A1A1A' }}>
+                <div data-order-number="true" className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1 overflow-hidden" style={{ background: '#1A1A1A' }}>
                   <div className="w-full overflow-hidden">
                     <span className={`block text-center font-bold text-white whitespace-nowrap ${String(parentOrder.orderNumber || 0).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(parentOrder.orderNumber || 0)}</span>
                   </div>
@@ -1746,7 +1746,7 @@ const Dashboard = () => {
                     {/* Mobile Layout */}
                     <div className="flex items-stretch w-full md:hidden p-3">
                       <div className="flex-shrink-0 px-2 py-2 flex items-center">
-                        <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600 overflow-hidden">
+                        <div data-order-number="true" className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600 overflow-hidden">
                           <div className="w-full overflow-hidden">
                             <span className={`block text-center font-bold text-white whitespace-nowrap ${String(order.orderNumber || 0).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(order.orderNumber || 0)}</span>
                           </div>
@@ -1789,7 +1789,7 @@ const Dashboard = () => {
                     {/* Tablet/Desktop Layout */}
                     <div className="hidden md:flex items-stretch">
                       <div className="flex-1 flex items-stretch gap-3 p-3">
-                        <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1 overflow-hidden" style={{ background: '#1A1A1A' }}>
+                        <div data-order-number="true" className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1 overflow-hidden" style={{ background: '#1A1A1A' }}>
                           <div className="w-full overflow-hidden">
                             <span className={`block text-center font-bold text-white whitespace-nowrap ${String(order.orderNumber || 0).length > 3 ? 'text-[8px] animate-marquee' : 'text-lg'}`}>{String(order.orderNumber || 0)}</span>
                           </div>

@@ -193,6 +193,7 @@ const AppInner = () => {
           <Route path="/voucher" element={<Voucher />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/settings/payments/discounts" element={<DiscountsRoute />} />
+          <Route path="/settings/payments/payment-pricing" element={<PaymentPricingRoute />} />
           <Route path="/settings/*" element={<Settings />} />
           <Route path="/account" element={<Account />} />
           <Route path="/reports" element={<ReportsRoute />} />

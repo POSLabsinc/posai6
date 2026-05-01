@@ -17,7 +17,6 @@ import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetail
 import LiveSalesDashboard from "@/components/dashboards/LiveSalesDashboard";
 import InventoryDashboard from "@/components/dashboards/InventoryDashboard";
 import ProfitDashboard from "@/components/dashboards/ProfitDashboard";
-import MultiLocationDashboard from "@/components/dashboards/MultiLocationDashboard";
 import { CommodityPriceInsightView } from "@/components/settings/CommodityPriceInsightView";
 import { UpsellingInsightView } from "@/components/settings/UpsellingInsightView";
 import { detectCommodity } from "@/components/settings/commodityData";
@@ -184,28 +183,10 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
     category: "ai",
   }), []);
 
-  // Synthetic "Multi-Location Dashboard" notification (manager-only).
-  const multiLocationNotification: NotificationItem = useMemo(() => ({
-    id: "multi-location-dashboard",
-    title: "Multi-Location Manager Dashboard",
-    preview: "All locations in one view: sales, inventory, profit, and AI cross-location anomalies.",
-    version: "Live",
-    version_date: "Today",
-    time: "Now",
-    headline: "Cross-Location Performance",
-    body: "Compare locations, drill down, and ask AI about anomalies.",
-    bullets: [],
-    footer: null,
-    has_update: false,
-    is_read: true,
-    created_at: new Date(Date.now() - 3000).toISOString(),
-    category: "ai",
-  }), []);
-
   // Apply role-based visibility before any other filtering. Re-runs when role/perms change.
   const notifications = useMemo(
-    () => [multiLocationNotification, liveSalesNotification, inventoryNotification, profitNotification, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
-    [rawNotifications, roleFilter.role, roleFilter.permissions, liveSalesNotification, inventoryNotification, profitNotification, multiLocationNotification]
+    () => [liveSalesNotification, inventoryNotification, profitNotification, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
+    [rawNotifications, roleFilter.role, roleFilter.permissions, liveSalesNotification, inventoryNotification, profitNotification]
   );
 
   const totalUnread = useMemo(() => notifications.filter((n) => !n.is_read).length, [notifications]);

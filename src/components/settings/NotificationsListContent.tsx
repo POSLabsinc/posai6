@@ -13,6 +13,7 @@ import { useNotifications, type NotificationItem, type NotificationGroup } from 
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
 import { useNotificationRolePermissions } from "@/hooks/useNotificationRolePermissions";
 import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
+import LiveSalesDashboard from "@/components/dashboards/LiveSalesDashboard";
 import { CommodityPriceInsightView } from "@/components/settings/CommodityPriceInsightView";
 import { UpsellingInsightView } from "@/components/settings/UpsellingInsightView";
 import { detectCommodity } from "@/components/settings/commodityData";

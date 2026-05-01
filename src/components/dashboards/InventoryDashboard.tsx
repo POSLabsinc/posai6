@@ -33,6 +33,12 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  MultiLocationFilters,
+  DEFAULT_ML_FILTERS,
+  useFilteredLocations,
+  type MultiLocationFiltersState,
+} from "./MultiLocationFilters";
 
 type RangeKey = "today" | "weekly" | "monthly";
 interface ChatMsg { role: "user" | "assistant"; content: string }
@@ -104,6 +110,8 @@ export const InventoryDashboard = () => {
   const isMobile = useIsMobile();
   const [range, setRange] = useState<RangeKey>("today");
   const [tick, setTick] = useState(0);
+  const [mlFilters, setMlFilters] = useState<MultiLocationFiltersState>(DEFAULT_ML_FILTERS);
+  const { rows: locationRows } = useFilteredLocations(mlFilters);
 
   // Auto-refresh every 30s (re-derives client-side metrics)
   useEffect(() => {

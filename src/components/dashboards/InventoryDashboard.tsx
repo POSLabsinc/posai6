@@ -152,8 +152,9 @@ export const InventoryDashboard = () => {
     let worst: { label: string; usage: number; baseline: number; deficit: number } | null = null;
     for (const p of usageTrend) {
       const deficit = p.usage - p.baseline; // positive = unusual consumption
-      if (Math.abs(deficit) > worst?.deficit ?? 0) {
-        if (Math.abs(deficit) > 20) worst = { label: p.label, usage: p.usage, baseline: p.baseline, deficit };
+      const absDef = Math.abs(deficit);
+      if (absDef > 20 && absDef > (worst ? Math.abs(worst.deficit) : 0)) {
+        worst = { label: p.label, usage: p.usage, baseline: p.baseline, deficit };
       }
     }
     // Also surface an out-of-stock product if any

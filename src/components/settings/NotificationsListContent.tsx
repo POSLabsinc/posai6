@@ -184,10 +184,28 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
     category: "ai",
   }), []);
 
+  // Synthetic "AI Forecasting & Labor" notification (manager + shift lead).
+  const forecastingNotification: NotificationItem = useMemo(() => ({
+    id: "forecasting-dashboard",
+    title: "AI Forecasting & Labor Management",
+    preview: "Predictive demand, staffing recommendations, and proactive shift alerts.",
+    version: "Live",
+    version_date: "Today",
+    time: "Now",
+    headline: "Dinner Shift Likely Understaffed",
+    body: "AI predicts traffic spike between 7–9 PM. Staffing recommendations available.",
+    bullets: [],
+    footer: null,
+    has_update: false,
+    is_read: true,
+    created_at: new Date(Date.now() - 3000).toISOString(),
+    category: "ai",
+  }), []);
+
   // Apply role-based visibility before any other filtering. Re-runs when role/perms change.
   const notifications = useMemo(
-    () => [liveSalesNotification, inventoryNotification, profitNotification, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
-    [rawNotifications, roleFilter.role, roleFilter.permissions, liveSalesNotification, inventoryNotification, profitNotification]
+    () => [liveSalesNotification, inventoryNotification, profitNotification, forecastingNotification, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
+    [rawNotifications, roleFilter.role, roleFilter.permissions, liveSalesNotification, inventoryNotification, profitNotification, forecastingNotification]
   );
 
   const totalUnread = useMemo(() => notifications.filter((n) => !n.is_read).length, [notifications]);

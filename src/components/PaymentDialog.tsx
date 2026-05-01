@@ -910,21 +910,27 @@ export function PaymentDialog({
   const CC_SURCHARGE_RATE = 0.03;
   const isCardPayment = selectedPaymentMethod === 'card';
   const ccSurcharge = isCardPayment ? (subtotal + tax) * CC_SURCHARGE_RATE : 0;
-  const effectiveTotal = total + ccSurcharge;
+
+  // Cash Discount: 3% off (subtotal + tax) when paying by Cash
+  const CASH_DISCOUNT_RATE = 0.03;
+  const isCashPayment = selectedPaymentMethod === 'cash';
+  const cashDiscount = isCashPayment ? (subtotal + tax) * CASH_DISCOUNT_RATE : 0;
+
+  const effectiveTotal = Math.max(0, total + ccSurcharge - cashDiscount);
 
   // Calculate remaining due
   const totalPaid = paymentHistory.reduce((sum, p) => sum + p.amount, 0);
   const remainingDue = effectiveTotal - totalPaid;
   const isFullyPaid = remainingDue <= 0;
 
-  // When toggling between card and non-card, refresh the default payment amount
+  // When toggling between payment methods, refresh the default payment amount
   useEffect(() => {
     if (!open) return;
     if (paymentHistory.length > 0) return;
     if (Object.keys(amountQuantities).length > 0) return;
     setPaymentAmount(effectiveTotal.toFixed(2));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isCardPayment]);
+  }, [isCardPayment, isCashPayment]);
 
   if (!open) return null;
 

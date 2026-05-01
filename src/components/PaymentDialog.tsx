@@ -913,15 +913,35 @@ export function PaymentDialog({
     onOpenChange(false);
   };
 
-  // CC Surcharge: 3% of (subtotal + tax) when paying by Card
-  const CC_SURCHARGE_RATE = 0.03;
-  const isCardPayment = selectedPaymentMethod === 'card';
-  const ccSurcharge = isCardPayment ? (subtotal + tax) * CC_SURCHARGE_RATE : 0;
+  // Payment Pricing Mode (configurable in Settings → Payments → Payment Pricing)
+  const [pricingMode, setPricingMode] = useState<PaymentPricingMode>(() => getPaymentPricingMode());
+  useEffect(() => subscribePaymentPricingMode(setPricingMode), []);
 
-  // Cash Discount: 3% off (subtotal + tax) when paying by Cash
-  const CASH_DISCOUNT_RATE = 0.03;
+  const isCardPayment = selectedPaymentMethod === 'card';
   const isCashPayment = selectedPaymentMethod === 'cash';
-  const cashDiscount = isCashPayment ? (subtotal + tax) * CASH_DISCOUNT_RATE : 0;
+
+  // Per-mode rules. "show-both" applies the cash discount on cash and surcharge on card.
+  const applyCashDiscount =
+    isCashPayment && (pricingMode === 'cash-discount' || pricingMode === 'show-both');
+  const applyCardSurcharge =
+    isCardPayment && (pricingMode === 'card-surcharge' || pricingMode === 'show-both');
+
+  const ccSurcharge = applyCardSurcharge ? (subtotal + tax) * PRICING_CARD_SURCHARGE_RATE : 0;
+  const cashDiscount = applyCashDiscount ? (subtotal + tax) * PRICING_CASH_DISCOUNT_RATE : 0;
+
+  // Reference totals for the "Show Both Prices" display.
+  const cashTotalDisplay = Math.max(
+    0,
+    total - (pricingMode === 'cash-discount' || pricingMode === 'show-both'
+      ? (subtotal + tax) * PRICING_CASH_DISCOUNT_RATE
+      : 0)
+  );
+  const cardTotalDisplay = Math.max(
+    0,
+    total + (pricingMode === 'card-surcharge' || pricingMode === 'show-both'
+      ? (subtotal + tax) * PRICING_CARD_SURCHARGE_RATE
+      : 0)
+  );
 
   const effectiveTotal = Math.max(0, total + ccSurcharge - cashDiscount);
 

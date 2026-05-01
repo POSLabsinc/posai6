@@ -29,6 +29,10 @@ import {
   Activity,
   ChevronLeft,
   Bell,
+  Users,
+  Utensils,
+  Percent,
+  RotateCcw,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useReportsData } from "@/hooks/useReportsData";

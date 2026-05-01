@@ -16,6 +16,7 @@ import { useNotificationRolePermissions } from "@/hooks/useNotificationRolePermi
 import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
 import LiveSalesDashboard from "@/components/dashboards/LiveSalesDashboard";
 import InventoryDashboard from "@/components/dashboards/InventoryDashboard";
+import ProfitDashboard from "@/components/dashboards/ProfitDashboard";
 import { CommodityPriceInsightView } from "@/components/settings/CommodityPriceInsightView";
 import { UpsellingInsightView } from "@/components/settings/UpsellingInsightView";
 import { detectCommodity } from "@/components/settings/commodityData";
@@ -164,10 +165,28 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
     category: "ai",
   }), []);
 
+  // Synthetic "Profit Monitoring" notification (manager-focused).
+  const profitNotification: NotificationItem = useMemo(() => ({
+    id: "profit-dashboard",
+    title: "Real-Time Profit Monitoring",
+    preview: "Live gross/net profit, shift & location breakdown with AI-flagged anomalies.",
+    version: "Live",
+    version_date: "Today",
+    time: "Now",
+    headline: "Profit Margin Below Target",
+    body: "AI flagged anomalies on dinner shift refunds and labor ratio.",
+    bullets: [],
+    footer: null,
+    has_update: false,
+    is_read: true,
+    created_at: new Date(Date.now() - 2000).toISOString(),
+    category: "ai",
+  }), []);
+
   // Apply role-based visibility before any other filtering. Re-runs when role/perms change.
   const notifications = useMemo(
-    () => [liveSalesNotification, inventoryNotification, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
-    [rawNotifications, roleFilter.role, roleFilter.permissions, liveSalesNotification, inventoryNotification]
+    () => [liveSalesNotification, inventoryNotification, profitNotification, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
+    [rawNotifications, roleFilter.role, roleFilter.permissions, liveSalesNotification, inventoryNotification, profitNotification]
   );
 
   const totalUnread = useMemo(() => notifications.filter((n) => !n.is_read).length, [notifications]);
@@ -488,6 +507,15 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
     return (
       <div className="h-full w-full overflow-hidden">
         <InventoryDashboard />
+      </div>
+    );
+  }
+
+  // Profit Dashboard: real-time profit monitoring with AI anomaly detection
+  if (notification.id === "profit-dashboard") {
+    return (
+      <div className="h-full w-full overflow-hidden">
+        <ProfitDashboard />
       </div>
     );
   }

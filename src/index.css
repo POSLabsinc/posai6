@@ -1533,18 +1533,35 @@ html.light .shift-summary-root .bg-header {
 }
 
 /* ============================================================
-   LIGHT MODE: Dashboard order-number boxes match Ticket Screen
-   Both use bg-neutral-800 with text-white digits. Keep them
-   visually identical (dark box, white text) in light mode.
+   LIGHT MODE: Dashboard & Ticket order-number boxes
+   Use a light surface with BLACK digits for readability.
    ============================================================ */
 html.light .order-number-box,
 html.light [data-order-number="true"] {
-  background-color: #1F2024 !important;
-  border-color: rgba(255,255,255,0.15) !important;
+  background-color: #f0f0f3 !important;
+  border-color: rgba(0,0,0,0.12) !important;
 }
 html.light .order-number-box .text-white,
 html.light .order-number-box span,
 html.light [data-order-number="true"] .text-white,
 html.light [data-order-number="true"] span {
-  color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* ============================================================
+   LIGHT MODE: Right-panel pill action buttons on Tickets
+   (Add Item / Discount / Receipt / No Sale). The dark
+   bg-[#666666] + text-white render unreadable in light mode.
+   Force a light surface with black text + dark icons.
+   ============================================================ */
+html.light .ticket-right-panel-actions button {
+  background-color: #f0f0f3 !important;
+  color: #000000 !important;
+  border-color: rgba(0,0,0,0.12) !important;
+}
+html.light .ticket-right-panel-actions button:hover {
+  background-color: #e6e6ea !important;
+}
+html.light .ticket-right-panel-actions button img {
+  filter: brightness(0) !important;
 }

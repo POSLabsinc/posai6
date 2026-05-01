@@ -17,6 +17,13 @@ import tickSuccessIcon from "@/assets/icons/tick-success.svg";
 import splitCheckIcon from "@/assets/icons/split-check.svg";
 import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
+import {
+  PaymentPricingMode,
+  CASH_DISCOUNT_RATE as PRICING_CASH_DISCOUNT_RATE,
+  CARD_SURCHARGE_RATE as PRICING_CARD_SURCHARGE_RATE,
+  getPaymentPricingMode,
+  subscribePaymentPricingMode,
+} from "@/lib/paymentPricingMode";
 
 // ============= TYPES =============
 export interface PaymentDialogOrderItem {
@@ -906,15 +913,35 @@ export function PaymentDialog({
     onOpenChange(false);
   };
 
-  // CC Surcharge: 3% of (subtotal + tax) when paying by Card
-  const CC_SURCHARGE_RATE = 0.03;
-  const isCardPayment = selectedPaymentMethod === 'card';
-  const ccSurcharge = isCardPayment ? (subtotal + tax) * CC_SURCHARGE_RATE : 0;
+  // Payment Pricing Mode (configurable in Settings → Payments → Payment Pricing)
+  const [pricingMode, setPricingMode] = useState<PaymentPricingMode>(() => getPaymentPricingMode());
+  useEffect(() => subscribePaymentPricingMode(setPricingMode), []);
 
-  // Cash Discount: 3% off (subtotal + tax) when paying by Cash
-  const CASH_DISCOUNT_RATE = 0.03;
+  const isCardPayment = selectedPaymentMethod === 'card';
   const isCashPayment = selectedPaymentMethod === 'cash';
-  const cashDiscount = isCashPayment ? (subtotal + tax) * CASH_DISCOUNT_RATE : 0;
+
+  // Per-mode rules. "show-both" applies the cash discount on cash and surcharge on card.
+  const applyCashDiscount =
+    isCashPayment && (pricingMode === 'cash-discount' || pricingMode === 'show-both');
+  const applyCardSurcharge =
+    isCardPayment && (pricingMode === 'card-surcharge' || pricingMode === 'show-both');
+
+  const ccSurcharge = applyCardSurcharge ? (subtotal + tax) * PRICING_CARD_SURCHARGE_RATE : 0;
+  const cashDiscount = applyCashDiscount ? (subtotal + tax) * PRICING_CASH_DISCOUNT_RATE : 0;
+
+  // Reference totals for the "Show Both Prices" display.
+  const cashTotalDisplay = Math.max(
+    0,
+    total - (pricingMode === 'cash-discount' || pricingMode === 'show-both'
+      ? (subtotal + tax) * PRICING_CASH_DISCOUNT_RATE
+      : 0)
+  );
+  const cardTotalDisplay = Math.max(
+    0,
+    total + (pricingMode === 'card-surcharge' || pricingMode === 'show-both'
+      ? (subtotal + tax) * PRICING_CARD_SURCHARGE_RATE
+      : 0)
+  );
 
   const effectiveTotal = Math.max(0, total + ccSurcharge - cashDiscount);
 
@@ -930,7 +957,7 @@ export function PaymentDialog({
     if (Object.keys(amountQuantities).length > 0) return;
     setPaymentAmount(effectiveTotal.toFixed(2));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isCardPayment, isCashPayment]);
+  }, [isCardPayment, isCashPayment, pricingMode]);
 
   if (!open) return null;
 
@@ -5523,16 +5550,40 @@ export function PaymentDialog({
               <span className="text-white/60 text-sm">Tax</span>
               <span className="text-white text-sm">${tax.toFixed(2)}</span>
             </div>
-            {isCardPayment && (
+            {ccSurcharge > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-white/60 text-sm">CC Sur (3%)</span>
                 <span className="text-white text-sm">${ccSurcharge.toFixed(2)}</span>
               </div>
             )}
-            {isCashPayment && cashDiscount > 0 && (
+            {cashDiscount > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-emerald-400 text-sm">Cash Discount (3%)</span>
                 <span className="text-emerald-400 text-sm">-${cashDiscount.toFixed(2)}</span>
+              </div>
+            )}
+            {pricingMode === 'show-both' && (
+              <div className="pt-2 mt-1 border-t border-neutral-700/60 grid grid-cols-2 gap-2">
+                <div
+                  className={`rounded-lg px-2 py-1.5 text-center transition-colors ${
+                    isCashPayment ? 'bg-emerald-500/15 ring-1 ring-emerald-400/40' : 'bg-neutral-800/60'
+                  }`}
+                >
+                  <div className="text-[10px] uppercase tracking-wide text-neutral-400">Total (Cash)</div>
+                  <div className={`text-sm font-semibold ${isCashPayment ? 'text-emerald-300' : 'text-white'}`}>
+                    ${cashTotalDisplay.toFixed(2)}
+                  </div>
+                </div>
+                <div
+                  className={`rounded-lg px-2 py-1.5 text-center transition-colors ${
+                    isCardPayment ? 'bg-primary/15 ring-1 ring-primary/40' : 'bg-neutral-800/60'
+                  }`}
+                >
+                  <div className="text-[10px] uppercase tracking-wide text-neutral-400">Total (Card)</div>
+                  <div className={`text-sm font-semibold ${isCardPayment ? 'text-primary' : 'text-white'}`}>
+                    ${cardTotalDisplay.toFixed(2)}
+                  </div>
+                </div>
               </div>
             )}
             <div className="flex items-center justify-between pt-2 border-t border-neutral-700">

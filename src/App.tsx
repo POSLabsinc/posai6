@@ -77,6 +77,7 @@ const TransferOrders = lazyWithImportRecovery(() => import("./pages/TransferOrde
 const Tickets = lazyWithImportRecovery(() => import("./pages/Tickets"));
 const Settings = lazyWithImportRecovery(() => import("./pages/Settings"));
 const DiscountsRoute = lazyWithImportRecovery(() => import("./components/routes/DiscountsRoute"));
+const PaymentPricingRoute = lazyWithImportRecovery(() => import("./components/routes/PaymentPricingRoute"));
 const Account = lazyWithImportRecovery(() => import("./pages/Account"));
 const ReportsRoute = lazyWithImportRecovery(() => import("./components/routes/ReportsRoute"));
 const LiveSales = lazyWithImportRecovery(() => import("./pages/LiveSales"));
@@ -193,6 +194,7 @@ const AppInner = () => {
           <Route path="/voucher" element={<Voucher />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/settings/payments/discounts" element={<DiscountsRoute />} />
+          <Route path="/settings/payments/payment-pricing" element={<PaymentPricingRoute />} />
           <Route path="/settings/*" element={<Settings />} />
           <Route path="/account" element={<Account />} />
           <Route path="/reports" element={<ReportsRoute />} />

@@ -18,6 +18,7 @@ import MyFontsContent from "@/components/settings/MyFontsContent";
 import MoreFontsContent from "@/components/settings/MoreFontsContent";
 import PaymentsSettingsContent from "@/components/settings/PaymentsSettingsContent";
 import PaymentMethodsContent from "@/components/settings/PaymentMethodsContent";
+import PaymentPricingContent from "@/components/settings/PaymentPricingContent";
 import GratuityContent from "@/components/settings/GratuityContent";
 import TaxesContent from "@/components/settings/TaxesContent";
 import DiscountsContent from "@/components/settings/DiscountsContent";
@@ -345,6 +346,9 @@ const getContentForRoute = (
   }
   if (pathname === '/settings/payments/checkout-options') {
     return <CheckoutOptionsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/payments/payment-pricing') {
+    return <PaymentPricingContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/menu') {
     return <MenuSettingsContent showHeader={isMobile} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;

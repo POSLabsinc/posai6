@@ -2799,9 +2799,6 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               >
                 <Search className="w-4 h-4 text-white" />
               </button>
-              <div className="overflow-visible flex items-center justify-center">
-                <AnimatedAIIcon size={16} onClick={() => setIsAIChatOpen(prev => !prev)} />
-              </div>
             </div>
           </>
         )}
@@ -3166,9 +3163,6 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 >
                   <Search className="w-4 h-4 text-white" />
                 </button>
-                <div className="overflow-visible flex items-center justify-center">
-                  <AnimatedAIIcon size={20} onClick={() => setIsAIChatOpen(prev => !prev)} />
-                </div>
               </div>
             </>
           )}
@@ -3385,7 +3379,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               <span className="text-white text-xs">{selectedGuest.time}</span>
             </div>
           </div>
-          <div className="flex gap-2 items-center">
+          <div className="ticket-right-panel-actions flex gap-2 items-center">
             {!(selectedGuest.status === "PAID" || selectedGuest.paid) && (
               <>
                 <button onClick={handleAddProduct} className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1">
@@ -4102,9 +4096,6 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 >
                   <Search className="w-4 h-4 text-white" />
                 </button>
-                <div className="overflow-visible flex items-center justify-center">
-                  <AnimatedAIIcon size={20} onClick={() => setIsAIChatOpen(prev => !prev)} />
-                </div>
               </div>
             </>
           )}
@@ -4283,7 +4274,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               <span className="text-white text-xs">{selectedGuest.time}</span>
             </div>
           </div>
-          <div className="flex gap-1 items-center flex-wrap">
+          <div className="ticket-right-panel-actions flex gap-1 items-center flex-wrap">
             {!(selectedGuest.status === "PAID" || selectedGuest.paid) && (
               <>
                 <button onClick={handleAddProduct} className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1">

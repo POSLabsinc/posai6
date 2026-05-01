@@ -83,9 +83,7 @@ const PaymentPricingContent = ({ showHeader = true, onBack }: PaymentPricingCont
               <button
                 key={option.id}
                 onClick={() => handleSelect(option.id)}
-                className={`w-full text-left bg-neutral-800/60 rounded-2xl p-4 transition-all active:opacity-80 ${
-                  isActive ? "ring-2 ring-primary" : "ring-1 ring-transparent"
-                }`}
+                className="w-full text-left bg-neutral-800/60 rounded-2xl p-4 transition-all active:opacity-80"
               >
                 <div className="flex items-start gap-3">
                   <div

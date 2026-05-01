@@ -46,7 +46,7 @@ const ManagerPinScreen = ({ onSuccess }: ManagerPinScreenProps) => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-full px-4">
+    <div className="manager-pin-root flex flex-col items-center justify-center h-full px-4">
       {/* PIN dots */}
       <div className="flex items-center justify-center gap-3 mb-8">
         {[0, 1, 2, 3].map((i) => (

@@ -479,6 +479,15 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
     );
   }
 
+  // Inventory Dashboard: AI-driven inventory management
+  if (notification.id === "inventory-dashboard") {
+    return (
+      <div className="h-full w-full overflow-hidden">
+        <InventoryDashboard />
+      </div>
+    );
+  }
+
   // Sales-pace AI insight: render the rich analytics + chat experience
   const titleLower = (notification.title || "").toLowerCase();
   const headlineLower = (notification.headline || "").toLowerCase();

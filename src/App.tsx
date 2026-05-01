@@ -77,6 +77,7 @@ const TransferOrders = lazyWithImportRecovery(() => import("./pages/TransferOrde
 const Tickets = lazyWithImportRecovery(() => import("./pages/Tickets"));
 const Settings = lazyWithImportRecovery(() => import("./pages/Settings"));
 const DiscountsRoute = lazyWithImportRecovery(() => import("./components/routes/DiscountsRoute"));
+const PaymentPricingRoute = lazyWithImportRecovery(() => import("./components/routes/PaymentPricingRoute"));
 const Account = lazyWithImportRecovery(() => import("./pages/Account"));
 const ReportsRoute = lazyWithImportRecovery(() => import("./components/routes/ReportsRoute"));
 const LiveSales = lazyWithImportRecovery(() => import("./pages/LiveSales"));

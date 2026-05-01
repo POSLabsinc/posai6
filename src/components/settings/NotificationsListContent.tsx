@@ -17,6 +17,7 @@ import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetail
 import LiveSalesDashboard from "@/components/dashboards/LiveSalesDashboard";
 import InventoryDashboard from "@/components/dashboards/InventoryDashboard";
 import ProfitDashboard from "@/components/dashboards/ProfitDashboard";
+import ForecastingDashboard from "@/components/dashboards/ForecastingDashboard";
 import { CommodityPriceInsightView } from "@/components/settings/CommodityPriceInsightView";
 import { UpsellingInsightView } from "@/components/settings/UpsellingInsightView";
 import { detectCommodity } from "@/components/settings/commodityData";

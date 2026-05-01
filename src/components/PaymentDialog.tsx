@@ -957,7 +957,7 @@ export function PaymentDialog({
     if (Object.keys(amountQuantities).length > 0) return;
     setPaymentAmount(effectiveTotal.toFixed(2));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isCardPayment, isCashPayment]);
+  }, [isCardPayment, isCashPayment, pricingMode]);
 
   if (!open) return null;
 

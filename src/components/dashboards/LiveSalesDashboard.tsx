@@ -143,6 +143,123 @@ export const LiveSalesDashboard = () => {
     return worst;
   }, [trendWithBaseline]);
 
+  // ===== Real-time intelligent alerts (multi-metric AI deviation detection) =====
+  // Derive simulated operational metrics from live sales data + location scale.
+  const opsMetrics = useMemo(() => {
+    const sales = data.kpis.totalSales * locationScale;
+    const orders = data.kpis.orderCount * locationScale;
+    // Industry baselines: labor ~28%, food ~32% of sales
+    const laborTarget = sales * 0.28;
+    const foodTarget = sales * 0.32;
+    // Simulate slight live drift using tick + order count
+    const drift = ((tick % 7) - 3) / 100;
+    const laborActual = laborTarget * (1 + 0.12 + drift); // exceeds by ~12%
+    const foodActual = foodTarget * (1 + 0.08 + drift);
+    const refundRate = orders > 0 ? (data.orderSummary.refundAmount / Math.max(1, sales)) * 100 : 0;
+    const profitMargin = sales > 0 ? ((sales - laborActual - foodActual) / sales) * 100 : 0;
+    const profitTarget = 25;
+    return {
+      sales, orders,
+      laborActual, laborTarget,
+      foodActual, foodTarget,
+      refundRate,
+      profitMargin, profitTarget,
+    };
+  }, [data.kpis.totalSales, data.kpis.orderCount, data.orderSummary.refundAmount, locationScale, tick]);
+
+  type AlertSeverity = "critical" | "warning" | "info";
+  interface OpsAlert {
+    id: string;
+    severity: AlertSeverity;
+    icon: typeof Activity;
+    title: string;
+    detail: string;
+    metric: string;
+    question: string;
+  }
+
+  const opsAlerts = useMemo<OpsAlert[]>(() => {
+    const list: OpsAlert[] = [];
+    // Sales pace anomaly
+    if (anomaly) {
+      const pct = Math.round((anomaly.deficit / Math.max(1, anomaly.baseline)) * 100);
+      list.push({
+        id: "sales-pace",
+        severity: "critical",
+        icon: TrendingDown,
+        title: `Sales pace is ${pct}% below expected for this hour`,
+        detail: `${anomaly.label}: ${fmtShort(anomaly.sales)} vs expected ${fmtShort(anomaly.baseline)}`,
+        metric: "Sales",
+        question: `Sales dropped at ${anomaly.label} (${fmtShort(anomaly.sales)} vs expected ${fmtShort(anomaly.baseline)}). What happened and what should I do?`,
+      });
+    }
+    // Labor cost
+    const laborPct = Math.round(((opsMetrics.laborActual - opsMetrics.laborTarget) / Math.max(1, opsMetrics.laborTarget)) * 100);
+    if (laborPct >= 8) {
+      list.push({
+        id: "labor",
+        severity: laborPct >= 15 ? "critical" : "warning",
+        icon: Users,
+        title: `Labor cost exceeded target by ${laborPct}%`,
+        detail: `Actual ${fmt(opsMetrics.laborActual)} vs target ${fmt(opsMetrics.laborTarget)}`,
+        metric: "Labor",
+        question: `Labor cost is ${laborPct}% above target. Which shift or role is driving this and how do I correct it?`,
+      });
+    }
+    // Food cost
+    const foodPct = Math.round(((opsMetrics.foodActual - opsMetrics.foodTarget) / Math.max(1, opsMetrics.foodTarget)) * 100);
+    if (foodPct >= 5) {
+      list.push({
+        id: "food",
+        severity: foodPct >= 12 ? "critical" : "warning",
+        icon: Utensils,
+        title: `Food cost increased sharply during current shift`,
+        detail: `Food cost ${foodPct}% above target (${fmt(opsMetrics.foodActual)} vs ${fmt(opsMetrics.foodTarget)})`,
+        metric: "Food cost",
+        question: `Food cost is ${foodPct}% above target this shift. Which categories or products are driving the spike?`,
+      });
+    }
+    // Inventory consumption anomaly (use top product as proxy)
+    const topProduct = data.topItems[0];
+    if (topProduct && topProduct.units > 5) {
+      list.push({
+        id: "inventory",
+        severity: "warning",
+        icon: Package,
+        title: `${topProduct.name} inventory usage unusually high today`,
+        detail: `${topProduct.units} units consumed — ${Math.round(topProduct.units * 1.2)} forecasted by EOD`,
+        metric: "Inventory",
+        question: `${topProduct.name} usage is unusually high today. Should I reorder and how much?`,
+      });
+    }
+    // Refund / void spike
+    if (opsMetrics.refundRate >= 2) {
+      list.push({
+        id: "refunds",
+        severity: opsMetrics.refundRate >= 5 ? "critical" : "warning",
+        icon: RotateCcw,
+        title: `Unexpected refund increase detected`,
+        detail: `Refund rate at ${opsMetrics.refundRate.toFixed(1)}% of sales (target < 2%)`,
+        metric: "Refunds",
+        question: `Refund rate jumped to ${opsMetrics.refundRate.toFixed(1)}%. What products or staff are linked to these refunds?`,
+      });
+    }
+    // Profit margin decline
+    if (opsMetrics.sales > 0 && opsMetrics.profitMargin < opsMetrics.profitTarget) {
+      const gap = Math.round(opsMetrics.profitTarget - opsMetrics.profitMargin);
+      list.push({
+        id: "margin",
+        severity: gap >= 8 ? "critical" : "warning",
+        icon: Percent,
+        title: `Profit margin decline detected`,
+        detail: `Margin at ${opsMetrics.profitMargin.toFixed(1)}% vs target ${opsMetrics.profitTarget}% (gap ${gap}pp)`,
+        metric: "Profit",
+        question: `Profit margin dropped to ${opsMetrics.profitMargin.toFixed(1)}%. What's the biggest contributor and how do I recover?`,
+      });
+    }
+    return list;
+  }, [anomaly, opsMetrics, data.topItems]);
+
   // Peak slot
   const peak = useMemo(() => {
     let best: { label: string; sales: number } | null = null;

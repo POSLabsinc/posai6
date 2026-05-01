@@ -5529,6 +5529,12 @@ export function PaymentDialog({
                 <span className="text-white text-sm">${ccSurcharge.toFixed(2)}</span>
               </div>
             )}
+            {isCashPayment && cashDiscount > 0 && (
+              <div className="flex items-center justify-between">
+                <span className="text-emerald-400 text-sm">Cash Discount (3%)</span>
+                <span className="text-emerald-400 text-sm">-${cashDiscount.toFixed(2)}</span>
+              </div>
+            )}
             <div className="flex items-center justify-between pt-2 border-t border-neutral-700">
               <span className="text-white font-medium">Total Due</span>
               <span className="text-red-500 font-bold">${remainingDue > 0 ? remainingDue.toFixed(2) : '0.00'}</span>

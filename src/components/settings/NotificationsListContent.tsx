@@ -520,14 +520,6 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
     );
   }
 
-  // Multi-Location Dashboard: cross-location manager view with AI anomaly detection
-  if (notification.id === "multi-location-dashboard") {
-    return (
-      <div className="h-full w-full overflow-hidden">
-        <MultiLocationDashboard />
-      </div>
-    );
-  }
 
   // Sales-pace AI insight: render the rich analytics + chat experience
   const titleLower = (notification.title || "").toLowerCase();

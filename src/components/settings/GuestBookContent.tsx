@@ -155,8 +155,8 @@ const RecentOrdersSection = ({ guestId }: { guestId: string }) => {
   if (loading) {
     return (
       <div>
-        <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Recent Orders</h4>
-        <div className="bg-neutral-800/40 rounded-2xl p-4 flex items-center justify-center">
+        <h4 className="text-[10px] text-muted-foreground tracking-widest mb-2 px-1 font-medium">Recent Orders</h4>
+        <div className="bg-muted/50 border border-border rounded-2xl p-4 flex items-center justify-center">
           <div className="w-5 h-5 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
         </div>
       </div>
@@ -166,10 +166,10 @@ const RecentOrdersSection = ({ guestId }: { guestId: string }) => {
   if (orders.length === 0) {
     return (
       <div>
-        <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Recent Orders</h4>
-        <div className="bg-neutral-800/40 rounded-2xl p-4 flex items-center gap-3">
-          <UtensilsCrossed className="w-5 h-5 text-neutral-500" />
-          <span className="text-sm text-neutral-400">No Recent Orders to Show</span>
+        <h4 className="text-[10px] text-muted-foreground tracking-widest mb-2 px-1 font-medium">Recent Orders</h4>
+        <div className="bg-muted/50 border border-border rounded-2xl p-4 flex items-center gap-3">
+          <UtensilsCrossed className="w-5 h-5 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">No Recent Orders to Show</span>
         </div>
       </div>
     );
@@ -177,19 +177,19 @@ const RecentOrdersSection = ({ guestId }: { guestId: string }) => {
 
   return (
     <div>
-      <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Recent Orders</h4>
+      <h4 className="text-[10px] text-muted-foreground tracking-widest mb-2 px-1 font-medium">Recent Orders</h4>
       <div className="space-y-2">
         {orders.map((o: any) => {
           const items = (o.order_items || []).map((i: any) => `${i.quantity}x ${i.item_name}`).join(", ");
           let dateStr = "";
           try { dateStr = format(new Date(o.created_at), "MMM d, yyyy"); } catch { dateStr = ""; }
           return (
-            <div key={o.id} className="bg-neutral-800/40 rounded-2xl px-4 py-3 flex items-center justify-between">
+            <div key={o.id} className="bg-muted/50 border border-border rounded-2xl px-4 py-3 flex items-center justify-between">
               <div className="flex items-center gap-3 min-w-0">
-                <UtensilsCrossed className="w-4 h-4 text-neutral-500 flex-shrink-0" />
+                <UtensilsCrossed className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                 <div className="min-w-0">
                   <p className="text-sm text-foreground truncate">{items || `Order #${o.order_number}`}</p>
-                  <p className="text-[10px] text-neutral-500">{dateStr}</p>
+                  <p className="text-[10px] text-muted-foreground">{dateStr}</p>
                 </div>
               </div>
               <span className="text-sm font-medium text-foreground flex-shrink-0">${Number(o.total).toFixed(2)}</span>
@@ -216,8 +216,8 @@ const reviewPlatformIcons: Record<string, React.ReactNode> = {
       <path d="M12.87 1.8c-.18-.18-.42-.3-.68-.3H9.81c-.53 0-.96.43-.96.96v7.29c0 .53.43.96.96.96h.58c.26 0 .5-.1.68-.29l3.42-3.42c.53-.53.53-1.39 0-1.92L12.87 1.8z"/>
     </svg>
   ),
-  eatos: <span className="text-xs font-bold text-neutral-300">eatOS</span>,
-  orderos: <span className="text-xs font-bold text-neutral-300">OrderOS</span>,
+  eatos: <span className="text-xs font-bold text-foreground">eatOS</span>,
+  orderos: <span className="text-xs font-bold text-foreground">OrderOS</span>,
   zagat: <span className="text-red-500 font-bold text-sm">ZAGAT</span>,
 };
 
@@ -243,8 +243,8 @@ const OnlineReviewsSection = ({ guestId }: { guestId: string }) => {
   if (loading) {
     return (
       <div>
-        <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Online Reviews</h4>
-        <div className="bg-neutral-800/40 rounded-2xl p-4 flex items-center justify-center">
+        <h4 className="text-[10px] text-muted-foreground tracking-widest mb-2 px-1 font-medium">Online Reviews</h4>
+        <div className="bg-muted/50 border border-border rounded-2xl p-4 flex items-center justify-center">
           <div className="w-5 h-5 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
         </div>
       </div>
@@ -254,10 +254,10 @@ const OnlineReviewsSection = ({ guestId }: { guestId: string }) => {
   if (reviews.length === 0) {
     return (
       <div>
-        <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Online Reviews</h4>
-        <div className="bg-neutral-800/40 rounded-2xl p-4 flex items-center gap-3">
-          <MessageSquare className="w-5 h-5 text-neutral-500" />
-          <span className="text-sm text-neutral-400">No Reviews Yet</span>
+        <h4 className="text-[10px] text-muted-foreground tracking-widest mb-2 px-1 font-medium">Online Reviews</h4>
+        <div className="bg-muted/50 border border-border rounded-2xl p-4 flex items-center gap-3">
+          <MessageSquare className="w-5 h-5 text-muted-foreground" />
+          <span className="text-sm text-muted-foreground">No Reviews Yet</span>
         </div>
       </div>
     );
@@ -265,20 +265,20 @@ const OnlineReviewsSection = ({ guestId }: { guestId: string }) => {
 
   return (
     <div>
-      <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Online Reviews</h4>
+      <h4 className="text-[10px] text-muted-foreground tracking-widest mb-2 px-1 font-medium">Online Reviews</h4>
       <div className="flex gap-3 overflow-x-auto pb-1">
         {reviews.map((r: any) => {
           const rating = r.sentiment === "positive" ? 5 : r.sentiment === "neutral" ? 3 : 2;
-          const icon = reviewPlatformIcons[r.platform] || <span className="text-xs text-neutral-400 capitalize">{r.platform}</span>;
+          const icon = reviewPlatformIcons[r.platform] || <span className="text-xs text-muted-foreground capitalize">{r.platform}</span>;
           return (
-            <div key={r.id} className="min-w-[180px] max-w-[200px] bg-neutral-800/40 rounded-2xl p-4 flex flex-col items-center gap-2 flex-shrink-0">
+            <div key={r.id} className="min-w-[180px] max-w-[200px] bg-muted/50 border border-border rounded-2xl p-4 flex flex-col items-center gap-2 flex-shrink-0">
               <div className="w-10 h-10 rounded-full flex items-center justify-center">{icon}</div>
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: 5 }).map((_, i) => (
-                  <Star key={i} className={`w-3.5 h-3.5 ${i < rating ? "text-amber-500 fill-amber-500" : "text-neutral-600"}`} />
+                  <Star key={i} className={`w-3.5 h-3.5 ${i < rating ? "text-amber-500 fill-amber-500" : "text-muted-foreground"}`} />
                 ))}
               </div>
-              <p className="text-xs text-neutral-400 text-center leading-relaxed line-clamp-4">{r.comment}</p>
+              <p className="text-xs text-muted-foreground text-center leading-relaxed line-clamp-4">{r.comment}</p>
             </div>
           );
         })}
@@ -292,7 +292,7 @@ const OnlineReviewsSection = ({ guestId }: { guestId: string }) => {
 const StatItem = ({ value, label }: { value: string | number; label: string }) => (
   <div className="flex flex-col items-center">
     <span className="text-sm font-bold text-foreground">{value}</span>
-    <span className="text-[10px] text-neutral-500 mt-0.5 text-center leading-tight">{label}</span>
+    <span className="text-[10px] text-muted-foreground mt-0.5 text-center leading-tight">{label}</span>
   </div>
 );
 
@@ -311,7 +311,7 @@ const EditableInfoRow = ({ label, value, placeholder, onSave }: { label: string;
   if (editing) {
     return (
       <div className="flex justify-between items-center py-2 px-4 gap-2">
-        <span className="text-xs text-neutral-500 flex-shrink-0">{label}</span>
+        <span className="text-xs text-muted-foreground flex-shrink-0">{label}</span>
         <input
           autoFocus
           value={draft}
@@ -326,11 +326,11 @@ const EditableInfoRow = ({ label, value, placeholder, onSave }: { label: string;
   }
 
   return (
-    <button onClick={() => setEditing(true)} className="flex justify-between items-center py-3 px-4 w-full text-left hover:bg-neutral-700/20 transition-colors group">
-      <span className="text-xs text-neutral-500">{label}</span>
-      <span className={`text-sm flex items-center gap-1 ${value ? 'font-medium text-foreground' : 'text-neutral-500'}`}>
+    <button onClick={() => setEditing(true)} className="flex justify-between items-center py-3 px-4 w-full text-left hover:bg-accent transition-colors group">
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <span className={`text-sm flex items-center gap-1 ${value ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
         {value || placeholder || "Enter"}
-        <Pencil className="w-3 h-3 text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+        <Pencil className="w-3 h-3 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
       </span>
     </button>
   );
@@ -339,7 +339,7 @@ const EditableInfoRow = ({ label, value, placeholder, onSave }: { label: string;
 const MetricCell = ({ value, label }: { value: string | number; label: string }) => (
   <div>
     <p className="text-sm font-bold text-foreground">{value}</p>
-    <p className="text-[10px] text-neutral-500">{label}</p>
+    <p className="text-[10px] text-muted-foreground">{label}</p>
   </div>
 );
 
@@ -353,7 +353,7 @@ const EditableNoteRow = ({ icon, label, value, onSave }: { icon: React.ReactNode
   const commit = () => { onSave(draft.trim()); setEditing(false); };
 
   return (
-    <div className="py-3 border-b border-neutral-700/30 last:border-b-0">
+    <div className="py-3 border-b border-border last:border-b-0">
       <div className="flex items-center justify-between gap-2 mb-1">
         <div className="flex items-center gap-2">
           {icon}
@@ -361,7 +361,7 @@ const EditableNoteRow = ({ icon, label, value, onSave }: { icon: React.ReactNode
         </div>
         {!editing && (
           <button onClick={() => setEditing(true)} className="opacity-0 group-hover:opacity-100 hover:opacity-100">
-            <Pencil className="w-3 h-3 text-neutral-500 hover:text-foreground" />
+            <Pencil className="w-3 h-3 text-muted-foreground hover:text-foreground" />
           </button>
         )}
       </div>
@@ -379,7 +379,7 @@ const EditableNoteRow = ({ icon, label, value, onSave }: { icon: React.ReactNode
         </div>
       ) : (
         <p
-          className="text-sm text-neutral-500 pl-6 cursor-pointer hover:text-neutral-300 transition-colors"
+          className="text-sm text-muted-foreground pl-6 cursor-pointer hover:text-foreground transition-colors"
           onClick={() => setEditing(true)}
         >
           {value || "Add notes"}
@@ -443,21 +443,21 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
   };
 
   const summaryCards = [
-    { value: String(totalReservations).padStart(2, '0'), label: "Reservations", icon: <Calendar className="w-5 h-5 text-neutral-400" />, trend: null },
-    { value: String(upcomingCount).padStart(2, '0'), label: "Upcoming Visits", icon: <Calendar className="w-5 h-5 text-neutral-400" />, trend: null },
-    { value: String(cancellations).padStart(2, '0'), label: "Cancellations", icon: <Calendar className="w-5 h-5 text-neutral-400" />, trend: null },
-    { value: `$${totalSpent.toFixed(2)}`, label: "Spent", icon: <UtensilsCrossed className="w-5 h-5 text-neutral-400" />, trend: totalSpent > 0 ? "up" as const : null },
+    { value: String(totalReservations).padStart(2, '0'), label: "Reservations", icon: <Calendar className="w-5 h-5 text-muted-foreground" />, trend: null },
+    { value: String(upcomingCount).padStart(2, '0'), label: "Upcoming Visits", icon: <Calendar className="w-5 h-5 text-muted-foreground" />, trend: null },
+    { value: String(cancellations).padStart(2, '0'), label: "Cancellations", icon: <Calendar className="w-5 h-5 text-muted-foreground" />, trend: null },
+    { value: `$${totalSpent.toFixed(2)}`, label: "Spent", icon: <UtensilsCrossed className="w-5 h-5 text-muted-foreground" />, trend: totalSpent > 0 ? "up" as const : null },
   ];
 
   return (
     <div className="space-y-5">
       {/* Sub-tabs: Upcoming / Recent */}
       <div className="flex items-center justify-center gap-2">
-        <div className="flex bg-neutral-800/40 rounded-full p-1">
+        <div className="flex bg-muted/50 border border-border rounded-full p-1">
           <button
             onClick={() => setSubTab("upcoming")}
             className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
-              subTab === "upcoming" ? "bg-foreground text-background" : "text-neutral-400 hover:text-foreground"
+              subTab === "upcoming" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Upcoming Visits
@@ -465,7 +465,7 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
           <button
             onClick={() => setSubTab("recent")}
             className={`px-4 py-1.5 rounded-full text-xs font-medium transition-all ${
-              subTab === "recent" ? "bg-foreground text-background" : "text-neutral-400 hover:text-foreground"
+              subTab === "recent" ? "bg-foreground text-background" : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Recent Visits
@@ -473,22 +473,22 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
         </div>
         <Popover>
           <PopoverTrigger asChild>
-            <button className="w-6 h-6 rounded-full bg-neutral-700/40 flex items-center justify-center">
-              <Info className="w-3.5 h-3.5 text-neutral-400" />
+            <button className="w-6 h-6 rounded-full bg-muted flex items-center justify-center">
+              <Info className="w-3.5 h-3.5 text-muted-foreground" />
             </button>
           </PopoverTrigger>
-          <PopoverContent side="bottom" align="end" className="w-auto max-w-[220px] bg-neutral-800/95 backdrop-blur-xl border-neutral-700/50 rounded-xl p-3 space-y-2">
+          <PopoverContent side="bottom" align="end" className="w-auto max-w-[220px] bg-popover backdrop-blur-xl border-border rounded-xl p-3 space-y-2">
             <div className="flex items-start gap-2">
               <span className="mt-1.5 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
-              <p className="text-[11px] text-neutral-300 leading-snug">Blue represents official events or gatherings.</p>
+              <p className="text-[11px] text-foreground leading-snug">Blue represents official events or gatherings.</p>
             </div>
             <div className="flex items-start gap-2">
               <span className="mt-1.5 w-2 h-2 rounded-full bg-pink-500 flex-shrink-0" />
-              <p className="text-[11px] text-neutral-300 leading-snug">Pink signifies engagement, anniversary, and dates.</p>
+              <p className="text-[11px] text-foreground leading-snug">Pink signifies engagement, anniversary, and dates.</p>
             </div>
             <div className="flex items-start gap-2">
               <span className="mt-1.5 w-2 h-2 rounded-full bg-yellow-500 flex-shrink-0" />
-              <p className="text-[11px] text-neutral-300 leading-snug">Yellow signifies fun/celebration, birthday, Christmas, New Year.</p>
+              <p className="text-[11px] text-foreground leading-snug">Yellow signifies fun/celebration, birthday, Christmas, New Year.</p>
             </div>
           </PopoverContent>
         </Popover>
@@ -496,11 +496,11 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
 
       {/* Summary Section */}
       <div>
-        <p className="text-sm font-semibold text-neutral-400 tracking-wider mb-1">Summary</p>
+        <p className="text-sm font-semibold text-muted-foreground tracking-wider mb-1">Summary</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {summaryCards.map((card, idx) => (
-            <div key={idx} className="bg-neutral-800/40 rounded-2xl p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-neutral-700/40 flex items-center justify-center flex-shrink-0">
+            <div key={idx} className="bg-muted/50 border border-border rounded-2xl p-4 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center flex-shrink-0">
                 {card.icon}
               </div>
               <div>
@@ -508,7 +508,7 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
                   <span className="text-lg font-bold text-foreground">{card.value}</span>
                   {card.trend === "up" && <span className="text-green-400 text-xs">▲</span>}
                 </div>
-                <p className="text-[10px] text-neutral-500">{card.label}</p>
+                <p className="text-[10px] text-muted-foreground">{card.label}</p>
               </div>
             </div>
           ))}
@@ -518,9 +518,9 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
       {/* Reservation List */}
       <div className="space-y-2">
         {loading ? (
-          <div className="text-center py-8 text-neutral-500 text-sm">Loading reservations...</div>
+          <div className="text-center py-8 text-muted-foreground text-sm">Loading reservations...</div>
         ) : displayedReservations.length === 0 ? (
-          <div className="text-center py-8 text-neutral-500 text-sm">
+          <div className="text-center py-8 text-muted-foreground text-sm">
             No {subTab === "upcoming" ? "upcoming" : "recent"} reservations found.
           </div>
         ) : (
@@ -545,7 +545,7 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
             return (
               <div
                 key={res.id}
-                className={`bg-neutral-800/40 rounded-2xl px-4 py-3.5 flex items-center gap-4 hover:bg-neutral-700/30 transition-colors cursor-pointer border-l-[3px] ${borderColor}`}
+                className={`bg-muted/50 border border-border rounded-2xl px-4 py-3.5 flex items-center gap-4 hover:bg-muted/70 transition-colors cursor-pointer border-l-[3px] ${borderColor}`}
               >
                 {/* Color Picker Dots */}
                 <div className="flex flex-col gap-1.5 flex-shrink-0">
@@ -561,25 +561,25 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
                 </div>
 
                 {/* Date Block */}
-                <div className="flex-shrink-0 flex flex-col items-center w-12 border-r border-neutral-600/50 pr-4">
+                <div className="flex-shrink-0 flex flex-col items-center w-12 border-r border-border pr-4">
                   <span className="text-lg font-bold text-foreground leading-tight">{day}</span>
-                  <span className="text-[10px] text-neutral-400 uppercase">{month}</span>
+                  <span className="text-[10px] text-muted-foreground uppercase">{month}</span>
                 </div>
 
                 {/* Details */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground mb-0.5 truncate">{res.title || 'Reservation'}</p>
-                  <div className="flex items-center gap-2 text-[11px] text-neutral-400 flex-wrap">
+                  <div className="flex items-center gap-2 text-[11px] text-muted-foreground flex-wrap">
                     <span className="flex items-center gap-1">
                       <Clock className="w-3 h-3" /> {timeRange}
                     </span>
-                    <span className="text-neutral-600">|</span>
+                    <span className="text-muted-foreground">|</span>
                     <span className="flex items-center gap-1">
                       <Users className="w-3 h-3" /> {res.party_size} People
                     </span>
                     {res.location && (
                       <>
-                        <span className="text-neutral-600">|</span>
+                        <span className="text-muted-foreground">|</span>
                         <span className="flex items-center gap-1">
                           🪑 {res.location}
                         </span>
@@ -600,7 +600,7 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
                       Completed
                     </span>
                   )}
-                  <ChevronRight className="w-4 h-4 text-neutral-500" />
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
               </div>
             );
@@ -616,7 +616,7 @@ const GuestListItem = ({ guest, isSelected, onClick }: { guest: Guest; isSelecte
   <button
     onClick={onClick}
     className={`flex items-center gap-3 w-full p-3 rounded-xl transition-all ${
-      isSelected ? "bg-neutral-700/60" : "hover:bg-neutral-800/40 active:opacity-70"
+      isSelected ? "bg-accent text-accent-foreground" : "hover:bg-muted/50 border border-border active:opacity-70"
     }`}
   >
     <Avatar className="w-11 h-11 flex-shrink-0">
@@ -629,8 +629,8 @@ const GuestListItem = ({ guest, isSelected, onClick }: { guest: Guest; isSelecte
     </Avatar>
     <div className="flex-1 min-w-0 text-left">
       <p className="text-sm font-medium text-foreground truncate">{guest.name}</p>
-      <p className="text-xs text-neutral-400 truncate">{guest.email}</p>
-      <p className="text-xs text-neutral-500">{guest.phone}</p>
+      <p className="text-xs text-muted-foreground truncate">{guest.email}</p>
+      <p className="text-xs text-muted-foreground">{guest.phone}</p>
     </div>
   </button>
 );
@@ -705,7 +705,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
         className={`cursor-pointer hover:text-foreground transition-colors group inline-flex items-center gap-1 ${className}`}
       >
         {currentValue || "—"}
-        <Pencil className="w-2.5 h-2.5 text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
+        <Pencil className="w-2.5 h-2.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
       </span>
     );
   };
@@ -717,18 +717,18 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
         <div className="mb-6">
           {onCollapse && (
             <div className={isMobile ? "mb-0" : "mb-4"}>
-              <button onClick={onCollapse} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
+              <button onClick={onCollapse} className="w-10 h-10 rounded-full bg-muted/60 border border-border flex items-center justify-center flex-shrink-0">
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
             </div>
           )}
           {!isMobile && (
-            <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
+            <div className="bg-muted/60 border border-border rounded-2xl p-5 flex flex-col items-start">
               <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
                 <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
               </div>
               <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
-              <p className="text-base text-neutral-400 leading-relaxed w-full">
+              <p className="text-base text-muted-foreground leading-relaxed w-full">
                 Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
               </p>
             </div>
@@ -739,7 +739,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
           {/* Title Row: Back + Title centered (back arrow hidden on mobile — outer wrapper provides it) */}
           <div className="flex items-center relative mb-5">
             {!isMobile && (
-              <button onClick={() => setActiveTab("profile")} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
+              <button onClick={() => setActiveTab("profile")} className="w-10 h-10 rounded-full bg-muted/60 border border-border flex items-center justify-center flex-shrink-0">
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
             )}
@@ -748,11 +748,11 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
               {activeTab === "history" && (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="w-6 h-6 rounded-full bg-neutral-700/60 border border-neutral-600/50 flex items-center justify-center hover:bg-neutral-600/60 transition-colors">
-                      <Info className="w-3.5 h-3.5 text-neutral-300" />
+                    <button className="w-6 h-6 rounded-full bg-accent text-accent-foreground border border-border flex items-center justify-center hover:bg-neutral-600/60 transition-colors">
+                      <Info className="w-3.5 h-3.5 text-foreground" />
                     </button>
                   </PopoverTrigger>
-                  <PopoverContent side="bottom" align="center" className="w-auto max-w-[240px] bg-neutral-800/95 backdrop-blur-xl border-neutral-700/50 rounded-xl p-3 space-y-2">
+                  <PopoverContent side="bottom" align="center" className="w-auto max-w-[240px] bg-popover backdrop-blur-xl border-border rounded-xl p-3 space-y-2">
                     {[
                       { color: "bg-blue-500", label: "Blue signifies Restaurant order" },
                       { color: "bg-green-500", label: "Green for Takeout" },
@@ -763,7 +763,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                     ].map((item, idx) => (
                       <div key={idx} className="flex items-center gap-2">
                         <span className={`w-2.5 h-2.5 rounded-full ${item.color} flex-shrink-0`} />
-                        <span className="text-xs text-neutral-300">{item.label}</span>
+                        <span className="text-xs text-foreground">{item.label}</span>
                       </div>
                     ))}
                   </PopoverContent>
@@ -772,7 +772,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
             </h2>
           </div>
           {/* Guest Profile Bar - Single Row */}
-          <div className="bg-neutral-800/40 rounded-2xl px-5 py-4 flex items-center gap-4">
+          <div className="bg-muted/50 border border-border rounded-2xl px-5 py-4 flex items-center gap-4">
             {/* Avatar */}
             <Avatar className="w-11 h-11 flex-shrink-0">
               {guest.avatar ? <AvatarImage src={guest.avatar} alt={guest.name} /> : null}
@@ -784,37 +784,37 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
             {/* Name + Contact */}
             <div className="flex flex-col min-w-0 flex-shrink-0">
               <h3 className="text-sm font-semibold text-foreground leading-tight">{guest.name}</h3>
-              <div className="flex items-center gap-3 text-[11px] text-neutral-400 mt-0.5">
+              <div className="flex items-center gap-3 text-[11px] text-muted-foreground mt-0.5">
                 {guest.email && (
                   <span className="flex items-center gap-1">
-                    <Mail className="w-3 h-3 text-neutral-500" /> {guest.email}
+                    <Mail className="w-3 h-3 text-muted-foreground" /> {guest.email}
                   </span>
                 )}
                 {guest.phone && (
                   <span className="flex items-center gap-1">
-                    <Phone className="w-3 h-3 text-neutral-500" /> {guest.phone}
+                    <Phone className="w-3 h-3 text-muted-foreground" /> {guest.phone}
                   </span>
                 )}
                 {guest.vehicle && (
                   <span className="flex items-center gap-1">
-                    <Car className="w-3 h-3 text-neutral-500" /> {guest.vehicle}
+                    <Car className="w-3 h-3 text-muted-foreground" /> {guest.vehicle}
                   </span>
                 )}
               </div>
             </div>
 
             {/* Divider */}
-            <div className="h-8 w-px bg-neutral-700/50 flex-shrink-0" />
+            <div className="h-8 w-px bg-muted/50 flex-shrink-0" />
 
             {/* Tags & Badges */}
             <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
               {guest.loyalty && (
-                <span className="px-2.5 py-0.5 rounded-full bg-neutral-700/80 text-[11px] text-foreground font-medium">
+                <span className="px-2.5 py-0.5 rounded-full bg-muted/80 text-[11px] text-foreground font-medium">
                   {guest.loyalty}
                 </span>
               )}
               {guest.tags.map(tag => (
-                <span key={tag} className="px-2.5 py-0.5 rounded-full bg-neutral-700/80 text-[11px] text-foreground font-medium">
+                <span key={tag} className="px-2.5 py-0.5 rounded-full bg-muted/80 text-[11px] text-foreground font-medium">
                   {tag}
                 </span>
               ))}
@@ -827,40 +827,40 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                 );
               })}
               {guest.since && (
-                <span className="px-2.5 py-0.5 rounded-full bg-neutral-700/50 text-[11px] text-neutral-400">
+                <span className="px-2.5 py-0.5 rounded-full bg-muted/50 text-[11px] text-muted-foreground">
                   Since {guest.since}
                 </span>
               )}
               {guest.lastVisit && guest.lastVisit !== "-- -- --" && (
-                <span className="px-2.5 py-0.5 rounded-full bg-neutral-700/50 text-[11px] text-neutral-400 flex items-center gap-1">
+                <span className="px-2.5 py-0.5 rounded-full bg-muted/50 text-[11px] text-muted-foreground flex items-center gap-1">
                   <Clock className="w-2.5 h-2.5" /> {guest.lastVisit}
                 </span>
               )}
             </div>
 
             {/* Divider */}
-            <div className="h-8 w-px bg-neutral-700/50 flex-shrink-0" />
+            <div className="h-8 w-px bg-muted/50 flex-shrink-0" />
 
             {/* Stats */}
             <div className="flex items-center flex-shrink-0">
               <div className="text-center px-4">
                 <p className="text-sm font-bold text-foreground leading-tight">{guest.totalVisits}</p>
-                <p className="text-[9px] text-neutral-500 uppercase tracking-wide">Visits</p>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Visits</p>
               </div>
-              <div className="h-7 w-px bg-neutral-700/40" />
+              <div className="h-7 w-px bg-muted" />
               <div className="text-center px-4">
                 <p className="text-sm font-bold text-foreground leading-tight">{guest.avgSpend}</p>
-                <p className="text-[9px] text-neutral-500 uppercase tracking-wide">Avg</p>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Avg</p>
               </div>
-              <div className="h-7 w-px bg-neutral-700/40" />
+              <div className="h-7 w-px bg-muted" />
               <div className="text-center px-4">
                 <p className="text-sm font-bold text-foreground leading-tight">{guest.noShows}</p>
-                <p className="text-[9px] text-neutral-500 uppercase tracking-wide">No Show</p>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wide">No Show</p>
               </div>
-              <div className="h-7 w-px bg-neutral-700/40" />
+              <div className="h-7 w-px bg-muted" />
               <div className="text-center px-4">
                 <p className="text-sm font-bold text-foreground leading-tight">{guest.lifetimeSpend}</p>
-                <p className="text-[9px] text-neutral-500 uppercase tracking-wide">Lifetime</p>
+                <p className="text-[9px] text-muted-foreground uppercase tracking-wide">Lifetime</p>
               </div>
             </div>
           </div>
@@ -869,7 +869,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
 
       {/* Tabs */}
       <div className="flex justify-center mb-6">
-        <div className="inline-flex gap-1 bg-neutral-800/40 rounded-full p-1 overflow-x-auto scrollbar-hide">
+        <div className="inline-flex gap-1 bg-muted/50 border border-border rounded-full p-1 overflow-x-auto scrollbar-hide">
           {tabs.map(tab => (
             <button
               key={tab.id}
@@ -877,7 +877,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
               className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
                 activeTab === tab.id
                   ? "bg-foreground text-background"
-                  : "text-neutral-400 hover:text-foreground"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               {tab.label}
@@ -889,7 +889,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
       {activeTab === "profile" && (
         <div className="space-y-4">
           {/* Main Profile Card */}
-          <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
+          <div className="bg-muted/50 border border-border rounded-2xl overflow-hidden">
             <div className="p-5 flex flex-col sm:flex-row gap-5">
               {/* Left: Avatar + Contact */}
               <div className="flex flex-col items-center gap-2 min-w-[160px]">
@@ -904,16 +904,16 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                     <InlineEdit field="name" currentValue={guest.name} className="text-base font-bold text-foreground" />
                   </div>
                   <div className="flex justify-center mt-0.5">
-                    <InlineEdit field="email" currentValue={guest.email} className="text-xs text-neutral-400" />
+                    <InlineEdit field="email" currentValue={guest.email} className="text-xs text-muted-foreground" />
                   </div>
                   <div className="flex justify-center">
-                    <InlineEdit field="phone" currentValue={guest.phone} className="text-xs text-neutral-400" />
+                    <InlineEdit field="phone" currentValue={guest.phone} className="text-xs text-muted-foreground" />
                   </div>
                 </div>
                 {/* Tags */}
                 <div className="grid grid-cols-2 gap-1.5 justify-items-center mt-1">
                   {guest.tags.map(tag => (
-                    <span key={tag} className="px-2 py-0.5 rounded-full bg-neutral-700/60 text-xs text-neutral-300 flex items-center gap-1">
+                    <span key={tag} className="px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-xs text-foreground flex items-center gap-1">
                       {tag}
                       <button onClick={(e) => { e.stopPropagation(); removeTag(tag); }} className="hover:text-red-400 transition-colors">
                         <X className="w-2.5 h-2.5" />
@@ -925,7 +925,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                 <div className="relative">
                   <button
                     onClick={(e) => { e.stopPropagation(); setShowTagPicker(prev => !prev); }}
-                    className="text-xs text-neutral-400 border border-neutral-600 rounded-full px-3 py-1 hover:bg-neutral-700/40 transition-colors"
+                    className="text-xs text-muted-foreground border border-border rounded-full px-3 py-1 hover:bg-muted transition-colors"
                   >
                     <Tag className="w-3 h-3 inline mr-1" />{guest.tags.length > 0 ? "Edit Tags" : "Add Tags"}
                   </button>
@@ -933,7 +933,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={() => setShowTagPicker(false)}>
                       <div className="absolute inset-0 bg-black/60" />
                       <div
-                        className="relative z-10 bg-neutral-800 border border-neutral-700 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:w-80 max-h-[80vh] overflow-y-auto"
+                        className="relative z-10 bg-popover border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:w-80 max-h-[80vh] overflow-y-auto"
                         onClick={e => e.stopPropagation()}
                       >
                         {/* Top grab bar */}
@@ -943,11 +943,11 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                         {/* Header with X */}
                         <div className="flex items-center justify-center relative px-5 pb-3 pt-1 sm:pt-4">
                           <p className="text-sm font-semibold text-foreground text-center">Select Tags</p>
-                          <button onClick={() => setShowTagPicker(false)} className="absolute right-5 text-neutral-400 hover:text-foreground transition-colors">
+                          <button onClick={() => setShowTagPicker(false)} className="absolute right-5 text-muted-foreground hover:text-foreground transition-colors">
                             <X className="w-4 h-4" />
                           </button>
                         </div>
-                        <div className="h-px bg-neutral-700/50" />
+                        <div className="h-px bg-muted/50" />
                         <div className="flex flex-wrap gap-2 p-5">
                           {AVAILABLE_TAGS.map(tag => {
                             const isSelected = guest.tags.includes(tag);
@@ -958,7 +958,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                                 className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                                   isSelected
                                     ? "bg-neutral-600 text-foreground ring-1 ring-neutral-400"
-                                    : "bg-neutral-700/60 text-neutral-300 opacity-60 hover:opacity-90"
+                                    : "bg-accent text-accent-foreground text-foreground opacity-60 hover:opacity-90"
                                 }`}
                               >
                                 {isSelected ? "✓ " : ""}{tag}
@@ -975,22 +975,22 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
               {/* Right: Stats + Info */}
               <div className="flex-1 flex flex-col gap-3">
                 {/* Stats Row */}
-                <div className="flex items-center justify-between bg-neutral-900/50 rounded-xl px-4 py-3">
+                <div className="flex items-center justify-between bg-muted/40 border border-border rounded-xl px-4 py-3">
                   <StatItem value={guest.lastVisit} label="Last Visit" />
-                  <div className="w-px h-8 bg-neutral-700/40" />
+                  <div className="w-px h-8 bg-muted" />
                   <StatItem value={guest.avgSpend} label="Avg Spend" />
-                  <div className="w-px h-8 bg-neutral-700/40" />
+                  <div className="w-px h-8 bg-muted" />
                   <StatItem value={guest.lifetimeSpend} label="Lifetime Spend" />
-                  <div className="w-px h-8 bg-neutral-700/40" />
+                  <div className="w-px h-8 bg-muted" />
                   <StatItem value={guest.totalOrders} label="Total Orders" />
-                  <div className="w-px h-8 bg-neutral-700/40" />
+                  <div className="w-px h-8 bg-muted" />
                   <StatItem value={guest.avgTip} label="Avg Tip" />
                 </div>
 
                 {/* Loyalty & Visits Cards */}
                 <div className="grid grid-cols-2 gap-3">
-                  <div className="bg-neutral-900/50 rounded-xl p-4">
-                    <p className="text-[10px] text-neutral-500 tracking-widest mb-3 font-medium">Loyalty</p>
+                  <div className="bg-muted/40 border border-border rounded-xl p-4">
+                    <p className="text-[10px] text-muted-foreground tracking-widest mb-3 font-medium">Loyalty</p>
                     <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                       <MetricCell value={guest.loyaltyEarned} label="Earned" />
                       <MetricCell value={guest.loyaltyRedeemed} label="Redeemed" />
@@ -998,8 +998,8 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                       <MetricCell value={guest.loyaltyAmount} label="Amount" />
                     </div>
                   </div>
-                  <div className="bg-neutral-900/50 rounded-xl p-4">
-                    <p className="text-[10px] text-neutral-500 tracking-widest mb-3 font-medium">Visits</p>
+                  <div className="bg-muted/40 border border-border rounded-xl p-4">
+                    <p className="text-[10px] text-muted-foreground tracking-widest mb-3 font-medium">Visits</p>
                     <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                       <MetricCell value={guest.totalVisits} label="Total" />
                       <MetricCell value={guest.upcomingVisits} label="Upcoming" />
@@ -1010,7 +1010,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                 </div>
 
                 {/* Info Grid - Editable */}
-                <div className="grid grid-cols-2 bg-neutral-900/50 rounded-xl overflow-hidden divide-x divide-neutral-700/30">
+                <div className="grid grid-cols-2 bg-muted/40 border border-border rounded-xl overflow-hidden divide-x divide-neutral-700/30">
                   <div className="divide-y divide-neutral-700/30">
                     <EditableInfoRow label="Loyalty" value={guest.loyalty} placeholder="Enter" onSave={v => updateField("loyalty", v)} />
                     <EditableInfoRow label="Birthday" value={guest.birthday} placeholder="Enter" onSave={v => updateField("birthday", v)} />
@@ -1026,8 +1026,8 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
 
           {/* Most Ordered & Quick Info */}
           <div className="grid grid-cols-3 gap-3">
-            <div className="bg-neutral-800/40 rounded-2xl p-4">
-              <p className="text-[10px] text-neutral-500 tracking-widest mb-2 font-medium">Most Ordered</p>
+            <div className="bg-muted/50 border border-border rounded-2xl p-4">
+              <p className="text-[10px] text-muted-foreground tracking-widest mb-2 font-medium">Most Ordered</p>
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 text-amber-500" />
                 <span className="text-sm text-foreground font-medium">
@@ -1035,22 +1035,22 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                 </span>
               </div>
               {guest.mostOrderedCount > 0 && (
-                <p className="text-[10px] text-neutral-500 mt-1 ml-6">Ordered {guest.mostOrderedCount} times</p>
+                <p className="text-[10px] text-muted-foreground mt-1 ml-6">Ordered {guest.mostOrderedCount} times</p>
               )}
             </div>
-            <div className="bg-neutral-800/40 rounded-2xl p-4">
-              <p className="text-[10px] text-neutral-500 tracking-widest mb-2 font-medium">Last Ordered</p>
+            <div className="bg-muted/50 border border-border rounded-2xl p-4">
+              <p className="text-[10px] text-muted-foreground tracking-widest mb-2 font-medium">Last Ordered</p>
               <div className="flex items-center gap-2">
-                <UtensilsCrossed className="w-4 h-4 text-neutral-500" />
-                <span className="text-sm text-neutral-400">
-                  {guest.lastOrdered || "No Items"}
+                <UtensilsCrossed className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">
+                  {guest.lastOrdered || "No Products"}
                 </span>
               </div>
             </div>
-            <div className="bg-neutral-800/40 rounded-2xl p-4">
-              <p className="text-[10px] text-neutral-500 tracking-widest mb-2 font-medium">Vehicle</p>
+            <div className="bg-muted/50 border border-border rounded-2xl p-4">
+              <p className="text-[10px] text-muted-foreground tracking-widest mb-2 font-medium">Vehicle</p>
               <div className="flex items-center gap-2 cursor-pointer group" onClick={(e) => { e.stopPropagation(); startFieldEdit("vehicle", guest.vehicle); }}>
-                <Car className="w-4 h-4 text-neutral-500" />
+                <Car className="w-4 h-4 text-muted-foreground" />
                 {editingField === "vehicle" ? (
                   <input
                     autoFocus
@@ -1062,9 +1062,9 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                     className="flex-1 bg-transparent px-2 py-0.5 text-sm font-normal text-foreground outline-none caret-foreground"
                   />
                 ) : (
-                  <span className="text-sm text-neutral-400 flex items-center gap-1">
+                  <span className="text-sm text-muted-foreground flex items-center gap-1">
                     {guest.vehicle || "No Vehicle"}
-                    <Pencil className="w-2.5 h-2.5 text-neutral-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Pencil className="w-2.5 h-2.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                   </span>
                 )}
               </div>
@@ -1073,11 +1073,11 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
 
           {/* Allergies */}
           <div>
-            <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Allergies</h4>
-            <div className="bg-neutral-800/40 rounded-2xl p-4">
+            <h4 className="text-[10px] text-muted-foreground tracking-widest mb-2 px-1 font-medium">Allergies</h4>
+            <div className="bg-muted/50 border border-border rounded-2xl p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1 flex-wrap">
-                  <AlertTriangle className="w-5 h-5 text-neutral-500 flex-shrink-0" />
+                  <AlertTriangle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
                   {guest.allergies.length > 0 ? (
                     guest.allergies.map((a, i) => {
                       const style = getAllergyStyle(a);
@@ -1109,7 +1109,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
             <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center" onClick={() => setShowAllergyPicker(false)}>
               <div className="absolute inset-0 bg-black/60" />
               <div
-                className="relative z-10 bg-neutral-800 border border-neutral-700 rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:w-80 max-h-[80vh] overflow-y-auto"
+                className="relative z-10 bg-popover border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl w-full sm:w-80 max-h-[80vh] overflow-y-auto"
                 onClick={e => e.stopPropagation()}
               >
                 {/* Top grab bar */}
@@ -1119,11 +1119,11 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                 {/* Header with X */}
                 <div className="flex items-center justify-center relative px-5 pb-3 pt-1 sm:pt-4">
                   <p className="text-sm font-semibold text-foreground text-center">Add Allergies</p>
-                  <button onClick={() => setShowAllergyPicker(false)} className="absolute right-5 text-neutral-400 hover:text-foreground transition-colors">
+                  <button onClick={() => setShowAllergyPicker(false)} className="absolute right-5 text-muted-foreground hover:text-foreground transition-colors">
                     <X className="w-4 h-4" />
                   </button>
                 </div>
-                <div className="h-px bg-neutral-700/50" />
+                <div className="h-px bg-muted/50" />
                 <div className="flex flex-wrap gap-2 p-5">
                   {AVAILABLE_ALLERGIES.map(allergy => {
                     const isSelected = guest.allergies.some(a => a.toLowerCase() === allergy.name.toLowerCase());
@@ -1148,10 +1148,10 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
 
           {/* Upcoming Visits */}
           <div>
-            <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Upcoming Visits</h4>
-            <div className="bg-neutral-800/40 rounded-2xl p-4 flex items-center justify-between">
+            <h4 className="text-[10px] text-muted-foreground tracking-widest mb-2 px-1 font-medium">Upcoming Visits</h4>
+            <div className="bg-muted/50 border border-border rounded-2xl p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-neutral-500" />
+                <Calendar className="w-5 h-5 text-muted-foreground" />
                 <span className="text-sm text-foreground">
                   {guest.upcomingVisits > 0 ? `${guest.upcomingVisits} Upcoming Visit${guest.upcomingVisits > 1 ? "s" : ""}` : "No Upcoming Visits"}
                 </span>
@@ -1162,13 +1162,13 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
 
           {/* Notes - Editable */}
           <div>
-            <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Notes</h4>
-            <div className="bg-neutral-800/40 rounded-2xl px-4 group">
-              <EditableNoteRow icon={<ClipboardList className="w-4 h-4 text-neutral-500" />} label="General" value={guest.notes.general} onSave={v => updateNote("general", v)} />
-              <EditableNoteRow icon={<Star className="w-4 h-4 text-neutral-500" />} label="Special Relation" value={guest.notes.specialRelation} onSave={v => updateNote("specialRelation", v)} />
-              <EditableNoteRow icon={<MessageSquare className="w-4 h-4 text-neutral-500" />} label="Seating Preferences" value={guest.notes.seatingPreferences} onSave={v => updateNote("seatingPreferences", v)} />
-              <EditableNoteRow icon={<ClipboardList className="w-4 h-4 text-neutral-500" />} label="Special Note" value={guest.notes.specialNote} onSave={v => updateNote("specialNote", v)} />
-              <EditableNoteRow icon={<AlertTriangle className="w-4 h-4 text-neutral-500" />} label="Allergies" value={guest.notes.allergies} onSave={v => updateNote("allergies", v)} />
+            <h4 className="text-[10px] text-muted-foreground tracking-widest mb-2 px-1 font-medium">Notes</h4>
+            <div className="bg-muted/50 border border-border rounded-2xl px-4 group">
+              <EditableNoteRow icon={<ClipboardList className="w-4 h-4 text-muted-foreground" />} label="General" value={guest.notes.general} onSave={v => updateNote("general", v)} />
+              <EditableNoteRow icon={<Star className="w-4 h-4 text-muted-foreground" />} label="Special Relation" value={guest.notes.specialRelation} onSave={v => updateNote("specialRelation", v)} />
+              <EditableNoteRow icon={<MessageSquare className="w-4 h-4 text-muted-foreground" />} label="Seating Preferences" value={guest.notes.seatingPreferences} onSave={v => updateNote("seatingPreferences", v)} />
+              <EditableNoteRow icon={<ClipboardList className="w-4 h-4 text-muted-foreground" />} label="Special Note" value={guest.notes.specialNote} onSave={v => updateNote("specialNote", v)} />
+              <EditableNoteRow icon={<AlertTriangle className="w-4 h-4 text-muted-foreground" />} label="Allergies" value={guest.notes.allergies} onSave={v => updateNote("allergies", v)} />
             </div>
           </div>
 
@@ -1208,7 +1208,7 @@ const EmptyDetailState = () => {
       <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7" />
     </div>
     <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
-    <p className="text-sm text-neutral-400 max-w-sm">
+    <p className="text-sm text-muted-foreground max-w-sm">
       Select a guest from the list to view their profile, dining preferences, and visit history.
     </p>
   </div>
@@ -1370,7 +1370,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
       return (
         <div className="h-full flex flex-col">
           <div className="px-4 pt-5">
-            <button onClick={() => setSelectedGuestId(null)} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+            <button onClick={() => setSelectedGuestId(null)} className="w-10 h-10 rounded-full bg-muted/60 border border-border flex items-center justify-center active:opacity-70 transition-opacity">
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           </div>
@@ -1383,19 +1383,19 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
       <div className="h-full flex flex-col overflow-hidden relative">
         {showHeader && onBack && (
           <div className="px-4 pt-5">
-            <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+            <button onClick={onBack} className="w-10 h-10 rounded-full bg-muted/60 border border-border flex items-center justify-center active:opacity-70 transition-opacity">
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           </div>
         )}
         {/* Icon, title, subtext header */}
         <div className="px-4 pt-4 pb-3">
-          <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
+          <div className="bg-muted/60 border border-border rounded-2xl p-5 flex flex-col items-start">
             <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
               <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
             </div>
             <h2 className="text-xl font-semibold text-foreground mb-2">Guest Book</h2>
-            <p className="text-base text-neutral-400 leading-relaxed w-full">
+            <p className="text-base text-muted-foreground leading-relaxed w-full">
               Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
             </p>
           </div>
@@ -1403,15 +1403,15 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
         {/* Action icons row */}
         <div className="px-4 pt-2 pb-2 flex items-center justify-end">
           <div className="flex items-center gap-2">
-            <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+            <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-muted/60 border border-border flex items-center justify-center active:opacity-70 transition-opacity">
               <Plus className="w-4 h-4 text-foreground" />
             </button>
-            <button onClick={() => setShowArchive(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+            <button onClick={() => setShowArchive(true)} className="w-8 h-8 rounded-full bg-muted/60 border border-border flex items-center justify-center active:opacity-70 transition-opacity">
               <Archive className="w-4 h-4 text-foreground" />
             </button>
             <button
               onClick={() => setSortAZ(prev => !prev)}
-              className={`w-8 h-8 rounded-full flex items-center justify-center active:opacity-70 transition-all ${sortAZ ? 'bg-foreground' : 'bg-neutral-800/60'}`}
+              className={`w-8 h-8 rounded-full flex items-center justify-center active:opacity-70 transition-all ${sortAZ ? 'bg-foreground' : 'bg-muted/60 border border-border'}`}
             >
               <ArrowUpDown className={`w-4 h-4 ${sortAZ ? 'text-background' : 'text-foreground'}`} />
             </button>
@@ -1419,10 +1419,10 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
         </div>
         {/* Search */}
         <div className="px-4 mb-3">
-          <div className="bg-neutral-800/40 rounded-full px-4 py-2.5 flex items-center gap-3">
-            <Search className="w-4 h-4 text-neutral-500" />
+          <div className="bg-muted/50 border border-border rounded-full px-4 py-2.5 flex items-center gap-3">
+            <Search className="w-4 h-4 text-muted-foreground" />
             <input type="text" placeholder="Search guests..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-sm" />
+              className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-sm" />
           </div>
         </div>
         {/* Guest List */}
@@ -1468,27 +1468,27 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
       <div className="h-full flex overflow-hidden">
         {/* Left Panel - Guest List */}
         {!isExpanded && (
-          <div className="w-[300px] flex-shrink-0 bg-neutral-900/90 rounded-2xl flex flex-col h-full">
+          <div className="w-[300px] flex-shrink-0 bg-card border border-border rounded-2xl flex flex-col h-full">
             <div className="px-4 pt-5 pb-2 flex items-center justify-between overflow-visible" style={{ minHeight: 48 }}>
               {onBack ? (
-                <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                <button onClick={onBack} className="w-10 h-10 rounded-full bg-muted/60 border border-border flex items-center justify-center active:opacity-70 transition-opacity">
                   <ChevronLeft className="w-5 h-5 text-foreground" />
                 </button>
               ) : (
-                <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-muted/60 border border-border flex items-center justify-center active:opacity-70 transition-opacity">
                   <ChevronLeft className="w-5 h-5 text-foreground" />
                 </button>
               )}
               <div className="flex items-center gap-2">
-                <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-muted/60 border border-border flex items-center justify-center active:opacity-70 transition-opacity">
                   <Plus className="w-4 h-4 text-foreground" />
                 </button>
-                <button onClick={() => setShowArchive(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                <button onClick={() => setShowArchive(true)} className="w-8 h-8 rounded-full bg-muted/60 border border-border flex items-center justify-center active:opacity-70 transition-opacity">
                   <Archive className="w-4 h-4 text-foreground" />
                 </button>
                 <button
                   onClick={() => setSortAZ(prev => !prev)}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center active:opacity-70 transition-all ${sortAZ ? 'bg-foreground' : 'bg-neutral-800/60'}`}
+                  className={`w-8 h-8 rounded-full flex items-center justify-center active:opacity-70 transition-all ${sortAZ ? 'bg-foreground' : 'bg-muted/60 border border-border'}`}
                 >
                   <ArrowUpDown className={`w-4 h-4 ${sortAZ ? 'text-background' : 'text-foreground'}`} />
                 </button>
@@ -1496,10 +1496,10 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
             </div>
             {/* Search + AI icon row */}
             <div className="px-4 flex items-center gap-2 overflow-visible py-3">
-              <div className="flex-1 bg-neutral-800/40 rounded-full px-3 py-2 flex items-center gap-2">
-                <Search className="w-4 h-4 text-neutral-500" />
+              <div className="flex-1 bg-muted/50 border border-border rounded-full px-3 py-2 flex items-center gap-2">
+                <Search className="w-4 h-4 text-muted-foreground" />
                 <input type="text" placeholder="Search" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
-                  className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-sm" />
+                  className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-sm" />
               </div>
             </div>
             {/* List */}

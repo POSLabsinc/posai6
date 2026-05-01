@@ -1000,3 +1000,199 @@ button[role="switch"] > [data-state="unchecked"] {
 .theme-color-picker-compact .react-colorful {
   height: 160px;
 }
+
+/* ============================================================
+   LIGHT MODE GLOBAL OVERRIDES
+   Remaps hardcoded dark utility classes (bg-neutral-800, text-white,
+   bg-black, etc.) to light equivalents only when .light is active.
+   This complements semantic tokens for components built dark-first.
+   ============================================================ */
+html.light {
+  /* Backgrounds: dark neutrals -> light surfaces */
+  --light-surface-1: #ffffff;        /* was bg-neutral-900/950/black */
+  --light-surface-2: #f5f5f5;        /* was bg-neutral-800 */
+  --light-surface-3: #ebebeb;        /* was bg-neutral-700 */
+  --light-surface-hover: #e5e5e5;
+  --light-border: #e5e5e5;
+  --light-border-strong: #d4d4d4;
+  --light-text-primary: #0a0a0a;     /* was text-white */
+  --light-text-secondary: #404040;   /* was text-neutral-300 */
+  --light-text-muted: #737373;       /* was text-neutral-400/500 */
+}
+
+/* --- Backgrounds --- */
+html.light .bg-black,
+html.light .bg-neutral-950,
+html.light .bg-neutral-900 {
+  background-color: var(--light-surface-1) !important;
+}
+html.light .bg-neutral-800,
+html.light .bg-neutral-800\/60,
+html.light .bg-neutral-800\/70,
+html.light .bg-neutral-800\/80,
+html.light .bg-neutral-800\/90,
+html.light .bg-neutral-800\/50,
+html.light .bg-neutral-800\/40,
+html.light .bg-neutral-800\/30 {
+  background-color: var(--light-surface-2) !important;
+}
+html.light .bg-neutral-700,
+html.light .bg-neutral-700\/60,
+html.light .bg-neutral-700\/50,
+html.light .bg-neutral-700\/40,
+html.light .bg-neutral-700\/30 {
+  background-color: var(--light-surface-3) !important;
+}
+html.light .bg-zinc-900,
+html.light .bg-zinc-950,
+html.light .bg-slate-900,
+html.light .bg-slate-950,
+html.light .bg-gray-900,
+html.light .bg-gray-950 {
+  background-color: var(--light-surface-1) !important;
+}
+html.light .bg-zinc-800,
+html.light .bg-slate-800,
+html.light .bg-gray-800 {
+  background-color: var(--light-surface-2) !important;
+}
+
+/* White overlays used as cards on dark bg -> tint slightly */
+html.light .bg-white\/5,
+html.light .bg-white\/10 {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+html.light .bg-white\/15,
+html.light .bg-white\/20 {
+  background-color: rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Hover states */
+html.light .hover\:bg-neutral-800:hover,
+html.light .hover\:bg-neutral-800\/60:hover,
+html.light .hover\:bg-neutral-700:hover {
+  background-color: var(--light-surface-hover) !important;
+}
+html.light .hover\:bg-white\/5:hover,
+html.light .hover\:bg-white\/10:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+/* --- Text colors --- */
+html.light .text-white {
+  color: var(--light-text-primary) !important;
+}
+html.light .text-neutral-100,
+html.light .text-neutral-200,
+html.light .text-neutral-300,
+html.light .text-zinc-100,
+html.light .text-zinc-200,
+html.light .text-zinc-300,
+html.light .text-slate-100,
+html.light .text-slate-200,
+html.light .text-slate-300,
+html.light .text-gray-100,
+html.light .text-gray-200,
+html.light .text-gray-300 {
+  color: var(--light-text-secondary) !important;
+}
+html.light .text-neutral-400,
+html.light .text-neutral-500,
+html.light .text-zinc-400,
+html.light .text-zinc-500,
+html.light .text-slate-400,
+html.light .text-slate-500,
+html.light .text-gray-400,
+html.light .text-gray-500 {
+  color: var(--light-text-muted) !important;
+}
+/* White-with-alpha text */
+html.light .text-white\/90,
+html.light .text-white\/80,
+html.light .text-white\/70 {
+  color: var(--light-text-secondary) !important;
+}
+html.light .text-white\/60,
+html.light .text-white\/50,
+html.light .text-white\/40 {
+  color: var(--light-text-muted) !important;
+}
+
+/* --- Borders & dividers --- */
+html.light .border-neutral-800,
+html.light .border-neutral-700,
+html.light .border-zinc-800,
+html.light .border-zinc-700,
+html.light .border-slate-800,
+html.light .border-slate-700,
+html.light .border-gray-800,
+html.light .border-gray-700 {
+  border-color: var(--light-border) !important;
+}
+html.light .border-neutral-600,
+html.light .border-zinc-600,
+html.light .border-slate-600,
+html.light .border-gray-600 {
+  border-color: var(--light-border-strong) !important;
+}
+html.light .border-white\/10,
+html.light .border-white\/20,
+html.light .border-white\/5 {
+  border-color: rgba(0, 0, 0, 0.08) !important;
+}
+html.light .divide-neutral-800 > :not([hidden]) ~ :not([hidden]),
+html.light .divide-neutral-700 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--light-border) !important;
+}
+
+/* --- Ring / outline --- */
+html.light .ring-neutral-800,
+html.light .ring-neutral-700,
+html.light .ring-white\/10,
+html.light .ring-white\/20 {
+  --tw-ring-color: rgba(0, 0, 0, 0.08) !important;
+}
+
+/* --- Header bar (dark by design, lighten in light mode) --- */
+html.light header.bg-header,
+html.light .bg-header {
+  background-color: #ffffff !important;
+  color: var(--light-text-primary) !important;
+}
+html.light .bg-header .text-white,
+html.light .text-header-foreground {
+  color: var(--light-text-primary) !important;
+}
+
+/* --- Placeholders --- */
+html.light .placeholder\:text-white\/40::placeholder,
+html.light .placeholder\:text-white\/50::placeholder,
+html.light .placeholder\:text-neutral-400::placeholder,
+html.light .placeholder\:text-neutral-500::placeholder {
+  color: var(--light-text-muted) !important;
+}
+
+/* --- Scrollbar / glass surfaces commonly found in panels --- */
+html.light .liquid-glass,
+html.light .glass-panel,
+html.light .glass-surface {
+  background-color: rgba(255, 255, 255, 0.85) !important;
+  backdrop-filter: blur(16px);
+  border-color: rgba(0, 0, 0, 0.06) !important;
+  color: var(--light-text-primary) !important;
+}
+
+/* --- Common dark gradients used as page backgrounds --- */
+html.light .bg-gradient-to-b.from-neutral-900,
+html.light .bg-gradient-to-br.from-neutral-900,
+html.light .bg-gradient-to-t.from-neutral-900 {
+  background-image: linear-gradient(to bottom, #ffffff, #f5f5f5) !important;
+}
+
+/* --- Inputs that hardcoded bg-neutral-800 --- */
+html.light input.bg-neutral-800,
+html.light textarea.bg-neutral-800,
+html.light select.bg-neutral-800 {
+  background-color: var(--light-surface-2) !important;
+  color: var(--light-text-primary) !important;
+}

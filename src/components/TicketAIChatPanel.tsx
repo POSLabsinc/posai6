@@ -308,15 +308,15 @@ const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAICh
   ];
 
   return (
-    <div className="flex flex-col h-full bg-background border-l border-border">
+    <div className="flex flex-col h-full bg-[#131316] border-l border-neutral-800">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800 flex-shrink-0">
         <div className="flex items-center gap-2">
           <AnimatedAIIcon size={14} />
           <span className="text-sm font-semibold text-foreground">AI Assistant</span>
         </div>
-        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-accent transition-colors">
-          <X className="w-4 h-4 text-muted-foreground" />
+        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-800 transition-colors">
+          <X className="w-4 h-4 text-neutral-400" />
         </button>
       </div>
 
@@ -325,13 +325,13 @@ const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAICh
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
             <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-              msg.role === "user" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted text-foreground rounded-bl-md"
+              msg.role === "user" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-[#252525] text-foreground rounded-bl-md"
             }`}>
               {msg.role === "assistant" ? (
                 <>
-                  <div className="prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
+                  <div className="prose prose-sm prose-invert max-w-none"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
                   {msg.confirmAction && pendingAction === msg.confirmAction && (
-                    <div className="flex gap-2 mt-3 pt-2 border-t border-border">
+                    <div className="flex gap-2 mt-3 pt-2 border-t border-neutral-700">
                       <button
                         onClick={() => handleConfirm(msg.confirmAction!)}
                         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 transition-colors"
@@ -340,7 +340,7 @@ const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAICh
                       </button>
                       <button
                         onClick={handleCancelConfirm}
-                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-secondary text-secondary-foreground text-xs font-medium hover:bg-accent transition-colors"
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-neutral-700 text-neutral-300 text-xs font-medium hover:bg-neutral-600 transition-colors"
                       >
                         <X className="w-3 h-3" /> Cancel
                       </button>
@@ -353,7 +353,7 @@ const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAICh
         ))}
         {isTyping && (
           <div className="flex justify-start">
-            <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+            <div className="bg-[#252525] rounded-2xl rounded-bl-md px-4 py-3">
               <div className="flex gap-1.5">
                 <span className="w-2 h-2 bg-neutral-500 rounded-full animate-bounce [animation-delay:0ms]" />
                 <span className="w-2 h-2 bg-neutral-500 rounded-full animate-bounce [animation-delay:150ms]" />
@@ -370,7 +370,7 @@ const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAICh
         <div className="flex gap-1.5 pb-2">
           {quickActions.map((btn) => (
             <button key={btn.label} onClick={btn.action} disabled={isTyping}
-              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-muted hover:bg-accent text-foreground text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40">
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#252525] hover:bg-[#303030] text-neutral-300 text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40">
               <btn.icon className="w-3 h-3" /> {btn.label}
             </button>
           ))}
@@ -378,11 +378,11 @@ const TicketAIChatPanel = ({ onClose, ticketContext, ticketActions }: TicketAICh
       </div>
 
       {/* Input */}
-      <div className="px-3 pb-3 pt-1 border-t border-border flex-shrink-0">
-        <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
+      <div className="px-3 pb-3 pt-1 border-t border-neutral-800 flex-shrink-0">
+        <div className="flex items-center gap-2 bg-[#252525] rounded-xl px-3 py-2">
           <input ref={inputRef} type="text" value={input} onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown} placeholder="Try 'refund this order' or 'print receipt'..."
-            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
+            className="flex-1 bg-transparent text-sm text-foreground placeholder:text-neutral-500 outline-none" />
           <button onClick={handleSend} disabled={!input.trim() || isTyping}
             className="p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-30 transition-opacity">
             <Send className="w-4 h-4" />

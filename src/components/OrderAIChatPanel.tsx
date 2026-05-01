@@ -586,38 +586,38 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
     const hasAddOns = cust.addOns.length > 0;
     if (!hasModifiers && !hasAddOns) return (
       <div className="py-2 px-2">
-        <p className="text-[11px] text-muted-foreground text-center">No modifiers or add-ons available</p>
+        <p className="text-[11px] text-neutral-500 text-center">No modifiers or add-ons available</p>
       </div>
     );
 
     return (
       <div className="space-y-2 pt-1">
         {/* Product notes input */}
-        <div className="flex items-center gap-2 bg-muted/70 rounded-lg px-2.5 py-1.5">
-          <StickyNote className="w-3 h-3 text-muted-foreground flex-shrink-0" />
+        <div className="flex items-center gap-2 bg-[#1C1C1C] rounded-lg px-2.5 py-1.5">
+          <StickyNote className="w-3 h-3 text-neutral-500 flex-shrink-0" />
           <input
             type="text"
             value={cust.productNotes}
             onChange={(e) => setInlineNotes(product.id, e.target.value)}
             placeholder="Product notes"
-            className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none"
+            className="flex-1 bg-transparent text-xs text-foreground placeholder:text-neutral-500 outline-none"
             onClick={(e) => e.stopPropagation()}
           />
         </div>
 
         {/* Tabs: Product / Add-Ons */}
         {(hasModifiers && hasAddOns) && (
-          <div className="flex rounded-lg overflow-hidden bg-muted/70">
+          <div className="flex rounded-lg overflow-hidden bg-[#1C1C1C]">
             <button
               onClick={(e) => { e.stopPropagation(); setInlineTab(product.id, "modifiers"); }}
               className={`flex-1 py-1.5 text-xs font-medium transition-colors ${
-                cust.activeTab === "modifiers" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                cust.activeTab === "modifiers" ? "bg-neutral-600 text-foreground" : "text-neutral-400 hover:text-neutral-300"
               }`}
             >Product</button>
             <button
               onClick={(e) => { e.stopPropagation(); setInlineTab(product.id, "addons"); }}
               className={`flex-1 py-1.5 text-xs font-medium transition-colors ${
-                cust.activeTab === "addons" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"
+                cust.activeTab === "addons" ? "bg-neutral-600 text-foreground" : "text-neutral-400 hover:text-neutral-300"
               }`}
             >Add-Ons</button>
           </div>
@@ -629,7 +629,7 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
             {cust.modifierGroups.map(group => (
               <div key={group.id}>
                 <div className="flex items-center gap-1 mb-1">
-                  <span className="text-[11px] font-semibold text-foreground">{group.name}</span>
+                  <span className="text-[11px] font-semibold text-neutral-300">{group.name}</span>
                   {group.required && <span className="text-[10px] text-red-400">*</span>}
                 </div>
                 <div className="flex flex-wrap gap-1">
@@ -642,7 +642,7 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                         className={`px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors ${
                           isSelected
                             ? "bg-foreground text-background border-foreground"
-                            : "bg-transparent text-foreground border-border hover:border-neutral-400"
+                            : "bg-transparent text-neutral-300 border-neutral-600 hover:border-neutral-400"
                         }`}
                       >
                         {opt.name}{opt.price > 0 ? ` $${opt.price.toFixed(2)}` : ""}
@@ -658,15 +658,15 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
         {/* Default Modifiers section - show when on modifiers tab */}
         {(cust.activeTab === "modifiers" || !hasAddOns) && hasModifiers && (
           <div>
-            <span className="text-[11px] font-semibold text-foreground mb-1 block">Default Modifiers</span>
+            <span className="text-[11px] font-semibold text-neutral-300 mb-1 block">Default Modifiers</span>
             <div className="flex flex-wrap gap-1">
               {cust.modifierGroups.flatMap(g => g.options.filter(o => o.is_default)).map(opt => (
-                <span key={opt.name} className="px-2.5 py-1 rounded-full text-[11px] font-medium border border-border text-muted-foreground">
+                <span key={opt.name} className="px-2.5 py-1 rounded-full text-[11px] font-medium border border-neutral-600 text-neutral-400">
                   {opt.name}
                 </span>
               ))}
               {cust.modifierGroups.flatMap(g => g.options.filter(o => o.is_default)).length === 0 && (
-                <span className="text-[10px] text-muted-foreground">None</span>
+                <span className="text-[10px] text-neutral-500">None</span>
               )}
             </div>
           </div>
@@ -682,16 +682,16 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                   key={addOn.id}
                   onClick={(e) => { e.stopPropagation(); toggleInlineAddOn(product.id, addOn.name); }}
                   className={`w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg transition-colors text-left ${
-                    isSelected ? "bg-primary/15 border border-primary/30" : "bg-muted/70 hover:bg-muted"
+                    isSelected ? "bg-primary/15 border border-primary/30" : "bg-[#1C1C1C] hover:bg-[#252525]"
                   }`}
                 >
                   <div className={`w-3.5 h-3.5 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
-                    isSelected ? "bg-primary border-primary" : "border-border"
+                    isSelected ? "bg-primary border-primary" : "border-neutral-600"
                   }`}>
                     {isSelected && <Check className="w-2 h-2 text-primary-foreground" />}
                   </div>
-                  <span className="text-[11px] text-foreground flex-1">{addOn.name}</span>
-                  {addOn.price > 0 && <span className="text-[10px] text-muted-foreground">+${addOn.price.toFixed(2)}</span>}
+                  <span className="text-[11px] text-neutral-200 flex-1">{addOn.name}</span>
+                  {addOn.price > 0 && <span className="text-[10px] text-neutral-500">+${addOn.price.toFixed(2)}</span>}
                 </button>
               );
             })}
@@ -702,28 +702,28 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
   };
 
   return (
-    <div className="flex flex-col h-full bg-background border-l border-border">
+    <div className="flex flex-col h-full bg-[#131316] border-l border-neutral-800">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-border flex-shrink-0">
+      <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-800 flex-shrink-0">
         <div className="flex items-center gap-2">
           <AnimatedAIIcon size={14} />
           <span className="text-sm font-semibold text-foreground">AI Assistant</span>
         </div>
-        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-accent transition-colors">
-          <X className="w-4 h-4 text-muted-foreground" />
+        <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-neutral-800 transition-colors">
+          <X className="w-4 h-4 text-neutral-400" />
         </button>
       </div>
 
       {/* Notes Browse Mode */}
       {notesActive ? (
         <div className="flex flex-col flex-1 overflow-hidden">
-          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border flex-shrink-0">
-            <button onClick={() => { setNotesActive(false); setSelectedNotes([]); }} className="p-1 rounded-lg hover:bg-accent transition-colors">
-              <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-neutral-800 flex-shrink-0">
+            <button onClick={() => { setNotesActive(false); setSelectedNotes([]); }} className="p-1 rounded-lg hover:bg-neutral-800 transition-colors">
+              <ArrowLeft className="w-4 h-4 text-neutral-400" />
             </button>
-            <span className="text-xs font-medium text-foreground">Add Notes</span>
-            <button onClick={() => { setNotesActive(false); setSelectedNotes([]); }} className="ml-auto p-1 rounded-lg hover:bg-accent transition-colors">
-              <X className="w-3.5 h-3.5 text-muted-foreground" />
+            <span className="text-xs font-medium text-neutral-300">Add Notes</span>
+            <button onClick={() => { setNotesActive(false); setSelectedNotes([]); }} className="ml-auto p-1 rounded-lg hover:bg-neutral-800 transition-colors">
+              <X className="w-3.5 h-3.5 text-neutral-500" />
             </button>
           </div>
           <div className="flex-1 overflow-y-auto px-3 py-2 space-y-3">
@@ -738,12 +738,12 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                     const isSel = selectedNotes.includes(note);
                     return (
                       <button key={note} onClick={() => toggleNote(note)}
-                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors text-left ${isSel ? "bg-amber-500/15 border border-amber-500/30" : "bg-muted hover:bg-accent"}`}>
-                        <div className={`w-4.5 h-4.5 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${isSel ? "bg-amber-500 border-amber-500" : "border-border"}`}>
+                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors text-left ${isSel ? "bg-amber-500/15 border border-amber-500/30" : "bg-[#252525] hover:bg-[#303030]"}`}>
+                        <div className={`w-4.5 h-4.5 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${isSel ? "bg-amber-500 border-amber-500" : "border-neutral-600"}`}>
                           {isSel && <Check className="w-3 h-3 text-black" />}
                         </div>
                         <AlertTriangle className="w-3.5 h-3.5 text-amber-500 flex-shrink-0" />
-                        <span className="text-sm text-foreground">{note}</span>
+                        <span className="text-sm text-neutral-200">{note}</span>
                       </button>
                     );
                   })}
@@ -753,19 +753,19 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
             {availableGeneralNotes.length > 0 && (
               <div>
                 <div className="flex items-center gap-1.5 mb-1.5">
-                  <FileText className="w-3.5 h-3.5 text-muted-foreground" />
-                  <span className="text-xs font-medium text-muted-foreground">General</span>
+                  <FileText className="w-3.5 h-3.5 text-neutral-400" />
+                  <span className="text-xs font-medium text-neutral-400">General</span>
                 </div>
                 <div className="space-y-1">
                   {availableGeneralNotes.map(note => {
                     const isSel = selectedNotes.includes(note);
                     return (
                       <button key={note} onClick={() => toggleNote(note)}
-                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors text-left ${isSel ? "bg-primary/15 border border-primary/30" : "bg-muted hover:bg-accent"}`}>
-                        <div className={`w-4.5 h-4.5 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${isSel ? "bg-primary border-primary" : "border-border"}`}>
+                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl transition-colors text-left ${isSel ? "bg-primary/15 border border-primary/30" : "bg-[#252525] hover:bg-[#303030]"}`}>
+                        <div className={`w-4.5 h-4.5 rounded-md border flex items-center justify-center flex-shrink-0 transition-colors ${isSel ? "bg-primary border-primary" : "border-neutral-600"}`}>
                           {isSel && <Check className="w-3 h-3 text-primary-foreground" />}
                         </div>
-                        <span className="text-sm text-foreground">{note}</span>
+                        <span className="text-sm text-neutral-200">{note}</span>
                       </button>
                     );
                   })}
@@ -774,13 +774,13 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
             )}
             {showCustomInput ? (
               <div className="space-y-1.5">
-                <span className="text-xs font-medium text-muted-foreground">Custom Note</span>
-                <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
+                <span className="text-xs font-medium text-neutral-400">Custom Note</span>
+                <div className="flex items-center gap-2 bg-[#252525] rounded-xl px-3 py-2">
                   <input ref={customNoteRef} type="text" value={customNoteInput}
                     onChange={(e) => setCustomNoteInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomNote(); } }}
                     placeholder="Type your custom note..."
-                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
+                    className="flex-1 bg-transparent text-sm text-foreground placeholder:text-neutral-500 outline-none" />
                   <button onClick={addCustomNote} disabled={!customNoteInput.trim()}
                     className="p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-30 transition-opacity">
                     <Plus className="w-3.5 h-3.5" />
@@ -789,22 +789,22 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
               </div>
             ) : (
               <button onClick={() => setShowCustomInput(true)}
-                className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl bg-muted/70 hover:bg-muted border border-dashed border-border text-muted-foreground text-sm transition-colors">
+                className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl bg-[#1C1C1C] hover:bg-[#252525] border border-dashed border-neutral-700 text-neutral-400 text-sm transition-colors">
                 <Pencil className="w-3.5 h-3.5" /> Add Custom Note
               </button>
             )}
             {selectedNotes.filter(n => !PREDEFINED_ALLERGY_NOTES.includes(n) && !PREDEFINED_GENERAL_NOTES.includes(n)).length > 0 && (
               <div>
-                <span className="text-xs font-medium text-muted-foreground mb-1.5 block">Custom</span>
+                <span className="text-xs font-medium text-neutral-400 mb-1.5 block">Custom</span>
                 <div className="space-y-1">
                   {selectedNotes.filter(n => !PREDEFINED_ALLERGY_NOTES.includes(n) && !PREDEFINED_GENERAL_NOTES.includes(n)).map(note => (
                     <div key={note} className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/15 border border-primary/30">
                       <div className="w-4.5 h-4.5 rounded-md bg-primary border-primary flex items-center justify-center flex-shrink-0">
                         <Check className="w-3 h-3 text-primary-foreground" />
                       </div>
-                      <span className="text-sm text-foreground flex-1">{note}</span>
-                      <button onClick={() => toggleNote(note)} className="p-0.5 hover:bg-accent rounded transition-colors">
-                        <X className="w-3 h-3 text-muted-foreground" />
+                      <span className="text-sm text-neutral-200 flex-1">{note}</span>
+                      <button onClick={() => toggleNote(note)} className="p-0.5 hover:bg-neutral-700 rounded transition-colors">
+                        <X className="w-3 h-3 text-neutral-400" />
                       </button>
                     </div>
                   ))}
@@ -813,7 +813,7 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
             )}
           </div>
           {selectedNotes.length > 0 && (
-            <div className="px-3 pb-3 pt-2 border-t border-border flex-shrink-0">
+            <div className="px-3 pb-3 pt-2 border-t border-neutral-800 flex-shrink-0">
               <button onClick={confirmNotesSelection}
                 className="w-full py-2.5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold transition-colors hover:bg-primary/90 flex items-center justify-center gap-2">
                 <StickyNote className="w-4 h-4" /> Add {selectedNotes.length} Note{selectedNotes.length > 1 ? "s" : ""}
@@ -824,18 +824,18 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
       ) : browseActive ? (
         <div className="flex flex-col flex-1 overflow-hidden">
           {/* Browse Header */}
-          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-border flex-shrink-0">
-            <button onClick={browseBack} className="p-1 rounded-lg hover:bg-accent transition-colors">
-              <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+          <div className="flex items-center gap-2 px-3 py-2.5 border-b border-neutral-800 flex-shrink-0">
+            <button onClick={browseBack} className="p-1 rounded-lg hover:bg-neutral-800 transition-colors">
+              <ArrowLeft className="w-4 h-4 text-neutral-400" />
             </button>
-            <span className="text-xs font-medium text-foreground">
+            <span className="text-xs font-medium text-neutral-300">
               {browseStep === "menu" && "Select Menu"}
               {browseStep === "category" && selectedMenu}
               {browseStep === "products" && (selectedCategory || selectedMenu)}
             </span>
             <button onClick={() => { setBrowseActive(false); setPendingProducts([]); setInlineCustomizations({}); }}
-              className="ml-auto p-1 rounded-lg hover:bg-accent transition-colors">
-              <X className="w-3.5 h-3.5 text-muted-foreground" />
+              className="ml-auto p-1 rounded-lg hover:bg-neutral-800 transition-colors">
+              <X className="w-3.5 h-3.5 text-neutral-500" />
             </button>
           </div>
 
@@ -843,17 +843,17 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
           <div className="flex-1 overflow-y-auto px-3 py-2 space-y-1.5">
             {browseStep === "menu" && menuData?.menuList.map(menu => (
               <button key={menu} onClick={() => selectMenu(menu)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-muted hover:bg-accent text-sm text-foreground transition-colors">
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#252525] hover:bg-[#303030] text-sm text-neutral-200 transition-colors">
                 <span>{menu}</span>
-                <span className="text-xs text-muted-foreground">{menuData.menuCategories[menu]?.length || 0} categories</span>
+                <span className="text-xs text-neutral-500">{menuData.menuCategories[menu]?.length || 0} categories</span>
               </button>
             ))}
 
             {browseStep === "category" && menuData?.menuCategories[selectedMenu]?.map(cat => (
               <button key={cat} onClick={() => selectCategory(cat)}
-                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-muted hover:bg-accent text-sm text-foreground transition-colors">
+                className="w-full flex items-center justify-between px-3 py-2.5 rounded-xl bg-[#252525] hover:bg-[#303030] text-sm text-neutral-200 transition-colors">
                 <span>{cat}</span>
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-neutral-500">
                   {orderContext?.availableProducts.filter(p => p.category_name?.toLowerCase() === cat.toLowerCase()).length || 0} products
                 </span>
               </button>
@@ -871,15 +871,15 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                       <div
                         className={`rounded-xl transition-colors ${
                           isExpanded
-                            ? "bg-muted/70 border border-border rounded-b-none"
-                            : "bg-muted hover:bg-accent"
+                            ? "bg-[#1C1C1C] border border-neutral-700 rounded-b-none"
+                            : "bg-[#252525] hover:bg-[#303030]"
                         }`}
                       >
                         <div className="flex items-center gap-2 px-3 py-2.5">
                           {/* Product info - click to expand modifiers/add-ons */}
                           <div className="flex-1 min-w-0 cursor-pointer" onClick={() => handleProductExpand(product)}>
-                            <p className="text-sm text-foreground truncate">{product.name}</p>
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-sm text-neutral-200 truncate">{product.name}</p>
+                            <p className="text-xs text-neutral-500">
                               ${product.price.toFixed(2)}
                               {extraPrice > 0 && <span className="text-primary"> +${extraPrice.toFixed(2)}</span>}
                             </p>
@@ -888,13 +888,13 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                           {pending && isExpanded && (
                             <div className="flex items-center gap-1.5" onClick={e => e.stopPropagation()}>
                               <button onClick={() => updatePendingQty(product.name, -1)}
-                                className="w-6 h-6 rounded-md bg-neutral-700 hover:bg-accent flex items-center justify-center transition-colors">
-                                <Minus className="w-3 h-3 text-foreground" />
+                                className="w-6 h-6 rounded-md bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors">
+                                <Minus className="w-3 h-3 text-neutral-300" />
                               </button>
-                              <span className="text-xs font-medium text-foreground w-5 text-center">{pending.qty}</span>
+                              <span className="text-xs font-medium text-neutral-200 w-5 text-center">{pending.qty}</span>
                               <button onClick={() => updatePendingQty(product.name, 1)}
-                                className="w-6 h-6 rounded-md bg-neutral-700 hover:bg-accent flex items-center justify-center transition-colors">
-                                <Plus className="w-3 h-3 text-foreground" />
+                                className="w-6 h-6 rounded-md bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors">
+                                <Plus className="w-3 h-3 text-neutral-300" />
                               </button>
                             </div>
                           )}
@@ -908,15 +908,15 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                           {/* Chevron toggle when expanded */}
                           {isExpanded && (
                             <button onClick={(e) => { e.stopPropagation(); setExpandedProductId(null); }}
-                              className="p-1 rounded hover:bg-accent transition-colors">
-                              <ChevronUp className="w-3.5 h-3.5 text-muted-foreground" />
+                              className="p-1 rounded hover:bg-neutral-700 transition-colors">
+                              <ChevronUp className="w-3.5 h-3.5 text-neutral-400" />
                             </button>
                           )}
                         </div>
 
                         {/* Inline customization panel */}
                         {isExpanded && (
-                          <div className="px-3 pb-3 border-t border-border">
+                          <div className="px-3 pb-3 border-t border-neutral-700/50">
                             {renderInlineCustomization(product)}
                             {/* Add to cart button inside expanded panel */}
                             <button
@@ -933,7 +933,7 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                   );
                 })
               ) : (
-                <p className="text-xs text-muted-foreground text-center py-4">No products in this category</p>
+                <p className="text-xs text-neutral-500 text-center py-4">No products in this category</p>
               )
             )}
           </div>
@@ -948,17 +948,17 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
             {messages.map((msg) => (
               <div key={msg.id} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
                 <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed ${
-                  msg.role === "user" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-muted text-foreground rounded-bl-md"
+                  msg.role === "user" ? "bg-primary text-primary-foreground rounded-br-md" : "bg-[#252525] text-foreground rounded-bl-md"
                 }`}>
                   {msg.role === "assistant" ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
+                    <div className="prose prose-sm prose-invert max-w-none"><ReactMarkdown>{msg.content}</ReactMarkdown></div>
                   ) : msg.content}
                 </div>
               </div>
             ))}
             {isTyping && (
               <div className="flex justify-start">
-                <div className="bg-muted rounded-2xl rounded-bl-md px-4 py-3">
+                <div className="bg-[#252525] rounded-2xl rounded-bl-md px-4 py-3">
                   <div className="flex gap-1.5">
                     <span className="w-2 h-2 bg-neutral-500 rounded-full animate-bounce [animation-delay:0ms]" />
                     <span className="w-2 h-2 bg-neutral-500 rounded-full animate-bounce [animation-delay:150ms]" />
@@ -973,13 +973,13 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
           {/* Order Type Sub-options */}
           {showOrderTypes && (
             <div className="px-3 pt-2 flex-shrink-0">
-              <p className="text-xs text-muted-foreground mb-1.5">Select order type:</p>
+              <p className="text-xs text-neutral-400 mb-1.5">Select order type:</p>
               <div className="flex flex-wrap gap-1.5 pb-2">
                 {ORDER_TYPES.map((type) => (
                   <button key={type} onClick={() => { setShowOrderTypes(false); sendDirect(`Change order type to ${type}`); }}
                     disabled={isTyping}
                     className={`px-2.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40 ${
-                      orderContext?.orderType === type ? "bg-primary text-primary-foreground" : "bg-muted hover:bg-accent text-foreground"
+                      orderContext?.orderType === type ? "bg-primary text-primary-foreground" : "bg-[#252525] hover:bg-[#303030] text-neutral-300"
                     }`}>{type}</button>
                 ))}
               </div>
@@ -1007,7 +1007,7 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
                   else if (btn.action === "pay") handlePayAction();
                   else { setInput(btn.prompt!); inputRef.current?.focus(); }
                 }} disabled={isTyping}
-                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-muted hover:bg-accent text-foreground text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40">
+                  className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#252525] hover:bg-[#303030] text-neutral-300 text-xs font-medium whitespace-nowrap transition-colors disabled:opacity-40">
                   <btn.icon className="w-3 h-3" /> {btn.label}
                 </button>
               ))}
@@ -1015,11 +1015,11 @@ const OrderAIChatPanel = ({ onClose, orderContext, orderActions, menuData }: Ord
           </div>
 
           {/* Input */}
-          <div className="px-3 pb-3 pt-1 border-t border-border flex-shrink-0">
-            <div className="flex items-center gap-2 bg-muted rounded-xl px-3 py-2">
+          <div className="px-3 pb-3 pt-1 border-t border-neutral-800 flex-shrink-0">
+            <div className="flex items-center gap-2 bg-[#252525] rounded-xl px-3 py-2">
               <input ref={inputRef} type="text" value={input} onChange={(e) => setInput(e.target.value)}
                 onKeyDown={handleKeyDown} placeholder="Type a command or 'add burger with no onions'..."
-                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground outline-none" />
+                className="flex-1 bg-transparent text-sm text-foreground placeholder:text-neutral-500 outline-none" />
               <button onClick={handleSend} disabled={!input.trim() || isTyping}
                 className="p-1.5 rounded-lg bg-primary text-primary-foreground disabled:opacity-30 transition-opacity">
                 <Send className="w-4 h-4" />

@@ -61,7 +61,7 @@ const AccessRestrictedModal = ({
   };
 
   return (
-    <div className="flex flex-col bg-neutral-900 p-6 pb-8">
+    <div className="manager-pin-root flex flex-col bg-neutral-900 p-6 pb-8">
       {/* Header */}
       <div className="relative flex items-center justify-center mb-6">
         <button

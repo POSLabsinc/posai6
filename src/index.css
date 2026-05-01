@@ -1565,3 +1565,68 @@ html.light .ticket-right-panel-actions button:hover {
 html.light .ticket-right-panel-actions button img {
   filter: brightness(0) !important;
 }
+
+/* ============================================================
+   LIGHT MODE: Header Support icon — remove background pill
+   ============================================================ */
+html.light .header-support-btn {
+  background-color: transparent !important;
+}
+html.light .header-support-btn:hover {
+  background-color: rgba(255, 255, 255, 0.10) !important;
+}
+
+/* ============================================================
+   LIGHT MODE: Ticket actions dropdown (Add Item / Discount /
+   No Tax / Transfer / Merge / Receipt / No Sale).
+   Force black labels and dark icons for readability.
+   ============================================================ */
+html.light [role="menu"] [role="menuitem"],
+html.light [role="menu"] [role="menuitem"] * {
+  color: #000000 !important;
+}
+html.light [role="menu"] [role="menuitem"] img {
+  filter: brightness(0) !important;
+}
+html.light [role="menu"] [role="menuitem"]:hover {
+  background-color: #ececf0 !important;
+}
+
+/* ============================================================
+   LIGHT MODE: Preserve dark theme for PIN Pad screens
+   (ManagerPinScreen, AccessRestrictedModal). Keep numpad,
+   dots, biometric icons, and surfaces identical to dark mode.
+   ============================================================ */
+html.light .manager-pin-root,
+html.light .manager-pin-root * {
+  color-scheme: dark;
+}
+html.light .manager-pin-root {
+  background-color: #1C1C1E !important;
+  color: #ffffff !important;
+}
+html.light .manager-pin-root .bg-muted,
+html.light .manager-pin-root .bg-neutral-800,
+html.light .manager-pin-root .bg-neutral-900 {
+  background-color: #2C2C2E !important;
+  color: #ffffff !important;
+}
+html.light .manager-pin-root .bg-neutral-700 {
+  background-color: #3A3A3C !important;
+}
+html.light .manager-pin-root .border-neutral-700,
+html.light .manager-pin-root .border-neutral-600 {
+  border-color: #3A3A3C !important;
+}
+html.light .manager-pin-root .text-foreground {
+  color: #ffffff !important;
+}
+html.light .manager-pin-root .text-muted-foreground {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+html.light .manager-pin-root .text-destructive {
+  color: #ef4444 !important;
+}
+html.light .manager-pin-root button:hover {
+  background-color: #3A3A3C !important;
+}

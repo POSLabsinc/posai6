@@ -305,7 +305,7 @@ const Header = () => {
             <img src={refreshIcon} alt="Refresh" className="w-5 h-5" />
           </button>
 
-          <button className="hidden md:block p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
+          <button className="header-support-btn hidden md:block p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
             <img src={supportIcon} alt="Support" className="w-5 h-5" />
           </button>
 

@@ -56,7 +56,7 @@ const ScreenModeSwitcher = () => {
     SettingsManager.updateScreenModeSettings({ currentMode: mode });
     const meta = MODES.find((m) => m.id === mode)!;
     toast({ title: `Switched to ${meta.label}`, description: meta.description });
-    if (mode === "kds") navigate("/kds");
+    if (mode === "kds") navigate("/kds-new");
     else if (mode === "pos") navigate("/");
     // CFD/Kiosk: no dedicated route yet — stay on current screen
   };

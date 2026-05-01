@@ -486,6 +486,76 @@ export const LiveSalesDashboard = () => {
             ))}
           </div>
 
+          {/* Real-Time Intelligent Alerts (AI Deviation Detection) */}
+          <div className={cardCls} style={cardStyle}>
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-red-500/10 flex items-center justify-center relative">
+                  <Bell className="w-3.5 h-3.5 text-red-400" />
+                  {opsAlerts.length > 0 && (
+                    <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  )}
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">Real-Time Intelligent Alerts</h3>
+                  <p className="text-[11px] text-muted-foreground/70">
+                    AI deviation detection across sales, labor, food, inventory, refunds and margin
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 border border-white/5">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] font-medium text-foreground/70">{opsAlerts.length} active</span>
+              </div>
+            </div>
+
+            {opsAlerts.length === 0 ? (
+              <div className="flex items-center gap-2 py-3 text-[12px] text-muted-foreground/70">
+                <Activity className="w-3.5 h-3.5 text-emerald-400" />
+                All operational metrics within expected range. AI is monitoring continuously.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                {opsAlerts.map((a) => {
+                  const sev =
+                    a.severity === "critical"
+                      ? { bg: "bg-red-500/10", border: "border-red-500/25", text: "text-red-300", icon: "text-red-400", chip: "bg-red-500/15 text-red-300" }
+                      : a.severity === "warning"
+                      ? { bg: "bg-amber-500/10", border: "border-amber-500/25", text: "text-amber-200", icon: "text-amber-400", chip: "bg-amber-500/15 text-amber-300" }
+                      : { bg: "bg-sky-500/10", border: "border-sky-500/25", text: "text-sky-200", icon: "text-sky-400", chip: "bg-sky-500/15 text-sky-300" };
+                  const Icon = a.icon;
+                  return (
+                    <button
+                      key={a.id}
+                      onClick={() => ask(a.question)}
+                      className={`text-left rounded-xl p-3 border ${a.bg} ${a.border} hover:brightness-110 transition`}
+                    >
+                      <div className="flex items-start gap-2.5">
+                        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${a.bg} border ${a.border}`}>
+                          <Icon className={`w-3.5 h-3.5 ${sev.icon}`} />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className={`text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${sev.chip}`}>
+                              {a.severity}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground/70 uppercase tracking-wider">{a.metric}</span>
+                          </div>
+                          <p className={`text-[12.5px] font-semibold ${sev.text} leading-snug`}>{a.title}</p>
+                          <p className="text-[11px] text-foreground/60 mt-0.5 leading-snug">{a.detail}</p>
+                          <p className="text-[10.5px] text-foreground/50 mt-1.5 flex items-center gap-1">
+                            <Sparkles className="w-2.5 h-2.5" />
+                            Tap to ask AI why
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           {/* Trend chart */}
           <div className={cardCls} style={cardStyle}>
             <div className="flex items-center justify-between mb-3">

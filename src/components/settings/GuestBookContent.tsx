@@ -704,7 +704,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
         onClick={(e) => { e.stopPropagation(); startFieldEdit(field, currentValue); }}
         className={`cursor-pointer hover:text-foreground transition-colors group inline-flex items-center gap-1 ${className}`}
       >
-        {currentValue || "—"}
+        {currentValue || "--"}
         <Pencil className="w-2.5 h-2.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
       </span>
     );
@@ -736,7 +736,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
         </div>
       ) : (
         <div className="mb-6">
-          {/* Title Row: Back + Title centered (back arrow hidden on mobile — outer wrapper provides it) */}
+          {/* Title Row: Back + Title centered (back arrow hidden on mobile, outer wrapper provides it) */}
           <div className="flex items-center relative mb-5">
             {!isMobile && (
               <button onClick={() => setActiveTab("profile")} className="w-10 h-10 rounded-full bg-muted/60 border border-border flex items-center justify-center flex-shrink-0">

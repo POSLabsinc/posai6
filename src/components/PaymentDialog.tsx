@@ -17,6 +17,13 @@ import tickSuccessIcon from "@/assets/icons/tick-success.svg";
 import splitCheckIcon from "@/assets/icons/split-check.svg";
 import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
+import {
+  PaymentPricingMode,
+  CASH_DISCOUNT_RATE as PRICING_CASH_DISCOUNT_RATE,
+  CARD_SURCHARGE_RATE as PRICING_CARD_SURCHARGE_RATE,
+  getPaymentPricingMode,
+  subscribePaymentPricingMode,
+} from "@/lib/paymentPricingMode";
 
 // ============= TYPES =============
 export interface PaymentDialogOrderItem {

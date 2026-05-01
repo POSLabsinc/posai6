@@ -450,6 +450,15 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
     return <WeatherInsightView notification={notification} />;
   }
 
+  // Live Sales Dashboard: render full real-time dashboard with AI panel
+  if (notification.id === "live-sales-dashboard") {
+    return (
+      <div className="h-full w-full overflow-hidden">
+        <LiveSalesDashboard />
+      </div>
+    );
+  }
+
   // Sales-pace AI insight: render the rich analytics + chat experience
   const titleLower = (notification.title || "").toLowerCase();
   const headlineLower = (notification.headline || "").toLowerCase();

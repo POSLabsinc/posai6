@@ -1434,3 +1434,63 @@ html.light .via-black {
   --tw-gradient-via-position: ;
   --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
 }
+
+/* ============================================================
+   AI CHAT PANELS - LIGHT MODE
+   Panels (TicketAIChatPanel, OrderAIChatPanel, ShiftAIChatPanel)
+   use hardcoded hex bg-[#131316], bg-[#1C1C1C], bg-[#252525],
+   bg-[#303030]. Override for a clean white light-mode chat.
+   ============================================================ */
+html.light .bg-\[\#131316\] {
+  background-color: #ffffff !important;
+  color: var(--light-text-primary) !important;
+}
+html.light .bg-\[\#1C1C1C\] {
+  background-color: #f5f5f7 !important;
+  color: var(--light-text-primary) !important;
+}
+html.light .bg-\[\#252525\] {
+  background-color: #f0f0f3 !important;
+  color: var(--light-text-primary) !important;
+}
+html.light .bg-\[\#303030\],
+html.light .hover\:bg-\[\#303030\]:hover,
+html.light .hover\:bg-\[\#252525\]:hover {
+  background-color: #e6e6ea !important;
+  color: var(--light-text-primary) !important;
+}
+html.light .bg-\[\#131316\] input,
+html.light .bg-\[\#131316\] textarea,
+html.light .bg-\[\#1C1C1C\] input,
+html.light .bg-\[\#1C1C1C\] textarea,
+html.light .bg-\[\#252525\] input,
+html.light .bg-\[\#252525\] textarea {
+  background-color: transparent !important;
+  color: var(--light-text-primary) !important;
+}
+html.light .bg-\[\#131316\] input::placeholder,
+html.light .bg-\[\#131316\] textarea::placeholder,
+html.light .bg-\[\#1C1C1C\] input::placeholder,
+html.light .bg-\[\#1C1C1C\] textarea::placeholder,
+html.light .bg-\[\#252525\] input::placeholder,
+html.light .bg-\[\#252525\] textarea::placeholder {
+  color: var(--light-text-muted) !important;
+}
+html.light .bg-\[\#131316\] .text-neutral-400,
+html.light .bg-\[\#131316\] .text-neutral-500,
+html.light .bg-\[\#1C1C1C\] .text-neutral-400,
+html.light .bg-\[\#1C1C1C\] .text-neutral-500,
+html.light .bg-\[\#252525\] .text-neutral-400,
+html.light .bg-\[\#252525\] .text-neutral-500 {
+  color: var(--light-text-muted) !important;
+}
+html.light .bg-\[\#131316\] .text-neutral-200,
+html.light .bg-\[\#131316\] .text-neutral-300,
+html.light .bg-\[\#252525\] .text-neutral-200,
+html.light .bg-\[\#252525\] .text-neutral-300 {
+  color: var(--light-text-secondary) !important;
+}
+/* Preserve primary user bubble contrast */
+html.light .bg-\[\#131316\] .bg-primary {
+  color: hsl(var(--primary-foreground)) !important;
+}

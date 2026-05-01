@@ -1192,7 +1192,224 @@ html.light .bg-gradient-to-t.from-neutral-900 {
 /* --- Inputs that hardcoded bg-neutral-800 --- */
 html.light input.bg-neutral-800,
 html.light textarea.bg-neutral-800,
-html.light select.bg-neutral-800 {
+html.light select.bg-neutral-800,
+html.light input.bg-neutral-900,
+html.light textarea.bg-neutral-900,
+html.light input.bg-black,
+html.light textarea.bg-black {
   background-color: var(--light-surface-2) !important;
   color: var(--light-text-primary) !important;
+  border-color: var(--light-border) !important;
+}
+
+/* ===== Extended Light Mode Overrides ===== */
+
+/* --- Expanded hover states (subtle light grey) --- */
+html.light [class*="hover\\:bg-neutral-9"]:hover,
+html.light [class*="hover\\:bg-neutral-8"]:hover,
+html.light [class*="hover\\:bg-neutral-7"]:hover,
+html.light [class*="hover\\:bg-zinc-9"]:hover,
+html.light [class*="hover\\:bg-zinc-8"]:hover,
+html.light [class*="hover\\:bg-slate-9"]:hover,
+html.light [class*="hover\\:bg-slate-8"]:hover,
+html.light [class*="hover\\:bg-gray-9"]:hover,
+html.light [class*="hover\\:bg-gray-8"]:hover,
+html.light .hover\:bg-black:hover {
+  background-color: var(--light-surface-hover) !important;
+}
+html.light [class*="hover\\:bg-white\\/"]:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+html.light .hover\:text-white:hover {
+  color: var(--light-text-primary) !important;
+}
+
+/* --- Group hover variants --- */
+html.light .group:hover .group-hover\:bg-neutral-800,
+html.light .group:hover .group-hover\:bg-neutral-700,
+html.light .group:hover .group-hover\:bg-white\/5,
+html.light .group:hover .group-hover\:bg-white\/10 {
+  background-color: var(--light-surface-hover) !important;
+}
+html.light .group:hover .group-hover\:text-white {
+  color: var(--light-text-primary) !important;
+}
+
+/* --- Data-state (Radix) active/hover --- */
+html.light [data-state="active"].bg-neutral-800,
+html.light [data-state="open"].bg-neutral-800 {
+  background-color: var(--light-surface-hover) !important;
+}
+
+/* --- Additional bg opacity variants --- */
+html.light .bg-neutral-900\/95,
+html.light .bg-neutral-900\/90,
+html.light .bg-neutral-900\/80,
+html.light .bg-neutral-900\/70,
+html.light .bg-neutral-900\/60,
+html.light .bg-neutral-900\/50,
+html.light .bg-neutral-900\/40,
+html.light .bg-black\/95,
+html.light .bg-black\/90,
+html.light .bg-black\/80,
+html.light .bg-black\/70,
+html.light .bg-black\/60,
+html.light .bg-black\/50,
+html.light .bg-black\/40,
+html.light .bg-black\/30,
+html.light .bg-black\/20 {
+  background-color: var(--light-surface-1) !important;
+}
+
+/* --- AI Chat Panels (TicketAIChatPanel, OrderAIChatPanel, ShiftAIChatPanel, device-setup-chat) --- */
+html.light [class*="AIChat"],
+html.light [data-ai-chat],
+html.light .ai-chat-panel {
+  background-color: var(--light-surface-1) !important;
+  color: var(--light-text-primary) !important;
+  border-color: var(--light-border) !important;
+}
+
+/* AI message bubbles - assistant (dark bubble in dark mode) */
+html.light .ai-bubble-assistant,
+html.light .message-bubble-assistant {
+  background-color: var(--light-surface-2) !important;
+  color: var(--light-text-primary) !important;
+}
+/* AI message bubbles - user (often primary/blue, keep but ensure text contrast) */
+html.light .ai-bubble-user,
+html.light .message-bubble-user {
+  color: #ffffff !important;
+}
+
+/* AI chat header / footer / input area */
+html.light .ai-chat-header,
+html.light .ai-chat-footer,
+html.light .ai-chat-input {
+  background-color: var(--light-surface-1) !important;
+  border-color: var(--light-border) !important;
+  color: var(--light-text-primary) !important;
+}
+html.light .ai-chat-input input,
+html.light .ai-chat-input textarea {
+  background-color: var(--light-surface-2) !important;
+  color: var(--light-text-primary) !important;
+}
+html.light .ai-chat-input input::placeholder,
+html.light .ai-chat-input textarea::placeholder {
+  color: var(--light-text-muted) !important;
+}
+
+/* Suggestion chips inside AI chat (typically white pill on dark) */
+html.light .ai-chat-suggestion,
+html.light .ai-chip {
+  background-color: var(--light-surface-2) !important;
+  color: var(--light-text-primary) !important;
+  border-color: var(--light-border) !important;
+}
+
+/* --- Generic placeholder text --- */
+html.light input::placeholder,
+html.light textarea::placeholder {
+  color: var(--light-text-muted) !important;
+}
+
+/* --- Icons that use text-white-like classes inside dark surfaces --- */
+html.light svg.text-white,
+html.light svg.text-neutral-100,
+html.light svg.text-neutral-200,
+html.light svg.text-neutral-300 {
+  color: var(--light-text-primary) !important;
+}
+
+/* --- Guestbook list panel & cards (dark sidebar with avatars) --- */
+html.light .guestbook-panel,
+html.light .guestbook-list,
+html.light .guest-card,
+html.light .guest-list-item {
+  background-color: var(--light-surface-1) !important;
+  color: var(--light-text-primary) !important;
+  border-color: var(--light-border) !important;
+}
+html.light .guest-list-item:hover,
+html.light .guest-card:hover {
+  background-color: var(--light-surface-hover) !important;
+}
+html.light .guest-list-item.active,
+html.light .guest-list-item[data-active="true"] {
+  background-color: var(--light-surface-hover) !important;
+}
+
+/* Guestbook stats tiles often use white/5 white/10 - already handled, but add light borders */
+html.light .guest-stat-tile,
+html.light .guest-info-tile {
+  background-color: var(--light-surface-2) !important;
+  border: 1px solid var(--light-border) !important;
+  color: var(--light-text-primary) !important;
+}
+
+/* --- Tabs row (Profile / Reservation / Payment etc.) --- */
+html.light [role="tablist"].bg-neutral-800,
+html.light [role="tablist"].bg-neutral-900,
+html.light [role="tablist"].bg-black {
+  background-color: var(--light-surface-2) !important;
+}
+html.light [role="tab"][data-state="active"] {
+  background-color: var(--light-surface-1) !important;
+  color: var(--light-text-primary) !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+/* --- Popover / dropdown / tooltip surfaces with hardcoded dark bg --- */
+html.light [role="menu"].bg-neutral-900,
+html.light [role="menu"].bg-neutral-800,
+html.light [role="dialog"].bg-neutral-900,
+html.light [role="tooltip"].bg-neutral-900,
+html.light [role="tooltip"].bg-black {
+  background-color: var(--light-surface-1) !important;
+  color: var(--light-text-primary) !important;
+  border-color: var(--light-border) !important;
+}
+
+/* --- Search input (rounded pill, dark by default) --- */
+html.light .search-input,
+html.light input[type="search"] {
+  background-color: var(--light-surface-2) !important;
+  color: var(--light-text-primary) !important;
+  border-color: var(--light-border) !important;
+}
+
+/* --- Avatars/circle buttons that used dark bg as plain background --- */
+html.light button.bg-neutral-800\/60,
+html.light button.bg-neutral-800 {
+  background-color: var(--light-surface-2) !important;
+  color: var(--light-text-primary) !important;
+}
+html.light button.bg-neutral-800:hover,
+html.light button.bg-neutral-800\/60:hover {
+  background-color: var(--light-surface-hover) !important;
+}
+
+/* --- Gradient backgrounds (broaden coverage) --- */
+html.light [class*="from-neutral-9"],
+html.light [class*="from-zinc-9"],
+html.light [class*="from-slate-9"],
+html.light [class*="from-gray-9"],
+html.light .from-black {
+  --tw-gradient-from: #ffffff var(--tw-gradient-from-position) !important;
+  --tw-gradient-to: rgb(255 255 255 / 0) var(--tw-gradient-to-position) !important;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to) !important;
+}
+html.light [class*="to-neutral-9"],
+html.light [class*="to-zinc-9"],
+html.light [class*="to-slate-9"],
+html.light [class*="to-gray-9"],
+html.light .to-black {
+  --tw-gradient-to: #f5f5f5 var(--tw-gradient-to-position) !important;
+}
+html.light [class*="via-neutral-9"],
+html.light .via-black {
+  --tw-gradient-via: #fafafa !important;
+  --tw-gradient-via-position: ;
+  --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) !important;
 }

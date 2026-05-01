@@ -121,10 +121,29 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
   useWeatherNotification();
   const roleFilter = useNotificationRolePermissions();
 
+  // Synthetic "Live Sales Dashboard" notification (manager-only, AI category).
+  // Lives only in memory; opens the LiveSalesDashboard in the detail panel.
+  const liveSalesNotification: NotificationItem = useMemo(() => ({
+    id: "live-sales-dashboard",
+    title: "Live Sales Dashboard",
+    preview: "Real-time sales, revenue, and AI insights with anomaly detection.",
+    version: "Live",
+    version_date: "Today",
+    time: "Now",
+    headline: "Live Sales & Revenue Dashboard",
+    body: "Real-time metrics, trends, and AI analysis.",
+    bullets: [],
+    footer: null,
+    has_update: false,
+    is_read: true,
+    created_at: new Date().toISOString(),
+    category: "ai",
+  }), []);
+
   // Apply role-based visibility before any other filtering. Re-runs when role/perms change.
   const notifications = useMemo(
-    () => rawNotifications.filter((n) => roleFilter.isAllowed(n)),
-    [rawNotifications, roleFilter.role, roleFilter.permissions]
+    () => [liveSalesNotification, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
+    [rawNotifications, roleFilter.role, roleFilter.permissions, liveSalesNotification]
   );
 
   const totalUnread = useMemo(() => notifications.filter((n) => !n.is_read).length, [notifications]);

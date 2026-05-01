@@ -34,6 +34,12 @@ import { useNavigate } from "react-router-dom";
 import { useReportsData } from "@/hooks/useReportsData";
 import { supabase } from "@/integrations/supabase/client";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  MultiLocationFilters,
+  DEFAULT_ML_FILTERS,
+  useFilteredLocations,
+  type MultiLocationFiltersState,
+} from "./MultiLocationFilters";
 
 type RangeKey = "today" | "hourly" | "daily" | "weekly";
 interface ChatMsg { role: "user" | "assistant"; content: string }
@@ -63,6 +69,8 @@ export const LiveSalesDashboard = () => {
   const isMobile = useIsMobile();
   const [range, setRange] = useState<RangeKey>("today");
   const [tick, setTick] = useState(0);
+  const [mlFilters, setMlFilters] = useState<MultiLocationFiltersState>(DEFAULT_ML_FILTERS);
+  const { rows: locationRows, scale: locationScale } = useFilteredLocations(mlFilters);
 
   // Compute date range based on selection
   const { start, end } = useMemo(() => {

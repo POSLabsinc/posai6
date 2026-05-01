@@ -651,7 +651,7 @@ export default function ShiftSummaryModal({
   const renderFilterSheet = () => {
     if (!showFilterSheet) return null;
     return (
-      <div className="fixed inset-0 z-[10001] flex items-end justify-center">
+      <div className="shift-summary-root fixed inset-0 z-[10001] flex items-end justify-center">
         <div className="absolute inset-0 bg-black/60" onClick={() => { setShowFilterSheet(false); setFilterSheetView("main"); }} />
         <div className="relative z-10 w-full rounded-t-2xl bg-[#1C1C1E] shadow-2xl overflow-hidden max-h-[70vh] flex flex-col">
           <div className="flex justify-center pt-2 pb-1 shrink-0">

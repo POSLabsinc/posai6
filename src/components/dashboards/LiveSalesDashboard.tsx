@@ -515,55 +515,73 @@ export const LiveSalesDashboard = () => {
               ))}
             </ul>
           </div>
-        </div>
-      </div>
 
-      {/* Mobile floating composer (when AI panel is hidden) */}
-      {isMobile && (
-        <div className="lg:hidden shrink-0 px-4 pb-4 pt-2 border-t border-white/5 space-y-2 bg-background">
-          <div className="flex flex-wrap gap-1.5">
-            {SUGGESTIONS.slice(0, 3).map((s) => (
-              <button
-                key={s}
-                onClick={() => ask(s)}
-                disabled={chatBusy}
-                className="text-[11px] px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 text-foreground/80 transition-colors disabled:opacity-50"
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-          <form onSubmit={(e) => { e.preventDefault(); ask(input); }} className="relative w-full">
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              placeholder="Ask AI about your sales..."
-              className="w-full bg-white/[0.04] border border-white/5 rounded-full pl-4 pr-12 py-3 text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50"
-            />
-            <button
-              type="submit"
-              disabled={chatBusy || !input.trim()}
-              className="absolute right-1.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 active:scale-95 transition-transform"
-              aria-label="Send"
-            >
-              <Send className="w-4 h-4" />
-            </button>
-          </form>
+          {/* Inline conversation (only after user interacts) */}
           {messages.length > 1 && (
-            <div className="max-h-40 overflow-y-auto scrollbar-hide space-y-2">
-              {messages.slice(-2).map((m, i) => (
-                <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                  <div className={`max-w-[88%] rounded-2xl px-3 py-2 text-[12px] ${
-                    m.role === "user" ? "bg-primary/90 text-primary-foreground" : "bg-white/[0.04] text-foreground/90 border border-white/5"
-                  }`}>
-                    {m.content}
+            <div className={cardCls} style={cardStyle}>
+              <div className="flex items-center gap-2 mb-3">
+                <Sparkles className="w-4 h-4 text-violet-400" />
+                <h3 className="text-sm font-semibold text-foreground">Conversation</h3>
+              </div>
+              <div className="space-y-3">
+                {messages.slice(1).map((m, i) => (
+                  <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
+                    <div
+                      className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed whitespace-pre-wrap ${
+                        m.role === "user"
+                          ? "bg-primary/90 text-primary-foreground"
+                          : "bg-white/[0.04] text-foreground/90 border border-white/5"
+                      }`}
+                    >
+                      {m.content}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+                {chatBusy && (
+                  <div className="flex justify-start">
+                    <div className="bg-white/[0.04] border border-white/5 rounded-2xl px-3.5 py-2.5">
+                      <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
+                    </div>
+                  </div>
+                )}
+                <div ref={scrollRef} />
+              </div>
             </div>
           )}
         </div>
-      )}
+      </div>
+
+      {/* Full-width composer pinned at bottom (matches Sales pace style) */}
+      <div className="shrink-0 px-4 lg:px-6 pb-4 pt-3 border-t border-white/5 bg-background space-y-2.5">
+        <div className="flex flex-wrap gap-1.5">
+          {SUGGESTIONS.map((s) => (
+            <button
+              key={s}
+              onClick={() => ask(s)}
+              disabled={chatBusy}
+              className="text-[11px] px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/5 text-foreground/80 transition-colors disabled:opacity-50"
+            >
+              {s}
+            </button>
+          ))}
+        </div>
+        <form onSubmit={(e) => { e.preventDefault(); ask(input); }} className="relative w-full">
+          <input
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            placeholder="Ask AI about your live sales..."
+            className="w-full bg-white/[0.04] border border-white/5 rounded-full pl-5 pr-14 py-3 text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50"
+          />
+          <button
+            type="submit"
+            disabled={chatBusy || !input.trim()}
+            className="absolute right-2 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 active:scale-95 transition-transform"
+            aria-label="Send"
+          >
+            {chatBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

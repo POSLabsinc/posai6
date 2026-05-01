@@ -763,7 +763,7 @@ export default function ShiftSummaryModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
+    <div className="shift-summary-root fixed inset-0 z-[9999] flex items-end md:items-center justify-center">
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className={`relative z-10 bg-[#1C1C1E] shadow-2xl overflow-hidden flex flex-col
         w-full h-full md:h-auto

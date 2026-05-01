@@ -539,6 +539,15 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
     );
   }
 
+  // Forecasting Dashboard: AI demand forecasting & labor management
+  if (notification.id === "forecasting-dashboard") {
+    return (
+      <div className="h-full w-full overflow-hidden">
+        <ForecastingDashboard />
+      </div>
+    );
+  }
+
 
   // Sales-pace AI insight: render the rich analytics + chat experience
   const titleLower = (notification.title || "").toLowerCase();

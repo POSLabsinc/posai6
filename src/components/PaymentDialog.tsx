@@ -5550,16 +5550,40 @@ export function PaymentDialog({
               <span className="text-white/60 text-sm">Tax</span>
               <span className="text-white text-sm">${tax.toFixed(2)}</span>
             </div>
-            {isCardPayment && (
+            {ccSurcharge > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-white/60 text-sm">CC Sur (3%)</span>
                 <span className="text-white text-sm">${ccSurcharge.toFixed(2)}</span>
               </div>
             )}
-            {isCashPayment && cashDiscount > 0 && (
+            {cashDiscount > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-emerald-400 text-sm">Cash Discount (3%)</span>
                 <span className="text-emerald-400 text-sm">-${cashDiscount.toFixed(2)}</span>
+              </div>
+            )}
+            {pricingMode === 'show-both' && (
+              <div className="pt-2 mt-1 border-t border-neutral-700/60 grid grid-cols-2 gap-2">
+                <div
+                  className={`rounded-lg px-2 py-1.5 text-center transition-colors ${
+                    isCashPayment ? 'bg-emerald-500/15 ring-1 ring-emerald-400/40' : 'bg-neutral-800/60'
+                  }`}
+                >
+                  <div className="text-[10px] uppercase tracking-wide text-neutral-400">Total (Cash)</div>
+                  <div className={`text-sm font-semibold ${isCashPayment ? 'text-emerald-300' : 'text-white'}`}>
+                    ${cashTotalDisplay.toFixed(2)}
+                  </div>
+                </div>
+                <div
+                  className={`rounded-lg px-2 py-1.5 text-center transition-colors ${
+                    isCardPayment ? 'bg-primary/15 ring-1 ring-primary/40' : 'bg-neutral-800/60'
+                  }`}
+                >
+                  <div className="text-[10px] uppercase tracking-wide text-neutral-400">Total (Card)</div>
+                  <div className={`text-sm font-semibold ${isCardPayment ? 'text-primary' : 'text-white'}`}>
+                    ${cardTotalDisplay.toFixed(2)}
+                  </div>
+                </div>
               </div>
             )}
             <div className="flex items-center justify-between pt-2 border-t border-neutral-700">

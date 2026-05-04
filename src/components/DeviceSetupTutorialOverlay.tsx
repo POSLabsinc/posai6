@@ -21,7 +21,7 @@ const newUserSteps: TutorialStep[] = [
     icon: <QrCode className="w-5 h-5 text-primary" />,
     iconBg: "bg-primary/15",
     instructions: [
-      "Open the camera app on your phone or tablet and point it at the QR code displayed on this screen.",
+      "Open the camera app on your phone or tablet and scan the QR code displayed on this screen.",
     ],
     highlightArea: { top: "26%", left: "10%", width: "32%", height: "52%" },
     arrowDirection: "right",

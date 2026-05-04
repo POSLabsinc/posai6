@@ -22,17 +22,17 @@ interface ModeOption {
 const modeOptions: ModeOption[] = [
   {
     id: "cash-discount",
-    title: "Cash Discount Only",
-    description: "Apply a 3% discount only for cash payments. Card payments use normal pricing.",
+    title: "Cash Discount",
+    description: "Apply a discount for cash payments only. Card payments use standard pricing.",
   },
   {
     id: "card-surcharge",
-    title: "Card Surcharge Only",
-    description: "Apply a 3% surcharge only for card payments. Cash payments use normal pricing.",
+    title: "Surcharging",
+    description: "Apply a surcharge for card payments only. Cash payments use standard pricing.",
   },
   {
     id: "show-both",
-    title: "Show Both Prices",
+    title: "Dual Pricing",
     description: "Display both Total (Cash) and Total (Card). The amount due updates based on the selected payment method.",
   },
 ];
@@ -62,7 +62,7 @@ const PaymentPricingContent = ({ showHeader = true, onBack }: PaymentPricingCont
             </button>
           )}
           <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">
-            Payment Pricing
+            Payment Programs
           </h1>
         </div>
       )}

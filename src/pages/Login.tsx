@@ -1295,7 +1295,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </button>
                 </div>
                 <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Use a browser</h2>
-                <p className="text-base text-foreground/50 mb-3">Open the link below on any device and enter the code shown.</p>
+                <p className="text-base text-foreground/50 mb-3">Go to the link below on any device and enter the code displayed.</p>
                 <div className="space-y-7" data-tour="browser-steps">
                   <div className="flex items-start gap-4">
                     <span className="text-2xl font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>
@@ -7597,7 +7597,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   </button>
                 </div>
                 <h2 className="text-[1.65rem] font-bold text-foreground mb-1">Use a browser</h2>
-                <p className="text-base text-foreground/50 mb-3">Open the link below on any device and enter the code shown.</p>
+                <p className="text-base text-foreground/50 mb-3">Go to the link below on any device and enter the code displayed.</p>
                 <div className="space-y-7" data-tour="browser-steps">
                   <div className="flex items-start gap-4">
                     <span className="text-2xl font-bold text-foreground/30 mt-0.5 flex-shrink-0">1</span>

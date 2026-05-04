@@ -18,7 +18,7 @@ const PaymentPricingRoute = () => {
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <span className="text-base font-medium text-foreground">Payment Pricing</span>
+          <span className="text-base font-medium text-foreground">Payment Programs</span>
           <div style={{ width: 40, height: 40 }} />
         </div>
         <div className="flex-1 overflow-hidden">

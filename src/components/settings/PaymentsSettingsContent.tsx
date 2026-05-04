@@ -108,7 +108,7 @@ const PaymentsSettingsContent = ({
           <SettingsOption icon={paymentMethodsIcon} iconBgColor="#5F5F5F" label="Payment Methods" description="Configure which payment types are accepted at checkout and control their visibility across your point of sale terminals." onClick={() => onNavigate?.('/settings/payments/payment-methods')} />
           <SettingsOption icon={cashManagementIcon} iconBgColor="#F80063" label="Cash Management" description="Track cash drawers, manage pay-ins and pay-outs, and handle end-of-day cash reconciliation across registers." onClick={() => onNavigate?.('/settings/payments/cash-management')} />
           <SettingsOption icon={checkoutOptionsIcon} iconBgColor="#000000" label="Checkout Options" description="Customize the checkout flow, receipt preferences, signature requirements, and order completion settings." onClick={() => onNavigate?.('/settings/payments/checkout-options')} />
-          <SettingsOption icon={discountsIcon} iconBgColor="#22C55E" label="Payment Pricing" description="Choose between cash discount, card surcharge, or showing both prices side-by-side at checkout." onClick={() => onNavigate?.('/settings/payments/payment-pricing')} />
+          <SettingsOption icon={discountsIcon} iconBgColor="#22C55E" label="Payment Programs" description="Choose between cash discount, card surcharge, or showing both prices side-by-side at checkout." onClick={() => onNavigate?.('/settings/payments/payment-pricing')} />
           <SettingsOption icon={cashManagementIcon} iconBgColor="#F5A623" label="Payment Platform" description="The shown payment processor is being used to handle the transactions in your current device." rightText="NA" />
         </div>
       </div>

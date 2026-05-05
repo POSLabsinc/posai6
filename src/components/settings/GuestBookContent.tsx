@@ -636,7 +636,7 @@ const GuestListItem = ({ guest, isSelected, onClick }: { guest: Guest; isSelecte
 );
 
 // --- Guest Detail Panel ---
-const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse, onMobileBack }: { guest: Guest; onUpdateGuest: (updated: Guest) => void; onCollapse?: () => void; onMobileBack?: () => void }) => {
+const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; onUpdateGuest: (updated: Guest) => void; onCollapse?: () => void }) => {
   const [activeTab, setActiveTab] = useState<TabId>("profile");
   const [showTagPicker, setShowTagPicker] = useState(false);
   const { getIconBgColor } = useAppearance();
@@ -710,57 +710,69 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse, onMobileBack }: { 
     );
   };
 
-  // Back button handler: on non-profile tabs returns to profile; on profile tab uses onCollapse (desktop) or onMobileBack (mobile)
-  const handleBack = () => {
-    if (activeTab !== "profile") {
-      setActiveTab("profile");
-    } else if (isMobile && onMobileBack) {
-      onMobileBack();
-    } else if (onCollapse) {
-      onCollapse();
-    }
-  };
-  const showBack = activeTab !== "profile" || isMobile || !!onCollapse;
-
   return (
     <div className="h-full overflow-y-auto scrollbar-hide px-4 md:px-6 pt-0 pb-28">
-      {/* Unified header: back arrow + title in same row across all viewports */}
-      <div className="mb-6">
-        <div className="flex items-center gap-3 mb-5 pt-5 md:pt-0">
-          {showBack && (
-            <button onClick={handleBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0 active:opacity-70 transition-opacity">
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
+      {/* Header: mobile profile keeps only back button, desktop keeps Guest Book card */}
+      {activeTab === "profile" ? (
+        <div className="mb-6">
+          {onCollapse && (
+            <div className={isMobile ? "mb-0" : "mb-4"}>
+              <button onClick={onCollapse} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
           )}
-          <h2 className="text-lg font-semibold text-foreground flex items-center gap-2">
-            {tabs.find(t => t.id === activeTab)?.label}
-            {activeTab === "history" && (
-              <Popover>
-                <PopoverTrigger asChild>
-                  <button className="w-6 h-6 rounded-full bg-neutral-700/60 border border-neutral-600/50 flex items-center justify-center hover:bg-neutral-600/60 transition-colors">
-                    <Info className="w-3.5 h-3.5 text-neutral-300" />
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent side="bottom" align="center" className="w-auto max-w-[240px] bg-neutral-800/95 backdrop-blur-xl border-neutral-700/50 rounded-xl p-3 space-y-2">
-                  {[
-                    { color: "bg-blue-500", label: "Blue signifies Restaurant order" },
-                    { color: "bg-green-500", label: "Green for Takeout" },
-                    { color: "bg-orange-500", label: "Orange for Delivery" },
-                    { color: "bg-red-500", label: "Red for Drive Thru" },
-                    { color: "bg-purple-500", label: "Purple for Banquet" },
-                    { color: "bg-yellow-400", label: "Yellow for Online Ordering" },
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <span className={`w-2.5 h-2.5 rounded-full ${item.color} flex-shrink-0`} />
-                      <span className="text-xs text-neutral-300">{item.label}</span>
-                    </div>
-                  ))}
-                </PopoverContent>
-              </Popover>
-            )}
-          </h2>
+          {!isMobile && (
+            <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
+              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
+                <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
+              </div>
+              <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
+              <p className="text-base text-neutral-400 leading-relaxed w-full">
+                Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
+              </p>
+            </div>
+          )}
         </div>
-      </div>
+      ) : (
+        <div className="mb-6">
+          {/* Title Row: Back + Title centered (back arrow hidden on mobile — outer wrapper provides it) */}
+          <div className="flex items-center relative mb-5">
+            {!isMobile && (
+              <button onClick={() => setActiveTab("profile")} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+            )}
+            <h2 className={`text-lg font-semibold text-foreground flex items-center gap-2 ${isMobile ? "mx-auto" : "absolute left-1/2 -translate-x-1/2"}`}>
+              {tabs.find(t => t.id === activeTab)?.label}
+              {activeTab === "history" && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="w-6 h-6 rounded-full bg-neutral-700/60 border border-neutral-600/50 flex items-center justify-center hover:bg-neutral-600/60 transition-colors">
+                      <Info className="w-3.5 h-3.5 text-neutral-300" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent side="bottom" align="center" className="w-auto max-w-[240px] bg-neutral-800/95 backdrop-blur-xl border-neutral-700/50 rounded-xl p-3 space-y-2">
+                    {[
+                      { color: "bg-blue-500", label: "Blue signifies Restaurant order" },
+                      { color: "bg-green-500", label: "Green for Takeout" },
+                      { color: "bg-orange-500", label: "Orange for Delivery" },
+                      { color: "bg-red-500", label: "Red for Drive Thru" },
+                      { color: "bg-purple-500", label: "Purple for Banquet" },
+                      { color: "bg-yellow-400", label: "Yellow for Online Ordering" },
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <span className={`w-2.5 h-2.5 rounded-full ${item.color} flex-shrink-0`} />
+                        <span className="text-xs text-neutral-300">{item.label}</span>
+                      </div>
+                    ))}
+                  </PopoverContent>
+                </Popover>
+              )}
+          </h2>
+          </div>
+        </div>
+      )}
 
       {/* Tabs */}
       <div className="flex justify-center mb-6">
@@ -1264,11 +1276,12 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     if (selectedGuest) {
       return (
         <div className="h-full flex flex-col">
-          <GuestDetailPanel
-            guest={selectedGuest}
-            onUpdateGuest={handleUpdateGuest}
-            onMobileBack={() => setSelectedGuestId(null)}
-          />
+          <div className="px-4 pt-5">
+            <button onClick={() => setSelectedGuestId(null)} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          </div>
+          <GuestDetailPanel guest={selectedGuest} onUpdateGuest={handleUpdateGuest} />
         </div>
       );
     }

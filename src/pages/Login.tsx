@@ -1271,7 +1271,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       setDeviceName("Rustic Table POS 1");
                       setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500);
                     }}
-                    className="bg-foreground rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                    className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                     data-tour="qr-code"
                   >
                     <QRCodeSVG value={activationQrValue} size={160} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />

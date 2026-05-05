@@ -1697,3 +1697,11 @@ html.light .apple-alert-cancel:hover,
 html.light .apple-alert button:hover {
   background-color: rgba(0, 0, 0, 0.05) !important;
 }
+
+/* Light theme: left navigation icons render in black */
+html.light .draggable-sidebar img {
+  filter: brightness(0) saturate(100%) !important;
+}
+html.light .draggable-sidebar svg {
+  color: #000000 !important;
+}

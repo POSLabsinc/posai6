@@ -1583,13 +1583,13 @@ html.light .header-support-btn:hover {
    ============================================================ */
 html.light [role="menu"] [role="menuitem"],
 html.light [role="menu"] [role="menuitem"] * {
-  color: #000000 !important;
+  color: #ffffff !important;
 }
 html.light [role="menu"] [role="menuitem"] img {
-  filter: brightness(0) !important;
+  filter: brightness(0) invert(1) !important;
 }
 html.light [role="menu"] [role="menuitem"]:hover {
-  background-color: #ececf0 !important;
+  background-color: rgba(255,255,255,0.08) !important;
 }
 
 /* ============================================================

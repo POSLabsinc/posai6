@@ -1021,9 +1021,9 @@ html.light {
 }
 
 /* --- Backgrounds --- */
-html.light .bg-black,
-html.light .bg-neutral-950,
-html.light .bg-neutral-900 {
+html.light .bg-black:not(.preserve-dark),
+html.light .bg-neutral-950:not(.preserve-dark),
+html.light .bg-neutral-900:not(.preserve-dark) {
   background-color: var(--light-surface-1) !important;
 }
 html.light .bg-neutral-800,
@@ -1621,3 +1621,26 @@ html.light .manager-pin-root button:hover {
   background-color: hsl(var(--accent)) !important;
 }
 
+
+/* ============================================================
+   CLOCK IN/OUT OVERLAY (PIN PAD) — IDENTICAL ON BOTH THEMES
+   The clock-in/out overlay is a fullscreen PIN pad that must look
+   identical on light and dark themes. Re-assert dark styling here
+   to defeat the global html.light remaps above.
+   ============================================================ */
+html.light .pos-clock-overlay .text-white { color: #ffffff !important; }
+html.light .pos-clock-overlay .text-white\/90 { color: rgba(255,255,255,0.9) !important; }
+html.light .pos-clock-overlay .text-white\/80 { color: rgba(255,255,255,0.8) !important; }
+html.light .pos-clock-overlay .text-white\/70 { color: rgba(255,255,255,0.7) !important; }
+html.light .pos-clock-overlay .text-white\/60 { color: rgba(255,255,255,0.6) !important; }
+html.light .pos-clock-overlay .text-white\/50 { color: rgba(255,255,255,0.5) !important; }
+html.light .pos-clock-overlay .text-white\/40 { color: rgba(255,255,255,0.4) !important; }
+html.light .pos-clock-overlay .bg-white\/5 { background-color: rgba(255,255,255,0.05) !important; }
+html.light .pos-clock-overlay .bg-white\/10 { background-color: rgba(255,255,255,0.10) !important; }
+html.light .pos-clock-overlay .bg-white\/15 { background-color: rgba(255,255,255,0.15) !important; }
+html.light .pos-clock-overlay .bg-white\/20 { background-color: rgba(255,255,255,0.20) !important; }
+html.light .pos-clock-overlay .hover\:bg-white\/10:hover { background-color: rgba(255,255,255,0.10) !important; }
+html.light .pos-clock-overlay .hover\:bg-white\/20:hover { background-color: rgba(255,255,255,0.20) !important; }
+html.light .pos-clock-overlay .border-white\/10 { border-color: rgba(255,255,255,0.10) !important; }
+html.light .pos-clock-overlay .border-white\/20 { border-color: rgba(255,255,255,0.20) !important; }
+html.light .pos-clock-overlay svg.text-white { color: #ffffff !important; }

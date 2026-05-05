@@ -932,7 +932,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
           </div>
 
           {/* Most Ordered & Quick Info */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="bg-neutral-800/40 rounded-2xl p-4">
               <p className="text-[10px] text-neutral-500 tracking-widest mb-2 font-medium">Most Ordered</p>
               <div className="flex items-center gap-2">

@@ -1593,40 +1593,31 @@ html.light [role="menu"] [role="menuitem"]:hover {
 }
 
 /* ============================================================
-   LIGHT MODE: Preserve dark theme for PIN Pad screens
-   (ManagerPinScreen, AccessRestrictedModal). Keep numpad,
-   dots, biometric icons, and surfaces identical to dark mode.
+   LIGHT MODE: PIN Pad screens (ManagerPinScreen,
+   AccessRestrictedModal) follow the active theme. In light
+   mode, surfaces stay light/white instead of forcing dark.
    ============================================================ */
-html.light .manager-pin-root,
-html.light .manager-pin-root * {
-  color-scheme: dark;
-}
 html.light .manager-pin-root {
-  background-color: #1C1C1E !important;
-  color: #ffffff !important;
+  background-color: transparent;
+  color: hsl(var(--foreground));
 }
 html.light .manager-pin-root .bg-muted,
 html.light .manager-pin-root .bg-neutral-800,
 html.light .manager-pin-root .bg-neutral-900 {
-  background-color: #2C2C2E !important;
-  color: #ffffff !important;
+  background-color: hsl(var(--muted)) !important;
+  color: hsl(var(--foreground)) !important;
 }
 html.light .manager-pin-root .bg-neutral-700 {
-  background-color: #3A3A3C !important;
+  background-color: hsl(var(--muted)) !important;
 }
 html.light .manager-pin-root .border-neutral-700,
 html.light .manager-pin-root .border-neutral-600 {
-  border-color: #3A3A3C !important;
-}
-html.light .manager-pin-root .text-foreground {
-  color: #ffffff !important;
-}
-html.light .manager-pin-root .text-muted-foreground {
-  color: rgba(255, 255, 255, 0.6) !important;
+  border-color: hsl(var(--border)) !important;
 }
 html.light .manager-pin-root .text-destructive {
   color: #ef4444 !important;
 }
 html.light .manager-pin-root button:hover {
-  background-color: #3A3A3C !important;
+  background-color: hsl(var(--accent)) !important;
 }
+

@@ -85,21 +85,21 @@ const FeedbackTabContent = ({ guest }: FeedbackTabContentProps) => {
             key={item.id}
             className="rounded-2xl overflow-hidden bg-neutral-200/60 dark:bg-[#26262699]"
           >
-            <div className="flex items-center gap-4 px-4 py-3.5">
+            <div className="flex items-center gap-3 sm:gap-4 px-4 py-3.5">
               {/* Date Block */}
-              <div className="flex-shrink-0 flex flex-col items-center w-12 border-r border-neutral-600/50 pr-4">
+              <div className="flex-shrink-0 flex flex-col items-center w-12 border-r border-neutral-600/50 pr-3 sm:pr-4">
                 <span className="text-lg font-bold text-foreground leading-tight">{formatDay(item.feedback_date)}</span>
                 <span className="text-xs text-neutral-400 uppercase">{formatMonth(item.feedback_date)}</span>
               </div>
 
               {/* Smileys */}
-              <div className="flex items-center gap-1 flex-shrink-0">
+              <div className="hidden sm:flex items-center gap-1 flex-shrink-0">
                 <Frown className={`w-5 h-5 ${item.sentiment === "negative" ? "text-neutral-300" : "text-neutral-600"}`} />
                 <Smile className={`w-5 h-5 ${item.sentiment === "positive" ? "text-neutral-300" : "text-neutral-600"}`} />
               </div>
 
               {/* Divider */}
-              <div className="w-px h-6 bg-neutral-600/50 flex-shrink-0" />
+              <div className="hidden sm:block w-px h-6 bg-neutral-600/50 flex-shrink-0" />
 
               {/* Comment Icon + Text */}
               <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -118,7 +118,7 @@ const FeedbackTabContent = ({ guest }: FeedbackTabContentProps) => {
               </div>
 
               {/* Platform Logo */}
-              <div className="flex-shrink-0 w-24 flex justify-end">
+              <div className="flex-shrink-0 w-16 sm:w-24 flex justify-end">
                 {platform?.src ? (
                   <img src={platform.src} alt={item.platform} className="h-5 object-contain" />
                 ) : platform?.text ? (

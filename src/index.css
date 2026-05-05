@@ -1705,3 +1705,8 @@ html.light .draggable-sidebar img {
 html.light .draggable-sidebar svg {
   color: #000000 !important;
 }
+
+/* Light theme: bottom navigation icons render in black */
+html.light .bottom-navigation img {
+  filter: brightness(0) saturate(100%) !important;
+}

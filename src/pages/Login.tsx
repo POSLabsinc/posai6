@@ -1271,7 +1271,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       setDeviceName("Rustic Table POS 1");
                       setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500);
                     }}
-                    className="bg-foreground rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                    className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                     data-tour="qr-code"
                   >
                     <QRCodeSVG value={activationQrValue} size={160} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
@@ -1418,7 +1418,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     <h2 className="text-lg font-bold text-foreground mb-3">Point the camera at the QR code</h2>
                     <button
                       onClick={() => { setShowDeviceConnected(true); setDeviceName("Rustic Table POS 1"); setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500); }}
-                      className="bg-foreground rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 self-center"
+                      className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 self-center"
                       data-tour="qr-code"
                     >
                       <QRCodeSVG value={activationQrValue} size={220} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
@@ -1805,7 +1805,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <h2 className="text-xl font-bold text-foreground mb-6">Scan to Activate</h2>
               
               <div className="flex flex-row items-start gap-6">
-                <div className="bg-foreground rounded-2xl p-5 flex-shrink-0">
+                <div className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-5 flex-shrink-0">
                   <QRCodeSVG
                     value={activationQrValue}
                     size={200}
@@ -7574,7 +7574,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                       }));
                       navigate("/");
                     }}
-                    className="bg-foreground rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
+                    className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
                   >
                     <QRCodeSVG value={activationQrValueExisting} size={160} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                   </button>
@@ -7753,7 +7753,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         }));
                         navigate("/");
                       }}
-                      className="bg-foreground rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 self-center"
+                      className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 self-center"
                     >
                       <QRCodeSVG value={activationQrValueExisting} size={220} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                     </button>

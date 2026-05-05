@@ -636,7 +636,7 @@ const GuestListItem = ({ guest, isSelected, onClick }: { guest: Guest; isSelecte
 );
 
 // --- Guest Detail Panel ---
-const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; onUpdateGuest: (updated: Guest) => void; onCollapse?: () => void }) => {
+const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse, onMobileBack }: { guest: Guest; onUpdateGuest: (updated: Guest) => void; onCollapse?: () => void; onMobileBack?: () => void }) => {
   const [activeTab, setActiveTab] = useState<TabId>("profile");
   const [showTagPicker, setShowTagPicker] = useState(false);
   const { getIconBgColor } = useAppearance();

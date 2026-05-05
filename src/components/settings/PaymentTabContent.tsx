@@ -174,7 +174,7 @@ const PaymentTabContent = ({ guest }: PaymentTabContentProps) => {
             const total = getCategoryTotal(item.key);
             const Icon = item.icon;
             return (
-              <div key={item.key} className="rounded-2xl p-4 flex items-center gap-3" style={{ backgroundColor: '#26262699' }}>
+              <div key={item.key} className="rounded-2xl p-4 flex items-center gap-3 bg-neutral-200/60 dark:bg-[#26262699]">
                 <div className="w-10 h-10 rounded-xl bg-neutral-700/50 flex items-center justify-center flex-shrink-0">
                   <Icon className="w-5 h-5 text-neutral-300" />
                 </div>
@@ -189,7 +189,7 @@ const PaymentTabContent = ({ guest }: PaymentTabContentProps) => {
       </div>
 
       {/* PAYMENT TABLE */}
-      <div className="rounded-2xl overflow-hidden" style={{ backgroundColor: '#26262699' }}>
+      <div className="rounded-2xl overflow-hidden bg-neutral-200/60 dark:bg-[#26262699]">
         {/* Table Header */}
         <div className="grid grid-cols-6 gap-2 px-4 py-3 border-b border-neutral-700/50 text-xs font-medium text-neutral-500">
           <button onClick={() => toggleSort("date")} className="flex items-center gap-0.5 text-left">Date <SortIcon field="date" /></button>
@@ -211,7 +211,7 @@ const PaymentTabContent = ({ guest }: PaymentTabContentProps) => {
           return (
             <div key={category}>
               {/* Category Label */}
-              <div className="px-4 py-2" style={{ backgroundColor: '#26262699' }}>
+              <div className="px-4 py-2 bg-neutral-200/60 dark:bg-[#26262699]">
                 <span className="text-xs font-medium text-neutral-500">{category}</span>
               </div>
 

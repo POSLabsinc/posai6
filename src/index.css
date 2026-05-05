@@ -1021,9 +1021,9 @@ html.light {
 }
 
 /* --- Backgrounds --- */
-html.light .bg-black,
-html.light .bg-neutral-950,
-html.light .bg-neutral-900 {
+html.light .bg-black:not(.preserve-dark),
+html.light .bg-neutral-950:not(.preserve-dark),
+html.light .bg-neutral-900:not(.preserve-dark) {
   background-color: var(--light-surface-1) !important;
 }
 html.light .bg-neutral-800,

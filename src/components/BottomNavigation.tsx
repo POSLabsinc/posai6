@@ -18,7 +18,7 @@ const BottomNavigation = () => {
 
   return (
     <div className="md:hidden flex items-center justify-center bg-background">
-      <div className="flex items-center justify-around bg-surface-inset py-1 w-full border-t border-divider">
+      <div className="bottom-navigation flex items-center justify-around bg-surface-inset py-1 w-full border-t border-divider">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (

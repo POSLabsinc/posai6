@@ -7753,7 +7753,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                         }));
                         navigate("/");
                       }}
-                      className="bg-foreground rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 self-center"
+                      className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 self-center"
                     >
                       <QRCodeSVG value={activationQrValueExisting} size={220} bgColor="hsl(0 0% 100%)" fgColor="hsl(0 0% 0%)" level="M" />
                     </button>

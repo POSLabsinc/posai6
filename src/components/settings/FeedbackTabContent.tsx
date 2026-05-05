@@ -57,7 +57,7 @@ const FeedbackTabContent = ({ guest }: FeedbackTabContentProps) => {
 
   if (loading) {
     return (
-      <div className="rounded-2xl p-8 flex items-center justify-center" style={{ backgroundColor: '#26262699' }}>
+      <div className="rounded-2xl p-8 flex items-center justify-center bg-neutral-200/60 dark:bg-[#26262699]">
         <div className="w-6 h-6 border-2 border-foreground/20 border-t-foreground rounded-full animate-spin" />
       </div>
     );
@@ -65,7 +65,7 @@ const FeedbackTabContent = ({ guest }: FeedbackTabContentProps) => {
 
   if (feedback.length === 0) {
     return (
-      <div className="rounded-2xl p-8 flex flex-col items-center justify-center text-center" style={{ backgroundColor: '#26262699' }}>
+      <div className="rounded-2xl p-8 flex flex-col items-center justify-center text-center bg-neutral-200/60 dark:bg-[#26262699]">
         <MessageSquare className="w-10 h-10 text-neutral-500 mb-1" />
         <p className="text-neutral-400 text-sm">No feedback available yet.</p>
       </div>
@@ -83,8 +83,7 @@ const FeedbackTabContent = ({ guest }: FeedbackTabContentProps) => {
         return (
           <div
             key={item.id}
-            className="rounded-2xl overflow-hidden"
-            style={{ backgroundColor: '#26262699' }}
+            className="rounded-2xl overflow-hidden bg-neutral-200/60 dark:bg-[#26262699]"
           >
             <div className="flex items-center gap-4 px-4 py-3.5">
               {/* Date Block */}

@@ -341,7 +341,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
 
       {/* PIN overlay */}
       {!authenticated && (
-        <div className="fixed md:absolute inset-0 bg-background/90 dark:bg-black/90 md:bg-background/90 md:dark:bg-black/90 md:backdrop-blur-sm z-50 flex flex-col md:items-center md:justify-center md:rounded-2xl">
+        <div className="fixed md:absolute inset-0 bg-background/90 dark:bg-black/90 md:backdrop-blur-sm z-50 flex flex-col md:items-center md:justify-center md:rounded-2xl">
           {/* Mobile back arrow */}
           <div className="md:hidden flex items-center px-4 py-3 shrink-0">
             <button

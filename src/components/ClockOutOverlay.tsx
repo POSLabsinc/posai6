@@ -1628,7 +1628,7 @@ export const ClockOutOverlay = ({
           }}
         >
           {/* Dimmed Background — partially reveals underlying UI behind blur. Force dark backdrop on both themes for PIN pad consistency. */}
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-md preserve-dark" />
+          <div className="absolute inset-0 backdrop-blur-md preserve-dark" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }} />
 
           {/* Conditionally render mobile OR desktop layout */}
           {isMobile ? renderMobileLayout() : renderDesktopLayout()}

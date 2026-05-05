@@ -1805,7 +1805,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <h2 className="text-xl font-bold text-foreground mb-6">Scan to Activate</h2>
               
               <div className="flex flex-row items-start gap-6">
-                <div className="bg-foreground rounded-2xl p-5 flex-shrink-0">
+                <div className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-5 flex-shrink-0">
                   <QRCodeSVG
                     value={activationQrValue}
                     size={200}

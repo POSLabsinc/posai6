@@ -596,7 +596,7 @@ export const StandaloneClockInScreen = ({
       {isOpen && (
         <motion.div ref={containerRef}
           initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-          className="sci-root fixed inset-0 z-[9999] bg-[#0a0a0a] flex">
+          className="sci-root fixed inset-0 z-[9999] bg-[#0a0a0a]/95 backdrop-blur-xl flex">
           {renderLeftPanel()}
           <div className="w-px bg-white/[0.06]" />
           {renderRightPanel()}

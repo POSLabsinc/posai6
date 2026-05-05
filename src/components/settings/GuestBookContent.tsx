@@ -882,15 +882,15 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
               {/* Right: Stats + Info */}
               <div className="flex-1 flex flex-col gap-3">
                 {/* Stats Row */}
-                <div className="flex items-center justify-between bg-neutral-900/50 rounded-xl px-4 py-3">
+                <div className="grid grid-cols-3 sm:flex sm:items-center sm:justify-between gap-2 bg-neutral-900/50 rounded-xl px-3 sm:px-4 py-3">
                   <StatItem value={guest.lastVisit} label="Last Visit" />
-                  <div className="w-px h-8 bg-neutral-700/40" />
+                  <div className="hidden sm:block w-px h-8 bg-neutral-700/40" />
                   <StatItem value={guest.avgSpend} label="Avg Spend" />
-                  <div className="w-px h-8 bg-neutral-700/40" />
+                  <div className="hidden sm:block w-px h-8 bg-neutral-700/40" />
                   <StatItem value={guest.lifetimeSpend} label="Lifetime Spend" />
-                  <div className="w-px h-8 bg-neutral-700/40" />
+                  <div className="hidden sm:block w-px h-8 bg-neutral-700/40" />
                   <StatItem value={guest.totalOrders} label="Total Orders" />
-                  <div className="w-px h-8 bg-neutral-700/40" />
+                  <div className="hidden sm:block w-px h-8 bg-neutral-700/40" />
                   <StatItem value={guest.avgTip} label="Avg Tip" />
                 </div>
 

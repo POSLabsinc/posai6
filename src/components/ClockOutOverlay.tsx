@@ -1618,14 +1618,13 @@ export const ClockOutOverlay = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="dark fixed inset-0 z-[9999] flex bg-transparent"
+          className="pos-clock-overlay fixed inset-0 z-[9999] flex"
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
-            bottom: 0,
-            colorScheme: 'dark'
+            bottom: 0
           }}
         >
           {/* Dimmed Background — force dark backdrop on both themes for PIN pad consistency */}

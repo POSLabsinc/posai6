@@ -1719,15 +1719,15 @@ export const ClockInOverlay = ({
         opacity: 1
       }} exit={{
         opacity: 0
-      }} className="fixed inset-0 z-[9999] flex" style={{
+      }} className="pos-clock-overlay fixed inset-0 z-[9999] flex" style={{
         position: 'fixed',
         top: 0,
         left: 0,
         right: 0,
         bottom: 0
       }}>
-          {/* Background */}
-          <div className="absolute inset-0 bg-black/80 backdrop-blur-md" />
+          {/* Dimmed Background — force dark backdrop on both themes for PIN pad consistency */}
+          <div className="absolute inset-0 backdrop-blur-md" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }} />
 
           {/* Conditionally render mobile OR desktop layout based on JS detection */}
           {isMobile ? renderMobileLayout() : renderDesktopLayout()}

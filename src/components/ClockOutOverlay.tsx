@@ -1627,8 +1627,8 @@ export const ClockOutOverlay = ({
             bottom: 0
           }}
         >
-          {/* Opaque Background — fully hides underlying UI (including Settings search bar) */}
-          <div className="absolute inset-0 bg-black backdrop-blur-md" />
+          {/* Dimmed Background — partially reveals underlying UI behind blur */}
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
 
           {/* Conditionally render mobile OR desktop layout */}
           {isMobile ? renderMobileLayout() : renderDesktopLayout()}

@@ -1276,12 +1276,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     if (selectedGuest) {
       return (
         <div className="h-full flex flex-col">
-          <div className="px-4 pt-5">
-            <button onClick={() => setSelectedGuestId(null)} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
-          </div>
-          <GuestDetailPanel guest={selectedGuest} onUpdateGuest={handleUpdateGuest} />
+          <GuestDetailPanel guest={selectedGuest} onUpdateGuest={handleUpdateGuest} onCollapse={() => setSelectedGuestId(null)} />
         </div>
       );
     }

@@ -190,6 +190,8 @@ const PaymentTabContent = ({ guest }: PaymentTabContentProps) => {
 
       {/* PAYMENT TABLE */}
       <div className="rounded-2xl overflow-hidden bg-neutral-200/60 dark:bg-[#26262699]">
+       <div className="overflow-x-auto scrollbar-hide">
+        <div className="min-w-[640px]">
         {/* Table Header */}
         <div className="grid grid-cols-6 gap-2 px-4 py-3 border-b border-neutral-700/50 text-xs font-medium text-neutral-500">
           <button onClick={() => toggleSort("date")} className="flex items-center gap-0.5 text-left">Date <SortIcon field="date" /></button>
@@ -270,6 +272,8 @@ const PaymentTabContent = ({ guest }: PaymentTabContentProps) => {
             </div>
           );
         })}
+        </div>
+       </div>
       </div>
     </div>
   );

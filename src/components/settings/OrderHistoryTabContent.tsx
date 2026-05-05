@@ -217,6 +217,9 @@ const OrderHistoryTabContent = ({ guest }: OrderHistoryTabContentProps) => {
         </div>
       </div>
 
+      {/* Table - horizontally scrollable on small screens */}
+      <div className="overflow-x-auto scrollbar-hide -mx-2 px-2">
+        <div className="min-w-[640px] space-y-2">
       {/* Table Header */}
       <div className="grid grid-cols-[80px_1fr_100px_80px_60px_80px] gap-2 px-4 py-2 items-center">
         <SortHeader label="Date" field="date" />

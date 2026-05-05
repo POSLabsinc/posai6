@@ -1628,7 +1628,7 @@ export const ClockOutOverlay = ({
           }}
         >
           {/* Dimmed Background — partially reveals underlying UI behind blur */}
-          <div className="absolute inset-0 bg-black/80 dark:bg-black/40 backdrop-blur-md" />
+          <div className="absolute inset-0 bg-black/40 backdrop-blur-md" />
 
           {/* Conditionally render mobile OR desktop layout */}
           {isMobile ? renderMobileLayout() : renderDesktopLayout()}

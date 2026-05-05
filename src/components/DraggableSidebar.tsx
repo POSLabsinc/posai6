@@ -159,7 +159,7 @@ export function DraggableSidebar() {
         className={`${isHorizontal ? 'h-20 w-full' : 'w-20 h-full'} py-2 px-2 flex-shrink-0 transition-all duration-300 ease-out ${getAnimationClass()}`}
       >
         <div 
-          className={`h-full rounded-2xl flex ${isHorizontal ? 'flex-row' : 'flex-col'} gap-1 p-1.5`} 
+          className={`draggable-sidebar h-full rounded-2xl flex ${isHorizontal ? 'flex-row' : 'flex-col'} gap-1 p-1.5`} 
           style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}
         >
           {/* Drag Handle + Lock Toggle */}

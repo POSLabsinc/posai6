@@ -2690,7 +2690,7 @@ const Orders = () => {
               <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-8 lg:w-9 h-6 md:h-8 lg:h-9" />
             </Button>}
           {/* Categories */}
-          {(augmentedMenuCategories[selectedMenu] || []).map((cat) => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2.5 md:px-4 lg:px-6 h-7 md:h-8 lg:h-9 text-[11px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
+          {(augmentedMenuCategories[selectedMenu] || []).map((cat) => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2.5 md:px-4 lg:px-6 h-7 md:h-8 lg:h-9 text-[11px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-neutral-900 text-white ${getCategoryBorderColor(cat)} hover:bg-neutral-800`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
         </div>

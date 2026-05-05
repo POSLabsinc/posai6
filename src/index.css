@@ -1644,3 +1644,25 @@ html.light .pos-clock-overlay .hover\:bg-white\/20:hover { background-color: rgb
 html.light .pos-clock-overlay .border-white\/10 { border-color: rgba(255,255,255,0.10) !important; }
 html.light .pos-clock-overlay .border-white\/20 { border-color: rgba(255,255,255,0.20) !important; }
 html.light .pos-clock-overlay svg.text-white { color: #ffffff !important; }
+
+/* ============================================================
+   LIGHT MODE: Pill toolbar buttons (Custom Item, Discount,
+   No Tax, No Sale, Add Item, Receipt, etc.) on right ticket panel.
+   These use bg-[#666666] with white SVG icons that go invisible
+   on the remapped light background. Invert the icons + provide
+   a stronger background and dark text for readability.
+   ============================================================ */
+html.light .bg-\[\#666666\] {
+  background-color: #e5e5e5 !important;
+  color: #0a0a0a !important;
+  border-color: #d4d4d4 !important;
+}
+html.light .bg-\[\#666666\] img {
+  filter: invert(1) brightness(0.2);
+}
+html.light .hover\:bg-\[\#666666\]:hover {
+  background-color: #d4d4d4 !important;
+}
+html.light .hover\:bg-\[\#555555\]:hover {
+  background-color: #d4d4d4 !important;
+}

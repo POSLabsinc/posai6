@@ -1657,12 +1657,18 @@ html.light .bg-\[\#666666\] {
   color: #0a0a0a !important;
   border-color: #d4d4d4 !important;
 }
+html.light .bg-\[\#666666\] *,
+html.light .bg-\[\#666666\] .text-white {
+  color: #0a0a0a !important;
+}
 html.light .bg-\[\#666666\] img {
-  filter: invert(1) brightness(0.2);
+  filter: invert(1) brightness(0.2) !important;
 }
-html.light .hover\:bg-\[\#666666\]:hover {
-  background-color: #d4d4d4 !important;
+html.light .bg-\[\#666666\] svg {
+  color: #0a0a0a !important;
+  stroke: currentColor !important;
 }
+html.light .hover\:bg-\[\#666666\]:hover,
 html.light .hover\:bg-\[\#555555\]:hover {
   background-color: #d4d4d4 !important;
 }

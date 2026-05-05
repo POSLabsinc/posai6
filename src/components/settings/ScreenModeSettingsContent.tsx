@@ -42,12 +42,11 @@ const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {showHeader && onBack && isMobile && (
+      {showHeader && onBack && (
         <div className="sticky top-0 z-10 bg-[#131316] flex items-center px-2 py-3">
           <button onClick={onBack} className="p-1.5 -ml-1 rounded-full hover:bg-white/10 transition-colors">
-            <ChevronLeft className="w-5 h-5 text-white" />
+            <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <h1 className="text-base font-semibold text-white ml-1">Screen Mode</h1>
         </div>
       )}
 

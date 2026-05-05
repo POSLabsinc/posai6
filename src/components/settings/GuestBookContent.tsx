@@ -712,38 +712,49 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide px-4 md:px-6 pt-0 pb-28">
-      {/* Header: mobile profile keeps only back button, desktop keeps Guest Book card */}
+      {/* Header: mobile shows back + centered title for all tabs */}
       {activeTab === "profile" ? (
         <div className="mb-6">
-          {onCollapse && (
-            <div className={isMobile ? "mb-0" : "mb-4"}>
-              <button onClick={onCollapse} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
-                <ChevronLeft className="w-5 h-5 text-foreground" />
-              </button>
+          {isMobile ? (
+            <div className="flex items-center relative mb-5">
+              {onCollapse && (
+                <button onClick={onCollapse} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
+                  <ChevronLeft className="w-5 h-5 text-foreground" />
+                </button>
+              )}
+              <h2 className="text-lg font-semibold text-foreground absolute left-1/2 -translate-x-1/2">
+                Profile
+              </h2>
             </div>
-          )}
-          {!isMobile && (
-            <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
-              <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
-                <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
+          ) : (
+            <>
+              {onCollapse && (
+                <div className="mb-4">
+                  <button onClick={onCollapse} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
+                    <ChevronLeft className="w-5 h-5 text-foreground" />
+                  </button>
+                </div>
+              )}
+              <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
+                  <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
+                </div>
+                <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
+                <p className="text-base text-neutral-400 leading-relaxed w-full">
+                  Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
+                </p>
               </div>
-              <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
-              <p className="text-base text-neutral-400 leading-relaxed w-full">
-                Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
-              </p>
-            </div>
+            </>
           )}
         </div>
       ) : (
         <div className="mb-6">
-          {/* Title Row: Back + Title centered (back arrow hidden on mobile — outer wrapper provides it) */}
+          {/* Title Row: Back + Title centered */}
           <div className="flex items-center relative mb-5">
-            {!isMobile && (
-              <button onClick={() => setActiveTab("profile")} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
-                <ChevronLeft className="w-5 h-5 text-foreground" />
-              </button>
-            )}
-            <h2 className={`text-lg font-semibold text-foreground flex items-center gap-2 ${isMobile ? "mx-auto" : "absolute left-1/2 -translate-x-1/2"}`}>
+            <button onClick={() => setActiveTab("profile")} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+            <h2 className="text-lg font-semibold text-foreground flex items-center gap-2 absolute left-1/2 -translate-x-1/2">
               {tabs.find(t => t.id === activeTab)?.label}
               {activeTab === "history" && (
                 <Popover>

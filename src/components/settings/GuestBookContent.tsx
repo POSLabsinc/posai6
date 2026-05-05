@@ -809,12 +809,12 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
             {/* Tags & Badges */}
             <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
               {guest.loyalty && (
-                <span className="px-2.5 py-0.5 rounded-full bg-neutral-700/80 text-[11px] text-foreground font-medium">
+                <span className="px-2.5 py-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700/80 text-[11px] text-foreground font-medium">
                   {guest.loyalty}
                 </span>
               )}
               {guest.tags.map(tag => (
-                <span key={tag} className="px-2.5 py-0.5 rounded-full bg-neutral-700/80 text-[11px] text-foreground font-medium">
+                <span key={tag} className="px-2.5 py-0.5 rounded-full bg-neutral-300 dark:bg-neutral-700/80 text-[11px] text-foreground font-medium">
                   {tag}
                 </span>
               ))}

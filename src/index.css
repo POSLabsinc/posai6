@@ -1672,3 +1672,28 @@ html.light .hover\:bg-\[\#666666\]:hover,
 html.light .hover\:bg-\[\#555555\]:hover {
   background-color: #d4d4d4 !important;
 }
+
+/* Apple-style alert dialog: light theme overrides */
+html.light .apple-alert {
+  background-color: rgba(255, 255, 255, 0.98) !important;
+  box-shadow: 0 20px 60px -10px rgba(0, 0, 0, 0.35) !important;
+}
+html.light .apple-alert-title {
+  color: #0a0a0a !important;
+}
+html.light .apple-alert-desc {
+  color: #3a3a3c !important;
+}
+html.light .apple-alert-footer {
+  border-top-color: rgba(60, 60, 67, 0.29) !important;
+}
+html.light .apple-alert-divider {
+  background-color: rgba(60, 60, 67, 0.29) !important;
+}
+html.light .apple-alert-cancel {
+  color: #0a0a0a !important;
+}
+html.light .apple-alert-cancel:hover,
+html.light .apple-alert button:hover {
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}

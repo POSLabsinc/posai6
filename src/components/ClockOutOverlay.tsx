@@ -1618,17 +1618,18 @@ export const ClockOutOverlay = ({
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-[9999] flex"
+          className="dark fixed inset-0 z-[9999] flex bg-transparent"
           style={{
             position: 'fixed',
             top: 0,
             left: 0,
             right: 0,
-            bottom: 0
+            bottom: 0,
+            colorScheme: 'dark'
           }}
         >
-          {/* Dimmed Background — partially reveals underlying UI behind blur. Force dark backdrop on both themes for PIN pad consistency. */}
-          <div className="absolute inset-0 backdrop-blur-md preserve-dark" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }} />
+          {/* Dimmed Background — force dark backdrop on both themes for PIN pad consistency */}
+          <div className="absolute inset-0 backdrop-blur-md" style={{ backgroundColor: 'rgba(0,0,0,0.7)' }} />
 
           {/* Conditionally render mobile OR desktop layout */}
           {isMobile ? renderMobileLayout() : renderDesktopLayout()}

@@ -412,6 +412,8 @@ const OrderHistoryTabContent = ({ guest }: OrderHistoryTabContentProps) => {
           );
         })}
       </div>
+        </div>
+      </div>
     </div>
   );
 };

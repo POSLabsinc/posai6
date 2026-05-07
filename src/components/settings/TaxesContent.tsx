@@ -18,6 +18,7 @@ import EditTaxContent from "./EditTaxContent";
 import SwipeableTaxItem from "./SwipeableTaxItem";
 import { SortableHeader, useSortableData } from "./SortableHeader";
 import { supabase } from "@/integrations/supabase/client";
+import infoIcon from "@/assets/icons/info.png";
 
 type TaxSortKey = "name" | "amount" | "type";
 

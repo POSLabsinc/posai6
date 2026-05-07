@@ -922,7 +922,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           </motion.p>
 
           <motion.div
-            className="grid grid-cols-2 gap-4 w-full max-w-xl"
+            className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-xl"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}

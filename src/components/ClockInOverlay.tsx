@@ -1083,11 +1083,11 @@ export const ClockInOverlay = ({
     duration: 0.3
   }} className="flex flex-col h-full">
       {/* Mobile: Show compact date/time header - visible only on small screens */}
-      <div className="text-center mb-3 md:hidden">
-        <p className="text-white/60 text-sm">{format(currentTime, "EEEE, MMMM d, yyyy")}</p>
-        <p className="text-white text-2xl font-bold">
+      <div className="text-center mb-4 md:hidden">
+        <p className="text-white/70 text-base font-medium">{format(currentTime, "EEEE, MMMM d, yyyy")}</p>
+        <p className="text-white text-5xl font-bold mt-1 tracking-tight">
           {format(currentTime, "h:mm")}
-          <span className="text-white/60 text-lg ml-1">{format(currentTime, "a")}</span>
+          <span className="text-white/60 text-2xl ml-2 font-semibold">{format(currentTime, "a")}</span>
         </p>
       </div>
 
@@ -1114,30 +1114,30 @@ export const ClockInOverlay = ({
 
       <div className="flex-1 overflow-y-auto min-h-0 relative">
         <div className="grid grid-cols-3 gap-2">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => <button key={num} onClick={() => handleKeyPress(num.toString())} disabled={isVerifying} className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-xl md:text-2xl font-semibold disabled:opacity-50">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => <button key={num} onClick={() => handleKeyPress(num.toString())} disabled={isVerifying} className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-2xl md:text-2xl font-semibold disabled:opacity-50">
               {num}
             </button>)}
-          <button onClick={handleClear} disabled={isVerifying} className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-red-500 text-xl md:text-2xl font-bold disabled:opacity-50">
+          <button onClick={handleClear} disabled={isVerifying} className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-red-500 text-2xl md:text-2xl font-bold disabled:opacity-50">
             C
           </button>
-          <button onClick={() => handleKeyPress("0")} disabled={isVerifying} className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-xl md:text-2xl font-semibold disabled:opacity-50">
+          <button onClick={() => handleKeyPress("0")} disabled={isVerifying} className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-2xl md:text-2xl font-semibold disabled:opacity-50">
             0
           </button>
-          <button onClick={handleEnter} disabled={isVerifying || pin.length !== PIN_LENGTH} className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d-enter rounded-lg text-black text-base md:text-lg font-bold disabled:opacity-50">
+          <button onClick={handleEnter} disabled={isVerifying || pin.length !== PIN_LENGTH} className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d-enter rounded-lg text-black text-base md:text-lg font-bold disabled:opacity-50">
             ENTER
           </button>
         </div>
 
         <div className={`grid ${SettingsManager.getControlCenterSettings().hideBreakButton ? 'grid-cols-2' : 'grid-cols-3'} gap-2 mt-2`}>
-          <button onClick={handleClockOut} disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn} className="h-12 md:h-14 lg:h-16 keypad-btn-3d-clockout rounded-lg text-white text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed">
+          <button onClick={handleClockOut} disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn} className="h-[60px] md:h-14 lg:h-16 keypad-btn-3d-clockout rounded-lg text-white text-sm md:text-sm lg:text-base font-bold disabled:cursor-not-allowed">
             Clock Out
           </button>
           {!SettingsManager.getControlCenterSettings().hideBreakButton && (
-            <button onClick={handleBreak} disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn} className="h-12 md:h-14 lg:h-16 keypad-btn-3d-break rounded-lg text-black text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed">
+            <button onClick={handleBreak} disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn} className="h-[60px] md:h-14 lg:h-16 keypad-btn-3d-break rounded-lg text-black text-sm md:text-sm lg:text-base font-bold disabled:cursor-not-allowed">
               Break
             </button>
           )}
-          <button onClick={handleClockIn} disabled={isVerifying || pin.length !== PIN_LENGTH || isClockedIn} className="h-12 md:h-14 lg:h-16 keypad-btn-3d-clockin rounded-lg text-white text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed">
+          <button onClick={handleClockIn} disabled={isVerifying || pin.length !== PIN_LENGTH || isClockedIn} className="h-[60px] md:h-14 lg:h-16 keypad-btn-3d-clockin rounded-lg text-white text-sm md:text-sm lg:text-base font-bold disabled:cursor-not-allowed">
             Clock In
           </button>
         </div>
@@ -1145,15 +1145,15 @@ export const ClockInOverlay = ({
         <div className="relative grid grid-cols-3 gap-2 mt-2">
           <button 
             onClick={handleFingerprintPress}
-            className="h-12 md:h-14 lg:h-16 keypad-btn-3d-dark rounded-lg flex items-center justify-center"
+            className="h-[56px] md:h-14 lg:h-16 keypad-btn-3d-dark rounded-lg flex items-center justify-center"
           >
-            <Fingerprint className="w-6 h-6 md:w-7 md:h-7 text-white" />
+            <Fingerprint className="w-7 h-7 md:w-7 md:h-7 text-white" />
           </button>
           
           <div className="relative">
             <button onClick={() => {
               setShowRevenueCenterSelector(!showRevenueCenterSelector);
-            }} className="w-full h-12 md:h-14 lg:h-16 keypad-btn-3d-revenue rounded-lg flex flex-col items-center justify-center px-2">
+            }} className="w-full h-[56px] md:h-14 lg:h-16 keypad-btn-3d-revenue rounded-lg flex flex-col items-center justify-center px-2">
               <span className="text-neutral-500 text-[10px] font-medium uppercase tracking-wide">Revenue Center</span>
               <span className="text-black text-xs md:text-sm font-semibold truncate max-w-full flex items-center gap-1">
                 {selectedRevenueCenter}
@@ -1169,7 +1169,7 @@ export const ClockInOverlay = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[280px] md:w-[320px] bg-[#1a1a1e] rounded-xl shadow-2xl border border-white/10 z-50 p-3"
+                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[260px] sm:w-[280px] md:w-[320px] max-w-[calc(100vw-32px)] bg-[#1a1a1e] rounded-xl shadow-2xl border border-white/10 z-50 p-3"
                 >
                   <p className="text-white/60 text-xs font-medium mb-2 text-center">Select Revenue Center</p>
                   <div className="grid grid-cols-3 gap-2">
@@ -1201,13 +1201,13 @@ export const ClockInOverlay = ({
           
           <button 
             onClick={handleFaceIDPress}
-            className="h-12 md:h-14 lg:h-16 keypad-btn-3d-dark rounded-lg flex items-center justify-center"
+            className="h-[56px] md:h-14 lg:h-16 keypad-btn-3d-dark rounded-lg flex items-center justify-center"
           >
-            <ScanFace className="w-6 h-6 md:w-7 md:h-7 text-white" />
+            <ScanFace className="w-7 h-7 md:w-7 md:h-7 text-white" />
           </button>
         </div>
 
-        <button onClick={handleLogoutClick} className="w-full h-12 md:h-14 mt-2 keypad-btn-3d-outlined rounded-lg text-white text-base md:text-lg font-bold">
+        <button onClick={handleLogoutClick} className="w-full h-[56px] md:h-14 mt-3 keypad-btn-3d-outlined rounded-lg text-white text-base md:text-lg font-bold">
           LOGOUT
         </button>
       </div>

@@ -431,7 +431,7 @@ export const ForecastingDashboard = () => {
   return (
     <div className="h-full w-full flex flex-col bg-background overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 lg:px-6 py-3 border-b border-white/5 shrink-0">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 px-4 lg:px-6 py-3 border-b border-white/5 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <button
             onClick={() => navigate(-1)}
@@ -443,21 +443,21 @@ export const ForecastingDashboard = () => {
           <div className="w-9 h-9 rounded-full bg-violet-500/15 flex items-center justify-center shrink-0">
             <CalendarDays className="w-4 h-4 text-violet-400" />
           </div>
-          <div className="min-w-0">
+          <div className="min-w-0 flex-1">
             <h1 className="text-[15px] font-bold text-foreground tracking-tight truncate">AI Forecasting & Labor</h1>
             <p className="text-[11px] text-muted-foreground/70 flex items-center gap-1.5">
-              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse" />
-              Predictive demand & staffing intelligence · refreshing every 30s
+              <span className="w-1.5 h-1.5 rounded-full bg-violet-400 animate-pulse shrink-0" />
+              <span className="truncate">Predictive demand & staffing · refreshing every 30s</span>
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <div className="flex bg-white/5 rounded-full p-1">
+        <div className="flex items-center gap-2 w-full md:w-auto">
+          <div className="flex bg-white/5 rounded-full p-1 flex-1 md:flex-none overflow-x-auto scrollbar-hide">
             {RANGES.map((r) => (
               <button
                 key={r.key}
                 onClick={() => setRange(r.key)}
-                className={`text-[11px] px-3 py-1.5 rounded-full transition-colors ${
+                className={`text-[11px] px-3 py-1.5 rounded-full transition-colors whitespace-nowrap flex-1 md:flex-none ${
                   range === r.key ? "bg-primary text-primary-foreground font-semibold" : "text-foreground/70 hover:text-foreground"
                 }`}
               >
@@ -467,7 +467,7 @@ export const ForecastingDashboard = () => {
           </div>
           <button
             onClick={() => setTick((t) => t + 1)}
-            className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center"
+            className="w-9 h-9 rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center shrink-0"
             aria-label="Refresh now"
           >
             <RefreshCw className={`w-4 h-4 text-foreground/80 ${data.loading ? "animate-spin" : ""}`} />

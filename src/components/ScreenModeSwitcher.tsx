@@ -103,7 +103,7 @@ const ScreenModeSwitcher = () => {
         </button>
 
         {open && (
-          <div className="absolute right-0 top-full mt-2 w-64 bg-[#1C1C1E] border border-white/10 rounded-2xl shadow-2xl z-[999] overflow-hidden">
+          <div className="fixed left-2 right-2 top-[60px] md:absolute md:left-auto md:right-0 md:top-full md:mt-2 md:w-64 bg-[#1C1C1E] border border-white/10 rounded-2xl shadow-2xl z-[999] overflow-hidden">
             <div className="px-4 py-2.5 border-b border-white/10">
               <p className="text-[11px] font-semibold uppercase tracking-wide text-neutral-400">Screen Mode</p>
             </div>

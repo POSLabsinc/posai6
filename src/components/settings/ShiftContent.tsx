@@ -10,6 +10,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ShiftCalendarView from "@/components/settings/ShiftCalendarView";
 import ShiftDayView from "@/components/settings/ShiftDayView";
 import ShiftMonthView from "@/components/settings/ShiftMonthView";
+import { toast } from "@/hooks/use-toast";
+import infoIcon from "@/assets/icons/info.png";
 
 interface ShiftContentProps {
   showHeader?: boolean;

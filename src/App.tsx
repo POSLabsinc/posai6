@@ -78,6 +78,9 @@ const Tickets = lazyWithImportRecovery(() => import("./pages/Tickets"));
 const Settings = lazyWithImportRecovery(() => import("./pages/Settings"));
 const DiscountsRoute = lazyWithImportRecovery(() => import("./components/routes/DiscountsRoute"));
 const PaymentPricingRoute = lazyWithImportRecovery(() => import("./components/routes/PaymentPricingRoute"));
+const PersonalInformationRoute = lazyWithImportRecovery(() => import("./components/routes/PersonalInformationRoute"));
+const RestaurantInformationRoute = lazyWithImportRecovery(() => import("./components/routes/RestaurantInformationRoute"));
+const SecurityRoute = lazyWithImportRecovery(() => import("./components/routes/SecurityRoute"));
 const Account = lazyWithImportRecovery(() => import("./pages/Account"));
 const ReportsRoute = lazyWithImportRecovery(() => import("./components/routes/ReportsRoute"));
 const LiveSales = lazyWithImportRecovery(() => import("./pages/LiveSales"));
@@ -197,6 +200,9 @@ const AppInner = () => {
           <Route path="/settings/payments/payment-pricing" element={<PaymentPricingRoute />} />
           <Route path="/settings/*" element={<Settings />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/account/personal-information" element={<PersonalInformationRoute />} />
+          <Route path="/account/restaurant-information" element={<RestaurantInformationRoute />} />
+          <Route path="/account/security" element={<SecurityRoute />} />
           <Route path="/reports" element={<ReportsRoute />} />
           <Route path="/live-sales" element={<LiveSales />} />
           <Route path="/orderos" element={<OrderOS />} />

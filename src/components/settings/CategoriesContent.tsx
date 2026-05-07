@@ -19,6 +19,7 @@ import AddCategoryContent from "./AddCategoryContent";
 import EditCategoryContent from "./EditCategoryContent";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
 import { SortableHeader, useSortableData } from "./SortableHeader";
+import infoIcon from "@/assets/icons/info.png";
 
 type CategorySortKey = "name" | "parent" | "position" | "course";
 

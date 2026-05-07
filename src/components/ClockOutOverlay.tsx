@@ -1161,6 +1161,15 @@ export const ClockOutOverlay = ({
   // Shared keypad component for both layouts
   const renderKeypad = () => (
     <>
+      {/* Mobile date/time header */}
+      <div className="text-center mb-4 md:hidden">
+        <p className="text-white/70 text-base font-medium">{format(currentTime, "EEEE, MMMM d, yyyy")}</p>
+        <p className="text-white text-5xl font-bold mt-1 tracking-tight">
+          {format(currentTime, "h:mm")}
+          <span className="text-white/60 text-2xl ml-2 font-semibold">{format(currentTime, "a")}</span>
+        </p>
+      </div>
+
       {/* PIN Label */}
       <div className="text-center mb-2">
         <p className="text-white/60 text-sm">
@@ -1169,7 +1178,7 @@ export const ClockOutOverlay = ({
       </div>
 
       {/* PIN Display */}
-      <div className="p-4 pb-3 pt-0 flex justify-center gap-4 md:gap-6">
+      <div className="flex justify-center gap-4 md:gap-6 mb-3">
         {Array.from({ length: PIN_LENGTH }).map((_, i) => (
           <div key={i} className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 flex items-center justify-center">
             {i < pin.length ? (
@@ -1193,14 +1202,14 @@ export const ClockOutOverlay = ({
       {error && <p className="text-red-500 text-center text-sm mb-2 px-4">{error}</p>}
 
       {/* Numeric Keypad */}
-      <div className="flex-1 px-4 pb-2 relative">
+      <div className="flex-1 overflow-y-auto min-h-0 relative">
         <div className="grid grid-cols-3 gap-2">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
             <button
               key={num}
               onClick={() => handleKeyPress(num.toString())}
               disabled={isVerifying}
-              className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-xl md:text-2xl font-semibold disabled:opacity-50"
+              className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-2xl md:text-2xl font-semibold disabled:opacity-50"
             >
               {num}
             </button>
@@ -1209,7 +1218,7 @@ export const ClockOutOverlay = ({
           <button
             onClick={handleClear}
             disabled={isVerifying}
-            className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-red-500 text-xl md:text-2xl font-bold disabled:opacity-50"
+            className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-red-500 text-2xl md:text-2xl font-bold disabled:opacity-50"
           >
             C
           </button>
@@ -1217,7 +1226,7 @@ export const ClockOutOverlay = ({
           <button
             onClick={() => handleKeyPress("0")}
             disabled={isVerifying}
-            className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-xl md:text-2xl font-semibold disabled:opacity-50"
+            className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-2xl md:text-2xl font-semibold disabled:opacity-50"
           >
             0
           </button>
@@ -1225,7 +1234,7 @@ export const ClockOutOverlay = ({
           <button
             onClick={handleEnter}
             disabled={isVerifying || pin.length !== PIN_LENGTH}
-            className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d-enter rounded-lg text-black text-base md:text-lg font-bold disabled:opacity-50"
+            className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d-enter rounded-lg text-black text-base md:text-lg font-bold disabled:opacity-50"
           >
             ENTER
           </button>

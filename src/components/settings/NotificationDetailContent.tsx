@@ -18,7 +18,51 @@ const NotificationDetailContent = ({ showHeader = true, onBack, onAIClick, notif
   const id = notificationId || params.id;
   const { notifications, loading, markAsRead } = useNotifications();
 
-  const notification = notifications.find((n) => n.id === id);
+  // Synthetic in-memory dashboards rendered by NotificationDetailView based on id
+  const syntheticIds: Record<string, { title: string; preview: string; headline: string; body: string }> = {
+    "live-sales-dashboard": {
+      title: "Live Sales Dashboard",
+      preview: "Real-time sales, revenue, and AI insights with anomaly detection.",
+      headline: "Live Sales & Revenue Dashboard",
+      body: "Real-time metrics, trends, and AI analysis.",
+    },
+    "inventory-dashboard": {
+      title: "Live Inventory & Stock Alerts",
+      preview: "Real-time stock levels, smart replenishment and depletion forecasts.",
+      headline: "AI Inventory Management",
+      body: "Stock levels, alerts, replenishment, and predictive forecasting.",
+    },
+    "profit-dashboard": {
+      title: "Real-Time Profit Monitoring",
+      preview: "Live gross/net profit, shift & location breakdown with AI-flagged anomalies.",
+      headline: "Profit Margin Below Target",
+      body: "AI flagged anomalies on dinner shift refunds and labor ratio.",
+    },
+    "forecasting-dashboard": {
+      title: "AI Forecasting & Labor Management",
+      preview: "Predictive demand, staffing recommendations, and proactive shift alerts.",
+      headline: "Dinner Shift Likely Understaffed",
+      body: "AI predicts traffic spike between 7-9 PM. Staffing recommendations available.",
+    },
+  };
+
+  const synthetic = id && syntheticIds[id]
+    ? {
+        id,
+        ...syntheticIds[id],
+        version: "Live",
+        version_date: "Today",
+        time: "Now",
+        bullets: [],
+        footer: null,
+        has_update: false,
+        is_read: true,
+        created_at: new Date().toISOString(),
+        category: "ai" as const,
+      }
+    : null;
+
+  const notification = synthetic ?? notifications.find((n) => n.id === id);
 
   // Mark as read when viewed
   useEffect(() => {

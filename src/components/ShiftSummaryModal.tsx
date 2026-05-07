@@ -170,6 +170,15 @@ export default function ShiftSummaryModal({
   const [showFilterSheet, setShowFilterSheet] = useState(false);
   const [filterSheetView, setFilterSheetView] = useState<"main" | "revenue" | "date" | "time" | "employee">("main");
 
+  // Mark body when modal is open so floating Settings search bar can hide
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    if (open) {
+      document.body.dataset.shiftSummaryOpen = "true";
+      return () => { delete document.body.dataset.shiftSummaryOpen; };
+    }
+  }, [open]);
+
   const hasActiveFilters = filterEmployee || filterRevenueCenter || activePreset !== "today" || filterTimeFrom !== "00:00" || filterTimeTo !== "23:59";
 
   useEffect(() => {

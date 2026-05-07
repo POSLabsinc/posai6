@@ -779,6 +779,85 @@ export default function ShiftSummaryModal({
         md:w-[95vw] md:max-w-[1400px] md:max-h-[92vh] md:rounded-2xl`}
       >
         {/* Modal size increased */}
+        {isMobile ? (
+          <div className="px-4 pt-4 pb-3 border-b border-white/10 shrink-0 flex flex-col gap-3">
+            {/* Row 1: Title + Close */}
+            <div className="flex items-center justify-between">
+              <h2 className="text-xl font-bold text-white tracking-wide">SHIFT SUMMARY</h2>
+              <button onClick={onClose} className="w-9 h-9 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/15 transition-colors shrink-0">
+                <X className="h-5 w-5 text-neutral-300" />
+              </button>
+            </div>
+
+            {/* Row 2: Profile/user info */}
+            <div className="flex items-center gap-3 min-w-0">
+              <Avatar className="w-10 h-10 border border-white/20 shrink-0">
+                <AvatarFallback className="text-xs font-semibold bg-neutral-700 text-white">{initials}</AvatarFallback>
+              </Avatar>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-white truncate">{employeeName}</p>
+                <p className="text-xs text-neutral-400 truncate">{employeeRole}</p>
+              </div>
+            </div>
+
+            {/* Row 3: Cash Drop (primary) + action icons */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => {
+                  setCashDropAmount("");
+                  setCashDropReason("");
+                  setCashDropMismatch(false);
+                  setShowCashDropPopup(true);
+                }}
+                className={`flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-full font-semibold text-sm transition-colors ${
+                  cashDropSettled
+                    ? "bg-emerald-500/20 hover:bg-emerald-500/25 text-emerald-300 ring-1 ring-emerald-400/40"
+                    : "bg-white/10 hover:bg-white/15 text-white"
+                }`}
+              >
+                <ArrowDownToLine className="w-4 h-4" />
+                {cashDropSettled ? `Settled · $${cashDropSettledAmount.toFixed(2)}` : "Cash Drop"}
+              </button>
+
+              <button
+                onClick={() => { setShowFilterSheet(true); setFilterSheetView("main"); }}
+                className={`w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10 transition-colors shrink-0 ${hasActiveFilters ? 'ring-2 ring-white/50' : ''}`}
+                style={{ background: "rgba(100, 100, 100, 0.4)" }}
+              >
+                <SlidersHorizontal className="w-4 h-4 text-white" />
+              </button>
+
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10 transition-colors shrink-0" style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                    <Share2 className="w-4 h-4 text-white" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[200px] p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[10000]" align="end">
+                  <button onClick={() => handleShare("pdf")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg"><FileText className="w-4 h-4" /> Export as PDF</button>
+                  <button onClick={() => handleShare("email")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg"><Mail className="w-4 h-4" /> Send via Email</button>
+                  <button onClick={() => handleShare("text")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg"><MessageSquare className="w-4 h-4" /> Share via Text</button>
+                  <button onClick={() => handleShare("download")} className="w-full flex items-center gap-3 px-3 py-2.5 text-sm text-neutral-300 hover:bg-white/5 hover:text-white transition-colors rounded-lg"><Download className="w-4 h-4" /> Download CSV</button>
+                </PopoverContent>
+              </Popover>
+
+              {hasActiveFilters && (
+                <button onClick={clearAllFilters} className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/10 transition-colors shrink-0" style={{ background: "rgba(239, 68, 68, 0.4)" }}>
+                  <RotateCcw className="w-4 h-4 text-white" />
+                </button>
+              )}
+
+              <button
+                onClick={() => setShowAIChat(true)}
+                className="w-10 h-10 flex items-center justify-center rounded-xl hover:bg-white/15 transition-colors shrink-0"
+                style={{ background: "rgba(100, 100, 100, 0.4)" }}
+                title="AI Assistant"
+              >
+                <AnimatedAIIcon size={18} />
+              </button>
+            </div>
+          </div>
+        ) : (
         <div className="flex items-center justify-between px-5 md:px-8 py-4 md:py-5 border-b border-white/10 shrink-0">
           <div className="flex items-center gap-3 md:gap-4 min-w-0 flex-1">
             <Avatar className="w-10 h-10 md:w-11 md:h-11 border border-white/20 shrink-0">
@@ -811,20 +890,9 @@ export default function ShiftSummaryModal({
               <ArrowDownToLine className="w-3.5 h-3.5 md:w-4 md:h-4" />
               {cashDropSettled ? `Settled · $${cashDropSettledAmount.toFixed(2)}` : "Cash Drop"}
             </button>
-            {/* Mobile: single filter icon */}
-            {isMobile && (
-              <button
-                onClick={() => { setShowFilterSheet(true); setFilterSheetView("main"); }}
-                className={`p-2 rounded-xl hover:bg-white/10 transition-colors shrink-0 ${hasActiveFilters ? 'ring-2 ring-white/50' : ''}`}
-                style={{ background: "rgba(100, 100, 100, 0.4)" }}
-              >
-                <SlidersHorizontal className="w-4 h-4 text-white" />
-              </button>
-            )}
 
             {/* Desktop: individual filter icons */}
-            {!isMobile && (
-              <>
+            <>
                 {/* Revenue Center */}
                 <Popover>
                   <PopoverTrigger asChild>
@@ -901,7 +969,6 @@ export default function ShiftSummaryModal({
                   </PopoverContent>
                 </Popover>
               </>
-            )}
 
             {/* Share */}
             <Popover>
@@ -946,6 +1013,7 @@ export default function ShiftSummaryModal({
             </button>
           </div>
         </div>
+        )}
 
         {/* Key metrics - 2 cols on mobile, 6 cols on desktop (single row) */}
         <div className="grid grid-cols-2 md:grid-cols-6 gap-2 md:gap-3 px-5 md:px-8 py-4 md:py-5 shrink-0">

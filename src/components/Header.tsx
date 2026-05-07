@@ -278,7 +278,9 @@ const Header = () => {
             </div>
           )}
 
-          <ScreenModeSwitcher />
+          <div className="hidden md:block">
+            <ScreenModeSwitcher />
+          </div>
 
           <div className="overflow-visible flex items-center justify-center">
             <AnimatedAIIcon size={20} onClick={() => {

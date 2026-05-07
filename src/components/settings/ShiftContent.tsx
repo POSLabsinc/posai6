@@ -567,7 +567,22 @@ const ShiftContent = ({
           }
         </div>
       </div>
+    </div>
 
+      {/* Bottom Search Bar */}
+      <div className="px-4 pb-6 pt-2">
+        <div className="bg-neutral-800/60 rounded-full flex items-center px-4 py-3">
+          <Search className="w-5 h-5 text-neutral-500 mr-3" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-base"
+          />
+          <Mic className="w-5 h-5 text-neutral-500 mr-2" />
+        </div>
+      </div>
     </div>);
 
 };

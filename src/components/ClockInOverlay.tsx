@@ -1169,10 +1169,10 @@ export const ClockInOverlay = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute bottom-full left-0 right-0 mb-2 bg-[#1a1a1e] rounded-xl shadow-2xl border border-white/10 z-50 p-3"
+                  className="absolute bottom-full left-[calc(-100%-0.5rem)] right-[calc(-100%-0.5rem)] mb-2 bg-[#1a1a1e] rounded-2xl shadow-2xl border border-white/10 z-50 p-4"
                 >
-                  <p className="text-white/60 text-xs font-medium mb-2 text-center">Select Revenue Center</p>
-                  <div className="grid grid-cols-3 gap-2">
+                  <p className="text-white/60 text-xs font-medium mb-3 text-center uppercase tracking-wide">Select Revenue Center</p>
+                  <div className="grid grid-cols-3 gap-2.5">
                     {revenueCenters.map(center => {
                       const isSelected = selectedRevenueCenter === center;
                       return (
@@ -1182,14 +1182,14 @@ export const ClockInOverlay = ({
                             setSelectedRevenueCenter(center);
                             setShowRevenueCenterSelector(false);
                           }} 
-                          className={`rounded-xl p-2.5 flex flex-col items-center gap-1.5 transition-all min-h-[60px] ${
+                          className={`rounded-xl px-2 py-3 flex flex-col items-center justify-center gap-2 transition-all min-h-[78px] ${
                             isSelected
                               ? 'bg-white/20 border border-white/40'
                               : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
                           }`}
                         >
-                          <RevenueCenterIcon center={center} className="w-5 h-5" />
-                          <span className="text-xs font-medium text-center leading-tight text-white">{center}</span>
+                          <RevenueCenterIcon center={center} className="w-6 h-6 shrink-0" />
+                          <span className="text-[11px] font-medium text-center leading-tight text-white break-words w-full">{center}</span>
                         </button>
                       );
                     })}

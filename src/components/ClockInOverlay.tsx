@@ -1150,7 +1150,7 @@ export const ClockInOverlay = ({
             <Fingerprint className="w-7 h-7 md:w-7 md:h-7 text-white" />
           </button>
           
-          <div className="relative">
+          <div>
             <button onClick={() => {
               setShowRevenueCenterSelector(!showRevenueCenterSelector);
             }} className="w-full h-[56px] md:h-14 lg:h-16 keypad-btn-3d-revenue rounded-lg flex flex-col items-center justify-center px-2">
@@ -1161,7 +1161,7 @@ export const ClockInOverlay = ({
               </span>
             </button>
             
-            {/* Revenue Center Grid - positioned above button */}
+            {/* Revenue Center Grid - positioned above button, spans full keypad width */}
             <AnimatePresence>
               {showRevenueCenterSelector && (
                 <motion.div 
@@ -1169,7 +1169,7 @@ export const ClockInOverlay = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-[260px] sm:w-[280px] md:w-[320px] max-w-[calc(100vw-32px)] bg-[#1a1a1e] rounded-xl shadow-2xl border border-white/10 z-50 p-3"
+                  className="absolute bottom-full left-0 right-0 mb-2 bg-[#1a1a1e] rounded-xl shadow-2xl border border-white/10 z-50 p-3"
                 >
                   <p className="text-white/60 text-xs font-medium mb-2 text-center">Select Revenue Center</p>
                   <div className="grid grid-cols-3 gap-2">

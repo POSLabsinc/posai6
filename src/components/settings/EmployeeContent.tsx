@@ -7,6 +7,7 @@ import { useEmployees, useArchiveEmployee, useAllEmployeeShiftsForDate } from "@
 import EmployeeExpanded from "@/components/settings/EmployeeExpanded";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
 import { toast } from "sonner";
+import infoIcon from "@/assets/icons/info.png";
 
 interface EmployeeContentProps {
   showHeader?: boolean;

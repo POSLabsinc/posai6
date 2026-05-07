@@ -7953,6 +7953,24 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               )}
             </AnimatePresence>
 
+            {/* Mobile: Sign in with AI button */}
+            <div className="flex items-center justify-center gap-2 mt-6">
+              <button
+                onClick={() => setShowSignInAIChat(true)}
+                className="px-3 py-2.5 rounded-2xl bg-primary/[0.12] hover:bg-primary/[0.18] border border-primary/20 text-foreground font-medium text-sm transition-all flex items-center gap-2"
+              >
+                <img src={aiColorfulIcon} alt="AI" className="w-4 h-4" />
+                <span>Sign in with AI</span>
+              </button>
+              <button
+                onClick={() => { setTutorialInitialStep(3); setShowTutorialOverlay(true); }}
+                aria-label="About Sign in with AI"
+                className="text-foreground/40 hover:text-foreground/70 transition-colors"
+              >
+                <Info className="w-4 h-4" />
+              </button>
+            </div>
+
           </div>
 
         </div>

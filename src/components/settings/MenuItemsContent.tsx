@@ -293,20 +293,24 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
             <h1 className="text-xl font-semibold text-foreground">
               {showArchived ? "Archived Menus" : "Menu Items"}
             </h1>
+            <button
+              onClick={() => {
+                toast({
+                  description: showArchived
+                    ? "View and restore your archived menus."
+                    : "Manage your menu items including names, prices, categories, and availability settings.",
+                  duration: 4000,
+                });
+              }}
+              className="active:opacity-70 transition-opacity"
+            >
+              <img src={infoIcon} alt="Info" className="w-5 h-5" />
+            </button>
           </div>
         </div>
       )}
 
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
-        {/* Description */}
-        <div className="mb-4 px-1">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {showArchived
-              ? "View and restore your archived menus."
-              : "Manage your menu items including names, prices, categories, and availability settings."}
-          </p>
-        </div>
-
         {/* Action Buttons */}
         <div className="flex gap-3 mb-4">
           <button 

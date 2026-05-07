@@ -1202,7 +1202,7 @@ export const ClockOutOverlay = ({
       {error && <p className="text-red-500 text-center text-sm mb-2 px-4">{error}</p>}
 
       {/* Numeric Keypad */}
-      <div className="flex-1 overflow-y-auto min-h-0 relative">
+      <div className="flex-1 overflow-visible min-h-0 relative">
         <div className="grid grid-cols-3 gap-2">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
             <button
@@ -1297,7 +1297,7 @@ export const ClockOutOverlay = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute bottom-full left-[calc(-100%-0.5rem)] right-[calc(-100%-0.5rem)] mb-2 bg-[#1a1a1e] rounded-2xl shadow-2xl border border-white/10 z-50 p-4"
+                  className="absolute bottom-full left-0 right-0 mb-2 bg-[#1a1a1e] rounded-2xl shadow-2xl border border-white/10 z-50 p-4"
                 >
                   <p className="text-white/60 text-xs font-medium mb-3 text-center uppercase tracking-wide">Select Revenue Center</p>
                   <div className="grid grid-cols-3 gap-2.5">

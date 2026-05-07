@@ -1083,11 +1083,11 @@ export const ClockInOverlay = ({
     duration: 0.3
   }} className="flex flex-col h-full">
       {/* Mobile: Show compact date/time header - visible only on small screens */}
-      <div className="text-center mb-3 md:hidden">
-        <p className="text-white/60 text-sm">{format(currentTime, "EEEE, MMMM d, yyyy")}</p>
-        <p className="text-white text-2xl font-bold">
+      <div className="text-center mb-4 md:hidden">
+        <p className="text-white/70 text-base font-medium">{format(currentTime, "EEEE, MMMM d, yyyy")}</p>
+        <p className="text-white text-5xl font-bold mt-1 tracking-tight">
           {format(currentTime, "h:mm")}
-          <span className="text-white/60 text-lg ml-1">{format(currentTime, "a")}</span>
+          <span className="text-white/60 text-2xl ml-2 font-semibold">{format(currentTime, "a")}</span>
         </p>
       </div>
 

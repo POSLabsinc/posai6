@@ -1091,16 +1091,18 @@ export default function ShiftSummaryModal({
           </div>
         ) : (
           <>
-            <div className="flex-1 overflow-auto px-5 md:px-8 py-4">
+            <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 md:px-8 py-3 md:py-4">
               {loading ? (
                 <p className="text-base text-neutral-500 py-8 text-center">Loading transactions...</p>
               ) : (
-                <PaymentBreakdownTable
-                  rows={paymentTypeSummary}
-                  cardTips={cardTips}
-                  paidOrdersCount={paidOrders.length}
-                  totalCashDrop={totalCashDrop}
-                />
+                <div className="w-full overflow-x-auto">
+                  <PaymentBreakdownTable
+                    rows={paymentTypeSummary}
+                    cardTips={cardTips}
+                    paidOrdersCount={paidOrders.length}
+                    totalCashDrop={totalCashDrop}
+                  />
+                </div>
               )}
             </div>
 

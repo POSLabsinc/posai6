@@ -19,6 +19,7 @@ import AddCategoryContent from "./AddCategoryContent";
 import EditCategoryContent from "./EditCategoryContent";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
 import { SortableHeader, useSortableData } from "./SortableHeader";
+import infoIcon from "@/assets/icons/info.png";
 
 type CategorySortKey = "name" | "parent" | "position" | "course";
 
@@ -359,18 +360,24 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
             <h1 className="text-xl font-semibold text-foreground">
               {showArchived ? "Archived Categories" : "Categories"}
             </h1>
+            <button
+              onClick={() => {
+                toast({
+                  description: showArchived
+                    ? "View and restore your archived categories."
+                    : "Organize your menu products into categories for easy navigation and management.",
+                  duration: 4000,
+                });
+              }}
+              className="active:opacity-70 transition-opacity"
+            >
+              <img src={infoIcon} alt="Info" className="w-5 h-5" />
+            </button>
           </div>
         </div>
       )}
 
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
-        <div className="mb-4 px-1">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            {showArchived
-              ? "View and restore your archived categories."
-              : "Organize your menu products into categories for easy navigation and management."}
-          </p>
-        </div>
 
         <div className="flex gap-3 mb-4">
           <button

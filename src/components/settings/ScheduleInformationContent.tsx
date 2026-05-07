@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Plus, Search, Archive, Mic } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { toast } from "@/hooks/use-toast";
+import infoIcon from "@/assets/icons/info.png";
 
 interface Schedule {
   id: string;
@@ -86,105 +88,113 @@ const ScheduleInformationContent = ({
     [...days].sort((a, b) => dayOrder.indexOf(a) - dayOrder.indexOf(b));
 
   return (
-    <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      <div className="pt-0 px-4 md:px-6 pb-28">
-        {showHeader && (
-          <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-0">
-            {onBack && (
-              <button
-                onClick={goBack}
-                className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-                aria-label="Back"
-              >
-                <ChevronLeft className="w-5 h-5 text-foreground" />
-              </button>
-            )}
-            <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">
-              Schedule Information
-            </h1>
-          </div>
-        )}
-
-        {/* Description */}
-        <div className="mb-4 px-1 pt-2">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Manage and create the different operating schedules of your restaurant
-          </p>
-        </div>
-
-        {/* Search bar */}
-        <div className="mb-3">
-          <div className="w-full rounded-full bg-neutral-800/60 px-4 py-3 flex items-center gap-3">
-            <Search className="h-5 w-5 flex-shrink-0 text-neutral-500" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-[15px]"
-            />
-            <Mic className="h-5 w-5 flex-shrink-0 text-neutral-500" />
-          </div>
-        </div>
-
-        {/* Archive + Add row */}
-        <div className="flex items-center gap-3 mb-4">
-          <button
-            onClick={() => setShowArchived(!showArchived)}
-            className={`flex-1 h-12 rounded-full flex items-center justify-center gap-2 border text-sm font-medium transition-colors ${
-              showArchived
-                ? "bg-foreground text-background border-foreground"
-                : "border-[hsl(var(--surface-border))] bg-transparent text-foreground"
-            }`}
-          >
-            <Archive className="h-4 w-4" />
-            Archive
-          </button>
-
-          <button
-            onClick={() => navigate('/settings/workforce/schedule-information/add')}
-            className="flex-1 h-12 rounded-full flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity"
-          >
-            <Plus className="h-5 w-5" />
-            <span className="text-sm font-medium">Add</span>
-          </button>
-        </div>
-
-        {/* Table Header */}
-        <div className="bg-[#252525] rounded-t-2xl overflow-hidden">
-          <div className="grid grid-cols-4 px-5 py-3 border-b border-neutral-700/50">
-            <span className="text-sm font-medium text-foreground">Name</span>
-            <span className="text-sm font-medium text-foreground">Start Date</span>
-            <span className="text-sm font-medium text-foreground">End Date</span>
-            <span className="text-sm font-medium text-foreground text-right">Days</span>
-          </div>
-
-          {loading ? (
-            <div className="px-5 py-8 text-center text-neutral-500 text-sm">
-              Loading schedules...
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto scrollbar-hide overscroll-contain">
+        <div className="pt-0 px-4 md:px-6 pb-4">
+          {showHeader && (
+            <div className="flex items-center justify-center pt-4 pb-2 relative overflow-visible px-0">
+              {onBack && (
+                <button
+                  onClick={goBack}
+                  className="absolute left-0 w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+                  aria-label="Back"
+                >
+                  <ChevronLeft className="w-5 h-5 text-foreground" />
+                </button>
+              )}
+              <div className="flex items-center gap-1">
+                <h1 className="text-xl font-semibold text-foreground">
+                  Schedule Information
+                </h1>
+                <button
+                  onClick={() => {
+                    toast({
+                      description: "Manage and create the different operating schedules of your restaurant.",
+                      duration: 4000,
+                    });
+                  }}
+                  className="active:opacity-70 transition-opacity"
+                >
+                  <img src={infoIcon} alt="Info" className="w-5 h-5" />
+                </button>
+              </div>
             </div>
-          ) : filteredSchedules.length === 0 ? (
-            <div className="px-5 py-8 text-center text-neutral-500 text-sm">
-              No schedules found
-            </div>
-          ) : (
-            filteredSchedules.map((schedule, index) => (
-              <button
-                key={schedule.id + "-" + index}
-                className="grid grid-cols-4 px-5 py-4 w-full text-left items-center active:bg-neutral-700/30 transition-colors border-b border-neutral-700/20 last:border-b-0"
-              >
-                <span className="text-sm text-foreground">{schedule.name}</span>
-                <span className="text-sm text-neutral-400">{formatDate(schedule.start_date)}</span>
-                <span className="text-sm text-neutral-400">{formatDate(schedule.end_date)}</span>
-                <div className="flex items-center justify-end gap-1">
-                  <span className="text-sm text-neutral-400">
-                    {sortDays(schedule.days).join(", ")}
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
-                </div>
-              </button>
-            ))
           )}
+
+          {/* Archive + Add row */}
+          <div className="flex items-center gap-3 mb-4 mt-4">
+            <button
+              onClick={() => setShowArchived(!showArchived)}
+              className={`flex-1 h-12 rounded-full flex items-center justify-center gap-2 border text-sm font-medium transition-colors ${
+                showArchived
+                  ? "bg-foreground text-background border-foreground"
+                  : "border-[hsl(var(--surface-border))] bg-transparent text-foreground"
+              }`}
+            >
+              <Archive className="h-4 w-4" />
+              Archive
+            </button>
+
+            <button
+              onClick={() => navigate('/settings/workforce/schedule-information/add')}
+              className="flex-1 h-12 rounded-full flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity"
+            >
+              <Plus className="h-5 w-5" />
+              <span className="text-sm font-medium">Add</span>
+            </button>
+          </div>
+
+          {/* Table Header */}
+          <div className="bg-[#252525] rounded-t-2xl overflow-hidden">
+            <div className="grid grid-cols-4 px-5 py-3 border-b border-neutral-700/50">
+              <span className="text-sm font-medium text-foreground">Name</span>
+              <span className="text-sm font-medium text-foreground">Start Date</span>
+              <span className="text-sm font-medium text-foreground">End Date</span>
+              <span className="text-sm font-medium text-foreground text-right">Days</span>
+            </div>
+
+            {loading ? (
+              <div className="px-5 py-8 text-center text-neutral-500 text-sm">
+                Loading schedules...
+              </div>
+            ) : filteredSchedules.length === 0 ? (
+              <div className="px-5 py-8 text-center text-neutral-500 text-sm">
+                No schedules found
+              </div>
+            ) : (
+              filteredSchedules.map((schedule, index) => (
+                <button
+                  key={schedule.id + "-" + index}
+                  className="grid grid-cols-4 px-5 py-4 w-full text-left items-center active:bg-neutral-700/30 transition-colors border-b border-neutral-700/20 last:border-b-0"
+                >
+                  <span className="text-sm text-foreground">{schedule.name}</span>
+                  <span className="text-sm text-neutral-400">{formatDate(schedule.start_date)}</span>
+                  <span className="text-sm text-neutral-400">{formatDate(schedule.end_date)}</span>
+                  <div className="flex items-center justify-end gap-1">
+                    <span className="text-sm text-neutral-400">
+                      {sortDays(schedule.days).join(", ")}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-neutral-500 flex-shrink-0" />
+                  </div>
+                </button>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Search Bar */}
+      <div className="px-4 pb-6 pt-2">
+        <div className="bg-neutral-800/60 rounded-full flex items-center px-4 py-3">
+          <Search className="w-5 h-5 text-neutral-500 mr-3" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-base"
+          />
+          <Mic className="w-5 h-5 text-neutral-500 mr-2" />
         </div>
       </div>
     </div>

@@ -7,6 +7,7 @@ import { useEmployees, useArchiveEmployee, useAllEmployeeShiftsForDate } from "@
 import EmployeeExpanded from "@/components/settings/EmployeeExpanded";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
 import { toast } from "sonner";
+import infoIcon from "@/assets/icons/info.png";
 
 interface EmployeeContentProps {
   showHeader?: boolean;
@@ -69,45 +70,34 @@ const EmployeeContent = ({
     .sort((a, b) => sortAsc ? a.full_name.localeCompare(b.full_name) : b.full_name.localeCompare(a.full_name));
 
   return (
-    <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      <div className="px-4 pb-28">
+    <div className="h-full flex flex-col overflow-hidden">
+      <div className="flex-1 overflow-y-auto scrollbar-hide overscroll-contain">
+      <div className="px-4 pb-4">
         {/* Header */}
         {showHeader && (
-          <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-0">
+          <div className="flex items-center justify-center pt-4 pb-2 relative overflow-visible px-0">
             {onBack && (
               <button
                 onClick={onBack}
-                className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+                className="absolute left-0 w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
                 aria-label="Back"
               >
                 <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
             )}
-            <h1 className="text-xl font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Employees</h1>
+            <div className="flex items-center gap-1">
+              <h1 className="text-xl font-semibold text-foreground">Employees</h1>
+              <button
+                onClick={() => {
+                  toast("Individuals employed by a company, contributing to its operations and collectively forming the organization's human resources.", { duration: 4000 });
+                }}
+                className="active:opacity-70 transition-opacity"
+              >
+                <img src={infoIcon} alt="Info" className="w-5 h-5" />
+              </button>
+            </div>
           </div>
         )}
-
-        {/* Description */}
-        <div className="mb-4 px-1 pt-2">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Individuals employed by a company, contributing to its operations and collectively forming the organization's human resources.
-          </p>
-        </div>
-
-        {/* Search bar */}
-        <div className="mb-3">
-          <div className="w-full rounded-full bg-neutral-800/60 px-4 py-3 flex items-center gap-3">
-            <Search className="h-5 w-5 flex-shrink-0 text-neutral-500" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-[15px]"
-            />
-            <Mic className="h-5 w-5 flex-shrink-0 text-neutral-500" />
-          </div>
-        </div>
 
         {/* Archive + Add row */}
         <div className="flex items-center gap-3 mb-4">
@@ -341,6 +331,22 @@ const EmployeeContent = ({
             <p className="text-neutral-500 text-sm">No employees found</p>
           </div>
         )}
+      </div>
+      </div>
+
+      {/* Bottom Search Bar */}
+      <div className="px-4 pb-6 pt-2">
+        <div className="bg-neutral-800/60 rounded-full flex items-center px-4 py-3">
+          <Search className="w-5 h-5 text-neutral-500 mr-3" />
+          <input
+            type="text"
+            placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-base"
+          />
+          <Mic className="w-5 h-5 text-neutral-500 mr-2" />
+        </div>
       </div>
     </div>
   );

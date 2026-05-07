@@ -18,6 +18,7 @@ import EditTaxContent from "./EditTaxContent";
 import SwipeableTaxItem from "./SwipeableTaxItem";
 import { SortableHeader, useSortableData } from "./SortableHeader";
 import { supabase } from "@/integrations/supabase/client";
+import infoIcon from "@/assets/icons/info.png";
 
 type TaxSortKey = "name" | "amount" | "type";
 
@@ -304,17 +305,22 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
           )}
           <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
             <h1 className="text-xl font-semibold text-foreground">Taxes</h1>
+            <button
+              onClick={() => {
+                toast({
+                  description: "Taxes are levies imposed on financial transactions or income, collected by government authorities to fund public services and infrastructure.",
+                  duration: 4000,
+                });
+              }}
+              className="active:opacity-70 transition-opacity"
+            >
+              <img src={infoIcon} alt="Info" className="w-5 h-5" />
+            </button>
           </div>
         </div>
       )}
 
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
-        {/* Description */}
-        <div className="mb-4 px-1 pt-2">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Taxes are levies imposed on financial transactions or income, collected by government authorities to fund public services and infrastructure.
-          </p>
-        </div>
         {/* Action Buttons */}
         <div className="flex gap-3 mb-4">
           <button 

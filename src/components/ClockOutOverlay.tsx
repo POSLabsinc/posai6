@@ -1161,6 +1161,15 @@ export const ClockOutOverlay = ({
   // Shared keypad component for both layouts
   const renderKeypad = () => (
     <>
+      {/* Mobile date/time header */}
+      <div className="text-center mb-4 md:hidden">
+        <p className="text-white/70 text-base font-medium">{format(currentTime, "EEEE, MMMM d, yyyy")}</p>
+        <p className="text-white text-5xl font-bold mt-1 tracking-tight">
+          {format(currentTime, "h:mm")}
+          <span className="text-white/60 text-2xl ml-2 font-semibold">{format(currentTime, "a")}</span>
+        </p>
+      </div>
+
       {/* PIN Label */}
       <div className="text-center mb-2">
         <p className="text-white/60 text-sm">
@@ -1169,7 +1178,7 @@ export const ClockOutOverlay = ({
       </div>
 
       {/* PIN Display */}
-      <div className="p-4 pb-3 pt-0 flex justify-center gap-4 md:gap-6">
+      <div className="flex justify-center gap-4 md:gap-6 mb-3">
         {Array.from({ length: PIN_LENGTH }).map((_, i) => (
           <div key={i} className="w-10 h-10 md:w-12 md:h-12 lg:w-14 lg:h-14 flex items-center justify-center">
             {i < pin.length ? (
@@ -1193,14 +1202,14 @@ export const ClockOutOverlay = ({
       {error && <p className="text-red-500 text-center text-sm mb-2 px-4">{error}</p>}
 
       {/* Numeric Keypad */}
-      <div className="flex-1 px-4 pb-2 relative">
+      <div className="flex-1 overflow-visible min-h-0 relative">
         <div className="grid grid-cols-3 gap-2">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
             <button
               key={num}
               onClick={() => handleKeyPress(num.toString())}
               disabled={isVerifying}
-              className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-xl md:text-2xl font-semibold disabled:opacity-50"
+              className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-2xl md:text-2xl font-semibold disabled:opacity-50"
             >
               {num}
             </button>
@@ -1209,7 +1218,7 @@ export const ClockOutOverlay = ({
           <button
             onClick={handleClear}
             disabled={isVerifying}
-            className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-red-500 text-xl md:text-2xl font-bold disabled:opacity-50"
+            className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-red-500 text-2xl md:text-2xl font-bold disabled:opacity-50"
           >
             C
           </button>
@@ -1217,7 +1226,7 @@ export const ClockOutOverlay = ({
           <button
             onClick={() => handleKeyPress("0")}
             disabled={isVerifying}
-            className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-xl md:text-2xl font-semibold disabled:opacity-50"
+            className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d rounded-lg text-black text-2xl md:text-2xl font-semibold disabled:opacity-50"
           >
             0
           </button>
@@ -1225,7 +1234,7 @@ export const ClockOutOverlay = ({
           <button
             onClick={handleEnter}
             disabled={isVerifying || pin.length !== PIN_LENGTH}
-            className="h-14 md:h-16 lg:h-[72px] keypad-btn-3d-enter rounded-lg text-black text-base md:text-lg font-bold disabled:opacity-50"
+            className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d-enter rounded-lg text-black text-base md:text-lg font-bold disabled:opacity-50"
           >
             ENTER
           </button>
@@ -1236,7 +1245,7 @@ export const ClockOutOverlay = ({
           <button
             onClick={handleClockOut}
             disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn}
-            className="h-12 md:h-14 lg:h-16 keypad-btn-3d-clockout rounded-lg text-white text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed"
+            className="h-[60px] md:h-14 lg:h-16 keypad-btn-3d-clockout rounded-lg text-white text-sm md:text-sm lg:text-base font-bold disabled:cursor-not-allowed"
           >
             Clock Out
           </button>
@@ -1244,7 +1253,7 @@ export const ClockOutOverlay = ({
             <button
               onClick={handleBreak}
               disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn}
-              className="h-12 md:h-14 lg:h-16 keypad-btn-3d-break rounded-lg text-black text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed"
+              className="h-[60px] md:h-14 lg:h-16 keypad-btn-3d-break rounded-lg text-black text-sm md:text-sm lg:text-base font-bold disabled:cursor-not-allowed"
             >
               Break
             </button>
@@ -1252,7 +1261,7 @@ export const ClockOutOverlay = ({
           <button
             onClick={handleClockIn}
             disabled={isVerifying || pin.length !== PIN_LENGTH || isClockedIn}
-            className="h-12 md:h-14 lg:h-16 keypad-btn-3d-clockin rounded-lg text-white text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed"
+            className="h-[60px] md:h-14 lg:h-16 keypad-btn-3d-clockin rounded-lg text-white text-sm md:text-sm lg:text-base font-bold disabled:cursor-not-allowed"
           >
             Clock In
           </button>
@@ -1262,16 +1271,16 @@ export const ClockOutOverlay = ({
           {/* Fingerprint */}
           <button 
             onClick={handleFingerprintPress}
-            className="h-12 md:h-14 lg:h-16 keypad-btn-3d-dark rounded-lg flex items-center justify-center"
+            className="h-[56px] md:h-14 lg:h-16 keypad-btn-3d-dark rounded-lg flex items-center justify-center"
           >
-            <Fingerprint className="w-6 h-6 md:w-7 md:h-7 text-white" />
+            <Fingerprint className="w-7 h-7 md:w-7 md:h-7 text-white" />
           </button>
 
           {/* Revenue Center Selector */}
-          <div className="relative">
+          <div>
             <button
               onClick={() => setShowRevenueCenterSelector(!showRevenueCenterSelector)}
-              className="w-full h-12 md:h-14 lg:h-16 keypad-btn-3d-revenue rounded-lg flex flex-col items-center justify-center px-2"
+              className="w-full h-[56px] md:h-14 lg:h-16 keypad-btn-3d-revenue rounded-lg flex flex-col items-center justify-center px-2"
             >
               <span className="text-neutral-500 text-[10px] font-medium uppercase tracking-wide">Revenue Center</span>
               <span className="text-black text-xs md:text-sm font-semibold truncate max-w-full flex items-center gap-1">
@@ -1288,27 +1297,30 @@ export const ClockOutOverlay = ({
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: 10 }}
                   transition={{ duration: 0.15 }}
-                  className="absolute bottom-full left-0 right-0 mb-2 bg-white rounded-xl shadow-2xl border-2 border-red-400 z-50 max-h-[280px] md:max-h-[280px] lg:max-h-[312px] flex flex-col"
+                  className="absolute bottom-full left-0 right-0 mb-2 bg-[#1a1a1e] rounded-2xl shadow-2xl border border-white/10 z-50 p-4"
                 >
-                  <div className="overflow-y-auto overscroll-contain flex-1">
-                    {revenueCenters.map(center => (
-                      <button 
-                        key={center} 
-                        onClick={() => {
-                          setSelectedRevenueCenter(center);
-                          setShowRevenueCenterSelector(false);
-                        }} 
-                        className={`w-full px-4 py-3.5 text-left text-sm hover:bg-neutral-100 flex items-center justify-between ${selectedRevenueCenter === center ? "bg-neutral-100" : ""}`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-lg bg-neutral-100 flex items-center justify-center">
-                            <RevenueCenterIcon center={center} className="w-4 h-4" />
-                          </div>
-                          <span className="text-black font-medium">{center}</span>
-                        </div>
-                        {selectedRevenueCenter === center && <Check className="w-4 h-4 text-emerald-500" />}
-                      </button>
-                    ))}
+                  <p className="text-white/60 text-xs font-medium mb-3 text-center uppercase tracking-wide">Select Revenue Center</p>
+                  <div className="grid grid-cols-3 gap-2.5">
+                    {revenueCenters.map(center => {
+                      const isSelected = selectedRevenueCenter === center;
+                      return (
+                        <button 
+                          key={center} 
+                          onClick={() => {
+                            setSelectedRevenueCenter(center);
+                            setShowRevenueCenterSelector(false);
+                          }} 
+                          className={`rounded-xl px-2 py-3 flex flex-col items-center justify-center gap-2 transition-all min-h-[78px] ${
+                            isSelected
+                              ? 'bg-white/20 border border-white/40'
+                              : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
+                          }`}
+                        >
+                          <RevenueCenterIcon center={center} className="w-6 h-6 shrink-0" />
+                          <span className="text-[11px] font-medium text-center leading-tight text-white break-words w-full">{center}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </motion.div>
               )}
@@ -1318,16 +1330,16 @@ export const ClockOutOverlay = ({
           {/* Face ID */}
           <button 
             onClick={handleFaceIDPress}
-            className="h-12 md:h-14 lg:h-16 keypad-btn-3d-dark rounded-lg flex items-center justify-center"
+            className="h-[56px] md:h-14 lg:h-16 keypad-btn-3d-dark rounded-lg flex items-center justify-center"
           >
-            <ScanFace className="w-6 h-6 md:w-7 md:h-7 text-white" />
+            <ScanFace className="w-7 h-7 md:w-7 md:h-7 text-white" />
           </button>
         </div>
 
         {/* LOGOUT Button Row */}
         <button
           onClick={handleLogoutClick}
-          className="w-full h-12 md:h-14 mt-2 keypad-btn-3d-outlined rounded-lg text-white text-base md:text-lg font-bold"
+          className="w-full h-[56px] md:h-14 mt-3 keypad-btn-3d-outlined rounded-lg text-white text-base md:text-lg font-bold"
         >
           LOGOUT
         </button>
@@ -1482,22 +1494,9 @@ export const ClockOutOverlay = ({
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
         transition={{ duration: 0.25, ease: "easeOut" }}
-        className={`relative z-10 flex justify-center w-full h-full p-4 ${showCenteredLayout ? 'items-center' : 'items-start pt-8'}`}
+        className={`relative z-10 flex justify-center w-full h-full p-4 pb-6 overflow-y-auto ${showCenteredLayout ? 'items-center' : 'items-start pt-8'}`}
       >
-        <div className="w-full max-w-[620px] bg-black/60 backdrop-blur-xl rounded-2xl p-4 flex flex-col max-h-[calc(100vh-32px)] overflow-y-auto">
-          {/* Compact date/time header for mobile - show when on keypad */}
-          {!showMoodCheckIn && !clockOutSummary && !clockInSummary && !showJobSelection && (
-            <div className="text-center mb-3 flex-shrink-0">
-              <p className="text-white/60 text-sm">
-                {format(currentTime, "EEEE, MMMM d, yyyy")}
-              </p>
-              <p className="text-white text-3xl font-bold">
-                {format(currentTime, "h:mm")}
-                <span className="text-white/60 text-xl ml-1">{format(currentTime, "a")}</span>
-              </p>
-            </div>
-          )}
-
+        <div className="w-full max-w-[620px] bg-black/60 backdrop-blur-xl rounded-2xl p-5 flex flex-col max-h-[calc(100vh-56px)]">
           {/* Back button - shown above header when mood check-in is active */}
           {showMoodCheckIn && (
             <div className="self-start mb-3">

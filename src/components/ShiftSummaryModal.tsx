@@ -1288,25 +1288,25 @@ function PaymentBreakdownTable({
   const { sortedItems, sort, requestSort } = useSortableData(rows, accessor);
 
   return (
-    <table className="w-full text-sm md:text-base">
+    <table className="w-full text-xs md:text-base">
       <thead className="sticky top-0 bg-[#1C1C1E] z-10">
         <tr className="border-b-2 border-white/10 text-left">
-          <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider">
+          <th className="py-2 md:py-4 pr-2 md:pr-4 text-[10px] md:text-sm font-bold text-white uppercase tracking-wider">
             <SortableHeader label="Type" sortKey="type" sort={sort} onSort={requestSort} />
           </th>
-          <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider">
+          <th className="py-2 md:py-4 pr-2 md:pr-4 text-[10px] md:text-sm font-bold text-white uppercase tracking-wider">
             <SortableHeader label="Qty" sortKey="qty" sort={sort} onSort={requestSort} align="right" />
           </th>
-          <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider">
+          <th className="py-2 md:py-4 pr-2 md:pr-4 text-[10px] md:text-sm font-bold text-white uppercase tracking-wider">
             <SortableHeader label="Amount" sortKey="amount" sort={sort} onSort={requestSort} align="right" />
           </th>
-          <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider">
+          <th className="py-2 md:py-4 pr-2 md:pr-4 text-[10px] md:text-sm font-bold text-white uppercase tracking-wider">
             <SortableHeader label="Tip" sortKey="tip" sort={sort} onSort={requestSort} align="right" />
           </th>
-          <th className="py-3 md:py-4 pr-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider">
+          <th className="py-2 md:py-4 pr-2 md:pr-4 text-[10px] md:text-sm font-bold text-white uppercase tracking-wider">
             <SortableHeader label="Total Tips" sortKey="totalTips" sort={sort} onSort={requestSort} align="right" />
           </th>
-          <th className="py-3 md:py-4 pl-4 text-xs md:text-sm font-bold text-white uppercase tracking-wider">
+          <th className="py-2 md:py-4 pl-2 md:pl-4 text-[10px] md:text-sm font-bold text-white uppercase tracking-wider">
             <SortableHeader label="Cash Drop" sortKey="cashDrop" sort={sort} onSort={requestSort} align="right" />
           </th>
         </tr>
@@ -1317,24 +1317,24 @@ function PaymentBreakdownTable({
           const cashDropForRow = isCash ? Math.max(0, row.amount - cardTips) : 0;
           return (
             <tr key={row.type} className="border-b border-white/5 transition-colors hover:bg-white/[0.05]">
-              <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white">{row.type}</td>
-              <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] text-white text-right">{row.qty}</td>
-              <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white text-right">$ {row.amount.toFixed(2)}</td>
-              <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] text-white text-right">$ {row.tips.toFixed(2)}</td>
-              <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-semibold text-white text-right">$ {row.totalTips.toFixed(2)}</td>
-              <td className="py-4 md:py-5 pl-4 text-base md:text-[17px] font-semibold text-white text-right">$ {cashDropForRow.toFixed(2)}</td>
+              <td className="py-2.5 md:py-5 pr-2 md:pr-4 text-xs md:text-[17px] font-semibold text-white whitespace-nowrap">{row.type}</td>
+              <td className="py-2.5 md:py-5 pr-2 md:pr-4 text-xs md:text-[17px] text-white text-right whitespace-nowrap">{row.qty}</td>
+              <td className="py-2.5 md:py-5 pr-2 md:pr-4 text-xs md:text-[17px] font-semibold text-white text-right whitespace-nowrap">$ {row.amount.toFixed(2)}</td>
+              <td className="py-2.5 md:py-5 pr-2 md:pr-4 text-xs md:text-[17px] text-white text-right whitespace-nowrap">$ {row.tips.toFixed(2)}</td>
+              <td className="py-2.5 md:py-5 pr-2 md:pr-4 text-xs md:text-[17px] font-semibold text-white text-right whitespace-nowrap">$ {row.totalTips.toFixed(2)}</td>
+              <td className="py-2.5 md:py-5 pl-2 md:pl-4 text-xs md:text-[17px] font-semibold text-white text-right whitespace-nowrap">$ {cashDropForRow.toFixed(2)}</td>
             </tr>
           );
         })}
       </tbody>
       <tfoot>
         <tr className="bg-neutral-800/50">
-          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white">Total</td>
-          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">{paidOrdersCount}</td>
-          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">$ {rows.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
-          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">$ {rows.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
-          <td className="py-4 md:py-5 pr-4 text-base md:text-[17px] font-bold text-white text-right">$ {rows.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
-          <td className="py-4 md:py-5 pl-4 text-base md:text-[17px] font-bold text-white text-right">$ {totalCashDrop.toFixed(2)}</td>
+          <td className="py-2.5 md:py-5 pr-2 md:pr-4 text-xs md:text-[17px] font-bold text-white whitespace-nowrap">Total</td>
+          <td className="py-2.5 md:py-5 pr-2 md:pr-4 text-xs md:text-[17px] font-bold text-white text-right whitespace-nowrap">{paidOrdersCount}</td>
+          <td className="py-2.5 md:py-5 pr-2 md:pr-4 text-xs md:text-[17px] font-bold text-white text-right whitespace-nowrap">$ {rows.reduce((s, r) => s + r.amount, 0).toFixed(2)}</td>
+          <td className="py-2.5 md:py-5 pr-2 md:pr-4 text-xs md:text-[17px] font-bold text-white text-right whitespace-nowrap">$ {rows.reduce((s, r) => s + r.tips, 0).toFixed(2)}</td>
+          <td className="py-2.5 md:py-5 pr-2 md:pr-4 text-xs md:text-[17px] font-bold text-white text-right whitespace-nowrap">$ {rows.reduce((s, r) => s + r.totalTips, 0).toFixed(2)}</td>
+          <td className="py-2.5 md:py-5 pl-2 md:pl-4 text-xs md:text-[17px] font-bold text-white text-right whitespace-nowrap">$ {totalCashDrop.toFixed(2)}</td>
         </tr>
       </tfoot>
     </table>

@@ -1710,3 +1710,8 @@ html.light .draggable-sidebar svg {
 html.light .bottom-navigation img {
   filter: brightness(0) saturate(100%) !important;
 }
+
+/* Hide floating settings search while Shift Summary modal is open */
+body[data-shift-summary-open="true"] .settings-floating-search {
+  display: none !important;
+}

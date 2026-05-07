@@ -324,7 +324,7 @@ const Header = () => {
             </button>
 
             {showNotifPopover && (
-              <div className="fixed left-2 right-2 top-[60px] md:absolute md:left-auto md:right-0 md:top-full md:mt-2 md:w-80 bg-[#1C1C1E] border border-white/10 rounded-2xl shadow-2xl z-[999] overflow-hidden">
+              <div className="fixed left-2 right-2 top-[44px] md:absolute md:left-auto md:right-0 md:top-full md:mt-2 md:w-80 bg-[#1C1C1E] border border-white/10 rounded-2xl shadow-2xl z-[999] overflow-hidden">
                 {/* Header - clickable to go to all notifications */}
                 <button
                   onClick={() => {

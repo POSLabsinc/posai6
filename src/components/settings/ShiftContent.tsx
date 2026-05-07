@@ -247,9 +247,9 @@ const ShiftContent = ({
         </div>
         )}
 
-        {/* Search + Add row */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex-1 min-w-[140px] rounded-full bg-neutral-800/60 px-4 py-3 flex items-center gap-3">
+        {/* Search bar */}
+        <div className="mb-3">
+          <div className="w-full rounded-full bg-neutral-800/60 px-4 py-3 flex items-center gap-3">
             <Search className="h-5 w-5 flex-shrink-0 text-neutral-500" />
             <input
               type="text"
@@ -257,10 +257,13 @@ const ShiftContent = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-[15px]" />
-
             <Mic className="h-5 w-5 flex-shrink-0 text-neutral-500" />
           </div>
-          <button onClick={() => navigate("/settings/workforce/shift/add")} className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity">
+        </div>
+
+        {/* Add row */}
+        <div className="flex items-center gap-3 mb-4">
+          <button onClick={() => navigate("/settings/workforce/shift/add")} className="flex-1 h-12 rounded-full flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity">
             <Plus className="h-5 w-5" />
             <span className="text-sm font-medium">Add</span>
           </button>

@@ -94,9 +94,9 @@ const EmployeeContent = ({
           </p>
         </div>
 
-        {/* Search + Archive + Add row */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex-1 min-w-[140px] rounded-full bg-neutral-800/60 px-4 py-3 flex items-center gap-3">
+        {/* Search bar */}
+        <div className="mb-3">
+          <div className="w-full rounded-full bg-neutral-800/60 px-4 py-3 flex items-center gap-3">
             <Search className="h-5 w-5 flex-shrink-0 text-neutral-500" />
             <input
               type="text"
@@ -107,11 +107,13 @@ const EmployeeContent = ({
             />
             <Mic className="h-5 w-5 flex-shrink-0 text-neutral-500" />
           </div>
+        </div>
 
-          {/* Archive */}
+        {/* Archive + Add row */}
+        <div className="flex items-center gap-3 mb-4">
           <button
             onClick={() => setShowArchived(!showArchived)}
-            className={`h-12 rounded-full px-4 flex-shrink-0 flex items-center justify-center gap-2 border text-sm font-medium transition-colors ${
+            className={`flex-1 h-12 rounded-full flex items-center justify-center gap-2 border text-sm font-medium transition-colors ${
               showArchived
                 ? "bg-foreground text-background border-foreground"
                 : "border-[hsl(var(--surface-border))] bg-transparent text-foreground"
@@ -121,7 +123,7 @@ const EmployeeContent = ({
             Archive
           </button>
 
-          <button onClick={() => navigate("/settings/workforce/employee/add")} className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity">
+          <button onClick={() => navigate("/settings/workforce/employee/add")} className="flex-1 h-12 rounded-full flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity">
             <Plus className="h-5 w-5" />
             <span className="text-sm font-medium">Add</span>
           </button>

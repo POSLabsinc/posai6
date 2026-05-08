@@ -70,15 +70,20 @@ interface SavedTheme {
 
 const SAVED_THEMES_KEY = 'pos-saved-themes';
 
+const MAX_SAVED_THEMES = 5;
+
 function getSavedThemes(): SavedTheme[] {
   try {
     const stored = localStorage.getItem(SAVED_THEMES_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const parsed: SavedTheme[] = stored ? JSON.parse(stored) : [];
+    // Enforce max of 5 saved themes (newest first)
+    return parsed.slice(0, MAX_SAVED_THEMES);
   } catch { return []; }
 }
 
 function saveSavedThemes(themes: SavedTheme[]) {
-  localStorage.setItem(SAVED_THEMES_KEY, JSON.stringify(themes));
+  const trimmed = themes.slice(0, MAX_SAVED_THEMES);
+  localStorage.setItem(SAVED_THEMES_KEY, JSON.stringify(trimmed));
 }
 
 interface ThemeColorContentProps {
@@ -561,13 +566,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
           </div>
         </div>
 
-        {/* Reset Action */}
-        <div className="flex items-center">
-          <button onClick={handleResetDefault} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors">
-            <RotateCcw className="w-3.5 h-3.5" />
-            Use Default Theme
-          </button>
-        </div>
       </div>
     </div>
   );

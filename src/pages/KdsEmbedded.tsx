@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ArrowLeft, RefreshCw } from "lucide-react";
 import { SettingsManager } from "@/lib/settingsManager";
 
 /**
@@ -73,6 +72,14 @@ const KdsEmbedded = () => {
         className="w-full h-full border-0"
         allow="autoplay; clipboard-read; clipboard-write; fullscreen"
         onLoad={() => setLoading(false)}
+      />
+
+      <button
+        type="button"
+        aria-label="Switch to Point of Sale"
+        title="Switch to Point of Sale"
+        onClick={handleBackToPos}
+        className="absolute left-2 bottom-[72px] z-[10] h-[72px] w-[72px] md:w-[208px] rounded-xl bg-transparent"
       />
     </div>
   );

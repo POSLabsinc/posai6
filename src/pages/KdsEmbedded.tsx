@@ -38,6 +38,22 @@ const KdsEmbedded = () => {
     return () => clearTimeout(t);
   }, [iframeKey]);
 
+  // Listen for "Switch to POS" messages from the embedded KDS iframe.
+  // The KDS app should call: window.parent.postMessage({ type: "switch-to-pos" }, "*")
+  useEffect(() => {
+    const onMessage = (event: MessageEvent) => {
+      const data = event.data;
+      if (!data || typeof data !== "object") return;
+      const type = (data as { type?: string }).type;
+      if (type === "switch-to-pos" || type === "kds:switch-to-pos") {
+        handleBackToPos();
+      }
+    };
+    window.addEventListener("message", onMessage);
+    return () => window.removeEventListener("message", onMessage);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="fixed inset-0 z-[60] bg-black flex flex-col">
       {loading && (

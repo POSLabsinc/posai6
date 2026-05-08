@@ -12,6 +12,7 @@ import { SettingsManager } from "@/lib/settingsManager";
  * The old src/pages/KDS.tsx is still mounted at /kds as a fallback.
  */
 const KDS_URL = "https://kitchen-display-system-posai6.lovable.app";
+const POS_URL = "https://posai6.lovable.app/";
 
 const KdsEmbedded = () => {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ const KdsEmbedded = () => {
   // so the screen-mode switcher reflects the active mode correctly.
   const handleBackToPos = () => {
     SettingsManager.updateScreenModeSettings({ currentMode: "pos" });
-    navigate("/");
+    window.location.assign(POS_URL);
   };
 
   const handleReload = () => {
@@ -79,7 +80,7 @@ const KdsEmbedded = () => {
         aria-label="Switch to Point of Sale"
         title="Switch to Point of Sale"
         onClick={handleBackToPos}
-        className="absolute left-2 bottom-[72px] z-[10] h-[72px] w-[72px] md:w-[208px] rounded-xl bg-transparent"
+        className="absolute left-2 bottom-[130px] z-[10] h-[72px] w-[72px] md:w-[208px] rounded-xl bg-transparent"
       />
     </div>
   );

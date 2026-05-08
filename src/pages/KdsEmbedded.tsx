@@ -40,26 +40,6 @@ const KdsEmbedded = () => {
 
   return (
     <div className="fixed inset-0 z-[60] bg-black flex flex-col">
-      {/* Floating top bar over the iframe */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-2">
-        <button
-          onClick={handleBackToPos}
-          className="flex items-center gap-2 h-9 px-3 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-white text-sm font-medium hover:bg-black/85 transition-colors shadow-lg"
-          aria-label="Back to Point of Sale"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Back to Point of Sale
-        </button>
-        <button
-          onClick={handleReload}
-          className="flex items-center justify-center h-9 w-9 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-white hover:bg-black/85 transition-colors shadow-lg"
-          aria-label="Reload Kitchen Display"
-          title="Reload"
-        >
-          <RefreshCw className="w-4 h-4" />
-        </button>
-      </div>
-
       {loading && (
         <div className="absolute inset-0 z-[5] flex items-center justify-center bg-black pointer-events-none">
           <div className="flex flex-col items-center gap-3">

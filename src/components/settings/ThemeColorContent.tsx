@@ -381,11 +381,8 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-end">
               {/* LEFT: Preview screen + Apply Theme */}
               <div className={`flex flex-col justify-end gap-4 w-full ${MATCHED_PREVIEW_PANEL_HEIGHT}`}>
-                <div className="bg-neutral-700/40 rounded-xl p-3 flex-1 min-h-0 flex flex-col">
-                  <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-2 text-center">Preview Screen</p>
-                  <div className="flex-1 min-h-0">
-                    <ThemePreviewMini accent={pickerColor} />
-                  </div>
+                <div className="flex-1 min-h-0 flex flex-col">
+                  <ThemePreviewMini accent={pickerColor} />
                 </div>
                 <button
                   onClick={handleApply}

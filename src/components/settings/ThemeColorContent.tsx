@@ -72,6 +72,8 @@ const SAVED_THEMES_KEY = 'pos-saved-themes';
 
 const MAX_SAVED_THEMES = 5;
 
+const MATCHED_PREVIEW_PANEL_HEIGHT = 'lg:h-[470px]';
+
 function getSavedThemes(): SavedTheme[] {
   try {
     const stored = localStorage.getItem(SAVED_THEMES_KEY);
@@ -109,7 +111,7 @@ function ThemePreviewMini({ accent }: { accent: string }) {
 
   return (
     <div
-      className="w-full aspect-[4/3] rounded-xl overflow-hidden border border-neutral-700 relative"
+      className="w-full h-full min-h-0 rounded-xl overflow-hidden border border-neutral-700 relative"
       style={{ background: bg }}
     >
       <div
@@ -376,12 +378,14 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         <div>
           <h2 className={sectionTitleClassName}>Color Picker</h2>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-end">
               {/* LEFT: Preview screen + Apply Theme */}
-              <div className="flex flex-col gap-4 w-full">
-                <div className="bg-neutral-700/40 rounded-xl p-3">
+              <div className={`flex flex-col justify-end gap-4 w-full ${MATCHED_PREVIEW_PANEL_HEIGHT}`}>
+                <div className="bg-neutral-700/40 rounded-xl p-3 flex-1 min-h-0 flex flex-col">
                   <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-2 text-center">Preview Screen</p>
-                  <ThemePreviewMini accent={pickerColor} />
+                  <div className="flex-1 min-h-0">
+                    <ThemePreviewMini accent={pickerColor} />
+                  </div>
                 </div>
                 <button
                   onClick={handleApply}
@@ -395,7 +399,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
               </div>
 
               {/* RIGHT: Color picker + Current/Preview + HEX/RGB/CMYK */}
-              <div className="flex flex-col gap-4 w-full">
+              <div className={`flex flex-col justify-end gap-4 w-full ${MATCHED_PREVIEW_PANEL_HEIGHT}`}>
                 <div className="theme-color-picker theme-color-picker-wide">
                   <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
                 </div>

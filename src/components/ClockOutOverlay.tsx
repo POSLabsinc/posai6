@@ -1066,7 +1066,7 @@ export const ClockOutOverlay = ({
                   src={JOB_TYPE_ICONS[job]!} 
                   alt={job} 
                   className="w-12 h-12" 
-                  style={{ filter: 'invert(1) brightness(2)' }} 
+                  style={{ filter: JOB_TYPE_COLORS[job] || 'invert(1) brightness(2)' }} 
                 />
               ) : (
                 <Briefcase className="w-12 h-12 text-white" />

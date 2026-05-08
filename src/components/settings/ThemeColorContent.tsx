@@ -104,7 +104,7 @@ function ThemePreviewMini({ accent }: { accent: string }) {
 
   return (
     <div
-      className="w-full aspect-[4/3] rounded-xl overflow-hidden border border-neutral-700 relative"
+      className="w-full aspect-[16/9] rounded-xl overflow-hidden border border-neutral-700 relative"
       style={{ background: bg }}
     >
       <div

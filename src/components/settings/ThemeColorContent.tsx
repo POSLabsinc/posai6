@@ -566,13 +566,6 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
           </div>
         </div>
 
-        {/* Reset Action */}
-        <div className="flex items-center">
-          <button onClick={handleResetDefault} className="w-full flex items-center justify-center gap-2 py-3 rounded-2xl bg-neutral-800/60 hover:bg-neutral-700/60 text-sm font-medium text-foreground transition-colors">
-            <RotateCcw className="w-3.5 h-3.5" />
-            Use Default Theme
-          </button>
-        </div>
       </div>
     </div>
   );

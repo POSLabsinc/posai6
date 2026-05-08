@@ -164,6 +164,8 @@ export const ClockOutOverlay = ({
   const [isClockedIn, setIsClockedIn] = useState(false);
   const [clockOutSummary, setClockOutSummary] = useState<ClockOutSummary | null>(null);
   const [clockInSummary, setClockInSummary] = useState<ClockInSummary | null>(null);
+  const [showSummaryRevenueCenterDropdown, setShowSummaryRevenueCenterDropdown] = useState(false);
+  const [showSummaryJobTypeDropdown, setShowSummaryJobTypeDropdown] = useState(false);
 
   // Two-step clock-in state
   const [validatedEmployee, setValidatedEmployee] = useState<Employee | null>(null);
@@ -1100,6 +1102,8 @@ export const ClockOutOverlay = ({
       }
     };
     
+    const summaryJobTypes = validatedEmployee?.assignedJobTypes ?? Object.keys(JOB_TYPE_ICONS);
+
     return (
       <motion.div
         key="clock-in-summary"
@@ -1111,65 +1115,144 @@ export const ClockOutOverlay = ({
       >
         {/* Success Header */}
         <div className="text-center mb-4 flex-shrink-0">
-          <div className="w-14 h-14 md:w-16 md:h-16 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-3">
-            <Check className="w-7 h-7 md:w-8 md:h-8 text-white" strokeWidth={3} />
+          <div className="w-14 h-14 bg-emerald-500 rounded-full flex items-center justify-center mx-auto mb-2">
+            <Check className="w-7 h-7 text-white" strokeWidth={3} />
           </div>
-          <h2 className="text-white text-xl md:text-2xl font-bold text-center mb-1">
-            Clocked In
+          <h2 className="text-white text-xl font-bold mb-0.5">
+            Clocked In!
           </h2>
-          <p className="text-white/60 text-sm text-center">
-            {clockInSummary.employeeName}
+          <p className="text-white/60 text-sm">
+            Welcome back, {clockInSummary.employeeName}
           </p>
         </div>
 
         <div className="flex-1 overflow-y-auto min-h-0">
           <div className="space-y-2 md:space-y-3">
-            {/* Clock In Time */}
-            <div className="bg-white/15 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 border border-white/20">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-emerald-500/30 rounded-xl flex items-center justify-center">
-                <Clock className="w-5 h-5 md:w-6 md:h-6 text-emerald-300" />
+            {/* Clocked In At */}
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                <Clock className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-white/60 text-xs font-medium mb-0.5">Clock In Time</p>
-                <p className="text-white text-xl md:text-2xl font-bold">
+                <p className="text-white/60 text-xs font-medium mb-0.5">Clocked In At</p>
+                <p className="text-white text-lg md:text-xl font-bold">
                   {safeFormatTime(clockInSummary.clockInTime)}
                 </p>
               </div>
             </div>
 
-            {/* Revenue Center */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <RevenueCenterIcon center={clockInSummary.revenueCenter} className="w-5 h-5 md:w-6 md:h-6" />
-              </div>
-              <div className="flex-1">
-                <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
-                <p className="text-white text-lg md:text-xl font-bold">
-                  {clockInSummary.revenueCenter}
-                </p>
-              </div>
+            {/* Revenue Center with dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => { setShowSummaryRevenueCenterDropdown(!showSummaryRevenueCenterDropdown); setShowSummaryJobTypeDropdown(false); }}
+                className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
+              >
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  <RevenueCenterIcon center={clockInSummary.revenueCenter} className="w-5 h-5 md:w-6 md:h-6" />
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-white/60 text-xs font-medium mb-0.5">Revenue Center</p>
+                  <p className="text-white text-lg md:text-xl font-bold">
+                    {clockInSummary.revenueCenter}
+                  </p>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-white/60 transition-transform ${showSummaryRevenueCenterDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              <AnimatePresence>
+                {showSummaryRevenueCenterDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="mt-2 overflow-hidden"
+                  >
+                    <div className="grid grid-cols-3 gap-2">
+                      {revenueCenters.map(center => {
+                        const isSelected = clockInSummary.revenueCenter === center;
+                        return (
+                          <button
+                            key={center}
+                            onClick={() => {
+                              setClockInSummary(prev => prev ? { ...prev, revenueCenter: center } : prev);
+                              setShowSummaryRevenueCenterDropdown(false);
+                            }}
+                            className={`rounded-xl p-3 flex flex-col items-center gap-2 transition-all min-h-[80px] ${
+                              isSelected
+                                ? 'bg-white/20 border border-white/40'
+                                : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
+                            }`}
+                          >
+                            <RevenueCenterIcon center={center} className="w-7 h-7" />
+                            <span className="text-xs font-medium text-center text-white">{center}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
-            {/* Job Type */}
-            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                {JOB_TYPE_ICONS[clockInSummary.jobType] ? (
-                  <img
-                    src={JOB_TYPE_ICONS[clockInSummary.jobType]!}
-                    alt={clockInSummary.jobType}
-                    className="w-5 h-5 md:w-6 md:h-6"
-                    style={{ filter: JOB_TYPE_COLORS[clockInSummary.jobType] || 'invert(1) brightness(2)' }}
-                  />
-                ) : (
-                  <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-white" />
+            {/* Role with dropdown */}
+            <div className="relative">
+              <button
+                onClick={() => { setShowSummaryJobTypeDropdown(!showSummaryJobTypeDropdown); setShowSummaryRevenueCenterDropdown(false); }}
+                className="w-full bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4 transition-colors hover:bg-white/15"
+              >
+                <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
+                  {JOB_TYPE_ICONS[clockInSummary.jobType] ? (
+                    <img src={JOB_TYPE_ICONS[clockInSummary.jobType]!} alt={clockInSummary.jobType} className="w-5 h-5 md:w-6 md:h-6" style={{ filter: JOB_TYPE_COLORS[clockInSummary.jobType] || 'invert(1) brightness(2)' }} />
+                  ) : (
+                    <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                  )}
+                </div>
+                <div className="flex-1 text-left">
+                  <p className="text-white/60 text-xs font-medium mb-0.5">Role</p>
+                  <p className="text-white text-lg md:text-xl font-bold">
+                    {clockInSummary.jobType}
+                  </p>
+                </div>
+                <ChevronDown className={`w-5 h-5 text-white/60 transition-transform ${showSummaryJobTypeDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              <AnimatePresence>
+                {showSummaryJobTypeDropdown && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    transition={{ duration: 0.15 }}
+                    className="mt-2 overflow-hidden"
+                  >
+                    <div className="grid grid-cols-3 gap-2">
+                      {summaryJobTypes.map(job => {
+                        const isSelected = clockInSummary.jobType === job;
+                        return (
+                          <button
+                            key={job}
+                            onClick={() => {
+                              setClockInSummary(prev => prev ? { ...prev, jobType: job } : prev);
+                              setShowSummaryJobTypeDropdown(false);
+                            }}
+                            className={`rounded-xl p-3 flex flex-col items-center gap-2 transition-all min-h-[80px] ${
+                              isSelected
+                                ? 'bg-white/20 border border-white/40'
+                                : 'bg-white/10 hover:bg-white/20 active:bg-white/30'
+                            }`}
+                          >
+                            {JOB_TYPE_ICONS[job] ? (
+                              <img src={JOB_TYPE_ICONS[job]!} alt={job} className="w-7 h-7" style={{ filter: JOB_TYPE_COLORS[job] || 'invert(1) brightness(2)' }} />
+                            ) : (
+                              <Briefcase className="w-7 h-7 text-white" />
+                            )}
+                            <span className="text-xs font-medium text-center text-white">{job}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </motion.div>
                 )}
-              </div>
-              <div className="flex-1">
-                <p className="text-white/60 text-xs font-medium mb-0.5">Job Type</p>
-                <p className="text-white text-lg md:text-xl font-bold">
-                  {clockInSummary.jobType}
-                </p>
-              </div>
+              </AnimatePresence>
             </div>
           </div>
         </div>
@@ -1177,7 +1260,7 @@ export const ClockOutOverlay = ({
         <div className="pt-4 mt-auto">
           <button
             onClick={handleEnterPOSFromSummary}
-            className="w-full h-12 md:h-14 bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700 rounded-xl text-white text-base md:text-lg font-bold transition-colors"
+            className="w-full h-12 md:h-14 bg-white hover:bg-gray-100 active:bg-gray-200 rounded-xl text-black text-base md:text-lg font-bold transition-colors"
           >
             Continue
           </button>

@@ -70,15 +70,20 @@ interface SavedTheme {
 
 const SAVED_THEMES_KEY = 'pos-saved-themes';
 
+const MAX_SAVED_THEMES = 5;
+
 function getSavedThemes(): SavedTheme[] {
   try {
     const stored = localStorage.getItem(SAVED_THEMES_KEY);
-    return stored ? JSON.parse(stored) : [];
+    const parsed: SavedTheme[] = stored ? JSON.parse(stored) : [];
+    // Enforce max of 5 saved themes (newest first)
+    return parsed.slice(0, MAX_SAVED_THEMES);
   } catch { return []; }
 }
 
 function saveSavedThemes(themes: SavedTheme[]) {
-  localStorage.setItem(SAVED_THEMES_KEY, JSON.stringify(themes));
+  const trimmed = themes.slice(0, MAX_SAVED_THEMES);
+  localStorage.setItem(SAVED_THEMES_KEY, JSON.stringify(trimmed));
 }
 
 interface ThemeColorContentProps {

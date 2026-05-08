@@ -93,6 +93,16 @@ const JOB_TYPE_ICONS: Record<string, string | null> = {
   "Runner": runnerIcon
 };
 
+// Job type icon colors (CSS filter hue values) - matches new ClockInOverlay design
+const JOB_TYPE_COLORS: Record<string, string> = {
+  "Server": "brightness(0) saturate(100%) invert(78%) sepia(60%) saturate(500%) hue-rotate(80deg) brightness(95%)",
+  "Bartender": "brightness(0) saturate(100%) invert(60%) sepia(80%) saturate(500%) hue-rotate(280deg) brightness(95%)",
+  "Host": "brightness(0) saturate(100%) invert(65%) sepia(60%) saturate(500%) hue-rotate(180deg) brightness(95%)",
+  "Manager": "brightness(0) saturate(100%) invert(75%) sepia(70%) saturate(500%) hue-rotate(10deg) brightness(95%)",
+  "Barista": "brightness(0) saturate(100%) invert(60%) sepia(60%) saturate(400%) hue-rotate(340deg) brightness(100%)",
+  "Runner": "brightness(0) saturate(100%) invert(70%) sepia(50%) saturate(500%) hue-rotate(150deg) brightness(95%)",
+};
+
 // Emotion options with custom icons
 type EmotionKey = 'happy' | 'energized' | 'motivated' | 'emotional' | 'okay' | 'thankful';
 interface EmotionOption {

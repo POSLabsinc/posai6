@@ -297,7 +297,8 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     if (existing.some(t => t.themeColor.toUpperCase() === hex.toUpperCase())) return;
     const name = `Theme ${existing.length + 1}`;
     const newTheme: SavedTheme = { id: crypto.randomUUID(), name, themeColor: hex, savedAt: new Date().toISOString() };
-    const updated = [...existing, newTheme];
+    // Keep only the last 5 saved themes (newest first)
+    const updated = [newTheme, ...existing].slice(0, 5);
     saveSavedThemes(updated);
     setSavedThemes(updated);
   }, []);

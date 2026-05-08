@@ -104,7 +104,7 @@ function ThemePreviewMini({ accent }: { accent: string }) {
 
   return (
     <div
-      className="w-full aspect-[4/3] rounded-xl overflow-hidden border border-neutral-700 relative"
+      className="w-full aspect-[16/9] rounded-xl overflow-hidden border border-neutral-700 relative"
       style={{ background: bg }}
     >
       <div
@@ -297,7 +297,8 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     if (existing.some(t => t.themeColor.toUpperCase() === hex.toUpperCase())) return;
     const name = `Theme ${existing.length + 1}`;
     const newTheme: SavedTheme = { id: crypto.randomUUID(), name, themeColor: hex, savedAt: new Date().toISOString() };
-    const updated = [...existing, newTheme];
+    // Keep only the last 5 saved themes (most recent)
+    const updated = [...existing, newTheme].slice(-5);
     saveSavedThemes(updated);
     setSavedThemes(updated);
   }, []);
@@ -451,12 +452,13 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                       {(['r', 'g', 'b'] as const).map((ch) => (
                         <input
                           key={ch}
-                          type="number"
-                          min={0}
-                          max={255}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={3}
                           value={rgbInput[ch]}
-                          onChange={(e) => handleRgbChange(ch, e.target.value)}
-                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
+                          onChange={(e) => handleRgbChange(ch, e.target.value.replace(/\D/g, ''))}
+                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           aria-label={ch.toUpperCase()}
                         />
                       ))}
@@ -471,12 +473,13 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                       {(['c', 'm', 'y', 'k'] as const).map((ch) => (
                         <input
                           key={ch}
-                          type="number"
-                          min={0}
-                          max={100}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={3}
                           value={cmykInput[ch]}
-                          onChange={(e) => handleCmykChange(ch, e.target.value)}
-                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
+                          onChange={(e) => handleCmykChange(ch, e.target.value.replace(/\D/g, ''))}
+                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           aria-label={ch.toUpperCase()}
                         />
                       ))}

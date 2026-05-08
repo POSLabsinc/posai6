@@ -452,12 +452,13 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                       {(['r', 'g', 'b'] as const).map((ch) => (
                         <input
                           key={ch}
-                          type="number"
-                          min={0}
-                          max={255}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={3}
                           value={rgbInput[ch]}
-                          onChange={(e) => handleRgbChange(ch, e.target.value)}
-                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
+                          onChange={(e) => handleRgbChange(ch, e.target.value.replace(/[^0-9]/g, ''))}
+                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           aria-label={ch.toUpperCase()}
                         />
                       ))}

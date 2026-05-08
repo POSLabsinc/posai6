@@ -164,6 +164,8 @@ export const ClockOutOverlay = ({
   const [isClockedIn, setIsClockedIn] = useState(false);
   const [clockOutSummary, setClockOutSummary] = useState<ClockOutSummary | null>(null);
   const [clockInSummary, setClockInSummary] = useState<ClockInSummary | null>(null);
+  const [showSummaryRevenueCenterDropdown, setShowSummaryRevenueCenterDropdown] = useState(false);
+  const [showSummaryJobTypeDropdown, setShowSummaryJobTypeDropdown] = useState(false);
 
   // Two-step clock-in state
   const [validatedEmployee, setValidatedEmployee] = useState<Employee | null>(null);

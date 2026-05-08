@@ -93,6 +93,16 @@ const JOB_TYPE_ICONS: Record<string, string | null> = {
   "Runner": runnerIcon
 };
 
+// Job type icon colors (CSS filter hue values) - matches new ClockInOverlay design
+const JOB_TYPE_COLORS: Record<string, string> = {
+  "Server": "brightness(0) saturate(100%) invert(78%) sepia(60%) saturate(500%) hue-rotate(80deg) brightness(95%)",
+  "Bartender": "brightness(0) saturate(100%) invert(60%) sepia(80%) saturate(500%) hue-rotate(280deg) brightness(95%)",
+  "Host": "brightness(0) saturate(100%) invert(65%) sepia(60%) saturate(500%) hue-rotate(180deg) brightness(95%)",
+  "Manager": "brightness(0) saturate(100%) invert(75%) sepia(70%) saturate(500%) hue-rotate(10deg) brightness(95%)",
+  "Barista": "brightness(0) saturate(100%) invert(60%) sepia(60%) saturate(400%) hue-rotate(340deg) brightness(100%)",
+  "Runner": "brightness(0) saturate(100%) invert(70%) sepia(50%) saturate(500%) hue-rotate(150deg) brightness(95%)",
+};
+
 // Emotion options with custom icons
 type EmotionKey = 'happy' | 'energized' | 'motivated' | 'emotional' | 'okay' | 'thankful';
 interface EmotionOption {
@@ -973,7 +983,16 @@ export const ClockOutOverlay = ({
             {/* Job Type */}
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                {JOB_TYPE_ICONS[clockOutSummary.jobType] ? (
+                  <img
+                    src={JOB_TYPE_ICONS[clockOutSummary.jobType]!}
+                    alt={clockOutSummary.jobType}
+                    className="w-5 h-5 md:w-6 md:h-6"
+                    style={{ filter: JOB_TYPE_COLORS[clockOutSummary.jobType] || 'invert(1) brightness(2)' }}
+                  />
+                ) : (
+                  <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                )}
               </div>
               <div className="flex-1">
                 <p className="text-white/60 text-xs font-medium mb-0.5">Job Type</p>
@@ -1056,7 +1075,7 @@ export const ClockOutOverlay = ({
                   src={JOB_TYPE_ICONS[job]!} 
                   alt={job} 
                   className="w-12 h-12" 
-                  style={{ filter: 'invert(1) brightness(2)' }} 
+                  style={{ filter: JOB_TYPE_COLORS[job] || 'invert(1) brightness(2)' }} 
                 />
               ) : (
                 <Briefcase className="w-12 h-12 text-white" />
@@ -1134,7 +1153,16 @@ export const ClockOutOverlay = ({
             {/* Job Type */}
             <div className="bg-white/10 backdrop-blur-sm rounded-xl p-3 md:p-4 flex items-center gap-3 md:gap-4">
               <div className="w-10 h-10 md:w-12 md:h-12 bg-white/20 rounded-xl flex items-center justify-center">
-                <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                {JOB_TYPE_ICONS[clockInSummary.jobType] ? (
+                  <img
+                    src={JOB_TYPE_ICONS[clockInSummary.jobType]!}
+                    alt={clockInSummary.jobType}
+                    className="w-5 h-5 md:w-6 md:h-6"
+                    style={{ filter: JOB_TYPE_COLORS[clockInSummary.jobType] || 'invert(1) brightness(2)' }}
+                  />
+                ) : (
+                  <Briefcase className="w-5 h-5 md:w-6 md:h-6 text-white" />
+                )}
               </div>
               <div className="flex-1">
                 <p className="text-white/60 text-xs font-medium mb-0.5">Job Type</p>

@@ -297,7 +297,8 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
     if (existing.some(t => t.themeColor.toUpperCase() === hex.toUpperCase())) return;
     const name = `Theme ${existing.length + 1}`;
     const newTheme: SavedTheme = { id: crypto.randomUUID(), name, themeColor: hex, savedAt: new Date().toISOString() };
-    const updated = [...existing, newTheme];
+    // Keep only the last 5 saved themes (newest first)
+    const updated = [newTheme, ...existing].slice(0, 5);
     saveSavedThemes(updated);
     setSavedThemes(updated);
   }, []);
@@ -370,9 +371,9 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
         <div>
           <h2 className={sectionTitleClassName}>Color Picker</h2>
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start justify-items-center">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
               {/* LEFT: Preview screen + Apply Theme */}
-              <div className="flex flex-col gap-4 w-full max-w-[460px]">
+              <div className="flex flex-col gap-4 w-full">
                 <div className="bg-neutral-700/40 rounded-xl p-3">
                   <p className="text-[11px] text-neutral-400 uppercase font-medium tracking-wider mb-2 text-center">Preview Screen</p>
                   <ThemePreviewMini accent={pickerColor} />
@@ -389,7 +390,7 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
               </div>
 
               {/* RIGHT: Color picker + Current/Preview + HEX/RGB/CMYK */}
-              <div className="flex flex-col gap-4 w-full max-w-[460px]">
+              <div className="flex flex-col gap-4 w-full">
                 <div className="theme-color-picker theme-color-picker-wide">
                   <HexColorPicker color={pickerColor} onChange={handlePickerChange} />
                 </div>
@@ -451,12 +452,13 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                       {(['r', 'g', 'b'] as const).map((ch) => (
                         <input
                           key={ch}
-                          type="number"
-                          min={0}
-                          max={255}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={3}
                           value={rgbInput[ch]}
-                          onChange={(e) => handleRgbChange(ch, e.target.value)}
-                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
+                          onChange={(e) => handleRgbChange(ch, e.target.value.replace(/[^0-9]/g, ''))}
+                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           aria-label={ch.toUpperCase()}
                         />
                       ))}
@@ -471,12 +473,13 @@ export default function ThemeColorContent({ showHeader = false, onBack, onAIClic
                       {(['c', 'm', 'y', 'k'] as const).map((ch) => (
                         <input
                           key={ch}
-                          type="number"
-                          min={0}
-                          max={100}
+                          type="text"
+                          inputMode="numeric"
+                          pattern="[0-9]*"
+                          maxLength={3}
                           value={cmykInput[ch]}
-                          onChange={(e) => handleCmykChange(ch, e.target.value)}
-                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center"
+                          onChange={(e) => handleCmykChange(ch, e.target.value.replace(/[^0-9]/g, ''))}
+                          className="w-full text-sm bg-neutral-700/50 border border-neutral-600 rounded-md px-1 py-1.5 text-foreground font-mono text-center [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           aria-label={ch.toUpperCase()}
                         />
                       ))}

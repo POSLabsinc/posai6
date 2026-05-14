@@ -54,7 +54,7 @@ const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
         {/* Header Card */}
         <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "#3B82F6" }}>
-            <Monitor className="w-7 h-7 text-white" />
+            <Store className="w-7 h-7 text-white" />
           </div>
           <h1 className="text-xl font-semibold text-foreground mb-2">Screen Mode</h1>
           <p className="text-base text-neutral-400 leading-relaxed w-full">

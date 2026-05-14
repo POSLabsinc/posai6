@@ -3,6 +3,7 @@ import { ChevronLeft } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SettingsManager, ScreenModeSettings, ScreenModeId } from "@/lib/settingsManager";
+import SettingsIcon from "@/components/settings/SettingsIcon";
 import pointOfSaleIcon from "@/assets/icons/screen-mode-pos.png";
 import kitchenDisplayIcon from "@/assets/icons/screen-mode-kds.png";
 import customerFacingIcon from "@/assets/icons/screen-mode-cfd.png";
@@ -101,10 +102,8 @@ const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
             return (
               <div key={m.id}>
                 <div className="flex items-center justify-between py-4 px-4">
-                  <div className="flex items-center gap-3 pr-4">
-                    <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                      <img src={m.iconSrc} alt="" className="w-5 h-5 object-contain" />
-                    </div>
+                  <div className="flex items-center gap-4 pr-4">
+                    <SettingsIcon bgColor="#525252" iconSrc={m.iconSrc} iconAlt={m.label} />
                     <div>
                       <p className="text-lg font-medium text-foreground flex items-center gap-2">
                         {m.label}

@@ -3,6 +3,7 @@ import { ChevronDown, Lock, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SettingsManager, type ScreenModeId, type ScreenModeSettings } from "@/lib/settingsManager";
 import MPINDialog from "@/components/MPINDialog";
+import SettingsIcon from "@/components/settings/SettingsIcon";
 import { useToast } from "@/hooks/use-toast";
 import pointOfSaleIcon from "@/assets/icons/screen-mode-pos.png";
 import kitchenDisplayIcon from "@/assets/icons/screen-mode-kds.png";

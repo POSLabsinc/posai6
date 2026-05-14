@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { ChevronLeft, Monitor, ChefHat, Tv, LayoutGrid } from "lucide-react";
+import { ChevronLeft, Store, CookingPot, MonitorSmartphone, Tablet } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SettingsManager, ScreenModeSettings, ScreenModeId } from "@/lib/settingsManager";
@@ -10,10 +10,10 @@ interface Props {
 }
 
 const MODES: { id: ScreenModeId; label: string; description: string; Icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: "pos", label: "Point of Sale", description: "Full order taking, payments, and table management", Icon: Monitor },
-  { id: "kds", label: "Kitchen Display System", description: "Kitchen display for ticket management and fulfillment", Icon: ChefHat },
-  { id: "cfd", label: "Customer Facing Display", description: "Customer-facing display showing order and total", Icon: Tv },
-  { id: "kiosk", label: "Self-Service Kiosk", description: "Self-service ordering for guests at the counter", Icon: LayoutGrid },
+  { id: "pos", label: "Point of Sale", description: "Full order taking, payments, and table management", Icon: Store },
+  { id: "kds", label: "Kitchen Display System", description: "Kitchen display for ticket management and fulfillment", Icon: CookingPot },
+  { id: "cfd", label: "Customer Facing Display", description: "Customer-facing display showing order and total", Icon: MonitorSmartphone },
+  { id: "kiosk", label: "Self Service Kiosk", description: "Self-service ordering for guests at the counter", Icon: Tablet },
 ];
 
 const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {

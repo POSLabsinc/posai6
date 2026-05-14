@@ -103,7 +103,7 @@ const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
                 <div className="flex items-center justify-between py-4 px-4">
                   <div className="flex items-center gap-3 pr-4">
                     <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                      <img src={m.iconSrc} alt="" className="w-4.5 h-4.5 object-contain" />
+                      <img src={m.iconSrc} alt="" className="w-5 h-5 object-contain" />
                     </div>
                     <div>
                       <p className="text-lg font-medium text-foreground flex items-center gap-2">

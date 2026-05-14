@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Monitor, ChefHat, Tv, LayoutGrid, ChevronDown, Lock, Check, X } from "lucide-react";
+import { Store, CookingPot, MonitorSmartphone, Tablet, ChevronDown, Lock, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SettingsManager, type ScreenModeId, type ScreenModeSettings } from "@/lib/settingsManager";
 import MPINDialog from "@/components/MPINDialog";
@@ -13,10 +13,10 @@ interface ModeMeta {
 }
 
 const MODES: ModeMeta[] = [
-  { id: "pos", label: "Point of Sale", description: "Full order taking, payments, and table management", Icon: Monitor },
-  { id: "kds", label: "Kitchen Display System", description: "Kitchen display for ticket management and fulfillment", Icon: ChefHat },
-  { id: "cfd", label: "Customer Facing Display", description: "Customer-facing display showing order and total", Icon: Tv },
-  { id: "kiosk", label: "Self-Service Kiosk", description: "Self-service ordering for guests at the counter", Icon: LayoutGrid },
+  { id: "pos", label: "Point of Sale", description: "Full order taking, payments, and table management", Icon: Store },
+  { id: "kds", label: "Kitchen Display System", description: "Kitchen display for ticket management and fulfillment", Icon: CookingPot },
+  { id: "cfd", label: "Customer Facing Display", description: "Customer-facing display showing order and total", Icon: MonitorSmartphone },
+  { id: "kiosk", label: "Self Service Kiosk", description: "Self-service ordering for guests at the counter", Icon: Tablet },
 ];
 
 const ScreenModeSwitcher = () => {

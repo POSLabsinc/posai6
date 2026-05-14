@@ -1,19 +1,23 @@
 import { useEffect, useState, useCallback } from "react";
-import { ChevronLeft, Store, CookingPot, MonitorSmartphone, Tablet } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { SettingsManager, ScreenModeSettings, ScreenModeId } from "@/lib/settingsManager";
+import pointOfSaleIcon from "@/assets/icons/screen-mode-pos.png";
+import kitchenDisplayIcon from "@/assets/icons/screen-mode-kds.png";
+import customerFacingIcon from "@/assets/icons/screen-mode-cfd.png";
+import selfServiceKioskIcon from "@/assets/icons/screen-mode-kiosk.png";
 
 interface Props {
   showHeader?: boolean;
   onBack?: () => void;
 }
 
-const MODES: { id: ScreenModeId; label: string; description: string; Icon: React.ComponentType<{ className?: string }> }[] = [
-  { id: "pos", label: "Point of Sale", description: "Full order taking, payments, and table management", Icon: Store },
-  { id: "kds", label: "Kitchen Display System", description: "Kitchen display for ticket management and fulfillment", Icon: CookingPot },
-  { id: "cfd", label: "Customer Facing Display", description: "Customer-facing display showing order and total", Icon: MonitorSmartphone },
-  { id: "kiosk", label: "Self Service Kiosk", description: "Self-service ordering for guests at the counter", Icon: Tablet },
+const MODES: { id: ScreenModeId; label: string; description: string; iconSrc: string }[] = [
+  { id: "pos", label: "Point of Sale", description: "Full order taking, payments, and table management", iconSrc: pointOfSaleIcon },
+  { id: "kds", label: "Kitchen Display System", description: "Kitchen display for ticket management and fulfillment", iconSrc: kitchenDisplayIcon },
+  { id: "cfd", label: "Customer Facing Display", description: "Customer-facing display showing order and total", iconSrc: customerFacingIcon },
+  { id: "kiosk", label: "Self Service Kiosk", description: "Self-service ordering for guests at the counter", iconSrc: selfServiceKioskIcon },
 ];
 
 const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
@@ -54,7 +58,7 @@ const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
         {/* Header Card */}
         <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: "#3B82F6" }}>
-            <Store className="w-7 h-7 text-white" />
+            <img src={pointOfSaleIcon} alt="" className="w-7 h-7 object-contain" />
           </div>
           <h1 className="text-xl font-semibold text-foreground mb-2">Screen Mode</h1>
           <p className="text-base text-neutral-400 leading-relaxed w-full">
@@ -99,7 +103,7 @@ const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
                 <div className="flex items-center justify-between py-4 px-4">
                   <div className="flex items-center gap-3 pr-4">
                     <div className="w-9 h-9 rounded-lg bg-white/10 flex items-center justify-center shrink-0">
-                      <m.Icon className="w-4.5 h-4.5 text-white" />
+                      <img src={m.iconSrc} alt="" className="w-4.5 h-4.5 object-contain" />
                     </div>
                     <div>
                       <p className="text-lg font-medium text-foreground flex items-center gap-2">

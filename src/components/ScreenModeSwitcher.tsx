@@ -1,22 +1,26 @@
 import { useEffect, useRef, useState } from "react";
-import { Store, CookingPot, MonitorSmartphone, Tablet, ChevronDown, Lock, Check, X } from "lucide-react";
+import { ChevronDown, Lock, Check, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { SettingsManager, type ScreenModeId, type ScreenModeSettings } from "@/lib/settingsManager";
 import MPINDialog from "@/components/MPINDialog";
 import { useToast } from "@/hooks/use-toast";
+import pointOfSaleIcon from "@/assets/icons/screen-mode-pos.png";
+import kitchenDisplayIcon from "@/assets/icons/screen-mode-kds.png";
+import customerFacingIcon from "@/assets/icons/screen-mode-cfd.png";
+import selfServiceKioskIcon from "@/assets/icons/screen-mode-kiosk.png";
 
 interface ModeMeta {
   id: ScreenModeId;
   label: string;
   description: string;
-  Icon: React.ComponentType<{ className?: string }>;
+  iconSrc: string;
 }
 
 const MODES: ModeMeta[] = [
-  { id: "pos", label: "Point of Sale", description: "Full order taking, payments, and table management", Icon: Store },
-  { id: "kds", label: "Kitchen Display System", description: "Kitchen display for ticket management and fulfillment", Icon: CookingPot },
-  { id: "cfd", label: "Customer Facing Display", description: "Customer-facing display showing order and total", Icon: MonitorSmartphone },
-  { id: "kiosk", label: "Self Service Kiosk", description: "Self-service ordering for guests at the counter", Icon: Tablet },
+  { id: "pos", label: "Point of Sale", description: "Full order taking, payments, and table management", iconSrc: pointOfSaleIcon },
+  { id: "kds", label: "Kitchen Display System", description: "Kitchen display for ticket management and fulfillment", iconSrc: kitchenDisplayIcon },
+  { id: "cfd", label: "Customer Facing Display", description: "Customer-facing display showing order and total", iconSrc: customerFacingIcon },
+  { id: "kiosk", label: "Self Service Kiosk", description: "Self-service ordering for guests at the counter", iconSrc: selfServiceKioskIcon },
 ];
 
 const ScreenModeSwitcher = () => {
@@ -86,7 +90,7 @@ const ScreenModeSwitcher = () => {
     performSwitch(target);
   };
 
-  const ConfirmIcon = confirming ? MODES.find((m) => m.id === confirming)!.Icon : null;
+  const confirmMode = confirming ? MODES.find((m) => m.id === confirming)! : null;
 
   return (
     <>
@@ -98,7 +102,7 @@ const ScreenModeSwitcher = () => {
           title={current.label}
         >
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          <current.Icon className="w-4 h-4 text-white" />
+          <img src={current.iconSrc} alt="" className="w-4 h-4 object-contain" />
           <ChevronDown className="w-3.5 h-3.5 opacity-70" />
         </button>
 
@@ -117,7 +121,7 @@ const ScreenModeSwitcher = () => {
                     className={`w-full flex items-start gap-3 px-4 py-2.5 text-left hover:bg-white/5 transition-colors ${active ? "bg-white/[0.04]" : ""}`}
                   >
                     <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <m.Icon className="w-4 h-4 text-white" />
+                      <img src={m.iconSrc} alt="" className="w-4 h-4 object-contain" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white flex items-center gap-2">
@@ -154,7 +158,7 @@ const ScreenModeSwitcher = () => {
             </button>
             <div className="flex flex-col items-center text-center pt-2">
               <div className="w-14 h-14 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center mb-4">
-                {ConfirmIcon && <ConfirmIcon className="w-7 h-7 text-blue-300" />}
+                {confirmMode && <img src={confirmMode.iconSrc} alt="" className="w-7 h-7 object-contain" />}
               </div>
               <h3 className="text-base font-semibold text-white">
                 Switch to {MODES.find((m) => m.id === confirming)!.label}?

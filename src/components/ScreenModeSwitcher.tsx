@@ -121,9 +121,7 @@ const ScreenModeSwitcher = () => {
                     onClick={() => handleSelect(m.id)}
                     className={`w-full flex items-start gap-3 px-4 py-2.5 text-left hover:bg-white/5 transition-colors ${active ? "bg-white/[0.04]" : ""}`}
                   >
-                    <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center shrink-0 mt-0.5">
-                      <img src={m.iconSrc} alt="" className="w-4 h-4 object-contain" />
-                    </div>
+                    <SettingsIcon bgColor="#525252" iconSrc={m.iconSrc} iconAlt={m.label} className="mt-0.5" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium text-white flex items-center gap-2">
                         {m.label}

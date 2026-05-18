@@ -17,6 +17,8 @@ import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import { getContrastText } from "@/lib/themeContrast";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import fireIcon from "@/assets/icons/fire.png";
@@ -853,6 +855,9 @@ const tableFilterLabels = ["All", "Available", "Ordering", "Ordered", "Reserved"
 const Dashboard = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { themeColor } = useAppearance();
+  const themeGradient = `linear-gradient(180deg, ${themeColor} 0%, ${themeColor} 100%)`;
+  const themeOnAccent = getContrastText(themeColor);
   
   // DB tables
   const { tables: dbTables, updateTable: updateDbTableStatus } = useRestaurantTables();

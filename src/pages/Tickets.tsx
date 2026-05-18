@@ -22,6 +22,8 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { Switch } from "@/components/ui/switch";
 import { format } from "date-fns";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import { getContrastText } from "@/lib/themeContrast";
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -266,6 +268,9 @@ const filters = ["All", "Open", "Paid", "Unpaid"];
 const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { themeColor } = useAppearance();
+  const themeGradient = `linear-gradient(180deg, ${themeColor} 0%, ${themeColor} 100%)`;
+  const themeOnAccent = getContrastText(themeColor);
 
   // Fetch all orders from database
   const { orders: dbTicketOrders, isLoading: isLoadingOrders, updateOrder: updateTicketOrder } = useTicketOrders();

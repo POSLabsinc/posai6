@@ -754,7 +754,7 @@ const OrderPanelContent = ({
           ) : (
             <>
               <button onClick={onCancelOrder} className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0">
-                <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+                <img src={clearIcon} alt="Clear" className={`w-4 h-4 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
               </button>
               {showSaveButton && (
               <button 
@@ -767,10 +767,9 @@ const OrderPanelContent = ({
               )}
               <button 
                 onClick={onFireAll}
-                className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
-                style={{ background: themeGradient }}
+                className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-sm font-medium" style={{ background: themeGradient, color: themeOnAccent }}
               >
-                <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+                <img src={fireIcon} alt="Fire" className={`w-4 h-4 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
                 <span>FIRE</span>
               </button>
               <button 

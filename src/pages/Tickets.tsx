@@ -2725,7 +2725,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   onClick={handleClearOrderAttempt}
                   className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0"
                 >
-                  <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+                  <img src={clearIcon} alt="Clear" className={`w-4 h-4 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
                 </button>
                 {showSaveButton && (
                   <button 
@@ -2736,10 +2736,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   </button>
                 )}
                 <button 
-                  className="flex-1 h-10 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
-                  style={{ background: themeGradient }}
+                  className="flex-1 h-10 rounded-full flex items-center justify-center gap-1 text-sm font-medium" style={{ background: themeGradient, color: themeOnAccent }}
                 >
-                  <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+                  <img src={fireIcon} alt="Fire" className={`w-4 h-4 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
                   <span>FIRE</span>
                 </button>
                 <button 
@@ -3159,7 +3158,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                   style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
                   title="Message Kitchen"
                 >
-                  <img src={messageKdsIcon} alt="Message Kitchen" className="w-4 h-4 brightness-0 invert" />
+                  <img src={messageKdsIcon} alt="Message Kitchen" className={`w-4 h-4 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
                 </button>
                 <button 
                   onClick={() => setShowSearchInput(true)}
@@ -3921,7 +3920,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       onClick={handleClearOrderAttempt}
                       className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0"
                     >
-                      <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+                      <img src={clearIcon} alt="Clear" className={`w-4 h-4 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
                     </button>
                     {showSaveButton && (
                       <button 
@@ -3932,10 +3931,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       </button>
                     )}
                     <button 
-                      className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
-                      style={{ background: themeGradient }}
+                      className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-sm font-medium" style={{ background: themeGradient, color: themeOnAccent }}
                     >
-                      <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+                      <img src={fireIcon} alt="Fire" className={`w-4 h-4 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
                       <span>FIRE</span>
                     </button>
                     <button 
@@ -4216,7 +4214,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                               className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-receipt-gradient"
                               onClick={(e) => { e.stopPropagation(); setIsReceiptDialogOpen(true); }}
                             >
-                              <img src={receiptIcon} alt="" className="w-4 h-4 brightness-0 invert" />
+                              <img src={receiptIcon} alt="" className={`w-4 h-4 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
                             </button>
                             <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-register-gradient" onClick={e => e.stopPropagation()}>
                               <img src={registerIcon} alt="No Sale" className="w-4 h-4 object-contain brightness-0 invert" />
@@ -4751,7 +4749,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       onClick={handleClearOrderAttempt}
                       className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0"
                     >
-                      <img src={clearIcon} alt="Clear" className="w-3 h-3 brightness-0 invert" />
+                      <img src={clearIcon} alt="Clear" className={`w-3 h-3 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
                     </button>
                     {showSaveButton && (
                       <button 
@@ -4762,10 +4760,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                       </button>
                     )}
                     <button 
-                      className="flex-1 h-7 rounded-full flex items-center justify-center gap-1 text-white text-xs font-medium" 
-                      style={{ background: themeGradient }}
+                      className="flex-1 h-7 rounded-full flex items-center justify-center gap-1 text-xs font-medium" style={{ background: themeGradient, color: themeOnAccent }}
                     >
-                      <img src={fireIcon} alt="Fire" className="w-3 h-3 brightness-0 invert" />
+                      <img src={fireIcon} alt="Fire" className={`w-3 h-3 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
                       <span>FIRE</span>
                     </button>
                     <button 

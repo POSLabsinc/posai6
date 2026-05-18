@@ -1720,7 +1720,8 @@ const Orders = () => {
               <Button
               variant="secondary"
               size="sm"
-              className={`text-xs rounded-[10px] ${isTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-7 px-3 whitespace-nowrap`}
+              className={`text-xs rounded-[10px] ${isTaxExempt ? 'border' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-7 px-3 whitespace-nowrap`}
+              style={isTaxExempt ? { backgroundColor: themeSoftBg, borderColor: themeColor } : undefined}
               onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}>
 
                 No Tax
@@ -2146,7 +2147,7 @@ const Orders = () => {
                             <span className="text-[11px] font-medium text-foreground flex items-center gap-1">
                               {item.name}
                               {item.isOpenPrice && (
-                                <span className="px-1 py-0.5 rounded text-[9px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">Open Price</span>
+                                <span className="px-1 py-0.5 rounded text-[9px] font-semibold border" style={{ backgroundColor: themeSoftBg, color: themeColor, borderColor: themeSoftBorder }}>Open Price</span>
                               )}
                             </span>
                           </div>
@@ -2342,7 +2343,7 @@ const Orders = () => {
             disabled={orderItems.length === 0 || orderItems.every(i => i.isFired)}
             className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
-              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+              background: themeGradient
             }}>
 
                 <img src={fireIcon} alt="Fire" className="w-4 h-4" />
@@ -2461,7 +2462,8 @@ const Orders = () => {
             {/* Name Input */}
             <div className="mb-3 flex-shrink-0">
               <div
-              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'name' ? 'border-orange-500' : 'border-neutral-700'}`}
+              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'name' ? '' : 'border-neutral-700'}`}
+              style={activeCustomItemField === 'name' ? { borderColor: themeColor } : undefined}
               onClick={() => setActiveCustomItemField('name')}>
 
                 <span className="text-neutral-500 text-sm uppercase">NAME</span>
@@ -2484,7 +2486,8 @@ const Orders = () => {
             {/* Price Input */}
             <div className="mb-3 flex-shrink-0">
               <div
-              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'price' ? 'border-orange-500' : 'border-neutral-700'}`}
+              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'price' ? '' : 'border-neutral-700'}`}
+              style={activeCustomItemField === 'price' ? { borderColor: themeColor } : undefined}
               onClick={() => setActiveCustomItemField('price')}>
 
                 <span className="text-neutral-500 text-sm uppercase">PRICE</span>
@@ -2508,7 +2511,7 @@ const Orders = () => {
             disabled={!customItemName.trim() || !customItemPrice}
             className="w-full py-3 rounded-lg font-semibold text-white mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
             style={{
-              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+              background: themeGradient
             }}>
 
               <Plus className="w-4 h-4" />
@@ -2769,7 +2772,7 @@ const Orders = () => {
                       <button onClick={(e) => {
                       e.stopPropagation();
                       addToCart(item);
-                    }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
+                    }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 rounded flex items-center justify-center transition-colors" style={{ backgroundColor: themeColor }}>
                         <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
                       </button>
                       {showStockBadge && <span className="absolute top-0.5 md:top-1 right-0.5 md:right-1 min-w-[20px] h-[20px] rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1 z-20">{menuItem.stock_count}</span>}
@@ -2785,9 +2788,9 @@ const Orders = () => {
                       </span>
                       <div className="flex items-center justify-between gap-1">
                         {(item as MenuItem).isOpenPrice ? (
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">Open Price</span>
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold border" style={{ backgroundColor: themeSoftBg, color: themeColor, borderColor: themeSoftBorder }}>Open Price</span>
                         ) : (
-                          <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold">${item.price.toFixed(2)}</span>
+                          <span className="text-[10px] md:text-[11px] font-semibold" style={{ color: themeColor }}>${item.price.toFixed(2)}</span>
                         )}
                       </div>
                     </div>
@@ -2813,7 +2816,7 @@ const Orders = () => {
                         </div>
                       </div>
                       {(item as MenuItem).isOpenPrice && (
-                        <span className="self-start px-1.5 py-0 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 leading-relaxed">Open Price</span>
+                        <span className="self-start px-1.5 py-0 rounded text-[8px] font-semibold border leading-relaxed" style={{ backgroundColor: themeSoftBg, color: themeColor, borderColor: themeSoftBorder }}>Open Price</span>
                       )}
                       {isOutOfStock && (
                         <span className="text-[8px] font-bold text-destructive uppercase">Out of Stock</span>
@@ -2823,7 +2826,7 @@ const Orders = () => {
                     e.stopPropagation();
                     addToCart(item);
                   }} className="w-7 md:w-9 text-white flex-shrink-0 flex items-center justify-center" style={{
-                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                    background: themeGradient
                   }}>
                       <Plus className="w-3 md:w-3.5 h-3 md:h-3.5" strokeWidth={3.5} />
                     </button>
@@ -3060,7 +3063,8 @@ const Orders = () => {
                 <Button
                 variant="secondary"
                 size="sm"
-                className={`text-[10px] rounded-[10px] ${isTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
+                className={`text-[10px] rounded-[10px] ${isTaxExempt ? '' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
+                style={isTaxExempt ? { backgroundColor: themeSoftBg, borderColor: themeColor } : undefined}
                 onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}>
                   <img src={noTaxBtnIcon} alt="" className="w-3 h-3" />
                   No Tax
@@ -3452,7 +3456,7 @@ const Orders = () => {
                                       <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground flex items-center gap-1.5 flex-wrap">
                                         {item.name}
                                         {item.isOpenPrice && (
-                                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">Open Price</span>
+                                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold border" style={{ backgroundColor: themeSoftBg, color: themeColor, borderColor: themeSoftBorder }}>Open Price</span>
                                         )}
                                       </span>
                                       {item.itemOrderType === 'VOUCHER' ?
@@ -3734,7 +3738,7 @@ const Orders = () => {
                     isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`
                     }
                     style={{
-                      background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                      background: themeGradient
                     }}>
 
                     <img src={fireIcon} alt="Fire" className="w-4 h-4" />
@@ -4136,7 +4140,7 @@ const Orders = () => {
               setIsTaxExempt(true);
               setShowNoTaxDialog(false);
             }}
-            className="flex-1 py-3 text-orange-500 font-medium hover:bg-neutral-800 transition-colors">
+            className="flex-1 py-3 font-medium hover:bg-neutral-800 transition-colors" style={{ color: themeColor }}>
 
                 Remove
               </button>
@@ -4318,7 +4322,7 @@ const Orders = () => {
               setIsOrderSplit(false);
               setSplitConfiguration(null);
             }}
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
+            className="w-full py-3 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2" style={{ background: themeGradient }}>
 
                 <img src={mergeIcon} alt="Merge" className="w-4 h-4" />
                 Merge

@@ -2737,7 +2737,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                 )}
                 <button 
                   className="flex-1 h-10 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
-                  style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+                  style={{ background: themeGradient }}
                 >
                   <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
                   <span>FIRE</span>
@@ -3933,7 +3933,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     )}
                     <button 
                       className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
-                      style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+                      style={{ background: themeGradient }}
                     >
                       <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
                       <span>FIRE</span>
@@ -4763,7 +4763,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
                     )}
                     <button 
                       className="flex-1 h-7 rounded-full flex items-center justify-center gap-1 text-white text-xs font-medium" 
-                      style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+                      style={{ background: themeGradient }}
                     >
                       <img src={fireIcon} alt="Fire" className="w-3 h-3 brightness-0 invert" />
                       <span>FIRE</span>

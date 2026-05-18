@@ -2349,7 +2349,7 @@ const Orders = () => {
             }}>
 
                 <img src={fireIcon} alt="Fire" className="w-4 h-4" />
-                <span className="text-white font-semibold text-sm">FIRE</span>
+                <span className="font-semibold text-sm" style={{ color: themeOnAccent }}>FIRE</span>
               </button>
               <button
             onClick={() => {
@@ -2511,9 +2511,10 @@ const Orders = () => {
             <button
             onClick={addCustomItemToOrder}
             disabled={!customItemName.trim() || !customItemPrice}
-            className="w-full py-3 rounded-lg font-semibold text-white mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            className="w-full py-3 rounded-lg font-semibold mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
             style={{
-              background: themeGradient
+              background: themeGradient,
+              color: themeOnAccent
             }}>
 
               <Plus className="w-4 h-4" />
@@ -2827,8 +2828,9 @@ const Orders = () => {
                     <button onClick={(e) => {
                     e.stopPropagation();
                     addToCart(item);
-                  }} className="w-7 md:w-9 text-white flex-shrink-0 flex items-center justify-center" style={{
-                    background: themeGradient
+                  }} className="w-7 md:w-9 flex-shrink-0 flex items-center justify-center" style={{
+                    background: themeGradient,
+                    color: themeOnAccent
                   }}>
                       <Plus className="w-3 md:w-3.5 h-3 md:h-3.5" strokeWidth={3.5} />
                     </button>
@@ -3744,7 +3746,7 @@ const Orders = () => {
                     }}>
 
                     <img src={fireIcon} alt="Fire" className="w-4 h-4" />
-                    <span className="text-white font-semibold text-sm">FIRE</span>
+                    <span className="font-semibold text-sm" style={{ color: themeOnAccent }}>FIRE</span>
                   </button>
                   <button
                     onClick={() => {
@@ -4324,7 +4326,7 @@ const Orders = () => {
               setIsOrderSplit(false);
               setSplitConfiguration(null);
             }}
-            className="w-full py-3 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2" style={{ background: themeGradient }}>
+            className="w-full py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2" style={{ background: themeGradient, color: themeOnAccent }}>
 
                 <img src={mergeIcon} alt="Merge" className="w-4 h-4" />
                 Merge

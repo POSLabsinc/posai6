@@ -189,15 +189,15 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
           </div>
           
           <div className="bg-surface rounded-2xl p-4 w-full">
-            <div className="flex items-start justify-center gap-12 w-full mb-4 py-2">
-              <div className="w-[120px] sm:w-[130px] md:w-[140px]">
+            <div className="flex items-start justify-center gap-6 w-full mb-4 py-2">
+              <div className="w-[220px] sm:w-[240px] md:w-[280px]">
                 <POSThemePreview
                   variant="light"
                   isSelected={selectedTheme === 'light'}
                   onClick={() => handleThemeChange('light')} />
               </div>
 
-              <div className="w-[120px] sm:w-[130px] md:w-[140px]">
+              <div className="w-[220px] sm:w-[240px] md:w-[280px]">
                 <POSThemePreview
                   variant="dark"
                   isSelected={selectedTheme === 'dark'}

@@ -14,6 +14,7 @@ import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPri
 import { getActiveTaxRate } from "@/lib/orderUtils";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { getContrastText } from "@/lib/themeContrast";
 import { useTicketOrders } from "@/hooks/use-ticket-orders";
 import { toast } from "sonner";
 import searchIcon from "@/assets/icons/search.png";
@@ -277,6 +278,7 @@ const Orders = () => {
   const themeGradient = `linear-gradient(180deg, ${themeColor} 0%, ${themeColor} 100%)`;
   const themeSoftBg = `${themeColor}33`; // ~20% alpha
   const themeSoftBorder = `${themeColor}80`; // ~50% alpha
+  const themeOnAccent = getContrastText(themeColor); // auto black/white for contrast
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
   const { addOrder: addTicketOrder, updateOrder: updateTicketOrder, orders: allTicketOrders } = useTicketOrders();
   const { processCancelledItems } = useWriteOffProcessor();
@@ -2773,7 +2775,7 @@ const Orders = () => {
                       e.stopPropagation();
                       addToCart(item);
                     }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 rounded flex items-center justify-center transition-colors" style={{ backgroundColor: themeColor }}>
-                        <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
+                        <Plus className="w-2.5 md:w-3 h-2.5 md:h-3" style={{ color: themeOnAccent }} strokeWidth={3} />
                       </button>
                       {showStockBadge && <span className="absolute top-0.5 md:top-1 right-0.5 md:right-1 min-w-[20px] h-[20px] rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1 z-20">{menuItem.stock_count}</span>}
                       {isOutOfStock && (

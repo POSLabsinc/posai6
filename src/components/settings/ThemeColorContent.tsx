@@ -1,5 +1,10 @@
 import { useState, useEffect, useCallback } from "react";
-import { ChevronLeft, Check, RotateCcw, Trash2, Palette, Monitor, Moon, Droplets, Sparkles, Paintbrush, Pipette } from "lucide-react";
+import {
+  ChevronLeft, Check, RotateCcw, Trash2, Palette, Monitor, Moon, Droplets, Sparkles, Paintbrush, Pipette,
+  ArrowLeftRight, Timer, KeyboardIcon, RefreshCw, Headphones, Bell, Wifi, Search, GripVertical, Lock,
+  LayoutGrid, Plus, ReceiptText, Settings as SettingsIcon2, Phone, Tag, BadgeDollarSign, MoreVertical,
+  UtensilsCrossed, User as UserIcon
+} from "lucide-react";
 import { HexColorPicker } from "react-colorful";
 import { useAppearance, DEFAULT_SELECTION_COLOR, DEFAULT_HOVER_COLOR, DEFAULT_SPLASH_BG_COLOR, DEFAULT_TOP_BAR_COLOR, DEFAULT_SETTINGS_ICON_COLOR, type IconStyle } from "@/contexts/AppearanceContext";
 import { toast } from "@/hooks/use-toast";

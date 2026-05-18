@@ -104,206 +104,247 @@ interface ThemeColorContentProps {
  * picker's accent color. Render-only: does NOT mutate global theme state.
  */
 function ThemePreviewMini({ accent }: { accent: string }) {
-  const bg = '#0f0f10';
   const headerBg = '#1a1a1a';
   const sidebarBg = '#141416';
   const mainBg = '#131316';
   const cartBg = '#141416';
   const cardBg = '#1f2937';
   const divider = '#27272a';
-  const textOnDark = '#ffffff';
-  const mutedOnDark = '#a1a1aa';
-  const subPillBorder = '#3f3f46';
+  const muted = '#a1a1aa';
   const onAccent = getContrastText(accent);
 
-  // Category pill stroke colors, mirroring the live New Order screen.
-  // First (active) pill uses the live accent so the preview reacts to the picker.
-  const catColors = [
-    accent,    // Starters (active, filled)
-    '#f97316', // Mains
-    '#22d3ee', // Sides
-    '#eab308', // Desserts
-    '#22c55e', // Drinks
-    '#d946ef', // Specials
-    '#e5e7eb', // Platters
-    '#3b82f6', // Combos
+  // Category pill stroke colors mirroring the live New Order screen.
+  // First (active) pill is filled with the live accent so the preview reacts to the picker.
+  const catRow1 = [
+    { label: 'Appetizers', color: accent, filled: true },
+    { label: 'Wings', color: '#ef4444' },
+    { label: 'Sliders', color: '#f97316' },
+    { label: 'Nachos', color: '#eab308' },
+    { label: 'Beer', color: '#f59e0b' },
+  ];
+  const catRow2 = [
+    { label: 'Wine', color: '#a855f7' },
+    { label: 'Cocktails', color: '#22d3ee' },
+    { label: 'Shots', color: '#ef4444' },
+    { label: 'Tacos', color: '#22c55e' },
+    { label: 'Specials', color: '#d946ef' },
   ];
 
-  const Pill = ({ color, filled = false, w, h = 6 }: { color: string; filled?: boolean; w: number; h?: number }) => (
+  const products = [
+    { n: 'BUFFALO WINGS', p: '$9.99' },
+    { n: 'BBQ WINGS (10PC)', p: '$9.99' },
+    { n: 'GARLIC PAR...', p: '$15.49', badge: 14 },
+    { n: 'HONEY SRIRACH...', p: '$10.99' },
+    { n: 'TERIYAKI WINGS', p: '$10.99' },
+    { n: 'LEMON PEPPER...', p: '$9.99' },
+    { n: 'NASHVILLE HOT...', p: '$11.99' },
+    { n: 'KOREAN BBQ...', p: '$11.99' },
+    { n: 'SWEET CHILI...', p: '$10.49' },
+  ];
+
+  const CatPill = ({ label, color, filled }: { label: string; color: string; filled?: boolean }) => (
     <div
+      className="flex items-center justify-center px-2 py-[3px] rounded-full text-[8px] font-semibold whitespace-nowrap"
       style={{
-        width: w,
-        height: h,
-        borderRadius: 999,
         background: filled ? color : 'transparent',
-        border: `0.6px solid ${color}`,
-        flexShrink: 0,
+        border: `1px solid ${color}`,
+        color: filled ? onAccent : '#ffffff',
       }}
-    />
+    >
+      {label}
+    </div>
+  );
+
+  const SideIcon = ({ children, active }: { children: React.ReactNode; active?: boolean }) => (
+    <div
+      className="w-6 h-6 rounded-md flex items-center justify-center"
+      style={{
+        background: active ? `${accent}26` : 'transparent',
+        border: active ? `1px solid ${accent}` : '1px solid transparent',
+        color: active ? accent : muted,
+      }}
+    >
+      {children}
+    </div>
   );
 
   return (
     <div
-      className="w-full h-full min-h-0 rounded-xl overflow-hidden border border-neutral-700 relative"
-      style={{ background: bg }}
+      className="w-full h-full min-h-0 rounded-xl overflow-hidden border border-neutral-700 flex flex-col"
+      style={{ background: mainBg }}
     >
+      {/* ===== Top header bar ===== */}
       <div
-        className="absolute top-1 right-1 z-10 rounded-md px-1.5 py-0.5 text-[8px] font-bold leading-none"
-        style={{ background: accent, color: onAccent }}
+        className="flex items-center justify-between px-2 gap-2 flex-shrink-0"
+        style={{ background: headerBg, height: 28 }}
       >
-        Aa
-      </div>
-      <div className="w-full h-full flex flex-col" style={{ fontSize: 0 }}>
-        {/* ===== Top header bar ===== */}
-        <div
-          className="flex items-center justify-between px-[3px]"
-          style={{ background: headerBg, height: '9%', minHeight: 10 }}
-        >
-          <div className="flex items-center gap-[2px]">
-            <div style={{ width: 3, height: 3, background: mutedOnDark, borderRadius: 0.5 }} />
-            <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#3f3f46' }} />
-            <div style={{ width: 14, height: 2, background: textOnDark, borderRadius: 0.5 }} />
-            <div style={{ width: 8, height: 3, background: 'transparent', border: `0.5px solid ${mutedOnDark}`, borderRadius: 1 }} />
-            <div style={{ width: 18, height: 2, background: mutedOnDark, borderRadius: 0.5, marginLeft: 2 }} />
+        <div className="flex items-center gap-1.5 min-w-0">
+          <ArrowLeftRight className="w-3 h-3 text-white/80" />
+          <div className="w-4 h-4 rounded-full flex items-center justify-center text-[7px] font-bold text-white" style={{ background: '#374151' }}>JS</div>
+          <span className="text-[9px] font-semibold text-white">John Smith</span>
+          <span className="text-[6px] font-bold px-1 py-[1px] rounded text-white" style={{ background: '#3f3f46' }}>SERVER</span>
+          <Timer className="w-2.5 h-2.5 text-white/70 ml-1" />
+          <span className="text-[7px] text-white/80 hidden sm:inline">Dinner Service</span>
+        </div>
+        <div className="flex items-center gap-1.5 flex-shrink-0">
+          <div className="flex items-center gap-1 px-1.5 py-[2px] rounded" style={{ background: '#27272a' }}>
+            <div className="w-1 h-1 rounded-full" style={{ background: '#22c55e' }} />
+            <KeyboardIcon className="w-2.5 h-2.5 text-white/80" />
           </div>
-          <div className="flex items-center gap-[2px]">
-            {[...Array(6)].map((_, i) => (
-              <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: i === 4 ? accent : '#3f3f46' }} />
-            ))}
-            <div style={{ width: 8, height: 2, background: textOnDark, borderRadius: 0.5, marginLeft: 1 }} />
+          <Sparkles className="w-3 h-3" style={{ color: accent }} />
+          <RefreshCw className="w-2.5 h-2.5 text-white/70" />
+          <Headphones className="w-2.5 h-2.5 text-white/70" />
+          <div className="relative">
+            <Bell className="w-2.5 h-2.5 text-white/70" />
+            <div className="absolute -top-1 -right-1 w-2 h-2 rounded-full flex items-center justify-center text-[5px] font-bold text-white" style={{ background: '#ef4444' }}>3</div>
+          </div>
+          <Wifi className="w-2.5 h-2.5 text-white/70" />
+          <span className="text-[8px] text-white font-medium">12:57</span>
+        </div>
+      </div>
+
+      {/* ===== Body ===== */}
+      <div className="flex-1 flex min-w-0 min-h-0">
+        {/* Left sidebar */}
+        <div
+          className="flex flex-col items-center justify-between py-1.5 flex-shrink-0"
+          style={{ background: sidebarBg, width: 36 }}
+        >
+          <div className="flex flex-col items-center gap-1.5">
+            <SideIcon><GripVertical className="w-3 h-3" /></SideIcon>
+            <SideIcon><Lock className="w-3 h-3" /></SideIcon>
+            <div className="w-6 h-6 rounded-full border border-amber-700/60 flex items-center justify-center text-[5px] font-bold text-amber-300" style={{ background: '#1f1408' }}>RT</div>
+            <SideIcon><LayoutGrid className="w-3 h-3" /></SideIcon>
+            <SideIcon active><Plus className="w-3 h-3" /></SideIcon>
+            <SideIcon><UtensilsCrossed className="w-3 h-3" /></SideIcon>
+            <SideIcon><ReceiptText className="w-3 h-3" /></SideIcon>
+            <SideIcon><SettingsIcon2 className="w-3 h-3" /></SideIcon>
+          </div>
+          <div className="text-[6px] font-bold" style={{ color: muted }}>e</div>
+        </div>
+
+        {/* Main content */}
+        <div className="flex-1 flex flex-col min-w-0 px-2 pt-1.5" style={{ background: mainBg }}>
+          {/* Category pill row 1 */}
+          <div className="flex items-center gap-1">
+            <div className="w-4 h-4 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: '#27272a' }}>
+              <ChevronLeft className="w-2.5 h-2.5 text-white/70" />
+            </div>
+            <div className="flex-1 flex items-center gap-1 overflow-hidden">
+              {catRow1.map((c) => <CatPill key={c.label} {...c} />)}
+            </div>
+            <div className="w-4 h-4 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#27272a' }}>
+              <Search className="w-2 h-2 text-white/70" />
+            </div>
+          </div>
+          {/* Category pill row 2 */}
+          <div className="flex items-center gap-1 mt-1">
+            <div className="w-4 flex-shrink-0" />
+            <div className="flex-1 flex items-center gap-1 overflow-hidden">
+              {catRow2.map((c) => <CatPill key={c.label} {...c} />)}
+            </div>
+            <div className="w-4 flex-shrink-0" />
+          </div>
+
+          <div style={{ height: 1, background: divider, margin: '6px 2px 0' }} />
+
+          {/* Product grid */}
+          <div className="flex-1 mt-1.5 overflow-hidden">
+            <div className="grid grid-cols-4 gap-1.5">
+              {products.map((p, i) => (
+                <div
+                  key={i}
+                  className="flex items-stretch rounded-md overflow-hidden"
+                  style={{ background: cardBg, height: 32 }}
+                >
+                  <div className="flex-1 flex flex-col justify-center pl-1.5 pr-1 min-w-0">
+                    <p className="text-[7px] font-bold text-white leading-tight truncate uppercase">{p.n}</p>
+                    <p className="text-[7px] font-semibold text-white/90 leading-tight">{p.p}</p>
+                  </div>
+                  {p.badge && (
+                    <div className="self-center mr-0.5 w-3 h-3 rounded-full flex items-center justify-center text-[6px] font-bold text-white flex-shrink-0" style={{ background: accent }}>
+                      {p.badge}
+                    </div>
+                  )}
+                  <div
+                    className="flex items-center justify-center flex-shrink-0"
+                    style={{ background: accent, width: 18 }}
+                  >
+                    <Plus className="w-3 h-3" style={{ color: onAccent }} strokeWidth={3} />
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
 
-        {/* ===== Body ===== */}
-        <div className="flex-1 flex min-w-0 min-h-0">
-          {/* Left sidebar */}
-          <div
-            className="flex flex-col items-center justify-between py-[3px]"
-            style={{ background: sidebarBg, width: '5%', minWidth: 12 }}
-          >
-            <div className="flex flex-col items-center gap-[3px]">
-              {[...Array(8)].map((_, i) => (
-                <div
-                  key={i}
-                  style={{
-                    width: 5,
-                    height: 5,
-                    borderRadius: i === 2 ? 1.5 : 1,
-                    background: i === 3 ? accent : '#3f3f46',
-                    border: i === 3 ? `0.5px solid ${accent}` : 'none',
-                    opacity: i === 3 ? 1 : 0.7,
-                  }}
-                />
-              ))}
+        {/* Right cart panel */}
+        <div
+          className="flex flex-col flex-shrink-0 px-1.5 pt-1.5"
+          style={{ background: cartBg, width: '28%', borderLeft: `1px solid ${divider}` }}
+        >
+          <div className="flex items-center justify-between gap-1">
+            <span className="text-[7px] font-bold text-white/90 tracking-wider">GUEST NAME</span>
+            <div className="flex items-center gap-0.5 text-white/60">
+              <Phone className="w-2 h-2" />
+              <span className="text-[6px]">(XXX) XXX-XXXX</span>
             </div>
-            <div style={{ width: 6, height: 4, borderRadius: '50%', background: '#3f3f46' }} />
+            <div className="flex items-center gap-0.5 text-white/60">
+              <UserIcon className="w-2 h-2" />
+              <span className="text-[6px]">12:57 PM</span>
+            </div>
           </div>
 
-          {/* Main content */}
-          <div className="flex-1 flex flex-col min-w-0" style={{ background: mainBg }}>
-            {/* Category pills row */}
-            <div className="flex items-center gap-[2px] px-[3px] pt-[3px]">
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#27272a', flexShrink: 0 }} />
-              {catColors.map((color, i) => (
-                <Pill key={i} color={color} filled={i === 0} w={i === 0 ? 16 : 13} h={6} />
-              ))}
-              <div style={{ flex: 1 }} />
-              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#27272a', flexShrink: 0 }} />
-            </div>
-
-            {/* Sub-category row */}
-            <div className="flex items-center gap-[2px] px-[3px] pt-[2px]">
-              <div style={{ width: 6, flexShrink: 0 }} />
-              <Pill color={accent} w={11} h={5} />
-              <Pill color={subPillBorder} w={12} h={5} />
-            </div>
-
-            <div style={{ height: 0.5, background: divider, margin: '3px 4px 0' }} />
-
-            {/* Product grid */}
-            <div className="flex-1 px-[3px] pt-[2px] overflow-hidden">
-              <div className="grid gap-[2px]" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
-                {[...Array(13)].map((_, i) => {
-                  const hasBadge = i === 1 || i === 5;
-                  return (
-                    <div
-                      key={i}
-                      className="flex items-center"
-                      style={{
-                        background: cardBg,
-                        border: '0.5px solid transparent',
-                        height: 10,
-                        borderRadius: 2,
-                        padding: '0 1px 0 2px',
-                        gap: 1,
-                      }}
-                    >
-                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                        <div style={{ height: 1.5, background: '#d4d4d8', borderRadius: 0.5, width: '80%' }} />
-                        {i % 3 === 0 && (
-                          <div style={{ height: 1.5, background: '#d4d4d8', borderRadius: 0.5, width: '45%' }} />
-                        )}
-                      </div>
-                      {hasBadge && (
-                        <div style={{ width: 4, height: 4, borderRadius: '50%', background: accent, flexShrink: 0 }} />
-                      )}
-                      <div style={{ width: 7, height: 1.5, background: '#d4d4d8', borderRadius: 0.5, flexShrink: 0 }} />
-                      <div
-                        style={{
-                          width: 8,
-                          height: 8,
-                          background: accent,
-                          borderRadius: 1.5,
-                          flexShrink: 0,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <div style={{ position: 'relative', width: 4, height: 4 }}>
-                          <div style={{ position: 'absolute', left: 0, top: '45%', width: '100%', height: 0.8, background: onAccent, borderRadius: 0.5 }} />
-                          <div style={{ position: 'absolute', top: 0, left: '45%', width: 0.8, height: '100%', background: onAccent, borderRadius: 0.5 }} />
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
+          <div className="flex items-center gap-1 mt-1.5">
+            {[
+              { i: <Plus className="w-2 h-2" />, l: 'Custom Item' },
+              { i: <Tag className="w-2 h-2" />, l: 'Discount' },
+              { i: <BadgeDollarSign className="w-2 h-2" />, l: 'No Tax' },
+            ].map((b, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-0.5 px-1 py-[2px] rounded text-[6px] font-medium text-white/85"
+                style={{ background: '#1f1f23', border: `1px solid ${divider}` }}
+              >
+                {b.i}
+                <span>{b.l}</span>
               </div>
+            ))}
+            <MoreVertical className="w-2.5 h-2.5 text-white/60 ml-auto" />
+          </div>
+
+          <div
+            className="flex items-center justify-between mt-1.5 px-1.5 py-1 rounded"
+            style={{ background: '#1f1f23' }}
+          >
+            <div className="flex items-center gap-1 text-white text-[7px] font-semibold">
+              <UtensilsCrossed className="w-2.5 h-2.5" style={{ color: accent }} />
+              <span>DINE IN</span>
+            </div>
+            <div className="flex items-center gap-0.5 text-white/70 text-[6px]">
+              <UserIcon className="w-2 h-2" />
+              <span>John Smith</span>
             </div>
           </div>
 
-          {/* Right cart panel */}
-          <div
-            className="flex flex-col"
-            style={{ background: cartBg, width: '26%', borderLeft: `0.5px solid ${divider}` }}
-          >
-            <div className="flex items-center justify-between px-[2px] pt-[3px]">
-              <div style={{ width: 14, height: 2, background: mutedOnDark, borderRadius: 0.5 }} />
-              <div style={{ width: 12, height: 2, background: mutedOnDark, borderRadius: 0.5 }} />
+          {/* Empty state */}
+          <div className="flex-1 flex flex-col items-center justify-center gap-1.5">
+            <div
+              className="w-10 h-8 rounded-md border border-dashed flex items-center justify-center"
+              style={{ borderColor: muted }}
+            >
+              <ReceiptText className="w-4 h-4" style={{ color: muted }} />
             </div>
+            <span className="text-[7px]" style={{ color: muted }}>Let's create an order</span>
+          </div>
 
-            <div className="flex gap-[1px] px-[2px] mt-[2px]">
-              {[...Array(4)].map((_, i) => (
-                <div key={i} style={{ flex: 1, height: 4, background: '#1f1f23', borderRadius: 1 }} />
-              ))}
-              <div style={{ width: 3, height: 4, background: '#1f1f23', borderRadius: 1 }} />
-            </div>
-
-            <div className="flex items-center justify-between px-[2px] mt-[3px]">
-              <div style={{ width: 14, height: 4, background: '#1f1f23', borderRadius: 1 }} />
-              <div style={{ width: 12, height: 2, background: mutedOnDark, borderRadius: 0.5 }} />
-            </div>
-
-            <div style={{ height: 0.5, background: divider, margin: '3px 2px 0' }} />
-
-            <div className="flex-1 flex flex-col items-center justify-center gap-[3px]">
-              <div style={{ width: 14, height: 10, background: 'transparent', border: `0.7px solid ${mutedOnDark}`, borderRadius: 1.5 }} />
-              <div style={{ width: 26, height: 2, background: mutedOnDark, borderRadius: 0.5 }} />
-            </div>
-
-            {/* Bottom accent bar (totals/CTA) */}
-            <div className="px-[2px] pb-[2px]">
-              <div style={{ height: 4, background: accent, borderRadius: 1, width: '100%' }} />
+          {/* Bottom accent CTA */}
+          <div className="pb-1.5">
+            <div
+              className="rounded-md flex items-center justify-center text-[7px] font-bold"
+              style={{ background: accent, color: onAccent, height: 14 }}
+            >
+              REVIEW ORDER
             </div>
           </div>
         </div>

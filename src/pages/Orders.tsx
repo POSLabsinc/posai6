@@ -13,6 +13,7 @@ import type { PastOrderItem as GuestPastItem, GuestInfo as GuestPastInfo } from 
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import { getActiveTaxRate } from "@/lib/orderUtils";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
+import { useAppearance } from "@/contexts/AppearanceContext";
 import { useTicketOrders } from "@/hooks/use-ticket-orders";
 import { toast } from "sonner";
 import searchIcon from "@/assets/icons/search.png";
@@ -271,6 +272,11 @@ const Orders = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { panelLayout } = usePanelPosition();
+  const { themeColor } = useAppearance();
+  // Derived theme styles so all primary highlights follow the selected Theme Color
+  const themeGradient = `linear-gradient(180deg, ${themeColor} 0%, ${themeColor} 100%)`;
+  const themeSoftBg = `${themeColor}33`; // ~20% alpha
+  const themeSoftBorder = `${themeColor}80`; // ~50% alpha
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
   const { addOrder: addTicketOrder, updateOrder: updateTicketOrder, orders: allTicketOrders } = useTicketOrders();
   const { processCancelledItems } = useWriteOffProcessor();

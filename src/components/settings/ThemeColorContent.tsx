@@ -95,19 +95,47 @@ interface ThemeColorContentProps {
 }
 
 /**
- * Compact mini POS preview that reflects the picker's accent color.
- * Render-only: does NOT mutate global theme state.
+ * Mini POS preview mirroring the live New Order screen 1:1, tinted by the
+ * picker's accent color. Render-only: does NOT mutate global theme state.
  */
 function ThemePreviewMini({ accent }: { accent: string }) {
-  const bg = '#1a1a1a';
-  const sidebarBg = '#111111';
-  const headerBg = '#212121';
-  const cartBg = '#1e1e1e';
-  const cardBg = '#2a2a2a';
-  const divider = '#333';
-  const pillBorder = '#555';
-  const textMuted = '#555';
+  const bg = '#0f0f10';
+  const headerBg = '#1a1a1a';
+  const sidebarBg = '#141416';
+  const mainBg = '#131316';
+  const cartBg = '#141416';
+  const cardBg = '#1f2937';
+  const divider = '#27272a';
+  const textOnDark = '#ffffff';
+  const mutedOnDark = '#a1a1aa';
+  const subPillBorder = '#3f3f46';
   const onAccent = getContrastText(accent);
+
+  // Category pill stroke colors, mirroring the live New Order screen.
+  // First (active) pill uses the live accent so the preview reacts to the picker.
+  const catColors = [
+    accent,    // Starters (active, filled)
+    '#f97316', // Mains
+    '#22d3ee', // Sides
+    '#eab308', // Desserts
+    '#22c55e', // Drinks
+    '#d946ef', // Specials
+    '#e5e7eb', // Platters
+    '#3b82f6', // Combos
+  ];
+
+  const Pill = ({ color, filled = false, w, h = 6 }: { color: string; filled?: boolean; w: number; h?: number }) => (
+    <div
+      style={{
+        width: w,
+        height: h,
+        borderRadius: 999,
+        background: filled ? color : 'transparent',
+        border: `0.6px solid ${color}`,
+        flexShrink: 0,
+      }}
+    />
+  );
 
   return (
     <div
@@ -120,84 +148,158 @@ function ThemePreviewMini({ accent }: { accent: string }) {
       >
         Aa
       </div>
-      <div className="w-full h-full flex" style={{ fontSize: 0 }}>
-        {/* Left sidebar */}
-        <div className="flex flex-col items-center pt-[6px] gap-[6px]" style={{ background: sidebarBg, width: '6%' }}>
-          {[...Array(7)].map((_, i) => (
-            <div key={i} style={{ width: 5, height: 5, background: i === 0 ? accent : '#444', borderRadius: '50%' }} />
-          ))}
-        </div>
-
-        {/* Main */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="flex items-center gap-[2px] px-[3px]" style={{ background: headerBg, height: '10%', minHeight: 8 }}>
-            <div style={{ background: accent, width: 10, height: 4, borderRadius: 999 }} />
-            {[...Array(3)].map((_, i) => (
-              <div key={i} style={{ border: `0.5px solid ${pillBorder}`, width: 9, height: 4, borderRadius: 999 }} />
+      <div className="w-full h-full flex flex-col" style={{ fontSize: 0 }}>
+        {/* ===== Top header bar ===== */}
+        <div
+          className="flex items-center justify-between px-[3px]"
+          style={{ background: headerBg, height: '9%', minHeight: 10 }}
+        >
+          <div className="flex items-center gap-[2px]">
+            <div style={{ width: 3, height: 3, background: mutedOnDark, borderRadius: 0.5 }} />
+            <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#3f3f46' }} />
+            <div style={{ width: 14, height: 2, background: textOnDark, borderRadius: 0.5 }} />
+            <div style={{ width: 8, height: 3, background: 'transparent', border: `0.5px solid ${mutedOnDark}`, borderRadius: 1 }} />
+            <div style={{ width: 18, height: 2, background: mutedOnDark, borderRadius: 0.5, marginLeft: 2 }} />
+          </div>
+          <div className="flex items-center gap-[2px]">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} style={{ width: 4, height: 4, borderRadius: '50%', background: i === 4 ? accent : '#3f3f46' }} />
             ))}
-          </div>
-
-          <div className="flex flex-col gap-[1px] px-[3px] py-[2px]">
-            <div className="flex gap-[1px]">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} style={{ border: `0.5px solid ${i === 0 ? accent : pillBorder}`, background: i === 0 ? `${accent}22` : 'transparent', width: 9, height: 3, borderRadius: 999 }} />
-              ))}
-            </div>
-            <div className="flex gap-[1px]">
-              {[...Array(6)].map((_, i) => (
-                <div key={i} style={{ border: `0.5px solid ${pillBorder}`, width: i === 0 ? 11 : 8, height: 3, borderRadius: 999 }} />
-              ))}
-            </div>
-          </div>
-
-          <div className="flex-1 px-[3px] py-[1px] overflow-hidden">
-            <div className="grid grid-cols-3 gap-[2px]">
-              {[...Array(12)].map((_, i) => (
-                <div key={i} className="flex items-center justify-between px-[2px]" style={{ background: cardBg, height: 7, borderRadius: 1 }}>
-                  <div style={{ width: '55%', height: 2, background: '#777', borderRadius: 0.5 }} />
-                  <div style={{ width: 4, height: 4, background: accent, borderRadius: 0.5, flexShrink: 0 }} />
-                </div>
-              ))}
-            </div>
+            <div style={{ width: 8, height: 2, background: textOnDark, borderRadius: 0.5, marginLeft: 1 }} />
           </div>
         </div>
 
-        {/* Right cart */}
-        <div className="flex flex-col" style={{ background: cartBg, width: '28%', borderLeft: `0.5px solid ${divider}` }}>
-          <div className="px-[2px] pt-[2px]">
-            <div style={{ height: 3, background: '#333', borderRadius: 1, width: '90%' }} />
+        {/* ===== Body ===== */}
+        <div className="flex-1 flex min-w-0 min-h-0">
+          {/* Left sidebar */}
+          <div
+            className="flex flex-col items-center justify-between py-[3px]"
+            style={{ background: sidebarBg, width: '5%', minWidth: 12 }}
+          >
+            <div className="flex flex-col items-center gap-[3px]">
+              {[...Array(8)].map((_, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: 5,
+                    height: 5,
+                    borderRadius: i === 2 ? 1.5 : 1,
+                    background: i === 3 ? accent : '#3f3f46',
+                    border: i === 3 ? `0.5px solid ${accent}` : 'none',
+                    opacity: i === 3 ? 1 : 0.7,
+                  }}
+                />
+              ))}
+            </div>
+            <div style={{ width: 6, height: 4, borderRadius: '50%', background: '#3f3f46' }} />
           </div>
-          <div className="flex gap-[1px] px-[2px] mt-[2px]">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} style={{ width: 7, height: 3, background: '#333', borderRadius: 1 }} />
-            ))}
-          </div>
-          <div className="px-[2px] mt-[2px]">
-            <div style={{ height: 4, background: '#333', borderRadius: 1, width: '100%' }} />
-          </div>
-          <div className="flex-1 flex flex-col gap-[1px] px-[2px] mt-[2px] overflow-hidden">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="flex items-center justify-between" style={{ height: 4 }}>
-                <div className="flex items-center gap-[1px]">
-                  <div style={{ width: 3, height: 3, borderRadius: '50%', background: accent, flexShrink: 0 }} />
-                  <div style={{ width: 12, height: 1.5, background: '#777', borderRadius: 0.5 }} />
-                </div>
-                <div style={{ width: 6, height: 1.5, background: '#666', borderRadius: 0.5 }} />
+
+          {/* Main content */}
+          <div className="flex-1 flex flex-col min-w-0" style={{ background: mainBg }}>
+            {/* Category pills row */}
+            <div className="flex items-center gap-[2px] px-[3px] pt-[3px]">
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#27272a', flexShrink: 0 }} />
+              {catColors.map((color, i) => (
+                <Pill key={i} color={color} filled={i === 0} w={i === 0 ? 16 : 13} h={6} />
+              ))}
+              <div style={{ flex: 1 }} />
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#27272a', flexShrink: 0 }} />
+            </div>
+
+            {/* Sub-category row */}
+            <div className="flex items-center gap-[2px] px-[3px] pt-[2px]">
+              <div style={{ width: 6, flexShrink: 0 }} />
+              <Pill color={accent} w={11} h={5} />
+              <Pill color={subPillBorder} w={12} h={5} />
+            </div>
+
+            <div style={{ height: 0.5, background: divider, margin: '3px 4px 0' }} />
+
+            {/* Product grid */}
+            <div className="flex-1 px-[3px] pt-[2px] overflow-hidden">
+              <div className="grid gap-[2px]" style={{ gridTemplateColumns: 'repeat(4, minmax(0, 1fr))' }}>
+                {[...Array(13)].map((_, i) => {
+                  const hasBadge = i === 1 || i === 5;
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-center"
+                      style={{
+                        background: cardBg,
+                        border: '0.5px solid transparent',
+                        height: 10,
+                        borderRadius: 2,
+                        padding: '0 1px 0 2px',
+                        gap: 1,
+                      }}
+                    >
+                      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                        <div style={{ height: 1.5, background: '#d4d4d8', borderRadius: 0.5, width: '80%' }} />
+                        {i % 3 === 0 && (
+                          <div style={{ height: 1.5, background: '#d4d4d8', borderRadius: 0.5, width: '45%' }} />
+                        )}
+                      </div>
+                      {hasBadge && (
+                        <div style={{ width: 4, height: 4, borderRadius: '50%', background: accent, flexShrink: 0 }} />
+                      )}
+                      <div style={{ width: 7, height: 1.5, background: '#d4d4d8', borderRadius: 0.5, flexShrink: 0 }} />
+                      <div
+                        style={{
+                          width: 8,
+                          height: 8,
+                          background: accent,
+                          borderRadius: 1.5,
+                          flexShrink: 0,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <div style={{ position: 'relative', width: 4, height: 4 }}>
+                          <div style={{ position: 'absolute', left: 0, top: '45%', width: '100%', height: 0.8, background: onAccent, borderRadius: 0.5 }} />
+                          <div style={{ position: 'absolute', top: 0, left: '45%', width: 0.8, height: '100%', background: onAccent, borderRadius: 0.5 }} />
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-            ))}
-          </div>
-          <div className="px-[2px] mb-[1px]">
-            <div style={{ borderTop: `0.5px solid ${divider}`, paddingTop: 1 }}>
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="flex justify-between mb-[0.5px]">
-                  <div style={{ width: 8, height: 1.5, background: textMuted, borderRadius: 0.5 }} />
-                  <div style={{ width: 5, height: 1.5, background: textMuted, borderRadius: 0.5 }} />
-                </div>
-              ))}
             </div>
           </div>
-          <div className="px-[2px] pb-[2px]">
-            <div style={{ height: 4, background: accent, borderRadius: 1, width: '100%' }} />
+
+          {/* Right cart panel */}
+          <div
+            className="flex flex-col"
+            style={{ background: cartBg, width: '26%', borderLeft: `0.5px solid ${divider}` }}
+          >
+            <div className="flex items-center justify-between px-[2px] pt-[3px]">
+              <div style={{ width: 14, height: 2, background: mutedOnDark, borderRadius: 0.5 }} />
+              <div style={{ width: 12, height: 2, background: mutedOnDark, borderRadius: 0.5 }} />
+            </div>
+
+            <div className="flex gap-[1px] px-[2px] mt-[2px]">
+              {[...Array(4)].map((_, i) => (
+                <div key={i} style={{ flex: 1, height: 4, background: '#1f1f23', borderRadius: 1 }} />
+              ))}
+              <div style={{ width: 3, height: 4, background: '#1f1f23', borderRadius: 1 }} />
+            </div>
+
+            <div className="flex items-center justify-between px-[2px] mt-[3px]">
+              <div style={{ width: 14, height: 4, background: '#1f1f23', borderRadius: 1 }} />
+              <div style={{ width: 12, height: 2, background: mutedOnDark, borderRadius: 0.5 }} />
+            </div>
+
+            <div style={{ height: 0.5, background: divider, margin: '3px 2px 0' }} />
+
+            <div className="flex-1 flex flex-col items-center justify-center gap-[3px]">
+              <div style={{ width: 14, height: 10, background: 'transparent', border: `0.7px solid ${mutedOnDark}`, borderRadius: 1.5 }} />
+              <div style={{ width: 26, height: 2, background: mutedOnDark, borderRadius: 0.5 }} />
+            </div>
+
+            {/* Bottom accent bar (totals/CTA) */}
+            <div className="px-[2px] pb-[2px]">
+              <div style={{ height: 4, background: accent, borderRadius: 1, width: '100%' }} />
+            </div>
           </div>
         </div>
       </div>

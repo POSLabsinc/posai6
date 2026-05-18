@@ -17,6 +17,8 @@ import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import { getContrastText } from "@/lib/themeContrast";
 import { format } from "date-fns";
 import { DateRange } from "react-day-picker";
 import fireIcon from "@/assets/icons/fire.png";
@@ -478,6 +480,9 @@ const OrderPanelContent = ({
   onFireAll,
   onSaveOrder
 }: OrderPanelContentProps) => {
+  const { themeColor } = useAppearance();
+  const themeGradient = `linear-gradient(180deg, ${themeColor} 0%, ${themeColor} 100%)`;
+  const themeOnAccent = getContrastText(themeColor);
   const showSaveButton = SettingsManager.getCheckoutOptionsSettings().showSaveButton;
   const autoCloseTicket = SettingsManager.getCheckoutOptionsSettings().autoCloseTicket;
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
@@ -752,7 +757,7 @@ const OrderPanelContent = ({
           ) : (
             <>
               <button onClick={onCancelOrder} className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0">
-                <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+                <img src={clearIcon} alt="Clear" className={`w-4 h-4 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
               </button>
               {showSaveButton && (
               <button 
@@ -765,10 +770,9 @@ const OrderPanelContent = ({
               )}
               <button 
                 onClick={onFireAll}
-                className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
-                style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+                className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-sm font-medium" style={{ background: themeGradient, color: themeOnAccent }}
               >
-                <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+                <img src={fireIcon} alt="Fire" className={`w-4 h-4 brightness-0 ${themeOnAccent === "#FFFFFF" ? "invert" : ""}`} />
                 <span>FIRE</span>
               </button>
               <button 
@@ -853,6 +857,9 @@ const tableFilterLabels = ["All", "Available", "Ordering", "Ordered", "Reserved"
 const Dashboard = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { themeColor } = useAppearance();
+  const themeGradient = `linear-gradient(180deg, ${themeColor} 0%, ${themeColor} 100%)`;
+  const themeOnAccent = getContrastText(themeColor);
   
   // DB tables
   const { tables: dbTables, updateTable: updateDbTableStatus } = useRestaurantTables();
@@ -1863,7 +1870,7 @@ const Dashboard = () => {
                         <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
                           <button 
                             className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-tr-xl"
-                            style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                            style={{ background: themeGradient }}
                             onClick={e => {
                               e.stopPropagation();
                               navigate(`/tableorder/${order.table}/merge?orderId=${order.id}`);

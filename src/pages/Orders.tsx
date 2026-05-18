@@ -14,6 +14,7 @@ import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPri
 import { getActiveTaxRate } from "@/lib/orderUtils";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { getContrastText } from "@/lib/themeContrast";
 import { useTicketOrders } from "@/hooks/use-ticket-orders";
 import { toast } from "sonner";
 import searchIcon from "@/assets/icons/search.png";
@@ -277,6 +278,7 @@ const Orders = () => {
   const themeGradient = `linear-gradient(180deg, ${themeColor} 0%, ${themeColor} 100%)`;
   const themeSoftBg = `${themeColor}33`; // ~20% alpha
   const themeSoftBorder = `${themeColor}80`; // ~50% alpha
+  const themeOnAccent = getContrastText(themeColor); // auto black/white for contrast
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
   const { addOrder: addTicketOrder, updateOrder: updateTicketOrder, orders: allTicketOrders } = useTicketOrders();
   const { processCancelledItems } = useWriteOffProcessor();
@@ -2347,7 +2349,7 @@ const Orders = () => {
             }}>
 
                 <img src={fireIcon} alt="Fire" className="w-4 h-4" />
-                <span className="text-white font-semibold text-sm">FIRE</span>
+                <span className="font-semibold text-sm" style={{ color: themeOnAccent }}>FIRE</span>
               </button>
               <button
             onClick={() => {
@@ -2509,9 +2511,10 @@ const Orders = () => {
             <button
             onClick={addCustomItemToOrder}
             disabled={!customItemName.trim() || !customItemPrice}
-            className="w-full py-3 rounded-lg font-semibold text-white mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            className="w-full py-3 rounded-lg font-semibold mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
             style={{
-              background: themeGradient
+              background: themeGradient,
+              color: themeOnAccent
             }}>
 
               <Plus className="w-4 h-4" />
@@ -2773,7 +2776,7 @@ const Orders = () => {
                       e.stopPropagation();
                       addToCart(item);
                     }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 rounded flex items-center justify-center transition-colors" style={{ backgroundColor: themeColor }}>
-                        <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
+                        <Plus className="w-2.5 md:w-3 h-2.5 md:h-3" style={{ color: themeOnAccent }} strokeWidth={3} />
                       </button>
                       {showStockBadge && <span className="absolute top-0.5 md:top-1 right-0.5 md:right-1 min-w-[20px] h-[20px] rounded-full bg-primary text-primary-foreground text-[10px] font-bold flex items-center justify-center px-1 z-20">{menuItem.stock_count}</span>}
                       {isOutOfStock && (
@@ -2825,8 +2828,9 @@ const Orders = () => {
                     <button onClick={(e) => {
                     e.stopPropagation();
                     addToCart(item);
-                  }} className="w-7 md:w-9 text-white flex-shrink-0 flex items-center justify-center" style={{
-                    background: themeGradient
+                  }} className="w-7 md:w-9 flex-shrink-0 flex items-center justify-center" style={{
+                    background: themeGradient,
+                    color: themeOnAccent
                   }}>
                       <Plus className="w-3 md:w-3.5 h-3 md:h-3.5" strokeWidth={3.5} />
                     </button>
@@ -3742,7 +3746,7 @@ const Orders = () => {
                     }}>
 
                     <img src={fireIcon} alt="Fire" className="w-4 h-4" />
-                    <span className="text-white font-semibold text-sm">FIRE</span>
+                    <span className="font-semibold text-sm" style={{ color: themeOnAccent }}>FIRE</span>
                   </button>
                   <button
                     onClick={() => {
@@ -4322,7 +4326,7 @@ const Orders = () => {
               setIsOrderSplit(false);
               setSplitConfiguration(null);
             }}
-            className="w-full py-3 rounded-lg text-white font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2" style={{ background: themeGradient }}>
+            className="w-full py-3 rounded-lg font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2" style={{ background: themeGradient, color: themeOnAccent }}>
 
                 <img src={mergeIcon} alt="Merge" className="w-4 h-4" />
                 Merge

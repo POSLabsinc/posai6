@@ -480,6 +480,9 @@ const OrderPanelContent = ({
   onFireAll,
   onSaveOrder
 }: OrderPanelContentProps) => {
+  const { themeColor } = useAppearance();
+  const themeGradient = `linear-gradient(180deg, ${themeColor} 0%, ${themeColor} 100%)`;
+  const themeOnAccent = getContrastText(themeColor);
   const showSaveButton = SettingsManager.getCheckoutOptionsSettings().showSaveButton;
   const autoCloseTicket = SettingsManager.getCheckoutOptionsSettings().autoCloseTicket;
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);

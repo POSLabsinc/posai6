@@ -512,13 +512,10 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
     return <WeatherInsightView notification={notification} />;
   }
 
-  // Live Sales Dashboard: render full real-time dashboard with AI panel
+  // Live Sales Dashboard: route to new AI-Based Notification layout
+  // (left: chart + KPI metrics, right: Recommendations / Ask Maya chat)
   if (notification.id === "live-sales-dashboard") {
-    return (
-      <div className="h-full w-full overflow-hidden">
-        <LiveSalesDashboard />
-      </div>
-    );
+    return <SalesInsightDetailView notification={notification} />;
   }
 
   // Inventory Dashboard: AI-driven inventory management

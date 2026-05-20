@@ -473,7 +473,7 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
   return (
     <div className="h-full flex overflow-hidden">
       {/* Left panel */}
-      <div className="w-[420px] h-full overflow-hidden flex flex-col bg-[#ededed99] dark:bg-[#26262699] rounded-2xl">
+      <div className="w-[340px] shrink-0 h-full overflow-hidden flex flex-col bg-[#ededed99] dark:bg-[#26262699] rounded-2xl">
         {/* "< Settings" header */}
         <div className="flex items-center gap-2 px-4 pt-4 pb-3 shrink-0">
           {onBack && (

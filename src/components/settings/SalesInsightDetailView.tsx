@@ -1,22 +1,20 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Send, Sparkles, BarChart3, ChevronDown, ChevronLeft, Loader2, Calendar as CalendarIcon } from "lucide-react";
 import {
-  ResponsiveContainer,
-  ComposedChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
+  Send, Sparkles, BarChart3, ChevronDown, ChevronLeft, Loader2,
+  Calendar as CalendarIcon, Table as TableIcon, List as ListIcon, TrendingUp,
+  ShoppingCart, DollarSign, Calculator, Users,
+} from "lucide-react";
+import {
+  ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
+  LineChart, Line,
 } from "recharts";
-import { useReportsData } from "@/hooks/useReportsData";
 import { supabase } from "@/integrations/supabase/client";
 import type { NotificationItem } from "@/hooks/useNotifications";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { format, subDays, startOfWeek, startOfMonth, startOfYear, addMonths } from "date-fns";
 
 interface ChatMsg { role: "user" | "assistant"; content: string }
 
@@ -52,95 +50,259 @@ const METRIC_OPTIONS: { key: MetricKey; label: string; isCurrency: boolean }[] =
   { key: "totalDiscounts", label: "Total Discounts", isCurrency: true },
 ];
 
+type ViewMode = "chart" | "table" | "list" | "trend";
+type Granularity = "Hourly" | "Daily" | "Weekly";
+type QuickSelect = "Today" | "Yesterday" | "Last 7 days" | "This week" | "This month" | "Last month" | "Last 3 months" | "Year to date" | "Custom range";
+
 const fmtCur = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmtNum = (n: number) => n.toLocaleString();
 
-export const SalesInsightDetailView = ({ notification }: { notification: NotificationItem }) => {
-  // Today's range
-  const { start, end } = useMemo(() => {
-    const s = new Date(); s.setHours(0, 0, 0, 0);
-    const e = new Date(); e.setHours(23, 59, 59, 999);
-    return { start: s, end: e };
-  }, []);
-  const data = useReportsData(start, end, "00:00", "23:59");
+// ---- Dummy data generators (deterministic per metric + date) ----
+const HOUR_SHAPE = [0.04, 0.02, 0.015, 0.012, 0.018, 0.025, 0.04, 0.06, 0.075, 0.08, 0.085, 0.095, 0.09, 0.07, 0.055, 0.06, 0.072, 0.105, 0.13, 0.105, 0.08, 0.06, 0.04, 0.02];
 
-  // Comparison date (default: yesterday)
-  const [compareDate, setCompareDate] = useState<Date>(() => {
-    const d = new Date(); d.setDate(d.getDate() - 1); d.setHours(0, 0, 0, 0); return d;
+const METRIC_TOTALS: Record<MetricKey, { today: number; compare: number }> = {
+  netSales: { today: 45280.50, compare: 42178.30 },
+  grossSales: { today: 47850.25, compare: 44680.75 },
+  totalOrders: { today: 1235, compare: 1168 },
+  totalTransactions: { today: 1198, compare: 1132 },
+  totalRefunds: { today: 482.10, compare: 615.40 },
+  totalDiscounts: { today: 1864.20, compare: 1742.55 },
+};
+
+function buildHourly(metric: MetricKey) {
+  const t = METRIC_TOTALS[metric];
+  return Array.from({ length: 24 }, (_, i) => {
+    const suf = i < 12 ? "AM" : "PM";
+    const h12 = i % 12 === 0 ? 12 : i % 12;
+    return {
+      hourLabel: `${h12}${suf}`,
+      hour: i,
+      today: +(t.today * HOUR_SHAPE[i]).toFixed(2),
+      compare: +(t.compare * HOUR_SHAPE[(i + 23) % 24]).toFixed(2),
+    };
   });
-  const compareEnd = useMemo(() => { const e = new Date(compareDate); e.setHours(23, 59, 59, 999); return e; }, [compareDate]);
-  const compareData = useReportsData(compareDate, compareEnd, "00:00", "23:59");
-  const [calOpen, setCalOpen] = useState(false);
+}
 
-  // Selected metric
+const METRIC_CARDS = [
+  { label: "Gross Sales", value: "$47,850.25", delta: "+7.1%", caption: "Total revenue before adjustments", icon: TrendingUp },
+  { label: "Net Sales", value: "$45,280.50", delta: "+7.4%", caption: "Total revenue after discounts and refunds", icon: DollarSign },
+  { label: "Average Order Value", value: "$38.75", delta: "+9.2%", caption: "Average amount spent per order", icon: ShoppingCart },
+  { label: "Sales per Sq Ft", value: "$285.50", delta: "+5.2%", caption: "Revenue efficiency per square foot", icon: Calculator },
+  { label: "Revenue per Available Seat Hour", value: "$142.25", delta: "+3.8%", caption: "Revenue optimization metric for seating efficiency", icon: TrendingUp },
+  { label: "Customer Count", value: "1,235", delta: "+4.0%", caption: "Total number of unique customers served", icon: Users },
+];
+
+// ---- Custom Filter Popover (matches reference image) ----
+const QUICK_OPTIONS: QuickSelect[] = ["Today", "Yesterday", "Last 7 days", "This week", "This month", "Last month", "Last 3 months", "Year to date", "Custom range"];
+const GRANULARITY_OPTIONS: Granularity[] = ["Hourly", "Daily", "Weekly"];
+
+function rangeForQuickSelect(q: QuickSelect): { start: Date; end: Date } {
+  const today = new Date(); today.setHours(0, 0, 0, 0);
+  const end = new Date(today); end.setHours(23, 59, 59, 999);
+  switch (q) {
+    case "Today": return { start: today, end };
+    case "Yesterday": { const s = subDays(today, 1); const e = new Date(s); e.setHours(23, 59, 59, 999); return { start: s, end: e }; }
+    case "Last 7 days": return { start: subDays(today, 6), end };
+    case "This week": return { start: startOfWeek(today, { weekStartsOn: 0 }), end };
+    case "This month": return { start: startOfMonth(today), end };
+    case "Last month": { const s = startOfMonth(subDays(startOfMonth(today), 1)); const e = subDays(startOfMonth(today), 1); e.setHours(23, 59, 59, 999); return { start: s, end: e }; }
+    case "Last 3 months": return { start: subDays(today, 90), end };
+    case "Year to date": return { start: startOfYear(today), end };
+    case "Custom range": return { start: subDays(today, 1), end };
+  }
+}
+
+const DateRangeFilter = ({
+  label, range, onChange, granularity, onGranularityChange,
+}: {
+  label: string;
+  range: { start: Date; end: Date; quick: QuickSelect };
+  onChange: (r: { start: Date; end: Date; quick: QuickSelect }) => void;
+  granularity: Granularity;
+  onGranularityChange: (g: Granularity) => void;
+}) => {
+  const [open, setOpen] = useState(false);
+  const [draftQuick, setDraftQuick] = useState<QuickSelect>(range.quick);
+  const [draftStart, setDraftStart] = useState<Date>(range.start);
+  const [draftEnd, setDraftEnd] = useState<Date>(range.end);
+  const [draftGran, setDraftGran] = useState<Granularity>(granularity);
+  const [viewMonth, setViewMonth] = useState<Date>(range.start);
+
+  useEffect(() => {
+    if (open) {
+      setDraftQuick(range.quick); setDraftStart(range.start); setDraftEnd(range.end); setDraftGran(granularity);
+      setViewMonth(range.start);
+    }
+  }, [open]);
+
+  const apply = () => {
+    onChange({ start: draftStart, end: draftEnd, quick: draftQuick });
+    onGranularityChange(draftGran);
+    setOpen(false);
+  };
+  const clear = () => {
+    const r = rangeForQuickSelect("Today");
+    setDraftQuick("Today"); setDraftStart(r.start); setDraftEnd(r.end);
+  };
+  const pickQuick = (q: QuickSelect) => {
+    setDraftQuick(q);
+    if (q !== "Custom range") {
+      const r = rangeForQuickSelect(q);
+      setDraftStart(r.start); setDraftEnd(r.end);
+      setViewMonth(r.start);
+    }
+  };
+
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger className="flex items-center gap-1 text-xs text-muted-foreground/70 mb-1.5 hover:text-foreground transition-colors outline-none">
+        {label} <ChevronDown className="w-3 h-3" />
+      </PopoverTrigger>
+      <PopoverContent align="start" className="w-auto p-0 bg-[#1c1c1e] border-white/10 rounded-xl overflow-hidden">
+        <div className="flex">
+          {/* Left rail: Quick Select + Granularity */}
+          <div className="w-[160px] border-r border-white/[0.08] p-3 flex flex-col gap-1">
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 px-2 py-1.5">Quick Select</div>
+            {QUICK_OPTIONS.map((q) => (
+              <button key={q} onClick={() => pickQuick(q)}
+                className={cn("flex items-center justify-between px-2.5 py-1.5 rounded-md text-[12.5px] text-left transition-colors",
+                  draftQuick === q ? "bg-white/[0.08] text-foreground" : "text-foreground/75 hover:bg-white/[0.04]")}>
+                <span>{q}</span>
+                {draftQuick === q && <span className="text-foreground/70">✓</span>}
+              </button>
+            ))}
+            <div className="text-[10px] uppercase tracking-wider text-muted-foreground/70 px-2 py-1.5 mt-2">Granularity</div>
+            {GRANULARITY_OPTIONS.map((g) => (
+              <button key={g} onClick={() => setDraftGran(g)}
+                className={cn("flex items-center justify-between px-2.5 py-1.5 rounded-md text-[12.5px] text-left transition-colors",
+                  draftGran === g ? "bg-white/[0.08] text-foreground" : "text-foreground/75 hover:bg-white/[0.04]")}>
+                <span>{g}</span>
+                {draftGran === g && <span className="text-foreground/70">✓</span>}
+              </button>
+            ))}
+          </div>
+
+          {/* Right: Start/End + dual calendars */}
+          <div className="p-4 w-[560px]">
+            <div className="flex items-end gap-3 mb-3">
+              <div className="flex-1">
+                <div className="text-[11px] text-muted-foreground mb-1">Start</div>
+                <div className="bg-transparent border border-white/15 rounded-md px-3 py-2 text-sm text-foreground">{format(draftStart, "MM/dd/yyyy")}</div>
+              </div>
+              <span className="pb-2.5 text-muted-foreground">→</span>
+              <div className="flex-1">
+                <div className="text-[11px] text-muted-foreground mb-1">End</div>
+                <div className="bg-transparent border border-white/15 rounded-md px-3 py-2 text-sm text-foreground">{format(draftEnd, "MM/dd/yyyy")}</div>
+              </div>
+            </div>
+            <Calendar
+              mode="range"
+              numberOfMonths={2}
+              month={viewMonth}
+              onMonthChange={setViewMonth}
+              selected={{ from: draftStart, to: draftEnd }}
+              onSelect={(r: any) => {
+                if (r?.from) { const s = new Date(r.from); s.setHours(0, 0, 0, 0); setDraftStart(s); }
+                if (r?.to) { const e = new Date(r.to); e.setHours(23, 59, 59, 999); setDraftEnd(e); }
+                if (r?.from && (!r?.to || r.from.getTime() === r.to.getTime())) setDraftQuick("Custom range");
+              }}
+              className="p-0 pointer-events-auto"
+            />
+            <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/[0.08]">
+              <button onClick={clear} className="text-sm text-foreground/80 hover:text-foreground">Clear</button>
+              <button onClick={apply} className="px-4 py-1.5 rounded-md bg-white text-black text-sm font-medium hover:bg-white/90">Apply</button>
+            </div>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
+
+// ---- Custom chart tooltip (white background) ----
+const ChartTooltip = ({ active, payload, label, isCurrency, compareLabel }: any) => {
+  if (!active || !payload?.length) return null;
+  const today = payload.find((p: any) => p.dataKey === "today")?.value ?? 0;
+  const compare = payload.find((p: any) => p.dataKey === "compare")?.value ?? 0;
+  const fmt = (v: number) => isCurrency ? fmtCur(v) : fmtNum(v);
+  return (
+    <div className="bg-white text-black rounded-lg shadow-lg px-3 py-2 text-xs min-w-[150px]">
+      <div className="font-semibold mb-1.5">{label}</div>
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-black/70">Today</span>
+        <span className="font-semibold tabular-nums">{fmt(today)}</span>
+      </div>
+      <div className="flex items-center justify-center my-1">
+        <div className="flex-1 h-px bg-black/10" />
+        <span className="px-2 text-[10px] uppercase tracking-wider text-black/50">vs</span>
+        <div className="flex-1 h-px bg-black/10" />
+      </div>
+      <div className="flex items-center justify-between gap-4">
+        <span className="text-black/70">{compareLabel}</span>
+        <span className="font-semibold tabular-nums text-black/70">{fmt(compare)}</span>
+      </div>
+    </div>
+  );
+};
+
+export const SalesInsightDetailView = ({ notification }: { notification: NotificationItem }) => {
+  const today0 = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
+  const todayEnd = useMemo(() => { const d = new Date(today0); d.setHours(23, 59, 59, 999); return d; }, [today0]);
+  const ystd = useMemo(() => subDays(today0, 1), [today0]);
+  const ystdEnd = useMemo(() => { const d = new Date(ystd); d.setHours(23, 59, 59, 999); return d; }, [ystd]);
+
+  // Primary range
+  const [primaryRange, setPrimaryRange] = useState({ start: today0, end: todayEnd, quick: "Today" as QuickSelect });
+  const [primaryGran, setPrimaryGran] = useState<Granularity>("Hourly");
+
+  // Comparison range
+  const [compareRange, setCompareRange] = useState({ start: ystd, end: ystdEnd, quick: "Yesterday" as QuickSelect });
+  const [compareGran, setCompareGran] = useState<Granularity>("Daily");
+
+  // Selected metric & view mode
   const [metric, setMetric] = useState<MetricKey>("netSales");
+  const [viewMode, setViewMode] = useState<ViewMode>("chart");
   const selectedMetric = METRIC_OPTIONS.find((m) => m.key === metric)!;
 
-  const getMetricValue = (d: typeof data): number => {
-    switch (metric) {
-      case "netSales": return d.orderSummary.netSales;
-      case "grossSales": return d.orderSummary.netSales + d.orderSummary.discounts;
-      case "totalOrders": return d.orderSummary.numberOfOrders;
-      case "totalTransactions": return d.paymentTypes.reduce((s, p) => s + p.transactions, 0);
-      case "totalRefunds": return d.orderSummary.refundAmount;
-      case "totalDiscounts": return d.orderSummary.discounts;
-    }
-  };
-  const getHourlyValue = (h: typeof data.salesByHour[number]): number => {
-    switch (metric) {
-      case "netSales":
-      case "grossSales": return h.sales;
-      case "totalOrders":
-      case "totalTransactions": return h.orders;
-      case "totalRefunds":
-      case "totalDiscounts": return 0;
-    }
-  };
+  // Dummy chart data driven by metric
+  const chartData = useMemo(() => buildHourly(metric), [metric]);
+  const todayValue = METRIC_TOTALS[metric].today;
+  const compareValue = METRIC_TOTALS[metric].compare;
+  const formatMetricValue = (v: number) => selectedMetric.isCurrency ? fmtCur(v) : fmtNum(v);
 
-  const todayValue = getMetricValue(data);
-  const compareValue = getMetricValue(compareData);
+  // Breakdown report (driven by selected granularity + range)
+  const [bdRange, setBdRange] = useState({ start: today0, end: todayEnd, quick: "Today" as QuickSelect });
+  const [bdGran, setBdGran] = useState<Granularity>("Hourly");
+  const [bdCompare, setBdCompare] = useState({ start: ystd, end: ystdEnd, quick: "Yesterday" as QuickSelect });
+  const [bdCompareGran, setBdCompareGran] = useState<Granularity>("Daily");
 
-  const chartData = useMemo(() => {
-    return data.salesByHour.map((h, i) => ({
-      hour: h.hour.slice(0, 2) + (Number(h.hour.slice(0, 2)) < 12 ? "AM" : "PM").replace(/^/, ""),
-      hourLabel: (() => { const n = Number(h.hour.slice(0, 2)); const suf = n < 12 ? "AM" : "PM"; const h12 = n % 12 === 0 ? 12 : n % 12; return `${h12}${suf}`; })(),
-      today: getHourlyValue(h),
-      compare: getHourlyValue(compareData.salesByHour[i] || { hour: h.hour, sales: 0, orders: 0 }),
-    }));
-  }, [data.salesByHour, compareData.salesByHour, metric]);
-
-  // Dashboard metrics
-  const dashboardMetrics = useMemo(() => {
-    const grossSales = data.orderSummary.netSales + data.orderSummary.discounts;
-    const customerCount = data.orderSummary.numberOfOrders;
-    return [
-      { label: "Gross Sales", value: fmtCur(grossSales) },
-      { label: "Net Sales", value: fmtCur(data.orderSummary.netSales) },
-      { label: "Average Order Value", value: fmtCur(data.kpis.averageOrderValue) },
-      { label: "Sales per Sq Ft", value: fmtCur(grossSales / 1200) },
-      { label: "Revenue per Available Seat Hour", value: fmtCur(grossSales / Math.max(1, 60 * 12)) },
-      { label: "Customer Count", value: fmtNum(customerCount) },
-    ];
-  }, [data]);
-
-  // Breakdown report (hourly)
-  const [bdPage, setBdPage] = useState(0);
   const breakdownRows = useMemo(() => {
-    return data.salesByHour.map((h) => {
-      const n = Number(h.hour.slice(0, 2));
-      const suf = n < 12 ? "AM" : "PM";
-      const h12 = n % 12 === 0 ? 12 : n % 12;
-      const labour = 0;
-      return {
-        time: `${h12}:00 ${suf}`,
-        netSales: h.sales,
-        labour,
-        labourPct: h.sales > 0 ? (labour / h.sales) * 100 : null,
-      };
+    if (bdGran === "Hourly") {
+      return chartData.map((h) => {
+        const labour = h.today * 0.28;
+        return { time: h.hourLabel, netSales: h.today, labour, labourPct: h.today > 0 ? (labour / h.today) * 100 : null };
+      });
+    }
+    if (bdGran === "Daily") {
+      const days = Math.max(1, Math.round((bdRange.end.getTime() - bdRange.start.getTime()) / 86400000) + 1);
+      return Array.from({ length: Math.min(days, 31) }, (_, i) => {
+        const v = +(METRIC_TOTALS[metric].today * (0.7 + (i % 7) * 0.08)).toFixed(2);
+        const labour = v * 0.28;
+        return { time: format(new Date(bdRange.start.getTime() + i * 86400000), "MMM d"), netSales: v, labour, labourPct: v > 0 ? (labour / v) * 100 : null };
+      });
+    }
+    // Weekly
+    return Array.from({ length: 8 }, (_, i) => {
+      const v = +(METRIC_TOTALS[metric].today * 7 * (0.85 + (i % 4) * 0.05)).toFixed(2);
+      const labour = v * 0.28;
+      return { time: `Week ${i + 1}`, netSales: v, labour, labourPct: v > 0 ? (labour / v) * 100 : null };
     });
-  }, [data.salesByHour]);
+  }, [bdGran, bdRange, chartData, metric]);
+
+  const [bdPage, setBdPage] = useState(0);
   const PAGE_SIZE = 8;
-  const totalPages = Math.ceil(breakdownRows.length / PAGE_SIZE);
+  const totalPages = Math.max(1, Math.ceil(breakdownRows.length / PAGE_SIZE));
+  useEffect(() => { setBdPage(0); }, [bdGran, bdRange.start.getTime(), bdRange.end.getTime()]);
   const pagedRows = breakdownRows.slice(bdPage * PAGE_SIZE, bdPage * PAGE_SIZE + PAGE_SIZE);
 
   // Right panel chat state
@@ -163,7 +325,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
     setInput("");
     setBusy(true);
     try {
-      const context = { kpis: data.kpis, topItems: data.topItems, categories: data.categories, salesByHour: data.salesByHour, recommendations: MOCK_RECS };
+      const context = { metric: selectedMetric.label, today: todayValue, compare: compareValue, recommendations: MOCK_RECS };
       const { data: resp, error } = await supabase.functions.invoke("reports-ai", { body: { mode: "ask", question, context } });
       if (error) throw error;
       const answer = (resp as any)?.answer || "I couldn't generate an answer from the visible data.";
@@ -178,12 +340,87 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
   const cardStyle = { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" } as const;
 
   const compareLabel = useMemo(() => {
-    const y = new Date(); y.setDate(y.getDate() - 1); y.setHours(0, 0, 0, 0);
-    if (compareDate.toDateString() === y.toDateString()) return "Yesterday";
-    return format(compareDate, "MMM d, yyyy");
-  }, [compareDate]);
+    if (compareRange.quick !== "Custom range") return compareRange.quick;
+    return format(compareRange.start, "MMM d, yyyy");
+  }, [compareRange]);
+  const primaryLabel = useMemo(() => {
+    if (primaryRange.quick !== "Custom range") return primaryRange.quick;
+    return format(primaryRange.start, "MMM d, yyyy");
+  }, [primaryRange]);
 
-  const formatMetricValue = (v: number) => selectedMetric.isCurrency ? fmtCur(v) : fmtNum(v);
+  // Render visualization based on viewMode
+  const renderVisualization = () => {
+    if (viewMode === "table") {
+      return (
+        <div className="h-64 overflow-y-auto scrollbar-hide rounded-xl border border-white/[0.06]">
+          <table className="w-full text-xs">
+            <thead className="sticky top-0 bg-[#1c1c1e]">
+              <tr className="text-left text-muted-foreground/80">
+                <th className="px-3 py-2 font-medium">Time</th>
+                <th className="px-3 py-2 font-medium text-right">Today</th>
+                <th className="px-3 py-2 font-medium text-right">{compareLabel}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {chartData.map((r, i) => (
+                <tr key={i} className="border-t border-white/[0.04]">
+                  <td className="px-3 py-2 text-foreground/90">{r.hourLabel}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-foreground/90">{formatMetricValue(r.today)}</td>
+                  <td className="px-3 py-2 text-right tabular-nums text-muted-foreground/70">{formatMetricValue(r.compare)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      );
+    }
+    if (viewMode === "list") {
+      return (
+        <div className="h-64 overflow-y-auto scrollbar-hide space-y-1.5 pr-1">
+          {chartData.map((r, i) => (
+            <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] transition-colors">
+              <span className="text-xs text-foreground/80 w-12">{r.hourLabel}</span>
+              <div className="flex-1 mx-3 h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
+                <div className="h-full bg-red-500" style={{ width: `${Math.min(100, (r.today / Math.max(...chartData.map(d => d.today))) * 100)}%` }} />
+              </div>
+              <span className="text-xs font-semibold tabular-nums text-foreground">{formatMetricValue(r.today)}</span>
+            </div>
+          ))}
+        </div>
+      );
+    }
+    if (viewMode === "trend") {
+      return (
+        <div className="h-64 w-full">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+              <XAxis dataKey="hourLabel" tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} interval={2} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} axisLine={false} tickLine={false} />
+              <Tooltip cursor={{ stroke: "rgba(255,255,255,0.2)" }} content={<ChartTooltip isCurrency={selectedMetric.isCurrency} compareLabel={compareLabel} />} />
+              <Line type="monotone" dataKey="today" stroke="#ef4444" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="compare" stroke="#7f1d1d" strokeWidth={2} dot={false} />
+            </LineChart>
+          </ResponsiveContainer>
+        </div>
+      );
+    }
+    // chart (default)
+    return (
+      <div className="h-64 w-full">
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }} barGap={2}>
+            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
+            <XAxis dataKey="hourLabel" tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} interval={2} axisLine={false} tickLine={false} />
+            <YAxis tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} axisLine={false} tickLine={false} />
+            <Tooltip cursor={{ fill: "rgba(255,255,255,0.06)" }} content={<ChartTooltip isCurrency={selectedMetric.isCurrency} compareLabel={compareLabel} />} />
+            <Bar dataKey="today" fill="#ef4444" radius={[3, 3, 0, 0]} maxBarSize={14} />
+            <Bar dataKey="compare" fill="#7f1d1d" radius={[3, 3, 0, 0]} maxBarSize={14} />
+          </ComposedChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  };
 
   return (
     <div className="h-full w-full flex flex-col px-6 pt-6 pb-6 overflow-hidden">
@@ -205,13 +442,29 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
           {/* LEFT: chart card */}
           <div className="flex-1 min-w-0 rounded-2xl p-5" style={cardStyle}>
             <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xl font-bold text-foreground">Today</h3>
-              <button
-                className="w-9 h-9 rounded-full bg-white/[0.06] hover:bg-white/[0.1] flex items-center justify-center transition-colors"
-                aria-label="View chart options"
-              >
-                <BarChart3 className="w-4 h-4 text-foreground" />
-              </button>
+              <h3 className="text-xl font-bold text-foreground">{primaryLabel}</h3>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="w-9 h-9 rounded-full bg-white/[0.06] hover:bg-white/[0.1] flex items-center justify-center transition-colors outline-none ring-1 ring-white/10">
+                  {viewMode === "chart" && <BarChart3 className="w-4 h-4 text-foreground" />}
+                  {viewMode === "table" && <TableIcon className="w-4 h-4 text-foreground" />}
+                  {viewMode === "list" && <ListIcon className="w-4 h-4 text-foreground" />}
+                  {viewMode === "trend" && <TrendingUp className="w-4 h-4 text-foreground" />}
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-[#1c1c1e] border-white/10 min-w-[140px]">
+                  {[
+                    { v: "chart" as const, icon: BarChart3, label: "Chart" },
+                    { v: "table" as const, icon: TableIcon, label: "Table" },
+                    { v: "list" as const, icon: ListIcon, label: "List" },
+                    { v: "trend" as const, icon: TrendingUp, label: "Trend" },
+                  ].map((o) => (
+                    <DropdownMenuItem key={o.v} onClick={() => setViewMode(o.v)}
+                      className={cn("flex items-center justify-between gap-3 text-foreground/90 focus:bg-white/[0.06]", viewMode === o.v && "text-foreground")}>
+                      <span className="flex items-center gap-2"><o.icon className="w-4 h-4" />{o.label}</span>
+                      {viewMode === o.v && <span>✓</span>}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <div className="flex items-end gap-6 mb-4">
@@ -223,11 +476,8 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="bg-[#1c1c1e] border-white/10">
                     {METRIC_OPTIONS.map((opt) => (
-                      <DropdownMenuItem
-                        key={opt.key}
-                        onClick={() => setMetric(opt.key)}
-                        className={cn("text-foreground/90 focus:bg-white/[0.06]", metric === opt.key && "text-primary")}
-                      >
+                      <DropdownMenuItem key={opt.key} onClick={() => setMetric(opt.key)}
+                        className={cn("text-foreground/90 focus:bg-white/[0.06]", metric === opt.key && "text-primary")}>
                         {opt.label}
                       </DropdownMenuItem>
                     ))}
@@ -236,45 +486,24 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
                 <span className="text-3xl font-bold text-foreground tabular-nums">{formatMetricValue(todayValue)}</span>
               </div>
               <span className="text-sm text-muted-foreground/60 pb-1.5">vs</span>
-              {/* Compare date dropdown -> opens calendar */}
+              {/* Compare dropdown -> opens advanced filter */}
               <div className="flex flex-col">
-                <Popover open={calOpen} onOpenChange={setCalOpen}>
-                  <PopoverTrigger className="flex items-center gap-1 text-xs text-muted-foreground/70 mb-1.5 hover:text-foreground transition-colors outline-none">
-                    {compareLabel} <ChevronDown className="w-3 h-3" />
-                  </PopoverTrigger>
-                  <PopoverContent align="start" className="w-auto p-0 bg-[#1c1c1e] border-white/10">
-                    <Calendar
-                      mode="single"
-                      selected={compareDate}
-                      onSelect={(d) => { if (d) { const nd = new Date(d); nd.setHours(0, 0, 0, 0); setCompareDate(nd); setCalOpen(false); } }}
-                      initialFocus
-                      className={cn("p-3 pointer-events-auto")}
-                    />
-                  </PopoverContent>
-                </Popover>
+                <DateRangeFilter
+                  label={compareLabel}
+                  range={compareRange}
+                  onChange={setCompareRange}
+                  granularity={compareGran}
+                  onGranularityChange={setCompareGran}
+                />
                 <span className="text-3xl font-bold text-muted-foreground/60 tabular-nums">{formatMetricValue(compareValue)}</span>
               </div>
             </div>
 
-            <div className="h-64 w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <ComposedChart data={chartData} margin={{ top: 8, right: 8, left: -16, bottom: 0 }} barGap={2}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
-                  <XAxis dataKey="hourLabel" tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} interval={2} axisLine={false} tickLine={false} />
-                  <YAxis tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    contentStyle={{ background: "#1c1c1e", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 12, fontSize: 12 }}
-                    formatter={(v: any, n: any) => [selectedMetric.isCurrency ? fmtCur(Number(v)) : fmtNum(Number(v)), n === "today" ? "Today" : compareLabel]}
-                  />
-                  <Bar dataKey="today" fill="#ef4444" radius={[3, 3, 0, 0]} maxBarSize={14} />
-                  <Bar dataKey="compare" fill="#7f1d1d" radius={[3, 3, 0, 0]} maxBarSize={14} />
-                </ComposedChart>
-              </ResponsiveContainer>
-            </div>
+            {renderVisualization()}
           </div>
 
-          {/* RIGHT: recommendations panel, height matches chart */}
-          <div className="w-[380px] shrink-0 rounded-2xl flex flex-col" style={cardStyle}>
+          {/* RIGHT: recommendations panel */}
+          <div className="w-[340px] shrink-0 rounded-2xl flex flex-col" style={cardStyle}>
             {rightView === "recs" ? (
               <>
                 <div className="flex items-center gap-2 px-5 pt-5 pb-3 shrink-0">
@@ -287,11 +516,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
 
                 <div className="flex-1 overflow-y-auto scrollbar-hide px-5 pb-2 space-y-3 min-h-0">
                   {MOCK_RECS.slice(0, 3).map((rec) => (
-                    <button
-                      key={rec.id}
-                      onClick={() => { setRightView("chat"); ask(`Tell me more about: ${rec.text}`); }}
-                      className="w-full text-left group"
-                    >
+                    <button key={rec.id} onClick={() => { setRightView("chat"); ask(`Tell me more about: ${rec.text}`); }} className="w-full text-left group">
                       <div className="flex gap-2.5">
                         <span className={`w-1.5 h-1.5 rounded-full ${rec.dotColor} mt-2 shrink-0`} />
                         <div className="flex-1 min-w-0">
@@ -372,15 +597,26 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
           </div>
         </div>
 
-        {/* Row 2: 6 metric cards */}
-        <div className="grid grid-cols-3 lg:grid-cols-6 gap-3">
-          {dashboardMetrics.map((m) => (
-            <div key={m.label} className="rounded-xl px-4 py-3"
-              style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-              <div className="text-[11px] text-white/60 mb-2 leading-tight min-h-[28px]">{m.label}</div>
-              <div className="text-lg font-semibold text-foreground tabular-nums">{m.value}</div>
-            </div>
-          ))}
+        {/* Row 2: 6 metric cards (matches reference design) */}
+        <div className="grid grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-3">
+          {METRIC_CARDS.map((m) => {
+            const Icon = m.icon;
+            return (
+              <div key={m.label} className="rounded-2xl p-4" style={cardStyle}>
+                <div className="flex items-start justify-between mb-3">
+                  <span className="text-[12px] text-muted-foreground/80">{m.label}</span>
+                  <Icon className="w-4 h-4 text-muted-foreground/60" />
+                </div>
+                <div className="text-2xl font-bold text-foreground tabular-nums mb-2">{m.value}</div>
+                <div className="flex items-center gap-2 mb-1.5">
+                  <span className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 bg-emerald-500/15 border border-emerald-500/25 px-2 py-0.5 rounded-full">
+                    <TrendingUp className="w-3 h-3" /> {m.delta}
+                  </span>
+                </div>
+                <p className="text-[11px] text-muted-foreground/70 leading-snug">{m.caption}</p>
+              </div>
+            );
+          })}
         </div>
 
         {/* Row 3: Breakdown Report */}
@@ -388,25 +624,33 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
           <h3 className="text-xl font-bold text-foreground">Breakdown Report</h3>
           <p className="text-xs text-muted-foreground/70 mt-1 mb-4">Detailed breakdown of key metrics with visual comparison charts</p>
 
-          <div className="flex items-center gap-2 mb-4">
-            <button className="flex items-center gap-2 text-xs text-foreground bg-white/[0.04] border border-white/10 rounded-full px-3 py-1.5">
-              <CalendarIcon className="w-3.5 h-3.5" />
-              {format(start, "MMM d, yyyy")}
-              <ChevronDown className="w-3 h-3" />
-            </button>
-            <span className="text-xs text-muted-foreground">vs</span>
-            <button className="flex items-center gap-2 text-xs text-foreground bg-white/[0.04] border border-white/10 rounded-full px-3 py-1.5">
-              <CalendarIcon className="w-3.5 h-3.5" />
-              {format(compareDate, "MMM d, yyyy")}
-              <ChevronDown className="w-3 h-3" />
-            </button>
+          <div className="flex items-center gap-3 mb-4">
+            <div className="flex flex-col">
+              <DateRangeFilter
+                label={bdRange.quick !== "Custom range" ? bdRange.quick : format(bdRange.start, "MMM d, yyyy")}
+                range={bdRange}
+                onChange={setBdRange}
+                granularity={bdGran}
+                onGranularityChange={setBdGran}
+              />
+            </div>
+            <span className="text-xs text-muted-foreground pb-1.5">vs</span>
+            <div className="flex flex-col">
+              <DateRangeFilter
+                label={bdCompare.quick !== "Custom range" ? bdCompare.quick : format(bdCompare.start, "MMM d, yyyy")}
+                range={bdCompare}
+                onChange={setBdCompare}
+                granularity={bdCompareGran}
+                onGranularityChange={setBdCompareGran}
+              />
+            </div>
           </div>
 
           <div className="overflow-hidden rounded-xl border border-white/[0.06]">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs text-muted-foreground/80">
-                  <th className="px-5 py-3 font-medium">Time</th>
+                  <th className="px-5 py-3 font-medium">{bdGran === "Hourly" ? "Time" : bdGran === "Daily" ? "Date" : "Week"}</th>
                   <th className="px-5 py-3 font-medium text-right">Net Sales</th>
                   <th className="px-5 py-3 font-medium text-right">Labour Cost</th>
                   <th className="px-5 py-3 font-medium text-right">Labour %</th>

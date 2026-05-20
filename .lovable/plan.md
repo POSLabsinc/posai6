@@ -1,91 +1,94 @@
-# Plan: POS AI 6.0 Knowledge & Retrospective Document
+# Update AI-Based Notification Section
 
-## Deliverable
-A single file written to `/mnt/documents/POS-AI-6-Knowledge-Base.md` (delivered as a `<presentation-artifact>`), exported as a project-specific, brutally honest retrospective. No code in the repo will be modified.
+**Target file:** `src/components/settings/SalesInsightDetailView.tsx` (the view rendered for AI-category notifications such as "Sales Pace" in `NotificationsListContent.tsx`).
 
-## Document structure
+## New layout
 
-1. **Purpose & how to use this doc** — one short paragraph; this is the operating manual for any AI session working on POS AI 6.0.
+Replace the current single-column stack (chart + KPI strip + Reasons + Suggestions + Weak/Top + inline chat + chips + composer) with a two-column layout:
 
-2. **Non-negotiable Core Rules (cheat sheet)** — one-page summary mirroring `mem://index.md` Core: terminology (Product, Point of Sale, PAID), Montserrat, 14px root, Liquid Glass dark-default, `--surface 220 15% 11%`, `SHARED_DEVICE_ID = "shared"`, `dbId` for DB ops, no scrollbars, 1–2 taps, explicit X close icons, save-on-back, lowest-credit approach.
+```text
++---------------------------------------------+-----------------------+
+| LEFT (flex-1)                               | RIGHT (380px panel)   |
+|                                             |                       |
+| [ Today card ]                              | Recommendations  (n)  |
+|   - "Today" title + small chart icon        | -------------------   |
+|   - Net Sales vs Yesterday header           | • Peak hour ...       |
+|   - Hourly bars chart (kept from current)   |   [Staffing] Today    |
+|                                             | • Tacos trending ...  |
+| [ Metrics row ] (mirrors Dashboard home)    |   [Menu] Today        |
+|   Total Sale | Total Tip | Total Hours |    | • Labor cost ...      |
+|   Ordering | Ready to Serve | Completed     |   [Labor] Tomorrow    |
+|                                             | -------------------   |
+|                                             | View all 8 recs >     |
++---------------------------------------------+-----------------------+
+```
 
-3. **Brutally honest retrospective — what I got wrong**
-   Each entry uses: **What went wrong → Root cause → Rule for the future**.
-   - Screen Mode icons saga (took 5+ turns to match Account screen)
-     - Cause: edited sizing without first reading `SettingsIcon.tsx` to learn the canonical pattern (`bgColor`, rounded-[0.55rem], internal sizing).
-     - Rule: when user says "match X screen," read X's component before touching Y.
-   - Re-using `<img>` with ad-hoc Tailwind sizes instead of the shared `SettingsIcon` component.
-     - Rule: search for an existing primitive before inventing classes.
-   - Treating "consistency" as a guess instead of a measurement (kept tweaking `w-4.5 → w-5` blindly).
-     - Rule: open both source files side-by-side; copy the exact JSX, do not approximate.
-   - Removing dashes ("Self-Service Kiosk" → "Self Service Kiosk") only in some surfaces.
-     - Rule: terminology changes are global; grep the whole repo.
-   - Asset duplication risk (multiple `screen-mode-*.png` created across attempts).
-     - Rule: prefer overwriting via `code--copy` over creating versioned duplicates for icon assets.
+## Specific changes
 
-4. **POS AI 6.0 conventions that are easy to miss**
-   - `SettingsIcon` is the canonical settings row icon (bg `#525252`, rounded-[0.55rem]). Never roll your own wrapper.
-   - Account screen is the visual reference for all Settings list rows (icon size, gap-4, `text-lg font-medium text-foreground`).
-   - Settings background is `#131316`; panels `#252525`; hover `#1C1C1C`. Do not use Tailwind grays here.
-   - `dbId` ≠ truncated display id. DB ops always use `dbId`.
-   - `SHARED_DEVICE_ID = "shared"` for global tables (Live/Editor parity).
-   - Status tokens are uppercase: PAID (Emerald), UNPAID (Red), ORDERING (Yellow), ORDERED (Orange).
-   - Order numbers render as raw digits (no "#", no padding).
-   - Overlay z-index ladder: Closing Grace `z-[10001]`, Clock-In `z-[9999]` — respect the ladder.
-   - Save-on-back, not Save buttons. Back chevron commits silently.
-   - PIN lockout at 10 failed attempts, warn at 7 — only when "Lock After Failed Attempts" is enabled.
+1. **Remove from the view (no longer rendered):**
+   - The "Why sales are slow" reasons card.
+   - The "Actionable suggestions" card.
+   - The "Weak categories / Top performers" grid.
+   - The inline "Conversation" card.
+   - The suggestion chips row and bottom full-width composer.
+   - Any period filters present anywhere in this view (Today / Weekly / Monthly / Combined / By Location / Shift / Category). Force-fixed to Today; do not render filter pills.
 
-5. **Design system rules**
-   - Liquid Glass utilities only — no custom `bg-white/10` blur stacks.
-   - All colors HSL via semantic tokens in `index.css` / `tailwind.config.ts`. Never hardcode color classes (`text-white`, `bg-black`) in components.
-   - Montserrat is the only typeface. Root font 14px (rem math depends on this).
-   - Dialog standard: explicit X close icon, no chrome background behind it.
-   - Wheel pickers (Apple-style) for date/time everywhere in Settings.
-   - Sort icons on every TableHead via `expand-arrows.svg`.
+2. **Left column - Today chart card:**
+   - Header: "Today" + small chart icon button (top-right, no action beyond visual).
+   - Sub-header row: `Net Sales` (with caret) showing today's total, then `vs` and `Yesterday` (with caret) showing yesterday's total. Pull both from `useReportsData` (today range already in file; add yesterday range).
+   - Keep existing `ComposedChart` bars + baseline line (renamed to "Yesterday" series). Remove the dip annotation if it conflicts with the cleaner look; keep tooltip.
+   - Card style matches current glass card (`rgba(255,255,255,0.03)` + border).
 
-6. **Operational UX rules (POS-specific)**
-   - Max 6 KPI cards on dashboards. No charts on operational screens. No visible scrollbars.
-   - KPI display order (Rule 6) and attention priority (Rule 7) are independent and both apply.
-   - Orders/tables must always show: ID, status, product count, elapsed time.
-   - Clock-in CTA: future UI must read "Continue"; existing internal handlers like `handleEnterPOS` stay as-is.
-   - Mobile tickets: swipe vs tap disambiguation, 20px swipe threshold, single-open-item rule.
+3. **Left column - Metrics row (below chart):**
+   - Reuse Dashboard home semantics: Total Sale, Total Tip, Total Hours, Ordering, Ready to Serve, Completed.
+   - Respect Control Center visibility via `SettingsManager.getControlCenterSettings().dashboardMetrics` (same filter logic as `src/pages/Dashboard.tsx` lines 1242-1258).
+   - Render as a 6-up grid of compact KPI cards using the same token styling as Dashboard (rounded-2xl, surface, label uppercase tracking-wider, value `text-lg font-semibold`).
+   - Source values from `useReportsData` for the Today range (sales, tips proxy, orders by status). Where a value isn't available from reports data, fall back to 0 and add a TODO comment per the API-first rule.
 
-7. **Architecture & data**
-   - User roles in a separate `user_roles` table with `has_role` SECURITY DEFINER. Never on profiles.
-   - Validation triggers, not CHECK constraints, for time-based rules.
-   - Never edit `src/integrations/supabase/{client,types}.ts` or `.env`.
-   - Edge functions auto-deploy; don't tell users to deploy.
-   - Realtime requires `ALTER PUBLICATION supabase_realtime ADD TABLE …` plus matching RLS.
+4. **Right column - Recommendations panel:**
+   - New local component `RecommendationsPanel` rendered inside this file (no new file required; can be split into a sibling file `RecommendationsPanel.tsx` for clarity).
+   - Header: "Recommendations" + small bot icon, count badge.
+   - List of recommendation cards (data sourced from a typed array `Recommendation[]` derived from existing AI insights helpers - for now seed from `reasons`/`suggestions` already computed, mapped to `{ id, dotColor, text, category, when }`). Mark with a TODO to wire to a real `recommendations` endpoint later.
+   - Each row: colored bullet, two-line text, category pill (Staffing amber, Menu emerald, Labor blue, Finance red, Promo amber) with `When` label on the right.
+   - Footer button: `View all N recommendations ->`.
 
-8. **AI / Lovable AI Gateway rules**
-   - Default to Lovable AI Gateway models; pick the cheapest model that meets the bar (Rule 14, lowest-credit-first).
-   - Settings AI does not use the chat assistant — it talks to backend APIs directly and only manages settings.
-   - Conversational features are embedded in modals, not standalone pages.
+5. **Right-side AI Assistant chat:**
+   - Clicking `View all recommendations` swaps the right panel content to an "Ask Maya" chat view (no separate route, in-panel state toggle):
+     - Top: back chevron + "Ask Maya".
+     - Body: each recommendation rendered as a chat-style card; tapping one auto-sends "Tell me more about: <text>" to the existing `reports-ai` edge function (mode `ask`, context unchanged).
+     - Input pinned at bottom (reuse existing `ask()` and chat state already in this component).
+   - Clicking an individual recommendation row from the default list also opens the chat panel pre-seeded with that recommendation as the user message.
+   - Back chevron returns to the recommendations list; chat history is preserved per session.
 
-9. **Process rules for the AI agent (do/don't)**
-   - DO read the file before editing it. Always.
-   - DO grep for existing primitives (`SettingsIcon`, `NumericKeypad`, `DialogStandard`, etc.) before writing new ones.
-   - DO verify visual changes against the named reference screen, not from memory.
-   - DO update `mem://index.md` when conventions change.
-   - DON'T re-propose anything in `constraints/*` memory.
-   - DON'T introduce new color classes outside semantic tokens.
-   - DON'T create versioned asset filenames; overwrite the existing one.
-   - DON'T edit `auth`, `storage`, `realtime`, `supabase_functions`, `vault` schemas.
-   - DON'T add scrollbars, charts to operational screens, or more than 6 KPIs.
+6. **Terminology / standards:**
+   - Use "Product" not "Item" anywhere new text appears.
+   - No em dashes. Replace any with commas, "and", or rewrite.
+   - Use semantic tokens (`bg-surface`, `text-foreground`, `text-muted-foreground`) and the existing glass-card pattern; no raw hex except where already present in the file.
+   - Touch targets >= 44x44 on the recommendation rows and view-all button.
 
-10. **Known contradictions (resolved)**
-    - KPI ordering: Rule 6 (display) and Rule 7 (priority) are independent — both kept.
-    - "Continue" vs `handleEnterPOS`: rule applies to UI labels only; existing handler names stay.
+## Technical details
 
-11. **Glossary** — Product, Point of Sale, PAID, dbId, SettingsIcon, Liquid Glass, save-on-back, SHARED_DEVICE_ID, MPIN, Fire/Un-fire, Closing Grace Period, Cash Drop.
+- **State additions in `SalesInsightDetailView`:**
+  - `rightView: "recs" | "chat"`.
+  - `seedQuestion: string | null` to pre-fill chat when opening from a recommendation.
+- **Yesterday data:** extend `useReportsData` consumer by computing a second range (yesterday 00:00-23:59) and calling the hook twice, or memoizing a derived `yesterdayTotal` from `salesByDay`. Prefer the latter if `salesByDay` already covers it; otherwise call the hook a second time.
+- **Layout:** outer wrapper `flex gap-4 min-h-0`, left `flex-1 flex flex-col gap-4 min-w-0`, right `w-[380px] shrink-0 flex flex-col` with its own internal scroll. Remove the current `overflow-y-auto` on the shared inner scroll container; each column scrolls independently with `scrollbar-hide`.
+- **Recommendation typing:**
+  ```ts
+  interface Recommendation {
+    id: string;
+    text: string;
+    category: "Staffing" | "Menu" | "Labor" | "Finance" | "Promo";
+    when: string; // "Today" | "In 1 hour" | "Tomorrow" | "Urgent"
+    dotColor: string; // tailwind class
+  }
+  ```
+- **Edge function:** keep `supabase.functions.invoke("reports-ai", { body: { mode: "ask", question, context } })`. No backend changes.
+- **No other files touched** unless extracting `RecommendationsPanel.tsx`. `NotificationsListContent.tsx` continues to route AI sales notifications here.
 
-## Length & format
-- Markdown, ~600–900 lines, no emojis, code fences for tokens/snippets, tables for status colors and z-index ladder.
-- Self-contained — readable without access to the repo or `mem://`.
+## Verification
 
-## Out of scope
-- Universal AI/Lovable lessons (you chose project-specific only).
-- Any code changes to the repo.
-- Any changes to `mem://` memory files (this is a static export).
-
-After approval I will write the file in build mode and emit the `<presentation-artifact>` tag for download.
+- Open an AI sales notification: confirm left chart + Net Sales vs Yesterday + 6 KPI cards; right Recommendations panel; no chips, no inline conversation, no extra filter pills.
+- Click a recommendation: right panel switches to Ask Maya with that recommendation seeded; AI reply streams in.
+- Click "View all recommendations": right panel shows full list inside chat scaffold; tapping items asks the AI.
+- Back chevron returns to list; mobile (<768px) stacks columns (chart, metrics, recommendations) vertically.

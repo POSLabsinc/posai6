@@ -887,20 +887,23 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
               <thead>
                 <tr className="text-left text-xs text-muted-foreground/80">
                   <th className="px-5 py-3 font-medium">{bdGran === "Hourly" ? "Time" : bdGran === "Daily" ? "Date" : "Week"}</th>
-                  <th className="px-5 py-3 font-medium text-right">Net Sales</th>
-                  <th className="px-5 py-3 font-medium text-right">Labour Cost</th>
-                  <th className="px-5 py-3 font-medium text-right">Labour %</th>
+                  <th className="px-5 py-3 font-medium text-right">{cfg.breakdownColumns[0]}</th>
+                  <th className="px-5 py-3 font-medium text-right">{cfg.breakdownColumns[1]}</th>
+                  <th className="px-5 py-3 font-medium text-right">{cfg.breakdownColumns[2]}</th>
                 </tr>
               </thead>
               <tbody>
-                {pagedRows.map((r, i) => (
-                  <tr key={i} className="border-t border-white/[0.04]">
-                    <td className="px-5 py-3.5 text-foreground/90">{r.time}</td>
-                    <td className="px-5 py-3.5 text-right text-foreground/90 tabular-nums">{fmtCur(r.netSales)}</td>
-                    <td className="px-5 py-3.5 text-right text-foreground/90 tabular-nums">{fmtCur(r.labour)}</td>
-                    <td className="px-5 py-3.5 text-right text-foreground/90 tabular-nums">{r.labourPct === null ? "-" : r.labourPct.toFixed(2)}</td>
-                  </tr>
-                ))}
+                {pagedRows.map((r, i) => {
+                  const cells = cfg.breakdownRow(r.time, bdPage * PAGE_SIZE + i);
+                  return (
+                    <tr key={i} className="border-t border-white/[0.04]">
+                      <td className="px-5 py-3.5 text-foreground/90">{r.time}</td>
+                      <td className="px-5 py-3.5 text-right text-foreground/90 tabular-nums">{cells[0]}</td>
+                      <td className="px-5 py-3.5 text-right text-foreground/90 tabular-nums">{cells[1]}</td>
+                      <td className="px-5 py-3.5 text-right text-foreground/90 tabular-nums">{cells[2]}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

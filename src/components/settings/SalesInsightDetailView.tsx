@@ -16,6 +16,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import aiEIcon from "@/assets/icons/ai-e-icon.png";
 import { format, subDays, startOfWeek, startOfMonth, startOfYear, addMonths } from "date-fns";
 
 interface ChatMsg { role: "user" | "assistant"; content: string }
@@ -595,7 +596,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
             <div className="flex items-center gap-2 px-5 pt-5 pb-3 shrink-0">
               <h3 className="text-base font-bold text-foreground flex-1">Recommendations</h3>
               <div className="w-7 h-7 rounded-full bg-violet-500/15 flex items-center justify-center">
-                <Sparkles className="w-4 h-4 text-violet-400" />
+                <img src={aiEIcon} alt="AI" className="w-4 h-4 object-contain" />
               </div>
               <span className="text-sm font-semibold text-foreground tabular-nums">{MOCK_RECS.length}</span>
             </div>
@@ -611,12 +612,6 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
                         <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${CATEGORY_STYLES[rec.category]}`}>{rec.category}</span>
                         <span className="text-[11px] text-muted-foreground/70">{rec.when}</span>
                       </div>
-                      <button
-                        onClick={() => askMaya(rec)}
-                        className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 hover:bg-violet-500/25 transition-colors"
-                      >
-                        <Sparkles className="w-3 h-3" /> Ask Maya
-                      </button>
                     </div>
                   </div>
                   <div className="h-px bg-white/[0.06]" />
@@ -783,7 +778,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
                   <ChevronLeft className="w-5 h-5 text-foreground" />
                 </button>
                 <div className="w-8 h-8 rounded-full bg-violet-500/15 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-violet-400" />
+                  <img src={aiEIcon} alt="AI" className="w-4 h-4 object-contain" />
                 </div>
                 <h2 className="text-base font-bold text-foreground flex-1">Ask Maya</h2>
                 <button

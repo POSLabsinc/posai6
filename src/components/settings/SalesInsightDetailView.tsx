@@ -307,37 +307,57 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
   useEffect(() => { setBdPage(0); }, [bdGran, bdRange.start.getTime(), bdRange.end.getTime()]);
   const pagedRows = breakdownRows.slice(bdPage * PAGE_SIZE, bdPage * PAGE_SIZE + PAGE_SIZE);
 
-  // Right panel chat state
-  const [rightView, setRightView] = useState<"recs" | "chat">("recs");
-  const [messages, setMessages] = useState<ChatMsg[]>([
-    { role: "assistant", content: "Ask me anything about today's recommendations." },
-  ]);
-  const [input, setInput] = useState("");
-  const [busy, setBusy] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  // Ask Maya drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerView, setDrawerView] = useState<"list" | "detail">("list");
+  const [activeRec, setActiveRec] = useState<Recommendation | null>(null);
+  const [mayaAnswer, setMayaAnswer] = useState<string>("");
+  const [mayaLoading, setMayaLoading] = useState(false);
+  const [mayaError, setMayaError] = useState<string | null>(null);
+  const detailScrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, busy, rightView]);
-
-  const ask = async (q: string) => {
-    const question = q.trim();
-    if (!question || busy) return;
-    setMessages((m) => [...m, { role: "user", content: question }]);
-    setInput("");
-    setBusy(true);
+  const askMaya = async (rec: Recommendation) => {
+    setActiveRec(rec);
+    setDrawerView("detail");
+    setMayaAnswer("");
+    setMayaError(null);
+    setMayaLoading(true);
     try {
-      const context = { metric: selectedMetric.label, today: todayValue, compare: compareValue, recommendations: MOCK_RECS };
-      const { data: resp, error } = await supabase.functions.invoke("reports-ai", { body: { mode: "ask", question, context } });
+      const context = {
+        metric: selectedMetric.label,
+        today: todayValue,
+        compare: compareValue,
+        recommendation: rec,
+      };
+      const question =
+        `For the following POS alert, provide a concise actionable plan. ` +
+        `Use three clear sections with these exact markdown headings on their own line: ` +
+        `**Solution**, **Suggested Actions & Next Steps**, **Business Impact**. ` +
+        `Use short bullet points under each heading. Keep it under 180 words.\n\n` +
+        `Alert: "${rec.text}" (Category: ${rec.category}, When: ${rec.when}).`;
+      const { data: resp, error } = await supabase.functions.invoke("reports-ai", {
+        body: { mode: "ask", question, context },
+      });
       if (error) throw error;
-      const answer = (resp as any)?.answer || "I couldn't generate an answer from the visible data.";
-      setMessages((m) => [...m, { role: "assistant", content: answer }]);
-    } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "Sorry, I couldn't reach the analytics service right now." }]);
+      const answer = (resp as any)?.answer?.trim();
+      if (!answer) throw new Error("Empty response");
+      setMayaAnswer(answer);
+    } catch (e: any) {
+      setMayaError("Sorry, Maya couldn't generate a response right now. Please retry.");
     } finally {
-      setBusy(false);
+      setMayaLoading(false);
     }
   };
+
+  useEffect(() => {
+    detailScrollRef.current?.scrollTo({ top: 0 });
+  }, [activeRec?.id]);
+
+  const openDrawer = (view: "list" | "detail" = "list") => {
+    setDrawerView(view);
+    setDrawerOpen(true);
+  };
+
 
   const cardStyle = { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" } as const;
 

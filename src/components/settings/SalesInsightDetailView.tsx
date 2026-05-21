@@ -1147,4 +1147,115 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
 };
 
 
+// ---- Sortable Hourly Table ----
+type HourlyRow = { hourLabel: string; today: number; compare: number };
+const HourlyTable = ({
+  rows, compareLabel, formatMetricValue,
+}: {
+  rows: HourlyRow[];
+  compareLabel: string;
+  formatMetricValue: (v: number) => string;
+}) => {
+  type K = "time" | "today" | "compare";
+  const accessor = (r: HourlyRow, k: K) =>
+    k === "time" ? r.hourLabel : k === "today" ? r.today : r.compare;
+  const { sortedItems, sort, requestSort } = useSortableData<HourlyRow, K>(rows, accessor);
+  return (
+    <div className="h-64 overflow-y-auto scrollbar-hide rounded-xl border border-white/[0.06]">
+      <table className="w-full text-xs">
+        <thead className="sticky top-0 bg-[#1c1c1e]">
+          <tr className="text-muted-foreground/80">
+            <th className="px-3 py-2 font-medium text-left">
+              <SortableHeader label="Time" sortKey="time" sort={sort} onSort={requestSort} align="left" bold={false} />
+            </th>
+            <th className="px-3 py-2 font-medium text-center">
+              <SortableHeader label="Today" sortKey="today" sort={sort} onSort={requestSort} align="center" bold={false} />
+            </th>
+            <th className="px-3 py-2 font-medium text-right">
+              <SortableHeader label={compareLabel} sortKey="compare" sort={sort} onSort={requestSort} align="right" bold={false} />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedItems.map((r, i) => (
+            <tr key={i} className="border-t border-white/[0.04]">
+              <td className="px-3 py-2 text-left text-foreground/90">{r.hourLabel}</td>
+              <td className="px-3 py-2 text-center tabular-nums text-foreground/90">{formatMetricValue(r.today)}</td>
+              <td className="px-3 py-2 text-right tabular-nums text-muted-foreground/70">{formatMetricValue(r.compare)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
+// ---- Sortable Breakdown Table ----
+type BreakdownRowMeta = { time: string };
+const BreakdownTable = ({
+  firstLabel, columns, rows, getCells,
+}: {
+  firstLabel: string;
+  columns: [string, string, string];
+  rows: BreakdownRowMeta[];
+  getCells: (r: BreakdownRowMeta, i: number) => [string, string, string];
+}) => {
+  type K = "c0" | "c1" | "c2" | "c3";
+  const enriched = useMemo(
+    () => rows.map((r, i) => {
+      const cells = getCells(r, i);
+      const num = (s: string) => {
+        const n = parseFloat(String(s).replace(/[^0-9.\-]/g, ""));
+        return Number.isNaN(n) ? null : n;
+      };
+      return {
+        time: r.time,
+        c1: cells[0], c2: cells[1], c3: cells[2],
+        c1n: num(cells[0]), c2n: num(cells[1]), c3n: num(cells[2]),
+      };
+    }),
+    [rows, getCells],
+  );
+  type Row = typeof enriched[number];
+  const accessor = (r: Row, k: K) => {
+    if (k === "c0") return r.time;
+    if (k === "c1") return r.c1n ?? r.c1;
+    if (k === "c2") return r.c2n ?? r.c2;
+    return r.c3n ?? r.c3;
+  };
+  const { sortedItems, sort, requestSort } = useSortableData<Row, K>(enriched, accessor);
+  return (
+    <div className="overflow-hidden rounded-xl border border-white/[0.06]">
+      <table className="w-full text-sm">
+        <thead>
+          <tr className="text-xs text-muted-foreground/80">
+            <th className="px-5 py-3 font-medium text-left">
+              <SortableHeader label={firstLabel} sortKey="c0" sort={sort} onSort={requestSort} align="left" bold={false} />
+            </th>
+            <th className="px-5 py-3 font-medium text-center">
+              <SortableHeader label={columns[0]} sortKey="c1" sort={sort} onSort={requestSort} align="center" bold={false} />
+            </th>
+            <th className="px-5 py-3 font-medium text-center">
+              <SortableHeader label={columns[1]} sortKey="c2" sort={sort} onSort={requestSort} align="center" bold={false} />
+            </th>
+            <th className="px-5 py-3 font-medium text-right">
+              <SortableHeader label={columns[2]} sortKey="c3" sort={sort} onSort={requestSort} align="right" bold={false} />
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedItems.map((r, i) => (
+            <tr key={i} className="border-t border-white/[0.04]">
+              <td className="px-5 py-3.5 text-left text-foreground/90">{r.time}</td>
+              <td className="px-5 py-3.5 text-center text-foreground/90 tabular-nums">{r.c1}</td>
+              <td className="px-5 py-3.5 text-center text-foreground/90 tabular-nums">{r.c2}</td>
+              <td className="px-5 py-3.5 text-right text-foreground/90 tabular-nums">{r.c3}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+};
+
 export default SalesInsightDetailView;

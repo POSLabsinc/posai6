@@ -86,7 +86,7 @@ function buildHourly(metric: MetricKey) {
   });
 }
 
-const METRIC_CARDS = [
+const SALES_METRIC_CARDS = [
   { label: "Gross Sales", value: "$47,850.25", delta: "+7.1%", caption: "Total revenue before adjustments", icon: TrendingUp },
   { label: "Net Sales", value: "$45,280.50", delta: "+7.4%", caption: "Total revenue after discounts and refunds", icon: DollarSign },
   { label: "Average Order Value", value: "$38.75", delta: "+9.2%", caption: "Average amount spent per order", icon: ShoppingCart },
@@ -94,6 +94,205 @@ const METRIC_CARDS = [
   { label: "Revenue per Available Seat Hour", value: "$142.25", delta: "+3.8%", caption: "Revenue optimization metric for seating efficiency", icon: TrendingUp },
   { label: "Customer Count", value: "1,235", delta: "+4.0%", caption: "Total number of unique customers served", icon: Users },
 ];
+
+// ---- Per-module content (recommendations, KPI cards, breakdown) ----
+type MetricCard = { label: string; value: string; delta: string; caption: string; icon: any };
+interface ModuleConfig {
+  recommendations: Recommendation[];
+  metricCards: MetricCard[];
+  breakdownTitle: string;
+  breakdownSubtitle: string;
+  breakdownColumns: [string, string, string];
+  breakdownRow: (label: string, i: number) => [string, string, string];
+}
+
+const MODULE_CONFIGS: Record<string, ModuleConfig> = {
+  "live-sales-dashboard": {
+    recommendations: MOCK_RECS,
+    metricCards: SALES_METRIC_CARDS,
+    breakdownTitle: "Breakdown Report",
+    breakdownSubtitle: "Detailed breakdown of revenue and labour cost",
+    breakdownColumns: ["Net Sales", "Labour Cost", "Labour %"],
+    breakdownRow: (_l, i) => {
+      const v = 1200 + (i % 8) * 280;
+      const lab = v * 0.28;
+      return [fmtCur(v), fmtCur(lab), (28).toFixed(2)];
+    },
+  },
+  "menu-sync-dashboard": {
+    recommendations: [
+      { id: "m1", text: "Burger Buns at 12 units. Disable combo meals before dinner rush.", category: "Menu", when: "Urgent", dotColor: "bg-red-400" },
+      { id: "m2", text: "Truffle Pasta 86'd on POS. Hide from online ordering channels now.", category: "Menu", when: "Now", dotColor: "bg-emerald-400" },
+      { id: "m3", text: "Suggest Margherita Pizza as alternative for unavailable Quattro Formaggi.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
+      { id: "m4", text: "Kitchen ticket time on Ramen exceeds 18 min. Flag as delayed item.", category: "Menu", when: "Live", dotColor: "bg-amber-400" },
+      { id: "m5", text: "Salmon removed from menu yesterday still visible on UberEats. Resync.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
+      { id: "m6", text: "Oat Milk stock at 3 units. Pause oat milk modifier on beverages.", category: "Menu", when: "Today", dotColor: "bg-red-400" },
+      { id: "m7", text: "Lobster Roll availability synced across DoorDash, Grubhub, Direct.", category: "Menu", when: "Confirmed", dotColor: "bg-emerald-400" },
+      { id: "m8", text: "Seasonal menu rotation due Friday. Stage new items for review.", category: "Menu", when: "This week", dotColor: "bg-blue-400" },
+    ],
+    metricCards: [
+      { label: "86'd Products", value: "7", delta: "+2", caption: "Items currently marked unavailable", icon: ShoppingCart },
+      { label: "Low Stock Items", value: "12", delta: "+4", caption: "Below par level, needs replenishment", icon: TrendingUp },
+      { label: "Channels Synced", value: "5 / 5", delta: "100%", caption: "POS, Direct, UberEats, DoorDash, Grubhub", icon: Calculator },
+      { label: "Avg Sync Latency", value: "2.4s", delta: "-0.8s", caption: "Time to propagate availability changes", icon: DollarSign },
+      { label: "Delayed Kitchen Items", value: "3", delta: "+1", caption: "Tickets exceeding standard prep time", icon: Users },
+      { label: "Menu Updates Today", value: "14", delta: "+6", caption: "Add, remove, and availability changes", icon: TrendingUp },
+    ],
+    breakdownTitle: "Menu Availability Breakdown",
+    breakdownSubtitle: "Stock status and channel sync per product",
+    breakdownColumns: ["On Hand", "Channels Live", "Status"],
+    breakdownRow: (_l, i) => {
+      const stock = [12, 0, 6, 28, 3, 0, 45, 18][i % 8];
+      const channels = stock === 0 ? "0 / 5" : "5 / 5";
+      const status = stock === 0 ? "86'd" : stock < 10 ? "Low" : "In Stock";
+      return [String(stock), channels, status];
+    },
+  },
+  "upsell-prompts-dashboard": {
+    recommendations: [
+      { id: "u1", text: "Suggest garlic bread with pasta orders. 38% conversion last week.", category: "Promo", when: "Live", dotColor: "bg-amber-400" },
+      { id: "u2", text: "Tables of 4+ are 62% more likely to order sharing platters.", category: "Promo", when: "Now", dotColor: "bg-amber-400" },
+      { id: "u3", text: "Premium beverages convert best during 7-9 PM dinner rush.", category: "Promo", when: "Tonight", dotColor: "bg-amber-400" },
+      { id: "u4", text: "High-margin dessert: Tiramisu attach rate up 22% with espresso bundle.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
+      { id: "u5", text: "Add-on truffle fries on burgers add $4.50 to average ticket.", category: "Promo", when: "Live", dotColor: "bg-amber-400" },
+      { id: "u6", text: "Lunch hour: pair side salad with sandwich combo for +18% AOV.", category: "Promo", when: "Lunch", dotColor: "bg-amber-400" },
+      { id: "u7", text: "Wine pairing suggestions boost dinner ticket size by $12 average.", category: "Promo", when: "Dinner", dotColor: "bg-amber-400" },
+      { id: "u8", text: "Brunch tables convert 41% on mimosa upgrades. Prompt server.", category: "Promo", when: "Weekend", dotColor: "bg-amber-400" },
+    ],
+    metricCards: [
+      { label: "Upsell Acceptance Rate", value: "34.2%", delta: "+5.1%", caption: "Suggestions accepted by guests today", icon: TrendingUp },
+      { label: "Avg Ticket Lift", value: "$6.80", delta: "+$1.20", caption: "Incremental revenue per accepted upsell", icon: DollarSign },
+      { label: "Top Add-On", value: "Garlic Bread", delta: "128", caption: "Most-attached side product today", icon: ShoppingCart },
+      { label: "High-Margin Pushes", value: "47", delta: "+12", caption: "Premium item prompts fired", icon: Calculator },
+      { label: "Group Platter Conversion", value: "62%", delta: "+8%", caption: "Tables of 4+ ordering sharing items", icon: Users },
+      { label: "Peak Upsell Window", value: "7-9 PM", delta: "Dinner", caption: "Hour with highest conversion rate", icon: TrendingUp },
+    ],
+    breakdownTitle: "Upsell Opportunity Breakdown",
+    breakdownSubtitle: "Add-on performance and ticket lift by suggestion",
+    breakdownColumns: ["Prompts Fired", "Accepted", "Ticket Lift"],
+    breakdownRow: (_l, i) => {
+      const fired = 40 + (i % 6) * 12;
+      const accepted = Math.round(fired * 0.34);
+      return [String(fired), String(accepted), fmtCur(accepted * 6.8)];
+    },
+  },
+  "guest-personalisation-dashboard": {
+    recommendations: [
+      { id: "g1", text: "Sarah M. (returning) usually orders oat milk latte. Pre-suggest at order.", category: "Promo", when: "Live", dotColor: "bg-emerald-400" },
+      { id: "g2", text: "James P. has nut allergy on file. Avoid recommending pesto and baklava.", category: "Menu", when: "Urgent", dotColor: "bg-red-400" },
+      { id: "g3", text: "Loyalty member Anna R. has 850 points. Offer free dessert redemption.", category: "Promo", when: "Now", dotColor: "bg-emerald-400" },
+      { id: "g4", text: "Returning guest Tom W. prefers booth seating. Reserve table 7.", category: "Staffing", when: "Tonight", dotColor: "bg-amber-400" },
+      { id: "g5", text: "VIP guest dietary: vegan. Highlight plant-based specials at greeting.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
+      { id: "g6", text: "Frequent orderer Maria L. always adds avocado. Auto-include in suggestion.", category: "Menu", when: "Live", dotColor: "bg-emerald-400" },
+      { id: "g7", text: "Birthday flag: Daniel K. dines tonight. Notify manager for complimentary treat.", category: "Promo", when: "Tonight", dotColor: "bg-amber-400" },
+      { id: "g8", text: "Gluten-free preference detected for table 12. Show GF menu first.", category: "Menu", when: "Now", dotColor: "bg-emerald-400" },
+    ],
+    metricCards: [
+      { label: "Returning Guests Today", value: "84", delta: "+12", caption: "Recognised loyalty or order history", icon: Users },
+      { label: "Dietary Flags Active", value: "23", delta: "+5", caption: "Allergy and preference notes in service", icon: ShoppingCart },
+      { label: "Personalised Suggestions", value: "156", delta: "+34", caption: "Tailored prompts surfaced to staff", icon: TrendingUp },
+      { label: "Loyalty Redemptions", value: "18", delta: "+6", caption: "Reward points used in active sessions", icon: DollarSign },
+      { label: "Guest Satisfaction", value: "4.8 / 5", delta: "+0.2", caption: "Avg rating from personalised orders", icon: Calculator },
+      { label: "Repeat Visit Rate", value: "42%", delta: "+3.5%", caption: "Guests returning within 30 days", icon: TrendingUp },
+    ],
+    breakdownTitle: "Guest Insights Breakdown",
+    breakdownSubtitle: "Returning guest preferences, dietary notes, and loyalty status",
+    breakdownColumns: ["Visits", "Top Item", "Loyalty Pts"],
+    breakdownRow: (_l, i) => {
+      const visits = 4 + (i % 6) * 2;
+      const items = ["Oat Milk Latte", "Margherita Pizza", "Caesar Salad", "Truffle Fries", "Tiramisu", "House Burger", "Pad Thai", "Avocado Toast"];
+      const pts = 120 + (i % 8) * 95;
+      return [String(visits), items[i % items.length], String(pts)];
+    },
+  },
+  "inventory-dashboard": {
+    recommendations: [
+      { id: "i1", text: "Tomatoes below par. Reorder 40 lbs before tomorrow service.", category: "Menu", when: "Urgent", dotColor: "bg-red-400" },
+      { id: "i2", text: "Olive Oil usage 18% above forecast. Adjust replenishment cycle.", category: "Finance", when: "This week", dotColor: "bg-blue-400" },
+      { id: "i3", text: "Salmon will deplete in 2 days at current pace. Schedule order.", category: "Menu", when: "Tomorrow", dotColor: "bg-emerald-400" },
+      { id: "i4", text: "Cabernet wine variance 4.2%. Investigate possible over-pour.", category: "Finance", when: "Today", dotColor: "bg-red-400" },
+      { id: "i5", text: "Bread waste reduced 22% after par adjustment. Hold settings.", category: "Menu", when: "This week", dotColor: "bg-emerald-400" },
+      { id: "i6", text: "Cheese inventory healthy. No action needed.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
+      { id: "i7", text: "Spike in cleaning supply usage. Verify with FOH manager.", category: "Staffing", when: "Today", dotColor: "bg-amber-400" },
+      { id: "i8", text: "Auto-reorder triggered for napkins and straws.", category: "Menu", when: "Confirmed", dotColor: "bg-emerald-400" },
+    ],
+    metricCards: [
+      { label: "Items Below Par", value: "14", delta: "+3", caption: "Stock under reorder threshold", icon: ShoppingCart },
+      { label: "Forecast Stockouts", value: "5", delta: "+2", caption: "Predicted within 48 hours", icon: TrendingUp },
+      { label: "Auto-Reorders Queued", value: "9", delta: "+4", caption: "Pending vendor confirmation", icon: Calculator },
+      { label: "Inventory Value", value: "$28,420", delta: "-2.1%", caption: "Current on-hand at cost", icon: DollarSign },
+      { label: "Waste % Today", value: "3.2%", delta: "-0.6%", caption: "Spoilage as share of usage", icon: Users },
+      { label: "Variance vs COGS", value: "1.8%", delta: "+0.3%", caption: "Theoretical vs actual usage", icon: TrendingUp },
+    ],
+    breakdownTitle: "Stock Movement Breakdown",
+    breakdownSubtitle: "On-hand, usage, and reorder status by product",
+    breakdownColumns: ["On Hand", "Used", "Status"],
+    breakdownRow: (_l, i) => {
+      const onHand = [40, 12, 0, 88, 22, 6, 130, 4][i % 8];
+      const used = [18, 30, 24, 14, 8, 20, 32, 16][i % 8];
+      const status = onHand === 0 ? "Stockout" : onHand < 15 ? "Low" : "OK";
+      return [String(onHand), String(used), status];
+    },
+  },
+  "profit-dashboard": {
+    recommendations: [
+      { id: "p1", text: "Dinner shift refunds 38% above avg. Audit recent transactions.", category: "Finance", when: "Urgent", dotColor: "bg-red-400" },
+      { id: "p2", text: "Labour to sales ratio 32%. Trim one closing role for next shift.", category: "Labor", when: "Tonight", dotColor: "bg-blue-400" },
+      { id: "p3", text: "Cocktail program margin +4.2%. Promote signature drinks.", category: "Promo", when: "Live", dotColor: "bg-amber-400" },
+      { id: "p4", text: "Lunch service food cost spiked. Review portion control on entrees.", category: "Finance", when: "Today", dotColor: "bg-red-400" },
+      { id: "p5", text: "Net profit pacing $2,140 over plan. Maintain current execution.", category: "Finance", when: "Today", dotColor: "bg-emerald-400" },
+      { id: "p6", text: "Comp meals up 15%. Verify approvals with managers.", category: "Finance", when: "Today", dotColor: "bg-red-400" },
+      { id: "p7", text: "Tuesday margins consistently lowest. Test promo bundle.", category: "Promo", when: "Tuesday", dotColor: "bg-amber-400" },
+      { id: "p8", text: "Beverage attach drives margin. Brief servers pre-shift.", category: "Staffing", when: "Tomorrow", dotColor: "bg-amber-400" },
+    ],
+    metricCards: [
+      { label: "Gross Profit", value: "$18,640", delta: "+6.2%", caption: "Revenue less COGS today", icon: DollarSign },
+      { label: "Net Profit", value: "$9,820", delta: "+4.5%", caption: "After labour and overheads", icon: TrendingUp },
+      { label: "Profit Margin", value: "21.7%", delta: "+0.8%", caption: "Net profit as share of revenue", icon: Calculator },
+      { label: "Food Cost %", value: "29.4%", delta: "+0.6%", caption: "COGS share of sales", icon: ShoppingCart },
+      { label: "Labour Cost %", value: "28.2%", delta: "-0.4%", caption: "Wages share of sales", icon: Users },
+      { label: "Refunds & Comps", value: "$642", delta: "+18%", caption: "Flagged for anomaly review", icon: TrendingUp },
+    ],
+    breakdownTitle: "Profit Breakdown",
+    breakdownSubtitle: "Revenue, cost, and margin by period",
+    breakdownColumns: ["Revenue", "Cost", "Margin %"],
+    breakdownRow: (_l, i) => {
+      const rev = 1800 + (i % 8) * 320;
+      const cost = rev * 0.62;
+      const margin = ((rev - cost) / rev) * 100;
+      return [fmtCur(rev), fmtCur(cost), margin.toFixed(2)];
+    },
+  },
+  "forecasting-dashboard": {
+    recommendations: [
+      { id: "f1", text: "Dinner traffic predicted +18% tonight. Add 2 servers, 1 runner.", category: "Staffing", when: "Tonight", dotColor: "bg-amber-400" },
+      { id: "f2", text: "Lunch likely soft Wednesday. Cut one prep cook from schedule.", category: "Labor", when: "Wednesday", dotColor: "bg-blue-400" },
+      { id: "f3", text: "Weather impact: rain expected Friday. Boost delivery staffing.", category: "Staffing", when: "Friday", dotColor: "bg-amber-400" },
+      { id: "f4", text: "Forecast accuracy 94% last week. Apply same model this week.", category: "Labor", when: "This week", dotColor: "bg-blue-400" },
+      { id: "f5", text: "Brunch on Sunday tracking +25%. Pre-portion mimosa station.", category: "Menu", when: "Sunday", dotColor: "bg-emerald-400" },
+      { id: "f6", text: "Bartender coverage gap 9-10 PM Saturday. Move shift earlier.", category: "Staffing", when: "Saturday", dotColor: "bg-amber-400" },
+      { id: "f7", text: "Holiday week forecast loaded. Confirm PTO blackout dates.", category: "Labor", when: "Next month", dotColor: "bg-blue-400" },
+      { id: "f8", text: "Catering inquiry uptick. Reserve prep hours Thursday AM.", category: "Staffing", when: "Thursday", dotColor: "bg-amber-400" },
+    ],
+    metricCards: [
+      { label: "Forecast Accuracy", value: "94.2%", delta: "+1.4%", caption: "Predicted vs actual last 7 days", icon: TrendingUp },
+      { label: "Predicted Covers", value: "312", delta: "+18%", caption: "Expected guests tonight", icon: Users },
+      { label: "Recommended Staff", value: "14", delta: "+2", caption: "Optimal headcount for forecast", icon: ShoppingCart },
+      { label: "Coverage Gaps", value: "3", delta: "-1", caption: "Roles needing reassignment", icon: Calculator },
+      { label: "Projected Sales", value: "$48,900", delta: "+7.8%", caption: "Forecast revenue for next shift", icon: DollarSign },
+      { label: "Labour Target %", value: "27.5%", delta: "-0.5%", caption: "Optimal wage ratio per forecast", icon: TrendingUp },
+    ],
+    breakdownTitle: "Forecast Breakdown",
+    breakdownSubtitle: "Predicted covers, sales, and staffing by period",
+    breakdownColumns: ["Covers", "Sales Forecast", "Staff Needed"],
+    breakdownRow: (_l, i) => {
+      const covers = 35 + (i % 8) * 18;
+      const sales = covers * 38.5;
+      const staff = Math.max(3, Math.round(covers / 22));
+      return [String(covers), fmtCur(sales), String(staff)];
+    },
+  },
+};
 
 // ---- Custom Filter Popover (matches reference image) ----
 const QUICK_OPTIONS: QuickSelect[] = ["Today", "Yesterday", "Last 7 days", "This week", "This month", "Last month", "Last 3 months", "Year to date", "Custom range"];

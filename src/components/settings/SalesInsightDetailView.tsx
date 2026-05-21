@@ -989,31 +989,12 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
             </div>
           </div>
 
-          <div className="overflow-hidden rounded-xl border border-white/[0.06]">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-xs text-muted-foreground/80">
-                  <th className="px-5 py-3 font-medium">{bdGran === "Hourly" ? "Time" : bdGran === "Daily" ? "Date" : "Week"}</th>
-                  <th className="px-5 py-3 font-medium text-right">{cfg.breakdownColumns[0]}</th>
-                  <th className="px-5 py-3 font-medium text-right">{cfg.breakdownColumns[1]}</th>
-                  <th className="px-5 py-3 font-medium text-right">{cfg.breakdownColumns[2]}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pagedRows.map((r, i) => {
-                  const cells = cfg.breakdownRow(r.time, bdPage * PAGE_SIZE + i);
-                  return (
-                    <tr key={i} className="border-t border-white/[0.04]">
-                      <td className="px-5 py-3.5 text-foreground/90">{r.time}</td>
-                      <td className="px-5 py-3.5 text-right text-foreground/90 tabular-nums">{cells[0]}</td>
-                      <td className="px-5 py-3.5 text-right text-foreground/90 tabular-nums">{cells[1]}</td>
-                      <td className="px-5 py-3.5 text-right text-foreground/90 tabular-nums">{cells[2]}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <BreakdownTable
+            firstLabel={bdGran === "Hourly" ? "Time" : bdGran === "Daily" ? "Date" : "Week"}
+            columns={cfg.breakdownColumns}
+            rows={pagedRows}
+            getCells={(r, i) => cfg.breakdownRow(r.time, bdPage * PAGE_SIZE + i)}
+          />
 
           {totalPages > 1 && (
             <div className="flex items-center justify-center gap-1 mt-4">

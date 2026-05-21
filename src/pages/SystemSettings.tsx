@@ -64,8 +64,8 @@ const SystemSettings = () => {
           <h1 className="text-xl font-semibold text-foreground mb-2">System</h1>
           <p className="text-base text-neutral-400 leading-relaxed w-full">
             {showMore 
-              ? "These settings allow you to manage and personalize your Point of Sale environment while maintaining stable system performance and functionality. Configure essential controls and preferences to ensure smooth daily operations without impacting core system behavior."
-              : "These settings allow you to manage and personalize your Point of Sale environment while maintaining stable system performance and functionality."
+              ? "These settings allow you to manage and personalise your Point of Sale environment while maintaining stable system performance and functionality. Configure essential controls and preferences to ensure smooth daily operations without impacting core system behaviour."
+              : "These settings allow you to manage and personalise your Point of Sale environment while maintaining stable system performance and functionality."
             }
             <button 
               onClick={() => setShowMore(!showMore)} 

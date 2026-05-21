@@ -741,7 +741,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
                 <p className="text-base text-neutral-400 leading-relaxed w-full">
-                  Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
+                  Your complete guest management hub. Track dietary needs, allergies, favourite dishes, visit history, and spending patterns to deliver a truly personalised dining experience every time.
                 </p>
               </div>
             </>
@@ -1309,7 +1309,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
             </div>
             <h2 className="text-xl font-semibold text-foreground mb-2">Guest Book</h2>
             <p className="text-base text-neutral-400 leading-relaxed w-full">
-              Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
+              Your complete guest management hub. Track dietary needs, allergies, favourite dishes, visit history, and spending patterns to deliver a truly personalised dining experience every time.
             </p>
           </div>
         </div>

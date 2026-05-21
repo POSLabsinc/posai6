@@ -156,14 +156,14 @@ const MenuSettingsContent = ({
           <h2 className="text-xl font-semibold text-foreground mb-2">Menu</h2>
           <p className="text-base text-neutral-400 leading-relaxed w-full">
             {isExpanded ? <>
-                Menu Settings allow you to create, organize, control availability, and customize how your menu appears across different ordering channels such as Point of Sale, online ordering, and self-service kiosks.{" "}
+                Menu Settings allow you to create, organise, control availability, and customise how your menu appears across different ordering channels such as Point of Sale, online ordering, and self-service kiosks.{" "}
                 <button onClick={() => setIsExpanded(false)} className="hover:underline" style={{
               color: "#0088FF"
             }}>
                   Less
                 </button>
               </> : <>
-                Menu Settings allow you to create, organize, control availability, and customize how your menu appears across different ordering channels.{" "}
+                Menu Settings allow you to create, organise, control availability, and customise how your menu appears across different ordering channels.{" "}
                 <button onClick={() => setIsExpanded(true)} className="hover:underline" style={{
               color: "#0088FF"
             }}>

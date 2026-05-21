@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Send, Sparkles, BarChart3, ChevronDown, ChevronLeft, Loader2,
   Calendar as CalendarIcon, Table as TableIcon, List as ListIcon, TrendingUp,
-  ShoppingCart, DollarSign, Calculator, Users,
+  ShoppingCart, DollarSign, Calculator, Users, X, RotateCcw, Lightbulb,
+  ListChecks, Target,
 } from "lucide-react";
 import {
   ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
   LineChart, Line,
 } from "recharts";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import type { NotificationItem } from "@/hooks/useNotifications";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -245,6 +247,72 @@ const ChartTooltip = ({ active, payload, label, isCurrency, compareLabel }: any)
   );
 };
 
+// ---- Maya structured answer renderer ----
+const SECTION_META: { key: string; label: string; icon: any; tint: string }[] = [
+  { key: "solution", label: "Solution", icon: Lightbulb, tint: "text-amber-300 bg-amber-500/15 border-amber-500/30" },
+  { key: "actions", label: "Suggested Actions & Next Steps", icon: ListChecks, tint: "text-emerald-300 bg-emerald-500/15 border-emerald-500/30" },
+  { key: "impact", label: "Business Impact", icon: Target, tint: "text-violet-300 bg-violet-500/15 border-violet-500/30" },
+];
+
+function parseMayaSections(text: string) {
+  const lines = text.split(/\r?\n/);
+  const sections: Record<string, string[]> = { solution: [], actions: [], impact: [] };
+  let current: keyof typeof sections | null = null;
+  const headingMap: { re: RegExp; key: keyof typeof sections }[] = [
+    { re: /solution/i, key: "solution" },
+    { re: /action|next step/i, key: "actions" },
+    { re: /impact/i, key: "impact" },
+  ];
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+    const stripped = line.replace(/^[#*\-\d.\s]+/, "").replace(/\*+/g, "").trim();
+    const isHeading = /^[#*]{0,3}\s*\**\s*(solution|suggested actions|actions|next steps|business impact|impact)/i.test(line);
+    if (isHeading) {
+      const match = headingMap.find((m) => m.re.test(stripped));
+      if (match) { current = match.key; continue; }
+    }
+    const bullet = line.replace(/^[-*•]\s*/, "").replace(/^\d+\.\s*/, "").replace(/\*\*/g, "").trim();
+    if (current && bullet) sections[current].push(bullet);
+  }
+  // Fallback: if nothing parsed into sections, dump everything into solution
+  if (!sections.solution.length && !sections.actions.length && !sections.impact.length) {
+    sections.solution = text.split(/\r?\n/).map((l) => l.replace(/\*\*/g, "").trim()).filter(Boolean);
+  }
+  return sections;
+}
+
+const MayaAnswerCard = ({ answer }: { answer: string }) => {
+  const sections = parseMayaSections(answer);
+  return (
+    <div className="space-y-3">
+      {SECTION_META.map((s) => {
+        const items = sections[s.key];
+        if (!items?.length) return null;
+        const Icon = s.icon;
+        return (
+          <div key={s.key} className="rounded-2xl p-4 bg-white/[0.03] border border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-2.5">
+              <span className={`w-7 h-7 rounded-full flex items-center justify-center border ${s.tint}`}>
+                <Icon className="w-3.5 h-3.5" />
+              </span>
+              <h4 className="text-[13px] font-bold text-foreground">{s.label}</h4>
+            </div>
+            <ul className="space-y-1.5 pl-1">
+              {items.map((line, i) => (
+                <li key={i} className="flex gap-2 text-[12.5px] text-foreground/85 leading-relaxed">
+                  <span className="text-muted-foreground/60 mt-0.5">•</span>
+                  <span className="flex-1">{line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export const SalesInsightDetailView = ({ notification }: { notification: NotificationItem }) => {
   const today0 = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
   const todayEnd = useMemo(() => { const d = new Date(today0); d.setHours(23, 59, 59, 999); return d; }, [today0]);
@@ -305,37 +373,57 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
   useEffect(() => { setBdPage(0); }, [bdGran, bdRange.start.getTime(), bdRange.end.getTime()]);
   const pagedRows = breakdownRows.slice(bdPage * PAGE_SIZE, bdPage * PAGE_SIZE + PAGE_SIZE);
 
-  // Right panel chat state
-  const [rightView, setRightView] = useState<"recs" | "chat">("recs");
-  const [messages, setMessages] = useState<ChatMsg[]>([
-    { role: "assistant", content: "Ask me anything about today's recommendations." },
-  ]);
-  const [input, setInput] = useState("");
-  const [busy, setBusy] = useState(false);
-  const scrollRef = useRef<HTMLDivElement>(null);
+  // Ask Maya drawer state
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerView, setDrawerView] = useState<"list" | "detail">("list");
+  const [activeRec, setActiveRec] = useState<Recommendation | null>(null);
+  const [mayaAnswer, setMayaAnswer] = useState<string>("");
+  const [mayaLoading, setMayaLoading] = useState(false);
+  const [mayaError, setMayaError] = useState<string | null>(null);
+  const detailScrollRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
-  }, [messages, busy, rightView]);
-
-  const ask = async (q: string) => {
-    const question = q.trim();
-    if (!question || busy) return;
-    setMessages((m) => [...m, { role: "user", content: question }]);
-    setInput("");
-    setBusy(true);
+  const askMaya = async (rec: Recommendation) => {
+    setActiveRec(rec);
+    setDrawerView("detail");
+    setMayaAnswer("");
+    setMayaError(null);
+    setMayaLoading(true);
     try {
-      const context = { metric: selectedMetric.label, today: todayValue, compare: compareValue, recommendations: MOCK_RECS };
-      const { data: resp, error } = await supabase.functions.invoke("reports-ai", { body: { mode: "ask", question, context } });
+      const context = {
+        metric: selectedMetric.label,
+        today: todayValue,
+        compare: compareValue,
+        recommendation: rec,
+      };
+      const question =
+        `For the following POS alert, provide a concise actionable plan. ` +
+        `Use three clear sections with these exact markdown headings on their own line: ` +
+        `**Solution**, **Suggested Actions & Next Steps**, **Business Impact**. ` +
+        `Use short bullet points under each heading. Keep it under 180 words.\n\n` +
+        `Alert: "${rec.text}" (Category: ${rec.category}, When: ${rec.when}).`;
+      const { data: resp, error } = await supabase.functions.invoke("reports-ai", {
+        body: { mode: "ask", question, context },
+      });
       if (error) throw error;
-      const answer = (resp as any)?.answer || "I couldn't generate an answer from the visible data.";
-      setMessages((m) => [...m, { role: "assistant", content: answer }]);
-    } catch {
-      setMessages((m) => [...m, { role: "assistant", content: "Sorry, I couldn't reach the analytics service right now." }]);
+      const answer = (resp as any)?.answer?.trim();
+      if (!answer) throw new Error("Empty response");
+      setMayaAnswer(answer);
+    } catch (e: any) {
+      setMayaError("Sorry, Maya couldn't generate a response right now. Please retry.");
     } finally {
-      setBusy(false);
+      setMayaLoading(false);
     }
   };
+
+  useEffect(() => {
+    detailScrollRef.current?.scrollTo({ top: 0 });
+  }, [activeRec?.id]);
+
+  const openDrawer = (view: "list" | "detail" = "list") => {
+    setDrawerView(view);
+    setDrawerOpen(true);
+  };
+
 
   const cardStyle = { background: "rgba(255,255,255,0.03)", border: "1px solid rgba(255,255,255,0.06)" } as const;
 
@@ -504,98 +592,50 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
 
           {/* RIGHT: recommendations panel */}
           <div className="w-[340px] shrink-0 rounded-2xl flex flex-col" style={cardStyle}>
-            {rightView === "recs" ? (
-              <>
-                <div className="flex items-center gap-2 px-5 pt-5 pb-3 shrink-0">
-                  <h3 className="text-base font-bold text-foreground flex-1">Recommendations</h3>
-                  <div className="w-7 h-7 rounded-full bg-violet-500/15 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-violet-400" />
-                  </div>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">{MOCK_RECS.length}</span>
-                </div>
+            <div className="flex items-center gap-2 px-5 pt-5 pb-3 shrink-0">
+              <h3 className="text-base font-bold text-foreground flex-1">Recommendations</h3>
+              <div className="w-7 h-7 rounded-full bg-violet-500/15 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-violet-400" />
+              </div>
+              <span className="text-sm font-semibold text-foreground tabular-nums">{MOCK_RECS.length}</span>
+            </div>
 
-                <div className="flex-1 overflow-y-auto scrollbar-hide px-5 pb-2 space-y-3 min-h-0">
-                  {MOCK_RECS.slice(0, 3).map((rec) => (
-                    <button key={rec.id} onClick={() => { setRightView("chat"); ask(`Tell me more about: ${rec.text}`); }} className="w-full text-left group">
-                      <div className="flex gap-2.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${rec.dotColor} mt-2 shrink-0`} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] text-foreground/90 leading-relaxed mb-2 group-hover:text-foreground transition-colors">{rec.text}</p>
-                          <div className="flex items-center justify-between">
-                            <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${CATEGORY_STYLES[rec.category]}`}>{rec.category}</span>
-                            <span className="text-[11px] text-muted-foreground/70">{rec.when}</span>
-                          </div>
-                        </div>
+            <div className="flex-1 overflow-y-auto scrollbar-hide px-5 pb-2 space-y-3 min-h-0">
+              {MOCK_RECS.slice(0, 3).map((rec) => (
+                <div key={rec.id} className="space-y-2.5">
+                  <div className="flex gap-2.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${rec.dotColor} mt-2 shrink-0`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] text-foreground/90 leading-relaxed mb-2">{rec.text}</p>
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${CATEGORY_STYLES[rec.category]}`}>{rec.category}</span>
+                        <span className="text-[11px] text-muted-foreground/70">{rec.when}</span>
                       </div>
-                      <div className="h-px bg-white/[0.06] mt-3" />
-                    </button>
-                  ))}
-                </div>
-
-                <div className="px-5 pb-4 pt-1 shrink-0">
-                  <button onClick={() => setRightView("chat")} className="w-full flex items-center justify-between text-[13px] font-medium text-foreground/80 hover:text-foreground transition-colors">
-                    <span>View all {MOCK_RECS.length} recommendations</span>
-                    <span aria-hidden>→</span>
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex items-center gap-3 px-5 pt-5 pb-3 shrink-0 border-b border-white/[0.06]">
-                  <button onClick={() => setRightView("recs")} className="w-9 h-9 -ml-2 rounded-full hover:bg-white/[0.06] flex items-center justify-center transition-colors" aria-label="Back to recommendations">
-                    <ChevronLeft className="w-5 h-5 text-foreground" />
-                  </button>
-                  <h3 className="text-base font-bold text-foreground flex-1">Ask Maya</h3>
-                  <div className="w-7 h-7 rounded-full bg-violet-500/15 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-violet-400" />
-                  </div>
-                </div>
-
-                <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4 space-y-3 min-h-0">
-                  <div className="space-y-2">
-                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60 px-1">All recommendations</p>
-                    {MOCK_RECS.map((rec) => (
-                      <button key={rec.id} onClick={() => ask(`Tell me more about: ${rec.text}`)} disabled={busy}
-                        className="w-full text-left rounded-xl p-3 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.05] transition-colors disabled:opacity-50">
-                        <div className="flex gap-2.5">
-                          <span className={`w-1.5 h-1.5 rounded-full ${rec.dotColor} mt-1.5 shrink-0`} />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[12.5px] text-foreground/90 leading-relaxed mb-1.5">{rec.text}</p>
-                            <span className={`inline-block text-[10.5px] font-semibold px-2 py-0.5 rounded-full border ${CATEGORY_STYLES[rec.category]}`}>{rec.category}</span>
-                          </div>
-                        </div>
+                      <button
+                        onClick={() => askMaya(rec)}
+                        className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 hover:bg-violet-500/25 transition-colors"
+                      >
+                        <Sparkles className="w-3 h-3" /> Ask Maya
                       </button>
-                    ))}
+                    </div>
                   </div>
-
-                  {messages.slice(1).map((m, i) => (
-                    <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed whitespace-pre-wrap ${m.role === "user" ? "bg-primary/90 text-primary-foreground" : "bg-white/[0.04] text-foreground/90 border border-white/5"}`}>
-                        {m.content}
-                      </div>
-                    </div>
-                  ))}
-                  {busy && (
-                    <div className="flex justify-start">
-                      <div className="bg-white/[0.04] border border-white/5 rounded-2xl px-3.5 py-2.5">
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
-                      </div>
-                    </div>
-                  )}
+                  <div className="h-px bg-white/[0.06]" />
                 </div>
+              ))}
+            </div>
 
-                <form onSubmit={(e) => { e.preventDefault(); ask(input); }} className="relative shrink-0 p-3 border-t border-white/[0.06]">
-                  <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask Maya..."
-                    className="w-full bg-white/[0.04] border border-white/5 rounded-full pl-4 pr-12 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50" />
-                  <button type="submit" disabled={busy || !input.trim()} aria-label="Send"
-                    className="absolute right-5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 active:scale-95 transition-transform">
-                    <Send className="w-3.5 h-3.5" />
-                  </button>
-                </form>
-              </>
-            )}
+            <div className="px-5 pb-4 pt-1 shrink-0">
+              <button
+                onClick={() => openDrawer("list")}
+                className="w-full flex items-center justify-between text-[13px] font-medium text-foreground/80 hover:text-foreground transition-colors"
+              >
+                <span>View all {MOCK_RECS.length} recommendations</span>
+                <span aria-hidden>→</span>
+              </button>
+            </div>
           </div>
         </div>
+
 
         {/* Row 2: 6 metric cards (matches reference design) */}
         <div className="grid grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-3">
@@ -685,8 +725,139 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
           )}
         </div>
       </div>
+
+      {/* Ask Maya / All Recommendations Drawer */}
+      <Sheet open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <SheetContent
+          side="right"
+          className="w-full sm:max-w-[440px] p-0 bg-[#131316] border-l border-white/10 [&>button]:hidden flex flex-col"
+        >
+          {drawerView === "list" ? (
+            <>
+              <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-white/[0.06] shrink-0">
+                <div className="w-8 h-8 rounded-full bg-violet-500/15 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-violet-400" />
+                </div>
+                <h2 className="text-base font-bold text-foreground flex-1">All recommendations</h2>
+                <span className="text-sm font-semibold text-foreground tabular-nums">{MOCK_RECS.length}</span>
+                <button
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-8 h-8 rounded-full hover:bg-white/[0.08] flex items-center justify-center transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4 text-foreground" />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4 space-y-3">
+                {MOCK_RECS.map((rec) => (
+                  <div key={rec.id} className="rounded-2xl p-4 bg-white/[0.03] border border-white/[0.06]">
+                    <div className="flex gap-2.5 mb-3">
+                      <span className={`w-1.5 h-1.5 rounded-full ${rec.dotColor} mt-2 shrink-0`} />
+                      <p className="text-[13px] text-foreground/90 leading-relaxed flex-1">{rec.text}</p>
+                    </div>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${CATEGORY_STYLES[rec.category]}`}>
+                        {rec.category}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground/70">{rec.when}</span>
+                    </div>
+                    <button
+                      onClick={() => askMaya(rec)}
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 hover:bg-violet-500/25 transition-colors"
+                    >
+                      <Sparkles className="w-3.5 h-3.5" /> Ask Maya
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <>
+              <div className="flex items-center gap-2 px-5 pt-5 pb-4 border-b border-white/[0.06] shrink-0">
+                <button
+                  onClick={() => setDrawerView("list")}
+                  className="w-8 h-8 -ml-2 rounded-full hover:bg-white/[0.08] flex items-center justify-center transition-colors"
+                  aria-label="Back"
+                >
+                  <ChevronLeft className="w-5 h-5 text-foreground" />
+                </button>
+                <div className="w-8 h-8 rounded-full bg-violet-500/15 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4 text-violet-400" />
+                </div>
+                <h2 className="text-base font-bold text-foreground flex-1">Ask Maya</h2>
+                <button
+                  onClick={() => setDrawerOpen(false)}
+                  className="w-8 h-8 rounded-full hover:bg-white/[0.08] flex items-center justify-center transition-colors"
+                  aria-label="Close"
+                >
+                  <X className="w-4 h-4 text-foreground" />
+                </button>
+              </div>
+
+              <div ref={detailScrollRef} className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4 space-y-4">
+                {activeRec && (
+                  <div className="rounded-2xl p-4 bg-white/[0.03] border border-white/[0.06]">
+                    <div className="flex gap-2.5 mb-3">
+                      <span className={`w-1.5 h-1.5 rounded-full ${activeRec.dotColor} mt-2 shrink-0`} />
+                      <p className="text-[13px] text-foreground/90 leading-relaxed flex-1">{activeRec.text}</p>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${CATEGORY_STYLES[activeRec.category]}`}>
+                        {activeRec.category}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground/70">{activeRec.when}</span>
+                    </div>
+                  </div>
+                )}
+
+                {mayaLoading && (
+                  <div className="rounded-2xl p-5 bg-violet-500/10 border border-violet-500/20">
+                    <div className="flex items-center gap-2.5 text-violet-300">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="text-[13px] font-medium">Maya is analysing this alert...</span>
+                    </div>
+                    <div className="mt-4 space-y-2">
+                      <div className="h-2.5 rounded-full bg-white/[0.06] animate-pulse w-3/4" />
+                      <div className="h-2.5 rounded-full bg-white/[0.06] animate-pulse w-5/6" />
+                      <div className="h-2.5 rounded-full bg-white/[0.06] animate-pulse w-2/3" />
+                    </div>
+                  </div>
+                )}
+
+                {mayaError && !mayaLoading && (
+                  <div className="rounded-2xl p-4 bg-red-500/10 border border-red-500/20">
+                    <p className="text-[13px] text-red-300 mb-3">{mayaError}</p>
+                    <button
+                      onClick={() => activeRec && askMaya(activeRec)}
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-full bg-white/[0.06] text-foreground border border-white/10 hover:bg-white/[0.1] transition-colors"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" /> Retry
+                    </button>
+                  </div>
+                )}
+
+                {!mayaLoading && !mayaError && mayaAnswer && (
+                  <>
+                    <MayaAnswerCard answer={mayaAnswer} />
+                    <div className="flex items-center justify-end">
+                      <button
+                        onClick={() => activeRec && askMaya(activeRec)}
+                        className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-full bg-white/[0.06] text-foreground/90 border border-white/10 hover:bg-white/[0.1] transition-colors"
+                      >
+                        <RotateCcw className="w-3.5 h-3.5" /> Regenerate
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            </>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };
+
 
 export default SalesInsightDetailView;

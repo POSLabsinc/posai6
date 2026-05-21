@@ -2,12 +2,14 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Send, Sparkles, BarChart3, ChevronDown, ChevronLeft, Loader2,
   Calendar as CalendarIcon, Table as TableIcon, List as ListIcon, TrendingUp,
-  ShoppingCart, DollarSign, Calculator, Users,
+  ShoppingCart, DollarSign, Calculator, Users, X, RotateCcw, Lightbulb,
+  ListChecks, Target,
 } from "lucide-react";
 import {
   ResponsiveContainer, ComposedChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid,
   LineChart, Line,
 } from "recharts";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
 import { supabase } from "@/integrations/supabase/client";
 import type { NotificationItem } from "@/hooks/useNotifications";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";

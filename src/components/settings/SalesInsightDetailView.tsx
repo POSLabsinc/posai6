@@ -247,6 +247,72 @@ const ChartTooltip = ({ active, payload, label, isCurrency, compareLabel }: any)
   );
 };
 
+// ---- Maya structured answer renderer ----
+const SECTION_META: { key: string; label: string; icon: any; tint: string }[] = [
+  { key: "solution", label: "Solution", icon: Lightbulb, tint: "text-amber-300 bg-amber-500/15 border-amber-500/30" },
+  { key: "actions", label: "Suggested Actions & Next Steps", icon: ListChecks, tint: "text-emerald-300 bg-emerald-500/15 border-emerald-500/30" },
+  { key: "impact", label: "Business Impact", icon: Target, tint: "text-violet-300 bg-violet-500/15 border-violet-500/30" },
+];
+
+function parseMayaSections(text: string) {
+  const lines = text.split(/\r?\n/);
+  const sections: Record<string, string[]> = { solution: [], actions: [], impact: [] };
+  let current: keyof typeof sections | null = null;
+  const headingMap: { re: RegExp; key: keyof typeof sections }[] = [
+    { re: /solution/i, key: "solution" },
+    { re: /action|next step/i, key: "actions" },
+    { re: /impact/i, key: "impact" },
+  ];
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) continue;
+    const stripped = line.replace(/^[#*\-\d.\s]+/, "").replace(/\*+/g, "").trim();
+    const isHeading = /^[#*]{0,3}\s*\**\s*(solution|suggested actions|actions|next steps|business impact|impact)/i.test(line);
+    if (isHeading) {
+      const match = headingMap.find((m) => m.re.test(stripped));
+      if (match) { current = match.key; continue; }
+    }
+    const bullet = line.replace(/^[-*•]\s*/, "").replace(/^\d+\.\s*/, "").replace(/\*\*/g, "").trim();
+    if (current && bullet) sections[current].push(bullet);
+  }
+  // Fallback: if nothing parsed into sections, dump everything into solution
+  if (!sections.solution.length && !sections.actions.length && !sections.impact.length) {
+    sections.solution = text.split(/\r?\n/).map((l) => l.replace(/\*\*/g, "").trim()).filter(Boolean);
+  }
+  return sections;
+}
+
+const MayaAnswerCard = ({ answer }: { answer: string }) => {
+  const sections = parseMayaSections(answer);
+  return (
+    <div className="space-y-3">
+      {SECTION_META.map((s) => {
+        const items = sections[s.key];
+        if (!items?.length) return null;
+        const Icon = s.icon;
+        return (
+          <div key={s.key} className="rounded-2xl p-4 bg-white/[0.03] border border-white/[0.06]">
+            <div className="flex items-center gap-2 mb-2.5">
+              <span className={`w-7 h-7 rounded-full flex items-center justify-center border ${s.tint}`}>
+                <Icon className="w-3.5 h-3.5" />
+              </span>
+              <h4 className="text-[13px] font-bold text-foreground">{s.label}</h4>
+            </div>
+            <ul className="space-y-1.5 pl-1">
+              {items.map((line, i) => (
+                <li key={i} className="flex gap-2 text-[12.5px] text-foreground/85 leading-relaxed">
+                  <span className="text-muted-foreground/60 mt-0.5">•</span>
+                  <span className="flex-1">{line}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        );
+      })}
+    </div>
+  );
+};
+
 export const SalesInsightDetailView = ({ notification }: { notification: NotificationItem }) => {
   const today0 = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
   const todayEnd = useMemo(() => { const d = new Date(today0); d.setHours(23, 59, 59, 999); return d; }, [today0]);

@@ -17,6 +17,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import aiEIcon from "@/assets/icons/ai-e-icon.png";
+import { SortableHeader, useSortableData } from "@/components/settings/SortableHeader";
 import { format, subDays, startOfWeek, startOfMonth, startOfYear, addMonths } from "date-fns";
 
 interface ChatMsg { role: "user" | "assistant"; content: string }

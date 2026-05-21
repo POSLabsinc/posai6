@@ -655,16 +655,22 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
   const [compareRange, setCompareRange] = useState({ start: ystd, end: ystdEnd, quick: "Yesterday" as QuickSelect });
   const [compareGran, setCompareGran] = useState<Granularity>("Daily");
 
-  // Selected metric & view mode
-  const [metric, setMetric] = useState<MetricKey>("netSales");
+  // Selected metric & view mode (reset when module changes)
+  const [metric, setMetric] = useState<MetricKey>(cfg.metricOptions[0].key);
   const [viewMode, setViewMode] = useState<ViewMode>("chart");
-  const selectedMetric = METRIC_OPTIONS.find((m) => m.key === metric)!;
+  useEffect(() => { setMetric(cfg.metricOptions[0].key); }, [notification.id]);
+  const selectedMetric = cfg.metricOptions.find((m) => m.key === metric) ?? cfg.metricOptions[0];
+  const totals = cfg.metricTotals[selectedMetric.key] ?? { today: 0, compare: 0 };
 
   // Dummy chart data driven by metric
-  const chartData = useMemo(() => buildHourly(metric), [metric]);
-  const todayValue = METRIC_TOTALS[metric].today;
-  const compareValue = METRIC_TOTALS[metric].compare;
-  const formatMetricValue = (v: number) => selectedMetric.isCurrency ? fmtCur(v) : fmtNum(v);
+  const chartData = useMemo(() => buildHourly(totals, cfg.hourShape), [totals.today, totals.compare, cfg.hourShape]);
+  const todayValue = totals.today;
+  const compareValue = totals.compare;
+  const formatMetricValue = (v: number) => {
+    if (selectedMetric.isCurrency) return fmtCur(v);
+    const n = Number.isInteger(v) ? fmtNum(v) : v.toFixed(1);
+    return selectedMetric.suffix ? `${n}${selectedMetric.suffix}` : n;
+  };
 
   // Breakdown report (driven by selected granularity + range)
   const [bdRange, setBdRange] = useState({ start: today0, end: todayEnd, quick: "Today" as QuickSelect });
@@ -674,26 +680,17 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
 
   const breakdownRows = useMemo(() => {
     if (bdGran === "Hourly") {
-      return chartData.map((h) => {
-        const labour = h.today * 0.28;
-        return { time: h.hourLabel, netSales: h.today, labour, labourPct: h.today > 0 ? (labour / h.today) * 100 : null };
-      });
+      return chartData.map((h) => ({ time: h.hourLabel }));
     }
     if (bdGran === "Daily") {
       const days = Math.max(1, Math.round((bdRange.end.getTime() - bdRange.start.getTime()) / 86400000) + 1);
-      return Array.from({ length: Math.min(days, 31) }, (_, i) => {
-        const v = +(METRIC_TOTALS[metric].today * (0.7 + (i % 7) * 0.08)).toFixed(2);
-        const labour = v * 0.28;
-        return { time: format(new Date(bdRange.start.getTime() + i * 86400000), "MMM d"), netSales: v, labour, labourPct: v > 0 ? (labour / v) * 100 : null };
-      });
+      return Array.from({ length: Math.min(days, 31) }, (_, i) => ({
+        time: format(new Date(bdRange.start.getTime() + i * 86400000), "MMM d"),
+      }));
     }
-    // Weekly
-    return Array.from({ length: 8 }, (_, i) => {
-      const v = +(METRIC_TOTALS[metric].today * 7 * (0.85 + (i % 4) * 0.05)).toFixed(2);
-      const labour = v * 0.28;
-      return { time: `Week ${i + 1}`, netSales: v, labour, labourPct: v > 0 ? (labour / v) * 100 : null };
-    });
-  }, [bdGran, bdRange, chartData, metric]);
+    return Array.from({ length: 8 }, (_, i) => ({ time: `Week ${i + 1}` }));
+  }, [bdGran, bdRange, chartData]);
+
 
   const [bdPage, setBdPage] = useState(0);
   const PAGE_SIZE = 8;

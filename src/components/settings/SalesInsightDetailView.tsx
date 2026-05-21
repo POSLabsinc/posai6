@@ -97,7 +97,7 @@ const SALES_METRIC_CARDS = [
   { label: "Customer Count", value: "1,235", delta: "+4.0%", caption: "Total number of unique customers served", icon: Users },
 ];
 
-// ---- Per-module content (recommendations, KPI cards, breakdown) ----
+// ---- Per-module content (recommendations, KPI cards, breakdown, chart metrics) ----
 type MetricCard = { label: string; value: string; delta: string; caption: string; icon: any };
 interface ModuleConfig {
   recommendations: Recommendation[];
@@ -106,6 +106,12 @@ interface ModuleConfig {
   breakdownSubtitle: string;
   breakdownColumns: [string, string, string];
   breakdownRow: (label: string, i: number) => [string, string, string];
+  // Chart-specific
+  metricOptions: MetricOption[];
+  metricTotals: Record<string, { today: number; compare: number }>;
+  hourShape?: number[];
+  primaryColor: string; // hex for "today" series
+  compareColor: string; // hex for "compare" series
 }
 
 const MODULE_CONFIGS: Record<string, ModuleConfig> = {
@@ -120,6 +126,10 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const lab = v * 0.28;
       return [fmtCur(v), fmtCur(lab), (28).toFixed(2)];
     },
+    metricOptions: SALES_METRIC_OPTIONS,
+    metricTotals: SALES_METRIC_TOTALS,
+    primaryColor: "#ef4444",
+    compareColor: "#7f1d1d",
   },
   "menu-sync-dashboard": {
     recommendations: [
@@ -149,6 +159,25 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const status = stock === 0 ? "86'd" : stock < 10 ? "Low" : "In Stock";
       return [String(stock), channels, status];
     },
+    metricOptions: [
+      { key: "eightySixFreq", label: "86'd Item Frequency", isCurrency: false },
+      { key: "outOfStock", label: "Out-of-Stock Trends", isCurrency: false },
+      { key: "delayedPrep", label: "Delayed Prep Items", isCurrency: false },
+      { key: "availability", label: "Item Availability", isCurrency: false, suffix: "%" },
+      { key: "menuUpdates", label: "Menu Updates", isCurrency: false },
+      { key: "syncLatency", label: "Channel Sync Latency", isCurrency: false, suffix: "s" },
+    ],
+    metricTotals: {
+      eightySixFreq: { today: 38, compare: 24 },
+      outOfStock: { today: 21, compare: 16 },
+      delayedPrep: { today: 14, compare: 9 },
+      availability: { today: 96, compare: 92 },
+      menuUpdates: { today: 84, compare: 56 },
+      syncLatency: { today: 28, compare: 42 },
+    },
+    hourShape: HOUR_SHAPE_OPS,
+    primaryColor: "#10b981",
+    compareColor: "#064e3b",
   },
   "upsell-prompts-dashboard": {
     recommendations: [
@@ -177,6 +206,25 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const accepted = Math.round(fired * 0.34);
       return [String(fired), String(accepted), fmtCur(accepted * 6.8)];
     },
+    metricOptions: [
+      { key: "conversion", label: "Upsell Conversion Rate", isCurrency: false, suffix: "%" },
+      { key: "acceptedAddOns", label: "Accepted Add-Ons", isCurrency: false },
+      { key: "highMargin", label: "High-Margin Item Sales", isCurrency: true },
+      { key: "suggestedVsAccepted", label: "Suggested vs Accepted", isCurrency: false },
+      { key: "ticketLift", label: "Avg Ticket Lift", isCurrency: true },
+      { key: "promptsFired", label: "Prompts Fired", isCurrency: false },
+    ],
+    metricTotals: {
+      conversion: { today: 34.2, compare: 29.1 },
+      acceptedAddOns: { today: 412, compare: 348 },
+      highMargin: { today: 5840.25, compare: 4920.80 },
+      suggestedVsAccepted: { today: 1205, compare: 1098 },
+      ticketLift: { today: 6.80, compare: 5.60 },
+      promptsFired: { today: 1205, compare: 1098 },
+    },
+    hourShape: HOUR_SHAPE_OPS,
+    primaryColor: "#f59e0b",
+    compareColor: "#78350f",
   },
   "guest-personalisation-dashboard": {
     recommendations: [
@@ -206,6 +254,25 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const pts = 120 + (i % 8) * 95;
       return [String(visits), items[i % items.length], String(pts)];
     },
+    metricOptions: [
+      { key: "returningGuests", label: "Returning Guest Frequency", isCurrency: false },
+      { key: "favouriteItems", label: "Favourite Item Orders", isCurrency: false },
+      { key: "dietaryFlags", label: "Dietary Preferences", isCurrency: false },
+      { key: "loyaltyEngagement", label: "Loyalty Engagement", isCurrency: false },
+      { key: "personalisedAccept", label: "Personalised Acceptance", isCurrency: false, suffix: "%" },
+      { key: "repeatVisitRate", label: "Repeat Visit Rate", isCurrency: false, suffix: "%" },
+    ],
+    metricTotals: {
+      returningGuests: { today: 84, compare: 72 },
+      favouriteItems: { today: 218, compare: 184 },
+      dietaryFlags: { today: 23, compare: 18 },
+      loyaltyEngagement: { today: 156, compare: 122 },
+      personalisedAccept: { today: 68, compare: 61 },
+      repeatVisitRate: { today: 42, compare: 38.5 },
+    },
+    hourShape: HOUR_SHAPE_OPS,
+    primaryColor: "#a855f7",
+    compareColor: "#4c1d95",
   },
   "inventory-dashboard": {
     recommendations: [
@@ -235,6 +302,25 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const status = onHand === 0 ? "Stockout" : onHand < 15 ? "Low" : "OK";
       return [String(onHand), String(used), status];
     },
+    metricOptions: [
+      { key: "itemsBelowPar", label: "Items Below Par", isCurrency: false },
+      { key: "stockouts", label: "Forecast Stockouts", isCurrency: false },
+      { key: "autoReorders", label: "Auto-Reorders Queued", isCurrency: false },
+      { key: "inventoryValue", label: "Inventory Value", isCurrency: true },
+      { key: "wastePct", label: "Waste %", isCurrency: false, suffix: "%" },
+      { key: "variancePct", label: "Variance vs COGS", isCurrency: false, suffix: "%" },
+    ],
+    metricTotals: {
+      itemsBelowPar: { today: 14, compare: 11 },
+      stockouts: { today: 5, compare: 3 },
+      autoReorders: { today: 9, compare: 5 },
+      inventoryValue: { today: 28420, compare: 29030 },
+      wastePct: { today: 3.2, compare: 3.8 },
+      variancePct: { today: 1.8, compare: 1.5 },
+    },
+    hourShape: HOUR_SHAPE_OPS,
+    primaryColor: "#06b6d4",
+    compareColor: "#155e75",
   },
   "profit-dashboard": {
     recommendations: [
@@ -264,6 +350,24 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const margin = ((rev - cost) / rev) * 100;
       return [fmtCur(rev), fmtCur(cost), margin.toFixed(2)];
     },
+    metricOptions: [
+      { key: "grossProfit", label: "Gross Profit", isCurrency: true },
+      { key: "netProfit", label: "Net Profit", isCurrency: true },
+      { key: "profitMargin", label: "Profit Margin", isCurrency: false, suffix: "%" },
+      { key: "foodCostPct", label: "Food Cost %", isCurrency: false, suffix: "%" },
+      { key: "labourCostPct", label: "Labour Cost %", isCurrency: false, suffix: "%" },
+      { key: "refundsComps", label: "Refunds & Comps", isCurrency: true },
+    ],
+    metricTotals: {
+      grossProfit: { today: 18640, compare: 17550 },
+      netProfit: { today: 9820, compare: 9400 },
+      profitMargin: { today: 21.7, compare: 20.9 },
+      foodCostPct: { today: 29.4, compare: 28.8 },
+      labourCostPct: { today: 28.2, compare: 28.6 },
+      refundsComps: { today: 642, compare: 544 },
+    },
+    primaryColor: "#22c55e",
+    compareColor: "#14532d",
   },
   "forecasting-dashboard": {
     recommendations: [
@@ -293,8 +397,28 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const staff = Math.max(3, Math.round(covers / 22));
       return [String(covers), fmtCur(sales), String(staff)];
     },
+    metricOptions: [
+      { key: "predictedCovers", label: "Predicted Covers", isCurrency: false },
+      { key: "projectedSales", label: "Projected Sales", isCurrency: true },
+      { key: "recommendedStaff", label: "Recommended Staff", isCurrency: false },
+      { key: "coverageGaps", label: "Coverage Gaps", isCurrency: false },
+      { key: "forecastAccuracy", label: "Forecast Accuracy", isCurrency: false, suffix: "%" },
+      { key: "labourTargetPct", label: "Labour Target %", isCurrency: false, suffix: "%" },
+    ],
+    metricTotals: {
+      predictedCovers: { today: 312, compare: 264 },
+      projectedSales: { today: 48900, compare: 45360 },
+      recommendedStaff: { today: 14, compare: 12 },
+      coverageGaps: { today: 3, compare: 4 },
+      forecastAccuracy: { today: 94.2, compare: 92.8 },
+      labourTargetPct: { today: 27.5, compare: 28 },
+    },
+    hourShape: HOUR_SHAPE_OPS,
+    primaryColor: "#3b82f6",
+    compareColor: "#1e3a8a",
   },
 };
+
 
 // ---- Custom Filter Popover (matches reference image) ----
 const QUICK_OPTIONS: QuickSelect[] = ["Today", "Yesterday", "Last 7 days", "This week", "This month", "Last month", "Last 3 months", "Year to date", "Custom range"];

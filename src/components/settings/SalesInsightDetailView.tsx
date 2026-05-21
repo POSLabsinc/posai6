@@ -814,9 +814,9 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis dataKey="hourLabel" tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} interval={2} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} axisLine={false} tickLine={false} />
-              <Tooltip cursor={{ stroke: "rgba(255,255,255,0.2)" }} content={<ChartTooltip isCurrency={selectedMetric.isCurrency} compareLabel={compareLabel} />} />
-              <Line type="monotone" dataKey="today" stroke="#ef4444" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="compare" stroke="#7f1d1d" strokeWidth={2} dot={false} />
+              <Tooltip cursor={{ stroke: "rgba(255,255,255,0.2)" }} content={<ChartTooltip isCurrency={selectedMetric.isCurrency} suffix={selectedMetric.suffix} compareLabel={compareLabel} />} />
+              <Line type="monotone" dataKey="today" stroke={cfg.primaryColor} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="compare" stroke={cfg.compareColor} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>

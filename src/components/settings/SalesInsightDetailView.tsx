@@ -548,11 +548,15 @@ const DateRangeFilter = ({
 };
 
 // ---- Custom chart tooltip (white background) ----
-const ChartTooltip = ({ active, payload, label, isCurrency, compareLabel }: any) => {
+const ChartTooltip = ({ active, payload, label, isCurrency, suffix, compareLabel }: any) => {
   if (!active || !payload?.length) return null;
   const today = payload.find((p: any) => p.dataKey === "today")?.value ?? 0;
   const compare = payload.find((p: any) => p.dataKey === "compare")?.value ?? 0;
-  const fmt = (v: number) => isCurrency ? fmtCur(v) : fmtNum(v);
+  const fmt = (v: number) => {
+    if (isCurrency) return fmtCur(v);
+    const n = Number.isInteger(v) ? fmtNum(v) : Number(v).toFixed(1);
+    return suffix ? `${n}${suffix}` : n;
+  };
   return (
     <div className="bg-white text-black rounded-lg shadow-lg px-3 py-2 text-xs min-w-[150px]">
       <div className="font-semibold mb-1.5">{label}</div>

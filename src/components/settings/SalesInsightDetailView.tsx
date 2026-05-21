@@ -830,9 +830,9 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
             <XAxis dataKey="hourLabel" tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} interval={2} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} axisLine={false} tickLine={false} />
-            <Tooltip cursor={{ fill: "rgba(255,255,255,0.06)" }} content={<ChartTooltip isCurrency={selectedMetric.isCurrency} compareLabel={compareLabel} />} />
-            <Bar dataKey="today" fill="#ef4444" radius={[3, 3, 0, 0]} maxBarSize={14} />
-            <Bar dataKey="compare" fill="#7f1d1d" radius={[3, 3, 0, 0]} maxBarSize={14} />
+            <Tooltip cursor={{ fill: "rgba(255,255,255,0.06)" }} content={<ChartTooltip isCurrency={selectedMetric.isCurrency} suffix={selectedMetric.suffix} compareLabel={compareLabel} />} />
+            <Bar dataKey="today" fill={cfg.primaryColor} radius={[3, 3, 0, 0]} maxBarSize={14} />
+            <Bar dataKey="compare" fill={cfg.compareColor} radius={[3, 3, 0, 0]} maxBarSize={14} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>

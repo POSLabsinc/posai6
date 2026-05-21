@@ -43,8 +43,9 @@ const MOCK_RECS: Recommendation[] = [
   { id: "r8", text: "Dessert attach rate down 12%. Brief staff on suggestive selling.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
 ];
 
-type MetricKey = "netSales" | "grossSales" | "totalOrders" | "totalTransactions" | "totalRefunds" | "totalDiscounts";
-const METRIC_OPTIONS: { key: MetricKey; label: string; isCurrency: boolean }[] = [
+type MetricKey = string;
+interface MetricOption { key: string; label: string; isCurrency: boolean; suffix?: string }
+const SALES_METRIC_OPTIONS: MetricOption[] = [
   { key: "netSales", label: "Net Sales", isCurrency: true },
   { key: "grossSales", label: "Gross Sales", isCurrency: true },
   { key: "totalOrders", label: "Total Orders", isCurrency: false },
@@ -60,10 +61,12 @@ type QuickSelect = "Today" | "Yesterday" | "Last 7 days" | "This week" | "This m
 const fmtCur = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmtNum = (n: number) => n.toLocaleString();
 
-// ---- Dummy data generators (deterministic per metric + date) ----
+// ---- Dummy data generators ----
 const HOUR_SHAPE = [0.04, 0.02, 0.015, 0.012, 0.018, 0.025, 0.04, 0.06, 0.075, 0.08, 0.085, 0.095, 0.09, 0.07, 0.055, 0.06, 0.072, 0.105, 0.13, 0.105, 0.08, 0.06, 0.04, 0.02];
+// Service-time shape (lunch + dinner peaks) for ops modules
+const HOUR_SHAPE_OPS = [0.005, 0.005, 0.005, 0.005, 0.005, 0.01, 0.02, 0.035, 0.05, 0.06, 0.07, 0.095, 0.11, 0.08, 0.045, 0.04, 0.05, 0.08, 0.11, 0.095, 0.065, 0.04, 0.02, 0.01];
 
-const METRIC_TOTALS: Record<MetricKey, { today: number; compare: number }> = {
+const SALES_METRIC_TOTALS: Record<string, { today: number; compare: number }> = {
   netSales: { today: 45280.50, compare: 42178.30 },
   grossSales: { today: 47850.25, compare: 44680.75 },
   totalOrders: { today: 1235, compare: 1168 },
@@ -72,16 +75,15 @@ const METRIC_TOTALS: Record<MetricKey, { today: number; compare: number }> = {
   totalDiscounts: { today: 1864.20, compare: 1742.55 },
 };
 
-function buildHourly(metric: MetricKey) {
-  const t = METRIC_TOTALS[metric];
+function buildHourly(totals: { today: number; compare: number }, shape: number[] = HOUR_SHAPE) {
   return Array.from({ length: 24 }, (_, i) => {
     const suf = i < 12 ? "AM" : "PM";
     const h12 = i % 12 === 0 ? 12 : i % 12;
     return {
       hourLabel: `${h12}${suf}`,
       hour: i,
-      today: +(t.today * HOUR_SHAPE[i]).toFixed(2),
-      compare: +(t.compare * HOUR_SHAPE[(i + 23) % 24]).toFixed(2),
+      today: +(totals.today * shape[i]).toFixed(2),
+      compare: +(totals.compare * shape[(i + 23) % 24]).toFixed(2),
     };
   });
 }
@@ -95,7 +97,7 @@ const SALES_METRIC_CARDS = [
   { label: "Customer Count", value: "1,235", delta: "+4.0%", caption: "Total number of unique customers served", icon: Users },
 ];
 
-// ---- Per-module content (recommendations, KPI cards, breakdown) ----
+// ---- Per-module content (recommendations, KPI cards, breakdown, chart metrics) ----
 type MetricCard = { label: string; value: string; delta: string; caption: string; icon: any };
 interface ModuleConfig {
   recommendations: Recommendation[];
@@ -104,6 +106,12 @@ interface ModuleConfig {
   breakdownSubtitle: string;
   breakdownColumns: [string, string, string];
   breakdownRow: (label: string, i: number) => [string, string, string];
+  // Chart-specific
+  metricOptions: MetricOption[];
+  metricTotals: Record<string, { today: number; compare: number }>;
+  hourShape?: number[];
+  primaryColor: string; // hex for "today" series
+  compareColor: string; // hex for "compare" series
 }
 
 const MODULE_CONFIGS: Record<string, ModuleConfig> = {
@@ -118,6 +126,10 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const lab = v * 0.28;
       return [fmtCur(v), fmtCur(lab), (28).toFixed(2)];
     },
+    metricOptions: SALES_METRIC_OPTIONS,
+    metricTotals: SALES_METRIC_TOTALS,
+    primaryColor: "#ef4444",
+    compareColor: "#7f1d1d",
   },
   "menu-sync-dashboard": {
     recommendations: [
@@ -147,6 +159,25 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const status = stock === 0 ? "86'd" : stock < 10 ? "Low" : "In Stock";
       return [String(stock), channels, status];
     },
+    metricOptions: [
+      { key: "eightySixFreq", label: "86'd Item Frequency", isCurrency: false },
+      { key: "outOfStock", label: "Out-of-Stock Trends", isCurrency: false },
+      { key: "delayedPrep", label: "Delayed Prep Items", isCurrency: false },
+      { key: "availability", label: "Item Availability", isCurrency: false, suffix: "%" },
+      { key: "menuUpdates", label: "Menu Updates", isCurrency: false },
+      { key: "syncLatency", label: "Channel Sync Latency", isCurrency: false, suffix: "s" },
+    ],
+    metricTotals: {
+      eightySixFreq: { today: 38, compare: 24 },
+      outOfStock: { today: 21, compare: 16 },
+      delayedPrep: { today: 14, compare: 9 },
+      availability: { today: 96, compare: 92 },
+      menuUpdates: { today: 84, compare: 56 },
+      syncLatency: { today: 28, compare: 42 },
+    },
+    hourShape: HOUR_SHAPE_OPS,
+    primaryColor: "#10b981",
+    compareColor: "#064e3b",
   },
   "upsell-prompts-dashboard": {
     recommendations: [
@@ -175,6 +206,25 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const accepted = Math.round(fired * 0.34);
       return [String(fired), String(accepted), fmtCur(accepted * 6.8)];
     },
+    metricOptions: [
+      { key: "conversion", label: "Upsell Conversion Rate", isCurrency: false, suffix: "%" },
+      { key: "acceptedAddOns", label: "Accepted Add-Ons", isCurrency: false },
+      { key: "highMargin", label: "High-Margin Item Sales", isCurrency: true },
+      { key: "suggestedVsAccepted", label: "Suggested vs Accepted", isCurrency: false },
+      { key: "ticketLift", label: "Avg Ticket Lift", isCurrency: true },
+      { key: "promptsFired", label: "Prompts Fired", isCurrency: false },
+    ],
+    metricTotals: {
+      conversion: { today: 34.2, compare: 29.1 },
+      acceptedAddOns: { today: 412, compare: 348 },
+      highMargin: { today: 5840.25, compare: 4920.80 },
+      suggestedVsAccepted: { today: 1205, compare: 1098 },
+      ticketLift: { today: 6.80, compare: 5.60 },
+      promptsFired: { today: 1205, compare: 1098 },
+    },
+    hourShape: HOUR_SHAPE_OPS,
+    primaryColor: "#f59e0b",
+    compareColor: "#78350f",
   },
   "guest-personalisation-dashboard": {
     recommendations: [
@@ -204,6 +254,25 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const pts = 120 + (i % 8) * 95;
       return [String(visits), items[i % items.length], String(pts)];
     },
+    metricOptions: [
+      { key: "returningGuests", label: "Returning Guest Frequency", isCurrency: false },
+      { key: "favouriteItems", label: "Favourite Item Orders", isCurrency: false },
+      { key: "dietaryFlags", label: "Dietary Preferences", isCurrency: false },
+      { key: "loyaltyEngagement", label: "Loyalty Engagement", isCurrency: false },
+      { key: "personalisedAccept", label: "Personalised Acceptance", isCurrency: false, suffix: "%" },
+      { key: "repeatVisitRate", label: "Repeat Visit Rate", isCurrency: false, suffix: "%" },
+    ],
+    metricTotals: {
+      returningGuests: { today: 84, compare: 72 },
+      favouriteItems: { today: 218, compare: 184 },
+      dietaryFlags: { today: 23, compare: 18 },
+      loyaltyEngagement: { today: 156, compare: 122 },
+      personalisedAccept: { today: 68, compare: 61 },
+      repeatVisitRate: { today: 42, compare: 38.5 },
+    },
+    hourShape: HOUR_SHAPE_OPS,
+    primaryColor: "#a855f7",
+    compareColor: "#4c1d95",
   },
   "inventory-dashboard": {
     recommendations: [
@@ -233,6 +302,25 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const status = onHand === 0 ? "Stockout" : onHand < 15 ? "Low" : "OK";
       return [String(onHand), String(used), status];
     },
+    metricOptions: [
+      { key: "itemsBelowPar", label: "Items Below Par", isCurrency: false },
+      { key: "stockouts", label: "Forecast Stockouts", isCurrency: false },
+      { key: "autoReorders", label: "Auto-Reorders Queued", isCurrency: false },
+      { key: "inventoryValue", label: "Inventory Value", isCurrency: true },
+      { key: "wastePct", label: "Waste %", isCurrency: false, suffix: "%" },
+      { key: "variancePct", label: "Variance vs COGS", isCurrency: false, suffix: "%" },
+    ],
+    metricTotals: {
+      itemsBelowPar: { today: 14, compare: 11 },
+      stockouts: { today: 5, compare: 3 },
+      autoReorders: { today: 9, compare: 5 },
+      inventoryValue: { today: 28420, compare: 29030 },
+      wastePct: { today: 3.2, compare: 3.8 },
+      variancePct: { today: 1.8, compare: 1.5 },
+    },
+    hourShape: HOUR_SHAPE_OPS,
+    primaryColor: "#06b6d4",
+    compareColor: "#155e75",
   },
   "profit-dashboard": {
     recommendations: [
@@ -262,6 +350,24 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const margin = ((rev - cost) / rev) * 100;
       return [fmtCur(rev), fmtCur(cost), margin.toFixed(2)];
     },
+    metricOptions: [
+      { key: "grossProfit", label: "Gross Profit", isCurrency: true },
+      { key: "netProfit", label: "Net Profit", isCurrency: true },
+      { key: "profitMargin", label: "Profit Margin", isCurrency: false, suffix: "%" },
+      { key: "foodCostPct", label: "Food Cost %", isCurrency: false, suffix: "%" },
+      { key: "labourCostPct", label: "Labour Cost %", isCurrency: false, suffix: "%" },
+      { key: "refundsComps", label: "Refunds & Comps", isCurrency: true },
+    ],
+    metricTotals: {
+      grossProfit: { today: 18640, compare: 17550 },
+      netProfit: { today: 9820, compare: 9400 },
+      profitMargin: { today: 21.7, compare: 20.9 },
+      foodCostPct: { today: 29.4, compare: 28.8 },
+      labourCostPct: { today: 28.2, compare: 28.6 },
+      refundsComps: { today: 642, compare: 544 },
+    },
+    primaryColor: "#22c55e",
+    compareColor: "#14532d",
   },
   "forecasting-dashboard": {
     recommendations: [
@@ -291,8 +397,28 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
       const staff = Math.max(3, Math.round(covers / 22));
       return [String(covers), fmtCur(sales), String(staff)];
     },
+    metricOptions: [
+      { key: "predictedCovers", label: "Predicted Covers", isCurrency: false },
+      { key: "projectedSales", label: "Projected Sales", isCurrency: true },
+      { key: "recommendedStaff", label: "Recommended Staff", isCurrency: false },
+      { key: "coverageGaps", label: "Coverage Gaps", isCurrency: false },
+      { key: "forecastAccuracy", label: "Forecast Accuracy", isCurrency: false, suffix: "%" },
+      { key: "labourTargetPct", label: "Labour Target %", isCurrency: false, suffix: "%" },
+    ],
+    metricTotals: {
+      predictedCovers: { today: 312, compare: 264 },
+      projectedSales: { today: 48900, compare: 45360 },
+      recommendedStaff: { today: 14, compare: 12 },
+      coverageGaps: { today: 3, compare: 4 },
+      forecastAccuracy: { today: 94.2, compare: 92.8 },
+      labourTargetPct: { today: 27.5, compare: 28 },
+    },
+    hourShape: HOUR_SHAPE_OPS,
+    primaryColor: "#3b82f6",
+    compareColor: "#1e3a8a",
   },
 };
+
 
 // ---- Custom Filter Popover (matches reference image) ----
 const QUICK_OPTIONS: QuickSelect[] = ["Today", "Yesterday", "Last 7 days", "This week", "This month", "Last month", "Last 3 months", "Year to date", "Custom range"];
@@ -422,11 +548,15 @@ const DateRangeFilter = ({
 };
 
 // ---- Custom chart tooltip (white background) ----
-const ChartTooltip = ({ active, payload, label, isCurrency, compareLabel }: any) => {
+const ChartTooltip = ({ active, payload, label, isCurrency, suffix, compareLabel }: any) => {
   if (!active || !payload?.length) return null;
   const today = payload.find((p: any) => p.dataKey === "today")?.value ?? 0;
   const compare = payload.find((p: any) => p.dataKey === "compare")?.value ?? 0;
-  const fmt = (v: number) => isCurrency ? fmtCur(v) : fmtNum(v);
+  const fmt = (v: number) => {
+    if (isCurrency) return fmtCur(v);
+    const n = Number.isInteger(v) ? fmtNum(v) : Number(v).toFixed(1);
+    return suffix ? `${n}${suffix}` : n;
+  };
   return (
     <div className="bg-white text-black rounded-lg shadow-lg px-3 py-2 text-xs min-w-[150px]">
       <div className="font-semibold mb-1.5">{label}</div>
@@ -529,16 +659,22 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
   const [compareRange, setCompareRange] = useState({ start: ystd, end: ystdEnd, quick: "Yesterday" as QuickSelect });
   const [compareGran, setCompareGran] = useState<Granularity>("Daily");
 
-  // Selected metric & view mode
-  const [metric, setMetric] = useState<MetricKey>("netSales");
+  // Selected metric & view mode (reset when module changes)
+  const [metric, setMetric] = useState<MetricKey>(cfg.metricOptions[0].key);
   const [viewMode, setViewMode] = useState<ViewMode>("chart");
-  const selectedMetric = METRIC_OPTIONS.find((m) => m.key === metric)!;
+  useEffect(() => { setMetric(cfg.metricOptions[0].key); }, [notification.id]);
+  const selectedMetric = cfg.metricOptions.find((m) => m.key === metric) ?? cfg.metricOptions[0];
+  const totals = cfg.metricTotals[selectedMetric.key] ?? { today: 0, compare: 0 };
 
   // Dummy chart data driven by metric
-  const chartData = useMemo(() => buildHourly(metric), [metric]);
-  const todayValue = METRIC_TOTALS[metric].today;
-  const compareValue = METRIC_TOTALS[metric].compare;
-  const formatMetricValue = (v: number) => selectedMetric.isCurrency ? fmtCur(v) : fmtNum(v);
+  const chartData = useMemo(() => buildHourly(totals, cfg.hourShape), [totals.today, totals.compare, cfg.hourShape]);
+  const todayValue = totals.today;
+  const compareValue = totals.compare;
+  const formatMetricValue = (v: number) => {
+    if (selectedMetric.isCurrency) return fmtCur(v);
+    const n = Number.isInteger(v) ? fmtNum(v) : v.toFixed(1);
+    return selectedMetric.suffix ? `${n}${selectedMetric.suffix}` : n;
+  };
 
   // Breakdown report (driven by selected granularity + range)
   const [bdRange, setBdRange] = useState({ start: today0, end: todayEnd, quick: "Today" as QuickSelect });
@@ -548,26 +684,17 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
 
   const breakdownRows = useMemo(() => {
     if (bdGran === "Hourly") {
-      return chartData.map((h) => {
-        const labour = h.today * 0.28;
-        return { time: h.hourLabel, netSales: h.today, labour, labourPct: h.today > 0 ? (labour / h.today) * 100 : null };
-      });
+      return chartData.map((h) => ({ time: h.hourLabel }));
     }
     if (bdGran === "Daily") {
       const days = Math.max(1, Math.round((bdRange.end.getTime() - bdRange.start.getTime()) / 86400000) + 1);
-      return Array.from({ length: Math.min(days, 31) }, (_, i) => {
-        const v = +(METRIC_TOTALS[metric].today * (0.7 + (i % 7) * 0.08)).toFixed(2);
-        const labour = v * 0.28;
-        return { time: format(new Date(bdRange.start.getTime() + i * 86400000), "MMM d"), netSales: v, labour, labourPct: v > 0 ? (labour / v) * 100 : null };
-      });
+      return Array.from({ length: Math.min(days, 31) }, (_, i) => ({
+        time: format(new Date(bdRange.start.getTime() + i * 86400000), "MMM d"),
+      }));
     }
-    // Weekly
-    return Array.from({ length: 8 }, (_, i) => {
-      const v = +(METRIC_TOTALS[metric].today * 7 * (0.85 + (i % 4) * 0.05)).toFixed(2);
-      const labour = v * 0.28;
-      return { time: `Week ${i + 1}`, netSales: v, labour, labourPct: v > 0 ? (labour / v) * 100 : null };
-    });
-  }, [bdGran, bdRange, chartData, metric]);
+    return Array.from({ length: 8 }, (_, i) => ({ time: `Week ${i + 1}` }));
+  }, [bdGran, bdRange, chartData]);
+
 
   const [bdPage, setBdPage] = useState(0);
   const PAGE_SIZE = 8;
@@ -671,7 +798,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
             <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] transition-colors">
               <span className="text-xs text-foreground/80 w-12">{r.hourLabel}</span>
               <div className="flex-1 mx-3 h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
-                <div className="h-full bg-red-500" style={{ width: `${Math.min(100, (r.today / Math.max(...chartData.map(d => d.today))) * 100)}%` }} />
+                <div className="h-full" style={{ backgroundColor: cfg.primaryColor, width: `${Math.min(100, (r.today / Math.max(...chartData.map(d => d.today))) * 100)}%` }} />
               </div>
               <span className="text-xs font-semibold tabular-nums text-foreground">{formatMetricValue(r.today)}</span>
             </div>
@@ -687,9 +814,9 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
               <XAxis dataKey="hourLabel" tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} interval={2} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} axisLine={false} tickLine={false} />
-              <Tooltip cursor={{ stroke: "rgba(255,255,255,0.2)" }} content={<ChartTooltip isCurrency={selectedMetric.isCurrency} compareLabel={compareLabel} />} />
-              <Line type="monotone" dataKey="today" stroke="#ef4444" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="compare" stroke="#7f1d1d" strokeWidth={2} dot={false} />
+              <Tooltip cursor={{ stroke: "rgba(255,255,255,0.2)" }} content={<ChartTooltip isCurrency={selectedMetric.isCurrency} suffix={selectedMetric.suffix} compareLabel={compareLabel} />} />
+              <Line type="monotone" dataKey="today" stroke={cfg.primaryColor} strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="compare" stroke={cfg.compareColor} strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -703,9 +830,9 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
             <XAxis dataKey="hourLabel" tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} interval={2} axisLine={false} tickLine={false} />
             <YAxis tick={{ fontSize: 10, fill: "rgba(255,255,255,0.5)" }} axisLine={false} tickLine={false} />
-            <Tooltip cursor={{ fill: "rgba(255,255,255,0.06)" }} content={<ChartTooltip isCurrency={selectedMetric.isCurrency} compareLabel={compareLabel} />} />
-            <Bar dataKey="today" fill="#ef4444" radius={[3, 3, 0, 0]} maxBarSize={14} />
-            <Bar dataKey="compare" fill="#7f1d1d" radius={[3, 3, 0, 0]} maxBarSize={14} />
+            <Tooltip cursor={{ fill: "rgba(255,255,255,0.06)" }} content={<ChartTooltip isCurrency={selectedMetric.isCurrency} suffix={selectedMetric.suffix} compareLabel={compareLabel} />} />
+            <Bar dataKey="today" fill={cfg.primaryColor} radius={[3, 3, 0, 0]} maxBarSize={14} />
+            <Bar dataKey="compare" fill={cfg.compareColor} radius={[3, 3, 0, 0]} maxBarSize={14} />
           </ComposedChart>
         </ResponsiveContainer>
       </div>
@@ -765,7 +892,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
                     {selectedMetric.label} <ChevronDown className="w-3 h-3" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="bg-[#1c1c1e] border-white/10">
-                    {METRIC_OPTIONS.map((opt) => (
+                    {cfg.metricOptions.map((opt) => (
                       <DropdownMenuItem key={opt.key} onClick={() => setMetric(opt.key)}
                         className={cn("text-foreground/90 focus:bg-white/[0.06]", metric === opt.key && "text-primary")}>
                         {opt.label}

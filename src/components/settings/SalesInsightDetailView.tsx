@@ -798,7 +798,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
             <div key={i} className="flex items-center justify-between px-3 py-2 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] transition-colors">
               <span className="text-xs text-foreground/80 w-12">{r.hourLabel}</span>
               <div className="flex-1 mx-3 h-1.5 bg-white/[0.04] rounded-full overflow-hidden">
-                <div className="h-full bg-red-500" style={{ width: `${Math.min(100, (r.today / Math.max(...chartData.map(d => d.today))) * 100)}%` }} />
+                <div className="h-full" style={{ backgroundColor: cfg.primaryColor, width: `${Math.min(100, (r.today / Math.max(...chartData.map(d => d.today))) * 100)}%` }} />
               </div>
               <span className="text-xs font-semibold tabular-nums text-foreground">{formatMetricValue(r.today)}</span>
             </div>

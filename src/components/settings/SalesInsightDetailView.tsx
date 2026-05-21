@@ -799,11 +799,11 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
               <div className="w-7 h-7 rounded-full bg-violet-500/15 flex items-center justify-center">
                 <img src={aiEIcon} alt="AI" className="w-4 h-4 object-contain" />
               </div>
-              <span className="text-sm font-semibold text-foreground tabular-nums">{MOCK_RECS.length}</span>
+              <span className="text-sm font-semibold text-foreground tabular-nums">{RECS.length}</span>
             </div>
 
             <div className="flex-1 overflow-y-auto scrollbar-hide px-5 pb-2 space-y-3 min-h-0">
-              {MOCK_RECS.slice(0, 3).map((rec) => (
+              {RECS.slice(0, 3).map((rec) => (
                 <div key={rec.id} className="space-y-2.5">
                   <div className="flex gap-2.5">
                     <span className={`w-1.5 h-1.5 rounded-full ${rec.dotColor} mt-2 shrink-0`} />
@@ -825,7 +825,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
                 onClick={() => openDrawer("list")}
                 className="w-full flex items-center justify-between text-[13px] font-medium text-foreground/80 hover:text-foreground transition-colors"
               >
-                <span>View all {MOCK_RECS.length} recommendations</span>
+                <span>View all {RECS.length} recommendations</span>
                 <span aria-hidden>→</span>
               </button>
             </div>
@@ -835,7 +835,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
 
         {/* Row 2: 6 metric cards (matches reference design) */}
         <div className="grid grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-3">
-          {METRIC_CARDS.map((m) => {
+          {cfg.metricCards.map((m) => {
             const Icon = m.icon;
             return (
               <div key={m.label} className="rounded-2xl p-4" style={cardStyle}>
@@ -935,7 +935,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
                   <img src={aiEIcon} alt="AI" className="w-4 h-4 object-contain" />
                 </div>
                 <h2 className="text-base font-bold text-foreground flex-1">All recommendations</h2>
-                <span className="text-sm font-semibold text-foreground tabular-nums">{MOCK_RECS.length}</span>
+                <span className="text-sm font-semibold text-foreground tabular-nums">{RECS.length}</span>
                 <button
                   onClick={() => setDrawerOpen(false)}
                   className="w-8 h-8 rounded-full hover:bg-white/[0.08] flex items-center justify-center transition-colors"
@@ -946,7 +946,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
               </div>
 
               <div className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4 space-y-3">
-                {MOCK_RECS.map((rec) => (
+                {RECS.map((rec) => (
                   <div key={rec.id} className="rounded-2xl p-4 bg-white/[0.03] border border-white/[0.06]">
                     <div className="flex gap-2.5 mb-3">
                       <span className={`w-1.5 h-1.5 rounded-full ${rec.dotColor} mt-2 shrink-0`} />

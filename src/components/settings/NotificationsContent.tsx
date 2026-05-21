@@ -151,7 +151,7 @@ const NotificationsContent = ({ showHeader = true, onBack, onNavigate, onAIClick
           </div>
           <h2 className="text-xl font-semibold text-foreground mb-2">Notifications</h2>
           <p className="text-base text-neutral-400 leading-relaxed w-full">
-            Manage how notifications are displayed and organized across the Point of Sale.
+            Manage how notifications are displayed and organised across the Point of Sale.
           </p>
         </div>
 

@@ -892,7 +892,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
                     {selectedMetric.label} <ChevronDown className="w-3 h-3" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="bg-[#1c1c1e] border-white/10">
-                    {METRIC_OPTIONS.map((opt) => (
+                    {cfg.metricOptions.map((opt) => (
                       <DropdownMenuItem key={opt.key} onClick={() => setMetric(opt.key)}
                         className={cn("text-foreground/90 focus:bg-white/[0.06]", metric === opt.key && "text-primary")}>
                         {opt.label}

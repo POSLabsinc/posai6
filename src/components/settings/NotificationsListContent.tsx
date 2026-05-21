@@ -202,10 +202,81 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
     category: "ai",
   }), []);
 
+  // Server-only synthetic notifications (visible to servers + managers/admin)
+  const menuSyncNotification: NotificationItem = useMemo(() => ({
+    id: "menu-sync-dashboard",
+    title: "Real-Time MenuSync",
+    preview: "86'd products disappear instantly, avoiding awkward callbacks.",
+    version: "Live",
+    version_date: "Today",
+    time: "Now",
+    headline: "Real-Time MenuSync",
+    body: "86'd products disappear instantly across all stations, avoiding awkward callbacks to the table.",
+    bullets: [],
+    footer: null,
+    has_update: false,
+    is_read: true,
+    created_at: new Date(Date.now() - 4000).toISOString(),
+    category: "ai",
+  }), []);
+
+  const guestPersonalisationNotification: NotificationItem = useMemo(() => ({
+    id: "guest-personalisation-dashboard",
+    title: "Guest Personalisation AI",
+    preview: "Surfaces returning guest preferences at the order stage, including usual orders and dietary flags.",
+    version: "Live",
+    version_date: "Today",
+    time: "Now",
+    headline: "Guest Personalisation AI",
+    body: "Surfaces returning guest preferences at the order stage, including usual orders and dietary flags.",
+    bullets: [],
+    footer: null,
+    has_update: false,
+    is_read: true,
+    created_at: new Date(Date.now() - 5000).toISOString(),
+    category: "ai",
+  }), []);
+
+  const upsellPromptsNotification: NotificationItem = useMemo(() => ({
+    id: "upsell-prompts-dashboard",
+    title: "AI Upsell Prompts",
+    preview: "Context-aware suggestions based on table size, time of day, and menu margins.",
+    version: "Live",
+    version_date: "Today",
+    time: "Now",
+    headline: "AI Upsell Prompts",
+    body: "Context-aware upsell suggestions based on table size, time of day, and menu margins.",
+    bullets: [],
+    footer: null,
+    has_update: false,
+    is_read: true,
+    created_at: new Date(Date.now() - 6000).toISOString(),
+    category: "ai",
+  }), []);
+
+  // Role-based visibility for synthetic AI dashboards.
+  // - Manager dashboards: visible to manager + other (owner/admin)
+  // - Server dashboards: visible to server + manager + other
+  // - Cook: sees neither set (existing role permissions still gate non-synthetic items)
+  const role = roleFilter.role;
+  const showManagerDashboards = role === "manager" || role === "other";
+  const showServerDashboards = role === "server" || role === "manager" || role === "other";
+
+  const syntheticAI: NotificationItem[] = useMemo(() => {
+    const list: NotificationItem[] = [];
+    if (showManagerDashboards) {
+      list.push(liveSalesNotification, inventoryNotification, profitNotification, forecastingNotification);
+    }
+    if (showServerDashboards) {
+      list.push(menuSyncNotification, guestPersonalisationNotification, upsellPromptsNotification);
+    }
+    return list;
+  }, [showManagerDashboards, showServerDashboards, liveSalesNotification, inventoryNotification, profitNotification, forecastingNotification, menuSyncNotification, guestPersonalisationNotification, upsellPromptsNotification]);
+
   // Apply role-based visibility before any other filtering. Re-runs when role/perms change.
   const notifications = useMemo(
-    () => [liveSalesNotification, inventoryNotification, profitNotification, forecastingNotification, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
-    [rawNotifications, roleFilter.role, roleFilter.permissions, liveSalesNotification, inventoryNotification, profitNotification, forecastingNotification]
+    () => [...syntheticAI, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
+    [rawNotifications, roleFilter.role, roleFilter.permissions, syntheticAI]
   );
 
   const totalUnread = useMemo(() => notifications.filter((n) => !n.is_read).length, [notifications]);

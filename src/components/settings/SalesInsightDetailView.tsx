@@ -1092,7 +1092,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
                       onClick={() => askMaya(rec)}
                       className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 hover:bg-violet-500/25 transition-colors"
                     >
-                      <Sparkles className="w-3.5 h-3.5" /> Ask Maya
+                      <img src={aiEIcon} alt="AI" className="w-3.5 h-3.5 object-contain" /> Ask Maya
                     </button>
                   </div>
                 ))}

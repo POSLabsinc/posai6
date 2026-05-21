@@ -43,8 +43,9 @@ const MOCK_RECS: Recommendation[] = [
   { id: "r8", text: "Dessert attach rate down 12%. Brief staff on suggestive selling.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
 ];
 
-type MetricKey = "netSales" | "grossSales" | "totalOrders" | "totalTransactions" | "totalRefunds" | "totalDiscounts";
-const METRIC_OPTIONS: { key: MetricKey; label: string; isCurrency: boolean }[] = [
+type MetricKey = string;
+interface MetricOption { key: string; label: string; isCurrency: boolean; suffix?: string }
+const SALES_METRIC_OPTIONS: MetricOption[] = [
   { key: "netSales", label: "Net Sales", isCurrency: true },
   { key: "grossSales", label: "Gross Sales", isCurrency: true },
   { key: "totalOrders", label: "Total Orders", isCurrency: false },
@@ -60,10 +61,12 @@ type QuickSelect = "Today" | "Yesterday" | "Last 7 days" | "This week" | "This m
 const fmtCur = (n: number) => `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const fmtNum = (n: number) => n.toLocaleString();
 
-// ---- Dummy data generators (deterministic per metric + date) ----
+// ---- Dummy data generators ----
 const HOUR_SHAPE = [0.04, 0.02, 0.015, 0.012, 0.018, 0.025, 0.04, 0.06, 0.075, 0.08, 0.085, 0.095, 0.09, 0.07, 0.055, 0.06, 0.072, 0.105, 0.13, 0.105, 0.08, 0.06, 0.04, 0.02];
+// Service-time shape (lunch + dinner peaks) for ops modules
+const HOUR_SHAPE_OPS = [0.005, 0.005, 0.005, 0.005, 0.005, 0.01, 0.02, 0.035, 0.05, 0.06, 0.07, 0.095, 0.11, 0.08, 0.045, 0.04, 0.05, 0.08, 0.11, 0.095, 0.065, 0.04, 0.02, 0.01];
 
-const METRIC_TOTALS: Record<MetricKey, { today: number; compare: number }> = {
+const SALES_METRIC_TOTALS: Record<string, { today: number; compare: number }> = {
   netSales: { today: 45280.50, compare: 42178.30 },
   grossSales: { today: 47850.25, compare: 44680.75 },
   totalOrders: { today: 1235, compare: 1168 },
@@ -72,16 +75,15 @@ const METRIC_TOTALS: Record<MetricKey, { today: number; compare: number }> = {
   totalDiscounts: { today: 1864.20, compare: 1742.55 },
 };
 
-function buildHourly(metric: MetricKey) {
-  const t = METRIC_TOTALS[metric];
+function buildHourly(totals: { today: number; compare: number }, shape: number[] = HOUR_SHAPE) {
   return Array.from({ length: 24 }, (_, i) => {
     const suf = i < 12 ? "AM" : "PM";
     const h12 = i % 12 === 0 ? 12 : i % 12;
     return {
       hourLabel: `${h12}${suf}`,
       hour: i,
-      today: +(t.today * HOUR_SHAPE[i]).toFixed(2),
-      compare: +(t.compare * HOUR_SHAPE[(i + 23) % 24]).toFixed(2),
+      today: +(totals.today * shape[i]).toFixed(2),
+      compare: +(totals.compare * shape[(i + 23) % 24]).toFixed(2),
     };
   });
 }

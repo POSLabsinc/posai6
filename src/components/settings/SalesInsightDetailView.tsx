@@ -731,7 +731,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
             <>
               <div className="flex items-center gap-3 px-5 pt-5 pb-4 border-b border-white/[0.06] shrink-0">
                 <div className="w-8 h-8 rounded-full bg-violet-500/15 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-violet-400" />
+                  <img src={aiEIcon} alt="AI" className="w-4 h-4 object-contain" />
                 </div>
                 <h2 className="text-base font-bold text-foreground flex-1">All recommendations</h2>
                 <span className="text-sm font-semibold text-foreground tabular-nums">{MOCK_RECS.length}</span>

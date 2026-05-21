@@ -1091,7 +1091,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
                     </div>
                     <button
                       onClick={() => askMaya(rec)}
-                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 hover:bg-violet-500/25 transition-colors"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-semibold px-3 py-1.5 rounded-full bg-white text-black border border-white/20 hover:bg-white/90 transition-colors"
                     >
                       <img src={aiEIcon} alt="AI" className="w-3.5 h-3.5 object-contain" /> Ask Maya
                     </button>

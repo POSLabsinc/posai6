@@ -769,28 +769,7 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
   // Render visualization based on viewMode
   const renderVisualization = () => {
     if (viewMode === "table") {
-      return (
-        <div className="h-64 overflow-y-auto scrollbar-hide rounded-xl border border-white/[0.06]">
-          <table className="w-full text-xs">
-            <thead className="sticky top-0 bg-[#1c1c1e]">
-              <tr className="text-left text-muted-foreground/80">
-                <th className="px-3 py-2 font-medium">Time</th>
-                <th className="px-3 py-2 font-medium text-right">Today</th>
-                <th className="px-3 py-2 font-medium text-right">{compareLabel}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {chartData.map((r, i) => (
-                <tr key={i} className="border-t border-white/[0.04]">
-                  <td className="px-3 py-2 text-foreground/90">{r.hourLabel}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-foreground/90">{formatMetricValue(r.today)}</td>
-                  <td className="px-3 py-2 text-right tabular-nums text-muted-foreground/70">{formatMetricValue(r.compare)}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      );
+      return <HourlyTable rows={chartData} compareLabel={compareLabel} formatMetricValue={formatMetricValue} />;
     }
     if (viewMode === "list") {
       return (

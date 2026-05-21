@@ -857,8 +857,8 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
 
         {/* Row 3: Breakdown Report */}
         <div className="rounded-2xl p-5" style={cardStyle}>
-          <h3 className="text-xl font-bold text-foreground">Breakdown Report</h3>
-          <p className="text-xs text-muted-foreground/70 mt-1 mb-4">Detailed breakdown of key metrics with visual comparison charts</p>
+          <h3 className="text-xl font-bold text-foreground">{cfg.breakdownTitle}</h3>
+          <p className="text-xs text-muted-foreground/70 mt-1 mb-4">{cfg.breakdownSubtitle}</p>
 
           <div className="flex items-center gap-3 mb-4">
             <div className="flex flex-col">

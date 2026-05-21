@@ -583,9 +583,17 @@ export const NotificationDetailView = ({ notification }: { notification: Notific
     return <WeatherInsightView notification={notification} />;
   }
 
-  // Live Sales Dashboard: route to new AI-Based Notification layout
-  // (left: chart + KPI metrics, right: Recommendations / Ask Maya chat)
+  // Live Sales Dashboard: route to AI-Based Notification layout
   if (notification.id === "live-sales-dashboard") {
+    return <SalesInsightDetailView notification={notification} />;
+  }
+
+  // Server dashboards: reuse the same chart + metrics + recommendations pattern
+  if (
+    notification.id === "menu-sync-dashboard" ||
+    notification.id === "guest-personalisation-dashboard" ||
+    notification.id === "upsell-prompts-dashboard"
+  ) {
     return <SalesInsightDetailView notification={notification} />;
   }
 

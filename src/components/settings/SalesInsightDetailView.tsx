@@ -514,6 +514,8 @@ const MayaAnswerCard = ({ answer }: { answer: string }) => {
 };
 
 export const SalesInsightDetailView = ({ notification }: { notification: NotificationItem }) => {
+  const cfg = MODULE_CONFIGS[notification.id] ?? MODULE_CONFIGS["live-sales-dashboard"];
+  const RECS = cfg.recommendations;
   const today0 = useMemo(() => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; }, []);
   const todayEnd = useMemo(() => { const d = new Date(today0); d.setHours(23, 59, 59, 999); return d; }, [today0]);
   const ystd = useMemo(() => subDays(today0, 1), [today0]);

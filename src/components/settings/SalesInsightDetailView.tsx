@@ -526,98 +526,50 @@ export const SalesInsightDetailView = ({ notification }: { notification: Notific
 
           {/* RIGHT: recommendations panel */}
           <div className="w-[340px] shrink-0 rounded-2xl flex flex-col" style={cardStyle}>
-            {rightView === "recs" ? (
-              <>
-                <div className="flex items-center gap-2 px-5 pt-5 pb-3 shrink-0">
-                  <h3 className="text-base font-bold text-foreground flex-1">Recommendations</h3>
-                  <div className="w-7 h-7 rounded-full bg-violet-500/15 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-violet-400" />
-                  </div>
-                  <span className="text-sm font-semibold text-foreground tabular-nums">{MOCK_RECS.length}</span>
-                </div>
+            <div className="flex items-center gap-2 px-5 pt-5 pb-3 shrink-0">
+              <h3 className="text-base font-bold text-foreground flex-1">Recommendations</h3>
+              <div className="w-7 h-7 rounded-full bg-violet-500/15 flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-violet-400" />
+              </div>
+              <span className="text-sm font-semibold text-foreground tabular-nums">{MOCK_RECS.length}</span>
+            </div>
 
-                <div className="flex-1 overflow-y-auto scrollbar-hide px-5 pb-2 space-y-3 min-h-0">
-                  {MOCK_RECS.slice(0, 3).map((rec) => (
-                    <button key={rec.id} onClick={() => { setRightView("chat"); ask(`Tell me more about: ${rec.text}`); }} className="w-full text-left group">
-                      <div className="flex gap-2.5">
-                        <span className={`w-1.5 h-1.5 rounded-full ${rec.dotColor} mt-2 shrink-0`} />
-                        <div className="flex-1 min-w-0">
-                          <p className="text-[13px] text-foreground/90 leading-relaxed mb-2 group-hover:text-foreground transition-colors">{rec.text}</p>
-                          <div className="flex items-center justify-between">
-                            <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${CATEGORY_STYLES[rec.category]}`}>{rec.category}</span>
-                            <span className="text-[11px] text-muted-foreground/70">{rec.when}</span>
-                          </div>
-                        </div>
+            <div className="flex-1 overflow-y-auto scrollbar-hide px-5 pb-2 space-y-3 min-h-0">
+              {MOCK_RECS.slice(0, 3).map((rec) => (
+                <div key={rec.id} className="space-y-2.5">
+                  <div className="flex gap-2.5">
+                    <span className={`w-1.5 h-1.5 rounded-full ${rec.dotColor} mt-2 shrink-0`} />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-[13px] text-foreground/90 leading-relaxed mb-2">{rec.text}</p>
+                      <div className="flex items-center justify-between">
+                        <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-full border ${CATEGORY_STYLES[rec.category]}`}>{rec.category}</span>
+                        <span className="text-[11px] text-muted-foreground/70">{rec.when}</span>
                       </div>
-                      <div className="h-px bg-white/[0.06] mt-3" />
-                    </button>
-                  ))}
-                </div>
-
-                <div className="px-5 pb-4 pt-1 shrink-0">
-                  <button onClick={() => setRightView("chat")} className="w-full flex items-center justify-between text-[13px] font-medium text-foreground/80 hover:text-foreground transition-colors">
-                    <span>View all {MOCK_RECS.length} recommendations</span>
-                    <span aria-hidden>→</span>
-                  </button>
-                </div>
-              </>
-            ) : (
-              <>
-                <div className="flex items-center gap-3 px-5 pt-5 pb-3 shrink-0 border-b border-white/[0.06]">
-                  <button onClick={() => setRightView("recs")} className="w-9 h-9 -ml-2 rounded-full hover:bg-white/[0.06] flex items-center justify-center transition-colors" aria-label="Back to recommendations">
-                    <ChevronLeft className="w-5 h-5 text-foreground" />
-                  </button>
-                  <h3 className="text-base font-bold text-foreground flex-1">Ask Maya</h3>
-                  <div className="w-7 h-7 rounded-full bg-violet-500/15 flex items-center justify-center">
-                    <Sparkles className="w-4 h-4 text-violet-400" />
-                  </div>
-                </div>
-
-                <div ref={scrollRef} className="flex-1 overflow-y-auto scrollbar-hide px-4 py-4 space-y-3 min-h-0">
-                  <div className="space-y-2">
-                    <p className="text-[11px] uppercase tracking-wider text-muted-foreground/60 px-1">All recommendations</p>
-                    {MOCK_RECS.map((rec) => (
-                      <button key={rec.id} onClick={() => ask(`Tell me more about: ${rec.text}`)} disabled={busy}
-                        className="w-full text-left rounded-xl p-3 bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.05] transition-colors disabled:opacity-50">
-                        <div className="flex gap-2.5">
-                          <span className={`w-1.5 h-1.5 rounded-full ${rec.dotColor} mt-1.5 shrink-0`} />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-[12.5px] text-foreground/90 leading-relaxed mb-1.5">{rec.text}</p>
-                            <span className={`inline-block text-[10.5px] font-semibold px-2 py-0.5 rounded-full border ${CATEGORY_STYLES[rec.category]}`}>{rec.category}</span>
-                          </div>
-                        </div>
+                      <button
+                        onClick={() => askMaya(rec)}
+                        className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-1 rounded-full bg-violet-500/15 text-violet-300 border border-violet-500/30 hover:bg-violet-500/25 transition-colors"
+                      >
+                        <Sparkles className="w-3 h-3" /> Ask Maya
                       </button>
-                    ))}
+                    </div>
                   </div>
-
-                  {messages.slice(1).map((m, i) => (
-                    <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-                      <div className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[13px] leading-relaxed whitespace-pre-wrap ${m.role === "user" ? "bg-primary/90 text-primary-foreground" : "bg-white/[0.04] text-foreground/90 border border-white/5"}`}>
-                        {m.content}
-                      </div>
-                    </div>
-                  ))}
-                  {busy && (
-                    <div className="flex justify-start">
-                      <div className="bg-white/[0.04] border border-white/5 rounded-2xl px-3.5 py-2.5">
-                        <Loader2 className="w-3.5 h-3.5 animate-spin text-muted-foreground" />
-                      </div>
-                    </div>
-                  )}
+                  <div className="h-px bg-white/[0.06]" />
                 </div>
+              ))}
+            </div>
 
-                <form onSubmit={(e) => { e.preventDefault(); ask(input); }} className="relative shrink-0 p-3 border-t border-white/[0.06]">
-                  <input value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask Maya..."
-                    className="w-full bg-white/[0.04] border border-white/5 rounded-full pl-4 pr-12 py-2.5 text-[13px] text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:border-primary/50" />
-                  <button type="submit" disabled={busy || !input.trim()} aria-label="Send"
-                    className="absolute right-5 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 active:scale-95 transition-transform">
-                    <Send className="w-3.5 h-3.5" />
-                  </button>
-                </form>
-              </>
-            )}
+            <div className="px-5 pb-4 pt-1 shrink-0">
+              <button
+                onClick={() => openDrawer("list")}
+                className="w-full flex items-center justify-between text-[13px] font-medium text-foreground/80 hover:text-foreground transition-colors"
+              >
+                <span>View all {MOCK_RECS.length} recommendations</span>
+                <span aria-hidden>→</span>
+              </button>
+            </div>
           </div>
         </div>
+
 
         {/* Row 2: 6 metric cards (matches reference design) */}
         <div className="grid grid-cols-3 lg:grid-cols-3 xl:grid-cols-3 gap-3">

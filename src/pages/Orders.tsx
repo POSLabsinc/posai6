@@ -757,10 +757,8 @@ const Orders = () => {
 
   // Filter order items based on seat filter (multi-select)
   const handleClearOrderAttempt = () => {
-    setCancelReason('');
-    setCustomCancelReason('');
-    setCancelWriteOffChoice(null);
-    setShowClearConfirm(true);
+    // Cancel directly without requiring a reason on the new order screen
+    handleClearOrder();
   };
 
   const handleClearOrder = (cancelReason?: string, writeOff: boolean = false) => {

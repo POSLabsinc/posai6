@@ -61,7 +61,7 @@ Deno.serve(async (req) => {
     const title = `${code.emoji} Weather, ${locationName}`;
     const preview = `${temp}°F, ${code.label}. ${impact}`;
 
-    await supabase.from("notifications").insert({
+    const payload = {
       title,
       preview,
       headline: title,
@@ -79,7 +79,30 @@ Deno.serve(async (req) => {
       version: "POS",
       version_date: dateLabel(),
       is_read: false,
-    });
+    };
+
+    // Keep ONE weather notification: update the latest, remove extras, or insert if none.
+    const { data: existing } = await supabase
+      .from("notifications")
+      .select("id")
+      .eq("category", "weather")
+      .order("created_at", { ascending: false });
+
+    if (existing && existing.length > 0) {
+      const [keep, ...extras] = existing;
+      await supabase
+        .from("notifications")
+        .update({ ...payload, created_at: new Date().toISOString() })
+        .eq("id", keep.id);
+      if (extras.length > 0) {
+        await supabase
+          .from("notifications")
+          .delete()
+          .in("id", extras.map((e: any) => e.id));
+      }
+    } else {
+      await supabase.from("notifications").insert(payload);
+    }
 
     return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {

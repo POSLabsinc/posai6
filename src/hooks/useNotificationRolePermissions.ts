@@ -16,7 +16,7 @@ export type RoleKey = "manager" | "cook" | "server" | "other";
 export const DEFAULT_ROLE_PERMISSIONS: Record<RoleKey, NotificationTopic[]> = {
   manager: ["sales", "weather", "price", "upsell", "kitchen", "operations"],
   cook: ["price", "kitchen"],
-  server: ["upsell", "weather"],
+  server: ["upsell"],
   other: ["sales", "weather", "price", "upsell", "kitchen", "operations"],
 };
 

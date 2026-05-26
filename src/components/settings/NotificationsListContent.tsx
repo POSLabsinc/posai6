@@ -12,7 +12,7 @@ import filterTeamIcon from "@/assets/icons/filter-team.png";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useNotifications, type NotificationItem, type NotificationGroup } from "@/hooks/useNotifications";
 import { useWeatherNotification } from "@/hooks/useWeatherNotification";
-import { useNotificationRolePermissions } from "@/hooks/useNotificationRolePermissions";
+import { useNotificationRolePermissions, classifyNotification } from "@/hooks/useNotificationRolePermissions";
 import { SalesInsightDetailView } from "@/components/settings/SalesInsightDetailView";
 import LiveSalesDashboard from "@/components/dashboards/LiveSalesDashboard";
 import InventoryDashboard from "@/components/dashboards/InventoryDashboard";

@@ -275,7 +275,21 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
 
   // Apply role-based visibility before any other filtering. Re-runs when role/perms change.
   const notifications = useMemo(
-    () => [...syntheticAI, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))],
+    () => {
+      const filtered = [...syntheticAI, ...rawNotifications.filter((n) => roleFilter.isAllowed(n))];
+      // For servers, collapse "upsell" topic notifications into a single most-recent entry
+      // (auto-updates over time instead of stacking dozens).
+      if (roleFilter.role === "server") {
+        let seenUpsell = false;
+        return filtered.filter((n) => {
+          if (classifyNotification(n) !== "upsell") return true;
+          if (seenUpsell) return false;
+          seenUpsell = true;
+          return true;
+        });
+      }
+      return filtered;
+    },
     [rawNotifications, roleFilter.role, roleFilter.permissions, syntheticAI]
   );
 

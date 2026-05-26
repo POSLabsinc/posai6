@@ -337,7 +337,7 @@ const OrdersD = () => {
                         addToCart(item);
                       }}
                       className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
-                      style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                      style={{ background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)' }}
                     >
                       <Plus className="w-4 h-4 text-white" strokeWidth={3} />
                     </button>
@@ -564,7 +564,7 @@ const OrdersD = () => {
                 )}
                 <button 
                   className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" 
-                  style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                  style={{ background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)' }}
                 >
                   <img src={fireIcon} alt="Fire" className="w-4 h-4" />
                   <span className="text-white font-semibold text-sm">FIRE</span>

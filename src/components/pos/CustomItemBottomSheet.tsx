@@ -207,7 +207,7 @@ const CustomItemBottomSheet: React.FC<CustomItemBottomSheetProps> = ({
                   className="w-full py-3.5 rounded-xl font-semibold text-white flex items-center justify-center gap-2 transition-all touch-manipulation disabled:opacity-40 disabled:cursor-not-allowed"
                   style={{
                     background: isValid
-                      ? "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
+                      ? "linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)"
                       : "#444",
                     minHeight: 48,
                   }}

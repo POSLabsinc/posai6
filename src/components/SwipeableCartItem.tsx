@@ -271,7 +271,7 @@ const SwipeableCartItem = ({
           style={{ 
             background: isFired 
               ? 'linear-gradient(180deg, #FF5E00 0%, #CC4A00 100%)' 
-              : 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' 
+              : 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)' 
           }}
         >
           <img src={fireVectorIcon} alt="Fire" className={`w-3 h-3 ${isFired ? 'animate-pulse' : ''}`} />

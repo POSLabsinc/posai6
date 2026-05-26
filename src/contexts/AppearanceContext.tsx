@@ -128,6 +128,22 @@ const applyCustomColors = (
   const root = document.documentElement;
   if (selectionColor) {
     root.style.setProperty('--custom-selection-color', selectionColor);
+    // Derive contrast filter for icons sitting on the selection color
+    const hex = selectionColor.replace('#', '');
+    const full = hex.length === 3 ? hex.split('').map(c => c + c).join('') : hex;
+    if (full.length === 6) {
+      const rr = parseInt(full.slice(0, 2), 16);
+      const gg = parseInt(full.slice(2, 4), 16);
+      const bb = parseInt(full.slice(4, 6), 16);
+      const toLin = (c: number) => {
+        const s = c / 255;
+        return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4);
+      };
+      const L = 0.2126 * toLin(rr) + 0.7152 * toLin(gg) + 0.0722 * toLin(bb);
+      // Light theme color -> use dark (black) icons; dark theme color -> use light (white) icons
+      const filter = L > 0.5 ? 'brightness(0)' : 'brightness(0) invert(1)';
+      root.style.setProperty('--action-icon-filter', filter);
+    }
   }
   if (hoverColor) {
     root.style.setProperty('--custom-hover-color', hoverColor);

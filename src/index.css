@@ -861,6 +861,10 @@ All colors MUST be HSL.
 .btn-action-gradient {
   background: linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%);
 }
+/* Icons rendered on top of the active theme color auto-adapt for contrast */
+.btn-action-gradient img {
+  filter: var(--action-icon-filter, brightness(0) invert(1)) !important;
+}
 .btn-transfer-gradient {
   background: linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%);
 }

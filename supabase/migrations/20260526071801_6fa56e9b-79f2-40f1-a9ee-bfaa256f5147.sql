@@ -1,0 +1,1 @@
+DELETE FROM public.notifications WHERE category = 'weather' AND id NOT IN (SELECT id FROM public.notifications WHERE category = 'weather' ORDER BY created_at DESC LIMIT 1);

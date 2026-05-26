@@ -1421,7 +1421,7 @@ const TableOrderDetails = () => {
                 <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
               </button>
               <button disabled={isFullyTransferredOut} className={`px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : ''}`} style={{
-                background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
+                background: "linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)"
               }}>
                 <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
                 <span>FIRE</span>
@@ -1748,7 +1748,7 @@ const TableOrderDetails = () => {
                     {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId ? (
                     <div className="flex gap-2 mt-2">
                       <button className="flex-1 py-1.5 flex items-center justify-center gap-2 text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity" style={{
-                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                    background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)'
                   }} onClick={e => {
                     e.stopPropagation();
                     navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
@@ -2060,7 +2060,7 @@ const TableOrderDetails = () => {
                         <div className={`flex-shrink-0 flex flex-col w-10 overflow-hidden ${hasAlertAbove ? 'rounded-br-xl' : 'rounded-r-xl'}`}>
                           <button 
                             className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
-                            style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                            style={{ background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)' }}
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
@@ -2632,7 +2632,7 @@ const TableOrderDetails = () => {
                   <img src={saveIcon} alt="Save" className="w-4 h-4" />
                 </button>
                 <button disabled={isFullyTransferredOut} className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : ''}`} style={{
-                  background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                  background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)'
                 }}>
                   <img src={fireIcon} alt="Fire" className="w-4 h-4" />
                   <span className="text-white font-semibold text-sm">FIRE</span>
@@ -2812,7 +2812,7 @@ const TableOrderDetails = () => {
                     <div className="flex-shrink-0 flex flex-col w-9">
                       <button 
                         className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
-                        style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                        style={{ background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)' }}
                         onClick={(e) => {
                           e.stopPropagation();
                           navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
@@ -3296,7 +3296,7 @@ const TableOrderDetails = () => {
                 <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
               </button>
               <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{
-                background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
+                background: "linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)"
               }}>
                 <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
                 <span>FIRE</span>

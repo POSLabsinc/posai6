@@ -358,7 +358,7 @@ const OrdersA = () => {
                       }}
                       className="w-6 text-white flex-shrink-0 flex items-center justify-center"
                       style={{
-                        background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                        background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)'
                       }}
                     >
                       <Plus className="w-2.5 h-2.5" strokeWidth={4} />
@@ -390,7 +390,7 @@ const OrdersA = () => {
                           addToCart(item);
                         }}
                         className="absolute top-2 left-2 w-8 h-8 rounded-full flex items-center justify-center"
-                        style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                        style={{ background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)' }}
                       >
                         <Plus className="w-4 h-4 text-white" strokeWidth={3} />
                       </button>

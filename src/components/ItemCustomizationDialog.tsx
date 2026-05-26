@@ -840,7 +840,7 @@ export const ItemCustomizationDialog = ({
             onClick={handleApplyPriceOverride}
             disabled={!newPriceInput || !selectedReason}
             className="flex-1 h-10 rounded-xl text-white font-bold disabled:opacity-40 disabled:bg-neutral-600"
-            style={{ background: !newPriceInput || !selectedReason ? undefined : 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+            style={{ background: !newPriceInput || !selectedReason ? undefined : 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)' }}
           >
             APPLY
           </Button>
@@ -964,7 +964,7 @@ export const ItemCustomizationDialog = ({
           <Button
             onClick={handleBackToCustomization}
             className="w-full h-12 rounded-xl text-white font-bold"
-            style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+            style={{ background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)' }}
           >
             Back to Order
           </Button>

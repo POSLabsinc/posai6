@@ -248,7 +248,7 @@ const GiftCardDialog = ({ isOpen, onClose, onApply, orderTotal = 0 }: GiftCardDi
               className="flex-1 py-2.5 sm:py-3 rounded-lg font-medium text-sm sm:text-base transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-white"
               style={{
                 background: isValidated 
-                  ? "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
+                  ? "linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)"
                   : "linear-gradient(180deg, #4A4A4A 0%, #3A3A3A 100%)"
               }}
             >

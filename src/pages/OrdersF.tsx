@@ -6542,7 +6542,7 @@ const OrdersF = () => {
                 <img src={saveIcon} alt="Save" className="w-4 h-4" />
               </button>
               <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
-              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+              background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)'
             }}>
                 <img src={fireIcon} alt="Fire" className="w-4 h-4" />
                 <span className="text-white font-semibold text-sm">FIRE</span>
@@ -6713,7 +6713,7 @@ const OrdersF = () => {
                     e.stopPropagation();
                     addToCart(item);
                   }} className="w-6 md:w-8 text-white flex-shrink-0 flex items-center justify-center" style={{
-                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                    background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)'
                   }}>
                       <Plus className="w-2.5 md:w-3 h-2.5 md:h-3" strokeWidth={4} />
                     </button>
@@ -6922,7 +6922,7 @@ const OrdersF = () => {
               <img src={saveIcon} alt="Save" className="w-4 h-4" />
             </button>
             <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
-              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+              background: 'linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%)'
             }}>
               <img src={fireIcon} alt="Fire" className="w-4 h-4" />
               <span className="text-white font-semibold text-sm">FIRE</span>

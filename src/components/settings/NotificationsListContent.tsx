@@ -239,12 +239,12 @@ const NotificationsListContent = ({ showHeader = true, onBack, onAIClick }: Noti
 
   const upsellPromptsNotification: NotificationItem = useMemo(() => ({
     id: "upsell-prompts-dashboard",
-    title: "AI Upsell Prompts",
+    title: "Upsell Opportunity",
     preview: "Context-aware suggestions based on table size, time of day, and menu margins.",
     version: "Live",
     version_date: "Today",
     time: "Now",
-    headline: "AI Upsell Prompts",
+    headline: "Upsell Opportunity",
     body: "Context-aware upsell suggestions based on table size, time of day, and menu margins.",
     bullets: [],
     footer: null,

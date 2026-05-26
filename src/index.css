@@ -859,7 +859,7 @@ All colors MUST be HSL.
 
 /* Ticket card action button gradients */
 .btn-action-gradient {
-  background: linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%);
 }
 .btn-transfer-gradient {
   background: linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%);

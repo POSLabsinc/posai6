@@ -861,20 +861,9 @@ All colors MUST be HSL.
 .btn-action-gradient {
   background: linear-gradient(180deg, color-mix(in srgb, var(--custom-selection-color) 85%, white) 0%, var(--custom-selection-color) 100%);
 }
-/* Icons & text rendered on top of the active theme color auto-adapt for contrast.
-   Matches both .btn-action-gradient and any element whose inline style references
-   the active theme color (these are the buttons that paint with --custom-selection-color). */
-.btn-action-gradient img,
-[style*="--custom-selection-color"] img {
+/* Icons rendered on top of the active theme color auto-adapt for contrast */
+.btn-action-gradient img {
   filter: var(--action-icon-filter, brightness(0) invert(1)) !important;
-}
-.btn-action-gradient svg,
-[style*="--custom-selection-color"] svg {
-  color: var(--action-on-theme, #FFFFFF);
-}
-.btn-action-gradient,
-[style*="--custom-selection-color"] {
-  color: var(--action-on-theme, #FFFFFF);
 }
 .btn-transfer-gradient {
   background: linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%);

@@ -142,9 +142,7 @@ const applyCustomColors = (
       const L = 0.2126 * toLin(rr) + 0.7152 * toLin(gg) + 0.0722 * toLin(bb);
       // Light theme color -> use dark (black) icons; dark theme color -> use light (white) icons
       const filter = L > 0.5 ? 'brightness(0)' : 'brightness(0) invert(1)';
-      const onTheme = L > 0.5 ? '#0A0A0A' : '#FFFFFF';
       root.style.setProperty('--action-icon-filter', filter);
-      root.style.setProperty('--action-on-theme', onTheme);
     }
   }
   if (hoverColor) {

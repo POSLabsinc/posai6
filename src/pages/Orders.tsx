@@ -669,7 +669,13 @@ const Orders = () => {
   const [editingVoucherData, setEditingVoucherData] = useState<import('@/components/VoucherDialog').VoucherInitialData | null>(null);
   const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
   const [showRedeemDepositDialog, setShowRedeemDepositDialog] = useState(false);
-  const [recentDepositRecords, setRecentDepositRecords] = useState<UnifiedTicketOrder[]>([]);
+  const [recentDepositRecords, setRecentDepositRecords] = useState<UnifiedTicketOrder[]>(() => {
+    try {
+      return JSON.parse(localStorage.getItem('recent_deposit_records') || '[]');
+    } catch {
+      return [];
+    }
+  });
   const [showOpenPriceDialog, setShowOpenPriceDialog] = useState(false);
   const [openPriceItem, setOpenPriceItem] = useState<MenuItem | null>(null);
   const [openPriceImageIndex, setOpenPriceImageIndex] = useState(0);
@@ -4425,10 +4431,14 @@ const Orders = () => {
           paidAt: nowIso,
           createdAtDate: new Date(nowIso),
         };
-        setRecentDepositRecords((records) => [
-          localDepositRecord,
-          ...records.filter((record) => record.transferInfo?.virtualNumber !== meta.virtualNumber)
-        ]);
+        setRecentDepositRecords((records) => {
+          const nextRecords = [
+            localDepositRecord,
+            ...records.filter((record) => record.transferInfo?.virtualNumber !== meta.virtualNumber)
+          ].slice(0, 20);
+          localStorage.setItem('recent_deposit_records', JSON.stringify(nextRecords));
+          return nextRecords;
+        });
         const dbId = quickOrderDbId || existingOrderId || sessionIdFromParams;
         if (dbId) {
           updateTicketOrder(dbId, depositPayload).catch(console.error);

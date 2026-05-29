@@ -27,10 +27,9 @@ const WEATHER_CODE: Record<number, { label: string; emoji: string }> = {
   95: { label: "thunderstorm", emoji: "⛈️" }, 96: { label: "thunderstorm w/ hail", emoji: "⛈️" }, 99: { label: "severe thunderstorm", emoji: "⛈️" },
 };
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+async function runWeather(body: any) {
   try {
-    const { latitude, longitude, city } = await req.json().catch(() => ({}));
+    const { latitude, longitude, city } = body || {};
     let lat = latitude, lon = longitude, locationName = city || "your area";
 
     if ((lat == null || lon == null) && city) {

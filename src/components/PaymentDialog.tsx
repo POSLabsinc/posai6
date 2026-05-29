@@ -1844,6 +1844,14 @@ export function PaymentDialog({
                       setDepositVirtualNumber(formatted);
                       setDepositDetailsStep(false);
                       setDepositSuccessStep(true);
+                      onDepositAssigned?.({
+                        virtualNumber: formatted,
+                        expires: depositExpiryMode === 'custom' && depositExpiryDate ? depositExpiryDate : 'Same day',
+                        refundAllowed: depositAllowRefund,
+                        twoFAEnabled: depositRequire2FA,
+                        amount: totalPaid,
+                        payments: paymentHistory,
+                      });
                     }}
                     className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
                   >

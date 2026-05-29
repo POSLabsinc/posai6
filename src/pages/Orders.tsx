@@ -3947,8 +3947,11 @@ const Orders = () => {
           ...(allTicketOrders || []).filter((o) => o.orderType === 'Deposit' || o.transferInfo?.type === 'deposit')
         ]}
         onApply={(deposit) => {
-          const amt = Number(deposit.paidAmount ?? deposit.total ?? 0);
-          toast.success(`Deposit ${deposit.transferInfo?.virtualNumber} applied ($${amt.toFixed(2)})`);
+          const ti: any = (deposit as any).transferInfo || {};
+          const vn = String(ti.virtualNumber || ti.virtual_number || '');
+          const amt = Number((deposit as any).paidAmount ?? (deposit as any).total ?? 0);
+          setAppliedDeposit({ virtualNumber: vn, amount: amt });
+          toast.success(`Deposit ${vn} applied ($${amt.toFixed(2)})`);
         }}
       />
 

@@ -268,6 +268,9 @@ export function PaymentDialog({
   const [depositOtpChannel, setDepositOtpChannel] = useState<'sms' | 'email' | 'both'>('sms');
   const [depositMobile, setDepositMobile] = useState('');
   const [depositEmail, setDepositEmail] = useState('');
+  // Deposit Success step (after Generate Virtual Number is tapped)
+  const [depositSuccessStep, setDepositSuccessStep] = useState(false);
+  const [depositVirtualNumber, setDepositVirtualNumber] = useState('');
 
 
   // Split Check states - New redesigned flow

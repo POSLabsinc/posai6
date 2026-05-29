@@ -3759,7 +3759,7 @@ const Orders = () => {
                     <div className="px-2 pt-2">
                       <div className="flex items-center justify-between gap-2 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-3 py-1.5">
                         <span className="text-emerald-400 text-[11px] font-semibold truncate">
-                          Deposit Credit Active · {appliedDeposit.virtualNumber} · ${depositRemaining.toFixed(2)} available
+                          Deposit Credit · ${depositRemaining.toFixed(2)}
                         </span>
                         <button
                           onClick={() => setAppliedDeposit(null)}

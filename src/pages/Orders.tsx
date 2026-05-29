@@ -1310,6 +1310,19 @@ const Orders = () => {
       return;
     }
 
+    if (fullItem?.name === 'Deposit') {
+      setCustomizationDialogOpen(false);
+      setShowInlineCustomization(false);
+      setSelectedItemForCustomization(null);
+      setCustomItemName("");
+      setCustomItemPrice(fullItem.price.toFixed(2));
+      setCustomItemMode('deposit');
+      setActiveCustomItemField('price');
+      setShowCustomItemPanel(true);
+      setMenuPosition('full');
+      return;
+    }
+
     // If cart item is open price, open Open Price dialog in edit flow
     if (fullItem?.isOpenPrice) {
       setOpenPriceItem({ id: fullItem.id, name: fullItem.name, price: fullItem.price, isOpenPrice: true });

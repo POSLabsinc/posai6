@@ -1702,7 +1702,7 @@ export function PaymentDialog({
                         type="text"
                         value={depositReference}
                         onChange={(e) => setDepositReference(e.target.value)}
-                        placeholder="Enter reference"
+                        placeholder="e.g. Table 12 - Smith"
                         className="bg-neutral-700 text-white text-xs rounded-md px-2 py-1.5 border-none outline-none placeholder:text-neutral-500 w-40"
                       />
                     </div>

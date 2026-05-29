@@ -65,6 +65,8 @@ export interface PaymentDialogProps {
   onOpenChange: (open: boolean) => void;
   orderDetails: PaymentDialogOrderDetails;
   subtotal: number;
+  /** Subtotal eligible for cash discount / card surcharge (excludes deposits). Defaults to subtotal. */
+  discountableSubtotal?: number;
   tax: number;
   total: number;
   containsVoucher?: boolean;

@@ -1708,7 +1708,11 @@ const Orders = () => {
 
   // Determine what to charge based on payment status, gift card, and voucher
   const baseChargeAmount = addItemMode && isExistingOrderPaid ? newItemsTotal : total;
-  const chargeAmount = Math.max(0, baseChargeAmount - appliedGiftCardAmount - appliedVoucherAmount);
+  const chargeAmountBeforeDeposit = Math.max(0, baseChargeAmount - appliedGiftCardAmount - appliedVoucherAmount);
+  // Deposit auto-applied in real time against the order total
+  const depositApplied = appliedDeposit ? Math.min(appliedDeposit.amount, chargeAmountBeforeDeposit) : 0;
+  const depositRemaining = appliedDeposit ? Math.max(0, appliedDeposit.amount - depositApplied) : 0;
+  const chargeAmount = Math.max(0, chargeAmountBeforeDeposit - depositApplied);
   const chargeLabel = addItemMode ?
   isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER' :
   '';
@@ -2372,12 +2376,20 @@ const Orders = () => {
               </ScrollArea>}
           </div>
 
+          {/* Deposit Redeemed line - shown below items when deposit is applied */}
+          {appliedDeposit && depositApplied > 0 && orderItems.length > 0 && (
+            <div className="px-2 pt-1 flex items-center justify-between text-[11px]">
+              <span className="text-emerald-400 font-medium">Deposit Redeemed</span>
+              <span className="text-emerald-400 font-semibold">-${depositApplied.toFixed(2)}</span>
+            </div>
+          )}
+
           {/* Deposit Credit Chip */}
           {appliedDeposit && (
             <div className="px-2 pt-2">
               <div className="flex items-center justify-between gap-2 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-3 py-1.5">
                 <span className="text-emerald-400 text-[11px] font-semibold truncate">
-                  Deposit Credit Active · {appliedDeposit.virtualNumber} · ${appliedDeposit.amount.toFixed(2)} available
+                  Deposit Credit Active · {appliedDeposit.virtualNumber} · ${depositRemaining.toFixed(2)} available
                 </span>
                 <button
                   onClick={() => setAppliedDeposit(null)}
@@ -3734,12 +3746,20 @@ const Orders = () => {
                     </div>
               }
 
+                  {/* Deposit Redeemed line - shown below items when deposit is applied */}
+                  {appliedDeposit && depositApplied > 0 && orderItems.length > 0 && (
+                    <div className="px-3 pt-1 flex items-center justify-between text-xs">
+                      <span className="text-emerald-400 font-medium">Deposit Redeemed</span>
+                      <span className="text-emerald-400 font-semibold">-${depositApplied.toFixed(2)}</span>
+                    </div>
+                  )}
+
                   {/* Deposit Credit Chip */}
                   {appliedDeposit && (
                     <div className="px-2 pt-2">
                       <div className="flex items-center justify-between gap-2 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-3 py-1.5">
                         <span className="text-emerald-400 text-[11px] font-semibold truncate">
-                          Deposit Credit Active · {appliedDeposit.virtualNumber} · ${appliedDeposit.amount.toFixed(2)} available
+                          Deposit Credit Active · {appliedDeposit.virtualNumber} · ${depositRemaining.toFixed(2)} available
                         </span>
                         <button
                           onClick={() => setAppliedDeposit(null)}

@@ -268,6 +268,9 @@ export function PaymentDialog({
   const [depositOtpChannel, setDepositOtpChannel] = useState<'sms' | 'email' | 'both'>('sms');
   const [depositMobile, setDepositMobile] = useState('');
   const [depositEmail, setDepositEmail] = useState('');
+  // Deposit Success step (after Generate Virtual Number is tapped)
+  const [depositSuccessStep, setDepositSuccessStep] = useState(false);
+  const [depositVirtualNumber, setDepositVirtualNumber] = useState('');
 
 
   // Split Check states - New redesigned flow
@@ -1648,6 +1651,47 @@ export function PaymentDialog({
                 })()}
               </div>
             ) :
+            // Deposit Success screen (after Generate Virtual Number tapped)
+            depositSuccessStep ? (
+              <div className="flex-1 flex flex-col items-center py-8 px-6 overflow-y-auto">
+                <img src={tickSuccessIcon} alt="Success" className="w-14 h-14 mb-4" />
+                <p className="text-neutral-300 text-sm mb-6 text-center">
+                  <span className="text-green-500 font-medium">${totalPaid.toFixed(2)}</span> deposit has been successfully assigned
+                </p>
+                <div className="w-full max-w-xs mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
+                  <p className="text-green-500 text-sm text-center mb-1">Virtual Number</p>
+                  <p className="text-green-500 text-2xl font-bold text-center tracking-wider">
+                    {depositVirtualNumber}
+                  </p>
+                </div>
+                <div className="w-full max-w-xs">
+                  <h3 className="text-white font-semibold text-center mb-4">How would you like to send the QR Code and Virtual Number?</h3>
+                  <div className="flex gap-4 justify-center mb-4">
+                    <button
+                      onClick={handleComplete}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                    >
+                      <Printer className="w-6 h-6 text-neutral-400" />
+                      <span className="text-neutral-400 text-sm">Print</span>
+                    </button>
+                    <button
+                      onClick={handleComplete}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                    >
+                      <MessageSquare className="w-6 h-6 text-neutral-400" />
+                      <span className="text-neutral-400 text-sm">Text</span>
+                    </button>
+                    <button
+                      onClick={handleComplete}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                    >
+                      <Mail className="w-6 h-6 text-neutral-400" />
+                      <span className="text-neutral-400 text-sm">Email</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) :
             // Deposit Details screen (after receipt action in Create Deposit flow)
             depositDetailsStep ? (
               <div className="flex flex-col flex-1">
@@ -1783,7 +1827,14 @@ export function PaymentDialog({
                   </div>
 
                   <button
-                    onClick={handleComplete}
+                    onClick={() => {
+                      // Generate a 16-digit virtual number formatted in groups of 4
+                      const raw = Array.from({ length: 16 }, () => Math.floor(Math.random() * 10)).join('');
+                      const formatted = raw.match(/.{1,4}/g)?.join(' ') || raw;
+                      setDepositVirtualNumber(formatted);
+                      setDepositDetailsStep(false);
+                      setDepositSuccessStep(true);
+                    }}
                     className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
                   >
                     GENERATE VIRTUAL NUMBER
@@ -5442,7 +5493,34 @@ export function PaymentDialog({
             )}
           </div>
 
-          {/* Order Items */}
+          {depositSuccessStep ? (
+            /* Deposit Record rows shown directly under Check 1 in success state */
+            <div className="mx-3 mt-3 bg-neutral-800 rounded-lg p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 text-xs">Amount</span>
+                <span className="text-white text-xs font-medium">${totalPaid.toFixed(2)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 text-xs">Status</span>
+                <span className="text-emerald-400 text-xs font-medium">Active</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 text-xs">Expires</span>
+                <span className="text-white text-xs font-medium">
+                  {depositExpiryMode === 'custom' && depositExpiryDate ? depositExpiryDate : 'Same day'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 text-xs">2FA Enabled</span>
+                <span className="text-white text-xs font-medium">{depositRequire2FA ? 'Yes' : 'No'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 text-xs">Refund Allowed</span>
+                <span className="text-white text-xs font-medium">{depositAllowRefund ? 'Yes' : 'No'}</span>
+              </div>
+            </div>
+          ) : (
+          /* Order Items */
           <div 
             className="flex-1 overflow-y-auto p-3 space-y-2" 
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -5548,6 +5626,7 @@ export function PaymentDialog({
               );
             })}
           </div>
+          )}
 
           {/* Payment History */}
           {paymentHistory.length > 0 && (
@@ -5562,7 +5641,8 @@ export function PaymentDialog({
             </div>
           )}
 
-          {/* Totals */}
+          {!depositSuccessStep && (
+          /* Totals */
           <div className="p-3 border-t border-neutral-700 space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-white/60 text-sm">Subtotal</span>
@@ -5613,6 +5693,7 @@ export function PaymentDialog({
               <span className="text-red-500 font-bold">${remainingDue > 0 ? remainingDue.toFixed(2) : '0.00'}</span>
             </div>
           </div>
+          )}
         </div>
         )}
       </div>

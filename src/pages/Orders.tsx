@@ -2539,7 +2539,7 @@ const Orders = () => {
             {/* Add to Order Button */}
             <button
             onClick={addCustomItemToOrder}
-            disabled={!customItemName.trim() || !customItemPrice}
+            disabled={(customItemMode !== 'deposit' && !customItemName.trim()) || !customItemPrice || (parseFloat(customItemPrice) || 0) <= 0}
             className="w-full py-3 rounded-lg font-semibold mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
             style={{
               background: themeGradient,

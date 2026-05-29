@@ -261,8 +261,13 @@ export function PaymentDialog({
   // Deposit Details step (shown after receipt action when isDeposit)
   const [depositDetailsStep, setDepositDetailsStep] = useState(false);
   const [depositExpiryMode, setDepositExpiryMode] = useState<'same-day' | 'custom'>('same-day');
+  const [depositExpiryDate, setDepositExpiryDate] = useState('');
+  const [depositReference, setDepositReference] = useState('');
   const [depositAllowRefund, setDepositAllowRefund] = useState(false);
   const [depositRequire2FA, setDepositRequire2FA] = useState(false);
+  const [depositOtpChannel, setDepositOtpChannel] = useState<'sms' | 'email' | 'both'>('sms');
+  const [depositMobile, setDepositMobile] = useState('');
+  const [depositEmail, setDepositEmail] = useState('');
 
 
   // Split Check states - New redesigned flow
@@ -1652,30 +1657,56 @@ export function PaymentDialog({
                 <div className="flex-1 flex flex-col px-6 py-6 gap-6">
                   {/* Details Card */}
                   <div className="bg-neutral-800 rounded-2xl p-5">
-                    <p className="text-neutral-500 text-xs uppercase tracking-wider mb-3">Expiry</p>
-                    <div className="grid grid-cols-2 gap-2 mb-4">
-                      <button
-                        onClick={() => setDepositExpiryMode('same-day')}
-                        className={`py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                          depositExpiryMode === 'same-day'
-                            ? 'bg-orange-500 text-white'
-                            : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
-                        }`}
-                      >
-                        Same day
-                      </button>
-                      <button
-                        onClick={() => setDepositExpiryMode('custom')}
-                        className={`py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                          depositExpiryMode === 'custom'
-                            ? 'bg-orange-500 text-white'
-                            : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
-                        }`}
-                      >
-                        Custom date
-                      </button>
+                    <div className="flex items-center justify-between gap-3 mb-1">
+                      <p className="text-neutral-500 text-xs uppercase tracking-wider">Expiry</p>
+                      <div className="flex items-center gap-2">
+                        <div className="inline-flex bg-neutral-700 rounded-lg p-0.5">
+                          <button
+                            onClick={() => setDepositExpiryMode('same-day')}
+                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                              depositExpiryMode === 'same-day'
+                                ? 'bg-orange-500 text-white'
+                                : 'text-neutral-300 hover:text-white'
+                            }`}
+                          >
+                            Same day
+                          </button>
+                          <button
+                            onClick={() => setDepositExpiryMode('custom')}
+                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                              depositExpiryMode === 'custom'
+                                ? 'bg-orange-500 text-white'
+                                : 'text-neutral-300 hover:text-white'
+                            }`}
+                          >
+                            Custom date
+                          </button>
+                        </div>
+                        {depositExpiryMode === 'custom' && (
+                          <input
+                            type="date"
+                            value={depositExpiryDate}
+                            onChange={(e) => setDepositExpiryDate(e.target.value)}
+                            className="bg-neutral-700 text-white text-xs rounded-md px-2 py-1.5 border-none outline-none [color-scheme:dark]"
+                          />
+                        )}
+                      </div>
                     </div>
-                    <div className="h-px bg-neutral-700 -mx-5 mb-4" />
+                    <div className="h-px bg-neutral-700 -mx-5 my-4" />
+                    <div className="flex items-center justify-between gap-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-white text-sm font-medium">Reference</span>
+                        <span className="text-neutral-500 text-xs">(Optional)</span>
+                      </div>
+                      <input
+                        type="text"
+                        value={depositReference}
+                        onChange={(e) => setDepositReference(e.target.value)}
+                        placeholder="Enter reference"
+                        className="bg-neutral-700 text-white text-xs rounded-md px-2 py-1.5 border-none outline-none placeholder:text-neutral-500 w-40"
+                      />
+                    </div>
+                    <div className="h-px bg-neutral-700 -mx-5 my-4" />
                     <div className="flex items-center justify-between py-2">
                       <div className="flex flex-col">
                         <span className="text-white text-sm font-medium">Allow refund to deposit</span>
@@ -1690,6 +1721,51 @@ export function PaymentDialog({
                       </div>
                       <Switch checked={depositRequire2FA} onCheckedChange={setDepositRequire2FA} />
                     </div>
+                    {depositRequire2FA && (
+                      <div className="mt-3 pt-3 border-t border-neutral-700 flex flex-col gap-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-white text-sm font-medium">OTP Channel</span>
+                          <div className="inline-flex bg-neutral-700 rounded-lg p-0.5">
+                            {(['sms', 'email', 'both'] as const).map((ch) => (
+                              <button
+                                key={ch}
+                                onClick={() => setDepositOtpChannel(ch)}
+                                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors capitalize ${
+                                  depositOtpChannel === ch
+                                    ? 'bg-orange-500 text-white'
+                                    : 'text-neutral-300 hover:text-white'
+                                }`}
+                              >
+                                {ch === 'sms' ? 'SMS' : ch === 'email' ? 'Email' : 'Both'}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between gap-3">
+                          <span className="text-white text-sm font-medium">Mobile Number</span>
+                          <input
+                            type="tel"
+                            value={depositMobile}
+                            onChange={(e) => setDepositMobile(e.target.value)}
+                            placeholder="Enter mobile"
+                            className="bg-neutral-700 text-white text-xs rounded-md px-2 py-1.5 border-none outline-none placeholder:text-neutral-500 w-40"
+                          />
+                        </div>
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white text-sm font-medium">Email</span>
+                            <span className="text-neutral-500 text-xs">(Optional)</span>
+                          </div>
+                          <input
+                            type="email"
+                            value={depositEmail}
+                            onChange={(e) => setDepositEmail(e.target.value)}
+                            placeholder="Enter email"
+                            className="bg-neutral-700 text-white text-xs rounded-md px-2 py-1.5 border-none outline-none placeholder:text-neutral-500 w-40"
+                          />
+                        </div>
+                      </div>
+                    )}
                   </div>
 
                   <button

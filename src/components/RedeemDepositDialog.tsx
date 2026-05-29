@@ -11,6 +11,21 @@ interface RedeemDepositDialogProps {
 
 const CODE_LENGTH = 8;
 
+const normalizeVirtualNumber = (value: unknown) =>
+  String(value || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+
+const getTransferInfo = (deposit: UnifiedTicketOrder) => {
+  const raw = deposit?.transferInfo;
+  if (typeof raw === "string") {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return {};
+    }
+  }
+  return raw || {};
+};
+
 export const RedeemDepositDialog = ({
   open,
   onOpenChange,
@@ -25,9 +40,11 @@ export const RedeemDepositDialog = ({
   const depositIndex = useMemo(() => {
     const map = new Map<string, UnifiedTicketOrder>();
     deposits.forEach((d) => {
-      const vn = d?.transferInfo?.virtualNumber;
-      if (vn && d?.transferInfo?.type === "deposit") {
-        const key = String(vn).replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+      const transferInfo = getTransferInfo(d);
+      const vn = transferInfo.virtualNumber || transferInfo.virtual_number;
+      const isDeposit = d?.orderType === "Deposit" || String(transferInfo.type || "").toLowerCase() === "deposit";
+      if (vn && isDeposit) {
+        const key = normalizeVirtualNumber(vn);
         map.set(key, d);
       }
     });
@@ -62,12 +79,13 @@ export const RedeemDepositDialog = ({
   if (!open) return null;
 
   const handleChange = (val: string) => {
-    const cleaned = val.replace(/[^a-zA-Z0-9]/g, "").slice(0, CODE_LENGTH).toUpperCase();
+    const cleaned = normalizeVirtualNumber(val).slice(0, CODE_LENGTH);
     setCode(cleaned);
   };
 
-  const twoFA = !!validated?.transferInfo?.twoFAEnabled;
-  const expires = validated?.transferInfo?.expires || "—";
+  const validatedTransferInfo = validated ? getTransferInfo(validated) : {};
+  const twoFA = !!validatedTransferInfo.twoFAEnabled;
+  const expires = validatedTransferInfo.expires || "-";
   const balance = validated
     ? Number(validated.paidAmount ?? validated.total ?? 0)
     : 0;
@@ -171,7 +189,7 @@ export const RedeemDepositDialog = ({
               <span className="text-white text-base font-medium">Deposit Details</span>
             </div>
             <div className="flex-1 px-4 py-4 flex flex-col gap-3 overflow-y-auto">
-              <Row label="Virtual Number" value={String(validated.transferInfo?.virtualNumber || "")} valueClassName="text-amber-400 font-semibold tracking-widest" />
+              <Row label="Virtual Number" value={String(validatedTransferInfo.virtualNumber || validatedTransferInfo.virtual_number || "")} valueClassName="text-amber-400 font-semibold tracking-widest" />
               <Row label="Balance" value={`$${balance.toFixed(2)}`} valueClassName="text-green-500 font-semibold" />
               <Row label="Status" value={validated.status || "PAID"} valueClassName="text-white" />
               <Row label="2FA" value={twoFA ? "Enabled" : "Disabled"} valueClassName="text-white" />

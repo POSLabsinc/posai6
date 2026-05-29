@@ -1708,7 +1708,11 @@ const Orders = () => {
 
   // Determine what to charge based on payment status, gift card, and voucher
   const baseChargeAmount = addItemMode && isExistingOrderPaid ? newItemsTotal : total;
-  const chargeAmount = Math.max(0, baseChargeAmount - appliedGiftCardAmount - appliedVoucherAmount);
+  const chargeAmountBeforeDeposit = Math.max(0, baseChargeAmount - appliedGiftCardAmount - appliedVoucherAmount);
+  // Deposit auto-applied in real time against the order total
+  const depositApplied = appliedDeposit ? Math.min(appliedDeposit.amount, chargeAmountBeforeDeposit) : 0;
+  const depositRemaining = appliedDeposit ? Math.max(0, appliedDeposit.amount - depositApplied) : 0;
+  const chargeAmount = Math.max(0, chargeAmountBeforeDeposit - depositApplied);
   const chargeLabel = addItemMode ?
   isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER' :
   '';

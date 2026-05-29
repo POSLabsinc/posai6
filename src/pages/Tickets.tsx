@@ -4019,6 +4019,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               })()
             )}
           </div>
+          </>)}
         </div>
       </div>
     </div>

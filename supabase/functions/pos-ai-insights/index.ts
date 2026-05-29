@@ -116,13 +116,7 @@ Generate 1-3 alerts now.`;
     if (!aiResp.ok) {
       const txt = await aiResp.text();
       console.error("AI gateway error", aiResp.status, txt);
-      if (aiResp.status === 429 || aiResp.status === 402) {
-        return new Response(JSON.stringify({ error: "AI quota or rate limit" }), {
-          status: aiResp.status,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      throw new Error(`AI gateway ${aiResp.status}`);
+      return;
     }
 
     const aiJson = await aiResp.json();
@@ -134,7 +128,6 @@ Generate 1-3 alerts now.`;
     }
     let alerts: AIAlert[] = (args.alerts || []).slice(0, 4);
 
-    // Fallback seed if AI returned nothing, so insights are always visible across categories.
     if (alerts.length === 0) {
       console.warn("AI returned no alerts; using seeded fallback");
       alerts = [
@@ -145,7 +138,6 @@ Generate 1-3 alerts now.`;
       ];
     }
 
-    // Cap to top-priority 3 to avoid noise
     const priorityRank = { high: 0, medium: 1, low: 2 } as const;
     const sorted = alerts.sort((a, b) => priorityRank[a.priority] - priorityRank[b.priority]).slice(0, 3);
 
@@ -165,15 +157,20 @@ Generate 1-3 alerts now.`;
         is_read: false,
       });
     }
-
-    return new Response(JSON.stringify({ ok: true, count: sorted.length }), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.log("inserted", sorted.length);
   } catch (e) {
     console.error("pos-ai-insights error:", e);
-    return new Response(JSON.stringify({ error: String(e) }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
   }
+}
+
+// @ts-ignore - EdgeRuntime is available in Supabase Edge Functions
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  // Fire-and-forget so client never waits on the AI call (avoids 150s IDLE_TIMEOUT)
+  // @ts-ignore
+  EdgeRuntime.waitUntil(runInsights());
+  return new Response(JSON.stringify({ ok: true, queued: true }), {
+    status: 202,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 });

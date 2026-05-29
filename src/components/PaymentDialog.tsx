@@ -1744,7 +1744,7 @@ export function PaymentDialog({
                     onClick={() => { 
                       setEmailReceiptStep('receipt'); 
                       setEmailReceiptEmail('');
-                      handleComplete(); 
+                      finishReceipt(); 
                     }} 
                     disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} 
                     className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"

@@ -1435,6 +1435,27 @@ const Orders = () => {
   // Custom Item Panel functions
   const handleCustomItemNumpadClick = (value: string) => {
     if (activeCustomItemField === 'price') {
+      // Deposit mode: shift-decimal (cents) entry, always renders as N.NN
+      if (customItemMode === 'deposit') {
+        if (value === 'clear') {
+          setCustomItemPrice("");
+          return;
+        }
+        if (value === 'backspace') {
+          setCustomItemPrice((prev) => {
+            const digits = prev.replace(/\D/g, '').slice(0, -1);
+            if (!digits) return "";
+            return (parseInt(digits, 10) / 100).toFixed(2);
+          });
+          return;
+        }
+        if (value === '.') return; // decimal is implicit
+        setCustomItemPrice((prev) => {
+          const digits = (prev.replace(/\D/g, '') + value).slice(0, 8);
+          return (parseInt(digits, 10) / 100).toFixed(2);
+        });
+        return;
+      }
       if (value === 'clear') {
         setCustomItemPrice("");
       } else if (value === 'backspace') {
@@ -1451,6 +1472,7 @@ const Orders = () => {
       }
     }
   };
+
 
   const handleCustomItemKeyboardClick = (key: string) => {
     if (activeCustomItemField === 'name') {
@@ -2500,11 +2522,12 @@ const Orders = () => {
                   <span className="text-white text-sm mr-1">$</span>
                   <input
                   type="text"
-                  value={customItemPrice}
+                  value={customItemMode === 'deposit' ? (customItemPrice || '0.00') : customItemPrice}
                   readOnly
                   onFocus={() => setActiveCustomItemField('price')}
                   placeholder="0.00"
                   className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500" />
+
 
                 </div>
               </div>

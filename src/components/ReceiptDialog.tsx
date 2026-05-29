@@ -291,12 +291,14 @@ const ReceiptDialog = ({ open, onOpenChange, orderTotal = 0, orderId, mergedOrde
 
             {/* Email Input */}
             <div className="px-4 py-3">
-              <input 
-                type="text" 
-                placeholder="email@example.com" 
-                value={emailAddress} 
-                readOnly 
-                className="w-full bg-neutral-800 text-white px-4 py-3 rounded-lg text-sm placeholder:text-neutral-500 outline-none" 
+              <input
+                type="email"
+                inputMode="email"
+                autoFocus
+                placeholder="email@example.com"
+                value={emailAddress}
+                onChange={(e) => setEmailAddress(e.target.value)}
+                className="w-full bg-neutral-800 text-white px-4 py-3 rounded-lg text-sm placeholder:text-neutral-500 outline-none"
               />
             </div>
 
@@ -324,26 +326,6 @@ const ReceiptDialog = ({ open, onOpenChange, orderTotal = 0, orderId, mergedOrde
               </button>
             </div>
 
-            {/* QWERTY Keyboard */}
-            <div className="flex-1 flex flex-col justify-end px-2 pb-4 gap-1">
-              {emailKeys.map((row, rowIndex) => (
-                <div key={rowIndex} className="flex justify-center gap-1">
-                  {row.map(key => (
-                    <button 
-                      key={key}
-                      onClick={() => handleEmailKeyPress(key)}
-                      className={`rounded-md text-sm font-medium transition-colors ${
-                        key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600 px-3 h-10' :
-                        key.length > 1 ? 'bg-neutral-700 text-white hover:bg-neutral-600 px-2 h-10 text-xs' :
-                        'bg-neutral-800 text-white hover:bg-neutral-700 w-8 h-10'
-                      }`}
-                    >
-                      {key === 'delete' ? <Delete className="w-4 h-4 mx-auto" /> : key}
-                    </button>
-                  ))}
-                </div>
-              ))}
-            </div>
           </div>
         )}
       </DialogContent>

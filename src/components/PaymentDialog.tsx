@@ -1835,7 +1835,7 @@ export function PaymentDialog({
                     </button>
                   </div>
                   <button 
-                    onClick={handleComplete}
+                    onClick={finishReceipt}
                     className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
                   >
                     NO RECEIPT

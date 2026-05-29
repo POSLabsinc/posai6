@@ -3734,6 +3734,21 @@ const Orders = () => {
                     </div>
               }
 
+                  {/* Deposit Credit Chip */}
+                  {appliedDeposit && (
+                    <div className="px-2 pt-2">
+                      <div className="flex items-center justify-between gap-2 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-3 py-1.5">
+                        <span className="text-emerald-400 text-[11px] font-semibold truncate">
+                          Deposit Credit Active · {appliedDeposit.virtualNumber} · ${appliedDeposit.amount.toFixed(2)} available
+                        </span>
+                        <button
+                          onClick={() => setAppliedDeposit(null)}
+                          className="text-emerald-400/80 hover:text-emerald-300 text-xs font-bold"
+                          aria-label="Remove deposit"
+                        >×</button>
+                      </div>
+                    </div>
+                  )}
                   {/* Order Summary - Only show when cart has items */}
                   {orderItems.length > 0 &&
               <div className="p-2 border-t border-sidebar-border flex-shrink-0">

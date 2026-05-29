@@ -1786,7 +1786,14 @@ export function PaymentDialog({
                   </div>
 
                   <button
-                    onClick={handleComplete}
+                    onClick={() => {
+                      // Generate a 16-digit virtual number formatted in groups of 4
+                      const raw = Array.from({ length: 16 }, () => Math.floor(Math.random() * 10)).join('');
+                      const formatted = raw.match(/.{1,4}/g)?.join(' ') || raw;
+                      setDepositVirtualNumber(formatted);
+                      setDepositDetailsStep(false);
+                      setDepositSuccessStep(true);
+                    }}
                     className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
                   >
                     GENERATE VIRTUAL NUMBER

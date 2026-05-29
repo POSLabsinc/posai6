@@ -16,7 +16,7 @@ import { getActiveTaxRate } from "@/lib/orderUtils";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { getContrastText } from "@/lib/themeContrast";
-import { useTicketOrders } from "@/hooks/use-ticket-orders";
+import { useTicketOrders, type UnifiedTicketOrder } from "@/hooks/use-ticket-orders";
 import { toast } from "sonner";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
@@ -669,6 +669,7 @@ const Orders = () => {
   const [editingVoucherData, setEditingVoucherData] = useState<import('@/components/VoucherDialog').VoucherInitialData | null>(null);
   const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
   const [showRedeemDepositDialog, setShowRedeemDepositDialog] = useState(false);
+  const [recentDepositRecords, setRecentDepositRecords] = useState<UnifiedTicketOrder[]>([]);
   const [showOpenPriceDialog, setShowOpenPriceDialog] = useState(false);
   const [openPriceItem, setOpenPriceItem] = useState<MenuItem | null>(null);
   const [openPriceImageIndex, setOpenPriceImageIndex] = useState(0);
@@ -3934,7 +3935,10 @@ const Orders = () => {
       <RedeemDepositDialog
         open={showRedeemDepositDialog}
         onOpenChange={setShowRedeemDepositDialog}
-        deposits={(allTicketOrders || []).filter((o: any) => o?.transferInfo?.type === 'deposit')}
+        deposits={[
+          ...recentDepositRecords,
+          ...(allTicketOrders || []).filter((o: any) => o?.transferInfo?.type === 'deposit')
+        ]}
         onApply={(deposit) => {
           const amt = Number(deposit.paidAmount ?? deposit.total ?? 0);
           toast.success(`Deposit ${deposit.transferInfo?.virtualNumber} applied ($${amt.toFixed(2)})`);
@@ -4360,6 +4364,7 @@ const Orders = () => {
           method: p.methodLabel || p.method || 'Card',
           amount: p.amount || 0,
         }));
+        const nowIso = new Date().toISOString();
         const depositPayload = {
           orderType: 'Deposit',
           status: 'PAID' as const,
@@ -4376,6 +4381,54 @@ const Orders = () => {
             twoFAEnabled: meta.twoFAEnabled,
           },
         };
+        const localDepositRecord: UnifiedTicketOrder = {
+          id: `local-deposit-${meta.virtualNumber}`,
+          orderNumber,
+          name: guestName || 'Deposit',
+          phone: guestPhone || '',
+          partySize: 1,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timer: '0:00',
+          server: currentServerName || '',
+          check: '',
+          paymentType: depositPayload.paymentType,
+          payments: paymentsArray,
+          revenueCenter: '',
+          status: depositPayload.status,
+          notes: '',
+          table: '',
+          orderType: depositPayload.orderType,
+          items: [{
+            qty: 1,
+            name: 'Deposit',
+            price: meta.amount,
+            seats: [],
+            modifiers: [],
+            isShared: false,
+            isFired: true,
+            noTax: true,
+          }],
+          subtotal: meta.amount,
+          discount: 0,
+          serviceCharge: 0,
+          tax: 0,
+          tip: 0,
+          total: meta.amount,
+          paidAmount: meta.amount.toFixed(2),
+          paymentStatus: depositPayload.paymentStatus,
+          transferInfo: depositPayload.transferInfo,
+          refundAmount: 0,
+          refundTransactions: [],
+          createdAt: nowIso,
+          updatedAt: nowIso,
+          paid: true,
+          paidAt: nowIso,
+          createdAtDate: new Date(nowIso),
+        };
+        setRecentDepositRecords((records) => [
+          localDepositRecord,
+          ...records.filter((record) => record.transferInfo?.virtualNumber !== meta.virtualNumber)
+        ]);
         const dbId = quickOrderDbId || existingOrderId || sessionIdFromParams;
         if (dbId) {
           updateTicketOrder(dbId, depositPayload).catch(console.error);

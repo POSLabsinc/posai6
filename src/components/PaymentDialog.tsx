@@ -5626,6 +5626,7 @@ export function PaymentDialog({
               );
             })}
           </div>
+          )}
 
           {/* Payment History */}
           {paymentHistory.length > 0 && (

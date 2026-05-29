@@ -5641,7 +5641,8 @@ export function PaymentDialog({
             </div>
           )}
 
-          {/* Totals */}
+          {!depositSuccessStep && (
+          /* Totals */
           <div className="p-3 border-t border-neutral-700 space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-white/60 text-sm">Subtotal</span>

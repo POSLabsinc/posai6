@@ -2626,16 +2626,17 @@ const Orders = () => {
 
                     .
                   </button>
-                </div>
-                
-                {/* Backspace Button */}
-                <button
-              onClick={() => handleCustomItemNumpadClick('backspace')}
-              className="w-full bg-neutral-800 hover:bg-neutral-700 rounded-lg py-4 flex items-center justify-center transition-colors">
+                  <div />
+                  <button
+                onClick={() => handleCustomItemNumpadClick('backspace')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 flex items-center justify-center transition-colors">
 
-                  <Delete className="w-5 h-5 text-white" />
-                </button>
+                    <Delete className="w-5 h-5 text-white" />
+                  </button>
+                  <div />
+                </div>
               </div>)
+
           }
           </div> ) :
         showInlineCustomization && selectedItemForCustomization ?

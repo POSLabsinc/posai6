@@ -592,6 +592,7 @@ const Orders = () => {
   const [isDesktopSearchOpen, setIsDesktopSearchOpen] = useState(false);
   const [customizationDialogOpen, setCustomizationDialogOpen] = useState(false);
   const [showCustomItemPanel, setShowCustomItemPanel] = useState(false);
+  const [customItemMode, setCustomItemMode] = useState<'item' | 'deposit'>('item');
   const [customItemName, setCustomItemName] = useState("");
   const [customItemPrice, setCustomItemPrice] = useState("");
   const [activeCustomItemField, setActiveCustomItemField] = useState<'name' | 'price'>('price');

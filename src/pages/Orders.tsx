@@ -4342,6 +4342,30 @@ const Orders = () => {
           toast.success("Order completed successfully");
         }
       }}
+      onDepositAssigned={(meta) => {
+        const dbId = quickOrderDbId || existingOrderId || sessionIdFromParams;
+        if (!dbId) return;
+        const paymentsArray = meta.payments.map((p: any) => ({
+          method: p.methodLabel || p.method || 'Card',
+          amount: p.amount || 0,
+        }));
+        updateTicketOrder(dbId, {
+          orderType: 'Deposit',
+          status: 'PAID',
+          notes: '',
+          paymentType: paymentsArray[0]?.method || 'Card',
+          payments: paymentsArray,
+          paidAmount: meta.amount.toFixed(2),
+          paymentStatus: 'completed',
+          transferInfo: {
+            type: 'deposit',
+            virtualNumber: meta.virtualNumber,
+            expires: meta.expires,
+            refundAllowed: meta.refundAllowed,
+            twoFAEnabled: meta.twoFAEnabled,
+          },
+        }).catch(console.error);
+      }}
       onSaveSplit={(config) => {
         setIsOrderSplit(true);
         setSplitConfiguration(config);

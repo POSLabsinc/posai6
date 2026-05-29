@@ -76,6 +76,14 @@ export interface PaymentDialogProps {
   /** When true, the post-receipt flow transitions to a Deposit Details screen instead of closing. */
   isDeposit?: boolean;
   onPaymentComplete?: (paymentHistory: PaymentHistoryItem[]) => void;
+  onDepositAssigned?: (meta: {
+    virtualNumber: string;
+    expires: string;
+    refundAllowed: boolean;
+    twoFAEnabled: boolean;
+    amount: number;
+    payments: PaymentHistoryItem[];
+  }) => void;
   onSaveSplit?: (config: {
     mode: 'seat' | 'evenly' | 'custom';
     numberOfChecks: number;
@@ -161,6 +169,7 @@ export function PaymentDialog({
   voucherItems = [],
   isDeposit = false,
   onPaymentComplete,
+  onDepositAssigned,
   onSaveSplit,
 }: PaymentDialogProps) {
   // Core payment states
@@ -1835,6 +1844,14 @@ export function PaymentDialog({
                       setDepositVirtualNumber(formatted);
                       setDepositDetailsStep(false);
                       setDepositSuccessStep(true);
+                      onDepositAssigned?.({
+                        virtualNumber: formatted,
+                        expires: depositExpiryMode === 'custom' && depositExpiryDate ? depositExpiryDate : 'Same day',
+                        refundAllowed: depositAllowRefund,
+                        twoFAEnabled: depositRequire2FA,
+                        amount: totalPaid,
+                        payments: paymentHistory,
+                      });
                     }}
                     className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
                   >

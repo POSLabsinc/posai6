@@ -2141,6 +2141,64 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     setShowMobileOrderPanel(true);
   };
 
+  // Deposit ticket helpers - reuse panel layout but swap items/summary/footer
+  const isDepositOrder = (g: GuestOrder | null | undefined) =>
+    !!g && (g.orderType === 'Deposit' || (g as any).transferInfo?.type === 'deposit');
+  const getDepositMeta = (g: GuestOrder) => {
+    const t: any = (g as any).transferInfo || {};
+    return {
+      virtualNumber: t.virtualNumber || '—',
+      expires: t.expires || 'Same day',
+      refundAllowed: !!t.refundAllowed,
+      twoFAEnabled: !!t.twoFAEnabled,
+    };
+  };
+  const renderDepositRecordRows = (g: GuestOrder) => {
+    const m = getDepositMeta(g);
+    return (
+      <div className="mx-3 mt-3 bg-neutral-800 rounded-lg p-3 space-y-2">
+        <div className="flex items-center justify-between">
+          <span className="text-white/60 text-xs">Virtual Number</span>
+          <span className="text-amber-400 text-xs font-semibold tracking-wider">{m.virtualNumber}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-white/60 text-xs">Status</span>
+          <span className="text-emerald-400 text-xs font-medium">Active</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-white/60 text-xs">Expires</span>
+          <span className="text-white text-xs font-medium">{m.expires}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-white/60 text-xs">Refund Allowed</span>
+          <span className="text-white text-xs font-medium">{m.refundAllowed ? 'Yes' : 'No'}</span>
+        </div>
+        <div className="flex items-center justify-between">
+          <span className="text-white/60 text-xs">2FA Enabled</span>
+          <span className="text-white text-xs font-medium">{m.twoFAEnabled ? 'Yes' : 'No'}</span>
+        </div>
+      </div>
+    );
+  };
+  const renderDepositPayments = (g: GuestOrder) => {
+    const pms = (g.paymentMethods && g.paymentMethods.length > 0)
+      ? g.paymentMethods.map(pm => ({ method: pm.label || pm.type || 'Card', amount: pm.amount }))
+      : [{ method: g.paymentType && g.paymentType !== '--' ? g.paymentType : 'Card', amount: g.total }];
+    return (
+      <div className="px-3 py-3 border-t border-neutral-700/50">
+        <div className="text-white/60 text-xs uppercase tracking-wide mb-2">Payments</div>
+        <div className="space-y-1.5">
+          {pms.map((p: any, i: number) => (
+            <div key={i} className="flex items-center justify-between">
+              <span className="text-white text-xs">{p.method}{p.last4 ? ` •••• ${p.last4}` : ''}</span>
+              <span className="text-white text-xs font-semibold">{formatPrice(p.amount)}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
   // Mobile Order Panel Component
   const MobileOrderPanel = () => (
     <div className="fixed inset-0 z-50 bg-neutral-900 flex flex-col relative">
@@ -2321,6 +2379,12 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           />
         </div>
       )}
+      {isDepositOrder(selectedGuest) ? (
+        <div className="flex-1 overflow-y-auto">
+          {renderDepositRecordRows(selectedGuest)}
+          {renderDepositPayments(selectedGuest)}
+        </div>
+      ) : (<>
       {/* Order Items */}
       <ScrollArea className="flex-1 px-3">
         <div className="py-2 space-y-2">
@@ -2753,6 +2817,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
           })()
         )}
       </div>
+      </>)}
     </div>
   );
 
@@ -3491,6 +3556,12 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               />
             </div>
           )}
+          {isDepositOrder(selectedGuest) ? (
+            <div className="flex-1 overflow-y-auto">
+              {renderDepositRecordRows(selectedGuest)}
+              {renderDepositPayments(selectedGuest)}
+            </div>
+          ) : (<>
           {/* Order Items */}
           <ScrollArea className="flex-1 px-4">
             <div className="py-2 space-y-2">
@@ -3948,6 +4019,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               })()
             )}
           </div>
+          </>)}
         </div>
       </div>
     </div>
@@ -4360,6 +4432,12 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               />
             </div>
           )}
+          {isDepositOrder(selectedGuest) ? (
+            <div className="flex-1 overflow-y-auto">
+              {renderDepositRecordRows(selectedGuest)}
+              {renderDepositPayments(selectedGuest)}
+            </div>
+          ) : (<>
           {/* Order Items */}
           <ScrollArea className="flex-1 px-3">
             <div className="py-2 space-y-1.5">
@@ -4777,6 +4855,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               })()
             )}
           </div>
+          </>)}
         </div>
       </div>
     </div>

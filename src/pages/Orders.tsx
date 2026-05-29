@@ -2222,6 +2222,10 @@ const Orders = () => {
                       className="text-[11px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (item.name === 'Deposit') {
+                          openDepositPanel(item.price);
+                          return;
+                        }
                         handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
                       }}>
 
@@ -3536,6 +3540,10 @@ const Orders = () => {
                                 className="text-sm md:text-xs lg:text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors ml-2"
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  if (item.name === 'Deposit') {
+                                    openDepositPanel(item.price);
+                                    return;
+                                  }
                                   handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
                                 }}>
 

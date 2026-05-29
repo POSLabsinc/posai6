@@ -5693,6 +5693,7 @@ export function PaymentDialog({
               <span className="text-red-500 font-bold">${remainingDue > 0 ? remainingDue.toFixed(2) : '0.00'}</span>
             </div>
           </div>
+          )}
         </div>
         )}
       </div>

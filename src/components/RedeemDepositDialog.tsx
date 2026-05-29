@@ -109,10 +109,10 @@ export const RedeemDepositDialog = ({
                 autoCapitalize="characters"
                 autoCorrect="off"
                 spellCheck={false}
-                value={code}
+                value={code.length > 4 ? `${code.slice(0, 4)}-${code.slice(4)}` : code}
                 onChange={(e) => handleChange(e.target.value)}
-                placeholder="Enter virtual number or scan QR"
-                className="w-full h-14 rounded-lg bg-neutral-800 border border-neutral-600 px-4 pr-12 text-white text-lg tracking-[0.2em] placeholder:text-neutral-500 placeholder:tracking-normal placeholder:text-sm focus:outline-none focus:border-neutral-400"
+                placeholder="XXXX-XXXX"
+                className="w-full h-14 rounded-lg bg-neutral-800 border border-neutral-600 px-4 pr-12 text-white text-lg tracking-[0.2em] placeholder:text-neutral-500 placeholder:tracking-[0.2em] focus:outline-none focus:border-neutral-400"
               />
               <button
                 type="button"

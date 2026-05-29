@@ -1813,7 +1813,7 @@ export function PaymentDialog({
                   <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
                   <div className="flex gap-4 justify-center mb-4">
                     <button 
-                      onClick={handleComplete}
+                      onClick={finishReceipt}
                       className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
                     >
                       <Printer className="w-6 h-6 text-neutral-400" />

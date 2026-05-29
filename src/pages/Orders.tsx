@@ -2189,7 +2189,7 @@ const Orders = () => {
 
                               ${item.price.toFixed(2)}
                             </span> :
-                    item.noTax ?
+                    item.noTax && item.name !== 'Deposit' ?
                     <span
                       className="text-[11px] font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
                       onClick={(e) => {
@@ -3503,7 +3503,7 @@ const Orders = () => {
 
                                           ${item.price.toFixed(2)}
                                         </span> :
-                              item.noTax ?
+                              item.noTax && item.name !== 'Deposit' ?
                               <span
                                 className="text-sm md:text-xs lg:text-sm font-medium flex items-center gap-1.5 ml-2 cursor-pointer transition-colors"
                                 onClick={(e) => {

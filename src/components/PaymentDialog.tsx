@@ -65,6 +65,8 @@ export interface PaymentDialogProps {
   onOpenChange: (open: boolean) => void;
   orderDetails: PaymentDialogOrderDetails;
   subtotal: number;
+  /** Subtotal eligible for cash discount / card surcharge (excludes deposits). Defaults to subtotal. */
+  discountableSubtotal?: number;
   tax: number;
   total: number;
   containsVoucher?: boolean;
@@ -148,6 +150,7 @@ export function PaymentDialog({
   onOpenChange,
   orderDetails,
   subtotal,
+  discountableSubtotal,
   tax,
   total,
   containsVoucher = false,
@@ -926,20 +929,22 @@ export function PaymentDialog({
   const applyCardSurcharge =
     isCardPayment && (pricingMode === 'card-surcharge' || pricingMode === 'show-both');
 
-  const ccSurcharge = applyCardSurcharge ? (subtotal + tax) * PRICING_CARD_SURCHARGE_RATE : 0;
-  const cashDiscount = applyCashDiscount ? (subtotal + tax) * PRICING_CASH_DISCOUNT_RATE : 0;
+  // Base for cash discount / card surcharge — excludes deposit amounts
+  const discountBase = (discountableSubtotal ?? subtotal) + tax * ((discountableSubtotal ?? subtotal) / (subtotal || 1));
+  const ccSurcharge = applyCardSurcharge ? discountBase * PRICING_CARD_SURCHARGE_RATE : 0;
+  const cashDiscount = applyCashDiscount ? discountBase * PRICING_CASH_DISCOUNT_RATE : 0;
 
   // Reference totals for the "Show Both Prices" display.
   const cashTotalDisplay = Math.max(
     0,
     total - (pricingMode === 'cash-discount' || pricingMode === 'show-both'
-      ? (subtotal + tax) * PRICING_CASH_DISCOUNT_RATE
+      ? discountBase * PRICING_CASH_DISCOUNT_RATE
       : 0)
   );
   const cardTotalDisplay = Math.max(
     0,
     total + (pricingMode === 'card-surcharge' || pricingMode === 'show-both'
-      ? (subtotal + tax) * PRICING_CARD_SURCHARGE_RATE
+      ? discountBase * PRICING_CARD_SURCHARGE_RATE
       : 0)
   );
 

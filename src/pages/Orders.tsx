@@ -1553,8 +1553,12 @@ const Orders = () => {
     }
   };
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
+  // Deposits are excluded from tax and discount calculations
+  const discountableSubtotal = orderItems.
+  filter((item) => item.name !== 'Deposit').
+  reduce((sum, item) => sum + item.price * item.qty, 0);
   const discount = selectedDiscounts.reduce((sum, d) => {
-    if (d.type === "percentage") return sum + (subtotal * d.value) / 100;
+    if (d.type === "percentage") return sum + (discountableSubtotal * d.value) / 100;
     return sum + d.value;
   }, 0);
   const serviceCharge = appliedServiceCharge;
@@ -4283,6 +4287,7 @@ const Orders = () => {
         }))
       }}
       subtotal={subtotal}
+      discountableSubtotal={discountableSubtotal}
       tax={tax}
       total={chargeAmount}
       containsVoucher={orderItems.some(item => item.itemOrderType === 'VOUCHER')}

@@ -3930,6 +3930,17 @@ const Orders = () => {
         </div>
       </div>
 
+      {/* Redeem Deposit Dialog */}
+      <RedeemDepositDialog
+        open={showRedeemDepositDialog}
+        onOpenChange={setShowRedeemDepositDialog}
+        deposits={(allTicketOrders || []).filter((o: any) => o?.transferInfo?.type === 'deposit')}
+        onApply={(deposit) => {
+          const amt = Number(deposit.paidAmount ?? deposit.total ?? 0);
+          toast.success(`Deposit ${deposit.transferInfo?.virtualNumber} applied ($${amt.toFixed(2)})`);
+        }}
+      />
+
       {/* Open Price Dialog */}
       <OpenPriceDialog
         open={showOpenPriceDialog}

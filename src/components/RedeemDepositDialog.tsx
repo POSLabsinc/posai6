@@ -21,13 +21,14 @@ export const RedeemDepositDialog = ({
   const [validated, setValidated] = useState<UnifiedTicketOrder | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Index deposits by virtualNumber (uppercase) for lookup
+  // Index deposits by normalized virtualNumber (uppercase, no dashes) for lookup
   const depositIndex = useMemo(() => {
     const map = new Map<string, UnifiedTicketOrder>();
     deposits.forEach((d) => {
       const vn = d?.transferInfo?.virtualNumber;
       if (vn && d?.transferInfo?.type === "deposit") {
-        map.set(String(vn).toUpperCase(), d);
+        const key = String(vn).replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+        map.set(key, d);
       }
     });
     return map;
@@ -44,7 +45,7 @@ export const RedeemDepositDialog = ({
   // Auto-validate when code reaches CODE_LENGTH
   useEffect(() => {
     if (code.length === CODE_LENGTH) {
-      const found = depositIndex.get(code.toUpperCase());
+      const found = depositIndex.get(code);
       if (found) {
         setValidated(found);
         setError(null);

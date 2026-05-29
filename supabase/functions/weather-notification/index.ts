@@ -103,9 +103,18 @@ async function runWeather(body: any) {
       await supabase.from("notifications").insert(payload);
     }
 
-    return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     console.error("weather-notification error:", e);
-    return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const body = await req.json().catch(() => ({}));
+  // @ts-ignore
+  EdgeRuntime.waitUntil(runWeather(body));
+  return new Response(JSON.stringify({ ok: true, queued: true }), {
+    status: 202,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 });

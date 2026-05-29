@@ -169,6 +169,7 @@ export function PaymentDialog({
   voucherItems = [],
   isDeposit = false,
   onPaymentComplete,
+  onDepositAssigned,
   onSaveSplit,
 }: PaymentDialogProps) {
   // Core payment states

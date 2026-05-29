@@ -2526,7 +2526,7 @@ const Orders = () => {
             </button>
 
             {/* Keyboard / Numpad */}
-            {activeCustomItemField === 'name' ? (
+            {customItemMode !== 'deposit' && activeCustomItemField === 'name' ? (
           /* QWERTY Keyboard for Name */
           <div className="flex flex-col gap-1.5 min-h-0">
                 {/* Row 1: q-p */}

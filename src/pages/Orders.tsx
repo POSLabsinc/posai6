@@ -668,6 +668,7 @@ const Orders = () => {
   }, [voucherModeCtx]);
   const [editingVoucherData, setEditingVoucherData] = useState<import('@/components/VoucherDialog').VoucherInitialData | null>(null);
   const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
+  const [showRedeemDepositDialog, setShowRedeemDepositDialog] = useState(false);
   const [showOpenPriceDialog, setShowOpenPriceDialog] = useState(false);
   const [openPriceItem, setOpenPriceItem] = useState<MenuItem | null>(null);
   const [openPriceImageIndex, setOpenPriceImageIndex] = useState(0);

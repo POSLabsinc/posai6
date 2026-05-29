@@ -150,6 +150,7 @@ export function PaymentDialog({
   onOpenChange,
   orderDetails,
   subtotal,
+  discountableSubtotal,
   tax,
   total,
   containsVoucher = false,

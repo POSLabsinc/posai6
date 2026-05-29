@@ -1501,9 +1501,11 @@ const Orders = () => {
       setShowCustomItemPanel(false);
       setCustomItemName("");
       setCustomItemPrice("");
+      setCustomItemMode('item');
     } else {
       // Opening custom item panel
       setShowCustomItemPanel(true);
+      setCustomItemMode('item');
       setMenuPosition('full');
       setActiveCustomItemField('name');
     }

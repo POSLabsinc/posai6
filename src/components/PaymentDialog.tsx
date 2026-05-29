@@ -1828,9 +1828,10 @@ export function PaymentDialog({
 
                   <button
                     onClick={() => {
-                      // Generate a 16-digit virtual number formatted in groups of 4
-                      const raw = Array.from({ length: 16 }, () => Math.floor(Math.random() * 10)).join('');
-                      const formatted = raw.match(/.{1,4}/g)?.join(' ') || raw;
+                      // Generate a virtual number formatted as XXXX-XXXX (alphanumeric uppercase)
+                      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                      const raw = Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+                      const formatted = `${raw.slice(0, 4)}-${raw.slice(4)}`;
                       setDepositVirtualNumber(formatted);
                       setDepositDetailsStep(false);
                       setDepositSuccessStep(true);

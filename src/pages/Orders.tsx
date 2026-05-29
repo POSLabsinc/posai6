@@ -676,6 +676,7 @@ const Orders = () => {
       return [];
     }
   });
+  const [appliedDeposit, setAppliedDeposit] = useState<{ virtualNumber: string; amount: number } | null>(null);
   const [showOpenPriceDialog, setShowOpenPriceDialog] = useState(false);
   const [openPriceItem, setOpenPriceItem] = useState<MenuItem | null>(null);
   const [openPriceImageIndex, setOpenPriceImageIndex] = useState(0);
@@ -2371,6 +2372,21 @@ const Orders = () => {
               </ScrollArea>}
           </div>
 
+          {/* Deposit Credit Chip */}
+          {appliedDeposit && (
+            <div className="px-2 pt-2">
+              <div className="flex items-center justify-between gap-2 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-3 py-1.5">
+                <span className="text-emerald-400 text-[11px] font-semibold truncate">
+                  Deposit Credit Active · {appliedDeposit.virtualNumber} · ${appliedDeposit.amount.toFixed(2)} available
+                </span>
+                <button
+                  onClick={() => setAppliedDeposit(null)}
+                  className="text-emerald-400/80 hover:text-emerald-300 text-xs font-bold"
+                  aria-label="Remove deposit"
+                >×</button>
+              </div>
+            </div>
+          )}
           {/* Order Summary - Only show when items exist */}
           {orderItems.length > 0 && <div className="px-2 py-1 border-t border-sidebar-border text-xs flex items-center justify-between gap-2">
               <div className="flex items-center gap-1">
@@ -3718,6 +3734,21 @@ const Orders = () => {
                     </div>
               }
 
+                  {/* Deposit Credit Chip */}
+                  {appliedDeposit && (
+                    <div className="px-2 pt-2">
+                      <div className="flex items-center justify-between gap-2 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-3 py-1.5">
+                        <span className="text-emerald-400 text-[11px] font-semibold truncate">
+                          Deposit Credit Active · {appliedDeposit.virtualNumber} · ${appliedDeposit.amount.toFixed(2)} available
+                        </span>
+                        <button
+                          onClick={() => setAppliedDeposit(null)}
+                          className="text-emerald-400/80 hover:text-emerald-300 text-xs font-bold"
+                          aria-label="Remove deposit"
+                        >×</button>
+                      </div>
+                    </div>
+                  )}
                   {/* Order Summary - Only show when cart has items */}
                   {orderItems.length > 0 &&
               <div className="p-2 border-t border-sidebar-border flex-shrink-0">
@@ -3946,8 +3977,11 @@ const Orders = () => {
           ...(allTicketOrders || []).filter((o) => o.orderType === 'Deposit' || o.transferInfo?.type === 'deposit')
         ]}
         onApply={(deposit) => {
-          const amt = Number(deposit.paidAmount ?? deposit.total ?? 0);
-          toast.success(`Deposit ${deposit.transferInfo?.virtualNumber} applied ($${amt.toFixed(2)})`);
+          const ti: any = (deposit as any).transferInfo || {};
+          const vn = String(ti.virtualNumber || ti.virtual_number || '');
+          const amt = Number((deposit as any).paidAmount ?? (deposit as any).total ?? 0);
+          setAppliedDeposit({ virtualNumber: vn, amount: amt });
+          toast.success(`Deposit ${vn} applied ($${amt.toFixed(2)})`);
         }}
       />
 

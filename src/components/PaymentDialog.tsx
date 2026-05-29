@@ -1642,6 +1642,64 @@ export function PaymentDialog({
                 })()}
               </div>
             ) :
+            // Deposit Details screen (after receipt action in Create Deposit flow)
+            depositDetailsStep ? (
+              <div className="flex flex-col flex-1">
+                <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                  <span className="text-white text-lg font-medium">Deposit Details</span>
+                </div>
+                <div className="flex-1 flex flex-col px-6 py-6 gap-6">
+                  {/* Details Card */}
+                  <div className="bg-neutral-800 rounded-2xl p-5">
+                    <p className="text-neutral-500 text-xs uppercase tracking-wider mb-3">Expiry</p>
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      <button
+                        onClick={() => setDepositExpiryMode('same-day')}
+                        className={`py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          depositExpiryMode === 'same-day'
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                        }`}
+                      >
+                        Same day
+                      </button>
+                      <button
+                        onClick={() => setDepositExpiryMode('custom')}
+                        className={`py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          depositExpiryMode === 'custom'
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                        }`}
+                      >
+                        Custom date
+                      </button>
+                    </div>
+                    <div className="h-px bg-neutral-700 -mx-5 mb-4" />
+                    <div className="flex items-center justify-between py-2">
+                      <div className="flex flex-col">
+                        <span className="text-white text-sm font-medium">Allow refund to deposit</span>
+                        <span className="text-neutral-500 text-xs">Refunded products restore balance</span>
+                      </div>
+                      <Switch checked={depositAllowRefund} onCheckedChange={setDepositAllowRefund} />
+                    </div>
+                    <div className="flex items-center justify-between py-2">
+                      <div className="flex flex-col">
+                        <span className="text-white text-sm font-medium">Require 2FA on redemption</span>
+                        <span className="text-neutral-500 text-xs">OTP required before deposit applies</span>
+                      </div>
+                      <Switch checked={depositRequire2FA} onCheckedChange={setDepositRequire2FA} />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleComplete}
+                    className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
+                  >
+                    GENERATE VIRTUAL NUMBER
+                  </button>
+                </div>
+              </div>
+            ) :
             // Receipt Screen with Text/Email input handling
             textReceiptStep === 'phone-input' ? (
               // Text Receipt Phone Input Screen

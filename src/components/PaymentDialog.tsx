@@ -442,6 +442,10 @@ export function PaymentDialog({
       setVoucherAppliedAmount(0);
       setTextReceiptStep('receipt');
       setEmailReceiptStep('receipt');
+      setDepositDetailsStep(false);
+      setDepositExpiryMode('same-day');
+      setDepositAllowRefund(false);
+      setDepositRequire2FA(false);
       setVoucherDeliveryDone(false);
       setVoucherDeliveryMethod(null);
       setVoucherSendMode('choose-method');

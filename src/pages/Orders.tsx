@@ -1435,6 +1435,27 @@ const Orders = () => {
   // Custom Item Panel functions
   const handleCustomItemNumpadClick = (value: string) => {
     if (activeCustomItemField === 'price') {
+      // Deposit mode: shift-decimal (cents) entry, always renders as N.NN
+      if (customItemMode === 'deposit') {
+        if (value === 'clear') {
+          setCustomItemPrice("");
+          return;
+        }
+        if (value === 'backspace') {
+          setCustomItemPrice((prev) => {
+            const digits = prev.replace(/\D/g, '').slice(0, -1);
+            if (!digits) return "";
+            return (parseInt(digits, 10) / 100).toFixed(2);
+          });
+          return;
+        }
+        if (value === '.') return; // decimal is implicit
+        setCustomItemPrice((prev) => {
+          const digits = (prev.replace(/\D/g, '') + value).slice(0, 8);
+          return (parseInt(digits, 10) / 100).toFixed(2);
+        });
+        return;
+      }
       if (value === 'clear') {
         setCustomItemPrice("");
       } else if (value === 'backspace') {
@@ -1451,6 +1472,7 @@ const Orders = () => {
       }
     }
   };
+
 
   const handleCustomItemKeyboardClick = (key: string) => {
     if (activeCustomItemField === 'name') {

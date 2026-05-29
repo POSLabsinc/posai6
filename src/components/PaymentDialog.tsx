@@ -1675,14 +1675,14 @@ export function PaymentDialog({
                       <span className="text-neutral-400 text-sm">Print</span>
                     </button>
                     <button
-                      onClick={() => { setDepositSuccessStep(false); setTextReceiptStep('phone-input'); }}
+                      onClick={() => setTextReceiptStep('phone-input')}
                       className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
                     >
                       <MessageSquare className="w-6 h-6 text-neutral-400" />
                       <span className="text-neutral-400 text-sm">Text</span>
                     </button>
                     <button
-                      onClick={() => { setDepositSuccessStep(false); setEmailReceiptStep('email-input'); }}
+                      onClick={() => setEmailReceiptStep('email-input')}
                       className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
                     >
                       <Mail className="w-6 h-6 text-neutral-400" />

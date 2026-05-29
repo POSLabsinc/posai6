@@ -1722,9 +1722,11 @@ export function PaymentDialog({
                       <Switch checked={depositRequire2FA} onCheckedChange={setDepositRequire2FA} />
                     </div>
                     {depositRequire2FA && (
+                      <div className="mt-3 pt-3 border-t border-neutral-700 flex flex-col gap-4">
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-neutral-500 text-xs uppercase tracking-wider">OTP Channel</span>
                           <div className="inline-flex bg-neutral-700 rounded-lg p-0.5">
+
 
                             {(['sms', 'email', 'both'] as const).map((ch) => (
                               <button

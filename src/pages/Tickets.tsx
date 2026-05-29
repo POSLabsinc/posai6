@@ -2181,9 +2181,9 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     );
   };
   const renderDepositPayments = (g: GuestOrder) => {
-    const payments = g.payments && g.payments.length > 0
-      ? g.payments
-      : [{ method: g.paymentType || 'Card', amount: g.total }];
+    const pms = (g.paymentMethods && g.paymentMethods.length > 0)
+      ? g.paymentMethods.map(pm => ({ method: pm.label || pm.type || 'Card', amount: pm.amount }))
+      : [{ method: g.paymentType && g.paymentType !== '--' ? g.paymentType : 'Card', amount: g.total }];
     return (
       <div className="px-3 py-3 border-t border-neutral-700/50">
         <div className="text-white/60 text-xs uppercase tracking-wide mb-2">Payments</div>

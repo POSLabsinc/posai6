@@ -1283,6 +1283,18 @@ const Orders = () => {
       }];
     });
   };
+  const openDepositPanel = (amount?: number) => {
+    setCustomizationDialogOpen(false);
+    setShowInlineCustomization(false);
+    setSelectedItemForCustomization(null);
+    setCustomItemName("");
+    setCustomItemPrice(typeof amount === 'number' ? amount.toFixed(2) : "");
+    setCustomItemMode('deposit');
+    setActiveCustomItemField('price');
+    setShowCustomItemPanel(true);
+    setMenuPosition('full');
+  };
+
   const openCustomizationDialog = (item: {
     id: number;
     name: string;
@@ -1295,7 +1307,7 @@ const Orders = () => {
     }
 
     // If cart item is a voucher, open Sell Voucher screen in edit mode
-    const fullItem = orderItems.find((i) => i.id === item.id) as OrderItem | undefined;
+    const fullItem = (orderItems.find((i) => i.id === item.id) ?? item) as OrderItem | undefined;
     if (fullItem?.itemOrderType === 'VOUCHER' && (fullItem as any)?.voucherMeta) {
       setEditingVoucherData({
         type: ((fullItem as any).voucherMeta.type as 'fixed' | 'percentage') || 'fixed',
@@ -1307,6 +1319,11 @@ const Orders = () => {
         voucherName: (fullItem as any).voucherMeta.voucherName,
       });
       setVoucherMode(true);
+      return;
+    }
+
+    if (fullItem?.name === 'Deposit') {
+      openDepositPanel(fullItem.price);
       return;
     }
 
@@ -2205,6 +2222,10 @@ const Orders = () => {
                       className="text-[11px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors"
                       onClick={(e) => {
                         e.stopPropagation();
+                        if (item.name === 'Deposit') {
+                          openDepositPanel(item.price);
+                          return;
+                        }
                         handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
                       }}>
 
@@ -3519,6 +3540,10 @@ const Orders = () => {
                                 className="text-sm md:text-xs lg:text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors ml-2"
                                 onClick={(e) => {
                                   e.stopPropagation();
+                                  if (item.name === 'Deposit') {
+                                    openDepositPanel(item.price);
+                                    return;
+                                  }
                                   handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
                                 }}>
 
@@ -3857,12 +3882,7 @@ const Orders = () => {
                   </button>
                   <button
                 onClick={() => {
-                  setCustomItemMode('deposit');
-                  setShowCustomItemPanel(true);
-                  setMenuPosition('full');
-                  setActiveCustomItemField('price');
-                  setCustomItemName('Deposit');
-                  setCustomItemPrice('');
+                  openDepositPanel();
                 }}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 

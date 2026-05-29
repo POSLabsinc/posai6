@@ -3826,7 +3826,14 @@ const Orders = () => {
                     <span className="text-[9px] text-white text-center leading-tight">Sell<br />Voucher</span>
                   </button>
                   <button
-                onClick={() => {}}
+                onClick={() => {
+                  setCustomItemMode('deposit');
+                  setShowCustomItemPanel(true);
+                  setMenuPosition('full');
+                  setActiveCustomItemField('price');
+                  setCustomItemName('Deposit');
+                  setCustomItemPrice('');
+                }}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
                     <Wallet className="w-5 h-5 text-white" />

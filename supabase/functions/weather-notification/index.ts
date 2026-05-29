@@ -27,10 +27,9 @@ const WEATHER_CODE: Record<number, { label: string; emoji: string }> = {
   95: { label: "thunderstorm", emoji: "⛈️" }, 96: { label: "thunderstorm w/ hail", emoji: "⛈️" }, 99: { label: "severe thunderstorm", emoji: "⛈️" },
 };
 
-Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+async function runWeather(body: any) {
   try {
-    const { latitude, longitude, city } = await req.json().catch(() => ({}));
+    const { latitude, longitude, city } = body || {};
     let lat = latitude, lon = longitude, locationName = city || "your area";
 
     if ((lat == null || lon == null) && city) {
@@ -104,9 +103,18 @@ Deno.serve(async (req) => {
       await supabase.from("notifications").insert(payload);
     }
 
-    return new Response(JSON.stringify({ ok: true }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     console.error("weather-notification error:", e);
-    return new Response(JSON.stringify({ error: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   }
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  const body = await req.json().catch(() => ({}));
+  // @ts-ignore
+  EdgeRuntime.waitUntil(runWeather(body));
+  return new Response(JSON.stringify({ ok: true, queued: true }), {
+    status: 202,
+    headers: { ...corsHeaders, "Content-Type": "application/json" },
+  });
 });

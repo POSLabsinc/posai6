@@ -2453,7 +2453,7 @@ const Orders = () => {
         <div className="flex-1 flex flex-col p-3 md:p-4 overflow-y-auto scrollbar-hide min-h-0">
             {/* Header */}
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
-              <h2 className="text-white text-lg font-semibold">Custom Item</h2>
+              <h2 className="text-white text-lg font-semibold">{customItemMode === 'deposit' ? 'Create Deposit' : 'Custom Item'}</h2>
               <button
               onClick={toggleCustomItemPanel}
               className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors">

@@ -158,6 +158,7 @@ export function PaymentDialog({
   containsVoucher = false,
   voucherCount = 1,
   voucherItems = [],
+  isDeposit = false,
   onPaymentComplete,
   onSaveSplit,
 }: PaymentDialogProps) {

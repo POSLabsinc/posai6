@@ -4343,20 +4343,18 @@ const Orders = () => {
         }
       }}
       onDepositAssigned={(meta) => {
-        const dbId = quickOrderDbId || existingOrderId || sessionIdFromParams;
-        if (!dbId) return;
         const paymentsArray = meta.payments.map((p: any) => ({
           method: p.methodLabel || p.method || 'Card',
           amount: p.amount || 0,
         }));
-        updateTicketOrder(dbId, {
+        const depositPayload = {
           orderType: 'Deposit',
-          status: 'PAID',
+          status: 'PAID' as const,
           notes: '',
           paymentType: paymentsArray[0]?.method || 'Card',
           payments: paymentsArray,
           paidAmount: meta.amount.toFixed(2),
-          paymentStatus: 'completed',
+          paymentStatus: 'completed' as const,
           transferInfo: {
             type: 'deposit',
             virtualNumber: meta.virtualNumber,
@@ -4364,6 +4362,42 @@ const Orders = () => {
             refundAllowed: meta.refundAllowed,
             twoFAEnabled: meta.twoFAEnabled,
           },
+        };
+        const dbId = quickOrderDbId || existingOrderId || sessionIdFromParams;
+        if (dbId) {
+          updateTicketOrder(dbId, depositPayload).catch(console.error);
+          return;
+        }
+        // No ticket exists yet (deposit was created without firing). Create one now.
+        addTicketOrder({
+          name: guestName || 'Deposit',
+          phone: guestPhone || '',
+          partySize: 1,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timer: '0:00',
+          server: '',
+          check: '',
+          revenueCenter: '',
+          table: '',
+          subtotal: meta.amount,
+          discount: 0,
+          serviceCharge: 0,
+          tax: 0,
+          tip: 0,
+          total: meta.amount,
+          items: [{
+            qty: 1,
+            name: 'Deposit',
+            price: meta.amount,
+            seats: [],
+            modifiers: [],
+            isShared: false,
+            isFired: true,
+            noTax: true,
+          }],
+          ...depositPayload,
+        } as any).then((data: any) => {
+          if (data?.id) setQuickOrderDbId(data.id);
         }).catch(console.error);
       }}
       onSaveSplit={(config) => {

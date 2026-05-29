@@ -2188,7 +2188,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
       <div className="px-3 py-3 border-t border-neutral-700/50">
         <div className="text-white/60 text-xs uppercase tracking-wide mb-2">Payments</div>
         <div className="space-y-1.5">
-          {payments.map((p: any, i: number) => (
+          {pms.map((p: any, i: number) => (
             <div key={i} className="flex items-center justify-between">
               <span className="text-white text-xs">{p.method}{p.last4 ? ` •••• ${p.last4}` : ''}</span>
               <span className="text-white text-xs font-semibold">{formatPrice(p.amount)}</span>

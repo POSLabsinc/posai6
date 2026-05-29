@@ -1687,7 +1687,7 @@ export function PaymentDialog({
                     onClick={() => { 
                       setTextReceiptStep('receipt'); 
                       setTextReceiptPhone('');
-                      handleComplete(); 
+                      finishReceipt(); 
                     }} 
                     disabled={textReceiptPhone.replace(/\D/g, '').length < 10} 
                     className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"

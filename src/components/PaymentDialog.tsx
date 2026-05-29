@@ -13,6 +13,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import tickSuccessIcon from "@/assets/icons/tick-success.svg";
 import splitCheckIcon from "@/assets/icons/split-check.svg";
 import { DiscountDialog, type Discount } from "@/components/DiscountDialog";

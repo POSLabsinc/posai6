@@ -3943,7 +3943,7 @@ const Orders = () => {
         onOpenChange={setShowRedeemDepositDialog}
         deposits={[
           ...recentDepositRecords,
-          ...(allTicketOrders || []).filter((o: any) => o?.orderType === 'Deposit' || o?.transferInfo?.type === 'deposit')
+          ...(allTicketOrders || []).filter((o) => o.orderType === 'Deposit' || o.transferInfo?.type === 'deposit')
         ]}
         onApply={(deposit) => {
           const amt = Number(deposit.paidAmount ?? deposit.total ?? 0);
@@ -4366,7 +4366,7 @@ const Orders = () => {
         }
       }}
       onDepositAssigned={(meta) => {
-        const paymentsArray = meta.payments.map((p: any) => ({
+        const paymentsArray = meta.payments.map((p) => ({
           method: p.methodLabel || p.method || 'Card',
           amount: p.amount || 0,
         }));

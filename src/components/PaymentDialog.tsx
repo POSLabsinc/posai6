@@ -72,6 +72,8 @@ export interface PaymentDialogProps {
   containsVoucher?: boolean;
   voucherCount?: number;
   voucherItems?: VoucherItemDetail[];
+  /** When true, the post-receipt flow transitions to a Deposit Details screen instead of closing. */
+  isDeposit?: boolean;
   onPaymentComplete?: (paymentHistory: PaymentHistoryItem[]) => void;
   onSaveSplit?: (config: {
     mode: 'seat' | 'evenly' | 'custom';

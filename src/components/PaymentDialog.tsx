@@ -261,8 +261,13 @@ export function PaymentDialog({
   // Deposit Details step (shown after receipt action when isDeposit)
   const [depositDetailsStep, setDepositDetailsStep] = useState(false);
   const [depositExpiryMode, setDepositExpiryMode] = useState<'same-day' | 'custom'>('same-day');
+  const [depositExpiryDate, setDepositExpiryDate] = useState('');
+  const [depositReference, setDepositReference] = useState('');
   const [depositAllowRefund, setDepositAllowRefund] = useState(false);
   const [depositRequire2FA, setDepositRequire2FA] = useState(false);
+  const [depositOtpChannel, setDepositOtpChannel] = useState<'sms' | 'email' | 'both'>('sms');
+  const [depositMobile, setDepositMobile] = useState('');
+  const [depositEmail, setDepositEmail] = useState('');
 
 
   // Split Check states - New redesigned flow

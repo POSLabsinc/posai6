@@ -676,6 +676,7 @@ const Orders = () => {
       return [];
     }
   });
+  const [appliedDeposit, setAppliedDeposit] = useState<{ virtualNumber: string; amount: number } | null>(null);
   const [showOpenPriceDialog, setShowOpenPriceDialog] = useState(false);
   const [openPriceItem, setOpenPriceItem] = useState<MenuItem | null>(null);
   const [openPriceImageIndex, setOpenPriceImageIndex] = useState(0);

@@ -1743,13 +1743,27 @@ export function PaymentDialog({
                         </div>
                         <div className="flex items-center justify-between gap-3">
                           <span className="text-white text-sm font-medium">Mobile Number</span>
-                          <input
-                            type="tel"
-                            value={depositMobile}
-                            onChange={(e) => setDepositMobile(e.target.value)}
-                            placeholder="Enter mobile"
-                            className="bg-neutral-700 text-white text-xs rounded-md px-2 py-1.5 border-none outline-none placeholder:text-neutral-500 w-40"
-                          />
+                          <div className="flex items-center bg-neutral-700 rounded-md overflow-hidden w-40">
+                            <div className="flex items-center gap-1 px-2 py-1.5 border-r border-neutral-600">
+                              <span className="text-white text-xs font-medium">US +1</span>
+                              <ChevronDown className="w-3 h-3 text-neutral-400" />
+                            </div>
+                            <input
+                              type="tel"
+                              value={depositMobile}
+                              onChange={(e) => {
+                                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                                let formatted = '';
+                                if (digits.length === 0) formatted = '';
+                                else if (digits.length <= 3) formatted = `(${digits}`;
+                                else if (digits.length <= 6) formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                                else formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+                                setDepositMobile(formatted);
+                              }}
+                              placeholder="(000) 000-0000"
+                              className="flex-1 min-w-0 bg-transparent text-white px-2 py-1.5 text-xs placeholder:text-neutral-500 outline-none"
+                            />
+                          </div>
                         </div>
                         <div className="flex items-center justify-between gap-3">
                           <div className="flex items-center gap-2">

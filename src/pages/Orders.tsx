@@ -1283,6 +1283,18 @@ const Orders = () => {
       }];
     });
   };
+  const openDepositPanel = (amount?: number) => {
+    setCustomizationDialogOpen(false);
+    setShowInlineCustomization(false);
+    setSelectedItemForCustomization(null);
+    setCustomItemName("");
+    setCustomItemPrice(typeof amount === 'number' ? amount.toFixed(2) : "");
+    setCustomItemMode('deposit');
+    setActiveCustomItemField('price');
+    setShowCustomItemPanel(true);
+    setMenuPosition('full');
+  };
+
   const openCustomizationDialog = (item: {
     id: number;
     name: string;
@@ -1295,7 +1307,7 @@ const Orders = () => {
     }
 
     // If cart item is a voucher, open Sell Voucher screen in edit mode
-    const fullItem = orderItems.find((i) => i.id === item.id) as OrderItem | undefined;
+    const fullItem = (orderItems.find((i) => i.id === item.id) ?? item) as OrderItem | undefined;
     if (fullItem?.itemOrderType === 'VOUCHER' && (fullItem as any)?.voucherMeta) {
       setEditingVoucherData({
         type: ((fullItem as any).voucherMeta.type as 'fixed' | 'percentage') || 'fixed',
@@ -1311,15 +1323,7 @@ const Orders = () => {
     }
 
     if (fullItem?.name === 'Deposit') {
-      setCustomizationDialogOpen(false);
-      setShowInlineCustomization(false);
-      setSelectedItemForCustomization(null);
-      setCustomItemName("");
-      setCustomItemPrice(fullItem.price.toFixed(2));
-      setCustomItemMode('deposit');
-      setActiveCustomItemField('price');
-      setShowCustomItemPanel(true);
-      setMenuPosition('full');
+      openDepositPanel(fullItem.price);
       return;
     }
 

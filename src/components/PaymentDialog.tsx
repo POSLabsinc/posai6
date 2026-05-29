@@ -1657,7 +1657,7 @@ export function PaymentDialog({
                 <div className="flex-1 flex flex-col px-6 py-6 gap-6">
                   {/* Details Card */}
                   <div className="bg-neutral-800 rounded-2xl p-5">
-                    <div className="flex items-center justify-between gap-3 mb-1">
+                    <div className="flex flex-col gap-2 mb-1">
                       <p className="text-neutral-500 text-xs uppercase tracking-wider">Expiry</p>
                       <div className="flex items-center gap-2">
                         <div className="inline-flex bg-neutral-700 rounded-lg p-0.5">
@@ -1693,17 +1693,17 @@ export function PaymentDialog({
                       </div>
                     </div>
                     <div className="h-px bg-neutral-700 -mx-5 my-4" />
-                    <div className="flex items-center justify-between gap-3 py-2">
+                    <div className="flex flex-col gap-2 py-1">
                       <div className="flex items-center gap-2">
-                        <span className="text-white text-sm font-medium">Reference</span>
-                        <span className="text-neutral-500 text-xs">(Optional)</span>
+                        <span className="text-neutral-500 text-xs uppercase tracking-wider">Reference</span>
+                        <span className="text-neutral-500 text-xs normal-case tracking-normal">(Optional)</span>
                       </div>
                       <input
                         type="text"
                         value={depositReference}
                         onChange={(e) => setDepositReference(e.target.value)}
                         placeholder="Enter reference"
-                        className="bg-neutral-700 text-white text-xs rounded-md px-2 py-1.5 border-none outline-none placeholder:text-neutral-500 w-40"
+                        className="bg-neutral-700 text-white text-xs rounded-md px-3 py-2 border-none outline-none placeholder:text-neutral-500 w-full"
                       />
                     </div>
                     <div className="h-px bg-neutral-700 -mx-5 my-4" />
@@ -1722,15 +1722,15 @@ export function PaymentDialog({
                       <Switch checked={depositRequire2FA} onCheckedChange={setDepositRequire2FA} />
                     </div>
                     {depositRequire2FA && (
-                      <div className="mt-3 pt-3 border-t border-neutral-700 flex flex-col gap-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-white text-sm font-medium">OTP Channel</span>
-                          <div className="inline-flex bg-neutral-700 rounded-lg p-0.5">
+                      <div className="mt-3 pt-3 border-t border-neutral-700 flex flex-col gap-4">
+                        <div className="flex flex-col gap-2">
+                          <span className="text-neutral-500 text-xs uppercase tracking-wider">OTP Channel</span>
+                          <div className="inline-flex bg-neutral-700 rounded-lg p-0.5 self-start">
                             {(['sms', 'email', 'both'] as const).map((ch) => (
                               <button
                                 key={ch}
                                 onClick={() => setDepositOtpChannel(ch)}
-                                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors capitalize ${
+                                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
                                   depositOtpChannel === ch
                                     ? 'bg-orange-500 text-white'
                                     : 'text-neutral-300 hover:text-white'
@@ -1741,27 +1741,27 @@ export function PaymentDialog({
                             ))}
                           </div>
                         </div>
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-white text-sm font-medium">Mobile Number</span>
+                        <div className="flex flex-col gap-2">
+                          <span className="text-neutral-500 text-xs uppercase tracking-wider">Mobile Number</span>
                           <input
                             type="tel"
                             value={depositMobile}
                             onChange={(e) => setDepositMobile(e.target.value)}
                             placeholder="Enter mobile"
-                            className="bg-neutral-700 text-white text-xs rounded-md px-2 py-1.5 border-none outline-none placeholder:text-neutral-500 w-40"
+                            className="bg-neutral-700 text-white text-xs rounded-md px-3 py-2 border-none outline-none placeholder:text-neutral-500 w-full"
                           />
                         </div>
-                        <div className="flex items-center justify-between gap-3">
+                        <div className="flex flex-col gap-2">
                           <div className="flex items-center gap-2">
-                            <span className="text-white text-sm font-medium">Email</span>
-                            <span className="text-neutral-500 text-xs">(Optional)</span>
+                            <span className="text-neutral-500 text-xs uppercase tracking-wider">Email</span>
+                            <span className="text-neutral-500 text-xs normal-case tracking-normal">(Optional)</span>
                           </div>
                           <input
                             type="email"
                             value={depositEmail}
                             onChange={(e) => setDepositEmail(e.target.value)}
                             placeholder="Enter email"
-                            className="bg-neutral-700 text-white text-xs rounded-md px-2 py-1.5 border-none outline-none placeholder:text-neutral-500 w-40"
+                            className="bg-neutral-700 text-white text-xs rounded-md px-3 py-2 border-none outline-none placeholder:text-neutral-500 w-full"
                           />
                         </div>
                       </div>

@@ -2522,11 +2522,12 @@ const Orders = () => {
                   <span className="text-white text-sm mr-1">$</span>
                   <input
                   type="text"
-                  value={customItemPrice}
+                  value={customItemMode === 'deposit' ? (customItemPrice || '0.00') : customItemPrice}
                   readOnly
                   onFocus={() => setActiveCustomItemField('price')}
                   placeholder="0.00"
                   className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500" />
+
 
                 </div>
               </div>

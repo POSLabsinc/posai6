@@ -13,6 +13,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Switch } from "@/components/ui/switch";
 import tickSuccessIcon from "@/assets/icons/tick-success.svg";
 import splitCheckIcon from "@/assets/icons/split-check.svg";
 import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
@@ -72,6 +73,8 @@ export interface PaymentDialogProps {
   containsVoucher?: boolean;
   voucherCount?: number;
   voucherItems?: VoucherItemDetail[];
+  /** When true, the post-receipt flow transitions to a Deposit Details screen instead of closing. */
+  isDeposit?: boolean;
   onPaymentComplete?: (paymentHistory: PaymentHistoryItem[]) => void;
   onSaveSplit?: (config: {
     mode: 'seat' | 'evenly' | 'custom';
@@ -156,6 +159,7 @@ export function PaymentDialog({
   containsVoucher = false,
   voucherCount = 1,
   voucherItems = [],
+  isDeposit = false,
   onPaymentComplete,
   onSaveSplit,
 }: PaymentDialogProps) {
@@ -253,6 +257,13 @@ export function PaymentDialog({
   const [emailReceiptStep, setEmailReceiptStep] = useState<'receipt' | 'email-input'>('receipt');
   const [emailReceiptEmail, setEmailReceiptEmail] = useState('');
   const [emailReceiptNoMarketing, setEmailReceiptNoMarketing] = useState(false);
+
+  // Deposit Details step (shown after receipt action when isDeposit)
+  const [depositDetailsStep, setDepositDetailsStep] = useState(false);
+  const [depositExpiryMode, setDepositExpiryMode] = useState<'same-day' | 'custom'>('same-day');
+  const [depositAllowRefund, setDepositAllowRefund] = useState(false);
+  const [depositRequire2FA, setDepositRequire2FA] = useState(false);
+
 
   // Split Check states - New redesigned flow
   const [splitMode, setSplitMode] = useState<'seat' | 'evenly' | 'custom'>('evenly');
@@ -432,6 +443,10 @@ export function PaymentDialog({
       setVoucherAppliedAmount(0);
       setTextReceiptStep('receipt');
       setEmailReceiptStep('receipt');
+      setDepositDetailsStep(false);
+      setDepositExpiryMode('same-day');
+      setDepositAllowRefund(false);
+      setDepositRequire2FA(false);
       setVoucherDeliveryDone(false);
       setVoucherDeliveryMethod(null);
       setVoucherSendMode('choose-method');
@@ -914,6 +929,16 @@ export function PaymentDialog({
     }
     onPaymentComplete?.(paymentHistory);
     onOpenChange(false);
+  };
+
+  // After receipt action: for deposits, transition to the Deposit Details screen
+  // instead of closing the modal. For all other flows, complete normally.
+  const finishReceipt = () => {
+    if (isDeposit) {
+      setDepositDetailsStep(true);
+      return;
+    }
+    handleComplete();
   };
 
   // Payment Pricing Mode (configurable in Settings → Payments → Payment Pricing)
@@ -1618,6 +1643,64 @@ export function PaymentDialog({
                 })()}
               </div>
             ) :
+            // Deposit Details screen (after receipt action in Create Deposit flow)
+            depositDetailsStep ? (
+              <div className="flex flex-col flex-1">
+                <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                  <span className="text-white text-lg font-medium">Deposit Details</span>
+                </div>
+                <div className="flex-1 flex flex-col px-6 py-6 gap-6">
+                  {/* Details Card */}
+                  <div className="bg-neutral-800 rounded-2xl p-5">
+                    <p className="text-neutral-500 text-xs uppercase tracking-wider mb-3">Expiry</p>
+                    <div className="grid grid-cols-2 gap-2 mb-4">
+                      <button
+                        onClick={() => setDepositExpiryMode('same-day')}
+                        className={`py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          depositExpiryMode === 'same-day'
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                        }`}
+                      >
+                        Same day
+                      </button>
+                      <button
+                        onClick={() => setDepositExpiryMode('custom')}
+                        className={`py-2.5 rounded-lg text-sm font-medium transition-colors ${
+                          depositExpiryMode === 'custom'
+                            ? 'bg-orange-500 text-white'
+                            : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                        }`}
+                      >
+                        Custom date
+                      </button>
+                    </div>
+                    <div className="h-px bg-neutral-700 -mx-5 mb-4" />
+                    <div className="flex items-center justify-between py-2">
+                      <div className="flex flex-col">
+                        <span className="text-white text-sm font-medium">Allow refund to deposit</span>
+                        <span className="text-neutral-500 text-xs">Refunded products restore balance</span>
+                      </div>
+                      <Switch checked={depositAllowRefund} onCheckedChange={setDepositAllowRefund} />
+                    </div>
+                    <div className="flex items-center justify-between py-2">
+                      <div className="flex flex-col">
+                        <span className="text-white text-sm font-medium">Require 2FA on redemption</span>
+                        <span className="text-neutral-500 text-xs">OTP required before deposit applies</span>
+                      </div>
+                      <Switch checked={depositRequire2FA} onCheckedChange={setDepositRequire2FA} />
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleComplete}
+                    className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
+                  >
+                    GENERATE VIRTUAL NUMBER
+                  </button>
+                </div>
+              </div>
+            ) :
             // Receipt Screen with Text/Email input handling
             textReceiptStep === 'phone-input' ? (
               // Text Receipt Phone Input Screen
@@ -1663,7 +1746,7 @@ export function PaymentDialog({
                     onClick={() => { 
                       setTextReceiptStep('receipt'); 
                       setTextReceiptPhone('');
-                      handleComplete(); 
+                      finishReceipt(); 
                     }} 
                     disabled={textReceiptPhone.replace(/\D/g, '').length < 10} 
                     className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
@@ -1720,7 +1803,7 @@ export function PaymentDialog({
                     onClick={() => { 
                       setEmailReceiptStep('receipt'); 
                       setEmailReceiptEmail('');
-                      handleComplete(); 
+                      finishReceipt(); 
                     }} 
                     disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} 
                     className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
@@ -1789,7 +1872,7 @@ export function PaymentDialog({
                   <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
                   <div className="flex gap-4 justify-center mb-4">
                     <button 
-                      onClick={handleComplete}
+                      onClick={finishReceipt}
                       className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
                     >
                       <Printer className="w-6 h-6 text-neutral-400" />
@@ -1811,7 +1894,7 @@ export function PaymentDialog({
                     </button>
                   </div>
                   <button 
-                    onClick={handleComplete}
+                    onClick={finishReceipt}
                     className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
                   >
                     NO RECEIPT

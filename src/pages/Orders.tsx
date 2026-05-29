@@ -4291,6 +4291,7 @@ const Orders = () => {
       tax={tax}
       total={chargeAmount}
       containsVoucher={orderItems.some(item => item.itemOrderType === 'VOUCHER')}
+      isDeposit={orderItems.length > 0 && orderItems.every(item => item.name === 'Deposit')}
       voucherCount={orderItems.filter(item => item.itemOrderType === 'VOUCHER').reduce((sum, item) => sum + (item.qty || 1), 0)}
       voucherItems={orderItems.filter(item => item.itemOrderType === 'VOUCHER').flatMap(item => {
         const qty = item.qty || 1;

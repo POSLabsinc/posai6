@@ -6,7 +6,7 @@ import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
 import { getDynamicCategorySubcategories, getCategoryProducts } from "@/lib/productStore";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket, Wallet } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
 import GuestPastOrderPopup from "@/components/GuestPastOrderPopup";
 import type { PastOrderItem as GuestPastItem, GuestInfo as GuestPastInfo } from "@/components/GuestPastOrderPopup";
@@ -3822,6 +3822,20 @@ const Orders = () => {
 
                     <Ticket className="w-5 h-5 text-white" />
                     <span className="text-[9px] text-white text-center leading-tight">Sell<br />Voucher</span>
+                  </button>
+                  <button
+                onClick={() => {}}
+                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+
+                    <Wallet className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Create<br />Deposit</span>
+                  </button>
+                  <button
+                onClick={() => {}}
+                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+
+                    <QrCode className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Redeem<br />Deposit</span>
                   </button>
                   {/* Merge - Only show when order is split */}
                   {isOrderSplit &&

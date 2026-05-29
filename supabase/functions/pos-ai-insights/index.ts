@@ -38,9 +38,8 @@ async function runInsights() {
       .gte("created_at", sinceIso)
       .limit(1);
     if (recent && recent.length > 0) {
-      return new Response(JSON.stringify({ ok: true, skipped: "throttled" }), {
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
+      console.log("throttled");
+      return;
     }
 
     // Light context: counts of recent notifications and current hour

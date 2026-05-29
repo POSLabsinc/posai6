@@ -5493,7 +5493,34 @@ export function PaymentDialog({
             )}
           </div>
 
-          {/* Order Items */}
+          {depositSuccessStep ? (
+            /* Deposit Record rows shown directly under Check 1 in success state */
+            <div className="mx-3 mt-3 bg-neutral-800 rounded-lg p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 text-xs">Amount</span>
+                <span className="text-white text-xs font-medium">${totalPaid.toFixed(2)}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 text-xs">Status</span>
+                <span className="text-emerald-400 text-xs font-medium">Active</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 text-xs">Expires</span>
+                <span className="text-white text-xs font-medium">
+                  {depositExpiryMode === 'custom' && depositExpiryDate ? depositExpiryDate : 'Same day'}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 text-xs">2FA Enabled</span>
+                <span className="text-white text-xs font-medium">{depositRequire2FA ? 'Yes' : 'No'}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-white/60 text-xs">Refund Allowed</span>
+                <span className="text-white text-xs font-medium">{depositAllowRefund ? 'Yes' : 'No'}</span>
+              </div>
+            </div>
+          ) : (
+          /* Order Items */
           <div 
             className="flex-1 overflow-y-auto p-3 space-y-2" 
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}

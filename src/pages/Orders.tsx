@@ -592,6 +592,7 @@ const Orders = () => {
   const [isDesktopSearchOpen, setIsDesktopSearchOpen] = useState(false);
   const [customizationDialogOpen, setCustomizationDialogOpen] = useState(false);
   const [showCustomItemPanel, setShowCustomItemPanel] = useState(false);
+  const [customItemMode, setCustomItemMode] = useState<'item' | 'deposit'>('item');
   const [customItemName, setCustomItemName] = useState("");
   const [customItemPrice, setCustomItemPrice] = useState("");
   const [activeCustomItemField, setActiveCustomItemField] = useState<'name' | 'price'>('price');
@@ -1500,9 +1501,11 @@ const Orders = () => {
       setShowCustomItemPanel(false);
       setCustomItemName("");
       setCustomItemPrice("");
+      setCustomItemMode('item');
     } else {
       // Opening custom item panel
       setShowCustomItemPanel(true);
+      setCustomItemMode('item');
       setMenuPosition('full');
       setActiveCustomItemField('name');
     }
@@ -2450,7 +2453,7 @@ const Orders = () => {
         <div className="flex-1 flex flex-col p-3 md:p-4 overflow-y-auto scrollbar-hide min-h-0">
             {/* Header */}
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
-              <h2 className="text-white text-lg font-semibold">Custom Item</h2>
+              <h2 className="text-white text-lg font-semibold">{customItemMode === 'deposit' ? 'Create Deposit' : 'Custom Item'}</h2>
               <button
               onClick={toggleCustomItemPanel}
               className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors">
@@ -2459,7 +2462,8 @@ const Orders = () => {
               </button>
             </div>
 
-            {/* Name Input */}
+            {/* Name Input (hidden in deposit mode) */}
+            {customItemMode !== 'deposit' && (
             <div className="mb-3 flex-shrink-0">
               <div
               className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'name' ? '' : 'border-neutral-700'}`}
@@ -2482,6 +2486,7 @@ const Orders = () => {
 
               </div>
             </div>
+            )}
 
             {/* Price Input */}
             <div className="mb-3 flex-shrink-0">
@@ -2490,7 +2495,7 @@ const Orders = () => {
               style={activeCustomItemField === 'price' ? { borderColor: themeColor } : undefined}
               onClick={() => setActiveCustomItemField('price')}>
 
-                <span className="text-neutral-500 text-sm uppercase">PRICE</span>
+                <span className="text-neutral-500 text-sm uppercase">{customItemMode === 'deposit' ? 'AMOUNT' : 'PRICE'}</span>
                 <div className="flex-1 flex items-center">
                   <span className="text-white text-sm mr-1">$</span>
                   <input
@@ -2521,7 +2526,7 @@ const Orders = () => {
             </button>
 
             {/* Keyboard / Numpad */}
-            {activeCustomItemField === 'name' ? (
+            {customItemMode !== 'deposit' && activeCustomItemField === 'name' ? (
           /* QWERTY Keyboard for Name */
           <div className="flex flex-col gap-1.5 min-h-0">
                 {/* Row 1: q-p */}
@@ -3825,7 +3830,14 @@ const Orders = () => {
                     <span className="text-[9px] text-white text-center leading-tight">Sell<br />Voucher</span>
                   </button>
                   <button
-                onClick={() => {}}
+                onClick={() => {
+                  setCustomItemMode('deposit');
+                  setShowCustomItemPanel(true);
+                  setMenuPosition('full');
+                  setActiveCustomItemField('price');
+                  setCustomItemName('Deposit');
+                  setCustomItemPrice('');
+                }}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
                     <Wallet className="w-5 h-5 text-white" />

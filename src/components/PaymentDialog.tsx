@@ -1652,7 +1652,7 @@ export function PaymentDialog({
               </div>
             ) :
             // Deposit Success screen (after Generate Virtual Number tapped)
-            depositSuccessStep ? (
+            depositSuccessStep && textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
               <div className="flex-1 flex flex-col items-center py-8 px-6 overflow-y-auto">
                 <img src={tickSuccessIcon} alt="Success" className="w-14 h-14 mb-4" />
                 <p className="text-neutral-300 text-sm mb-6 text-center">

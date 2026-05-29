@@ -2495,7 +2495,7 @@ const Orders = () => {
               style={activeCustomItemField === 'price' ? { borderColor: themeColor } : undefined}
               onClick={() => setActiveCustomItemField('price')}>
 
-                <span className="text-neutral-500 text-sm uppercase">PRICE</span>
+                <span className="text-neutral-500 text-sm uppercase">{customItemMode === 'deposit' ? 'AMOUNT' : 'PRICE'}</span>
                 <div className="flex-1 flex items-center">
                   <span className="text-white text-sm mr-1">$</span>
                   <input

@@ -930,6 +930,16 @@ export function PaymentDialog({
     onOpenChange(false);
   };
 
+  // After receipt action: for deposits, transition to the Deposit Details screen
+  // instead of closing the modal. For all other flows, complete normally.
+  const finishReceipt = () => {
+    if (isDeposit) {
+      setDepositDetailsStep(true);
+      return;
+    }
+    handleComplete();
+  };
+
   // Payment Pricing Mode (configurable in Settings → Payments → Payment Pricing)
   const [pricingMode, setPricingMode] = useState<PaymentPricingMode>(() => getPaymentPricingMode());
   useEffect(() => subscribePaymentPricingMode(setPricingMode), []);

@@ -4432,6 +4432,12 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
               />
             </div>
           )}
+          {isDepositOrder(selectedGuest) ? (
+            <div className="flex-1 overflow-y-auto">
+              {renderDepositRecordRows(selectedGuest)}
+              {renderDepositPayments(selectedGuest)}
+            </div>
+          ) : (<>
           {/* Order Items */}
           <ScrollArea className="flex-1 px-3">
             <div className="py-2 space-y-1.5">

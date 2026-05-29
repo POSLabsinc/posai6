@@ -1504,15 +1504,18 @@ const Orders = () => {
 
   const addCustomItemToOrder = () => {
     const price = parseFloat(customItemPrice) || 0;
-    if (customItemName.trim() && price > 0) {
+    const isDeposit = customItemMode === 'deposit';
+    if ((isDeposit || customItemName.trim()) && price > 0) {
       setOrderItems((prev) => [...prev, {
         id: Date.now(),
         qty: 1,
-        name: customItemName.trim(),
-        price: price
+        name: isDeposit ? 'Deposit' : customItemName.trim(),
+        price: price,
+        noTax: isDeposit ? true : undefined,
       }]);
       setCustomItemName("");
       setCustomItemPrice("");
+      setCustomItemMode('item');
       setShowCustomItemPanel(false);
     }
   };

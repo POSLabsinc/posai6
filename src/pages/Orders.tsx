@@ -2462,7 +2462,8 @@ const Orders = () => {
               </button>
             </div>
 
-            {/* Name Input */}
+            {/* Name Input (hidden in deposit mode) */}
+            {customItemMode !== 'deposit' && (
             <div className="mb-3 flex-shrink-0">
               <div
               className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'name' ? '' : 'border-neutral-700'}`}
@@ -2485,6 +2486,7 @@ const Orders = () => {
 
               </div>
             </div>
+            )}
 
             {/* Price Input */}
             <div className="mb-3 flex-shrink-0">

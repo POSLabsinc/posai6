@@ -4287,6 +4287,7 @@ const Orders = () => {
         }))
       }}
       subtotal={subtotal}
+      discountableSubtotal={discountableSubtotal}
       tax={tax}
       total={chargeAmount}
       containsVoucher={orderItems.some(item => item.itemOrderType === 'VOUCHER')}

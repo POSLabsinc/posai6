@@ -3896,7 +3896,7 @@ const Orders = () => {
                     <span className="text-[9px] text-white text-center leading-tight">Create<br />Deposit</span>
                   </button>
                   <button
-                onClick={() => {}}
+                onClick={() => { setShowRedeemDepositDialog(true); setIsOrderActionsSidebarOpen(false); }}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
                     <QrCode className="w-5 h-5 text-white" />

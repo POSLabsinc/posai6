@@ -1652,7 +1652,7 @@ export function PaymentDialog({
               </div>
             ) :
             // Deposit Success screen (after Generate Virtual Number tapped)
-            depositSuccessStep ? (
+            depositSuccessStep && textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
               <div className="flex-1 flex flex-col items-center py-8 px-6 overflow-y-auto">
                 <img src={tickSuccessIcon} alt="Success" className="w-14 h-14 mb-4" />
                 <p className="text-neutral-300 text-sm mb-6 text-center">
@@ -1675,14 +1675,14 @@ export function PaymentDialog({
                       <span className="text-neutral-400 text-sm">Print</span>
                     </button>
                     <button
-                      onClick={() => { setDepositSuccessStep(false); setTextReceiptStep('phone-input'); }}
+                      onClick={() => setTextReceiptStep('phone-input')}
                       className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
                     >
                       <MessageSquare className="w-6 h-6 text-neutral-400" />
                       <span className="text-neutral-400 text-sm">Text</span>
                     </button>
                     <button
-                      onClick={() => { setDepositSuccessStep(false); setEmailReceiptStep('email-input'); }}
+                      onClick={() => setEmailReceiptStep('email-input')}
                       className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
                     >
                       <Mail className="w-6 h-6 text-neutral-400" />
@@ -1856,12 +1856,12 @@ export function PaymentDialog({
                     >
                       <ArrowLeft className="w-5 h-5 text-neutral-300" />
                     </button>
-                    <span className="text-white text-lg font-medium">Text Receipt</span>
+                    <span className="text-white text-lg font-medium">{depositSuccessStep ? 'Text Virtual Number' : 'Text Receipt'}</span>
                   </div>
                 </div>
                 
                 <div className="px-4 pt-4 pb-2 text-center">
-                  <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
+                  <h2 className="text-white text-base font-semibold">{depositSuccessStep ? 'Where should we text the virtual number?' : 'Where should we text your receipt?'}</h2>
                 </div>
                 <div className="px-4 mb-2">
                   <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
@@ -1916,12 +1916,12 @@ export function PaymentDialog({
                     >
                       <ArrowLeft className="w-5 h-5 text-neutral-300" />
                     </button>
-                    <span className="text-white text-lg font-medium">Email Receipt</span>
+                    <span className="text-white text-lg font-medium">{depositSuccessStep ? 'Email Virtual Number' : 'Email Receipt'}</span>
                   </div>
                 </div>
                 
                 <div className="px-4 pt-4 pb-2 text-center">
-                  <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
+                  <h2 className="text-white text-base font-semibold">{depositSuccessStep ? 'Where should we email the virtual number?' : 'Where should we email your receipt?'}</h2>
                 </div>
                 <div className="px-4 mb-2">
                   <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">

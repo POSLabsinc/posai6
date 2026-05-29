@@ -3761,11 +3761,6 @@ const Orders = () => {
                         <span className="text-emerald-400 text-[11px] font-semibold truncate">
                           Deposit Credit · ${depositRemaining.toFixed(2)}
                         </span>
-                        <button
-                          onClick={() => setAppliedDeposit(null)}
-                          className="text-emerald-400/80 hover:text-emerald-300 text-xs font-bold"
-                          aria-label="Remove deposit"
-                        >×</button>
                       </div>
                     </div>
                   )}

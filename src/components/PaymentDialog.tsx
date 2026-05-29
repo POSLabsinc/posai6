@@ -76,6 +76,14 @@ export interface PaymentDialogProps {
   /** When true, the post-receipt flow transitions to a Deposit Details screen instead of closing. */
   isDeposit?: boolean;
   onPaymentComplete?: (paymentHistory: PaymentHistoryItem[]) => void;
+  onDepositAssigned?: (meta: {
+    virtualNumber: string;
+    expires: string;
+    refundAllowed: boolean;
+    twoFAEnabled: boolean;
+    amount: number;
+    payments: PaymentHistoryItem[];
+  }) => void;
   onSaveSplit?: (config: {
     mode: 'seat' | 'evenly' | 'custom';
     numberOfChecks: number;

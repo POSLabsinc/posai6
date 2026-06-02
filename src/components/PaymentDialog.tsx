@@ -1710,7 +1710,48 @@ export function PaymentDialog({
                 <div className="flex-1 flex flex-col px-6 py-6 gap-6">
                   {/* Details Card */}
                   <div className="bg-neutral-800 rounded-2xl p-5">
-                    <div className="flex items-center justify-between gap-3 mb-1">
+                    {/* Mobile + Email row */}
+                    <div className="flex items-stretch gap-3">
+                      <div className="flex-1 flex flex-col gap-1.5">
+                        <span className="text-neutral-400 text-xs">Mobile Number</span>
+                        <div className="flex items-center bg-neutral-700 rounded-md overflow-hidden">
+                          <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
+                            <span className="text-white text-xs font-medium">US +1</span>
+                            <ChevronDown className="w-3 h-3 text-neutral-400" />
+                          </div>
+                          <input
+                            type="tel"
+                            value={depositMobile}
+                            onChange={(e) => {
+                              const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
+                              let formatted = '';
+                              if (digits.length === 0) formatted = '';
+                              else if (digits.length <= 3) formatted = `(${digits}`;
+                              else if (digits.length <= 6) formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+                              else formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+                              setDepositMobile(formatted);
+                            }}
+                            placeholder="(000) 000-0000"
+                            className="flex-1 min-w-0 bg-transparent text-white px-2 py-2 text-xs placeholder:text-neutral-500 outline-none"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex-1 flex flex-col gap-1.5">
+                        <span className="text-neutral-400 text-xs">Email</span>
+                        <input
+                          type="email"
+                          value={depositEmail}
+                          onChange={(e) => setDepositEmail(e.target.value)}
+                          placeholder="Enter email"
+                          className="bg-neutral-700 text-white text-xs rounded-md px-3 py-2 border-none outline-none placeholder:text-neutral-500 w-full"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="h-px bg-neutral-700 -mx-5 my-4" />
+
+                    {/* Expiry */}
+                    <div className="flex flex-col gap-2">
                       <p className="text-neutral-500 text-xs uppercase tracking-wider">Expiry</p>
                       <div className="flex items-center gap-2">
                         <div className="inline-flex bg-neutral-700 rounded-lg p-0.5">
@@ -1745,21 +1786,21 @@ export function PaymentDialog({
                         )}
                       </div>
                     </div>
+
                     <div className="h-px bg-neutral-700 -mx-5 my-4" />
-                    <div className="flex items-center justify-between gap-3 py-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-white text-sm font-medium">Reference</span>
-                        <span className="text-neutral-500 text-xs">(Optional)</span>
+
+                    {/* Require 2FA */}
+                    <div className="flex items-center justify-between py-2">
+                      <div className="flex flex-col">
+                        <span className="text-white text-sm font-medium">Require 2FA on redemption</span>
+                        <span className="text-neutral-500 text-xs">OTP sent to provided mobile or email</span>
                       </div>
-                      <input
-                        type="text"
-                        value={depositReference}
-                        onChange={(e) => setDepositReference(e.target.value)}
-                        placeholder="e.g. Table 12 - Smith"
-                        className="bg-neutral-700 text-white text-xs rounded-md px-2 py-1.5 border-none outline-none placeholder:text-neutral-500 w-40"
-                      />
+                      <Switch checked={depositRequire2FA} onCheckedChange={setDepositRequire2FA} />
                     </div>
+
                     <div className="h-px bg-neutral-700 -mx-5 my-4" />
+
+                    {/* Allow refund */}
                     <div className="flex items-center justify-between py-2">
                       <div className="flex flex-col">
                         <span className="text-white text-sm font-medium">Allow refund to deposit</span>
@@ -1767,96 +1808,41 @@ export function PaymentDialog({
                       </div>
                       <Switch checked={depositAllowRefund} onCheckedChange={setDepositAllowRefund} />
                     </div>
-                    <div className="flex items-center justify-between py-2">
-                      <div className="flex flex-col">
-                        <span className="text-white text-sm font-medium">Require 2FA on redemption</span>
-                        <span className="text-neutral-500 text-xs">OTP required before deposit applies</span>
-                      </div>
-                      <Switch checked={depositRequire2FA} onCheckedChange={setDepositRequire2FA} />
-                    </div>
-                    {depositRequire2FA && (
-                      <div className="mt-3 pt-3 border-t border-neutral-700 flex flex-col gap-3">
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-white text-sm font-medium">OTP Channel</span>
-                          <div className="inline-flex bg-neutral-700 rounded-lg p-0.5">
-                            {(['sms', 'email', 'both'] as const).map((ch) => (
-                              <button
-                                key={ch}
-                                onClick={() => setDepositOtpChannel(ch)}
-                                className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors capitalize ${
-                                  depositOtpChannel === ch
-                                    ? 'bg-orange-500 text-white'
-                                    : 'text-neutral-300 hover:text-white'
-                                }`}
-                              >
-                                {ch === 'sms' ? 'SMS' : ch === 'email' ? 'Email' : 'Both'}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between gap-3">
-                          <span className="text-white text-sm font-medium">Mobile Number</span>
-                          <div className="flex items-center bg-neutral-700 rounded-md overflow-hidden w-40">
-                            <div className="flex items-center gap-1 px-2 py-1.5 border-r border-neutral-600">
-                              <span className="text-white text-xs font-medium">US +1</span>
-                              <ChevronDown className="w-3 h-3 text-neutral-400" />
-                            </div>
-                            <input
-                              type="tel"
-                              value={depositMobile}
-                              onChange={(e) => {
-                                const digits = e.target.value.replace(/\D/g, '').slice(0, 10);
-                                let formatted = '';
-                                if (digits.length === 0) formatted = '';
-                                else if (digits.length <= 3) formatted = `(${digits}`;
-                                else if (digits.length <= 6) formatted = `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-                                else formatted = `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-                                setDepositMobile(formatted);
-                              }}
-                              placeholder="(000) 000-0000"
-                              className="flex-1 min-w-0 bg-transparent text-white px-2 py-1.5 text-xs placeholder:text-neutral-500 outline-none"
-                            />
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-between gap-3">
-                          <div className="flex items-center gap-2">
-                            <span className="text-white text-sm font-medium">Email</span>
-                            <span className="text-neutral-500 text-xs">(Optional)</span>
-                          </div>
-                          <input
-                            type="email"
-                            value={depositEmail}
-                            onChange={(e) => setDepositEmail(e.target.value)}
-                            placeholder="Enter email"
-                            className="bg-neutral-700 text-white text-xs rounded-md px-2 py-1.5 border-none outline-none placeholder:text-neutral-500 w-40"
-                          />
-                        </div>
-                      </div>
-                    )}
                   </div>
 
-                  <button
-                    onClick={() => {
-                      // Generate a virtual number formatted as XXXX-XXXX (alphanumeric uppercase)
-                      const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-                      const raw = Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
-                      const formatted = `${raw.slice(0, 4)}-${raw.slice(4)}`;
-                      setDepositVirtualNumber(formatted);
-                      setDepositDetailsStep(false);
-                      setDepositSuccessStep(true);
-                      onDepositAssigned?.({
-                        virtualNumber: formatted,
-                        expires: depositExpiryMode === 'custom' && depositExpiryDate ? depositExpiryDate : 'Same day',
-                        refundAllowed: depositAllowRefund,
-                        twoFAEnabled: depositRequire2FA,
-                        amount: totalPaid,
-                        payments: paymentHistory,
-                      });
-                    }}
-                    className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
-                  >
-                    GENERATE VIRTUAL NUMBER
-                  </button>
+                  {(() => {
+                    const canAssign = depositMobile.trim().length > 0 || depositEmail.trim().length > 0;
+                    return (
+                      <button
+                        disabled={!canAssign}
+                        onClick={() => {
+                          if (!canAssign) return;
+                          const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+                          const raw = Array.from({ length: 8 }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+                          const formatted = `${raw.slice(0, 4)}-${raw.slice(4)}`;
+                          setDepositVirtualNumber(formatted);
+                          setDepositDetailsStep(false);
+                          setDepositSuccessStep(true);
+                          onDepositAssigned?.({
+                            virtualNumber: formatted,
+                            expires: depositExpiryMode === 'custom' && depositExpiryDate ? depositExpiryDate : 'Same day',
+                            refundAllowed: depositAllowRefund,
+                            twoFAEnabled: depositRequire2FA,
+                            amount: totalPaid,
+                            payments: paymentHistory,
+                          });
+                        }}
+                        className={`w-full py-3.5 font-bold rounded-xl transition-all shadow-lg ${
+                          canAssign
+                            ? 'bg-gradient-to-b from-orange-400 to-orange-600 text-white hover:from-orange-500 hover:to-orange-700'
+                            : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                        }`}
+                      >
+                        ASSIGN DEPOSIT
+                      </button>
+                    );
+                  })()}
+
                 </div>
               </div>
             ) :

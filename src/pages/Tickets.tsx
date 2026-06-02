@@ -2158,7 +2158,7 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
     return (
       <div className="mx-3 mt-3 bg-neutral-800 rounded-lg p-3 space-y-2">
         <div className="flex items-center justify-between">
-          <span className="text-white/60 text-xs">Virtual Number</span>
+          <span className="text-white/60 text-xs">Deposit Code</span>
           <span className="text-amber-400 text-xs font-semibold tracking-wider">{m.virtualNumber}</span>
         </div>
         <div className="flex items-center justify-between">

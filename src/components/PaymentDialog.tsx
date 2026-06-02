@@ -1842,7 +1842,7 @@ export function PaymentDialog({
                     >
                       <ArrowLeft className="w-5 h-5 text-neutral-300" />
                     </button>
-                    <span className="text-white text-lg font-medium">{depositSuccessStep ? 'Text Virtual Number' : 'Text Receipt'}</span>
+                    <span className="text-white text-lg font-medium">{depositSuccessStep ? 'Text Deposit Code' : 'Text Receipt'}</span>
                   </div>
                 </div>
                 
@@ -1902,7 +1902,7 @@ export function PaymentDialog({
                     >
                       <ArrowLeft className="w-5 h-5 text-neutral-300" />
                     </button>
-                    <span className="text-white text-lg font-medium">{depositSuccessStep ? 'Email Virtual Number' : 'Email Receipt'}</span>
+                    <span className="text-white text-lg font-medium">{depositSuccessStep ? 'Email Deposit Code' : 'Email Receipt'}</span>
                   </div>
                 </div>
                 

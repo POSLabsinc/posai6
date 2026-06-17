@@ -21,7 +21,7 @@ function LayoutContent({ children }: LayoutProps) {
   const { position } = useSidebarPosition();
 
   // Determine if ClockInOverlay should show (device trusted but no employee clocked in)
-  const isAuthRoute = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/clock-in";
+  const isAuthRoute = location.pathname === "/login" || location.pathname === "/signup" || location.pathname === "/clock-in" || location.pathname === "/onboarding" || location.pathname.startsWith("/onboarding/");
   const [showClockInOverlay, setShowClockInOverlay] = useState(false);
   const isAuthRouteRef = useRef(isAuthRoute);
   isAuthRouteRef.current = isAuthRoute;

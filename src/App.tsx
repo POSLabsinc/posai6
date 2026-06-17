@@ -94,6 +94,9 @@ const KDSMessages = lazyWithImportRecovery(() => import("./pages/KDSMessages"));
 const KDS = lazyWithImportRecovery(() => import("./pages/KDS"));
 const KdsEmbedded = lazyWithImportRecovery(() => import("./pages/KdsEmbedded"));
 const ClosingGracePeriod = lazyWithImportRecovery(() => import("./pages/ClosingGracePeriod"));
+const Onboarding = lazyWithImportRecovery(() => import("./pages/Onboarding"));
+const OnboardingWeb = lazyWithImportRecovery(() => import("./pages/OnboardingWeb"));
+const OnboardingApp = lazyWithImportRecovery(() => import("./pages/OnboardingApp"));
 
 const queryClient = new QueryClient();
 
@@ -207,6 +210,9 @@ const AppInner = () => {
           <Route path="/live-sales" element={<LiveSales />} />
           <Route path="/orderos" element={<OrderOS />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/onboarding/web" element={<OnboardingWeb />} />
+          <Route path="/onboarding/app" element={<OnboardingApp />} />
           <Route path="/kds" element={<KDS />} />
           <Route path="/kds-new" element={<KdsEmbedded />} />
           <Route path="/closing-grace-period" element={<ClosingGracePeriod />} />

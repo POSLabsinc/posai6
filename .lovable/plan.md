@@ -1,94 +1,60 @@
-# Update AI-Based Notification Section
+## Goal
+Add a new `/onboarding` route to the POS app that reuses the exact visual pattern of the existing "Welcome to Point of Sale" entry screen, with a title, subtitle badge, and two action cards.
 
-**Target file:** `src/components/settings/SalesInsightDetailView.tsx` (the view rendered for AI-category notifications such as "Sales Pace" in `NotificationsListContent.tsx`).
+## Reference
+The existing welcome screen lives in `src/pages/Login.tsx` (lines 893-964). It uses:
+- Full-screen `fixed inset-0 login-bg` container with `gradient-mesh opacity-30` background overlay
+- Centered column layout: `flex flex-col items-center justify-center overflow-hidden`
+- Logo: `src/assets/icons/posai-logo.png` (imported as `eatosLogo` in Login.tsx)
+- Heading: `text-2xl md:text-3xl font-bold text-foreground mb-2`
+- Subheading: `text-sm text-foreground/40 mb-10`
+- Card grid: `grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-xl`
+- Card style: `flex items-center gap-4 px-5 py-5 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04] hover:bg-foreground/[0.07] transition-all text-left`
+- Icon container: `w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center flex-shrink-0`
+- Icon: `w-5 h-5 text-foreground/50`
+- Card title: `text-sm font-semibold text-foreground`
+- Card subtitle: `text-xs text-foreground/40 mt-0.5`
+- Entrance animations via `framer-motion`
 
-## New layout
+## Changes
 
-Replace the current single-column stack (chart + KPI strip + Reasons + Suggestions + Weak/Top + inline chat + chips + composer) with a two-column layout:
+### 1. New page: `src/pages/Onboarding.tsx`
+Create a single page component that clones the welcome-screen layout exactly:
+- **Container**: `fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden` with `gradient-mesh opacity-30` absolute overlay
+- **Logo**: reuse `posai-logo.png`, `w-28 h-auto mb-6`, animated fade-in/scale
+- **Title**: "Welcome to POSAI POS" — same heading style
+- **Subtitle badge**: "Demo only — not shown in production" styled as a small muted pill using `text-foreground/40` (the dimmest text colour already in the theme) with a subtle border/background (`bg-foreground/[0.04] border border-foreground/[0.08] rounded-full px-3 py-1 text-xs`)
+- **Card grid**: same `grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-xl`
+- **Card 1 — Via website**
+  - Icon: `Globe` from `lucide-react`
+  - Title: "Via website"
+  - Subtitle: "Already signed up on eatos.com or signing up now"
+  - On tap: `navigate('/onboarding/web')`
+- **Card 2 — Via App Store / Play Store**
+  - Icon: `Smartphone` from `lucide-react`
+  - Title: "Via App Store / Play Store"
+  - Subtitle: "Downloaded the app and setting up for the first time"
+  - On tap: `navigate('/onboarding/app')`
+- All colours, typography, spacing, border-radius, and hover states must match the reference exactly.
 
-```text
-+---------------------------------------------+-----------------------+
-| LEFT (flex-1)                               | RIGHT (380px panel)   |
-|                                             |                       |
-| [ Today card ]                              | Recommendations  (n)  |
-|   - "Today" title + small chart icon        | -------------------   |
-|   - Net Sales vs Yesterday header           | • Peak hour ...       |
-|   - Hourly bars chart (kept from current)   |   [Staffing] Today    |
-|                                             | • Tacos trending ...  |
-| [ Metrics row ] (mirrors Dashboard home)    |   [Menu] Today        |
-|   Total Sale | Total Tip | Total Hours |    | • Labor cost ...      |
-|   Ordering | Ready to Serve | Completed     |   [Labor] Tomorrow    |
-|                                             | -------------------   |
-|                                             | View all 8 recs >     |
-+---------------------------------------------+-----------------------+
-```
+### 2. New placeholder pages
+Create minimal placeholder pages so the card navigations resolve:
+- `src/pages/OnboardingWeb.tsx`
+- `src/pages/OnboardingApp.tsx`
+Each can be a simple centred "Coming soon" text using the same full-screen background pattern, or a minimal placeholder that does not introduce new styles.
 
-## Specific changes
+### 3. Route registration in `src/App.tsx`
+Add three new lazy-loaded routes inside `<Routes>`, placed after the existing `/login` route:
+- `<Route path="/onboarding" element={<Onboarding />} />`
+- `<Route path="/onboarding/web" element={<OnboardingWeb />} />`
+- `<Route path="/onboarding/app" element={<OnboardingApp />} />`
+Import the lazy wrappers at the top of the file following the existing pattern.
 
-1. **Remove from the view (no longer rendered):**
-   - The "Why sales are slow" reasons card.
-   - The "Actionable suggestions" card.
-   - The "Weak categories / Top performers" grid.
-   - The inline "Conversation" card.
-   - The suggestion chips row and bottom full-width composer.
-   - Any period filters present anywhere in this view (Today / Weekly / Monthly / Combined / By Location / Shift / Category). Force-fixed to Today; do not render filter pills.
+### 4. Layout auth-route treatment in `src/components/Layout.tsx`
+Update the `isAuthRoute` check so `/onboarding` and its children render without the standard Layout chrome (no Header, Sidebar, BottomNavigation, ClockInOverlay). Change the exact-path check to a path-prefix check that covers `/login`, `/signup`, `/clock-in`, and `/onboarding`.
 
-2. **Left column - Today chart card:**
-   - Header: "Today" + small chart icon button (top-right, no action beyond visual).
-   - Sub-header row: `Net Sales` (with caret) showing today's total, then `vs` and `Yesterday` (with caret) showing yesterday's total. Pull both from `useReportsData` (today range already in file; add yesterday range).
-   - Keep existing `ComposedChart` bars + baseline line (renamed to "Yesterday" series). Remove the dip annotation if it conflicts with the cleaner look; keep tooltip.
-   - Card style matches current glass card (`rgba(255,255,255,0.03)` + border).
-
-3. **Left column - Metrics row (below chart):**
-   - Reuse Dashboard home semantics: Total Sale, Total Tip, Total Hours, Ordering, Ready to Serve, Completed.
-   - Respect Control Center visibility via `SettingsManager.getControlCenterSettings().dashboardMetrics` (same filter logic as `src/pages/Dashboard.tsx` lines 1242-1258).
-   - Render as a 6-up grid of compact KPI cards using the same token styling as Dashboard (rounded-2xl, surface, label uppercase tracking-wider, value `text-lg font-semibold`).
-   - Source values from `useReportsData` for the Today range (sales, tips proxy, orders by status). Where a value isn't available from reports data, fall back to 0 and add a TODO comment per the API-first rule.
-
-4. **Right column - Recommendations panel:**
-   - New local component `RecommendationsPanel` rendered inside this file (no new file required; can be split into a sibling file `RecommendationsPanel.tsx` for clarity).
-   - Header: "Recommendations" + small bot icon, count badge.
-   - List of recommendation cards (data sourced from a typed array `Recommendation[]` derived from existing AI insights helpers - for now seed from `reasons`/`suggestions` already computed, mapped to `{ id, dotColor, text, category, when }`). Mark with a TODO to wire to a real `recommendations` endpoint later.
-   - Each row: colored bullet, two-line text, category pill (Staffing amber, Menu emerald, Labor blue, Finance red, Promo amber) with `When` label on the right.
-   - Footer button: `View all N recommendations ->`.
-
-5. **Right-side AI Assistant chat:**
-   - Clicking `View all recommendations` swaps the right panel content to an "Ask Maya" chat view (no separate route, in-panel state toggle):
-     - Top: back chevron + "Ask Maya".
-     - Body: each recommendation rendered as a chat-style card; tapping one auto-sends "Tell me more about: <text>" to the existing `reports-ai` edge function (mode `ask`, context unchanged).
-     - Input pinned at bottom (reuse existing `ask()` and chat state already in this component).
-   - Clicking an individual recommendation row from the default list also opens the chat panel pre-seeded with that recommendation as the user message.
-   - Back chevron returns to the recommendations list; chat history is preserved per session.
-
-6. **Terminology / standards:**
-   - Use "Product" not "Item" anywhere new text appears.
-   - No em dashes. Replace any with commas, "and", or rewrite.
-   - Use semantic tokens (`bg-surface`, `text-foreground`, `text-muted-foreground`) and the existing glass-card pattern; no raw hex except where already present in the file.
-   - Touch targets >= 44x44 on the recommendation rows and view-all button.
-
-## Technical details
-
-- **State additions in `SalesInsightDetailView`:**
-  - `rightView: "recs" | "chat"`.
-  - `seedQuestion: string | null` to pre-fill chat when opening from a recommendation.
-- **Yesterday data:** extend `useReportsData` consumer by computing a second range (yesterday 00:00-23:59) and calling the hook twice, or memoizing a derived `yesterdayTotal` from `salesByDay`. Prefer the latter if `salesByDay` already covers it; otherwise call the hook a second time.
-- **Layout:** outer wrapper `flex gap-4 min-h-0`, left `flex-1 flex flex-col gap-4 min-w-0`, right `w-[380px] shrink-0 flex flex-col` with its own internal scroll. Remove the current `overflow-y-auto` on the shared inner scroll container; each column scrolls independently with `scrollbar-hide`.
-- **Recommendation typing:**
-  ```ts
-  interface Recommendation {
-    id: string;
-    text: string;
-    category: "Staffing" | "Menu" | "Labor" | "Finance" | "Promo";
-    when: string; // "Today" | "In 1 hour" | "Tomorrow" | "Urgent"
-    dotColor: string; // tailwind class
-  }
-  ```
-- **Edge function:** keep `supabase.functions.invoke("reports-ai", { body: { mode: "ask", question, context } })`. No backend changes.
-- **No other files touched** unless extracting `RecommendationsPanel.tsx`. `NotificationsListContent.tsx` continues to route AI sales notifications here.
-
-## Verification
-
-- Open an AI sales notification: confirm left chart + Net Sales vs Yesterday + 6 KPI cards; right Recommendations panel; no chips, no inline conversation, no extra filter pills.
-- Click a recommendation: right panel switches to Ask Maya with that recommendation seeded; AI reply streams in.
-- Click "View all recommendations": right panel shows full list inside chat scaffold; tapping items asks the AI.
-- Back chevron returns to list; mobile (<768px) stacks columns (chart, metrics, recommendations) vertically.
+## Constraints
+- Do not modify the existing `/login` page, its routes, or any other existing screen/component.
+- Do not add new colour values, hex codes, or Tailwind arbitrary values not already present in the project.
+- Do not change `AppearanceContext`, theme tokens, or `tailwind.config.ts`.
+- Reuse existing logo asset (`posai-logo.png`) and Lucide icons (`Globe`, `Smartphone`).

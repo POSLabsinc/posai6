@@ -328,8 +328,11 @@ const OnboardingAppSignupManual = () => {
       <div className="px-4 py-4 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04]">
         <p className="text-base font-semibold text-foreground">{data.name || "—"}</p>
         <p className="text-sm text-foreground/60 mt-1">{data.address1}</p>
+        {data.address2 && <p className="text-sm text-foreground/60">{data.address2}</p>}
         <p className="text-sm text-foreground/60">
-          {[data.city, data.postcode].filter(Boolean).join(" ")}
+          {[data.city, isUS ? [data.state, data.postcode].filter(Boolean).join(" ") : data.postcode]
+            .filter(Boolean)
+            .join(", ")}
         </p>
         {data.country && <p className="text-sm text-foreground/60">{data.country}</p>}
         {data.phone && <p className="text-sm text-foreground/60 mt-2">{data.phone}</p>}

@@ -74,7 +74,7 @@ const OnboardingAppSignupRevenue = () => {
   );
 
   const subtitle = (
-    <p className="text-sm text-foreground/60 mt-2">
+    <p className="text-sm text-foreground/60 mt-1">
       Helps us recommend the right plan for your business.
     </p>
   );

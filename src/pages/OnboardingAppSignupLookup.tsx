@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Search, X, MapPin, Navigation, Check, Store } from "lucide-react";
+import { ChevronLeft, Search, X, MapPin, Navigation, Check, Store, AlertTriangle } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import { toast } from "sonner";
 
 type PlaceResult = {
   place_id: string;
@@ -75,6 +76,7 @@ const OnboardingAppSignupLookup = () => {
   const [focused, setFocused] = useState(false);
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showFallbackBanner, setShowFallbackBanner] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loc, setLoc] = useState<{ lat: number; lng: number } | null>(null);
   const sessionTokenRef = useRef<string>(
@@ -112,9 +114,11 @@ const OnboardingAppSignupLookup = () => {
       setResults([]);
       setLoading(false);
       setSelectedId(null);
+      setShowFallbackBanner(false);
       return;
     }
     setLoading(true);
+    setShowFallbackBanner(false);
     debounceRef.current = window.setTimeout(async () => {
       try {
         const body: Record<string, unknown> = {
@@ -139,6 +143,8 @@ const OnboardingAppSignupLookup = () => {
         });
         if (!res.ok) {
           setResults(buildDummyResults);
+          setShowFallbackBanner(true);
+          toast.error("Google Places lookup failed. Showing sample restaurants instead.");
           setLoading(false);
           return;
         }
@@ -159,6 +165,8 @@ const OnboardingAppSignupLookup = () => {
         setResults(places.length ? places : buildDummyResults);
       } catch {
         setResults(buildDummyResults);
+        setShowFallbackBanner(true);
+        toast.error("Google Places lookup failed. Showing sample restaurants instead.");
       } finally {
         setLoading(false);
       }
@@ -317,6 +325,13 @@ const OnboardingAppSignupLookup = () => {
     </div>
   );
 
+  const fallbackBanner = showFallbackBanner && (
+    <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
+      <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+      <span>Google Places lookup failed. Showing sample restaurants instead.</span>
+    </div>
+  );
+
   const notOnGoogleLink = (
     <button
       onClick={() => navigate("/onboarding/app/signup/manual")}
@@ -363,6 +378,7 @@ const OnboardingAppSignupLookup = () => {
           <div className="flex flex-col px-6 py-6 flex-1 min-h-0" style={{ width: "55%" }}>
             {searchInput}
             {countLabel}
+            {fallbackBanner && <div className="mb-3">{fallbackBanner}</div>}
             <div className="flex-1 overflow-y-auto flex flex-col">
             {loading ? (
               skeletonList
@@ -387,6 +403,7 @@ const OnboardingAppSignupLookup = () => {
         {subtitle}
         <div className="mt-6">{searchInput}</div>
         {countLabel}
+        {fallbackBanner && <div className="mt-3 mb-1">{fallbackBanner}</div>}
         <div className="flex-1 overflow-y-auto mt-2 pb-4 flex flex-col">
           {loading ? (
             skeletonList

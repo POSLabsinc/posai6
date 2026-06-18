@@ -403,6 +403,7 @@ const OnboardingAppSignupLookup = () => {
         {subtitle}
         <div className="mt-6">{searchInput}</div>
         {countLabel}
+        {fallbackBanner && <div className="mt-3 mb-1">{fallbackBanner}</div>}
         <div className="flex-1 overflow-y-auto mt-2 pb-4 flex flex-col">
           {loading ? (
             skeletonList

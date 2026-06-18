@@ -121,7 +121,13 @@ const OnboardingAppSignupManual = () => {
     const place = {
       place_id: `manual-${Date.now()}`,
       name: data.name,
-      address: [data.address1, data.city, data.postcode, data.country]
+      address: [
+        data.address1,
+        data.address2,
+        data.city,
+        isUS ? [data.state, data.postcode].filter(Boolean).join(" ") : data.postcode,
+        data.country,
+      ]
         .filter(Boolean)
         .join(", "),
       business_type: "Restaurant",

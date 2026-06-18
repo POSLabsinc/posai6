@@ -235,8 +235,7 @@ const OnboardingAppSignupAccount = () => {
         <div className="flex items-start gap-2 px-4 py-3 mt-1 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
           <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
           <span>
-            Gmail works fine. You'll start in demo mode. Switch to a business email anytime
-            for full access.
+            Personal email detected. You'll start in read-only demo mode. Use a business email for full access.
           </span>
         </div>
       )}

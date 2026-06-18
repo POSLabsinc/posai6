@@ -110,6 +110,7 @@ const OnboardingAppSignupModeStandard = lazyWithImportRecovery(() => import("./p
 const OnboardingAppSignupModeQuickService = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupModeQuickService"));
 const OnboardingAppSignupModeFullService = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupModeFullService"));
 const OnboardingAppSignupTrial = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupTrial"));
+const OnboardingAppSignupManual = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupManual"));
 
 const queryClient = new QueryClient();
 

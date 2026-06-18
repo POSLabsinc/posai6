@@ -117,7 +117,7 @@ const OnboardingAppCarousel = () => {
         {/* Buttons */}
         <div className="grid grid-cols-2 gap-3 mt-6">
           <button
-            onClick={() => navigate("/onboarding/app/signup")}
+            onClick={() => navigate("/onboarding/app/signup-signin")}
             className="h-12 rounded-2xl border border-foreground/[0.08] bg-transparent text-sm font-semibold text-foreground/70 hover:bg-foreground/[0.04] transition-all"
           >
             Skip

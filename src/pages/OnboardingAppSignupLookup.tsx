@@ -388,7 +388,9 @@ const OnboardingAppSignupLookup = () => {
         <div className="mt-6">{searchInput}</div>
         {countLabel}
         <div className="flex-1 overflow-y-auto mt-2 pb-4 flex flex-col">
-          {emptyState ? (
+          {loading ? (
+            skeletonList
+          ) : emptyState ? (
             <div className="flex-1 flex items-center justify-center">{emptyState}</div>
           ) : (
             resultsList

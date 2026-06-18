@@ -428,8 +428,8 @@ const OnboardingAppSignupLookup = () => {
             resultsList
           )}
         </div>
-        <div className="pt-4 pb-2">{searchInput}</div>
-        <div className="pt-2 pb-2">{notOnGoogleLink}</div>
+        <div className="pt-4 pb-1">{searchInput}</div>
+        <div className="pt-1 pb-2">{notOnGoogleLink}</div>
         {selected && (
           <div className="pb-6 pt-2" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>
             {continueBtn}

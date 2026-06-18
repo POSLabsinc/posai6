@@ -335,7 +335,13 @@ const OnboardingAppSignupLookup = () => {
           <div className="flex flex-col px-6 py-6 flex-1 min-h-0" style={{ width: "55%" }}>
             {searchInput}
             {countLabel}
-            <div className="flex-1 overflow-y-auto">{resultsList}</div>
+            <div className="flex-1 overflow-y-auto flex flex-col">
+              {emptyState ? (
+                <div className="flex-1 flex items-center justify-center">{emptyState}</div>
+              ) : (
+                resultsList
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -98,6 +98,7 @@ const Onboarding = lazyWithImportRecovery(() => import("./pages/Onboarding"));
 const OnboardingWeb = lazyWithImportRecovery(() => import("./pages/OnboardingWeb"));
 const OnboardingApp = lazyWithImportRecovery(() => import("./pages/OnboardingApp"));
 const OnboardingAppCarousel = lazyWithImportRecovery(() => import("./pages/OnboardingAppCarousel"));
+const OnboardingAppSignupSignin = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupSignin"));
 
 const queryClient = new QueryClient();
 

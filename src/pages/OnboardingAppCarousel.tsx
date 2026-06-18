@@ -1,6 +1,7 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { useIsLandscape } from "@/hooks/use-landscape";
 
 type Slide = {
   eyebrow: string;
@@ -28,6 +29,7 @@ const slides: Slide[] = [
 
 const OnboardingAppCarousel = () => {
   const navigate = useNavigate();
+  const isLandscape = useIsLandscape();
   const [index, setIndex] = useState(0);
   const isLast = index === slides.length - 1;
 
@@ -55,12 +57,120 @@ const OnboardingAppCarousel = () => {
 
   const slide = slides[index];
 
+  const textBlock = (
+    <AnimatePresence mode="wait">
+      <motion.div
+        key={index}
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -12 }}
+        transition={{ duration: 0.25 }}
+        className="text-center"
+      >
+        <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-primary mb-3">
+          {slide.eyebrow}
+        </p>
+        <h1 className="text-2xl font-bold text-foreground mb-3 leading-tight">
+          {slide.headline}
+        </h1>
+        <p className="text-sm text-foreground/60 leading-relaxed">
+          {slide.body}
+        </p>
+      </motion.div>
+    </AnimatePresence>
+  );
+
+  const dots = (
+    <div className="flex items-center justify-center gap-2">
+      {slides.map((_, i) => {
+        const active = i === index;
+        const done = i < index;
+        return (
+          <span
+            key={i}
+            className={`h-1.5 rounded-full transition-all ${
+              active
+                ? "w-6 bg-primary"
+                : done
+                ? "w-1.5 bg-foreground/30"
+                : "w-1.5 bg-foreground/[0.12]"
+            }`}
+          />
+        );
+      })}
+    </div>
+  );
+
+  const skipBtn = (
+    <button
+      onClick={() => navigate("/onboarding/app/signup-signin")}
+      className="h-12 min-h-[44px] rounded-2xl border border-foreground/[0.08] bg-transparent text-sm font-semibold text-foreground/70 hover:bg-foreground/[0.04] transition-all px-5"
+    >
+      Skip
+    </button>
+  );
+
+  const nextBtn = (
+    <button
+      onClick={goNext}
+      className={
+        (isLast
+          ? "bg-primary text-primary-foreground hover:bg-primary/90"
+          : "border border-foreground/[0.08] bg-foreground/[0.06] text-foreground hover:bg-foreground/[0.1]") +
+        " h-12 min-h-[44px] rounded-2xl text-sm font-semibold transition-all px-5"
+      }
+    >
+      {isLast ? "Get started" : "Next"}
+    </button>
+  );
+
+  if (isLandscape) {
+    return (
+      <div className="fixed inset-0 login-bg overflow-hidden">
+        <div className="absolute inset-0 gradient-mesh opacity-30 pointer-events-none" />
+        <div
+          className="relative z-10 flex h-full w-full"
+          style={{
+            paddingLeft: "env(safe-area-inset-left)",
+            paddingRight: "env(safe-area-inset-right)",
+          }}
+        >
+          {/* Left: image placeholder */}
+          <div className="h-full p-6" style={{ width: "50%" }}>
+            <motion.div
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.2}
+              onDragEnd={onDragEnd}
+              className="rounded-3xl border border-foreground/[0.08] bg-foreground/[0.04] w-full h-full"
+            />
+          </div>
+          {/* Right: content */}
+          <div className="relative flex flex-col h-full" style={{ width: "50%", padding: "24px" }}>
+            <button
+              onClick={() => navigate("/onboarding/app/signup-signin")}
+              className="absolute top-6 right-6 h-11 min-h-[44px] px-4 rounded-xl text-sm font-semibold text-foreground/70 hover:bg-foreground/[0.04] transition-all"
+            >
+              Skip
+            </button>
+            <div className="flex-1 flex flex-col justify-center">{textBlock}</div>
+            <div className="flex flex-col gap-4">
+              {dots}
+              <div className="flex justify-end">
+                {nextBtn}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 login-bg flex flex-col overflow-hidden">
       <div className="absolute inset-0 gradient-mesh opacity-30 pointer-events-none" />
 
       <div className="relative z-10 flex flex-col h-full max-w-md mx-auto w-full px-6 pt-6 pb-8">
-        {/* Image placeholder — ~45% of viewport */}
         <motion.div
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
@@ -70,68 +180,14 @@ const OnboardingAppCarousel = () => {
           style={{ height: "45vh" }}
         />
 
-        {/* Text block */}
         <div className="flex-1 flex flex-col justify-center mt-8">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -12 }}
-              transition={{ duration: 0.25 }}
-              className="text-center"
-            >
-              <p className="text-[11px] font-semibold tracking-[0.18em] uppercase text-primary mb-3">
-                {slide.eyebrow}
-              </p>
-              <h1 className="text-2xl font-bold text-foreground mb-3 leading-tight">
-                {slide.headline}
-              </h1>
-              <p className="text-sm text-foreground/60 leading-relaxed">
-                {slide.body}
-              </p>
-            </motion.div>
-          </AnimatePresence>
-
-          {/* Dots */}
-          <div className="flex items-center justify-center gap-2 mt-8">
-            {slides.map((_, i) => {
-              const active = i === index;
-              const done = i < index;
-              return (
-                <span
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all ${
-                    active
-                      ? "w-6 bg-primary"
-                      : done
-                      ? "w-1.5 bg-foreground/30"
-                      : "w-1.5 bg-foreground/[0.12]"
-                  }`}
-                />
-              );
-            })}
-          </div>
+          {textBlock}
+          <div className="mt-8">{dots}</div>
         </div>
 
-        {/* Buttons */}
         <div className="grid grid-cols-2 gap-3 mt-6">
-          <button
-            onClick={() => navigate("/onboarding/app/signup-signin")}
-            className="h-12 rounded-2xl border border-foreground/[0.08] bg-transparent text-sm font-semibold text-foreground/70 hover:bg-foreground/[0.04] transition-all"
-          >
-            Skip
-          </button>
-          <button
-            onClick={goNext}
-            className={
-              isLast
-                ? "h-12 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-all"
-                : "h-12 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.06] text-sm font-semibold text-foreground hover:bg-foreground/[0.1] transition-all"
-            }
-          >
-            {isLast ? "Get started" : "Next"}
-          </button>
+          {skipBtn}
+          {nextBtn}
         </div>
       </div>
     </div>

@@ -141,7 +141,7 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
   );
 
   const subtitle = (
-    <p className="text-sm text-foreground/60 mt-1">{content.subtitle}</p>
+    <p className="text-sm text-foreground/60 mt-0.5">{content.subtitle}</p>
   );
 
   const illustration = (

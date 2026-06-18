@@ -365,7 +365,7 @@ const OnboardingAppSignupLookup = () => {
       onClick={() => navigate("/onboarding/app/signup/manual")}
       className="text-sm text-primary text-center w-full py-2 min-h-[44px] hover:underline underline-offset-2"
     >
-      My restaurant isn't on Google yet
+      {config.fallback}
     </button>
   );
 

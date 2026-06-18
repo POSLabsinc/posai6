@@ -275,6 +275,20 @@ const OnboardingAppSignupLookup = () => {
     </div>
   );
 
+  const emptyState = !query.trim() && results.length === 0 && (
+    <div className="flex flex-col items-center justify-center text-center px-6 py-10">
+      <div className="w-24 h-24 rounded-3xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center">
+        <Store className="w-10 h-10 text-foreground/50" strokeWidth={1.5} />
+      </div>
+      <p className="mt-6 text-base font-semibold text-foreground">
+        Start typing to find your restaurant
+      </p>
+      <p className="mt-2 text-sm text-foreground/50 max-w-[18rem]">
+        We'll pull your name, address, and business type automatically.
+      </p>
+    </div>
+  );
+
   const notOnGoogleLink = (
     <button
       onClick={() => navigate("/onboarding/app/signup/manual")}

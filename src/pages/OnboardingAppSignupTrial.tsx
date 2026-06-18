@@ -71,7 +71,7 @@ const OnboardingAppSignupTrial = () => {
   );
 
   const subtitle = (
-    <p className="text-sm text-foreground/60 mt-1 text-center">
+    <p className="text-sm text-foreground/60 mt-0.5 text-center">
       {modeTitle} selected.
     </p>
   );

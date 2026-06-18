@@ -84,7 +84,7 @@ const OnboardingAppSignupMode = () => {
   );
 
   const subtitle = (
-    <p className="text-sm text-foreground/60 mt-1">
+    <p className="text-sm text-foreground/60 mt-0.5">
       Choose how this Point of Sale works. You can change this anytime.
     </p>
   );

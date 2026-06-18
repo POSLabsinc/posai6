@@ -198,7 +198,7 @@ const OnboardingAppSignupLookup = () => {
 
   const title = <h1 className="text-2xl font-bold text-foreground">Find your restaurant</h1>;
   const subtitle = (
-    <p className="text-sm text-foreground/60 mt-1">We'll pre-fill your details automatically.</p>
+    <p className="text-sm text-foreground/60 mt-0.5">We'll pre-fill your details automatically.</p>
   );
 
   const searchInput = (

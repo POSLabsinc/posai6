@@ -1,7 +1,18 @@
-I found the cause: the current signup flow still starts at `/onboarding/app/signup/lookup`, then reaches `account`, then `verify`, then `business-type`. So after tapping Create account, the app can still appear to be on the restaurant lookup path because lookup remains the entry point and account only preserves `place`, not the newer onboarding context.
+Add an empty-state placeholder to the `/onboarding/app/signup/lookup` screen, shown only when the search input is empty and no results are rendered.
 
-Plan:
-1. Update `/onboarding/app/signup-signin` signup navigation so new signup enters `/onboarding/app/signup/account` first, not `/onboarding/app/signup/lookup`, if that is where Create account is launched from.
-2. Update `OnboardingAppSignupAccount` to preserve all incoming onboarding state when navigating to `/onboarding/app/signup/verify`, instead of passing only `place`, `email`, `country`, `demo`, and `intent`.
-3. Update account back navigation to return to the previous onboarding step when available, keeping changes scoped to `/onboarding` only.
-4. Verify in browser that tapping Create account leads to `/onboarding/app/signup/verify`, OTP verification leads to `/onboarding/app/signup/business-type`, then selected business type leads to the matching lookup screen.
+## What to add
+
+In `src/pages/OnboardingAppSignupLookup.tsx`, inside the results area (below the search input), when `query.trim() === ""` and there are no results, render:
+
+1. A rounded-square glass tile (approx 96x96, rounded-2xl) containing a storefront icon (`Store` from lucide-react) in the existing muted/primary token color already used in the project.
+2. Heading: "Start typing to find your restaurant" (two lines on mobile, centered, existing heading token).
+3. Subtext: "We'll pull your name, address, and business type automatically." (centered, muted token).
+
+Vertically centered in the available space between the search bar and the bottom "My restaurant isn't on Google yet" link.
+
+## Constraints
+
+- Portrait and landscape both supported using the existing `isLandscape` logic already in the file.
+- No new colors, hex values, or fonts. Reuse existing tokens (`text-foreground`, `text-muted-foreground`, `bg-card`/glass utility already used elsewhere on this screen).
+- No apostrophe rewrite needed beyond standard `'` (no em dashes).
+- Only this file changes. No routing, no logic changes to search/fetch.

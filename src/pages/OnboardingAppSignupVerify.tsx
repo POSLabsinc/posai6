@@ -175,10 +175,12 @@ const OnboardingAppSignupVerify = () => {
         setError("Incorrect code. Please try again or request a new one.");
         return;
       }
-      if (intent === "upgrade_email") {
-        navigate("/home", { state });
+      if (intent === "signup_org") {
+        navigate("/onboarding/app/signup/revenue", { state });
+      } else if (intent === "signup_demo") {
+        navigate("/onboarding/app/signup/demo", { state });
       } else {
-        navigate("/onboarding/app/signup/business-type", { state });
+        navigate("/", { state });
       }
     } finally {
       setSubmitting(false);

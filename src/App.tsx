@@ -230,6 +230,7 @@ const AppInner = () => {
           <Route path="/onboarding/app/signup/upgrade" element={<OnboardingAppSignupUpgrade />} />
           <Route path="/onboarding/app/signup/verify" element={<OnboardingAppSignupVerify />} />
           <Route path="/onboarding/app/signup/revenue" element={<OnboardingAppSignupRevenue />} />
+          <Route path="/onboarding/app/signup/mode" element={<OnboardingAppSignupMode />} />
           <Route path="/kds" element={<KDS />} />
           <Route path="/kds-new" element={<KdsEmbedded />} />
           <Route path="/closing-grace-period" element={<ClosingGracePeriod />} />

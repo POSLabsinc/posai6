@@ -221,7 +221,7 @@ const OnboardingAppSignupLookup = () => {
         placeholder="Search restaurant name…"
         className="w-full bg-transparent outline-none text-sm text-foreground placeholder:text-foreground/40 pl-11 pr-11 py-3 min-h-[44px]"
       />
-      {query && (
+      {query ? (
         <button
           onClick={() => {
             setQuery("");
@@ -232,6 +232,13 @@ const OnboardingAppSignupLookup = () => {
           aria-label="Clear"
         >
           <X className="w-3.5 h-3.5 text-foreground/70" />
+        </button>
+      ) : (
+        <button
+          className="absolute right-3 w-7 h-7 rounded-full bg-foreground/10 flex items-center justify-center active:opacity-70"
+          aria-label="Voice search"
+        >
+          <Mic className="w-3.5 h-3.5 text-foreground/70" />
         </button>
       )}
     </div>

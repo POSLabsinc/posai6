@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Info, Pencil } from "lucide-react";
@@ -75,6 +75,24 @@ const detectCountry = (): string => {
     // ignore
   }
   return "United States";
+};
+
+const COUNTRY_FLAGS: Record<string, string> = {
+  "United States": "\ud83c\uddfa\ud83c\uddf8",
+  "United Kingdom": "\ud83c\uddec\ud83c\udde7",
+  Canada: "\ud83c\udde8\ud83c\udde6",
+  Australia: "\ud83c\udde6\ud83c\uddfa",
+  India: "\ud83c\uddee\ud83c\uddf3",
+  Germany: "\ud83c\udde9\ud83c\uddea",
+  France: "\ud83c\uddeb\ud83c\uddf7",
+  Spain: "\ud83c\uddea\ud83c\uddf8",
+  Italy: "\ud83c\uddee\ud83c\uddf9",
+  Netherlands: "\ud83c\uddf3\ud83c\uddf1",
+  "United Arab Emirates": "\ud83c\udde6\ud83c\uddea",
+  Singapore: "\ud83c\uddf8\ud83c\uddec",
+  Japan: "\ud83c\uddef\ud83c\uddf5",
+  Mexico: "\ud83c\uddf2\ud83c\uddfd",
+  Brazil: "\ud83c\udde7\ud83c\uddf7",
 };
 
 const OnboardingAppSignupManual = () => {
@@ -183,30 +201,17 @@ const OnboardingAppSignupManual = () => {
         <label className={labelCls}>Country</label>
         <button
           type="button"
-          onClick={() => setCountryPickerOpen((o) => !o)}
+          onClick={() => setCountryPickerOpen(true)}
           className={`${fieldCls} flex items-center justify-between text-left`}
         >
-          <span>{data.country || "Select country"}</span>
+          <span className="flex items-center gap-2">
+            <span className="text-base">{COUNTRY_FLAGS[data.country] || "\ud83c\udf10"}</span>
+            <span>{data.country || "Select country"}</span>
+          </span>
           <span className="text-[11px] text-primary font-semibold uppercase tracking-wider">
             Change
           </span>
         </button>
-        {countryPickerOpen && (
-          <select
-            autoFocus
-            className={`${fieldCls} mt-2 appearance-none`}
-            value={data.country}
-            onChange={(e) => {
-              update({ country: e.target.value, state: "" });
-              setCountryPickerOpen(false);
-            }}
-          >
-            <option value="" disabled>Select country</option>
-            {COUNTRIES.map((c) => (
-              <option key={c} value={c} className="bg-neutral-900">{c}</option>
-            ))}
-          </select>
-        )}
       </div>
 
       <div>

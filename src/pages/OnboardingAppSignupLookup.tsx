@@ -232,7 +232,7 @@ const OnboardingAppSignupLookup = () => {
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        placeholder="Search restaurant name…"
+        placeholder={config.placeholder}
         className="w-full bg-transparent outline-none text-sm text-foreground placeholder:text-foreground/40 pl-11 pr-11 py-3 min-h-[44px]"
       />
       {query && (

@@ -33,7 +33,7 @@ const OnboardingAppCarousel = () => {
 
   const goNext = () => {
     if (isLast) {
-      navigate("/onboarding/app/signup");
+      navigate("/onboarding/app/signup-signin");
     } else {
       setIndex((i) => Math.min(i + 1, slides.length - 1));
     }

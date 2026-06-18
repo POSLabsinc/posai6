@@ -22,13 +22,39 @@ const formatTime = (s: number) => {
   return `${m.toString().padStart(2, "0")}:${sec.toString().padStart(2, "0")}`;
 };
 
+const STORAGE_KEY = "onboarding_verify_state";
+
+const readPersisted = (): LocationState => {
+  try {
+    const raw = sessionStorage.getItem(STORAGE_KEY);
+    return raw ? (JSON.parse(raw) as LocationState) : {};
+  } catch {
+    return {};
+  }
+};
+
 const OnboardingAppSignupVerify = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isLandscape = useIsLandscape();
-  const state = (location.state as LocationState) ?? {};
+  const incoming = (location.state as LocationState) ?? {};
+  const persisted = readPersisted();
+  // Prefer fresh navigation state; fall back to last persisted snapshot
+  const hasIncoming = !!(incoming.email || incoming.intent);
+  const state: LocationState = hasIncoming ? incoming : persisted;
   const intent: Intent = state.intent ?? "signup_org";
   const email = state.email ?? "";
+
+  useEffect(() => {
+    if (hasIncoming) {
+      try {
+        sessionStorage.setItem(STORAGE_KEY, JSON.stringify(incoming));
+      } catch {
+        // ignore
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [digits, setDigits] = useState<string[]>(Array(OTP_LEN).fill(""));
   const [seconds, setSeconds] = useState(TIMER_SECONDS);

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Search, X, MapPin, Navigation, Check } from "lucide-react";
+import { ChevronLeft, Search, X, MapPin, Navigation, Check, Store } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
 type PlaceResult = {
@@ -275,6 +275,20 @@ const OnboardingAppSignupLookup = () => {
     </div>
   );
 
+  const emptyState = !query.trim() && results.length === 0 && (
+    <div className="flex flex-col items-center justify-center text-center px-6 py-10">
+      <div className="w-24 h-24 rounded-3xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center">
+        <Store className="w-10 h-10 text-foreground/50" strokeWidth={1.5} />
+      </div>
+      <p className="mt-6 text-base font-semibold text-foreground">
+        Start typing to find your restaurant
+      </p>
+      <p className="mt-2 text-sm text-foreground/50 max-w-[18rem]">
+        We'll pull your name, address, and business type automatically.
+      </p>
+    </div>
+  );
+
   const notOnGoogleLink = (
     <button
       onClick={() => navigate("/onboarding/app/signup/manual")}
@@ -321,7 +335,13 @@ const OnboardingAppSignupLookup = () => {
           <div className="flex flex-col px-6 py-6 flex-1 min-h-0" style={{ width: "55%" }}>
             {searchInput}
             {countLabel}
-            <div className="flex-1 overflow-y-auto">{resultsList}</div>
+            <div className="flex-1 overflow-y-auto flex flex-col">
+              {emptyState ? (
+                <div className="flex-1 flex items-center justify-center">{emptyState}</div>
+              ) : (
+                resultsList
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -337,7 +357,13 @@ const OnboardingAppSignupLookup = () => {
         {subtitle}
         <div className="mt-6">{searchInput}</div>
         {countLabel}
-        <div className="flex-1 overflow-y-auto mt-2 pb-4">{resultsList}</div>
+        <div className="flex-1 overflow-y-auto mt-2 pb-4 flex flex-col">
+          {emptyState ? (
+            <div className="flex-1 flex items-center justify-center">{emptyState}</div>
+          ) : (
+            resultsList
+          )}
+        </div>
         <div className="pt-2 pb-2">{notOnGoogleLink}</div>
         {selected && (
           <div className="pb-6 pt-2" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>

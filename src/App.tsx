@@ -103,6 +103,7 @@ const OnboardingAppSignupLookup = lazyWithImportRecovery(() => import("./pages/O
 const OnboardingAppSignupAccount = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupAccount"));
 const OnboardingAppSignupDemo = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupDemo"));
 const OnboardingAppSignupUpgrade = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupUpgrade"));
+const OnboardingAppSignupVerify = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupVerify"));
 
 const queryClient = new QueryClient();
 
@@ -225,6 +226,7 @@ const AppInner = () => {
           <Route path="/onboarding/app/signup/account" element={<OnboardingAppSignupAccount />} />
           <Route path="/onboarding/app/signup/demo" element={<OnboardingAppSignupDemo />} />
           <Route path="/onboarding/app/signup/upgrade" element={<OnboardingAppSignupUpgrade />} />
+          <Route path="/onboarding/app/signup/verify" element={<OnboardingAppSignupVerify />} />
           <Route path="/kds" element={<KDS />} />
           <Route path="/kds-new" element={<KdsEmbedded />} />
           <Route path="/closing-grace-period" element={<ClosingGracePeriod />} />

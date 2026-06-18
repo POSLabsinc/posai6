@@ -60,9 +60,11 @@ const OnboardingAppSignupUpgrade = () => {
     }
     setSubmitting(true);
     try {
-      // Placeholder for POST /auth/update-email
+      // Placeholder for POST /auth/update-email (send verification)
       await new Promise((r) => setTimeout(r, 400));
-      setSent(true);
+      navigate("/onboarding/app/signup/verify", {
+        state: { ...state, email: workEmail, intent: "upgrade_email" },
+      });
     } finally {
       setSubmitting(false);
     }

@@ -21,6 +21,7 @@ const OnboardingAppSignupDemo = () => {
   const goUpgrade = () =>
     navigate("/onboarding/app/signup/upgrade", { state });
   const goDashboard = () => navigate("/");
+  const goBack = () => navigate("/onboarding/app/signup/account", { state });
 
   const banner = (
     <div className="rounded-2xl border border-primary/20 bg-primary/[0.08] px-4 py-3">

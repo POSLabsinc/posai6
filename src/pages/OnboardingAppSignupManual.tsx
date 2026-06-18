@@ -201,30 +201,17 @@ const OnboardingAppSignupManual = () => {
         <label className={labelCls}>Country</label>
         <button
           type="button"
-          onClick={() => setCountryPickerOpen((o) => !o)}
+          onClick={() => setCountryPickerOpen(true)}
           className={`${fieldCls} flex items-center justify-between text-left`}
         >
-          <span>{data.country || "Select country"}</span>
+          <span className="flex items-center gap-2">
+            <span className="text-base">{COUNTRY_FLAGS[data.country] || "\ud83c\udf10"}</span>
+            <span>{data.country || "Select country"}</span>
+          </span>
           <span className="text-[11px] text-primary font-semibold uppercase tracking-wider">
             Change
           </span>
         </button>
-        {countryPickerOpen && (
-          <select
-            autoFocus
-            className={`${fieldCls} mt-2 appearance-none`}
-            value={data.country}
-            onChange={(e) => {
-              update({ country: e.target.value, state: "" });
-              setCountryPickerOpen(false);
-            }}
-          >
-            <option value="" disabled>Select country</option>
-            {COUNTRIES.map((c) => (
-              <option key={c} value={c} className="bg-neutral-900">{c}</option>
-            ))}
-          </select>
-        )}
       </div>
 
       <div>

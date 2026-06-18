@@ -69,9 +69,23 @@ const prettyType = (types: string[] | undefined) => {
   return "Restaurant";
 };
 
+const LOOKUP_CONFIG: Record<string, { title: string; placeholder: string; fallback: string }> = {
+  food: { title: "Find your restaurant", placeholder: "Search restaurant name…", fallback: "My restaurant isn't on Google yet" },
+  retail: { title: "Find your store", placeholder: "Search store name…", fallback: "My store isn't on Google yet" },
+  grocery: { title: "Find your store", placeholder: "Search store name…", fallback: "My store isn't on Google yet" },
+  beauty: { title: "Find your salon", placeholder: "Search salon name…", fallback: "My salon isn't on Google yet" },
+  healthcare: { title: "Find your clinic", placeholder: "Search clinic name…", fallback: "My clinic isn't on Google yet" },
+  sports: { title: "Find your gym", placeholder: "Search gym name…", fallback: "My gym isn't on Google yet" },
+  services: { title: "Find your business", placeholder: "Search business name…", fallback: "My business isn't on Google yet" },
+  other: { title: "Find your business", placeholder: "Search business name…", fallback: "My business isn't on Google yet" },
+};
+
 const OnboardingAppSignupLookup = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isLandscape = useIsLandscape();
+  const businessType = (location.state as Record<string, unknown> | undefined)?.businessType as string | undefined;
+  const config = LOOKUP_CONFIG[businessType ?? ""] ?? LOOKUP_CONFIG.food;
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [results, setResults] = useState<PlaceResult[]>([]);

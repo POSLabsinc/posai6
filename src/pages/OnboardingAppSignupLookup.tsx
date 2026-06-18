@@ -303,6 +303,20 @@ const OnboardingAppSignupLookup = () => {
     </div>
   );
 
+  const noResultsState = query.trim() && results.length === 0 && !loading && (
+    <div className="flex flex-col items-center justify-center text-center px-6 py-10">
+      <div className="w-24 h-24 rounded-3xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center">
+        <SearchX className="w-10 h-10 text-foreground/50" strokeWidth={1.5} />
+      </div>
+      <p className="mt-6 text-base font-semibold text-foreground">
+        No restaurants found
+      </p>
+      <p className="mt-2 text-sm text-foreground/50 max-w-[18rem]">
+        Try a different name or check the spelling.
+      </p>
+    </div>
+  );
+
   const skeletonItem = (
     <div className="flex items-start gap-3 px-4 py-4 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04]">
       <div className="w-9 h-9 rounded-xl bg-foreground/[0.08] animate-pulse flex-shrink-0" />

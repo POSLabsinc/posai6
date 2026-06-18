@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Search, X, MapPin, Navigation, Check, Store, AlertTriangle, SearchX } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
@@ -69,9 +69,23 @@ const prettyType = (types: string[] | undefined) => {
   return "Restaurant";
 };
 
+const LOOKUP_CONFIG: Record<string, { title: string; placeholder: string; fallback: string }> = {
+  food: { title: "Find your restaurant", placeholder: "Search restaurant name…", fallback: "My restaurant isn't on Google yet" },
+  retail: { title: "Find your store", placeholder: "Search store name…", fallback: "My store isn't on Google yet" },
+  grocery: { title: "Find your store", placeholder: "Search store name…", fallback: "My store isn't on Google yet" },
+  beauty: { title: "Find your salon", placeholder: "Search salon name…", fallback: "My salon isn't on Google yet" },
+  healthcare: { title: "Find your clinic", placeholder: "Search clinic name…", fallback: "My clinic isn't on Google yet" },
+  sports: { title: "Find your gym", placeholder: "Search gym name…", fallback: "My gym isn't on Google yet" },
+  services: { title: "Find your business", placeholder: "Search business name…", fallback: "My business isn't on Google yet" },
+  other: { title: "Find your business", placeholder: "Search business name…", fallback: "My business isn't on Google yet" },
+};
+
 const OnboardingAppSignupLookup = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isLandscape = useIsLandscape();
+  const businessType = (location.state as Record<string, unknown> | undefined)?.businessType as string | undefined;
+  const config = LOOKUP_CONFIG[businessType ?? ""] ?? LOOKUP_CONFIG.food;
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [results, setResults] = useState<PlaceResult[]>([]);
@@ -196,7 +210,7 @@ const OnboardingAppSignupLookup = () => {
     </button>
   );
 
-  const title = <h1 className="text-2xl font-bold text-foreground">Find your restaurant</h1>;
+  const title = <h1 className="text-2xl font-bold text-foreground">{config.title}</h1>;
   const subtitle = (
     <p className="text-sm text-foreground/60 mt-2">We'll pre-fill your details automatically.</p>
   );
@@ -218,7 +232,7 @@ const OnboardingAppSignupLookup = () => {
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
-        placeholder="Search restaurant name…"
+        placeholder={config.placeholder}
         className="w-full bg-transparent outline-none text-sm text-foreground placeholder:text-foreground/40 pl-11 pr-11 py-3 min-h-[44px]"
       />
       {query && (
@@ -351,7 +365,7 @@ const OnboardingAppSignupLookup = () => {
       onClick={() => navigate("/onboarding/app/signup/manual")}
       className="text-sm text-primary text-center w-full py-2 min-h-[44px] hover:underline underline-offset-2"
     >
-      My restaurant isn't on Google yet
+      {config.fallback}
     </button>
   );
 

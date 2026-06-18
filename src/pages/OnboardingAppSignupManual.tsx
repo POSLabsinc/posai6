@@ -9,7 +9,9 @@ type Step = 1 | 2 | 3;
 type ManualPlace = {
   name: string;
   address1: string;
+  address2: string;
   city: string;
+  state: string;
   postcode: string;
   country: string;
   phone: string;
@@ -35,22 +37,67 @@ const COUNTRIES = [
   "Brazil",
 ];
 
+const US_STATES = [
+  ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"],
+  ["CA", "California"], ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"],
+  ["DC", "District of Columbia"], ["FL", "Florida"], ["GA", "Georgia"], ["HI", "Hawaii"],
+  ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"], ["IA", "Iowa"],
+  ["KS", "Kansas"], ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"],
+  ["MD", "Maryland"], ["MA", "Massachusetts"], ["MI", "Michigan"], ["MN", "Minnesota"],
+  ["MS", "Mississippi"], ["MO", "Missouri"], ["MT", "Montana"], ["NE", "Nebraska"],
+  ["NV", "Nevada"], ["NH", "New Hampshire"], ["NJ", "New Jersey"], ["NM", "New Mexico"],
+  ["NY", "New York"], ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"],
+  ["OK", "Oklahoma"], ["OR", "Oregon"], ["PA", "Pennsylvania"], ["RI", "Rhode Island"],
+  ["SC", "South Carolina"], ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"],
+  ["UT", "Utah"], ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"],
+  ["WV", "West Virginia"], ["WI", "Wisconsin"], ["WY", "Wyoming"],
+] as const;
+
+// Map ISO region codes from browser locale to country labels in COUNTRIES list.
+const REGION_TO_COUNTRY: Record<string, string> = {
+  US: "United States", GB: "United Kingdom", CA: "Canada", AU: "Australia",
+  IN: "India", DE: "Germany", FR: "France", ES: "Spain", IT: "Italy",
+  NL: "Netherlands", AE: "United Arab Emirates", SG: "Singapore", JP: "Japan",
+  MX: "Mexico", BR: "Brazil",
+};
+
+const detectCountry = (): string => {
+  try {
+    const locales = [
+      ...(navigator.languages || []),
+      navigator.language,
+    ].filter(Boolean) as string[];
+    for (const loc of locales) {
+      const region = loc.split("-")[1]?.toUpperCase();
+      if (region && REGION_TO_COUNTRY[region]) return REGION_TO_COUNTRY[region];
+    }
+  } catch {
+    // ignore
+  }
+  return "United States";
+};
+
 const OnboardingAppSignupManual = () => {
   const navigate = useNavigate();
   const isLandscape = useIsLandscape();
   const [step, setStep] = useState<Step>(1);
-  const [data, setData] = useState<ManualPlace>({
+  const [data, setData] = useState<ManualPlace>(() => ({
     name: "",
     address1: "",
+    address2: "",
     city: "",
+    state: "",
     postcode: "",
-    country: "",
+    country: detectCountry(),
     phone: "",
     website: "",
     mapsLink: "",
-  });
+  }));
+  const [countryPickerOpen, setCountryPickerOpen] = useState(false);
 
   const update = (patch: Partial<ManualPlace>) => setData((d) => ({ ...d, ...patch }));
+
+  const isUS = data.country === "United States";
 
   const step1Valid = useMemo(
     () =>
@@ -58,8 +105,9 @@ const OnboardingAppSignupManual = () => {
       data.address1.trim().length > 1 &&
       data.city.trim().length > 0 &&
       data.postcode.trim().length > 0 &&
-      data.country.trim().length > 0,
-    [data],
+      data.country.trim().length > 0 &&
+      (!isUS || data.state.trim().length > 0),
+    [data, isUS],
   );
 
   const step2Valid = useMemo(() => data.phone.trim().length >= 6, [data.phone]);
@@ -73,7 +121,13 @@ const OnboardingAppSignupManual = () => {
     const place = {
       place_id: `manual-${Date.now()}`,
       name: data.name,
-      address: [data.address1, data.city, data.postcode, data.country]
+      address: [
+        data.address1,
+        data.address2,
+        data.city,
+        isUS ? [data.state, data.postcode].filter(Boolean).join(" ") : data.postcode,
+        data.country,
+      ]
         .filter(Boolean)
         .join(", "),
       business_type: "Restaurant",
@@ -124,6 +178,37 @@ const OnboardingAppSignupManual = () => {
 
   const step1 = (
     <div className="flex flex-col gap-3">
+      {/* Country pill (auto-detected, tappable to change) */}
+      <div>
+        <label className={labelCls}>Country</label>
+        <button
+          type="button"
+          onClick={() => setCountryPickerOpen((o) => !o)}
+          className={`${fieldCls} flex items-center justify-between text-left`}
+        >
+          <span>{data.country || "Select country"}</span>
+          <span className="text-[11px] text-primary font-semibold uppercase tracking-wider">
+            Change
+          </span>
+        </button>
+        {countryPickerOpen && (
+          <select
+            autoFocus
+            className={`${fieldCls} mt-2 appearance-none`}
+            value={data.country}
+            onChange={(e) => {
+              update({ country: e.target.value, state: "" });
+              setCountryPickerOpen(false);
+            }}
+          >
+            <option value="" disabled>Select country</option>
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c} className="bg-neutral-900">{c}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
       <div>
         <label className={labelCls}>Restaurant name</label>
         <input
@@ -143,6 +228,15 @@ const OnboardingAppSignupManual = () => {
         />
       </div>
       <div>
+        <label className={labelCls}>Address line 2 <span className="text-foreground/40">(optional)</span></label>
+        <input
+          className={fieldCls}
+          value={data.address2}
+          onChange={(e) => update({ address2: e.target.value })}
+          placeholder="Apt, suite, unit, building, floor"
+        />
+      </div>
+      <div>
         <label className={labelCls}>City</label>
         <input
           className={fieldCls}
@@ -151,34 +245,45 @@ const OnboardingAppSignupManual = () => {
           placeholder="City"
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      {isUS ? (
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelCls}>State</label>
+            <select
+              className={`${fieldCls} appearance-none`}
+              value={data.state}
+              onChange={(e) => update({ state: e.target.value })}
+            >
+              <option value="" disabled>Select</option>
+              {US_STATES.map(([abbr, name]) => (
+                <option key={abbr} value={abbr} className="bg-neutral-900">
+                  {abbr} · {name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>ZIP Code</label>
+            <input
+              className={fieldCls}
+              value={data.postcode}
+              onChange={(e) => update({ postcode: e.target.value })}
+              placeholder="ZIP Code"
+              inputMode="numeric"
+            />
+          </div>
+        </div>
+      ) : (
         <div>
           <label className={labelCls}>Postcode</label>
           <input
             className={fieldCls}
             value={data.postcode}
             onChange={(e) => update({ postcode: e.target.value })}
-            placeholder="ZIP / Postcode"
+            placeholder="Postcode"
           />
         </div>
-        <div>
-          <label className={labelCls}>Country</label>
-          <select
-            className={`${fieldCls} appearance-none`}
-            value={data.country}
-            onChange={(e) => update({ country: e.target.value })}
-          >
-            <option value="" disabled>
-              Select
-            </option>
-            {COUNTRIES.map((c) => (
-              <option key={c} value={c} className="bg-neutral-900">
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+      )}
     </div>
   );
 
@@ -223,8 +328,11 @@ const OnboardingAppSignupManual = () => {
       <div className="px-4 py-4 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04]">
         <p className="text-base font-semibold text-foreground">{data.name || "—"}</p>
         <p className="text-sm text-foreground/60 mt-1">{data.address1}</p>
+        {data.address2 && <p className="text-sm text-foreground/60">{data.address2}</p>}
         <p className="text-sm text-foreground/60">
-          {[data.city, data.postcode].filter(Boolean).join(" ")}
+          {[data.city, isUS ? [data.state, data.postcode].filter(Boolean).join(" ") : data.postcode]
+            .filter(Boolean)
+            .join(", ")}
         </p>
         {data.country && <p className="text-sm text-foreground/60">{data.country}</p>}
         {data.phone && <p className="text-sm text-foreground/60 mt-2">{data.phone}</p>}

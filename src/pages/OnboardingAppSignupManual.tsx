@@ -178,6 +178,37 @@ const OnboardingAppSignupManual = () => {
 
   const step1 = (
     <div className="flex flex-col gap-3">
+      {/* Country pill (auto-detected, tappable to change) */}
+      <div>
+        <label className={labelCls}>Country</label>
+        <button
+          type="button"
+          onClick={() => setCountryPickerOpen((o) => !o)}
+          className={`${fieldCls} flex items-center justify-between text-left`}
+        >
+          <span>{data.country || "Select country"}</span>
+          <span className="text-[11px] text-primary font-semibold uppercase tracking-wider">
+            Change
+          </span>
+        </button>
+        {countryPickerOpen && (
+          <select
+            autoFocus
+            className={`${fieldCls} mt-2 appearance-none`}
+            value={data.country}
+            onChange={(e) => {
+              update({ country: e.target.value, state: "" });
+              setCountryPickerOpen(false);
+            }}
+          >
+            <option value="" disabled>Select country</option>
+            {COUNTRIES.map((c) => (
+              <option key={c} value={c} className="bg-neutral-900">{c}</option>
+            ))}
+          </select>
+        )}
+      </div>
+
       <div>
         <label className={labelCls}>Restaurant name</label>
         <input
@@ -197,6 +228,15 @@ const OnboardingAppSignupManual = () => {
         />
       </div>
       <div>
+        <label className={labelCls}>Address line 2 <span className="text-foreground/40">(optional)</span></label>
+        <input
+          className={fieldCls}
+          value={data.address2}
+          onChange={(e) => update({ address2: e.target.value })}
+          placeholder="Apt, suite, unit, building, floor"
+        />
+      </div>
+      <div>
         <label className={labelCls}>City</label>
         <input
           className={fieldCls}
@@ -205,34 +245,45 @@ const OnboardingAppSignupManual = () => {
           placeholder="City"
         />
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      {isUS ? (
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className={labelCls}>State</label>
+            <select
+              className={`${fieldCls} appearance-none`}
+              value={data.state}
+              onChange={(e) => update({ state: e.target.value })}
+            >
+              <option value="" disabled>Select</option>
+              {US_STATES.map(([abbr, name]) => (
+                <option key={abbr} value={abbr} className="bg-neutral-900">
+                  {abbr} · {name}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className={labelCls}>ZIP Code</label>
+            <input
+              className={fieldCls}
+              value={data.postcode}
+              onChange={(e) => update({ postcode: e.target.value })}
+              placeholder="ZIP Code"
+              inputMode="numeric"
+            />
+          </div>
+        </div>
+      ) : (
         <div>
           <label className={labelCls}>Postcode</label>
           <input
             className={fieldCls}
             value={data.postcode}
             onChange={(e) => update({ postcode: e.target.value })}
-            placeholder="ZIP / Postcode"
+            placeholder="Postcode"
           />
         </div>
-        <div>
-          <label className={labelCls}>Country</label>
-          <select
-            className={`${fieldCls} appearance-none`}
-            value={data.country}
-            onChange={(e) => update({ country: e.target.value })}
-          >
-            <option value="" disabled>
-              Select
-            </option>
-            {COUNTRIES.map((c) => (
-              <option key={c} value={c} className="bg-neutral-900">
-                {c}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+      )}
     </div>
   );
 

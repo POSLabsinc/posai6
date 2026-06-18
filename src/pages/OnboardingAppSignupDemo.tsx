@@ -156,6 +156,7 @@ const OnboardingAppSignupDemo = () => {
         className="relative z-10 flex flex-col h-full w-full max-w-md mx-auto px-6"
         style={{ paddingTop: "max(1.5rem, env(safe-area-inset-top))" }}
       >
+        <div className="mb-4">{backBtn}</div>
         {banner}
         <div className="mt-6">{sectionTitle}</div>
         <div className="flex-1 overflow-y-auto mt-3 pb-4">{checklist}</div>

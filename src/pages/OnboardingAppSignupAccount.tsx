@@ -135,8 +135,14 @@ const OnboardingAppSignupAccount = () => {
     try {
       // Placeholder for POST /auth/signup
       await new Promise((r) => setTimeout(r, 400));
-      navigate(isPersonal ? "/onboarding/app/signup/demo" : "/onboarding/app/signup/verify", {
-        state: { place, email, country: selectedCountry, demo: isPersonal },
+      navigate("/onboarding/app/signup/verify", {
+        state: {
+          place,
+          email,
+          country: selectedCountry,
+          demo: isPersonal,
+          intent: isPersonal ? "signup_demo" : "signup_org",
+        },
       });
     } finally {
       setSubmitting(false);

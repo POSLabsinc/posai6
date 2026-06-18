@@ -325,6 +325,13 @@ const OnboardingAppSignupLookup = () => {
     </div>
   );
 
+  const fallbackBanner = showFallbackBanner && (
+    <div className="flex items-center gap-2 px-4 py-3 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-amber-400 text-xs font-medium">
+      <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+      <span>Google Places lookup failed. Showing sample restaurants instead.</span>
+    </div>
+  );
+
   const notOnGoogleLink = (
     <button
       onClick={() => navigate("/onboarding/app/signup/manual")}

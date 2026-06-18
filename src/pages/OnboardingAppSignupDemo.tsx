@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Eye, Check, Lock, ArrowUpRight } from "lucide-react";
+import { Eye, Check, Lock, ArrowUpRight, ChevronLeft } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
 type LocationState = {

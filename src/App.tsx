@@ -99,6 +99,7 @@ const OnboardingWeb = lazyWithImportRecovery(() => import("./pages/OnboardingWeb
 const OnboardingApp = lazyWithImportRecovery(() => import("./pages/OnboardingApp"));
 const OnboardingAppCarousel = lazyWithImportRecovery(() => import("./pages/OnboardingAppCarousel"));
 const OnboardingAppSignupSignin = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupSignin"));
+const OnboardingAppSignupLookup = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupLookup"));
 
 const queryClient = new QueryClient();
 
@@ -217,6 +218,7 @@ const AppInner = () => {
           <Route path="/onboarding/app" element={<OnboardingApp />} />
           <Route path="/onboarding/app/carousel" element={<OnboardingAppCarousel />} />
           <Route path="/onboarding/app/signup-signin" element={<OnboardingAppSignupSignin />} />
+          <Route path="/onboarding/app/signup/lookup" element={<OnboardingAppSignupLookup />} />
           <Route path="/kds" element={<KDS />} />
           <Route path="/kds-new" element={<KdsEmbedded />} />
           <Route path="/closing-grace-period" element={<ClosingGracePeriod />} />

@@ -114,9 +114,11 @@ const OnboardingAppSignupLookup = () => {
       setResults([]);
       setLoading(false);
       setSelectedId(null);
+      setShowFallbackBanner(false);
       return;
     }
     setLoading(true);
+    setShowFallbackBanner(false);
     debounceRef.current = window.setTimeout(async () => {
       try {
         const body: Record<string, unknown> = {
@@ -141,6 +143,8 @@ const OnboardingAppSignupLookup = () => {
         });
         if (!res.ok) {
           setResults(buildDummyResults);
+          setShowFallbackBanner(true);
+          toast.error("Google Places lookup failed. Showing sample restaurants instead.");
           setLoading(false);
           return;
         }
@@ -161,6 +165,8 @@ const OnboardingAppSignupLookup = () => {
         setResults(places.length ? places : buildDummyResults);
       } catch {
         setResults(buildDummyResults);
+        setShowFallbackBanner(true);
+        toast.error("Google Places lookup failed. Showing sample restaurants instead.");
       } finally {
         setLoading(false);
       }

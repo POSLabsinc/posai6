@@ -295,6 +295,28 @@ const OnboardingAppSignupLookup = () => {
     </div>
   );
 
+  const skeletonItem = (
+    <div className="flex items-start gap-3 px-4 py-4 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04]">
+      <div className="w-9 h-9 rounded-xl bg-foreground/[0.08] animate-pulse flex-shrink-0" />
+      <div className="flex-1 min-w-0 space-y-2">
+        <div className="h-4 w-3/5 rounded bg-foreground/[0.08] animate-pulse" />
+        <div className="h-3 w-4/5 rounded bg-foreground/[0.06] animate-pulse" />
+        <div className="flex items-center gap-2 pt-0.5">
+          <div className="h-4 w-16 rounded-full bg-foreground/[0.06] animate-pulse" />
+          <div className="h-4 w-12 rounded bg-foreground/[0.06] animate-pulse" />
+        </div>
+      </div>
+    </div>
+  );
+
+  const skeletonList = loading && (
+    <div className="flex flex-col gap-3">
+      {skeletonItem}
+      {skeletonItem}
+      {skeletonItem}
+    </div>
+  );
+
   const notOnGoogleLink = (
     <button
       onClick={() => navigate("/onboarding/app/signup/manual")}

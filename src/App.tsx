@@ -101,6 +101,8 @@ const OnboardingAppCarousel = lazyWithImportRecovery(() => import("./pages/Onboa
 const OnboardingAppSignupSignin = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupSignin"));
 const OnboardingAppSignupLookup = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupLookup"));
 const OnboardingAppSignupAccount = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupAccount"));
+const OnboardingAppSignupDemo = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupDemo"));
+const OnboardingAppSignupUpgrade = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupUpgrade"));
 
 const queryClient = new QueryClient();
 

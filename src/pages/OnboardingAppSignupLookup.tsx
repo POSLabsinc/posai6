@@ -398,6 +398,8 @@ const OnboardingAppSignupLookup = () => {
               skeletonList
             ) : emptyState ? (
               <div className="flex-1 flex items-center justify-center">{emptyState}</div>
+            ) : noResultsState ? (
+              <div className="flex-1 flex items-center justify-center">{noResultsState}</div>
             ) : (
               resultsList
             )}

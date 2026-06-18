@@ -69,7 +69,7 @@ const Onboarding = () => {
           </button>
 
           <button
-            onClick={() => navigate("/onboarding/app/carousel")}
+            onClick={() => setShowSplash(true)}
             className="flex items-center gap-4 px-5 py-5 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04] hover:bg-foreground/[0.07] transition-all text-left"
           >
             <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center flex-shrink-0">

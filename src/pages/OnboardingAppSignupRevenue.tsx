@@ -5,9 +5,9 @@ import { useIsLandscape } from "@/hooks/use-landscape";
 
 const REVENUE_OPTIONS = [
   "Less than $100k",
-  "$100k – $250k",
-  "$250k – $1M",
-  "$1M – $5M",
+  "$100k - $250k",
+  "$250k - $1M",
+  "$1M - $5M",
   "$5M+",
 ];
 

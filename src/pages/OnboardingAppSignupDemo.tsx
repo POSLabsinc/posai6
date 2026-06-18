@@ -126,6 +126,7 @@ const OnboardingAppSignupDemo = () => {
               className="flex-1 flex flex-col gap-4 overflow-y-auto"
               style={{ paddingTop: "env(safe-area-inset-top)" }}
             >
+              <div>{backBtn}</div>
               {banner}
               {sectionTitle}
             </div>

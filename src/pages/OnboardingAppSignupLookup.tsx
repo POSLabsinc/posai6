@@ -357,7 +357,13 @@ const OnboardingAppSignupLookup = () => {
         {subtitle}
         <div className="mt-6">{searchInput}</div>
         {countLabel}
-        <div className="flex-1 overflow-y-auto mt-2 pb-4">{resultsList}</div>
+        <div className="flex-1 overflow-y-auto mt-2 pb-4 flex flex-col">
+          {emptyState ? (
+            <div className="flex-1 flex items-center justify-center">{emptyState}</div>
+          ) : (
+            resultsList
+          )}
+        </div>
         <div className="pt-2 pb-2">{notOnGoogleLink}</div>
         {selected && (
           <div className="pb-6 pt-2" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>

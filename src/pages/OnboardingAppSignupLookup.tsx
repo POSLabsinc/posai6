@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Search, X, MapPin, Navigation, Check, Store } from "lucide-react";
+import { ChevronLeft, Search, X, MapPin, Navigation, Check, Store, AlertTriangle } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import { toast } from "sonner";
 
 type PlaceResult = {
   place_id: string;

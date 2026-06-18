@@ -74,6 +74,7 @@ const OnboardingAppSignupLookup = () => {
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
   const [results, setResults] = useState<PlaceResult[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loc, setLoc] = useState<{ lat: number; lng: number } | null>(null);
   const sessionTokenRef = useRef<string>(
@@ -109,9 +110,11 @@ const OnboardingAppSignupLookup = () => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     if (!query.trim()) {
       setResults([]);
+      setLoading(false);
       setSelectedId(null);
       return;
     }
+    setLoading(true);
     debounceRef.current = window.setTimeout(async () => {
       try {
         const body: Record<string, unknown> = {
@@ -136,6 +139,7 @@ const OnboardingAppSignupLookup = () => {
         });
         if (!res.ok) {
           setResults(buildDummyResults);
+          setLoading(false);
           return;
         }
         const data = await res.json();
@@ -155,6 +159,8 @@ const OnboardingAppSignupLookup = () => {
         setResults(places.length ? places : buildDummyResults);
       } catch {
         setResults(buildDummyResults);
+      } finally {
+        setLoading(false);
       }
     }, 300);
     return () => {
@@ -289,6 +295,28 @@ const OnboardingAppSignupLookup = () => {
     </div>
   );
 
+  const skeletonItem = (
+    <div className="flex items-start gap-3 px-4 py-4 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04]">
+      <div className="w-9 h-9 rounded-xl bg-foreground/[0.08] animate-pulse flex-shrink-0" />
+      <div className="flex-1 min-w-0 space-y-2">
+        <div className="h-4 w-3/5 rounded bg-foreground/[0.08] animate-pulse" />
+        <div className="h-3 w-4/5 rounded bg-foreground/[0.06] animate-pulse" />
+        <div className="flex items-center gap-2 pt-0.5">
+          <div className="h-4 w-16 rounded-full bg-foreground/[0.06] animate-pulse" />
+          <div className="h-4 w-12 rounded bg-foreground/[0.06] animate-pulse" />
+        </div>
+      </div>
+    </div>
+  );
+
+  const skeletonList = loading && (
+    <div className="flex flex-col gap-3">
+      {skeletonItem}
+      {skeletonItem}
+      {skeletonItem}
+    </div>
+  );
+
   const notOnGoogleLink = (
     <button
       onClick={() => navigate("/onboarding/app/signup/manual")}
@@ -336,11 +364,13 @@ const OnboardingAppSignupLookup = () => {
             {searchInput}
             {countLabel}
             <div className="flex-1 overflow-y-auto flex flex-col">
-              {emptyState ? (
-                <div className="flex-1 flex items-center justify-center">{emptyState}</div>
-              ) : (
-                resultsList
-              )}
+            {loading ? (
+              skeletonList
+            ) : emptyState ? (
+              <div className="flex-1 flex items-center justify-center">{emptyState}</div>
+            ) : (
+              resultsList
+            )}
             </div>
           </div>
         </div>
@@ -358,7 +388,9 @@ const OnboardingAppSignupLookup = () => {
         <div className="mt-6">{searchInput}</div>
         {countLabel}
         <div className="flex-1 overflow-y-auto mt-2 pb-4 flex flex-col">
-          {emptyState ? (
+          {loading ? (
+            skeletonList
+          ) : emptyState ? (
             <div className="flex-1 flex items-center justify-center">{emptyState}</div>
           ) : (
             resultsList

@@ -216,6 +216,7 @@ const AppInner = () => {
           <Route path="/onboarding/web" element={<OnboardingWeb />} />
           <Route path="/onboarding/app" element={<OnboardingApp />} />
           <Route path="/onboarding/app/carousel" element={<OnboardingAppCarousel />} />
+          <Route path="/onboarding/app/signup-signin" element={<OnboardingAppSignupSignin />} />
           <Route path="/kds" element={<KDS />} />
           <Route path="/kds-new" element={<KdsEmbedded />} />
           <Route path="/closing-grace-period" element={<ClosingGracePeriod />} />

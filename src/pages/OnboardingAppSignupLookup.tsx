@@ -92,6 +92,19 @@ const OnboardingAppSignupLookup = () => {
     );
   }, []);
 
+  const buildDummyResults = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return DUMMY_RESTAURANTS.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.address.toLowerCase().includes(q) ||
+        r.business_type.toLowerCase().includes(q),
+    ).map((r) => ({
+      ...r,
+      distance_km: loc && r.lat && r.lng ? haversineKm(loc, { lat: r.lat, lng: r.lng }) : null,
+    }));
+  }, [query, loc]);
+
   useEffect(() => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     if (!query.trim()) {
@@ -122,7 +135,7 @@ const OnboardingAppSignupLookup = () => {
           body: JSON.stringify(body),
         });
         if (!res.ok) {
-          setResults([]);
+          setResults(buildDummyResults);
           return;
         }
         const data = await res.json();
@@ -139,15 +152,15 @@ const OnboardingAppSignupLookup = () => {
             lng,
           } as PlaceResult;
         });
-        setResults(places);
+        setResults(places.length ? places : buildDummyResults);
       } catch {
-        setResults([]);
+        setResults(buildDummyResults);
       }
     }, 300);
     return () => {
       if (debounceRef.current) window.clearTimeout(debounceRef.current);
     };
-  }, [query, loc]);
+  }, [query, loc, buildDummyResults]);
 
   const selected = useMemo(
     () => results.find((r) => r.place_id === selectedId) ?? null,

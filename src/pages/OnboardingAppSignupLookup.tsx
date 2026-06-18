@@ -76,6 +76,7 @@ const OnboardingAppSignupLookup = () => {
   const [focused, setFocused] = useState(false);
   const [results, setResults] = useState<PlaceResult[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showFallbackBanner, setShowFallbackBanner] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [loc, setLoc] = useState<{ lat: number; lng: number } | null>(null);
   const sessionTokenRef = useRef<string>(

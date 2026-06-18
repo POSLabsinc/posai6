@@ -1,10 +1,24 @@
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Globe, Smartphone } from "lucide-react";
+import { useState } from "react";
 import eatosLogo from "@/assets/icons/posai-logo.png";
+import { SplashScreen } from "@/components/SplashScreen";
 
 const Onboarding = () => {
   const navigate = useNavigate();
+  const [showSplash, setShowSplash] = useState(false);
+
+  if (showSplash) {
+    return (
+      <SplashScreen
+        duration={2500}
+        variant="brand"
+        onComplete={() => navigate("/onboarding/app/carousel")}
+      />
+    );
+  }
+
 
   return (
     <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden">

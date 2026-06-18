@@ -110,9 +110,11 @@ const OnboardingAppSignupLookup = () => {
     if (debounceRef.current) window.clearTimeout(debounceRef.current);
     if (!query.trim()) {
       setResults([]);
+      setLoading(false);
       setSelectedId(null);
       return;
     }
+    setLoading(true);
     debounceRef.current = window.setTimeout(async () => {
       try {
         const body: Record<string, unknown> = {
@@ -137,6 +139,7 @@ const OnboardingAppSignupLookup = () => {
         });
         if (!res.ok) {
           setResults(buildDummyResults);
+          setLoading(false);
           return;
         }
         const data = await res.json();
@@ -156,6 +159,8 @@ const OnboardingAppSignupLookup = () => {
         setResults(places.length ? places : buildDummyResults);
       } catch {
         setResults(buildDummyResults);
+      } finally {
+        setLoading(false);
       }
     }, 300);
     return () => {

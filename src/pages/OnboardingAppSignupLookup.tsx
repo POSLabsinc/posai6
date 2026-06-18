@@ -417,10 +417,9 @@ const OnboardingAppSignupLookup = () => {
         <div className="mb-6">{backBtn}</div>
         {title}
         {subtitle}
-        <div className="mt-6">{searchInput}</div>
-        {countLabel}
-        {fallbackBanner && <div className="mt-3 mb-1">{fallbackBanner}</div>}
-        <div className="flex-1 overflow-y-auto mt-2 pb-4 flex flex-col">
+        <div className="flex-1 overflow-y-auto pb-4 flex flex-col">
+          {countLabel}
+          {fallbackBanner && <div className="mb-3">{fallbackBanner}</div>}
           {loading ? (
             skeletonList
           ) : emptyState ? (
@@ -429,6 +428,7 @@ const OnboardingAppSignupLookup = () => {
             resultsList
           )}
         </div>
+        <div className="pt-4 pb-2">{searchInput}</div>
         <div className="pt-2 pb-2">{notOnGoogleLink}</div>
         {selected && (
           <div className="pb-6 pt-2" style={{ paddingBottom: "max(1.5rem, env(safe-area-inset-bottom))" }}>

@@ -9,7 +9,9 @@ type Step = 1 | 2 | 3;
 type ManualPlace = {
   name: string;
   address1: string;
+  address2: string;
   city: string;
+  state: string;
   postcode: string;
   country: string;
   phone: string;
@@ -35,22 +37,67 @@ const COUNTRIES = [
   "Brazil",
 ];
 
+const US_STATES = [
+  ["AL", "Alabama"], ["AK", "Alaska"], ["AZ", "Arizona"], ["AR", "Arkansas"],
+  ["CA", "California"], ["CO", "Colorado"], ["CT", "Connecticut"], ["DE", "Delaware"],
+  ["DC", "District of Columbia"], ["FL", "Florida"], ["GA", "Georgia"], ["HI", "Hawaii"],
+  ["ID", "Idaho"], ["IL", "Illinois"], ["IN", "Indiana"], ["IA", "Iowa"],
+  ["KS", "Kansas"], ["KY", "Kentucky"], ["LA", "Louisiana"], ["ME", "Maine"],
+  ["MD", "Maryland"], ["MA", "Massachusetts"], ["MI", "Michigan"], ["MN", "Minnesota"],
+  ["MS", "Mississippi"], ["MO", "Missouri"], ["MT", "Montana"], ["NE", "Nebraska"],
+  ["NV", "Nevada"], ["NH", "New Hampshire"], ["NJ", "New Jersey"], ["NM", "New Mexico"],
+  ["NY", "New York"], ["NC", "North Carolina"], ["ND", "North Dakota"], ["OH", "Ohio"],
+  ["OK", "Oklahoma"], ["OR", "Oregon"], ["PA", "Pennsylvania"], ["RI", "Rhode Island"],
+  ["SC", "South Carolina"], ["SD", "South Dakota"], ["TN", "Tennessee"], ["TX", "Texas"],
+  ["UT", "Utah"], ["VT", "Vermont"], ["VA", "Virginia"], ["WA", "Washington"],
+  ["WV", "West Virginia"], ["WI", "Wisconsin"], ["WY", "Wyoming"],
+] as const;
+
+// Map ISO region codes from browser locale to country labels in COUNTRIES list.
+const REGION_TO_COUNTRY: Record<string, string> = {
+  US: "United States", GB: "United Kingdom", CA: "Canada", AU: "Australia",
+  IN: "India", DE: "Germany", FR: "France", ES: "Spain", IT: "Italy",
+  NL: "Netherlands", AE: "United Arab Emirates", SG: "Singapore", JP: "Japan",
+  MX: "Mexico", BR: "Brazil",
+};
+
+const detectCountry = (): string => {
+  try {
+    const locales = [
+      ...(navigator.languages || []),
+      navigator.language,
+    ].filter(Boolean) as string[];
+    for (const loc of locales) {
+      const region = loc.split("-")[1]?.toUpperCase();
+      if (region && REGION_TO_COUNTRY[region]) return REGION_TO_COUNTRY[region];
+    }
+  } catch {
+    // ignore
+  }
+  return "United States";
+};
+
 const OnboardingAppSignupManual = () => {
   const navigate = useNavigate();
   const isLandscape = useIsLandscape();
   const [step, setStep] = useState<Step>(1);
-  const [data, setData] = useState<ManualPlace>({
+  const [data, setData] = useState<ManualPlace>(() => ({
     name: "",
     address1: "",
+    address2: "",
     city: "",
+    state: "",
     postcode: "",
-    country: "",
+    country: detectCountry(),
     phone: "",
     website: "",
     mapsLink: "",
-  });
+  }));
+  const [countryPickerOpen, setCountryPickerOpen] = useState(false);
 
   const update = (patch: Partial<ManualPlace>) => setData((d) => ({ ...d, ...patch }));
+
+  const isUS = data.country === "United States";
 
   const step1Valid = useMemo(
     () =>
@@ -58,8 +105,9 @@ const OnboardingAppSignupManual = () => {
       data.address1.trim().length > 1 &&
       data.city.trim().length > 0 &&
       data.postcode.trim().length > 0 &&
-      data.country.trim().length > 0,
-    [data],
+      data.country.trim().length > 0 &&
+      (!isUS || data.state.trim().length > 0),
+    [data, isUS],
   );
 
   const step2Valid = useMemo(() => data.phone.trim().length >= 6, [data.phone]);

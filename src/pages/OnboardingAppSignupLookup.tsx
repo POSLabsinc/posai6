@@ -16,6 +16,33 @@ type PlaceResult = {
 
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
+const DUMMY_RESTAURANTS: Omit<PlaceResult, "distance_km">[] = [
+  {
+    place_id: "dummy-1",
+    name: "The Rustic Table",
+    address: "123 Main Street, Downtown, NY 10001",
+    business_type: "Restaurant",
+    lat: 40.7128,
+    lng: -74.006,
+  },
+  {
+    place_id: "dummy-2",
+    name: "Bella Vista Bistro",
+    address: "456 Park Avenue, Midtown, NY 10022",
+    business_type: "Bistro",
+    lat: 40.7614,
+    lng: -73.9776,
+  },
+  {
+    place_id: "dummy-3",
+    name: "Harbor Grill & Bar",
+    address: "789 Waterfront Drive, Brooklyn, NY 11201",
+    business_type: "Bar",
+    lat: 40.6892,
+    lng: -74.0445,
+  },
+];
+
 const haversineKm = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
   const toRad = (v: number) => (v * Math.PI) / 180;
   const R = 6371;

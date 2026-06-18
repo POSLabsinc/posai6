@@ -68,7 +68,7 @@ const OnboardingAppSignupProfile = () => {
   const goBack = () =>
     navigate("/onboarding/app/signup/verify", { state: location.state });
   const goNext = () =>
-    navigate("/onboarding/app/signup/welcome", {
+    navigate("/onboarding/app/signup/revenue", {
       state: { ...(location.state as object), restaurantType: selectedType, locations: selectedLocations },
     });
 

@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Eye, Check, Lock, ArrowUpRight } from "lucide-react";
+import { Eye, Check, Lock, ArrowUpRight, ChevronLeft } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
 type LocationState = {
@@ -21,6 +21,17 @@ const OnboardingAppSignupDemo = () => {
   const goUpgrade = () =>
     navigate("/onboarding/app/signup/upgrade", { state });
   const goDashboard = () => navigate("/");
+  const goBack = () => navigate("/onboarding/app/signup/account", { state });
+
+  const backBtn = (
+    <button
+      onClick={goBack}
+      className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+      aria-label="Back"
+    >
+      <ChevronLeft className="w-5 h-5 text-foreground" />
+    </button>
+  );
 
   const banner = (
     <div className="rounded-2xl border border-primary/20 bg-primary/[0.08] px-4 py-3">
@@ -115,6 +126,7 @@ const OnboardingAppSignupDemo = () => {
               className="flex-1 flex flex-col gap-4 overflow-y-auto"
               style={{ paddingTop: "env(safe-area-inset-top)" }}
             >
+              <div>{backBtn}</div>
               {banner}
               {sectionTitle}
             </div>
@@ -144,6 +156,7 @@ const OnboardingAppSignupDemo = () => {
         className="relative z-10 flex flex-col h-full w-full max-w-md mx-auto px-6"
         style={{ paddingTop: "max(1.5rem, env(safe-area-inset-top))" }}
       >
+        <div className="mb-4">{backBtn}</div>
         {banner}
         <div className="mt-6">{sectionTitle}</div>
         <div className="flex-1 overflow-y-auto mt-3 pb-4">{checklist}</div>

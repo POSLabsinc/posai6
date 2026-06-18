@@ -109,6 +109,7 @@ const OnboardingAppSignupMode = lazyWithImportRecovery(() => import("./pages/Onb
 const OnboardingAppSignupModeStandard = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupModeStandard"));
 const OnboardingAppSignupModeQuickService = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupModeQuickService"));
 const OnboardingAppSignupModeFullService = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupModeFullService"));
+const OnboardingAppSignupTrial = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupTrial"));
 
 const queryClient = new QueryClient();
 
@@ -237,6 +238,7 @@ const AppInner = () => {
           <Route path="/onboarding/app/signup/mode/standard" element={<OnboardingAppSignupModeStandard />} />
           <Route path="/onboarding/app/signup/mode/quickservice" element={<OnboardingAppSignupModeQuickService />} />
           <Route path="/onboarding/app/signup/mode/fullservice" element={<OnboardingAppSignupModeFullService />} />
+          <Route path="/onboarding/app/signup/trial" element={<OnboardingAppSignupTrial />} />
           <Route path="/kds" element={<KDS />} />
           <Route path="/kds-new" element={<KdsEmbedded />} />
           <Route path="/closing-grace-period" element={<ClosingGracePeriod />} />

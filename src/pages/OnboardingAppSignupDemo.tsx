@@ -23,6 +23,16 @@ const OnboardingAppSignupDemo = () => {
   const goDashboard = () => navigate("/");
   const goBack = () => navigate("/onboarding/app/signup/account", { state });
 
+  const backBtn = (
+    <button
+      onClick={goBack}
+      className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+      aria-label="Back"
+    >
+      <ChevronLeft className="w-5 h-5 text-foreground" />
+    </button>
+  );
+
   const banner = (
     <div className="rounded-2xl border border-primary/20 bg-primary/[0.08] px-4 py-3">
       <div className="flex items-center gap-2">

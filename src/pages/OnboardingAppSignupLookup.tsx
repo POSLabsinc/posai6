@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Search, X, MapPin, Navigation, Check, Store, AlertTriangle } from "lucide-react";
+import { ChevronLeft, Search, X, MapPin, Navigation, Check, Store, AlertTriangle, SearchX } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 import { toast } from "sonner";
 
@@ -303,6 +303,20 @@ const OnboardingAppSignupLookup = () => {
     </div>
   );
 
+  const noResultsState = query.trim() && results.length === 0 && !loading && (
+    <div className="flex flex-col items-center justify-center text-center px-6 py-10">
+      <div className="w-24 h-24 rounded-3xl bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center">
+        <SearchX className="w-10 h-10 text-foreground/50" strokeWidth={1.5} />
+      </div>
+      <p className="mt-6 text-base font-semibold text-foreground">
+        No restaurants found
+      </p>
+      <p className="mt-2 text-sm text-foreground/50 max-w-[18rem]">
+        Try a different name or check the spelling.
+      </p>
+    </div>
+  );
+
   const skeletonItem = (
     <div className="flex items-start gap-3 px-4 py-4 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04]">
       <div className="w-9 h-9 rounded-xl bg-foreground/[0.08] animate-pulse flex-shrink-0" />
@@ -384,6 +398,8 @@ const OnboardingAppSignupLookup = () => {
               skeletonList
             ) : emptyState ? (
               <div className="flex-1 flex items-center justify-center">{emptyState}</div>
+            ) : noResultsState ? (
+              <div className="flex-1 flex items-center justify-center">{noResultsState}</div>
             ) : (
               resultsList
             )}

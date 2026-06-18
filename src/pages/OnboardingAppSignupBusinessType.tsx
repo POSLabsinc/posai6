@@ -151,23 +151,23 @@ const OnboardingAppSignupBusinessType = () => {
   );
 
   const optionsList = (
-    <div className="flex flex-col gap-2">
+    <div className="grid grid-cols-2 gap-3">
       {OPTIONS.map((option) => {
         const isSelected = selected === option.value;
         return (
           <button
             key={option.id}
             onClick={() => setSelected(option.value)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-2xl border text-left transition-colors min-h-[44px] ${
+            className={`flex flex-col items-center justify-center gap-2 px-3 py-5 rounded-2xl border text-center transition-colors min-h-[96px] ${
               isSelected
                 ? "border-primary bg-primary/[0.08]"
-                : "border-foreground/[0.08] bg-foreground/[0.04] active:bg-foreground/[0.06]"
+                : "border-foreground/[0.08] bg-foreground/[0.04] active_skill active:bg-foreground/[0.06]"
             }`}
           >
             <span className={isSelected ? "text-primary" : "text-foreground/60"}>
               {option.icon}
             </span>
-            <span className={`text-sm font-medium ${isSelected ? "text-foreground" : "text-foreground"}`}>
+            <span className="text-xs font-medium text-foreground leading-tight">
               {option.label}
             </span>
           </button>

@@ -51,7 +51,7 @@ export function SplashScreen({ onComplete, duration = 2000, variant = "default" 
         <img
           src={partnerLogoUrl || eatosLogo}
           alt="POS AI Logo"
-          className="w-32 h-auto md:w-44 lg:w-52"
+          className="w-40 h-auto md:w-52 lg:w-64"
         />
       </div>
     </div>

@@ -13,7 +13,7 @@ const OnboardingAppSignupSignin = () => {
     <motion.img
       src={eatosLogo}
       alt="POS AI"
-      className="w-28 h-auto mb-6"
+      className="w-36 h-auto mb-6"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}

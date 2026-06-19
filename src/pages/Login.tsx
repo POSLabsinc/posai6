@@ -899,7 +899,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           <motion.img
             src={eatosLogo}
             alt="POS AI"
-            className="w-28 h-auto mb-6"
+            className="w-36 h-auto mb-6"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
@@ -1008,7 +1008,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <motion.img
               src={eatosLogo}
               alt="POS AI"
-              className="w-28 h-auto mb-6"
+              className="w-36 h-auto mb-6"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
             />
@@ -1114,7 +1114,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <motion.img
                   src={eatosLogo}
                   alt="POS AI"
-                  className="w-20 lg:w-24 h-auto mb-4"
+                  className="w-28 lg:w-32 h-auto mb-4"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.4 }}
@@ -1231,7 +1231,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <motion.img
               src={eatosLogo}
               alt="POS AI"
-              className="w-20 sm:w-24 md:w-28 h-auto mb-3"
+              className="w-28 sm:w-32 md:w-36 h-auto mb-3"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
@@ -1703,7 +1703,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <motion.img
               src={eatosLogo}
               alt="POS AI"
-              className="w-32 h-auto mb-6"
+              className="w-40 h-auto mb-6"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
@@ -1794,7 +1794,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           <motion.img
             src={eatosLogo}
             alt="POS AI"
-            className="w-32 h-auto mb-8"
+            className="w-40 h-auto mb-8"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
@@ -5164,7 +5164,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           <motion.img
             src={eatosLogo}
             alt="POS AI"
-            className="w-16 h-auto mb-3 md:hidden"
+            className="w-20 h-auto mb-3 md:hidden"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
@@ -5887,7 +5887,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <motion.img
                 src={eatosLogo}
                 alt="POS AI"
-                className="w-24 h-auto mb-12"
+                className="w-32 h-auto mb-12"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -7427,7 +7427,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                 <motion.img
                   src={eatosLogo}
                   alt="POS AI"
-                  className="w-20 lg:w-24 h-auto mb-4"
+                  className="w-28 lg:w-32 h-auto mb-4"
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.4 }}
@@ -7547,7 +7547,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <motion.img
               src={eatosLogo}
               alt="POS AI"
-              className="w-20 sm:w-24 md:w-28 h-auto mb-3"
+              className="w-28 sm:w-32 md:w-36 h-auto mb-3"
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.4 }}
@@ -8686,7 +8686,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           <motion.img
             src={eatosLogo}
             alt="POS AI"
-            className="w-20 h-auto mb-4"
+            className="w-28 h-auto mb-4"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
@@ -8863,7 +8863,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             <motion.img
               src={eatosLogo}
               alt="POS AI"
-              className="w-20 h-auto mb-10"
+              className="w-28 h-auto mb-10"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}

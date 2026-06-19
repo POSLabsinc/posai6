@@ -1090,7 +1090,7 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
                 {isCFDMode && (
                   <div className="flex items-center justify-center gap-2 mt-6">
                     <span className="text-neutral-500 text-sm">Powered by</span>
-                    <img src={eatosLogo} alt="POS AI" className="h-5" />
+                    <img src={eatosLogo} alt="POS AI" className="h-7" />
                   </div>
                 )}
               </div>
@@ -1166,7 +1166,7 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
               {isCFDMode && (
                 <div className="flex items-center justify-center gap-2 mb-4 shrink-0">
                   <span className="text-neutral-500 text-sm">Powered by</span>
-                  <img src={eatosLogo} alt="POS AI" className="h-5" />
+                  <img src={eatosLogo} alt="POS AI" className="h-7" />
                 </div>
               )}
 
@@ -1275,7 +1275,7 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
               {isCFDMode && (
                 <div className="flex items-center justify-center gap-2 mb-3 shrink-0">
                   <span className="text-neutral-500 text-sm">Powered by</span>
-                  <img src={eatosLogo} alt="POS AI" className="h-5" />
+                  <img src={eatosLogo} alt="POS AI" className="h-7" />
                 </div>
               )}
 
@@ -1494,7 +1494,7 @@ const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip
               {isCFDMode && (
                 <div className="flex items-center justify-center gap-2 mt-6">
                   <span className="text-neutral-500 text-sm">Powered by</span>
-                  <img src={eatosLogo} alt="POS AI" className="h-5" />
+                  <img src={eatosLogo} alt="POS AI" className="h-7" />
                 </div>
               )}
             </>

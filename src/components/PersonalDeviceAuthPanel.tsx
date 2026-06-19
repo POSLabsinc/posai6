@@ -175,7 +175,7 @@ export const PersonalDeviceAuthPanel = ({ currentScreen, invitedUser }: Personal
         <motion.img
           src={eatosLogo}
           alt="POS AI"
-          className="w-24 h-auto mb-12"
+          className="w-32 h-auto mb-12"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}

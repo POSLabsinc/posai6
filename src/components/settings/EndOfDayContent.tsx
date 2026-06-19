@@ -13,7 +13,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePreference } from "@/hooks/usePreference";
 import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
 
-const DEVICES = ["POS 1.1", "POS 1.2", "POS 2.1", "POS 2.2", "POS 3.1"];
+const DEVICES = ["Point of Sale 1.1", "Point of Sale 1.2", "Point of Sale 2.1", "Point of Sale 2.2", "Point of Sale 3.1"];
 const EMPLOYEES = ["John Smith", "Jane Doe", "Mike Johnson", "Sarah Williams", "David Brown", "Emily Davis", "Chris Wilson", "Amanda Taylor"];
 
 interface EndOfDayContentProps {

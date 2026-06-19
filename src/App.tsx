@@ -96,6 +96,8 @@ const KdsEmbedded = lazyWithImportRecovery(() => import("./pages/KdsEmbedded"));
 const ClosingGracePeriod = lazyWithImportRecovery(() => import("./pages/ClosingGracePeriod"));
 const Onboarding = lazyWithImportRecovery(() => import("./pages/Onboarding"));
 const OnboardingWeb = lazyWithImportRecovery(() => import("./pages/OnboardingWeb"));
+const OnboardingWebSignin = lazyWithImportRecovery(() => import("./pages/OnboardingWebSignin"));
+const OnboardingWebSigninSuccess = lazyWithImportRecovery(() => import("./pages/OnboardingWebSigninSuccess"));
 const OnboardingApp = lazyWithImportRecovery(() => import("./pages/OnboardingApp"));
 const OnboardingAppCarousel = lazyWithImportRecovery(() => import("./pages/OnboardingAppCarousel"));
 const OnboardingAppSignupSignin = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupSignin"));

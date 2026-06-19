@@ -3792,7 +3792,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             desc: "Your intelligent business companion that helps manage settings and provides insights.",
             icon: <Sparkles className="w-5 h-5" />,
             features: [
-              { icon: <Sparkles className="w-4 h-4" />, title: "Smart settings management", desc: "Use natural language to configure your POS system quickly and efficiently." },
+              { icon: <Sparkles className="w-4 h-4" />, title: "Smart settings management", desc: "Use natural language to configure your Point of Sale system quickly and efficiently." },
               { icon: <BarChart3 className="w-4 h-4" />, title: "Business insights", desc: "Get real-time analytics and intelligent recommendations for your business." },
             ],
             image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=340&fit=crop",

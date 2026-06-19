@@ -259,7 +259,7 @@ const KDSMessages = () => {
             <p className="text-lg font-medium">No kitchen messages</p>
             <p className="text-sm text-neutral-600">
               {filter === "pending"
-                ? "Messages sent from POS will appear here"
+                ? "Messages sent from Point of Sale will appear here"
                 : "No acknowledged messages yet"}
             </p>
           </div>

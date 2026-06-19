@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronLeft, Search, X, Mic, MapPin, Navigation, Check, Store, AlertTriangle, SearchX } from "lucide-react";
+import { ChevronLeft, Search, X, Mic, MapPin, Navigation, Check, Store, AlertTriangle, SearchX, Image } from "lucide-react";
+import LookupPlaceholder from "@/assets/onboarding/lookup-placeholder.png";
 import { useIsLandscape } from "@/hooks/use-landscape";
 import { toast } from "sonner";
 

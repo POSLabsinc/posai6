@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Info, AlertCircle, ArrowUpRight } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 
 const CODE_RE = /^POS-[A-Z0-9]{4}-[A-Z0-9]{2}$/;
 
@@ -230,24 +231,28 @@ const OnboardingAppActivate = () => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08]"
+            className="flex flex-col border-r border-foreground/[0.08]"
             style={{ width: "45%" }}
+          >
+            <MarketingPanel
+              eyebrow="Activate"
+              caption="Enter your device code to pair this terminal with your Point of Sale account."
+            />
+          </div>
+          <div
+            className="flex flex-col px-6 py-6 flex-1 min-h-0"
+            style={{ width: "55%" }}
           >
             <div>{backBtn}</div>
             <div className="mt-6">
               {title}
               {subtitle}
             </div>
-            <div className="flex-1 flex flex-col justify-end gap-4">
+            <div className="flex-1 overflow-y-auto mt-6 flex flex-col gap-4 pb-2">
+              {codeInput}
               {infoBanner}
               <div className="flex justify-center">{helpLink}</div>
             </div>
-          </div>
-          <div
-            className="flex flex-col px-6 py-6 flex-1 min-h-0"
-            style={{ width: "55%" }}
-          >
-            <div className="flex-1 overflow-y-auto pt-12">{codeInput}</div>
             <div
               className="pt-3"
               style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}

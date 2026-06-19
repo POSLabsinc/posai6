@@ -89,7 +89,7 @@ const PLANS = [
     price: "$60",
     period: "/mo",
     description: "For growing businesses that need more",
-    features: ["Up to 5 Locations", "Advanced POS + KDS", "Priority support", "Advanced analytics", "Online ordering"],
+    features: ["Up to 5 Locations", "Advanced Point of Sale + KDS", "Priority support", "Advanced analytics", "Online ordering"],
     popular: true,
     trialDays: 30,
   },

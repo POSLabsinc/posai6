@@ -50,7 +50,7 @@ export function SplashScreen({ onComplete, duration = 2000, variant = "default" 
     >
       <div className="flex flex-col items-center justify-center" style={{ animation: "fadeIn 0.5s ease-in" }}>
         <img
-          src={partnerLogoUrl || eatosLogo}
+          src={partnerLogoUrl || themeLogo}
           alt="POS AI Logo"
           className="w-40 h-auto md:w-52 lg:w-64"
         />

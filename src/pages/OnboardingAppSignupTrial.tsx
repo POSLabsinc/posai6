@@ -42,9 +42,18 @@ const OnboardingAppSignupTrial = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isLandscape = useIsLandscape();
+  const [searchParams] = useSearchParams();
   const incoming = (location.state as LocationState) ?? {};
   const intent: Intent = incoming.intent ?? "signup_org";
   const isOrg = intent === "signup_org";
+  const sourceFromUrl = searchParams.get("source");
+  const sourceFromStorage =
+    typeof window !== "undefined"
+      ? (() => {
+          try { return sessionStorage.getItem("onboarding_source"); } catch { return null; }
+        })()
+      : null;
+  const isWeb = sourceFromUrl === "web" || sourceFromStorage === "web";
 
   const restaurantName = incoming.place?.name || "your restaurant";
   const modeTitle = MODE_TITLES[incoming.mode || "standard"] || "Standard";

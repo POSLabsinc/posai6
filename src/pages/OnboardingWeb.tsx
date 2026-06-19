@@ -50,7 +50,10 @@ const OnboardingWeb = () => {
       transition={{ delay: 0.3 }}
     >
       <button
-        onClick={() => navigate("/onboarding/app/signup/account?source=web")}
+        onClick={() => {
+          try { sessionStorage.setItem("onboarding_source", "web"); } catch {}
+          navigate("/onboarding/app/signup/account?source=web");
+        }}
         className="flex items-center gap-4 px-5 py-5 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04] hover:bg-foreground/[0.07] transition-all text-left min-h-[44px]"
       >
         <div className="w-12 h-12 rounded-xl bg-foreground/[0.06] flex items-center justify-center flex-shrink-0">

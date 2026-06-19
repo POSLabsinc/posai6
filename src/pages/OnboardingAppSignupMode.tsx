@@ -22,10 +22,23 @@ type Section = { label: string; rows: Row[] };
 
 const SECTIONS: Section[] = [
   {
+    label: "Orders",
+    rows: [
+      { label: "Quick orders", values: { standard: true, quickservice: true, fullservice: true } },
+      { label: "Custom products", values: { standard: true, quickservice: true, fullservice: true } },
+      { label: "Notes and modifiers", values: { standard: true, quickservice: true, fullservice: true } },
+      { label: "Hold and fire", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "Course management", values: { standard: false, quickservice: false, fullservice: true } },
+    ],
+  },
+  {
     label: "Payments",
     rows: [
       { label: "Card / cash", values: { standard: true, quickservice: true, fullservice: true } },
       { label: "Split payments", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "Tips and gratuity", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "Vouchers and gift cards", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "Refunds and voids", values: { standard: true, quickservice: true, fullservice: true } },
     ],
   },
   {
@@ -33,6 +46,8 @@ const SECTIONS: Section[] = [
     rows: [
       { label: "KDS routing", values: { standard: false, quickservice: true, fullservice: true } },
       { label: "Multi-channel menus", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "Bump and recall", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "Prep stations", values: { standard: false, quickservice: false, fullservice: true } },
     ],
   },
   {
@@ -41,6 +56,49 @@ const SECTIONS: Section[] = [
       { label: "Floor plans", values: { standard: false, quickservice: false, fullservice: true } },
       { label: "Open checks", values: { standard: false, quickservice: false, fullservice: true } },
       { label: "Coursing", values: { standard: false, quickservice: false, fullservice: true } },
+      { label: "Transfers and merges", values: { standard: false, quickservice: false, fullservice: true } },
+      { label: "Split check", values: { standard: false, quickservice: false, fullservice: true } },
+    ],
+  },
+  {
+    label: "Guests and reservations",
+    rows: [
+      { label: "Guest profiles", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "Reservations", values: { standard: false, quickservice: false, fullservice: true } },
+      { label: "Waitlist", values: { standard: false, quickservice: false, fullservice: true } },
+    ],
+  },
+  {
+    label: "Inventory",
+    rows: [
+      { label: "Stock deduction on fire", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "Low-stock alerts", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "Write-off tracking", values: { standard: false, quickservice: false, fullservice: true } },
+    ],
+  },
+  {
+    label: "Workforce",
+    rows: [
+      { label: "Clock in and out", values: { standard: true, quickservice: true, fullservice: true } },
+      { label: "Roles and permissions", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "Shift summary", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "Cash drawer sessions", values: { standard: false, quickservice: true, fullservice: true } },
+    ],
+  },
+  {
+    label: "Reports and AI",
+    rows: [
+      { label: "End of day", values: { standard: true, quickservice: true, fullservice: true } },
+      { label: "Sales analytics", values: { standard: false, quickservice: true, fullservice: true } },
+      { label: "AI report generation", values: { standard: false, quickservice: true, fullservice: true } },
+    ],
+  },
+  {
+    label: "Security",
+    rows: [
+      { label: "MPIN gate", values: { standard: true, quickservice: true, fullservice: true } },
+      { label: "Device PIN lockout", values: { standard: true, quickservice: true, fullservice: true } },
+      { label: "Audit log", values: { standard: false, quickservice: false, fullservice: true } },
     ],
   },
 ];

@@ -17,7 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import eatosLogo from "@/assets/icons/posai-logo.png";
+import { useThemeLogo } from "@/components/ThemeLogo";
 import aiColorfulIcon from "@/assets/icons/ai-colorful.png";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useToast } from "@/hooks/use-toast";
@@ -41,6 +41,7 @@ import DeviceSetupHelpCard from "@/components/DeviceSetupHelpCard";
 import { revenueCenters, employeePinMapping, locationEmployees, getRoleIcon, getRoleBadgeStyle, getTimeOfDayInfo, PIN_LENGTH, DeviceType } from "@/data/loginData";
 
 const Login = () => {
+  const themeLogo = useThemeLogo();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [deviceType, setDeviceType] = useState<DeviceType>(null);
@@ -897,7 +898,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         <div className="absolute inset-0 gradient-mesh opacity-30" />
         <div className="relative z-10 flex flex-col items-center text-center w-full max-w-2xl px-8">
           <motion.img
-            src={eatosLogo}
+            src={themeLogo}
             alt="POS AI"
             className="w-36 h-auto mb-6"
             initial={{ opacity: 0, scale: 0.9 }}
@@ -1006,7 +1007,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="relative z-10 w-full max-w-md flex flex-col items-center px-6"
           >
             <motion.img
-              src={eatosLogo}
+              src={themeLogo}
               alt="POS AI"
               className="w-36 h-auto mb-6"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -1112,7 +1113,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <div className="w-full max-w-md flex flex-col items-center">
                 {/* Brand */}
                 <motion.img
-                  src={eatosLogo}
+                  src={themeLogo}
                   alt="POS AI"
                   className="w-28 lg:w-32 h-auto mb-4"
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -1229,7 +1230,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mb-4 text-center flex flex-col items-center"
           >
             <motion.img
-              src={eatosLogo}
+              src={themeLogo}
               alt="POS AI"
               className="w-28 sm:w-32 md:w-36 h-auto mb-3"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -1701,7 +1702,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           >
             {/* POS AI Logo */}
             <motion.img
-              src={eatosLogo}
+              src={themeLogo}
               alt="POS AI"
               className="w-40 h-auto mb-6"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -1792,7 +1793,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
         >
           {/* POS AI Logo */}
           <motion.img
-            src={eatosLogo}
+            src={themeLogo}
             alt="POS AI"
             className="w-40 h-auto mb-8"
             initial={{ opacity: 0, scale: 0.9 }}
@@ -5162,7 +5163,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
           {/* Logo - only show on mobile */}
           <motion.img
-            src={eatosLogo}
+            src={themeLogo}
             alt="POS AI"
             className="w-20 h-auto mb-3 md:hidden"
             initial={{ opacity: 0, scale: 0.9 }}
@@ -5885,7 +5886,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           >
             <div className="flex-1 flex flex-col justify-center px-10 lg:px-14 py-10">
               <motion.img
-                src={eatosLogo}
+                src={themeLogo}
                 alt="POS AI"
                 className="w-32 h-auto mb-12"
                 initial={{ opacity: 0 }}
@@ -7425,7 +7426,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               <div className="w-full max-w-md flex flex-col items-center">
                 {/* Brand */}
                 <motion.img
-                  src={eatosLogo}
+                  src={themeLogo}
                   alt="POS AI"
                   className="w-28 lg:w-32 h-auto mb-4"
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -7545,7 +7546,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             className="mb-4 text-center flex flex-col items-center"
           >
             <motion.img
-              src={eatosLogo}
+              src={themeLogo}
               alt="POS AI"
               className="w-28 sm:w-32 md:w-36 h-auto mb-3"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -8684,7 +8685,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
           {/* Logo & Title */}
           <motion.img
-            src={eatosLogo}
+            src={themeLogo}
             alt="POS AI"
             className="w-28 h-auto mb-4"
             initial={{ opacity: 0, scale: 0.9 }}
@@ -8861,7 +8862,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           <div className="flex-1 flex flex-col justify-center px-8 py-10">
             {/* Logo */}
             <motion.img
-              src={eatosLogo}
+              src={themeLogo}
               alt="POS AI"
               className="w-28 h-auto mb-10"
               initial={{ opacity: 0 }}

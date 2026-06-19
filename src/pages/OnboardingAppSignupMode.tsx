@@ -288,7 +288,7 @@ const OnboardingAppSignupMode = () => {
               return (
                 <div
                   key={row.label}
-                  className="grid items-center"
+                  className="grid items-stretch"
                   style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}
                 >
                   <div className="px-1 py-1 text-[10px] font-semibold text-foreground">

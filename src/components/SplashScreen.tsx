@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import eatosLogo from "@/assets/icons/posai-logo.png";
+import { useThemeLogo } from "@/components/ThemeLogo";
 
 interface SplashScreenProps {
   onComplete: () => void;

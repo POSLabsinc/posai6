@@ -245,7 +245,7 @@ const OnboardingAppSignupMode = () => {
   const totalRows = SECTIONS.reduce((n, s) => n + s.rows.length, 0);
 
   const table = (
-    <div className="w-full">
+    <div className="w-full pt-4">
       {/* Headers */}
       <div className="grid" style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}>
         <div />
@@ -292,7 +292,7 @@ const OnboardingAppSignupMode = () => {
                   className="grid items-stretch"
                   style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}
                 >
-                  <div className="px-1 py-1 text-[10px] font-semibold text-foreground">
+                  <div className="px-1 py-1 text-xs font-semibold text-foreground">
                     {row.label}
                   </div>
                   {MODES.map((m) => (

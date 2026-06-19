@@ -164,20 +164,22 @@ const OnboardingAppSigninSuccess = () => {
             className="flex flex-col items-center px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
-            <div className="flex-1 w-full flex flex-col items-center overflow-y-auto">
-              {appChip}
-              {signedInLabel}
-              {successRing}
-              {title}
-              {restaurant}
-              {badge}
-              <div className="w-full mt-6">{statusCard}</div>
-            </div>
-            <div
-              className="w-full pt-3"
-              style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
-            >
-              {ctaButton}
+            <div className="flex flex-col items-center h-full w-full max-w-md mx-auto">
+              <div className="flex-1 w-full flex flex-col items-center overflow-y-auto">
+                {appChip}
+                {signedInLabel}
+                {successRing}
+                {title}
+                {restaurant}
+                {badge}
+                <div className="w-full mt-6">{statusCard}</div>
+              </div>
+              <div
+                className="w-full pt-3"
+                style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+              >
+                {ctaButton}
+              </div>
             </div>
           </div>
         </div>

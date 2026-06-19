@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, Info, AlertCircle, ArrowUpRight } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 
 const CODE_RE = /^POS-[A-Z0-9]{4}-[A-Z0-9]{2}$/;
 

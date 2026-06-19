@@ -2689,7 +2689,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               className="flex items-center gap-2 mb-1"
             >
               <h1 className="text-xl font-semibold text-foreground text-center">
-                Explore the POS
+                Explore the Point of Sale
               </h1>
               <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-500">
                 Demo

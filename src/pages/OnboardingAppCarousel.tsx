@@ -280,26 +280,23 @@ const OnboardingAppCarousel = () => {
             paddingRight: "env(safe-area-inset-right)",
           }}
         >
-          {/* Left: app screens skeleton placeholder */}
+          {/* Left: animated app preview screens */}
           <div className="h-full flex flex-col justify-center items-center p-6" style={{ width: "50%" }}>
-            <div className="relative w-full max-w-[420px] aspect-[4/3] rounded-3xl border border-dashed border-foreground/20 bg-foreground/[0.03] flex flex-col items-center justify-center gap-4">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-14 h-14 rounded-2xl bg-foreground/[0.06] flex items-center justify-center">
-                  <Image className="w-6 h-6 text-foreground/30" />
-                </div>
-                <span className="text-xs font-semibold tracking-wide uppercase text-foreground/30">
-                  Coming Soon
-                </span>
-              </div>
-            </div>
-            <div className="mt-6 text-center max-w-[320px]">
-              <h3 className="text-sm font-semibold text-foreground/80 mb-1.5">
-                App preview screens
-              </h3>
-              <p className="text-xs text-foreground/40 leading-relaxed">
-                This area will showcase your Point of Sale interface, menu browsing, and order management screens during onboarding.
-              </p>
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.96, y: 8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: -8 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="w-full flex justify-center"
+              >
+                {(() => {
+                  const Preview = previews[index] ?? previews[0];
+                  return <Preview />;
+                })()}
+              </motion.div>
+            </AnimatePresence>
           </div>
           {/* Right: content */}
           <div className="relative flex flex-col h-full" style={{ width: "50%", padding: "24px" }}>

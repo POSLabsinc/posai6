@@ -2,6 +2,7 @@ import { useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, Eye, EyeOff } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 
 type Strength = { score: 0 | 1 | 2 | 3 | 4; label: "" | "Weak" | "Good" | "Strong" };
 
@@ -189,25 +190,30 @@ const OnboardingAppSigninForgotReset = () => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08]"
+            className="flex flex-col border-r border-foreground/[0.08]"
             style={{ width: "45%" }}
           >
-            <div>{backBtn}</div>
-            <div className="flex-1 flex flex-col justify-center">
-              {title}
-              {subtitle}
-            </div>
-            <div style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}>
-              {ctaButton}
-            </div>
+            <MarketingPanel
+              eyebrow="New password"
+              caption="Choose a new password to secure your account."
+            />
           </div>
           <div
             className="flex flex-col px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
-            <div className="flex-1 overflow-y-auto flex flex-col gap-4 pt-12">
+            <div>{backBtn}</div>
+            {title}
+            {subtitle}
+            <div className="flex-1 overflow-y-auto mt-6 flex flex-col gap-4 pb-2">
               {newPasswordField}
               {confirmField}
+            </div>
+            <div
+              className="pt-2"
+              style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+            >
+              {ctaButton}
             </div>
           </div>
         </div>

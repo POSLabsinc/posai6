@@ -2,16 +2,17 @@ import { motion } from "framer-motion";
 import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useNavigate } from "react-router-dom";
 import { UserPlus, LogIn } from "lucide-react";
-import eatosLogo from "@/assets/icons/posai-logo.png";
+import { useThemeLogo } from "@/components/ThemeLogo";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
 const OnboardingWeb = () => {
   const navigate = useNavigate();
   const isLandscape = useIsLandscape();
+  const themeLogo = useThemeLogo();
 
   const logo = (
     <motion.img
-      src={eatosLogo}
+      src={themeLogo}
       alt="POS AI"
       className="w-36 h-auto mb-6"
       initial={{ opacity: 0, scale: 0.9 }}

@@ -81,7 +81,7 @@ const PLANS = [
     price: "$0",
     period: "/mo",
     description: "For small businesses just getting started",
-    features: ["1 Location", "Basic POS", "Email support", "Standard reports"],
+    features: ["1 Location", "Basic Point of Sale", "Email support", "Standard reports"],
     popular: false,
   },
   {
@@ -89,7 +89,7 @@ const PLANS = [
     price: "$60",
     period: "/mo",
     description: "For growing businesses that need more",
-    features: ["Up to 5 Locations", "Advanced POS + KDS", "Priority support", "Advanced analytics", "Online ordering"],
+    features: ["Up to 5 Locations", "Advanced Point of Sale + KDS", "Priority support", "Advanced analytics", "Online ordering"],
     popular: true,
     trialDays: 30,
   },

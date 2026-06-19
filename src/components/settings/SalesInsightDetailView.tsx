@@ -37,7 +37,7 @@ const MOCK_RECS: Recommendation[] = [
   { id: "r1", text: "Peak hour approaching at 6 PM. Consider adding 2 staff to Front of House.", category: "Staffing", when: "Today", dotColor: "bg-amber-400" },
   { id: "r2", text: "Tacos are trending 23% above average. Feature on the specials board.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
   { id: "r3", text: "Labor cost at 28% approaching 30% threshold. Monitor closely.", category: "Labor", when: "Tomorrow", dotColor: "bg-blue-400" },
-  { id: "r4", text: "Voids spiked 40% in the last hour. Review POS activity immediately.", category: "Finance", when: "Urgent", dotColor: "bg-red-400" },
+  { id: "r4", text: "Voids spiked 40% in the last hour. Review Point of Sale activity immediately.", category: "Finance", when: "Urgent", dotColor: "bg-red-400" },
   { id: "r5", text: "Happy Hour promo underperforming. Boost via SMS to repeat guests.", category: "Promo", when: "In 3 hours", dotColor: "bg-amber-400" },
   { id: "r6", text: "Wine inventory low on Cabernet. Reorder before weekend rush.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
   { id: "r7", text: "Server Alex closing 18% faster than average. Consider as trainer.", category: "Staffing", when: "This week", dotColor: "bg-amber-400" },
@@ -135,7 +135,7 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
   "menu-sync-dashboard": {
     recommendations: [
       { id: "m1", text: "Burger Buns at 12 units. Disable combo meals before dinner rush.", category: "Menu", when: "Urgent", dotColor: "bg-red-400" },
-      { id: "m2", text: "Truffle Pasta 86'd on POS. Hide from online ordering channels now.", category: "Menu", when: "Now", dotColor: "bg-emerald-400" },
+      { id: "m2", text: "Truffle Pasta 86'd on Point of Sale. Hide from online ordering channels now.", category: "Menu", when: "Now", dotColor: "bg-emerald-400" },
       { id: "m3", text: "Suggest Margherita Pizza as alternative for unavailable Quattro Formaggi.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
       { id: "m4", text: "Kitchen ticket time on Ramen exceeds 18 min. Flag as delayed item.", category: "Menu", when: "Live", dotColor: "bg-amber-400" },
       { id: "m5", text: "Salmon removed from menu yesterday still visible on UberEats. Resync.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
@@ -146,7 +146,7 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     metricCards: [
       { label: "86'd Products", value: "7", delta: "+2", caption: "Items currently marked unavailable", icon: ShoppingCart },
       { label: "Low Stock Items", value: "12", delta: "+4", caption: "Below par level, needs replenishment", icon: TrendingUp },
-      { label: "Channels Synced", value: "5 / 5", delta: "100%", caption: "POS, Direct, UberEats, DoorDash, Grubhub", icon: Calculator },
+      { label: "Channels Synced", value: "5 / 5", delta: "100%", caption: "Point of Sale, Direct, UberEats, DoorDash, Grubhub", icon: Calculator },
       { label: "Avg Sync Latency", value: "2.4s", delta: "-0.8s", caption: "Time to propagate availability changes", icon: DollarSign },
       { label: "Delayed Kitchen Items", value: "3", delta: "+1", caption: "Tickets exceeding standard prep time", icon: Users },
       { label: "Menu Updates Today", value: "14", delta: "+6", caption: "Add, remove, and availability changes", icon: TrendingUp },

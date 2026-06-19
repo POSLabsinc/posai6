@@ -30,7 +30,7 @@ const StoreChangeConfirmationModal = ({
         </div>
 
         <h3 className="text-foreground font-bold text-xl text-center mb-4">
-          Reassign POS Device
+          Reassign Point of Sale Device
         </h3>
 
         {/* Summary */}

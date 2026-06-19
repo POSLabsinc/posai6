@@ -74,7 +74,7 @@ const AboutContent = ({ showHeader = true, onBack, onAIClick }: AboutContentProp
         {/* DEVICE Section */}
         <p className="text-base font-medium text-muted-foreground mb-0.5 px-1">Device</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
-          <InfoRow label="Device Name" value="Emulator POS 7 Stag" />
+          <InfoRow label="Device Name" value="Emulator Point of Sale 7 Stag" />
           <InfoRow label="OS Name" value="Android" />
           <InfoRow label="OS Version" value="9" />
           <InfoRow label="Model Name" value="Asus_010QD" />

@@ -298,7 +298,7 @@ const AddTimedPricingRuleContent = ({ onBack, onSave, editRule }: AddTimedPricin
             </button>
             {showOrderingSourcePicker && (
               <div className="absolute right-4 bottom-full mb-1 z-50 bg-neutral-700 rounded-xl shadow-lg overflow-hidden min-w-[180px]">
-                {["POS", "Kiosk", "Order-OS", "Online"].map((os) => (
+                {["Point of Sale", "Kiosk", "Order-OS", "Online"].map((os) => (
                   <button
                     key={os}
                     onClick={() => { setOrderingSource(os); setShowOrderingSourcePicker(false); }}

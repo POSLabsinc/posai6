@@ -976,7 +976,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       if (/Android/.test(ua)) return "Android Terminal";
       if (/Mac/.test(ua)) return "Mac Terminal";
       if (/Windows/.test(ua)) return "Windows Terminal";
-      return "POS Terminal";
+      return "Point of Sale Terminal";
     };
 
     // Device Name step after code verification
@@ -994,7 +994,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       // Initialize device name suggestion if not already set
       if (!deviceName) {
-        setTimeout(() => setDeviceName("Rustic Table POS 1"), 0);
+        setTimeout(() => setDeviceName("Rustic Table Point of Sale 1"), 0);
       }
 
       return (
@@ -1268,7 +1268,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <button
                     onClick={() => {
                       setShowDeviceConnected(true);
-                      setDeviceName("Rustic Table POS 1");
+                      setDeviceName("Rustic Table Point of Sale 1");
                       setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500);
                     }}
                     className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
@@ -1417,7 +1417,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     </div>
                     <h2 className="text-lg font-bold text-foreground mb-3">Point the camera at the QR code</h2>
                     <button
-                      onClick={() => { setShowDeviceConnected(true); setDeviceName("Rustic Table POS 1"); setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500); }}
+                      onClick={() => { setShowDeviceConnected(true); setDeviceName("Rustic Table Point of Sale 1"); setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500); }}
                       className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 self-center"
                       data-tour="qr-code"
                     >
@@ -2689,7 +2689,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               className="flex items-center gap-2 mb-1"
             >
               <h1 className="text-xl font-semibold text-foreground text-center">
-                Explore the POS
+                Explore the Point of Sale
               </h1>
               <span className="px-2 py-0.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-500">
                 Demo
@@ -3792,7 +3792,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             desc: "Your intelligent business companion that helps manage settings and provides insights.",
             icon: <Sparkles className="w-5 h-5" />,
             features: [
-              { icon: <Sparkles className="w-4 h-4" />, title: "Smart settings management", desc: "Use natural language to configure your POS system quickly and efficiently." },
+              { icon: <Sparkles className="w-4 h-4" />, title: "Smart settings management", desc: "Use natural language to configure your Point of Sale system quickly and efficiently." },
               { icon: <BarChart3 className="w-4 h-4" />, title: "Business insights", desc: "Get real-time analytics and intelligent recommendations for your business." },
             ],
             image: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=600&h=340&fit=crop",

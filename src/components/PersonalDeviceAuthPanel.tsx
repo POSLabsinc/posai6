@@ -97,7 +97,7 @@ export const PersonalDeviceAuthPanel = ({ currentScreen, invitedUser }: Personal
           <>
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="w-4 h-4 text-primary/60" />
-              <span className="text-sm text-foreground/60">Securely linking this device to the restaurant POS</span>
+              <span className="text-sm text-foreground/60">Securely linking this device to the restaurant Point of Sale</span>
             </div>
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="w-4 h-4 text-primary/60" />
@@ -114,7 +114,7 @@ export const PersonalDeviceAuthPanel = ({ currentScreen, invitedUser }: Personal
             </div>
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="w-4 h-4 text-primary/60" />
-              <span className="text-sm text-foreground/60">Prevents unauthorized POS access</span>
+              <span className="text-sm text-foreground/60">Prevents unauthorized Point of Sale access</span>
             </div>
             <div className="flex items-center gap-2.5">
               <CheckCircle2 className="w-4 h-4 text-primary/60" />

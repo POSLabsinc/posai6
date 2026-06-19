@@ -13,7 +13,7 @@ import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePreference } from "@/hooks/usePreference";
 import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
 
-const DEVICES = ["POS 1.1", "POS 1.2", "POS 2.1", "POS 2.2", "POS 3.1"];
+const DEVICES = ["Point of Sale 1.1", "Point of Sale 1.2", "Point of Sale 2.1", "Point of Sale 2.2", "Point of Sale 3.1"];
 const EMPLOYEES = ["John Smith", "Jane Doe", "Mike Johnson", "Sarah Williams", "David Brown", "Emily Davis", "Chris Wilson", "Amanda Taylor"];
 
 interface EndOfDayContentProps {
@@ -71,7 +71,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
   const { value: printReport, update: updatePrintReport } = usePreference("eod_print_report", "false");
   const { value: includeEmployeeData, update: updateIncludeEmployeeData } = usePreference("eod_include_employee", "false");
   const { value: printSummaryOnClockOut, update: updatePrintSummaryOnClockOut } = usePreference("eod_print_clock_out", "false");
-  const { value: selectedDevice, update: updateSelectedDevice } = usePreference("eod_device", "POS 1.2");
+  const { value: selectedDevice, update: updateSelectedDevice } = usePreference("eod_device", "Point of Sale 1.2");
   const { value: autoEndOfDayTime, update: updateAutoEndOfDayTime } = usePreference("eod_reminder_time", "11:00 PM");
   const { value: autoRunTime, update: updateAutoRunTime } = usePreference("eod_auto_run_time", "11:00 PM");
   const { value: selectedEmployeesStr, update: updateSelectedEmployees } = usePreference("eod_report_recipients", "[]");

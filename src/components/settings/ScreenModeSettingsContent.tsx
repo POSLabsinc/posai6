@@ -63,7 +63,7 @@ const ScreenModeSettingsContent = ({ showHeader = true, onBack }: Props) => {
           </div>
           <h1 className="text-xl font-semibold text-foreground mb-2">Screen Mode</h1>
           <p className="text-base text-neutral-400 leading-relaxed w-full">
-            Configure how this device can switch between POS, KDS, CFD, and Kiosk modes.
+            Configure how this device can switch between Point of Sale, KDS, CFD, and Kiosk modes.
           </p>
         </div>
 

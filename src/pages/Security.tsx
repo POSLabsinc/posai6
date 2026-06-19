@@ -307,7 +307,7 @@ const Security = () => {
               </button>
             </div>
             <p className="text-xs text-neutral-500 mt-3 px-2">
-              Your PIN is used for POS access, clock-in, clock-out, and authorization prompts. Changes take effect immediately.
+              Your PIN is used for Point of Sale access, clock-in, clock-out, and authorization prompts. Changes take effect immediately.
             </p>
           </div>
         </div>

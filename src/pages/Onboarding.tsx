@@ -10,6 +10,7 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const [showSplash, setShowSplash] = useState(false);
   const isLandscape = useIsLandscape();
+  const themeLogo = useThemeLogo();
 
   if (showSplash) {
     return (

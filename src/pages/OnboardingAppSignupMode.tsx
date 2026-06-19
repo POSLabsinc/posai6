@@ -265,8 +265,8 @@ const OnboardingAppSignupMode = () => {
             >
               <div className="px-1 pt-0.5 pb-0">
                 <span
-                  className="font-semibold uppercase text-foreground/50"
-                  style={{ fontSize: "8px", letterSpacing: "0.5px", lineHeight: 1 }}
+                  className="block font-semibold uppercase text-foreground/50"
+                  style={{ fontSize: "8px", letterSpacing: "0.5px", lineHeight: 0.95 }}
                 >
                   {section.label}
                 </span>

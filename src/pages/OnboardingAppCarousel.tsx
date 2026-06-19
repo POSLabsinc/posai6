@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { Image } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
 type Slide = {
@@ -135,15 +136,26 @@ const OnboardingAppCarousel = () => {
             paddingRight: "env(safe-area-inset-right)",
           }}
         >
-          {/* Left: image placeholder */}
-          <div className="h-full p-6" style={{ width: "50%" }}>
-            <motion.div
-              drag="x"
-              dragConstraints={{ left: 0, right: 0 }}
-              dragElastic={0.2}
-              onDragEnd={onDragEnd}
-              className="rounded-3xl border border-foreground/[0.08] bg-foreground/[0.04] w-full h-full"
-            />
+          {/* Left: app screens skeleton placeholder */}
+          <div className="h-full flex flex-col justify-center items-center p-6" style={{ width: "50%" }}>
+            <div className="relative w-full max-w-[420px] aspect-[4/3] rounded-3xl border border-dashed border-foreground/20 bg-foreground/[0.03] flex flex-col items-center justify-center gap-4">
+              <div className="flex flex-col items-center gap-3">
+                <div className="w-14 h-14 rounded-2xl bg-foreground/[0.06] flex items-center justify-center">
+                  <Image className="w-6 h-6 text-foreground/30" />
+                </div>
+                <span className="text-xs font-semibold tracking-wide uppercase text-foreground/30">
+                  Coming Soon
+                </span>
+              </div>
+            </div>
+            <div className="mt-6 text-center max-w-[320px]">
+              <h3 className="text-sm font-semibold text-foreground/80 mb-1.5">
+                App preview screens
+              </h3>
+              <p className="text-xs text-foreground/40 leading-relaxed">
+                This area will showcase your Point of Sale interface, menu browsing, and order management screens during onboarding.
+              </p>
+            </div>
           </div>
           {/* Right: content */}
           <div className="relative flex flex-col h-full" style={{ width: "50%", padding: "24px" }}>

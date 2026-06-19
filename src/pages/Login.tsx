@@ -976,7 +976,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
       if (/Android/.test(ua)) return "Android Terminal";
       if (/Mac/.test(ua)) return "Mac Terminal";
       if (/Windows/.test(ua)) return "Windows Terminal";
-      return "POS Terminal";
+      return "Point of Sale Terminal";
     };
 
     // Device Name step after code verification

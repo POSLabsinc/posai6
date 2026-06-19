@@ -62,16 +62,18 @@ const OnboardingAppSigninForgotSuccess = () => {
             className="flex flex-col items-center px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
-            <div className="flex-1 flex flex-col items-center justify-center">
-              {successIcon}
-              {title}
-              {subtitle}
-            </div>
-            <div
-              className="w-full pt-4"
-              style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
-            >
-              {ctaButton}
+            <div className="flex flex-col items-center h-full w-full max-w-md mx-auto">
+              <div className="flex-1 flex flex-col items-center justify-center">
+                {successIcon}
+                {title}
+                {subtitle}
+              </div>
+              <div
+                className="w-full pt-4"
+                style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+              >
+                {ctaButton}
+              </div>
             </div>
           </div>
         </div>

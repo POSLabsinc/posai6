@@ -27,15 +27,15 @@ const slides: Slide[] = [
   {
     eyebrow: "POSAI",
     headline: "The AI-first restaurant operating system",
-    body: "One platform for your kiosk, POS, and kitchen display.",
+    body: "One platform for your kiosk, Point of Sale, and kitchen display.",
   },
   {
-    eyebrow: "POSAI POS",
+    eyebrow: "POSAI Point of Sale",
     headline: "Meet your AI restaurant manager",
     body: "POSAI learns your menu, predicts demand, and helps your team serve faster.",
   },
   {
-    eyebrow: "POSAI POS",
+    eyebrow: "POSAI Point of Sale",
     headline: "Up and running in minutes",
     body: "Sign up, activate your device, and start taking orders today.",
   },
@@ -62,7 +62,7 @@ const PreviewOS = () => (
   <PreviewFrame>
     <div className="grid grid-cols-3 gap-3 h-full">
       {[
-        { icon: ShoppingBag, label: "POS", tint: "bg-primary/20 text-primary" },
+        { icon: ShoppingBag, label: "Point of Sale", tint: "bg-primary/20 text-primary" },
         { icon: ChefHat, label: "Kitchen", tint: "bg-amber-500/20 text-amber-500" },
         { icon: LayoutGrid, label: "Kiosk", tint: "bg-emerald-500/20 text-emerald-500" },
         { icon: TrendingUp, label: "Reports", tint: "bg-blue-500/20 text-blue-500" },

@@ -135,7 +135,7 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
   "menu-sync-dashboard": {
     recommendations: [
       { id: "m1", text: "Burger Buns at 12 units. Disable combo meals before dinner rush.", category: "Menu", when: "Urgent", dotColor: "bg-red-400" },
-      { id: "m2", text: "Truffle Pasta 86'd on POS. Hide from online ordering channels now.", category: "Menu", when: "Now", dotColor: "bg-emerald-400" },
+      { id: "m2", text: "Truffle Pasta 86'd on Point of Sale. Hide from online ordering channels now.", category: "Menu", when: "Now", dotColor: "bg-emerald-400" },
       { id: "m3", text: "Suggest Margherita Pizza as alternative for unavailable Quattro Formaggi.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
       { id: "m4", text: "Kitchen ticket time on Ramen exceeds 18 min. Flag as delayed item.", category: "Menu", when: "Live", dotColor: "bg-amber-400" },
       { id: "m5", text: "Salmon removed from menu yesterday still visible on UberEats. Resync.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },

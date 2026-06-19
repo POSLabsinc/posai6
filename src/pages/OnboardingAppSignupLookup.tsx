@@ -371,6 +371,38 @@ const OnboardingAppSignupLookup = () => {
     </button>
   );
 
+  const marketingPanel = (
+    <div className="flex flex-col items-center justify-center text-center px-8">
+      <div className="w-24 h-24 rounded-[2rem] bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center mb-6">
+        <Store className="w-12 h-12 text-foreground/40" strokeWidth={1.5} />
+      </div>
+      <h2 className="text-xl font-bold text-foreground mb-2">Restaurant setup made easy</h2>
+      <p className="text-sm text-foreground/50 max-w-[18rem] leading-relaxed">
+        Find your restaurant and we will pull your name, address, and business type automatically.
+      </p>
+      <div className="flex flex-col gap-3 mt-6 text-left w-full max-w-[16rem]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+            <Check className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <span className="text-xs text-foreground/60">Automatic detail prefill</span>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+            <Check className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <span className="text-xs text-foreground/60">One-tap restaurant search</span>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+            <Check className="w-3.5 h-3.5 text-primary" />
+          </div>
+          <span className="text-xs text-foreground/60">Ready to sell in minutes</span>
+        </div>
+      </div>
+    </div>
+  );
+
   if (isLandscape) {
     return (
       <div className="fixed inset-0 login-bg overflow-hidden">
@@ -383,20 +415,15 @@ const OnboardingAppSignupLookup = () => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08]"
+            className="flex flex-col border-r border-foreground/[0.08]"
             style={{ width: "45%" }}
           >
-            <div>{backBtn}</div>
-            <div className="flex-1 flex flex-col justify-center">
-              {title}
-              {subtitle}
-            </div>
-            <div className="flex flex-col gap-3">
-              {notOnGoogleLink}
-              {continueBtn}
-            </div>
+            {marketingPanel}
           </div>
           <div className="flex flex-col px-6 py-6 flex-1 min-h-0" style={{ width: "55%" }}>
+            <div>{backBtn}</div>
+            <div className="mt-2 mb-1">{title}</div>
+            <div className="mb-4">{subtitle}</div>
             {searchInput}
             {countLabel}
             {fallbackBanner && <div className="mb-3">{fallbackBanner}</div>}
@@ -410,6 +437,10 @@ const OnboardingAppSignupLookup = () => {
             ) : (
               resultsList
             )}
+            </div>
+            <div className="flex flex-col gap-3 pt-4">
+              {notOnGoogleLink}
+              {continueBtn}
             </div>
           </div>
         </div>

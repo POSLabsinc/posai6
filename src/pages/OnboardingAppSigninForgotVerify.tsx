@@ -310,21 +310,23 @@ const OnboardingAppSigninForgotVerify = () => {
             className="flex flex-col px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
-            <div>{backBtn}</div>
-            {title}
-            {subtitle}
-            {emailChip}
-            <div className="flex-1 overflow-y-auto mt-6 flex flex-col">
-              {otpBoxes}
-              {timer}
-              {errorBanner}
-              {resendRow}
-            </div>
-            <div
-              className="pt-3"
-              style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
-            >
-              {ctaButton}
+            <div className="flex flex-col h-full w-full max-w-md mx-auto">
+              <div>{backBtn}</div>
+              {title}
+              {subtitle}
+              {emailChip}
+              <div className="flex-1 overflow-y-auto mt-6 flex flex-col">
+                {otpBoxes}
+                {timer}
+                {errorBanner}
+                {resendRow}
+              </div>
+              <div
+                className="pt-3"
+                style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+              >
+                {ctaButton}
+              </div>
             </div>
           </div>
         </div>

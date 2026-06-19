@@ -201,7 +201,7 @@ const OnboardingAppSignupMode = () => {
       <button
         type="button"
         onClick={() => setSelected(mode.id)}
-        className={`relative flex flex-col items-center justify-end gap-1 px-1 pt-5 pb-2 w-full transition-colors ${
+        className={`relative flex flex-col items-center justify-start gap-1 px-1 pt-3 pb-2 w-full transition-colors ${
           isSel
             ? "bg-primary/[0.07] border-t-[1.5px] border-l-[1.5px] border-r-[1.5px] border-primary rounded-t-xl"
             : "border-t-[1.5px] border-l-[1.5px] border-r-[1.5px] border-transparent"

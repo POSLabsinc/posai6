@@ -882,7 +882,7 @@ export function ReportExceptionDialog({
                 <div className="flex items-center gap-2">
                   <Smartphone className="w-3.5 h-3.5 text-white/40" />
                   <span className="text-white/60">Device:</span>
-                  <span className="text-white">{isMobile ? 'Mobile POS' : 'Desktop POS'}</span>
+                  <span className="text-white">{isMobile ? 'Mobile Point of Sale' : 'Desktop Point of Sale'}</span>
                 </div>
               </div>
             </div>

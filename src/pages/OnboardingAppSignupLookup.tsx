@@ -373,34 +373,27 @@ const OnboardingAppSignupLookup = () => {
   );
 
   const marketingPanel = (
-    <div className="flex flex-col items-center justify-center text-center px-8">
-      <div className="w-24 h-24 rounded-[2rem] bg-foreground/[0.06] border border-foreground/[0.08] flex items-center justify-center mb-6">
-        <Store className="w-12 h-12 text-foreground/40" strokeWidth={1.5} />
+    <div className="flex flex-col items-center justify-center text-center px-8 h-full">
+      <div className="relative w-full max-w-[280px] aspect-square rounded-3xl border-2 border-dashed border-foreground/[0.12] bg-foreground/[0.03] flex flex-col items-center justify-center overflow-hidden mb-5">
+        <img
+          src={LookupPlaceholder}
+          alt="Marketing content placeholder"
+          className="w-full h-full object-cover opacity-60"
+          loading="lazy"
+          width={1024}
+          height={1024}
+        />
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/30">
+          <Image className="w-8 h-8 text-foreground/40 mb-2" />
+          <span className="text-[10px] uppercase tracking-widest text-foreground/40 font-semibold">
+            Coming Soon
+          </span>
+        </div>
       </div>
-      <h2 className="text-xl font-bold text-foreground mb-2">Restaurant setup made easy</h2>
-      <p className="text-sm text-foreground/50 max-w-[18rem] leading-relaxed">
-        Find your restaurant and we will pull your name, address, and business type automatically.
+      <h2 className="text-base font-bold text-foreground/80 mb-1.5">Marketing &amp; promotional content</h2>
+      <p className="text-xs text-foreground/40 max-w-[20rem] leading-relaxed">
+        This area will showcase brand imagery, welcome videos, and onboarding highlights to engage new users during setup.
       </p>
-      <div className="flex flex-col gap-3 mt-6 text-left w-full max-w-[16rem]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
-            <Check className="w-3.5 h-3.5 text-primary" />
-          </div>
-          <span className="text-xs text-foreground/60">Automatic detail prefill</span>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
-            <Check className="w-3.5 h-3.5 text-primary" />
-          </div>
-          <span className="text-xs text-foreground/60">One-tap restaurant search</span>
-        </div>
-        <div className="flex items-center gap-2.5">
-          <div className="w-6 h-6 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
-            <Check className="w-3.5 h-3.5 text-primary" />
-          </div>
-          <span className="text-xs text-foreground/60">Ready to sell in minutes</span>
-        </div>
-      </div>
     </div>
   );
 

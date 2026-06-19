@@ -167,7 +167,7 @@ const OnboardingAppSignupMode = () => {
 
   const Cell = ({ on, isSel, isLast }: { on: boolean; isSel: boolean; isLast: boolean }) => (
     <div
-      className={`flex items-center justify-center py-2.5 ${
+      className={`flex items-center justify-center py-1 ${
         isSel
           ? `bg-primary/[0.07] border-l-[1.5px] border-r-[1.5px] border-primary ${
               isLast ? "border-b-[1.5px] rounded-b-xl" : ""

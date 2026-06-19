@@ -994,7 +994,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
       // Initialize device name suggestion if not already set
       if (!deviceName) {
-        setTimeout(() => setDeviceName("Rustic Table POS 1"), 0);
+        setTimeout(() => setDeviceName("Rustic Table Point of Sale 1"), 0);
       }
 
       return (
@@ -1268,7 +1268,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                   <button
                     onClick={() => {
                       setShowDeviceConnected(true);
-                      setDeviceName("Rustic Table POS 1");
+                      setDeviceName("Rustic Table Point of Sale 1");
                       setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500);
                     }}
                     className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-6 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity"
@@ -1417,7 +1417,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
                     </div>
                     <h2 className="text-lg font-bold text-foreground mb-3">Point the camera at the QR code</h2>
                     <button
-                      onClick={() => { setShowDeviceConnected(true); setDeviceName("Rustic Table POS 1"); setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500); }}
+                      onClick={() => { setShowDeviceConnected(true); setDeviceName("Rustic Table Point of Sale 1"); setTimeout(() => { setShowDeviceConnected(false); setOwnerVerified(true); }, 2500); }}
                       className="bg-white dark:bg-foreground border border-border dark:border-transparent rounded-2xl p-3 flex-shrink-0 cursor-pointer hover:opacity-90 transition-opacity mb-2 self-center"
                       data-tour="qr-code"
                     >

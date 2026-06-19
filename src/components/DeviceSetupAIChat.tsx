@@ -238,7 +238,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
   const [createDevicePin, setCreateDevicePin] = useState("");
   const [createDevicePinError, setCreateDevicePinError] = useState("");
   const [showOnboarding, setShowOnboarding] = useState(false);
-  const [chatDeviceName, setChatDeviceName] = useState("Rustic Table POS 1");
+  const [chatDeviceName, setChatDeviceName] = useState("Rustic Table Point of Sale 1");
 
   useEffect(() => {
     if (open && scrollRef.current) {
@@ -749,10 +749,10 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
           const connectedMsg: Message = {
             id: Date.now().toString(),
             role: "assistant",
-            content: "All set! Your device is now activated.\n\nWhat would you like to name this device?\n\nSuggested: **Rustic Table POS 1**"
+            content: "All set! Your device is now activated.\n\nWhat would you like to name this device?\n\nSuggested: **Rustic Table Point of Sale 1**"
           };
           setMessages((prev) => [...prev, connectedMsg]);
-          setChatDeviceName("Rustic Table POS 1");
+          setChatDeviceName("Rustic Table Point of Sale 1");
           setCurrentStep("chat-device-name");
         }
       }, 5000);
@@ -1516,7 +1516,7 @@ const DeviceSetupAIChat = ({ open, onClose, deviceType = "company", onAccountCre
                     </div>
                     <button
                       onClick={() => {
-                        const name = chatDeviceName.trim() || "Rustic Table POS 1";
+                        const name = chatDeviceName.trim() || "Rustic Table Point of Sale 1";
                         const userMsg: Message = { id: Date.now().toString(), role: "user", content: name };
                         const assistantMsg: Message = {
                           id: (Date.now() + 1).toString(),

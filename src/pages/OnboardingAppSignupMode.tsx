@@ -188,7 +188,7 @@ const OnboardingAppSignupMode = () => {
   const table = (
     <div className="w-full">
       {/* Headers */}
-      <div className="grid" style={{ gridTemplateColumns: "1.3fr 1fr 1fr 1fr" }}>
+      <div className="grid" style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}>
         <div />
         {MODES.map((m) => (
           <ColHeader key={m.id} mode={m} />
@@ -203,11 +203,11 @@ const OnboardingAppSignupMode = () => {
           <div key={section.label}>
             <div
               className="grid"
-              style={{ gridTemplateColumns: "1.3fr 1fr 1fr 1fr" }}
+              style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}
             >
-              <div className="px-1 pt-2 pb-0.5">
+              <div className="px-1 pt-0.5 pb-0">
                 <span
-                  className="font-semibold uppercase text-foreground/50"
+                  className="font-semibold uppercase text-foreground/50 whitespace-nowrap"
                   style={{ fontSize: "8px", letterSpacing: "0.5px" }}
                 >
                   {section.label}
@@ -216,7 +216,7 @@ const OnboardingAppSignupMode = () => {
               {MODES.map((m) => (
                 <div
                   key={m.id}
-                  className={`h-full ${
+                  className={`${
                     selected === m.id
                       ? "bg-primary/[0.07] border-l-[1.5px] border-r-[1.5px] border-primary"
                       : ""
@@ -230,10 +230,10 @@ const OnboardingAppSignupMode = () => {
               return (
                 <div
                   key={row.label}
-                  className="grid items-center border-t border-foreground/[0.06]"
-                  style={{ gridTemplateColumns: "1.3fr 1fr 1fr 1fr" }}
+                  className="grid items-center"
+                  style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}
                 >
-                  <div className="px-1 py-2.5 text-[10px] font-semibold text-foreground">
+                  <div className="px-1 py-1 text-[10px] font-semibold text-foreground">
                     {row.label}
                   </div>
                   {MODES.map((m) => (

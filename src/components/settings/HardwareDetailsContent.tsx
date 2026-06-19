@@ -20,7 +20,7 @@ const HardwareDetailsContent = ({ showHeader = true, onBack, onNavigate, onAICli
   const isMobile = useIsMobile();
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
-  const [terminalName, setTerminalName] = useState(() => localStorage.getItem("pos_terminal_name") || "POS 1");
+  const [terminalName, setTerminalName] = useState(() => localStorage.getItem("pos_terminal_name") || "Point of Sale 1");
 
   const handleTerminalNameChange = (value: string) => {
     setTerminalName(value);

@@ -27,6 +27,7 @@ const ReceiptOptionsDialog = ({
   onEmail,
   onNoReceipt,
 }: ReceiptOptionsDialogProps) => {
+  const themeLogo = useThemeLogo();
   const isLandscape = useIsLandscape();
   const [noMarketing, setNoMarketing] = useState(false);
   const [currentView, setCurrentView] = useState<ReceiptView>("main");

@@ -34,6 +34,7 @@ interface TipBottomSheetProps {
 }
 
 const TipBottomSheet = ({ isOpen, onClose, totalAmount, onSelectTip, existingTip = 0, skipReceiptMode = false, orderItems = [] }: TipBottomSheetProps) => {
+  const themeLogo = useThemeLogo();
   const isLandscape = useIsLandscape();
   const [selectedTip, setSelectedTip] = useState<number | null>(null);
   const [customTipMode, setCustomTipMode] = useState(false);

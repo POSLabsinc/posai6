@@ -34,6 +34,7 @@ const getTimeOfDayInfo = (date: Date) => {
 };
 
 export const PersonalDeviceAuthPanel = ({ currentScreen, invitedUser }: PersonalDeviceAuthPanelProps) => {
+  const themeLogo = useThemeLogo();
   const [currentTime, setCurrentTime] = useState(new Date());
   
   useEffect(() => {

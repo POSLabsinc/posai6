@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useThemeLogo } from "@/components/ThemeLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { MessageSquare, Frown, Smile } from "lucide-react";
 import { format } from "date-fns";
@@ -6,7 +7,6 @@ import { format } from "date-fns";
 // Platform logos
 import googleLogo from "@/assets/icons/feedback-google.svg";
 import yelpLogo from "@/assets/icons/feedback-yelp.svg";
-import eatosLogo from "@/assets/icons/posai-logo.png";
 import orderosLogo from "@/assets/icons/orderos-logo.png";
 
 interface FeedbackItem {
@@ -21,18 +21,21 @@ interface FeedbackTabContentProps {
   guest: { id: string; name: string };
 }
 
-const platformLogos: Record<string, { src?: string; text?: string; textClass?: string }> = {
-  google: { src: googleLogo },
-  eatos: { src: eatosLogo },
-  yelp: { src: yelpLogo },
-  zagat: { text: "ZAGAT", textClass: "text-red-500 font-bold text-lg tracking-wider" },
-  orderos: { src: orderosLogo },
-};
+
 
 const FeedbackTabContent = ({ guest }: FeedbackTabContentProps) => {
+  const themeLogo = useThemeLogo();
   const [feedback, setFeedback] = useState<FeedbackItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  const platformLogos: Record<string, { src?: string; text?: string; textClass?: string }> = {
+    google: { src: googleLogo },
+    eatos: { src: themeLogo },
+    yelp: { src: yelpLogo },
+    zagat: { text: "ZAGAT", textClass: "text-red-500 font-bold text-lg tracking-wider" },
+    orderos: { src: orderosLogo },
+  };
 
   useEffect(() => {
     const fetchFeedback = async () => {

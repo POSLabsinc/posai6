@@ -1,4 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { Eye, Check, Lock, ArrowUpRight, ChevronLeft } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 

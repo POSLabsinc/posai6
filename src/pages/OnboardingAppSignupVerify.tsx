@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, Mail, AlertCircle, Info } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";

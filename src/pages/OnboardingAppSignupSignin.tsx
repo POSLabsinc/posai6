@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useNavigate } from "react-router-dom";
 import { UserPlus, LogIn } from "lucide-react";
 import eatosLogo from "@/assets/icons/posai-logo.png";

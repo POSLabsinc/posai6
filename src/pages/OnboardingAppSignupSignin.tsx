@@ -105,23 +105,40 @@ const OnboardingAppSignupSignin = () => {
       <div className="fixed inset-0 login-bg overflow-hidden">
         <div className="absolute inset-0 gradient-mesh opacity-30 pointer-events-none" />
         <div
-          className="relative z-10 flex flex-col h-full w-full"
+          className="relative z-10 flex h-full w-full"
           style={{
             paddingLeft: "env(safe-area-inset-left)",
             paddingRight: "env(safe-area-inset-right)",
           }}
         >
-          <div className="flex-1 flex min-h-0">
-            <div className="flex items-center justify-center flex-col text-center px-8 border-r border-foreground/[0.08]" style={{ width: "45%" }}>
+          <div
+            className="flex flex-col border-r border-foreground/[0.08]"
+            style={{ width: "45%" }}
+          >
+            <MarketingPanel
+              eyebrow="Sign in preview"
+              caption="Returning users authenticate by device code, sign-in link, or demo mode."
+            />
+          </div>
+          <div
+            className="flex flex-col px-6 py-6 flex-1 min-h-0"
+            style={{ width: "55%" }}
+          >
+            <div className="flex flex-col items-center">
               {logo}
               {title}
-              {subtitle}
+              <div className="mb-6">{subtitle}</div>
             </div>
-            <div className="flex items-center justify-center px-8" style={{ width: "55%" }}>
+            <div className="flex-1 overflow-y-auto flex flex-col justify-center">
               {cards}
             </div>
+            <div
+              className="pt-3"
+              style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+            >
+              {legal}
+            </div>
           </div>
-          <div className="px-6 pb-6 pt-2">{legal}</div>
         </div>
       </div>
     );

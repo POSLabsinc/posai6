@@ -194,31 +194,36 @@ const OnboardingAppSignupTrial = () => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08] min-h-0"
+            className="flex flex-col border-r border-foreground/[0.08]"
             style={{ width: "45%" }}
           >
-            <div className="flex flex-col items-center mt-4">
-              {iconCircle}
-              {title}
-              {subtitle}
-              <div className="mt-5">{trialBadge}</div>
+            <MarketingPanel
+              eyebrow="Trial preview"
+              caption="Activates your free trial with full Point of Sale features unlocked."
+            />
+          </div>
+          <div
+            className="flex flex-col px-6 py-6 flex-1 min-h-0"
+            style={{ width: "55%" }}
+          >
+            <div className="flex-1 overflow-y-auto flex flex-col">
+              <div className="flex flex-col items-center mt-2">
+                {iconCircle}
+                {title}
+                {subtitle}
+                <div className="mt-5">{trialBadge}</div>
+              </div>
+              <div className="mt-5 flex flex-col gap-4">
+                {warningBanner}
+                {featureList}
+              </div>
             </div>
-            <div className="flex-1" />
             <div
               className="pt-4 flex flex-col gap-2"
               style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
             >
               {primaryCta}
               {secondaryCta}
-            </div>
-          </div>
-          <div
-            className="flex flex-col px-6 py-6 flex-1 min-h-0"
-            style={{ width: "55%" }}
-          >
-            <div className="flex-1 overflow-y-auto flex flex-col justify-center gap-4">
-              {warningBanner}
-              {featureList}
             </div>
           </div>
         </div>

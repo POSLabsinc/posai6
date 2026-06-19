@@ -179,24 +179,30 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08] min-h-0"
+            className="flex flex-col border-r border-foreground/[0.08]"
             style={{ width: "45%" }}
           >
-            <div className="flex items-center justify-between">
-              {backBtn}
-              {useBtn}
-            </div>
-            <div className="mt-5">
-              {title}
-              {subtitle}
-            </div>
-            <div className="flex-1 overflow-y-auto mt-6 pb-4">{featureList}</div>
+            <MarketingPanel
+              eyebrow="Mode details preview"
+              caption="Refines table count, service flow, and staff structure for the selected mode."
+            />
           </div>
           <div
             className="flex flex-col px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
-            <div className="flex-1 min-h-0">{illustration}</div>
+            <div className="flex items-center justify-between">
+              {backBtn}
+              {useBtn}
+            </div>
+            <div className="mt-4">
+              {title}
+              {subtitle}
+            </div>
+            <div className="mt-4" style={{ height: "30vh" }}>
+              {illustration}
+            </div>
+            <div className="flex-1 overflow-y-auto mt-4 pb-4">{featureList}</div>
           </div>
         </div>
       </div>

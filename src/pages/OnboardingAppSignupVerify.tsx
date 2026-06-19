@@ -340,30 +340,33 @@ const OnboardingAppSignupVerify = () => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08]"
+            className="flex flex-col border-r border-foreground/[0.08]"
             style={{ width: "45%" }}
           >
-            <div>{backBtn}</div>
-            <div className="mt-6">{progressBar}</div>
-            <div className="mt-5">{eyebrow}</div>
-            {title}
-            {subtitle}
-            {emailChip}
-            {demoBanner}
-            <div className="flex-1" />
+            <MarketingPanel
+              eyebrow="Verification preview"
+              caption="A one-time code confirms your email or phone before continuing setup."
+            />
           </div>
           <div
             className="flex flex-col px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
-            <div className="flex-1 flex flex-col justify-center">
+            <div>{backBtn}</div>
+            <div className="mt-4">{progressBar}</div>
+            <div className="mt-5">{eyebrow}</div>
+            {title}
+            {subtitle}
+            {emailChip}
+            {demoBanner}
+            <div className="flex-1 overflow-y-auto mt-6 flex flex-col">
               {otpBoxes}
               {timer}
               {errorBanner}
               {resendRow}
             </div>
             <div
-              className="pt-4"
+              className="pt-3"
               style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
             >
               {ctaButton}

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, Mail, AlertCircle } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 
 type LocationState = {
   email?: string;
@@ -297,27 +298,30 @@ const OnboardingAppSigninForgotVerify = () => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08]"
+            className="flex flex-col border-r border-foreground/[0.08]"
             style={{ width: "45%" }}
           >
-            <div>{backBtn}</div>
-            {title}
-            {subtitle}
-            {emailChip}
-            <div className="flex-1" />
+            <MarketingPanel
+              eyebrow="Verify"
+              caption="One-time code confirms your identity before resetting."
+            />
           </div>
           <div
             className="flex flex-col px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
-            <div className="flex-1 flex flex-col justify-center">
+            <div>{backBtn}</div>
+            {title}
+            {subtitle}
+            {emailChip}
+            <div className="flex-1 overflow-y-auto mt-6 flex flex-col">
               {otpBoxes}
               {timer}
               {errorBanner}
               {resendRow}
             </div>
             <div
-              className="pt-4"
+              className="pt-3"
               style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
             >
               {ctaButton}

@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Check } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 
 const OnboardingAppSigninForgotSuccess = () => {
   const navigate = useNavigate();
@@ -42,14 +43,24 @@ const OnboardingAppSigninForgotSuccess = () => {
       <div className="fixed inset-0 login-bg overflow-hidden">
         <div className="absolute inset-0 gradient-mesh opacity-30 pointer-events-none" />
         <div
-          className="relative z-10 flex items-center justify-center h-full w-full"
+          className="relative z-10 flex h-full w-full"
           style={{
             paddingLeft: "env(safe-area-inset-left)",
             paddingRight: "env(safe-area-inset-right)",
           }}
         >
           <div
-            className="flex flex-col items-center w-full max-w-[400px] h-full px-6 py-6"
+            className="flex flex-col border-r border-foreground/[0.08]"
+            style={{ width: "45%" }}
+          >
+            <MarketingPanel
+              eyebrow="All set"
+              caption="Password updated. You can now sign in again."
+            />
+          </div>
+          <div
+            className="flex flex-col items-center px-6 py-6 flex-1 min-h-0"
+            style={{ width: "55%" }}
           >
             <div className="flex-1 flex flex-col items-center justify-center">
               {successIcon}

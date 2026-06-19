@@ -81,7 +81,7 @@ const PLANS = [
     price: "$0",
     period: "/mo",
     description: "For small businesses just getting started",
-    features: ["1 Location", "Basic POS", "Email support", "Standard reports"],
+    features: ["1 Location", "Basic Point of Sale", "Email support", "Standard reports"],
     popular: false,
   },
   {

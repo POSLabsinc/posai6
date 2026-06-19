@@ -22,7 +22,7 @@ const OnboardingAppActivateValidating = () => {
           code: location.state?.code,
           restaurant_name: restaurantName,
           device: location.state?.device ?? "Point of Sale",
-          device_name: location.state?.device_name ?? "Rustic Table POS 1",
+          device_name: location.state?.device_name ?? "Rustic Table Point of Sale 1",
         },
         replace: true,
       });

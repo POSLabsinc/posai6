@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, RefreshCw, CheckCircle2 } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
@@ -194,35 +195,41 @@ const OnboardingAppSignupUpgrade = () => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08]"
+            className="flex flex-col border-r border-foreground/[0.08]"
             style={{ width: "45%" }}
           >
-            <div>{backBtn}</div>
-            <div className="mt-2">
-              {title}
-              {subtitle}
-            </div>
-            <div className="flex-1" />
-            {!sent && <div className="pb-3">{infoBanner}</div>}
-            <div
-              style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
-            >
-              {!sent && ctaButton}
-            </div>
+            <MarketingPanel
+              eyebrow="Plan preview"
+              caption="Compare plans and unlock advanced Point of Sale modules for your business."
+            />
           </div>
           <div
             className="flex flex-col px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
+            <div>{backBtn}</div>
             {sent ? (
               <div className="flex-1 flex items-center justify-center">
                 {successView}
               </div>
             ) : (
-              <div className="flex-1 overflow-y-auto flex flex-col gap-4">
-                {currentField}
-                {workField}
-              </div>
+              <>
+                <div className="mt-2">
+                  {title}
+                  {subtitle}
+                </div>
+                <div className="flex-1 overflow-y-auto mt-5 flex flex-col gap-4 pb-4">
+                  {currentField}
+                  {workField}
+                  {infoBanner}
+                </div>
+                <div
+                  className="pt-2"
+                  style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+                >
+                  {ctaButton}
+                </div>
+              </>
             )}
           </div>
         </div>

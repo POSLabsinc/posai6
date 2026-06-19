@@ -1,4 +1,5 @@
 import { useMemo, useState, useEffect, useCallback } from "react";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, Info, Pencil } from "lucide-react";
@@ -412,22 +413,27 @@ const OnboardingAppSignupManual = () => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08]"
+            className="flex flex-col border-r border-foreground/[0.08]"
             style={{ width: "45%" }}
           >
+            <MarketingPanel
+              eyebrow="Manual entry preview"
+              caption="Enter restaurant details manually when your venue isn't listed on Google."
+            />
+          </div>
+          <div className="flex flex-col px-6 py-6 flex-1 min-h-0" style={{ width: "55%" }}>
             <div>{backBtn}</div>
-            <div className="flex-1 flex flex-col justify-center">
-              {stepLabel}
-              {title}
-              {subtitle}
-            </div>
-            <div className="flex flex-col gap-3">
+            <div className="mt-4">{stepLabel}</div>
+            {title}
+            {subtitle}
+            <div className="flex-1 overflow-y-auto pt-4 pb-4">{body}</div>
+            <div
+              className="flex flex-col gap-2 pt-2"
+              style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+            >
               {primaryBtn}
               {secondaryBtn}
             </div>
-          </div>
-          <div className="flex flex-col px-6 py-6 flex-1 min-h-0 overflow-y-auto" style={{ width: "55%" }}>
-            {body}
           </div>
         </div>
       </div>

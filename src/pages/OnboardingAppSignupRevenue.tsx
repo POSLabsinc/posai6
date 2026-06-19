@@ -1,4 +1,5 @@
 import { useState } from "react";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
@@ -122,33 +123,34 @@ const OnboardingAppSignupRevenue = () => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08]"
+            className="flex flex-col border-r border-foreground/[0.08]"
             style={{ width: "45%" }}
           >
-            <div className="flex items-center justify-between">
-              {backBtn}
-              {skipLink}
-            </div>
-            <div className="mt-6">{progressBar}</div>
-            <div className="mt-5">
-              {eyebrow}
-              {title}
-              {subtitle}
-            </div>
-            <div className="flex-1" />
-            <div
-              className="pt-4"
-              style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
-            >
-              {ctaButton}
-            </div>
+            <MarketingPanel
+              eyebrow="Revenue preview"
+              caption="Calibrates pricing tier and feature mix to your expected sales volume."
+            />
           </div>
           <div
             className="flex flex-col px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
-            <div className="flex-1 overflow-y-auto flex flex-col justify-center">
-              {optionsList}
+            <div className="flex items-center justify-between">
+              {backBtn}
+              {skipLink}
+            </div>
+            <div className="mt-4">{progressBar}</div>
+            <div className="mt-5">
+              {eyebrow}
+              {title}
+              {subtitle}
+            </div>
+            <div className="flex-1 overflow-y-auto mt-5 pb-4">{optionsList}</div>
+            <div
+              className="pt-2"
+              style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
+            >
+              {ctaButton}
             </div>
           </div>
         </div>

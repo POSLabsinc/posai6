@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, MapPin, Eye, EyeOff, ChevronDown, AlertTriangle } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
@@ -370,32 +371,34 @@ const OnboardingAppSignupAccount = () => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08]"
+            className="flex flex-col border-r border-foreground/[0.08]"
             style={{ width: "45%" }}
           >
-            <div>{backBtn}</div>
-            <div className="mt-6">{progressBar}</div>
-            <div className="flex-1 flex flex-col justify-center">
-              {eyebrow}
-              {title}
-              {subtitle}
-            </div>
-            <div>{footerText}</div>
+            <MarketingPanel
+              eyebrow="Account preview"
+              caption="Sets up the owner profile, contact details, and primary login for your venue."
+            />
           </div>
           <div
             className="flex flex-col px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
-            <div className="flex-1 overflow-y-auto flex flex-col gap-4">
+            <div>{backBtn}</div>
+            <div className="mt-4">{progressBar}</div>
+            <div className="mt-5">{eyebrow}</div>
+            {title}
+            {subtitle}
+            <div className="flex-1 overflow-y-auto mt-5 flex flex-col gap-4 pb-4">
               {emailField}
               {passwordField}
               {countryField}
             </div>
+            <div className="pt-2">{ctaButton}</div>
             <div
-              className="pt-4"
+              className="pt-3"
               style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
             >
-              {ctaButton}
+              {footerText}
             </div>
           </div>
         </div>

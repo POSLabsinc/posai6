@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, LayoutGrid, Zap, ChefHat, Check, Minus, Sparkles } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
@@ -323,22 +324,25 @@ const OnboardingAppSignupMode = () => {
           }}
         >
           <div
-            className="flex flex-col px-6 py-6 border-r border-foreground/[0.08]"
-            style={{ width: "40%" }}
+            className="flex flex-col border-r border-foreground/[0.08]"
+            style={{ width: "45%" }}
           >
-            {backBtn}
-            <div className="mt-5">
+            <MarketingPanel
+              eyebrow="Service mode preview"
+              caption="Choose how your venue serves guests: full service, quick service, or standard."
+            />
+          </div>
+          <div className="flex flex-col px-6 py-6 flex-1 min-h-0" style={{ width: "55%" }}>
+            <div>{backBtn}</div>
+            <div className="mt-4">
               {title}
               {subtitle}
               {aiBadge}
             </div>
-            <div className="flex-1" />
+            <div className="flex-1 overflow-y-auto mt-4 pb-4">{table}</div>
             <div style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}>
               {ctaButton}
             </div>
-          </div>
-          <div className="flex flex-col px-6 py-6 flex-1 min-h-0" style={{ width: "60%" }}>
-            <div className="flex-1 overflow-y-auto pt-4">{table}</div>
           </div>
         </div>
       </div>

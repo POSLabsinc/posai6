@@ -310,7 +310,7 @@ export function ReportExceptionDialog({
       reportedByRole: userRole,
       approvedBy: managerApproval?.name,
       timestamp: new Date().toISOString(),
-      device: navigator.userAgent.includes('Mobile') ? 'Mobile POS' : 'Desktop POS',
+      device: navigator.userAgent.includes('Mobile') ? 'Mobile Point of Sale' : 'Desktop Point of Sale',
       orderStatus: 'on_hold',
       customerNotified: false, // Customer will be notified by aggregator
       platform: order.platform,

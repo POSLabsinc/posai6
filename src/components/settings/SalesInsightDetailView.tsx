@@ -146,7 +146,7 @@ const MODULE_CONFIGS: Record<string, ModuleConfig> = {
     metricCards: [
       { label: "86'd Products", value: "7", delta: "+2", caption: "Items currently marked unavailable", icon: ShoppingCart },
       { label: "Low Stock Items", value: "12", delta: "+4", caption: "Below par level, needs replenishment", icon: TrendingUp },
-      { label: "Channels Synced", value: "5 / 5", delta: "100%", caption: "POS, Direct, UberEats, DoorDash, Grubhub", icon: Calculator },
+      { label: "Channels Synced", value: "5 / 5", delta: "100%", caption: "Point of Sale, Direct, UberEats, DoorDash, Grubhub", icon: Calculator },
       { label: "Avg Sync Latency", value: "2.4s", delta: "-0.8s", caption: "Time to propagate availability changes", icon: DollarSign },
       { label: "Delayed Kitchen Items", value: "3", delta: "+1", caption: "Tickets exceeding standard prep time", icon: Users },
       { label: "Menu Updates Today", value: "14", delta: "+6", caption: "Add, remove, and availability changes", icon: TrendingUp },

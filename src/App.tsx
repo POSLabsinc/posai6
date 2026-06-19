@@ -96,6 +96,8 @@ const KdsEmbedded = lazyWithImportRecovery(() => import("./pages/KdsEmbedded"));
 const ClosingGracePeriod = lazyWithImportRecovery(() => import("./pages/ClosingGracePeriod"));
 const Onboarding = lazyWithImportRecovery(() => import("./pages/Onboarding"));
 const OnboardingWeb = lazyWithImportRecovery(() => import("./pages/OnboardingWeb"));
+const OnboardingWebSignin = lazyWithImportRecovery(() => import("./pages/OnboardingWebSignin"));
+const OnboardingWebSigninSuccess = lazyWithImportRecovery(() => import("./pages/OnboardingWebSigninSuccess"));
 const OnboardingApp = lazyWithImportRecovery(() => import("./pages/OnboardingApp"));
 const OnboardingAppCarousel = lazyWithImportRecovery(() => import("./pages/OnboardingAppCarousel"));
 const OnboardingAppSignupSignin = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupSignin"));
@@ -236,6 +238,8 @@ const AppInner = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/onboarding/web" element={<OnboardingWeb />} />
+          <Route path="/onboarding/web/signin" element={<OnboardingWebSignin />} />
+          <Route path="/onboarding/web/signin/success" element={<OnboardingWebSigninSuccess />} />
           <Route path="/onboarding/app" element={<OnboardingApp />} />
           <Route path="/onboarding/app/carousel" element={<OnboardingAppCarousel />} />
           <Route path="/onboarding/app/signup-signin" element={<OnboardingAppSignupSignin />} />

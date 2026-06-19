@@ -24,7 +24,7 @@ const Onboarding = () => {
 
   const logo = (
     <motion.img
-      src={eatosLogo}
+      src={themeLogo}
       alt="POS AI"
       className="w-36 h-auto mb-6"
       initial={{ opacity: 0, scale: 0.9 }}

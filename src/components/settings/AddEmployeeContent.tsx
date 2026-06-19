@@ -907,7 +907,7 @@ const AddEmployeeContent = ({ showHeader = true, onBack }: AddEmployeeContentPro
 
         <div className="mx-4 px-1 mb-6">
           <p className="text-xs text-neutral-600 leading-relaxed">
-            Manage store access to control POS login permissions and workforce scheduling across locations.
+            Manage store access to control Point of Sale login permissions and workforce scheduling across locations.
           </p>
         </div>
       </div>

@@ -418,7 +418,6 @@ const OnboardingAppSignupLookup = () => {
             <div>{backBtn}</div>
             <div className="mt-2 mb-1">{title}</div>
             <div className="mb-4">{subtitle}</div>
-            {searchInput}
             {countLabel}
             {fallbackBanner && <div className="mb-3">{fallbackBanner}</div>}
             <div className="flex-1 overflow-y-auto flex flex-col">
@@ -432,7 +431,8 @@ const OnboardingAppSignupLookup = () => {
               resultsList
             )}
             </div>
-            <div className="flex flex-col gap-3 pt-4">
+            <div className="pt-4">{searchInput}</div>
+            <div className="flex flex-col gap-3 pt-3">
               {notOnGoogleLink}
               {continueBtn}
             </div>

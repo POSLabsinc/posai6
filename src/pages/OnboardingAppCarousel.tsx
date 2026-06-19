@@ -25,17 +25,17 @@ type Slide = {
 
 const slides: Slide[] = [
   {
-    eyebrow: "PointOfSaleAi",
+    eyebrow: "PointofSaleAi",
     headline: "The AI-first restaurant operating system",
     body: "One platform for your kiosk, Point of Sale, and kitchen display.",
   },
   {
-    eyebrow: "PointOfSaleAi Point of Sale",
+    eyebrow: "PointofSaleAi Point of Sale",
     headline: "Meet your AI restaurant manager",
-    body: "PointOfSaleAi learns your menu, predicts demand, and helps your team serve faster.",
+    body: "PointofSaleAi learns your menu, predicts demand, and helps your team serve faster.",
   },
   {
-    eyebrow: "PointOfSaleAi Point of Sale",
+    eyebrow: "PointofSaleAi Point of Sale",
     headline: "Up and running in minutes",
     body: "Sign up, activate your device, and start taking orders today.",
   },

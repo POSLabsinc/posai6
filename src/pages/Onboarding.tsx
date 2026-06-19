@@ -39,7 +39,7 @@ const Onboarding = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
     >
-      Welcome to PointOfSaleAi Point of Sale
+      Welcome to PointofSaleAi Point of Sale
     </motion.h1>
   );
 

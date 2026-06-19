@@ -37,7 +37,7 @@ const MOCK_RECS: Recommendation[] = [
   { id: "r1", text: "Peak hour approaching at 6 PM. Consider adding 2 staff to Front of House.", category: "Staffing", when: "Today", dotColor: "bg-amber-400" },
   { id: "r2", text: "Tacos are trending 23% above average. Feature on the specials board.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
   { id: "r3", text: "Labor cost at 28% approaching 30% threshold. Monitor closely.", category: "Labor", when: "Tomorrow", dotColor: "bg-blue-400" },
-  { id: "r4", text: "Voids spiked 40% in the last hour. Review POS activity immediately.", category: "Finance", when: "Urgent", dotColor: "bg-red-400" },
+  { id: "r4", text: "Voids spiked 40% in the last hour. Review Point of Sale activity immediately.", category: "Finance", when: "Urgent", dotColor: "bg-red-400" },
   { id: "r5", text: "Happy Hour promo underperforming. Boost via SMS to repeat guests.", category: "Promo", when: "In 3 hours", dotColor: "bg-amber-400" },
   { id: "r6", text: "Wine inventory low on Cabernet. Reorder before weekend rush.", category: "Menu", when: "Today", dotColor: "bg-emerald-400" },
   { id: "r7", text: "Server Alex closing 18% faster than average. Consider as trainer.", category: "Staffing", when: "This week", dotColor: "bg-amber-400" },

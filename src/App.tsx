@@ -106,6 +106,7 @@ const OnboardingAppSignupAccount = lazyWithImportRecovery(() => import("./pages/
 const OnboardingAppSignupDemo = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupDemo"));
 const OnboardingAppSignupUpgrade = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupUpgrade"));
 const OnboardingAppSigninForgotVerify = lazyWithImportRecovery(() => import("./pages/OnboardingAppSigninForgotVerify"));
+const OnboardingAppSigninForgotReset = lazyWithImportRecovery(() => import("./pages/OnboardingAppSigninForgotReset"));
 const OnboardingAppSignupVerify = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupVerify"));
 const OnboardingAppSignupRevenue = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupRevenue"));
 const OnboardingAppSignupMode = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupMode"));

@@ -554,13 +554,13 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
         </motion.p>
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="w-full space-y-3 mb-4">
-          {/* POSAI Checking option */}
+          {/* PointOfSaleAi Checking option */}
           <button
             onClick={() => setBankOption("posai")}
             className={`w-full p-4 rounded-2xl text-left transition-all ${bankOption === "posai" ? "border-2 border-primary bg-primary/[0.06]" : "border border-foreground/[0.08] bg-foreground/[0.02]"}`}
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold text-foreground">POSAI Checking</span>
+              <span className="text-sm font-semibold text-foreground">PointOfSaleAi Checking</span>
               <span className="text-[10px] font-medium bg-primary/20 text-primary px-2 py-0.5 rounded-full">Instant access to sales</span>
             </div>
             <div className="space-y-2">
@@ -644,7 +644,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
           Verify your identity to activate your account
         </motion.h1>
         <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.05 }} className="text-sm text-foreground/50 mb-6 text-left w-full leading-relaxed">
-          Why do we do this? For your safety and to prevent fraud, we require identity verification. POSAI encrypts and protects your data and shares only as described in our <span className="underline cursor-pointer text-foreground/70">privacy notice</span>.
+          Why do we do this? For your safety and to prevent fraud, we require identity verification. PointOfSaleAi encrypts and protects your data and shares only as described in our <span className="underline cursor-pointer text-foreground/70">privacy notice</span>.
         </motion.p>
 
         <div className="w-full space-y-3">
@@ -672,7 +672,7 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
           </div>
 
           <p className="text-xs text-foreground/40 leading-relaxed">
-            By clicking "Next", I certify that I have read POSAI's privacy policy and consent to calls, texts, and automated messages from POSAI regarding my accounts.
+            By clicking "Next", I certify that I have read PointOfSaleAi's privacy policy and consent to calls, texts, and automated messages from PointOfSaleAi regarding my accounts.
           </p>
 
           <input type="text" placeholder="Date of birth" value={verifyForm.dob} onChange={e => setVerifyForm(p => ({ ...p, dob: e.target.value }))} onFocus={e => { if (!verifyForm.dob) e.target.type = 'date'; }} className={inputClass} />
@@ -702,24 +702,24 @@ const BusinessSearchOnboarding = ({ onNext, onManualEntry, onBack, onDevicePinCo
           <div className="rounded-xl bg-primary/[0.06] border border-primary/10 px-4 py-3 flex items-start gap-3">
             <Lock className="w-4 h-4 text-primary/60 mt-0.5 flex-shrink-0" />
             <p className="text-xs text-foreground/60 leading-relaxed">
-              POSAI uses this for identity verification and tax-reporting. Your information is stored securely with 256-bit encryption. <span className="underline cursor-pointer text-foreground/70">Learn more</span>
+              PointOfSaleAi uses this for identity verification and tax-reporting. Your information is stored securely with 256-bit encryption. <span className="underline cursor-pointer text-foreground/70">Learn more</span>
             </p>
           </div>
 
           <div className="rounded-xl bg-foreground/[0.03] border border-foreground/[0.06] px-4 py-3 space-y-2">
             <p className="text-xs text-foreground/40">By tapping "Next", under penalties of perjury, I certify that all of the information provided is true and accurate.</p>
-            <p className="text-xs text-foreground/40">Once this information is verified, your POSAI Checking account will be opened and a digital debit card will be issued.</p>
+            <p className="text-xs text-foreground/40">Once this information is verified, your PointOfSaleAi Checking account will be opened and a digital debit card will be issued.</p>
           </div>
 
           <label className="flex items-start gap-3 cursor-pointer py-1" onClick={() => setVerifyForm(p => ({ ...p, agreedTerms: !p.agreedTerms }))}>
             <div className={`w-5 h-5 rounded-md border flex items-center justify-center flex-shrink-0 mt-0.5 transition-colors ${verifyForm.agreedTerms ? "bg-primary border-primary" : "border-foreground/20 bg-transparent"}`}>
               {verifyForm.agreedTerms && <Check className="w-3 h-3 text-primary-foreground" />}
             </div>
-            <span className="text-sm text-foreground/70">I have read and agree to the <span className="underline text-foreground">POSAI Checking Terms of Service</span></span>
+            <span className="text-sm text-foreground/70">I have read and agree to the <span className="underline text-foreground">PointOfSaleAi Checking Terms of Service</span></span>
           </label>
 
           <p className="text-[10px] text-foreground/30 leading-relaxed pb-2">
-            POSAI, Inc. is a financial services platform and not an FDIC-insured bank. FDIC deposit insurance coverage only protects against the failure of an FDIC-insured deposit institution. If you have a POSAI Checking account, up to $250,000 of your balance may be covered by FDIC insurance on a pass-through basis through our partner bank, Member FDIC, subject to aggregation of the account holder's funds held at our partner bank and if certain conditions have been met.
+            PointOfSaleAi, Inc. is a financial services platform and not an FDIC-insured bank. FDIC deposit insurance coverage only protects against the failure of an FDIC-insured deposit institution. If you have a PointOfSaleAi Checking account, up to $250,000 of your balance may be covered by FDIC insurance on a pass-through basis through our partner bank, Member FDIC, subject to aggregation of the account holder's funds held at our partner bank and if certain conditions have been met.
           </p>
         </div>
 

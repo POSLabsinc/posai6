@@ -52,7 +52,7 @@ const OnboardingAppSignin = () => {
 
   const title = <h1 className="text-2xl font-bold text-foreground mt-2">Sign in</h1>;
   const subtitle = (
-    <p className="text-sm text-foreground/60 mt-2">Welcome back to POSAI.</p>
+    <p className="text-sm text-foreground/60 mt-2">Welcome back to PointOfSaleAi.</p>
   );
 
   const emailField = (

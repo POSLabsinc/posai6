@@ -151,6 +151,80 @@ const OnboardingAppSignupTrial = () => {
     </div>
   );
 
+  const handleGoDashboard = () => {
+    try { sessionStorage.removeItem("onboarding_source"); } catch {}
+    navigate("/dashboard", { replace: true });
+  };
+
+  const [appLinkEmail, setAppLinkEmail] = useState(incoming.email || "");
+  const [linkSent, setLinkSent] = useState(false);
+  const [sendingLink, setSendingLink] = useState(false);
+  const handleSendAppLink = async () => {
+    if (!appLinkEmail || sendingLink) return;
+    setSendingLink(true);
+    try {
+      await fetch("/auth/send-app-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: appLinkEmail }),
+      }).catch(() => null);
+      setLinkSent(true);
+    } finally {
+      setSendingLink(false);
+    }
+  };
+
+  const APP_DOWNLOAD_URL = "https://posai.com/download";
+
+  const appDownloadSection = (
+    <div className="w-full flex flex-col gap-3">
+      <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-foreground/60">
+        Get the app on your device
+      </p>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="flex flex-col items-center gap-2 p-3 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04]">
+          <div className="bg-white p-2 rounded-lg">
+            <QRCodeSVG value={APP_DOWNLOAD_URL} size={96} />
+          </div>
+          <p className="text-[11px] text-foreground/60 text-center">Scan to download</p>
+        </div>
+        <div className="flex flex-col gap-2 p-3 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04]">
+          <input
+            type="email"
+            value={appLinkEmail}
+            onChange={(e) => { setAppLinkEmail(e.target.value); setLinkSent(false); }}
+            placeholder="you@restaurant.com"
+            className="w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-xl px-3 py-2 text-xs text-foreground placeholder:text-foreground/40 outline-none focus:border-primary"
+          />
+          {linkSent ? (
+            <div className="w-full min-h-[36px] py-2 rounded-xl text-xs font-semibold bg-emerald-500/15 text-emerald-500 flex items-center justify-center gap-1.5">
+              <Check className="w-3.5 h-3.5" strokeWidth={3} />
+              Link sent
+            </div>
+          ) : (
+            <button
+              onClick={handleSendAppLink}
+              disabled={!appLinkEmail || sendingLink}
+              className="w-full min-h-[36px] py-2 rounded-xl text-xs font-semibold bg-primary text-primary-foreground active:opacity-80 disabled:opacity-40 disabled:pointer-events-none"
+            >
+              {sendingLink ? "Sending…" : "Send link"}
+            </button>
+          )}
+          <p className="text-[11px] text-foreground/60 text-center mt-auto">Email me the link</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const webPrimaryCta = (
+    <button
+      onClick={handleGoDashboard}
+      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-emerald-500 text-white active:opacity-80 transition-opacity"
+    >
+      Go to dashboard
+    </button>
+  );
+
   const primaryCta = isOrg ? (
     <button
       onClick={handleStartTrial}
@@ -184,10 +258,13 @@ const OnboardingAppSignupTrial = () => {
       <div className="mt-5">{trialBadge}</div>
       {warningBanner && <div className="mt-4 w-full">{warningBanner}</div>}
       <div className="mt-5 w-full">{featureList}</div>
+      {isWeb && <div className="mt-5 w-full">{appDownloadSection}</div>}
     </div>
   );
 
-  const ctaBlock = (
+  const ctaBlock = isWeb ? (
+    <div className="flex flex-col gap-2 w-full">{webPrimaryCta}</div>
+  ) : (
     <div className="flex flex-col gap-2 w-full">
       {primaryCta}
       {secondaryCta}

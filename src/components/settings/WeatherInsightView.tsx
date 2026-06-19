@@ -144,7 +144,7 @@ export const WeatherInsightView = ({ notification }: { notification: Notificatio
       reasoning: impactStr,
       suggestions: [
         "Maintain standard staffing for the shift",
-        "Keep an eye on POS pace mid-shift and adjust as needed",
+        "Keep an eye on Point of Sale pace mid-shift and adjust as needed",
       ],
       tone: "info" as const,
     };

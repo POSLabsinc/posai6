@@ -201,12 +201,28 @@ const OnboardingAppSignupMode = () => {
         for (let i = 0; i < sIdx; i++) globalRowOffset += SECTIONS[i].rows.length;
         return (
           <div key={section.label}>
-            <div className="grid" style={{ gridTemplateColumns: "1.3fr 1fr 1fr 1fr" }}>
-              <div className="col-span-4 pt-4 pb-1.5 px-1">
-                <span className="text-[10px] font-semibold uppercase tracking-[0.08em] text-foreground/40">
+            <div
+              className="grid"
+              style={{ gridTemplateColumns: "1.3fr 1fr 1fr 1fr" }}
+            >
+              <div className="px-1 pt-2 pb-0.5">
+                <span
+                  className="font-semibold uppercase text-foreground/50"
+                  style={{ fontSize: "8px", letterSpacing: "0.5px" }}
+                >
                   {section.label}
                 </span>
               </div>
+              {MODES.map((m) => (
+                <div
+                  key={m.id}
+                  className={`h-full ${
+                    selected === m.id
+                      ? "bg-primary/[0.07] border-l-[1.5px] border-r-[1.5px] border-primary"
+                      : ""
+                  }`}
+                />
+              ))}
             </div>
             {section.rows.map((row, rIdx) => {
               const absoluteIndex = globalRowOffset + rIdx;
@@ -217,7 +233,9 @@ const OnboardingAppSignupMode = () => {
                   className="grid items-center border-t border-foreground/[0.06]"
                   style={{ gridTemplateColumns: "1.3fr 1fr 1fr 1fr" }}
                 >
-                  <div className="px-1 py-2.5 text-xs text-foreground/80">{row.label}</div>
+                  <div className="px-1 py-2.5 text-[10px] font-semibold text-foreground">
+                    {row.label}
+                  </div>
                   {MODES.map((m) => (
                     <Cell
                       key={m.id}

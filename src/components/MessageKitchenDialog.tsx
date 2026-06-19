@@ -465,7 +465,7 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId, serverName = "Staff
       linkedOrderNumber = defaultLinkedOrderNumber || null;
     }
 
-    const terminalName = localStorage.getItem("pos_terminal_name") || "POS 1";
+    const terminalName = localStorage.getItem("pos_terminal_name") || "Point of Sale 1";
 
     const matchedStaff = staffList.find(s => s.name === serverName);
     const employeeRole = matchedStaff?.role || "Staff";

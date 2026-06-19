@@ -16,7 +16,7 @@ const OnboardingAppActivateSuccess = () => {
 
   const restaurantName = location.state?.restaurant_name ?? "The Rustic Table";
   const device = location.state?.device ?? "Point of Sale";
-  const deviceName = location.state?.device_name ?? "Rustic Table POS 1";
+  const deviceName = location.state?.device_name ?? "Rustic Table Point of Sale 1";
   const code = location.state?.code ?? "POS-XXXX-XX";
 
   const handleLaunch = () => {

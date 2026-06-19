@@ -122,7 +122,7 @@ const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
 
       toast({
         title: "PIN Updated",
-        description: "Your new PIN is now active for all POS access.",
+        description: "Your new PIN is now active for all Point of Sale access.",
       });
 
       resetState();

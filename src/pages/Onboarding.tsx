@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Globe, Smartphone } from "lucide-react";
 import { useState } from "react";
-import eatosLogo from "@/assets/icons/posai-logo.png";
+import { useThemeLogo } from "@/components/ThemeLogo";
 import { SplashScreen } from "@/components/SplashScreen";
 import { useIsLandscape } from "@/hooks/use-landscape";
 

@@ -4,7 +4,7 @@ import { SettingsManager } from "@/lib/settingsManager";
 
 /**
  * KdsEmbedded
- * Embeds the standalone "POSAI - Kitchen Display System (KDS)" project
+ * Embeds the standalone "PointOfSaleAi - Kitchen Display System (KDS)" project
  * via iframe so screen-mode switching from POS lands on the new KDS UI.
  *
  * Source project preview: https://kitchen-display-system-posai6.lovable.app

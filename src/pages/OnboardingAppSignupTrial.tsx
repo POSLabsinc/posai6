@@ -305,14 +305,21 @@ const OnboardingAppSignupTrial = () => {
               <div className="mt-5 flex flex-col gap-4">
                 {warningBanner}
                 {featureList}
+                {isWeb && appDownloadSection}
               </div>
             </div>
             <div
               className="pt-4 flex flex-col gap-2"
               style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
             >
-              {primaryCta}
-              {secondaryCta}
+              {isWeb ? (
+                webPrimaryCta
+              ) : (
+                <>
+                  {primaryCta}
+                  {secondaryCta}
+                </>
+              )}
             </div>
           </div>
         </div>

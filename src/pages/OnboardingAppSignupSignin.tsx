@@ -58,7 +58,7 @@ const OnboardingAppSignupSignin = () => {
         </div>
         <div>
           <p className="text-sm font-semibold text-foreground">Create account</p>
-          <p className="text-xs text-foreground/40 mt-0.5">New to PointOfSaleAi? Set up your restaurant.</p>
+          <p className="text-xs text-foreground/40 mt-0.5">New to PointofSaleAi? Set up your restaurant.</p>
         </div>
       </button>
 
@@ -71,7 +71,7 @@ const OnboardingAppSignupSignin = () => {
         </div>
         <div>
           <p className="text-sm font-semibold text-foreground">Sign in</p>
-          <p className="text-xs text-foreground/40 mt-0.5">Already have a PointOfSaleAi account.</p>
+          <p className="text-xs text-foreground/40 mt-0.5">Already have a PointofSaleAi account.</p>
         </div>
       </button>
     </motion.div>
@@ -84,7 +84,7 @@ const OnboardingAppSignupSignin = () => {
       animate={{ opacity: 1 }}
       transition={{ delay: 0.5 }}
     >
-      By continuing you agree to PointOfSaleAi{" "}
+      By continuing you agree to PointofSaleAi{" "}
       <span
         className="underline underline-offset-2 cursor-pointer hover:text-foreground/60 transition-colors"
         onClick={() => {}}

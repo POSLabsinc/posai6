@@ -5971,7 +5971,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             </div>
 
             <div className="px-8 pb-6 flex items-center justify-between">
-              <p className="text-xs text-foreground/20">eatOS PointOfSaleAi 6 v2.4.1</p>
+              <p className="text-xs text-foreground/20">eatOS PointofSaleAi 6 v2.4.1</p>
               <button
                 onClick={() => {
                   setShowPersonalPinEntry(false);
@@ -8947,7 +8947,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
           {/* Version info at bottom */}
           <div className="px-8 pb-6">
-            <p className="text-xs text-foreground/20">eatOS PointOfSaleAi 6 v2.4.1</p>
+            <p className="text-xs text-foreground/20">eatOS PointofSaleAi 6 v2.4.1</p>
           </div>
         </motion.div>
 

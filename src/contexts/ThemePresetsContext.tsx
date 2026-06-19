@@ -6,7 +6,7 @@ export interface ThemePreset extends ThemeStyle {}
 export const themePresets: ThemePreset[] = [
   {
     id: 'theme-aurora',
-    name: 'POS Glass',
+    name: 'Point of Sale Glass',
     description: 'Floating glassmorphism panels with a vibrant violet to teal gradient halo.',
     variant: 'aurora',
     bg: 'radial-gradient(circle at 20% 20%, #2a1a4d 0%, #0f0f1f 60%)',

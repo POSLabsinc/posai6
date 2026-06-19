@@ -1,4 +1,5 @@
-import { useLocation, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import {
   Rocket,
@@ -7,6 +8,7 @@ import {
   Check,
   Lock,
 } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
 type Intent = "signup_org" | "signup_demo" | "upgrade_email";

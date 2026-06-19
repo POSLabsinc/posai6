@@ -262,7 +262,7 @@ const OnboardingAppSignupMode = () => {
             </div>
           </div>
           <div className="flex flex-col px-6 py-6 flex-1 min-h-0" style={{ width: "60%" }}>
-            <div className="flex-1 overflow-y-auto">{table}</div>
+            <div className="flex-1 overflow-y-auto pt-4">{table}</div>
           </div>
         </div>
       </div>
@@ -282,7 +282,7 @@ const OnboardingAppSignupMode = () => {
           {subtitle}
           {aiBadge}
         </div>
-        <div className="flex-1 overflow-y-auto mt-5 pb-4">{table}</div>
+        <div className="flex-1 overflow-y-auto mt-5 pb-4 pt-4">{table}</div>
         <div
           className="pt-2"
           style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}

@@ -1,7 +1,20 @@
 import { useState } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { Image } from "lucide-react";
+import {
+  LayoutGrid,
+  ShoppingBag,
+  ChefHat,
+  Sparkles,
+  TrendingUp,
+  Clock,
+  CheckCircle2,
+  Flame,
+  Utensils,
+  Coffee,
+  Pizza,
+  Salad,
+} from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
 type Slide = {
@@ -27,6 +40,137 @@ const slides: Slide[] = [
     body: "Sign up, activate your device, and start taking orders today.",
   },
 ];
+
+// Mock preview screens for the landscape carousel.
+const PreviewFrame = ({ children }: { children: React.ReactNode }) => (
+  <div className="relative w-full max-w-[480px] aspect-[4/3] rounded-[28px] border border-foreground/[0.08] bg-foreground/[0.04] shadow-2xl overflow-hidden">
+    {/* fake top bar */}
+    <div className="flex items-center justify-between px-5 h-9 border-b border-foreground/[0.06] bg-foreground/[0.03]">
+      <div className="flex gap-1.5">
+        <span className="w-2 h-2 rounded-full bg-foreground/15" />
+        <span className="w-2 h-2 rounded-full bg-foreground/15" />
+        <span className="w-2 h-2 rounded-full bg-foreground/15" />
+      </div>
+      <span className="text-[10px] font-semibold tracking-wider text-foreground/40">POINT OF SALE</span>
+      <span className="text-[10px] text-foreground/40">9:41</span>
+    </div>
+    <div className="p-4 h-[calc(100%-2.25rem)]">{children}</div>
+  </div>
+);
+
+const PreviewOS = () => (
+  <PreviewFrame>
+    <div className="grid grid-cols-3 gap-3 h-full">
+      {[
+        { icon: ShoppingBag, label: "POS", tint: "bg-primary/20 text-primary" },
+        { icon: ChefHat, label: "Kitchen", tint: "bg-amber-500/20 text-amber-500" },
+        { icon: LayoutGrid, label: "Kiosk", tint: "bg-emerald-500/20 text-emerald-500" },
+        { icon: TrendingUp, label: "Reports", tint: "bg-blue-500/20 text-blue-500" },
+        { icon: Sparkles, label: "AI", tint: "bg-violet-500/20 text-violet-500" },
+        { icon: Utensils, label: "Tables", tint: "bg-rose-500/20 text-rose-500" },
+      ].map((t) => (
+        <div
+          key={t.label}
+          className="rounded-2xl border border-foreground/[0.06] bg-foreground/[0.04] flex flex-col items-center justify-center gap-2 p-2"
+        >
+          <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${t.tint}`}>
+            <t.icon className="w-4 h-4" />
+          </div>
+          <span className="text-[10px] font-semibold text-foreground/70">{t.label}</span>
+        </div>
+      ))}
+    </div>
+  </PreviewFrame>
+);
+
+const PreviewAI = () => (
+  <PreviewFrame>
+    <div className="h-full flex flex-col gap-3">
+      <div className="rounded-2xl border border-primary/30 bg-primary/[0.08] p-3">
+        <div className="flex items-center gap-2 mb-2">
+          <div className="w-6 h-6 rounded-lg bg-primary/20 flex items-center justify-center">
+            <Sparkles className="w-3 h-3 text-primary" />
+          </div>
+          <span className="text-[11px] font-semibold text-foreground/80">AI Insight</span>
+        </div>
+        <p className="text-[10px] text-foreground/60 leading-relaxed">
+          Friday dinner rush starts in 45 min. Prep 24 extra burger patties and assign 2 servers to patio.
+        </p>
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.04] p-2.5">
+          <div className="flex items-center gap-1.5 mb-1">
+            <TrendingUp className="w-3 h-3 text-emerald-500" />
+            <span className="text-[9px] text-foreground/50 uppercase tracking-wide">Sales</span>
+          </div>
+          <p className="text-sm font-bold text-foreground">$3,248</p>
+          <p className="text-[9px] text-emerald-500">+12% vs yesterday</p>
+        </div>
+        <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.04] p-2.5">
+          <div className="flex items-center gap-1.5 mb-1">
+            <Clock className="w-3 h-3 text-amber-500" />
+            <span className="text-[9px] text-foreground/50 uppercase tracking-wide">Avg Ticket</span>
+          </div>
+          <p className="text-sm font-bold text-foreground">7m 12s</p>
+          <p className="text-[9px] text-foreground/40">Target 8m</p>
+        </div>
+      </div>
+      <div className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.04] p-2.5 flex-1">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-[10px] font-semibold text-foreground/70">Top Products</span>
+          <span className="text-[9px] text-foreground/40">Today</span>
+        </div>
+        {[
+          { icon: Pizza, name: "Margherita Pizza", n: 42 },
+          { icon: Salad, name: "Caesar Salad", n: 31 },
+          { icon: Coffee, name: "Cappuccino", n: 28 },
+        ].map((p) => (
+          <div key={p.name} className="flex items-center justify-between py-1">
+            <div className="flex items-center gap-2">
+              <p.icon className="w-3 h-3 text-foreground/50" />
+              <span className="text-[10px] text-foreground/70">{p.name}</span>
+            </div>
+            <span className="text-[10px] font-semibold text-foreground/80">{p.n}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </PreviewFrame>
+);
+
+const PreviewOrders = () => (
+  <PreviewFrame>
+    <div className="h-full flex flex-col gap-2">
+      {[
+        { id: "#1042", table: "Table 7", status: "ORDERING", tint: "bg-amber-500/15 text-amber-500", time: "2m", icon: Flame },
+        { id: "#1041", table: "Table 3", status: "ORDERED", tint: "bg-orange-500/15 text-orange-500", time: "8m", icon: Clock },
+        { id: "#1040", table: "Bar 2", status: "PAID", tint: "bg-emerald-500/15 text-emerald-500", time: "12m", icon: CheckCircle2 },
+        { id: "#1039", table: "Table 5", status: "PAID", tint: "bg-emerald-500/15 text-emerald-500", time: "18m", icon: CheckCircle2 },
+      ].map((o) => (
+        <div
+          key={o.id}
+          className="rounded-xl border border-foreground/[0.06] bg-foreground/[0.04] p-2.5 flex items-center justify-between"
+        >
+          <div className="flex items-center gap-2.5">
+            <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${o.tint}`}>
+              <o.icon className="w-3.5 h-3.5" />
+            </div>
+            <div>
+              <p className="text-[11px] font-semibold text-foreground">{o.id}</p>
+              <p className="text-[9px] text-foreground/50">{o.table}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className={`text-[9px] font-bold px-2 py-0.5 rounded-md ${o.tint}`}>{o.status}</span>
+            <span className="text-[9px] text-foreground/40 w-6 text-right">{o.time}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  </PreviewFrame>
+);
+
+const previews = [PreviewOS, PreviewAI, PreviewOrders];
 
 const OnboardingAppCarousel = () => {
   const navigate = useNavigate();
@@ -136,26 +280,23 @@ const OnboardingAppCarousel = () => {
             paddingRight: "env(safe-area-inset-right)",
           }}
         >
-          {/* Left: app screens skeleton placeholder */}
+          {/* Left: animated app preview screens */}
           <div className="h-full flex flex-col justify-center items-center p-6" style={{ width: "50%" }}>
-            <div className="relative w-full max-w-[420px] aspect-[4/3] rounded-3xl border border-dashed border-foreground/20 bg-foreground/[0.03] flex flex-col items-center justify-center gap-4">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-14 h-14 rounded-2xl bg-foreground/[0.06] flex items-center justify-center">
-                  <Image className="w-6 h-6 text-foreground/30" />
-                </div>
-                <span className="text-xs font-semibold tracking-wide uppercase text-foreground/30">
-                  Coming Soon
-                </span>
-              </div>
-            </div>
-            <div className="mt-6 text-center max-w-[320px]">
-              <h3 className="text-sm font-semibold text-foreground/80 mb-1.5">
-                App preview screens
-              </h3>
-              <p className="text-xs text-foreground/40 leading-relaxed">
-                This area will showcase your Point of Sale interface, menu browsing, and order management screens during onboarding.
-              </p>
-            </div>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, scale: 0.96, y: 8 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.96, y: -8 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="w-full flex justify-center"
+              >
+                {(() => {
+                  const Preview = previews[index] ?? previews[0];
+                  return <Preview />;
+                })()}
+              </motion.div>
+            </AnimatePresence>
           </div>
           {/* Right: content */}
           <div className="relative flex flex-col h-full" style={{ width: "50%", padding: "24px" }}>

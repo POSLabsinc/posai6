@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence, PanInfo } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import { Image } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
 type Slide = {

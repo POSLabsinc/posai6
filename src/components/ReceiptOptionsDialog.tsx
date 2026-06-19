@@ -6,7 +6,7 @@ import { useState } from "react";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 import { CountryCodeSelector, countryCodes, type CountryCode } from "./CountryCodeSelector";
 import { useIsLandscape } from "@/hooks/use-landscape";
-import eatosLogo from "@/assets/icons/posai-logo.png";
+import { useThemeLogo } from "@/components/ThemeLogo";
 
 interface ReceiptOptionsDialogProps {
   open: boolean;
@@ -27,6 +27,7 @@ const ReceiptOptionsDialog = ({
   onEmail,
   onNoReceipt,
 }: ReceiptOptionsDialogProps) => {
+  const themeLogo = useThemeLogo();
   const isLandscape = useIsLandscape();
   const [noMarketing, setNoMarketing] = useState(false);
   const [currentView, setCurrentView] = useState<ReceiptView>("main");
@@ -199,7 +200,7 @@ const ReceiptOptionsDialog = ({
             {/* Powered by eatOS */}
             <div className="flex items-center justify-center gap-2 mt-6">
               <span className="text-neutral-500 text-sm">Powered by</span>
-              <img src={eatosLogo} alt="POS AI" className="h-5" />
+              <img src={themeLogo} alt="POS AI" className="h-7" />
             </div>
           </div>
         </div>
@@ -263,7 +264,7 @@ const ReceiptOptionsDialog = ({
           {/* Powered by eatOS */}
           <div className="flex items-center justify-center gap-2 mb-4 shrink-0">
             <span className="text-neutral-500 text-sm">Powered by</span>
-            <img src={eatosLogo} alt="POS AI" className="h-5" />
+            <img src={themeLogo} alt="POS AI" className="h-7" />
           </div>
 
           {/* Send Button */}
@@ -358,7 +359,7 @@ const ReceiptOptionsDialog = ({
           {/* Powered by eatOS */}
           <div className="flex items-center justify-center gap-2 mb-6 shrink-0">
             <span className="text-neutral-500 text-sm">Powered by</span>
-            <img src={eatosLogo} alt="POS AI" className="h-5" />
+            <img src={themeLogo} alt="POS AI" className="h-7" />
           </div>
 
           {/* Send Button */}

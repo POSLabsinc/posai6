@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { MapPin, User, ShieldCheck, Lock, CheckCircle2, Send, Clock } from "lucide-react";
-import eatosLogo from "@/assets/icons/posai-logo.png";
+import { useThemeLogo } from "@/components/ThemeLogo";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useState, useEffect } from "react";
 
@@ -34,6 +34,7 @@ const getTimeOfDayInfo = (date: Date) => {
 };
 
 export const PersonalDeviceAuthPanel = ({ currentScreen, invitedUser }: PersonalDeviceAuthPanelProps) => {
+  const themeLogo = useThemeLogo();
   const [currentTime, setCurrentTime] = useState(new Date());
   
   useEffect(() => {
@@ -173,9 +174,9 @@ export const PersonalDeviceAuthPanel = ({ currentScreen, invitedUser }: Personal
       <div className="flex-1 flex flex-col justify-center px-10 lg:px-14 py-10">
         {/* Logo */}
         <motion.img
-          src={eatosLogo}
+          src={themeLogo}
           alt="POS AI"
-          className="w-24 h-auto mb-12"
+          className="w-32 h-auto mb-12"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.2 }}

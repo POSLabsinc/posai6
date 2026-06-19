@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import eatosLogo from "@/assets/icons/posai-logo.png";
+import { useThemeLogo } from "@/components/ThemeLogo";
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -16,6 +16,7 @@ export function SplashScreen({ onComplete, duration = 2000, variant = "default" 
   const themeColor = localStorage.getItem('themeColor') || '';
   const splashBgColor = localStorage.getItem('splashBgColor') || themeColor || '#131316';
   const partnerLogoUrl = localStorage.getItem('partnerLogoUrl') || '';
+  const themeLogo = useThemeLogo();
 
   useEffect(() => {
     const fadeTimer = setTimeout(() => {
@@ -49,9 +50,9 @@ export function SplashScreen({ onComplete, duration = 2000, variant = "default" 
     >
       <div className="flex flex-col items-center justify-center" style={{ animation: "fadeIn 0.5s ease-in" }}>
         <img
-          src={partnerLogoUrl || eatosLogo}
+          src={partnerLogoUrl || themeLogo}
           alt="POS AI Logo"
-          className="w-32 h-auto md:w-44 lg:w-52"
+          className="w-40 h-auto md:w-52 lg:w-64"
         />
       </div>
     </div>

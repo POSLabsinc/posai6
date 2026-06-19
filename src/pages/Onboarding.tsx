@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Globe, Smartphone } from "lucide-react";
 import { useState } from "react";
-import eatosLogo from "@/assets/icons/posai-logo.png";
+import { useThemeLogo } from "@/components/ThemeLogo";
 import { SplashScreen } from "@/components/SplashScreen";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
@@ -10,6 +10,7 @@ const Onboarding = () => {
   const navigate = useNavigate();
   const [showSplash, setShowSplash] = useState(false);
   const isLandscape = useIsLandscape();
+  const themeLogo = useThemeLogo();
 
   if (showSplash) {
     return (
@@ -23,9 +24,9 @@ const Onboarding = () => {
 
   const logo = (
     <motion.img
-      src={eatosLogo}
+      src={themeLogo}
       alt="POS AI"
-      className="w-28 h-auto mb-6"
+      className="w-36 h-auto mb-6"
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}

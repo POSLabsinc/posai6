@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Monitor, Clock, ShieldCheck, CheckCircle2 } from "lucide-react";
-import eatosLogo from "@/assets/icons/posai-logo.png";
+import { useThemeLogo } from "@/components/ThemeLogo";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { ReactNode } from "react";
@@ -36,6 +36,7 @@ const getTimeOfDayInfo = (date: Date) => {
 };
 
 export function DeviceSetupLayout({ children, title, subtitle, variant = "setup", fullWidthRight = false, leftPanelContent }: DeviceSetupLayoutProps) {
+  const themeLogo = useThemeLogo();
   const isMobile = useIsMobile();
   const currentTime = new Date();
   const timeInfo = getTimeOfDayInfo(currentTime);
@@ -135,9 +136,9 @@ export function DeviceSetupLayout({ children, title, subtitle, variant = "setup"
         <div className="flex-1 flex flex-col justify-center px-10 lg:px-14 py-10">
           {/* Logo */}
           <motion.img
-            src={eatosLogo}
+            src={themeLogo}
             alt="POS AI"
-            className="w-24 h-auto mb-12"
+            className="w-32 h-auto mb-12"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}

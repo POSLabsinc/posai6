@@ -109,6 +109,9 @@ const OnboardingAppSigninForgotVerify = lazyWithImportRecovery(() => import("./p
 const OnboardingAppSigninForgotReset = lazyWithImportRecovery(() => import("./pages/OnboardingAppSigninForgotReset"));
 const OnboardingAppSigninForgotSuccess = lazyWithImportRecovery(() => import("./pages/OnboardingAppSigninForgotSuccess"));
 const OnboardingAppSigninSuccess = lazyWithImportRecovery(() => import("./pages/OnboardingAppSigninSuccess"));
+const OnboardingAppActivate = lazyWithImportRecovery(() => import("./pages/OnboardingAppActivate"));
+const OnboardingAppActivateValidating = lazyWithImportRecovery(() => import("./pages/OnboardingAppActivateValidating"));
+const OnboardingAppActivateSuccess = lazyWithImportRecovery(() => import("./pages/OnboardingAppActivateSuccess"));
 const OnboardingAppSignupVerify = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupVerify"));
 const OnboardingAppSignupRevenue = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupRevenue"));
 const OnboardingAppSignupMode = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupMode"));
@@ -241,6 +244,9 @@ const AppInner = () => {
           <Route path="/onboarding/app/signin/forgot/reset" element={<OnboardingAppSigninForgotReset />} />
           <Route path="/onboarding/app/signin/forgot/success" element={<OnboardingAppSigninForgotSuccess />} />
           <Route path="/onboarding/app/signin/success" element={<OnboardingAppSigninSuccess />} />
+          <Route path="/onboarding/app/activate" element={<OnboardingAppActivate />} />
+          <Route path="/onboarding/app/activate/validating" element={<OnboardingAppActivateValidating />} />
+          <Route path="/onboarding/app/activate/success" element={<OnboardingAppActivateSuccess />} />
           <Route path="/onboarding/app/signup/lookup" element={<OnboardingAppSignupLookup />} />
           <Route path="/onboarding/app/signup/account" element={<OnboardingAppSignupAccount />} />
           <Route path="/onboarding/app/signup/demo" element={<OnboardingAppSignupDemo />} />

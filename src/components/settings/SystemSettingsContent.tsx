@@ -104,7 +104,7 @@ const SystemSettingsContent = ({
           <SettingsOption icon={controlCenterIcon} iconBgColor="#3B82F6" label="Screen Mode" onClick={() => onNavigate?.('/settings/system/screen-mode')} showDivider={false} />
         </div>
         <p className="text-xs text-neutral-500 px-1 mb-4">
-          Control switching between POS, KDS, CFD, and Kiosk modes on this device.
+          Control switching between Point of Sale, KDS, CFD, and Kiosk modes on this device.
         </p>
 
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">

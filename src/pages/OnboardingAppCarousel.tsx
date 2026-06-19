@@ -27,15 +27,15 @@ const slides: Slide[] = [
   {
     eyebrow: "POSAI",
     headline: "The AI-first restaurant operating system",
-    body: "One platform for your kiosk, POS, and kitchen display.",
+    body: "One platform for your kiosk, Point of Sale, and kitchen display.",
   },
   {
-    eyebrow: "POSAI POS",
+    eyebrow: "POSAI Point of Sale",
     headline: "Meet your AI restaurant manager",
     body: "POSAI learns your menu, predicts demand, and helps your team serve faster.",
   },
   {
-    eyebrow: "POSAI POS",
+    eyebrow: "POSAI Point of Sale",
     headline: "Up and running in minutes",
     body: "Sign up, activate your device, and start taking orders today.",
   },

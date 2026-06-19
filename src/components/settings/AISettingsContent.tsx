@@ -1022,7 +1022,7 @@ const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsCon
           "- printReport (boolean) — print EOD report on close",
           "- includeEmployeeData (boolean) — include employee details on the report",
           "- printSummaryOnClockOut (boolean)",
-          "- selectedDevice (e.g. \"POS 1.2\")",
+          "- selectedDevice (e.g. \"Point of Sale 1.2\")",
           "- selectedEmployees (array of employee names — daily report recipients)",
         ].join("\n");
       }

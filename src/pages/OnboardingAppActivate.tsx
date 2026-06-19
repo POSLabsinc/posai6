@@ -200,7 +200,7 @@ const OnboardingAppActivate = () => {
   const helpLink = (
     <button
       type="button"
-      onClick={() => {}}
+      onClick={() => navigate("/onboarding/app/activate/help")}
       className="inline-flex items-center gap-1 text-xs font-semibold text-primary active:opacity-70 transition-opacity mx-auto"
     >
       {hasError ? "Generate a new code" : "Where do I find my code?"}

@@ -238,6 +238,8 @@ const AppInner = () => {
           <Route path="/login" element={<Login />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/onboarding/web" element={<OnboardingWeb />} />
+          <Route path="/onboarding/web/signin" element={<OnboardingWebSignin />} />
+          <Route path="/onboarding/web/signin/success" element={<OnboardingWebSigninSuccess />} />
           <Route path="/onboarding/app" element={<OnboardingApp />} />
           <Route path="/onboarding/app/carousel" element={<OnboardingAppCarousel />} />
           <Route path="/onboarding/app/signup-signin" element={<OnboardingAppSignupSignin />} />

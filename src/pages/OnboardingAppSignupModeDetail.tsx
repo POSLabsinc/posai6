@@ -12,6 +12,16 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import standardVideo from "@/assets/onboarding/mode-standard.mp4.asset.json";
+import quickserviceVideo from "@/assets/onboarding/mode-quickservice.mp4.asset.json";
+import fullserviceVideo from "@/assets/onboarding/mode-fullservice.mp4.asset.json";
+
+const MODE_VIDEO: Record<string, string> = {
+  standard: standardVideo.url,
+  quickservice: quickserviceVideo.url,
+  fullservice: fullserviceVideo.url,
+};
+
 
 type Feature = {
   icon: React.ReactNode;

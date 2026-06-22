@@ -93,7 +93,7 @@ const OnboardingAppSignupDemo = () => {
   const primaryCta = (
     <button
       onClick={goUpgrade}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
     >
       Add business email
     </button>
@@ -102,7 +102,7 @@ const OnboardingAppSignupDemo = () => {
   const secondaryCta = (
     <button
       onClick={goDashboard}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-foreground/[0.06] text-foreground border border-foreground/[0.10] active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold bg-foreground/[0.06] text-foreground border border-foreground/[0.10] active:opacity-80 transition-opacity"
     >
       Continue exploring demo
     </button>

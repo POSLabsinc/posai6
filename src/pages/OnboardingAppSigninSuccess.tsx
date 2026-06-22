@@ -130,7 +130,7 @@ const OnboardingAppSigninSuccess = () => {
   const ctaButton = (
     <button
       onClick={handleCta}
-      className={`w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold active:opacity-80 transition-opacity ${
+      className={`w-full min-h-[44px] py-3 rounded-full text-sm font-semibold active:opacity-80 transition-opacity ${
         state === 1
           ? "bg-primary text-primary-foreground"
           : "bg-emerald-500 text-white"

@@ -172,7 +172,7 @@ const OnboardingAppSigninForgotReset = () => {
     <button
       onClick={handleSubmit}
       disabled={!canSubmit}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity disabled:opacity-40 disabled:pointer-events-none"
+      className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity disabled:opacity-40 disabled:pointer-events-none"
     >
       {submitting ? "Please wait…" : "Reset password"}
     </button>

@@ -153,7 +153,7 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
   const useBtn = (
     <button
       onClick={handleUse}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
     >
       Use this mode
     </button>
@@ -216,13 +216,13 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
         <div className="mt-5 flex flex-col gap-2">
           <button
             onClick={() => navigate("/onboarding/app/signup/account", { state: incoming })}
-            className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
+            className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
           >
             Add business email
           </button>
           <button
             onClick={() => { setShowDemoPopup(false); proceedToTrial(); }}
-            className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold border border-foreground/15 text-foreground active:opacity-80 transition-opacity"
+            className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold border border-foreground/15 text-foreground active:opacity-80 transition-opacity"
           >
             Continue exploring demo
           </button>

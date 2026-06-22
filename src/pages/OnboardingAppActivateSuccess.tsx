@@ -72,7 +72,7 @@ const OnboardingAppActivateSuccess = () => {
   const ctaButton = (
     <button
       onClick={handleLaunch}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-emerald-500 text-white active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold bg-emerald-500 text-white active:opacity-80 transition-opacity"
     >
       Launch Point of Sale
     </button>

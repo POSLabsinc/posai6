@@ -667,6 +667,26 @@ const OnboardingAppAI = () => {
         </div>
       );
     }
+    if (step === "su-mode-learn") {
+      const mode = collected.mode || "";
+      const modeKey = mode === "Standard" ? "standard" : mode === "Quick Service" ? "quickservice" : "fullservice";
+      return (
+        <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">
+          <Chip
+            label={`Tell me about ${mode}`}
+            accent
+            onClick={() => setModeDetailOpen(modeKey)}
+          />
+          <Chip
+            label="Skip"
+            onClick={() => {
+              pushUser("Skip");
+              proceedToCreate(mode);
+            }}
+          />
+        </div>
+      );
+    }
     if (step === "si-error") {
       return (
         <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">

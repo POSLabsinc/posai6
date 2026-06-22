@@ -475,6 +475,7 @@ const OnboardingAppSignupAccount = () => {
             </div>
           </div>
         </div>
+        {countryPicker}
       </div>
     );
   }

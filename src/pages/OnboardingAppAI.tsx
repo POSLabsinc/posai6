@@ -715,7 +715,7 @@ const OnboardingAppAI = () => {
   const renderInputBar = () => {
     if (step === "initial" || isLoading) return null;
     if (step === "su-creating" || step === "si-submitting") return null;
-    if (["su-country", "su-type", "su-locations", "su-revenue", "su-mode", "si-error"].includes(step)) return null;
+    if (["su-country", "su-type", "su-locations", "su-revenue", "su-mode", "su-mode-learn", "si-error"].includes(step)) return null;
 
     if (step === "su-password" || step === "si-password") {
       return (

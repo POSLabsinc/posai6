@@ -464,8 +464,29 @@ const OnboardingAppAI = () => {
     pushUser(email);
     setCollected((c) => ({ ...c, email, isPersonal }));
     setInput("");
+    if (isPersonal) {
+      pushAssistant(
+        "Personal email detected. You can continue, but you'll start in **read-only demo mode**. Use a business email for full access."
+      );
+      setStep("su-email-personal");
+      return;
+    }
     pushAssistant("Got it. Please choose a password (8 characters minimum).");
     setStep("su-password");
+  };
+
+  const continueAfterPersonalEmail = () => {
+    pushUser("Continue with demo");
+    pushAssistant("Got it. Please choose a password (8 characters minimum).");
+    setStep("su-password");
+  };
+
+  const switchToBusinessEmail = () => {
+    pushUser("Use a business email");
+    setCollected((c) => ({ ...c, email: undefined, isPersonal: false }));
+    setInput("");
+    pushAssistant("No problem. What business email should we use?");
+    setStep("su-email");
   };
 
   const submitSignupPassword = () => {

@@ -740,15 +740,16 @@ const OnboardingAppAI = () => {
               >
                 <div className="flex-1 space-y-4">
                   {messages.map((msg, i) => {
+                    const isCountryMsg = msg.role === "user" && msg.step === "su-country";
                     const isEditable =
                       msg.role === "user" &&
-                      i === lastUserIdx &&
                       !isLoading &&
                       msg.step &&
                       msg.step !== "su-password" &&
                       msg.step !== "si-password" &&
                       msg.step !== "su-creating" &&
-                      msg.step !== "si-submitting";
+                      msg.step !== "si-submitting" &&
+                      (isCountryMsg || i === lastUserIdx);
                     return (
                     <motion.div
                       key={msg.id}

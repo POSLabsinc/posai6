@@ -421,7 +421,6 @@ const OnboardingAppSignupMode = () => {
           </div>
         </div>
       </div>
-      </div>
       </>
     );
   }

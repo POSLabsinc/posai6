@@ -157,8 +157,19 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
   );
 
   const illustration = (
-    <div className="w-full h-full rounded-2xl bg-foreground/[0.04] border border-foreground/[0.08]" />
+    <div className="w-full h-full rounded-2xl overflow-hidden bg-foreground/[0.04] border border-foreground/[0.08]">
+      <video
+        key={modeId}
+        src={MODE_VIDEO[modeId]}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="w-full h-full object-cover"
+      />
+    </div>
   );
+
 
   const featureList = (
     <div className="flex flex-col gap-2">

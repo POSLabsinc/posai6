@@ -540,9 +540,10 @@ const OnboardingAppAI = () => {
       );
     }
     if (step === "su-mode") {
+      const best = bestModeFor(collected.restaurantType);
       return (
         <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">
-          {MODE_OPTIONS.map((m, i) => <Chip key={m} label={m} accent={i === 0} onClick={() => pickMode(m)} />)}
+          {MODE_OPTIONS.map((m) => <Chip key={m} label={m} accent={m === best} onClick={() => pickMode(m)} />)}
         </div>
       );
     }

@@ -218,9 +218,10 @@ const OnboardingAppSignupMode = () => {
           </span>
         )}
         <Icon className={`w-5 h-5 ${isSel ? "text-primary" : "text-foreground/40"}`} />
-        <span className={`text-[11px] font-semibold leading-tight text-center ${isSel ? "text-foreground" : "text-foreground/50"}`}>
+        <span className={`text-[11px] font-semibold leading-tight text-center min-h-[1.9em] flex items-center justify-center ${isSel ? "text-foreground" : "text-foreground/50"}`}>
           {mode.title}
         </span>
+
       </button>
     );
   };

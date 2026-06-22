@@ -370,20 +370,24 @@ const OnboardingAppSignupManual = () => {
   );
 
   const secondaryBtn =
-    step === 2 ? (
-      <button
-        onClick={() => setStep(3)}
-        className="w-full min-h-[44px] py-3 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04] text-sm font-semibold text-foreground active:opacity-80 transition-opacity"
-      >
-        Skip contact details
-      </button>
-    ) : step === 3 ? (
+    step === 3 ? (
       <button
         onClick={() => setStep(1)}
         className="inline-flex items-center justify-center gap-1.5 w-full py-2 text-sm text-primary hover:underline underline-offset-2"
       >
         <Pencil className="w-3.5 h-3.5" />
         Edit details
+      </button>
+    ) : null;
+
+  const skipBtn =
+    step === 2 ? (
+      <button
+        type="button"
+        onClick={() => setStep(3)}
+        className="text-sm font-semibold text-primary active:opacity-70 transition-opacity px-2 py-1"
+      >
+        Skip
       </button>
     ) : null;
 

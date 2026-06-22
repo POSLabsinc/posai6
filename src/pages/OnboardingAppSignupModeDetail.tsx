@@ -117,16 +117,27 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
   const incoming = (location.state as LocationState) ?? {};
   const content = CONTENT[modeId];
 
+  const isDemo = Boolean((incoming as { demo?: boolean }).demo);
+  const [showDemoPopup, setShowDemoPopup] = useState(false);
+
   const handleBack = () => {
     navigate("/onboarding/app/signup/mode", {
       state: { ...incoming, selectedMode: modeId },
     });
   };
 
-  const handleUse = () => {
+  const proceedToTrial = () => {
     navigate("/onboarding/app/signup/trial", {
       state: { ...incoming, mode: modeId },
     });
+  };
+
+  const handleUse = () => {
+    if (isDemo) {
+      setShowDemoPopup(true);
+      return;
+    }
+    proceedToTrial();
   };
 
   const backBtn = (

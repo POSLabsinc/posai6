@@ -245,6 +245,7 @@ const OnboardingAppAI = () => {
   const [error, setError] = useState<string | null>(null);
   const [countryPickerOpen, setCountryPickerOpen] = useState(false);
   const [comparePlansOpen, setComparePlansOpen] = useState(false);
+  const [modeDetailOpen, setModeDetailOpen] = useState<string | null>(null);
   const [planQuestion, setPlanQuestion] = useState("");
   const [openPlanSections, setOpenPlanSections] = useState<Record<string, boolean>>({});
 

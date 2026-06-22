@@ -49,6 +49,12 @@ const PERSONAL_DOMAINS = new Set([
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const GATEWAY_URL = "https://connector-gateway.lovable.dev/google_maps";
 
+const DUMMY_RESTAURANTS: PlaceResult[] = [
+  { place_id: "dummy-1", name: "The Rustic Table", address: "123 Main Street, Downtown, NY 10001", business_type: "Restaurant", distance_km: null, lat: 40.7128, lng: -74.006 },
+  { place_id: "dummy-2", name: "Bella Vista Bistro", address: "456 Park Avenue, Midtown, NY 10022", business_type: "Bistro", distance_km: null, lat: 40.7614, lng: -73.9776 },
+  { place_id: "dummy-3", name: "Harbor Grill & Bar", address: "789 Waterfront Drive, Brooklyn, NY 11201", business_type: "Bar", distance_km: null, lat: 40.6892, lng: -74.0445 },
+];
+
 const COUNTRIES = [
   "United States", "United Kingdom", "Canada", "Australia", "India",
   "Germany", "France", "Spain", "Italy", "Netherlands",
@@ -86,12 +92,22 @@ const OnboardingAppAI = () => {
 
   const [placeResults, setPlaceResults] = useState<PlaceResult[]>([]);
   const [placeLoading, setPlaceLoading] = useState(false);
+  const [loc, setLoc] = useState<{ lat: number; lng: number } | null>(null);
   const debounceRef = useRef<number | null>(null);
   const sessionTokenRef = useRef<string>(
     typeof crypto !== "undefined" && "randomUUID" in crypto
       ? crypto.randomUUID()
       : `${Date.now()}-${Math.random()}`,
   );
+
+  useEffect(() => {
+    if (!("geolocation" in navigator)) return;
+    navigator.geolocation.getCurrentPosition(
+      (p) => setLoc({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      () => {},
+      { enableHighAccuracy: false, timeout: 4000 },
+    );
+  }, []);
 
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -159,8 +175,25 @@ const OnboardingAppAI = () => {
       return;
     }
     setPlaceLoading(true);
+    const q = input.trim().toLowerCase();
+    const dummyFallback = DUMMY_RESTAURANTS.filter(
+      (r) =>
+        r.name.toLowerCase().includes(q) ||
+        r.address.toLowerCase().includes(q) ||
+        r.business_type.toLowerCase().includes(q),
+    );
     debounceRef.current = window.setTimeout(async () => {
       try {
+        const body: Record<string, unknown> = {
+          textQuery: input,
+          maxResultCount: 3,
+          includedType: "restaurant",
+        };
+        if (loc) {
+          body.locationBias = {
+            circle: { center: { latitude: loc.lat, longitude: loc.lng }, radius: 20000 },
+          };
+        }
         const res = await fetch(`${GATEWAY_URL}/places/v1/places:searchText`, {
           method: "POST",
           headers: {
@@ -169,7 +202,7 @@ const OnboardingAppAI = () => {
               "places.id,places.displayName,places.formattedAddress,places.location,places.types,places.primaryType",
             "X-Session-Token": sessionTokenRef.current,
           },
-          body: JSON.stringify({ textQuery: input, maxResultCount: 3, includedType: "restaurant" }),
+          body: JSON.stringify(body),
         });
         if (!res.ok) throw new Error("places failed");
         const data = await res.json();
@@ -182,14 +215,14 @@ const OnboardingAppAI = () => {
           lat: p.location?.latitude,
           lng: p.location?.longitude,
         }));
-        setPlaceResults(places);
+        setPlaceResults(places.length ? places : (dummyFallback.length ? dummyFallback : DUMMY_RESTAURANTS));
       } catch {
-        setPlaceResults([]);
+        setPlaceResults(dummyFallback.length ? dummyFallback : DUMMY_RESTAURANTS);
       } finally {
         setPlaceLoading(false);
       }
     }, 300);
-  }, [input, step]);
+  }, [input, step, loc]);
 
   const pickPlace = (p: PlaceResult) => {
     pushUser(p.name);

@@ -517,6 +517,7 @@ const OnboardingAppSignupManual = () => {
           {secondaryBtn}
         </div>
       </div>
+      {countryPicker}
     </div>
   );
 };

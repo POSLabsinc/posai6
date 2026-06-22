@@ -275,14 +275,15 @@ const OnboardingAppActivate = () => {
         <div className="flex-1 overflow-y-auto mt-6 flex flex-col gap-4 pb-4">
           {codeInput}
           {infoBanner}
+          <div className="flex justify-center">{helpLink}</div>
         </div>
         <div
           className="pt-2 pb-4 flex flex-col gap-3"
           style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
         >
           {ctaButton}
-          <div className="flex justify-center">{helpLink}</div>
         </div>
+
       </div>
     </div>
   );

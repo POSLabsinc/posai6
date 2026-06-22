@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft, MapPin, Eye, EyeOff, ChevronDown, AlertTriangle } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
 type PlaceResult = {
@@ -53,6 +54,23 @@ const COUNTRIES = [
   "Brazil",
 ];
 
+const COUNTRY_FLAGS: Record<string, string> = {
+  "United States": "\ud83c\uddfa\ud83c\uddf8",
+  "United Kingdom": "\ud83c\uddec\ud83c\udde7",
+  Canada: "\ud83c\udde8\ud83c\udde6",
+  Australia: "\ud83c\udde6\ud83c\uddfa",
+  India: "\ud83c\uddee\ud83c\uddf3",
+  Germany: "\ud83c\udde9\ud83c\uddea",
+  France: "\ud83c\uddeb\ud83c\uddf7",
+  Spain: "\ud83c\uddea\ud83c\uddf8",
+  Italy: "\ud83c\uddee\ud83c\uddf9",
+  Netherlands: "\ud83c\uddf3\ud83c\uddf1",
+  "United Arab Emirates": "\ud83c\udde6\ud83c\uddea",
+  Singapore: "\ud83c\uddf8\ud83c\uddec",
+  Japan: "\ud83c\uddef\ud83c\uddf5",
+  Mexico: "\ud83c\uddf2\ud83c\uddfd",
+  Brazil: "\ud83c\udde7\ud83c\uddf7",
+};
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const parseLocation = (address: string): { city: string; country: string } => {
@@ -96,6 +114,7 @@ const OnboardingAppSignupAccount = () => {
 
   const [selectedCountry, setSelectedCountry] = useState(derivedCountry || "United States");
   const [submitting, setSubmitting] = useState(false);
+  const [countryPickerOpen, setCountryPickerOpen] = useState(false);
 
   useEffect(() => {
     if (derivedCountry) setSelectedCountry(derivedCountry);
@@ -296,28 +315,82 @@ const OnboardingAppSignupAccount = () => {
 
   const countryField = (
     <div className="flex flex-col gap-1.5">
-      <label
-        htmlFor="signup-country"
-        className="text-[11px] font-semibold tracking-[0.14em] uppercase text-foreground/60"
-      >
+      <label className="text-[11px] font-semibold tracking-[0.14em] uppercase text-foreground/60">
         Country
       </label>
-      <div className="relative flex items-center rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04] focus-within:border-primary transition-colors">
-        <select
-          id="signup-country"
-          value={selectedCountry}
-          onChange={(e) => setSelectedCountry(e.target.value)}
-          className="w-full appearance-none bg-transparent outline-none text-sm text-foreground pl-4 pr-10 py-3 min-h-[44px]"
-        >
-          {COUNTRIES.map((c) => (
-            <option key={c} value={c} className="bg-neutral-900 text-foreground">
-              {c}
-            </option>
-          ))}
-        </select>
-        <ChevronDown className="absolute right-4 w-4 h-4 text-foreground/50 pointer-events-none" />
-      </div>
+      <button
+        type="button"
+        onClick={() => setCountryPickerOpen(true)}
+        className="w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-2xl px-4 py-3 text-sm text-foreground outline-none focus:border-primary transition-colors min-h-[44px] flex items-center justify-between text-left"
+      >
+        <span className="flex items-center gap-2">
+          <span className="text-base">{COUNTRY_FLAGS[selectedCountry] || "\ud83c\udf10"}</span>
+          <span>{selectedCountry || "Select country"}</span>
+        </span>
+        <span className="text-[11px] text-primary font-semibold uppercase tracking-wider">
+          Change
+        </span>
+      </button>
     </div>
+  );
+
+  const countryPicker = (
+    <AnimatePresence>
+      {countryPickerOpen && (
+        <motion.div
+          className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+        >
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setCountryPickerOpen(false)}
+          />
+          <motion.div
+            initial={{ y: 24, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 24, opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            className="relative w-full sm:w-[420px] max-h-[70vh] bg-background border border-foreground/[0.08] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
+          >
+            <div className="px-5 pt-4 pb-3 border-b border-foreground/[0.06] flex items-center justify-between">
+              <span className="text-sm font-semibold">Select country</span>
+              <button
+                type="button"
+                onClick={() => setCountryPickerOpen(false)}
+                className="text-xs text-foreground/60 hover:text-foreground"
+              >
+                Close
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto py-2">
+              {COUNTRIES.map((c) => {
+                const selected = c === selectedCountry;
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => {
+                      setSelectedCountry(c);
+                      setCountryPickerOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-5 py-3 text-left text-sm transition-colors ${
+                      selected ? "bg-primary/10 text-primary" : "hover:bg-foreground/[0.04]"
+                    }`}
+                  >
+                    <span className="text-base">{COUNTRY_FLAGS[c] || "\ud83c\udf10"}</span>
+                    <span className="flex-1">{c}</span>
+                    {selected && <span className="text-xs">Selected</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 
   const ctaLabel = isPersonal ? "Continue in demo mode" : "Create account";
@@ -402,6 +475,7 @@ const OnboardingAppSignupAccount = () => {
             </div>
           </div>
         </div>
+        {countryPicker}
       </div>
     );
   }
@@ -428,6 +502,7 @@ const OnboardingAppSignupAccount = () => {
           {footerText}
         </div>
       </div>
+      {countryPicker}
     </div>
   );
 };

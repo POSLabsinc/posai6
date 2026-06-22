@@ -131,11 +131,12 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
   const useBtn = (
     <button
       onClick={handleUse}
-      className="h-10 px-4 rounded-full text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
     >
       Use this mode
     </button>
   );
+
 
   const title = (
     <h1 className="text-2xl font-bold text-foreground mt-2">{content.title}</h1>

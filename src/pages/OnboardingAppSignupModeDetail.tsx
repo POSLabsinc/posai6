@@ -131,11 +131,12 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
   const useBtn = (
     <button
       onClick={handleUse}
-      className="h-10 px-4 rounded-full text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
     >
       Use this mode
     </button>
   );
+
 
   const title = (
     <h1 className="text-2xl font-bold text-foreground mt-2">{content.title}</h1>
@@ -192,10 +193,7 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
             className="flex flex-col px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
-            <div className="flex items-center justify-between">
-              {backBtn}
-              {useBtn}
-            </div>
+            <div>{backBtn}</div>
             <div className="mt-4">
               {title}
               {subtitle}
@@ -204,7 +202,9 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
               {illustration}
             </div>
             <div className="flex-1 overflow-y-auto mt-4 pb-4">{featureList}</div>
+            <div className="pt-2">{useBtn}</div>
           </div>
+
         </div>
       </div>
     );
@@ -220,10 +220,7 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
           paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
         }}
       >
-        <div className="flex items-center justify-between mb-5">
-          {backBtn}
-          {useBtn}
-        </div>
+        <div className="mb-5">{backBtn}</div>
         <div>
           {title}
           {subtitle}
@@ -232,6 +229,8 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
           {illustration}
         </div>
         <div className="flex-1 overflow-y-auto mt-5">{featureList}</div>
+        <div className="pt-3">{useBtn}</div>
+
       </div>
     </div>
   );

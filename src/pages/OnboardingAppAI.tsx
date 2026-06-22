@@ -25,6 +25,7 @@ type Step =
   | "su-locations"
   | "su-revenue"
   | "su-mode"
+  | "su-mode-learn"
   | "su-creating"
   | "si-email"
   | "si-password"
@@ -244,6 +245,7 @@ const OnboardingAppAI = () => {
   const [error, setError] = useState<string | null>(null);
   const [countryPickerOpen, setCountryPickerOpen] = useState(false);
   const [comparePlansOpen, setComparePlansOpen] = useState(false);
+  const [modeDetailOpen, setModeDetailOpen] = useState<string | null>(null);
   const [planQuestion, setPlanQuestion] = useState("");
   const [openPlanSections, setOpenPlanSections] = useState<Record<string, boolean>>({});
 
@@ -530,14 +532,14 @@ const OnboardingAppAI = () => {
     pushUser(mode);
     const next = { ...collected, mode };
     setCollected(next);
-    const MODE_BLURB: Record<string, string> = {
-      "Standard": "Simple register for quick orders, card or cash, and end of day. Best for small shops and pop-ups.",
-      "Quick Service": "Adds hold and fire, split payments, tips, KDS routing, guest profiles, inventory, and shift summaries. Best for cafes, food trucks, bakeries, and counter service.",
-      "Full Service": "Everything in Quick Service plus floor plans, open checks, coursing, reservations, transfers, split checks, and audit logs. Best for full service restaurants, fine dining, and bars.",
-    };
-    pushAssistant(`Great pick. **${mode}** ${MODE_BLURB[mode] || ""}`);
-    setStep("su-creating");
+    pushAssistant(`Great pick. Want a quick overview of **${mode}** mode before we set things up?`);
+    setStep("su-mode-learn");
+  };
+
+  const proceedToCreate = (mode: string) => {
+    const next = { ...collected, mode };
     pushAssistant("Creating your Point of Sale Ai account...");
+    setStep("su-creating");
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);
@@ -665,6 +667,26 @@ const OnboardingAppAI = () => {
         </div>
       );
     }
+    if (step === "su-mode-learn") {
+      const mode = collected.mode || "";
+      const modeKey = mode === "Standard" ? "standard" : mode === "Quick Service" ? "quickservice" : "fullservice";
+      return (
+        <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">
+          <Chip
+            label={`Tell me about ${mode}`}
+            accent
+            onClick={() => setModeDetailOpen(modeKey)}
+          />
+          <Chip
+            label="Skip"
+            onClick={() => {
+              pushUser("Skip");
+              proceedToCreate(mode);
+            }}
+          />
+        </div>
+      );
+    }
     if (step === "si-error") {
       return (
         <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">
@@ -693,7 +715,7 @@ const OnboardingAppAI = () => {
   const renderInputBar = () => {
     if (step === "initial" || isLoading) return null;
     if (step === "su-creating" || step === "si-submitting") return null;
-    if (["su-country", "su-type", "su-locations", "su-revenue", "su-mode", "si-error"].includes(step)) return null;
+    if (["su-country", "su-type", "su-locations", "su-revenue", "su-mode", "su-mode-learn", "si-error"].includes(step)) return null;
 
     if (step === "su-password" || step === "si-password") {
       return (
@@ -1189,6 +1211,100 @@ const OnboardingAppAI = () => {
                       <Send className="w-4 h-4" />
                     </button>
                   </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {modeDetailOpen && (() => {
+          const MODE_DETAIL: Record<string, { title: string; subtitle: string; features: { title: string; description: string }[] }> = {
+            standard: {
+              title: "Standard mode",
+              subtitle: "Take payments quickly with a flexible setup.",
+              features: [
+                { title: "Fast payments", description: "Accept cash, card, and digital payments instantly." },
+                { title: "Simple checkout", description: "Customisable layout to match how you work." },
+                { title: "Sales reports", description: "Real-time sales and transaction history." },
+              ],
+            },
+            quickservice: {
+              title: "Quick Service mode",
+              subtitle: "Speed up ordering with smart menus and kitchen routing.",
+              features: [
+                { title: "Multi-channel menus", description: "Dine-in, takeaway, and delivery from one screen." },
+                { title: "Kitchen routing", description: "Orders sent to kitchen display in real time." },
+                { title: "Fast checkout", description: "Split payments, discounts, and tips in seconds." },
+              ],
+            },
+            fullservice: {
+              title: "Full Service mode",
+              subtitle: "Optimise restaurant service with open checks, coursing, and floor plans.",
+              features: [
+                { title: "Table management", description: "Seat guests, manage covers, and track wait times." },
+                { title: "Course management", description: "Organise checks and kitchen tickets by course." },
+                { title: "Floor plan", description: "Drag-and-drop layout with colour-coded table status." },
+              ],
+            },
+          };
+          const detail = MODE_DETAIL[modeDetailOpen];
+          if (!detail) return null;
+          const continueAndCreate = () => {
+            const mode = collected.mode || "";
+            setModeDetailOpen(null);
+            proceedToCreate(mode);
+          };
+          return (
+            <motion.div
+              className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+            >
+              <div
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                onClick={() => setModeDetailOpen(null)}
+              />
+              <motion.div
+                className="relative w-full sm:max-w-md bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[85vh] flex flex-col"
+                initial={{ y: 40, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 40, opacity: 0 }}
+                transition={{ duration: 0.22 }}
+              >
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+                  <h2 className="text-base font-semibold">{detail.title}</h2>
+                  <button
+                    type="button"
+                    onClick={() => setModeDetailOpen(null)}
+                    aria-label="Close"
+                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted active:opacity-70 transition-opacity"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                  <p className="text-sm text-foreground/70">{detail.subtitle}</p>
+                  <div className="space-y-3">
+                    {detail.features.map((f) => (
+                      <div key={f.title} className="rounded-xl border border-border bg-muted/30 px-4 py-3">
+                        <div className="text-sm font-semibold">{f.title}</div>
+                        <p className="text-xs text-foreground/60 mt-0.5">{f.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="px-5 py-4 border-t border-border">
+                  <button
+                    type="button"
+                    onClick={continueAndCreate}
+                    className="w-full h-11 rounded-full bg-primary text-primary-foreground text-sm font-semibold active:opacity-80 transition-opacity"
+                  >
+                    Continue
+                  </button>
                 </div>
               </motion.div>
             </motion.div>

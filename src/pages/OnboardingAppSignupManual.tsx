@@ -485,7 +485,7 @@ const OnboardingAppSignupManual = () => {
             />
           </div>
           <div className="flex flex-col px-6 py-6 flex-1 min-h-0" style={{ width: "55%" }}>
-            <div>{backBtn}</div>
+            <div className="flex items-center justify-between">{backBtn}{skipBtn}</div>
             <div className="mt-4">{stepLabel}</div>
             {title}
             {subtitle}

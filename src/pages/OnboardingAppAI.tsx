@@ -1229,37 +1229,38 @@ const OnboardingAppAI = () => {
 
       <AnimatePresence>
         {modeDetailOpen && (() => {
-          const MODE_DETAIL: Record<string, { title: string; subtitle: string; features: { title: string; description: string }[] }> = {
+          const MODE_DETAIL: Record<string, { title: string; subtitle: string; features: { icon: React.ReactNode; title: string; description: string }[] }> = {
             standard: {
               title: "Standard mode",
               subtitle: "Take payments quickly with a flexible setup.",
               features: [
-                { title: "Fast payments", description: "Accept cash, card, and digital payments instantly." },
-                { title: "Simple checkout", description: "Customisable layout to match how you work." },
-                { title: "Sales reports", description: "Real-time sales and transaction history." },
+                { icon: <CreditCard className="w-5 h-5" />, title: "Fast payments", description: "Accept cash, card, and digital payments instantly." },
+                { icon: <Receipt className="w-5 h-5" />, title: "Simple checkout", description: "Customisable layout to match how you work." },
+                { icon: <BarChart3 className="w-5 h-5" />, title: "Sales reports", description: "Real-time sales and transaction history." },
               ],
             },
             quickservice: {
               title: "Quick Service mode",
               subtitle: "Speed up ordering with smart menus and kitchen routing.",
               features: [
-                { title: "Multi-channel menus", description: "Dine-in, takeaway, and delivery from one screen." },
-                { title: "Kitchen routing", description: "Orders sent to kitchen display in real time." },
-                { title: "Fast checkout", description: "Split payments, discounts, and tips in seconds." },
+                { icon: <MenuIcon className="w-5 h-5" />, title: "Multi-channel menus", description: "Dine-in, takeaway, and delivery from one screen." },
+                { icon: <ChefHat className="w-5 h-5" />, title: "Kitchen routing", description: "Orders sent to kitchen display in real time." },
+                { icon: <Receipt className="w-5 h-5" />, title: "Fast checkout", description: "Split payments, discounts, and tips in seconds." },
               ],
             },
             fullservice: {
               title: "Full Service mode",
               subtitle: "Optimise restaurant service with open checks, coursing, and floor plans.",
               features: [
-                { title: "Table management", description: "Seat guests, manage covers, and track wait times." },
-                { title: "Course management", description: "Organise checks and kitchen tickets by course." },
-                { title: "Floor plan", description: "Drag-and-drop layout with colour-coded table status." },
+                { icon: <Utensils className="w-5 h-5" />, title: "Table management", description: "Seat guests, manage covers, and track wait times." },
+                { icon: <ListOrdered className="w-5 h-5" />, title: "Course management", description: "Organise checks and kitchen tickets by course." },
+                { icon: <LayoutGrid className="w-5 h-5" />, title: "Floor plan", description: "Drag-and-drop layout with colour-coded table status." },
               ],
             },
           };
           const detail = MODE_DETAIL[modeDetailOpen];
           if (!detail) return null;
+          const videoSrc = MODE_VIDEO[modeDetailOpen];
           const continueAndCreate = () => {
             const mode = collected.mode || "";
             setModeDetailOpen(null);
@@ -1278,30 +1279,53 @@ const OnboardingAppAI = () => {
                 onClick={() => setModeDetailOpen(null)}
               />
               <motion.div
-                className="relative w-full sm:max-w-md bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[85vh] flex flex-col"
+                className="relative w-full sm:max-w-md bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[90vh] flex flex-col"
                 initial={{ y: 40, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 exit={{ y: 40, opacity: 0 }}
                 transition={{ duration: 0.22 }}
               >
                 <div className="flex items-center justify-between px-5 py-4 border-b border-border">
-                  <h2 className="text-base font-semibold">{detail.title}</h2>
+                  <div className="min-w-0">
+                    <h2 className="text-base font-semibold truncate">{detail.title}</h2>
+                    <p className="text-xs text-foreground/60 mt-0.5 truncate">{detail.subtitle}</p>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setModeDetailOpen(null)}
                     aria-label="Close"
-                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted active:opacity-70 transition-opacity"
+                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted active:opacity-70 transition-opacity flex-shrink-0 ml-3"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
                 <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
-                  <p className="text-sm text-foreground/70">{detail.subtitle}</p>
-                  <div className="space-y-3">
+                  {videoSrc && (
+                    <div className="w-full rounded-2xl overflow-hidden bg-foreground/[0.04] border border-foreground/[0.08]" style={{ aspectRatio: "16 / 10" }}>
+                      <video
+                        key={modeDetailOpen}
+                        src={videoSrc}
+                        autoPlay
+                        loop
+                        muted
+                        playsInline
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  <div className="flex flex-col gap-2">
                     {detail.features.map((f) => (
-                      <div key={f.title} className="rounded-xl border border-border bg-muted/30 px-4 py-3">
-                        <div className="text-sm font-semibold">{f.title}</div>
-                        <p className="text-xs text-foreground/60 mt-0.5">{f.description}</p>
+                      <div
+                        key={f.title}
+                        className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04]"
+                      >
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 bg-primary/15 text-primary">
+                          {f.icon}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground">{f.title}</p>
+                          <p className="text-xs text-foreground/60 mt-0.5">{f.description}</p>
+                        </div>
                       </div>
                     ))}
                   </div>
@@ -1312,7 +1336,7 @@ const OnboardingAppAI = () => {
                     onClick={continueAndCreate}
                     className="w-full h-11 rounded-full bg-primary text-primary-foreground text-sm font-semibold active:opacity-80 transition-opacity"
                   >
-                    Continue
+                    Use this mode
                   </button>
                 </div>
               </motion.div>

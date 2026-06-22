@@ -370,20 +370,24 @@ const OnboardingAppSignupManual = () => {
   );
 
   const secondaryBtn =
-    step === 2 ? (
-      <button
-        onClick={() => setStep(3)}
-        className="w-full min-h-[44px] py-3 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04] text-sm font-semibold text-foreground active:opacity-80 transition-opacity"
-      >
-        Skip contact details
-      </button>
-    ) : step === 3 ? (
+    step === 3 ? (
       <button
         onClick={() => setStep(1)}
         className="inline-flex items-center justify-center gap-1.5 w-full py-2 text-sm text-primary hover:underline underline-offset-2"
       >
         <Pencil className="w-3.5 h-3.5" />
         Edit details
+      </button>
+    ) : null;
+
+  const skipBtn =
+    step === 2 ? (
+      <button
+        type="button"
+        onClick={() => setStep(3)}
+        className="text-sm font-semibold text-primary active:opacity-70 transition-opacity px-2 py-1"
+      >
+        Skip
       </button>
     ) : null;
 
@@ -481,7 +485,7 @@ const OnboardingAppSignupManual = () => {
             />
           </div>
           <div className="flex flex-col px-6 py-6 flex-1 min-h-0" style={{ width: "55%" }}>
-            <div>{backBtn}</div>
+            <div className="flex items-center justify-between">{backBtn}{skipBtn}</div>
             <div className="mt-4">{stepLabel}</div>
             {title}
             {subtitle}
@@ -504,7 +508,7 @@ const OnboardingAppSignupManual = () => {
     <div className="fixed inset-0 login-bg flex flex-col overflow-hidden">
       <div className="absolute inset-0 gradient-mesh opacity-30 pointer-events-none" />
       <div className="relative z-10 flex flex-col h-full w-full max-w-md mx-auto px-6 pt-6">
-        <div className="mb-4">{backBtn}</div>
+        <div className="mb-4 flex items-center justify-between">{backBtn}{skipBtn}</div>
         {stepLabel}
         {title}
         {subtitle}

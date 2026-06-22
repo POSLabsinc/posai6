@@ -62,6 +62,42 @@ const COUNTRIES = [
   "United Arab Emirates", "Singapore", "Japan", "Mexico", "Brazil",
 ];
 
+const COUNTRY_FLAGS: Record<string, string> = {
+  "United States": "\ud83c\uddfa\ud83c\uddf8",
+  "United Kingdom": "\ud83c\uddec\ud83c\udde7",
+  Canada: "\ud83c\udde8\ud83c\udde6",
+  Australia: "\ud83c\udde6\ud83c\uddfa",
+  India: "\ud83c\uddee\ud83c\uddf3",
+  Germany: "\ud83c\udde9\ud83c\uddea",
+  France: "\ud83c\uddeb\ud83c\uddf7",
+  Spain: "\ud83c\uddea\ud83c\uddf8",
+  Italy: "\ud83c\uddee\ud83c\uddf9",
+  Netherlands: "\ud83c\uddf3\ud83c\uddf1",
+  "United Arab Emirates": "\ud83c\udde6\ud83c\uddea",
+  Singapore: "\ud83c\uddf8\ud83c\uddec",
+  Japan: "\ud83c\uddef\ud83c\uddf5",
+  Mexico: "\ud83c\uddf2\ud83c\uddfd",
+  Brazil: "\ud83c\udde7\ud83c\uddf7",
+};
+
+const REGION_TO_COUNTRY: Record<string, string> = {
+  US: "United States", GB: "United Kingdom", CA: "Canada", AU: "Australia",
+  IN: "India", DE: "Germany", FR: "France", ES: "Spain", IT: "Italy",
+  NL: "Netherlands", AE: "United Arab Emirates", SG: "Singapore", JP: "Japan",
+  MX: "Mexico", BR: "Brazil",
+};
+
+const detectCountry = (): string => {
+  try {
+    const locales = [...(navigator.languages || []), navigator.language].filter(Boolean) as string[];
+    for (const loc of locales) {
+      const region = loc.split("-")[1]?.toUpperCase();
+      if (region && REGION_TO_COUNTRY[region]) return REGION_TO_COUNTRY[region];
+    }
+  } catch { /* ignore */ }
+  return "United States";
+};
+
 const RESTAURANT_TYPES = ["Restaurant", "Cafe", "Bar", "Bakery", "Food Truck", "Quick Service", "Fine Dining"];
 const LOCATION_OPTIONS = ["1", "2-5", "6-10", "11+"];
 const REVENUE_OPTIONS = ["< $250K", "$250K - $1M", "$1M - $5M", "$5M+"];
@@ -90,6 +126,7 @@ const OnboardingAppAI = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [countryPickerOpen, setCountryPickerOpen] = useState(false);
 
   const [placeResults, setPlaceResults] = useState<PlaceResult[]>([]);
   const [placeLoading, setPlaceLoading] = useState(false);
@@ -143,6 +180,10 @@ const OnboardingAppAI = () => {
   const handleEditLast = (msg: Message) => {
     if (!msg.step) return;
     if (msg.step === "su-password" || msg.step === "si-password") return;
+    if (msg.step === "su-country") {
+      setCountryPickerOpen(true);
+      return;
+    }
     setMessages((prev) => {
       const idx = prev.findIndex((m) => m.id === msg.id);
       return idx === -1 ? prev : prev.slice(0, idx);
@@ -153,6 +194,22 @@ const OnboardingAppAI = () => {
     setError(null);
     setPlaceResults([]);
     setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const updateCountrySelection = (country: string) => {
+    setCollected((c) => ({ ...c, country }));
+    setMessages((prev) => {
+      // Update the last su-country user message in place
+      for (let i = prev.length - 1; i >= 0; i--) {
+        if (prev[i].role === "user" && prev[i].step === "su-country") {
+          const next = [...prev];
+          next[i] = { ...next[i], content: country };
+          return next;
+        }
+      }
+      return prev;
+    });
+    setCountryPickerOpen(false);
   };
 
   const lastUserIdx = (() => {
@@ -290,8 +347,15 @@ const OnboardingAppAI = () => {
     pushUser("••••••••");
     setCollected((c) => ({ ...c, password }));
     setPassword("");
-    pushAssistant("Which country is your business in?");
-    setStep("su-country");
+    const detected = detectCountry();
+    pushAssistant(`I detected your country as **${detected}**. You can tap edit to change it.`);
+    setMessages((prev) => [
+      ...prev,
+      { id: `${Date.now()}-u-country-${Math.random()}`, role: "user", content: detected, step: "su-country" },
+    ]);
+    setCollected((c) => ({ ...c, country: detected }));
+    pushAssistant("What type of business do you run?");
+    setStep("su-type");
   };
 
   const pickCountry = (country: string) => {
@@ -676,15 +740,16 @@ const OnboardingAppAI = () => {
               >
                 <div className="flex-1 space-y-4">
                   {messages.map((msg, i) => {
+                    const isCountryMsg = msg.role === "user" && msg.step === "su-country";
                     const isEditable =
                       msg.role === "user" &&
-                      i === lastUserIdx &&
                       !isLoading &&
                       msg.step &&
                       msg.step !== "su-password" &&
                       msg.step !== "si-password" &&
                       msg.step !== "su-creating" &&
-                      msg.step !== "si-submitting";
+                      msg.step !== "si-submitting" &&
+                      (isCountryMsg || i === lastUserIdx);
                     return (
                     <motion.div
                       key={msg.id}
@@ -751,6 +816,60 @@ const OnboardingAppAI = () => {
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {countryPickerOpen && (
+          <motion.div
+            className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+          >
+            <div
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => setCountryPickerOpen(false)}
+            />
+            <motion.div
+              initial={{ y: 24, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 24, opacity: 0 }}
+              transition={{ duration: 0.22 }}
+              className="relative w-full sm:w-[420px] max-h-[70vh] bg-background border border-foreground/[0.08] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
+            >
+              <div className="px-5 pt-4 pb-3 border-b border-foreground/[0.06] flex items-center justify-between">
+                <span className="text-sm font-semibold">Select country</span>
+                <button
+                  type="button"
+                  onClick={() => setCountryPickerOpen(false)}
+                  className="text-xs text-foreground/60 hover:text-foreground"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto py-2">
+                {COUNTRIES.map((c) => {
+                  const selected = c === collected.country;
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      onClick={() => updateCountrySelection(c)}
+                      className={`w-full flex items-center gap-3 px-5 py-3 text-left text-sm transition-colors ${
+                        selected ? "bg-primary/10 text-primary" : "hover:bg-foreground/[0.04]"
+                      }`}
+                    >
+                      <span className="text-base">{COUNTRY_FLAGS[c] || "\ud83c\udf10"}</span>
+                      <span className="flex-1">{c}</span>
+                      {selected && <span className="text-xs">Selected</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

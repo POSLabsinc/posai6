@@ -502,6 +502,7 @@ const OnboardingAppSignupAccount = () => {
           {footerText}
         </div>
       </div>
+      {countryPicker}
     </div>
   );
 };

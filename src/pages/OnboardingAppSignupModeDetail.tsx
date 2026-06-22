@@ -301,6 +301,7 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
 
       </div>
     </div>
+    </>
   );
 };
 

@@ -143,6 +143,7 @@ const OnboardingAppSignupSignin = () => {
             </div>
           </div>
         </div>
+        {floatingAIButton}
       </div>
     );
   }

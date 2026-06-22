@@ -234,6 +234,8 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
 
   if (isLandscape) {
     return (
+      <>
+      {demoPopup}
       <div className="fixed inset-0 login-bg overflow-hidden">
         <div className="absolute inset-0 gradient-mesh opacity-30 pointer-events-none" />
         <div

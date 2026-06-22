@@ -1,7 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Loader2, Eye, EyeOff, MapPin, Search, Pencil, ChevronDown, Check, Minus, LayoutGrid, Zap, ChefHat } from "lucide-react";
+import { X, Send, Loader2, Eye, EyeOff, MapPin, Search, Pencil, ChevronDown, Check, Minus, LayoutGrid, Zap, ChefHat, CreditCard, Receipt, BarChart3, Menu as MenuIcon, Utensils, ListOrdered } from "lucide-react";
+import standardVideo from "@/assets/onboarding/mode-standard.mp4.asset.json";
+import quickserviceVideo from "@/assets/onboarding/mode-quickservice.mp4.asset.json";
+import fullserviceVideo from "@/assets/onboarding/mode-fullservice.mp4.asset.json";
+
+const MODE_VIDEO: Record<string, string> = {
+  standard: standardVideo.url,
+  quickservice: quickserviceVideo.url,
+  fullservice: fullserviceVideo.url,
+};
 import ReactMarkdown from "react-markdown";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 

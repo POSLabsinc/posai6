@@ -420,10 +420,7 @@ const OnboardingAppAI = () => {
     const best = bestModeFor(collected.restaurantType);
     const typeLabel = collected.restaurantType ? `**${collected.restaurantType}**` : "your business";
     pushAssistant(
-      `Last step. Pick a Point of Sale mode. Based on ${typeLabel}, **${best}** is the best match.\n\n` +
-      `- **Standard** — Simple register for quick orders, card or cash, and end of day. Best for small shops and pop-ups.\n` +
-      `- **Quick Service** — Adds hold and fire, split payments, tips, KDS routing, guest profiles, inventory, and shift summaries. Best for cafes, food trucks, bakeries, and counter service.\n` +
-      `- **Full Service** — Everything in Quick Service plus floor plans, open checks, coursing, reservations, transfers, split checks, and audit logs. Best for full service restaurants, fine dining, and bars.`
+      `Last step. Pick a Point of Sale mode. Based on ${typeLabel}, **${best}** is the best match.`
     );
     setStep("su-mode");
   };

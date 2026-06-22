@@ -145,6 +145,9 @@ const OnboardingAppAI = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [countryPickerOpen, setCountryPickerOpen] = useState(false);
+  const [comparePlansOpen, setComparePlansOpen] = useState(false);
+  const [planQuestion, setPlanQuestion] = useState("");
+  const [openPlanSections, setOpenPlanSections] = useState<Record<string, boolean>>({});
 
   const [placeResults, setPlaceResults] = useState<PlaceResult[]>([]);
   const [placeLoading, setPlaceLoading] = useState(false);

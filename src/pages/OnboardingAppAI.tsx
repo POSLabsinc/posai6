@@ -62,6 +62,42 @@ const COUNTRIES = [
   "United Arab Emirates", "Singapore", "Japan", "Mexico", "Brazil",
 ];
 
+const COUNTRY_FLAGS: Record<string, string> = {
+  "United States": "\ud83c\uddfa\ud83c\uddf8",
+  "United Kingdom": "\ud83c\uddec\ud83c\udde7",
+  Canada: "\ud83c\udde8\ud83c\udde6",
+  Australia: "\ud83c\udde6\ud83c\uddfa",
+  India: "\ud83c\uddee\ud83c\uddf3",
+  Germany: "\ud83c\udde9\ud83c\uddea",
+  France: "\ud83c\uddeb\ud83c\uddf7",
+  Spain: "\ud83c\uddea\ud83c\uddf8",
+  Italy: "\ud83c\uddee\ud83c\uddf9",
+  Netherlands: "\ud83c\uddf3\ud83c\uddf1",
+  "United Arab Emirates": "\ud83c\udde6\ud83c\uddea",
+  Singapore: "\ud83c\uddf8\ud83c\uddec",
+  Japan: "\ud83c\uddef\ud83c\uddf5",
+  Mexico: "\ud83c\uddf2\ud83c\uddfd",
+  Brazil: "\ud83c\udde7\ud83c\uddf7",
+};
+
+const REGION_TO_COUNTRY: Record<string, string> = {
+  US: "United States", GB: "United Kingdom", CA: "Canada", AU: "Australia",
+  IN: "India", DE: "Germany", FR: "France", ES: "Spain", IT: "Italy",
+  NL: "Netherlands", AE: "United Arab Emirates", SG: "Singapore", JP: "Japan",
+  MX: "Mexico", BR: "Brazil",
+};
+
+const detectCountry = (): string => {
+  try {
+    const locales = [...(navigator.languages || []), navigator.language].filter(Boolean) as string[];
+    for (const loc of locales) {
+      const region = loc.split("-")[1]?.toUpperCase();
+      if (region && REGION_TO_COUNTRY[region]) return REGION_TO_COUNTRY[region];
+    }
+  } catch { /* ignore */ }
+  return "United States";
+};
+
 const RESTAURANT_TYPES = ["Restaurant", "Cafe", "Bar", "Bakery", "Food Truck", "Quick Service", "Fine Dining"];
 const LOCATION_OPTIONS = ["1", "2-5", "6-10", "11+"];
 const REVENUE_OPTIONS = ["< $250K", "$250K - $1M", "$1M - $5M", "$5M+"];

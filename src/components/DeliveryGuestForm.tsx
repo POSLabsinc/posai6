@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { z } from "zod";
 import { Search, X, Home, MapPin, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,33 @@ import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "
 import { Customer } from "@/services/customerService";
 import { useCustomerSearch, usePhoneConflict } from "@/hooks/useCustomerSearch";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
+
+const sanitize = (v: unknown, max: number): string => {
+  if (typeof v !== "string") return "";
+  // Strip control chars and tags, clamp length
+  return v.replace(/[\u0000-\u001F<>]/g, "").trim().slice(0, max);
+};
+
+const NominatimAddressSchema = z
+  .object({
+    house_number: z.string().max(20).optional(),
+    road: z.string().max(200).optional(),
+    city: z.string().max(100).optional(),
+    town: z.string().max(100).optional(),
+    village: z.string().max(100).optional(),
+    municipality: z.string().max(100).optional(),
+    state: z.string().max(100).optional(),
+    postcode: z.string().max(20).optional(),
+  })
+  .partial()
+  .passthrough();
+
+const NominatimResponseSchema = z
+  .object({
+    display_name: z.string().max(500).optional(),
+    address: NominatimAddressSchema.optional(),
+  })
+  .passthrough();
 
 interface DeliveryGuestFormProps {
   onSave: (data: DeliveryGuestData) => void;

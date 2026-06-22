@@ -401,6 +401,65 @@ const OnboardingAppSignupManual = () => {
     </AnimatePresence>
   );
 
+  const countryPicker = (
+    <AnimatePresence>
+      {countryPickerOpen && (
+        <motion.div
+          className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.18 }}
+        >
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setCountryPickerOpen(false)}
+          />
+          <motion.div
+            initial={{ y: 24, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 24, opacity: 0 }}
+            transition={{ duration: 0.22 }}
+            className="relative w-full sm:w-[420px] max-h-[70vh] bg-background border border-foreground/[0.08] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
+          >
+            <div className="px-5 pt-4 pb-3 border-b border-foreground/[0.06] flex items-center justify-between">
+              <span className="text-sm font-semibold">Select country</span>
+              <button
+                type="button"
+                onClick={() => setCountryPickerOpen(false)}
+                className="text-xs text-foreground/60 hover:text-foreground"
+              >
+                Close
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto py-2">
+              {COUNTRIES.map((c) => {
+                const selected = c === data.country;
+                return (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => {
+                      update({ country: c, state: "", postcode: "" });
+                      setCountryPickerOpen(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-5 py-3 text-left text-sm transition-colors ${
+                      selected ? "bg-primary/10 text-primary" : "hover:bg-foreground/[0.04]"
+                    }`}
+                  >
+                    <span className="text-base">{COUNTRY_FLAGS[c] || "\ud83c\udf10"}</span>
+                    <span className="flex-1">{c}</span>
+                    {selected && <span className="text-xs">Selected</span>}
+                  </button>
+                );
+              })}
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+
   if (isLandscape) {
     return (
       <div className="fixed inset-0 login-bg overflow-hidden">

@@ -220,10 +220,7 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
           paddingBottom: "max(1rem, env(safe-area-inset-bottom))",
         }}
       >
-        <div className="flex items-center justify-between mb-5">
-          {backBtn}
-          {useBtn}
-        </div>
+        <div className="mb-5">{backBtn}</div>
         <div>
           {title}
           {subtitle}
@@ -232,6 +229,8 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
           {illustration}
         </div>
         <div className="flex-1 overflow-y-auto mt-5">{featureList}</div>
+        <div className="pt-3">{useBtn}</div>
+
       </div>
     </div>
   );

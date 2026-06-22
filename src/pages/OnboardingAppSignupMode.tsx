@@ -187,14 +187,34 @@ const OnboardingAppSignupMode = () => {
     </div>
   );
 
+  const modeRoutePath: Record<ModeId, string> = {
+    standard: "/onboarding/app/signup/mode/standard",
+    quickservice: "/onboarding/app/signup/mode/quickservice",
+    fullservice: "/onboarding/app/signup/mode/fullservice",
+  };
+
+  const handleLearnMore = () => {
+    navigate(modeRoutePath[selected], { state: { ...incoming, selectedMode: selected } });
+  };
+
   const ctaButton = (
-    <button
-      onClick={handleCta}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
-    >
-      Use {selectedMode.title}
-    </button>
+    <div className="w-full flex flex-col items-center gap-2">
+      <button
+        type="button"
+        onClick={handleLearnMore}
+        className="text-xs font-semibold text-primary active:opacity-70 transition-opacity underline-offset-4 hover:underline"
+      >
+        Learn more about {selectedMode.title}
+      </button>
+      <button
+        onClick={handleCta}
+        className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
+      >
+        Use {selectedMode.title}
+      </button>
+    </div>
   );
+
 
   const ColHeader = ({ mode }: { mode: Mode }) => {
     const isSel = selected === mode.id;

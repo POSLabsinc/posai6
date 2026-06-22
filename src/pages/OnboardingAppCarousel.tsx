@@ -16,6 +16,15 @@ import {
   Salad,
 } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import mobile1 from "@/assets/onboarding/mobile-1.png.asset.json";
+import mobile2 from "@/assets/onboarding/mobile-2.png.asset.json";
+import mobile3 from "@/assets/onboarding/mobile-3.png.asset.json";
+import landscape1 from "@/assets/onboarding/landscape-1.png.asset.json";
+import landscape2 from "@/assets/onboarding/landscape-2.png.asset.json";
+import landscape3 from "@/assets/onboarding/landscape-3.png.asset.json";
+
+const mobileImages = [mobile1.url, mobile2.url, mobile3.url];
+const landscapeImages = [landscape1.url, landscape2.url, landscape3.url];
 
 type Slide = {
   eyebrow: string;

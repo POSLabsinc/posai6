@@ -151,12 +151,21 @@ const OnboardingAppSignupMode = () => {
   const recommended = useMemo(() => recommendFor(incoming.restaurantType), [incoming.restaurantType]);
   const [selected, setSelected] = useState<ModeId>(incoming.selectedMode ?? recommended);
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+  const [showDemoPopup, setShowDemoPopup] = useState(false);
+  const isDemo = Boolean((incoming as { demo?: boolean }).demo);
 
   const recoLabel = RESTAURANT_TYPE_LABEL[incoming.restaurantType ?? ""] ?? "your business";
 
   const handleBack = () => navigate("/onboarding/app/signup/revenue");
-  const handleCta = () => {
+  const proceedToTrial = () => {
     navigate("/onboarding/app/signup/trial", { state: { ...incoming, mode: selected } });
+  };
+  const handleCta = () => {
+    if (isDemo) {
+      setShowDemoPopup(true);
+      return;
+    }
+    proceedToTrial();
   };
 
   const selectedMode = MODES.find((m) => m.id === selected)!;

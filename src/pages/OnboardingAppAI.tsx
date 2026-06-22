@@ -532,14 +532,14 @@ const OnboardingAppAI = () => {
     pushUser(mode);
     const next = { ...collected, mode };
     setCollected(next);
-    const MODE_BLURB: Record<string, string> = {
-      "Standard": "Simple register for quick orders, card or cash, and end of day. Best for small shops and pop-ups.",
-      "Quick Service": "Adds hold and fire, split payments, tips, KDS routing, guest profiles, inventory, and shift summaries. Best for cafes, food trucks, bakeries, and counter service.",
-      "Full Service": "Everything in Quick Service plus floor plans, open checks, coursing, reservations, transfers, split checks, and audit logs. Best for full service restaurants, fine dining, and bars.",
-    };
-    pushAssistant(`Great pick. **${mode}** ${MODE_BLURB[mode] || ""}`);
-    setStep("su-creating");
+    pushAssistant(`Great pick. Want a quick overview of **${mode}** mode before we set things up?`);
+    setStep("su-mode-learn");
+  };
+
+  const proceedToCreate = (mode: string) => {
+    const next = { ...collected, mode };
     pushAssistant("Creating your Point of Sale Ai account...");
+    setStep("su-creating");
     setIsLoading(true);
     setTimeout(() => {
       setIsLoading(false);

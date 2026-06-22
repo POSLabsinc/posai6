@@ -27,6 +27,7 @@ type Step =
   | "intent"
   | "su-restaurant"
   | "su-email"
+  | "su-email-personal"
   | "su-password"
   | "su-country"
   | "su-type"
@@ -464,8 +465,29 @@ const OnboardingAppAI = () => {
     pushUser(email);
     setCollected((c) => ({ ...c, email, isPersonal }));
     setInput("");
+    if (isPersonal) {
+      pushAssistant(
+        "Personal email detected. You can continue, but you'll start in **read-only demo mode**. Use a business email for full access."
+      );
+      setStep("su-email-personal");
+      return;
+    }
     pushAssistant("Got it. Please choose a password (8 characters minimum).");
     setStep("su-password");
+  };
+
+  const continueAfterPersonalEmail = () => {
+    pushUser("Continue with demo");
+    pushAssistant("Got it. Please choose a password (8 characters minimum).");
+    setStep("su-password");
+  };
+
+  const switchToBusinessEmail = () => {
+    pushUser("Use a business email");
+    setCollected((c) => ({ ...c, email: undefined, isPersonal: false }));
+    setInput("");
+    pushAssistant("No problem. What business email should we use?");
+    setStep("su-email");
   };
 
   const submitSignupPassword = () => {
@@ -696,6 +718,14 @@ const OnboardingAppAI = () => {
         </div>
       );
     }
+    if (step === "su-email-personal") {
+      return (
+        <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">
+          <Chip label="Use a business email" accent onClick={switchToBusinessEmail} />
+          <Chip label="Continue with demo" onClick={continueAfterPersonalEmail} />
+        </div>
+      );
+    }
     if (step === "si-error") {
       return (
         <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">
@@ -724,7 +754,7 @@ const OnboardingAppAI = () => {
   const renderInputBar = () => {
     if (step === "initial" || isLoading) return null;
     if (step === "su-creating" || step === "si-submitting") return null;
-    if (["su-country", "su-type", "su-locations", "su-revenue", "su-mode", "su-mode-learn", "si-error"].includes(step)) return null;
+    if (["su-country", "su-type", "su-locations", "su-revenue", "su-mode", "su-mode-learn", "su-email-personal", "si-error"].includes(step)) return null;
 
     if (step === "su-password" || step === "si-password") {
       return (

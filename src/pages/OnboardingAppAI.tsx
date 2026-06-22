@@ -622,11 +622,13 @@ const OnboardingAppAI = () => {
       if (step === "su-restaurant") useTypedRestaurantName();
       else if (step === "su-email") submitSignupEmail();
       else if (step === "si-email") submitSigninEmail();
+      else if (step === "su-type-other") submitTypeOther();
     };
 
     const placeholder =
       step === "su-restaurant" ? "Search for your restaurant..." :
       step === "su-email" || step === "si-email" ? "name@example.com" :
+      step === "su-type-other" ? "e.g. Juice Bar, Ghost Kitchen..." :
       "Type a message...";
 
     return (

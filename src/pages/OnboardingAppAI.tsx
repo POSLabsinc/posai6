@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Loader2, Eye, EyeOff, MapPin, Search, Pencil } from "lucide-react";
+import { X, Send, Loader2, Eye, EyeOff, MapPin, Search, Pencil, ChevronDown, Check, Minus, LayoutGrid, Zap, ChefHat } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 

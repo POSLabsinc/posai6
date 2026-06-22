@@ -1022,7 +1022,175 @@ const OnboardingAppAI = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {comparePlansOpen && (() => {
+          const bestTitle = bestModeFor(collected.restaurantType);
+          const bestKey = MODE_TITLE_TO_KEY[bestTitle];
+          const submitPlanQuestion = () => {
+            const q = planQuestion.trim();
+            if (!q) return;
+            setPlanQuestion("");
+            setComparePlansOpen(false);
+            pushUser(q);
+            setIsLoading(true);
+            setTimeout(() => {
+              setIsLoading(false);
+              pushAssistant(answerPlanQuestion(q, bestTitle));
+            }, 600);
+          };
+          return (
+            <motion.div
+              className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+            >
+              <div
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                onClick={() => setComparePlansOpen(false)}
+              />
+              <motion.div
+                initial={{ y: 24, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 24, opacity: 0 }}
+                transition={{ duration: 0.22 }}
+                className="relative w-full sm:w-[460px] max-h-[88vh] bg-background border border-foreground/[0.08] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
+              >
+                <div className="px-5 pt-4 pb-3 border-b border-foreground/[0.06] flex items-center justify-between">
+                  <div>
+                    <div className="text-sm font-semibold">Compare plans</div>
+                    <div className="text-[11px] text-foreground/60">Recommended for you: {bestTitle}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setComparePlansOpen(false)}
+                    aria-label="Close"
+                    className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-foreground/[0.06] text-foreground/70"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <div className="flex-1 overflow-y-auto px-4 py-3">
+                  <div className="grid gap-x-1" style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}>
+                    <div />
+                    {MODE_META.map((m) => {
+                      const isSel = m.id === bestKey;
+                      const Icon = m.icon;
+                      return (
+                        <div
+                          key={m.id}
+                          className={`relative flex flex-col items-center justify-start gap-1 px-1 pt-3 pb-2 ${
+                            isSel ? "bg-primary/[0.07] border-[1.5px] border-primary rounded-xl" : "border-[1.5px] border-transparent"
+                          }`}
+                        >
+                          {isSel && (
+                            <span
+                              className="absolute -top-2 left-1/2 -translate-x-1/2 px-1.5 py-[2px] rounded-full bg-primary text-primary-foreground font-semibold tracking-wide whitespace-nowrap"
+                              style={{ fontSize: "8px" }}
+                            >
+                              BEST MATCH
+                            </span>
+                          )}
+                          <Icon className={`w-5 h-5 ${isSel ? "text-primary" : "text-foreground/40"}`} />
+                          <span className={`text-[11px] font-semibold text-center ${isSel ? "text-foreground" : "text-foreground/50"}`}>
+                            {m.title}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className="mt-3 flex flex-col gap-1.5">
+                    {PLAN_SECTIONS.map((section) => {
+                      const isOpen = !!openPlanSections[section.label];
+                      const count = section.rows.filter((r) => r.values[bestKey]).length;
+                      return (
+                        <div key={section.label} className="rounded-xl bg-foreground/[0.03]">
+                          <button
+                            type="button"
+                            onClick={() => setOpenPlanSections((s) => ({ ...s, [section.label]: !s[section.label] }))}
+                            className="w-full flex items-center justify-between px-3 py-2.5 active:opacity-70 transition-opacity"
+                            aria-expanded={isOpen}
+                          >
+                            <span className="font-semibold uppercase text-foreground/50" style={{ fontSize: "10px", letterSpacing: "0.6px" }}>
+                              {section.label}
+                            </span>
+                            <span className="flex items-center gap-2">
+                              <span className="text-[11px] font-semibold text-foreground/60 tabular-nums">
+                                {count}/{section.rows.length}
+                              </span>
+                              <ChevronDown className={`w-4 h-4 text-foreground/50 transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`} />
+                            </span>
+                          </button>
+                          <div className="grid transition-[grid-template-rows] duration-200 ease-out" style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}>
+                            <div className="overflow-hidden">
+                              <div className="px-2 pb-2">
+                                {section.rows.map((row, rIdx) => {
+                                  const isFirst = rIdx === 0;
+                                  const isLast = rIdx === section.rows.length - 1;
+                                  return (
+                                    <div key={row.label} className="grid items-stretch" style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}>
+                                      <div className="px-1 py-1.5 text-xs font-medium text-foreground">{row.label}</div>
+                                      {MODE_META.map((m) => {
+                                        const isSel = m.id === bestKey;
+                                        const on = row.values[m.id];
+                                        return (
+                                          <div
+                                            key={m.id}
+                                            className={`flex items-center justify-center py-1.5 ${
+                                              isSel
+                                                ? `bg-primary/[0.07] border-l-[1.5px] border-r-[1.5px] border-primary ${isFirst ? "border-t-[1.5px] rounded-t-xl" : ""} ${isLast ? "border-b-[1.5px] rounded-b-xl" : ""}`
+                                                : ""
+                                            }`}
+                                          >
+                                            {on ? <Check className="w-4 h-4 text-primary" strokeWidth={2.5} /> : <Minus className="w-4 h-4 text-foreground/25" />}
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="border-t border-foreground/[0.06] px-4 py-3" style={{ paddingBottom: "max(0.75rem, env(safe-area-inset-bottom))" }}>
+                  <div className="text-[11px] text-foreground/60 mb-2">Have a question about the plans? Ask the AI.</div>
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={planQuestion}
+                      onChange={(e) => setPlanQuestion(e.target.value)}
+                      onKeyDown={(e) => { if (e.key === "Enter") submitPlanQuestion(); }}
+                      placeholder="e.g. Does Quick Service include KDS?"
+                      className="flex-1 h-10 px-3 rounded-full bg-foreground/[0.05] border border-foreground/[0.08] text-sm text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary/40"
+                    />
+                    <button
+                      type="button"
+                      onClick={submitPlanQuestion}
+                      disabled={!planQuestion.trim()}
+                      className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center disabled:opacity-40 active:opacity-80 transition-opacity"
+                      aria-label="Ask"
+                    >
+                      <Send className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
+
   );
 };
 

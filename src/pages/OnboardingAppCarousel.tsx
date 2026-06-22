@@ -301,8 +301,14 @@ const OnboardingAppCarousel = () => {
                 className="w-full flex justify-center"
               >
                 {(() => {
-                  const Preview = previews[index] ?? previews[0];
-                  return <Preview />;
+                  const src = landscapeImages[index] ?? landscapeImages[0];
+                  return (
+                    <img
+                      src={src}
+                      alt={`Point of Sale preview ${index + 1}`}
+                      className="w-full max-w-[640px] h-auto object-contain drop-shadow-2xl"
+                    />
+                  );
                 })()}
               </motion.div>
             </AnimatePresence>

@@ -143,7 +143,7 @@ const OnboardingAppActivate = () => {
         Activation code
       </label>
       <div
-        className={`relative flex items-center rounded-2xl border bg-foreground/[0.04] transition-colors ${
+        className={`relative flex items-center rounded-full border bg-foreground/[0.04] transition-colors ${
           hasError
             ? "border-destructive"
             : "border-foreground/[0.08] focus-within:border-primary"

@@ -192,7 +192,7 @@ const OnboardingAppSignupManual = () => {
   );
 
   const fieldCls =
-    "w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-2xl px-4 py-3 text-sm text-foreground placeholder:text-foreground/40 outline-none focus:border-primary transition-colors min-h-[44px]";
+    "w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-full px-4 py-3 text-sm text-foreground placeholder:text-foreground/40 outline-none focus:border-primary transition-colors min-h-[44px]";
   const labelCls = "text-xs font-medium text-foreground/60 mb-1.5 block";
 
   const step1 = (

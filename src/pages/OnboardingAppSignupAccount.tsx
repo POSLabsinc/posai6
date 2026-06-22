@@ -230,7 +230,7 @@ const OnboardingAppSignupAccount = () => {
         Email
       </label>
       <div
-        className={`relative flex items-center rounded-2xl border bg-foreground/[0.04] transition-colors ${
+        className={`relative flex items-center rounded-full border bg-foreground/[0.04] transition-colors ${
           emailError
             ? "border-destructive"
             : "border-foreground/[0.08] focus-within:border-primary"
@@ -277,7 +277,7 @@ const OnboardingAppSignupAccount = () => {
         Password
       </label>
       <div
-        className={`relative flex items-center rounded-2xl border bg-foreground/[0.04] transition-colors ${
+        className={`relative flex items-center rounded-full border bg-foreground/[0.04] transition-colors ${
           passwordError
             ? "border-destructive"
             : "border-foreground/[0.08] focus-within:border-primary"
@@ -321,7 +321,7 @@ const OnboardingAppSignupAccount = () => {
       <button
         type="button"
         onClick={() => setCountryPickerOpen(true)}
-        className="w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-2xl px-4 py-3 text-sm text-foreground outline-none focus:border-primary transition-colors min-h-[44px] flex items-center justify-between text-left"
+        className="w-full bg-foreground/[0.04] border border-foreground/[0.08] rounded-full px-4 py-3 text-sm text-foreground outline-none focus:border-primary transition-colors min-h-[44px] flex items-center justify-between text-left"
       >
         <span className="flex items-center gap-2">
           <span className="text-base">{COUNTRY_FLAGS[selectedCountry] || "\ud83c\udf10"}</span>

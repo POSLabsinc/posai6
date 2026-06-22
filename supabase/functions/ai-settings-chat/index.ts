@@ -769,9 +769,50 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Require an Authorization or apikey header so the function cannot be invoked
+  // by callers that don't ship the Supabase publishable key.
+  const authHeader = req.headers.get("Authorization") || req.headers.get("apikey");
+  if (!authHeader) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
-    const { messages, settingsContext, provider, model: requestedModel, deviceId, context } = await req.json();
+    const body = await req.json();
+    const { messages, settingsContext, provider, model: requestedModel, deviceId, context } = body ?? {};
+
+    // Basic input validation to prevent abuse via attacker-controlled fields.
+    if (!Array.isArray(messages)) {
+      return new Response(JSON.stringify({ error: "messages must be an array" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (messages.length > 50) {
+      return new Response(JSON.stringify({ error: "Too many messages" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (deviceId !== undefined && deviceId !== null) {
+      if (typeof deviceId !== "string" || deviceId.length > 128 || !/^[A-Za-z0-9_\-:.]+$/.test(deviceId)) {
+        return new Response(JSON.stringify({ error: "Invalid deviceId" }), {
+          status: 400,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+    }
+    if (provider !== undefined && provider !== null && typeof provider !== "string") {
+      return new Response(JSON.stringify({ error: "Invalid provider" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
+    const EXTERNAL_AI_API_KEY = Deno.env.get("EXTERNAL_AI_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL");
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
 
@@ -789,31 +830,24 @@ serve(async (req) => {
       maya: { url: "https://api.maya-ai.com/v1/chat/completions", keyPrefix: "maya-" },
     };
 
-    // If a non-platform provider is selected, look up the user's API key
-    if (provider && provider !== "platform" && PROVIDER_ENDPOINTS[provider] && deviceId && SUPABASE_URL && SUPABASE_SERVICE_ROLE_KEY) {
-      const supabaseAdmin = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
-      const { data: keyPref } = await supabaseAdmin
-        .from("user_preferences")
-        .select("preference_value")
-        .eq("device_id", "shared")
-        .eq("preference_key", "ai_integration_api_key")
-        .maybeSingle();
-
-      if (keyPref?.preference_value) {
+    // External providers now read their key exclusively from a server-side
+    // secret (EXTERNAL_AI_API_KEY). Keys are no longer stored in the database.
+    if (provider && provider !== "platform" && PROVIDER_ENDPOINTS[provider]) {
+      if (EXTERNAL_AI_API_KEY) {
         const provConfig = PROVIDER_ENDPOINTS[provider];
         aiEndpoint = provConfig.url;
-        aiApiKey = keyPref.preference_value;
-        aiModel = requestedModel || "";
+        aiApiKey = EXTERNAL_AI_API_KEY;
+        aiModel = (typeof requestedModel === "string" && requestedModel.length <= 100) ? requestedModel : "";
         isExternalProvider = true;
         console.log(`Using external provider: ${provider}, model: ${aiModel}`);
       } else {
-        console.log(`No API key found for provider ${provider}, falling back to platform AI`);
+        console.log(`No EXTERNAL_AI_API_KEY set for provider ${provider}, falling back to platform AI`);
       }
     }
 
     if (!aiApiKey) {
       return new Response(
-        JSON.stringify({ error: "AI service not configured. Please add your API key in AI Integration settings." }),
+        JSON.stringify({ error: "AI service not configured." }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }

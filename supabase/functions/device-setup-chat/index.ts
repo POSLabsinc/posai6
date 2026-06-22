@@ -91,8 +91,24 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Require Supabase Authorization/apikey header to block fully anonymous calls.
+  const auth = req.headers.get("Authorization") || req.headers.get("apikey");
+  if (!auth) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+
   try {
-    const { messages } = await req.json();
+    const body = await req.json().catch(() => null);
+    const messages = (body as any)?.messages;
+    if (!Array.isArray(messages) || messages.length > 50) {
+      return new Response(JSON.stringify({ error: "Invalid messages" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 

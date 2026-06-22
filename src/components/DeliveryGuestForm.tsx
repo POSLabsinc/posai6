@@ -7,6 +7,7 @@ import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "
 import { Customer } from "@/services/customerService";
 import { useCustomerSearch, usePhoneConflict } from "@/hooks/useCustomerSearch";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
+import { supabase } from "@/integrations/supabase/client";
 
 const sanitize = (v: unknown, max: number): string => {
   if (typeof v !== "string") return "";
@@ -179,18 +180,15 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
         const { latitude, longitude } = position.coords;
         
         try {
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), 8000);
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(
-              latitude.toFixed(6)
-            )}&lon=${encodeURIComponent(longitude.toFixed(6))}&addressdetails=1`,
-            { signal: controller.signal, headers: { Accept: "application/json" } }
+          // Route reverse geocoding through our Edge Function so the user's
+          // coordinates, IP, and user-agent are not sent directly to a third
+          // party from the browser.
+          const { data: raw, error: invokeError } = await supabase.functions.invoke(
+            "geocode-reverse",
+            { body: { lat: latitude, lon: longitude } }
           );
-          clearTimeout(timeoutId);
 
-          if (response.ok) {
-            const raw = await response.json().catch(() => null);
+          if (!invokeError && raw) {
             const parsed = NominatimResponseSchema.safeParse(raw);
             if (!parsed.success) {
               throw new Error("Invalid address data");

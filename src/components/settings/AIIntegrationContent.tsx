@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Eye, EyeOff, Trash2, RefreshCw, Info, BookOpen } from "lucide-react";
+import { ChevronLeft, ChevronRight, Info, BookOpen, ShieldCheck } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { Input } from "@/components/ui/input";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -39,7 +38,6 @@ const STATUS_LABELS: Record<ConnectionStatus, { label: string; color: string }> 
 const PREF_KEYS = {
   enabled: "ai_integration_enabled",
   provider: "ai_integration_provider",
-  apiKey: "ai_integration_api_key",
   status: "ai_integration_status",
 };
 
@@ -51,16 +49,11 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
   const [enabled, setEnabled] = useState(false);
   const [provider, setProvider] = useState("");
-  const [apiKey, setApiKey] = useState("");
-  const [showKey, setShowKey] = useState(false);
   const [status, setStatus] = useState<ConnectionStatus>("not_configured");
-  const [isTesting, setIsTesting] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  const [hasSavedKey, setHasSavedKey] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const deviceId = SHARED_DEVICE_ID;
-  
 
   useEffect(() => {
     loadPreferences();
@@ -81,11 +74,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
         setEnabled(prefs[PREF_KEYS.enabled] === "true");
         setProvider(prefs[PREF_KEYS.provider] || "");
         setStatus((prefs[PREF_KEYS.status] as ConnectionStatus) || "not_configured");
-
-        if (prefs[PREF_KEYS.apiKey]) {
-          setHasSavedKey(true);
-          setApiKey(""); // Never expose stored key
-        }
       }
     } catch (err) {
       console.error("Failed to load AI preferences:", err);
@@ -116,45 +104,9 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
     }
   };
 
-  const maskKey = (key: string) => {
-    if (key.length <= 8) return "••••••••";
-    return key.slice(0, 4) + "••••••••" + key.slice(-4);
-  };
-
-  const handleTestConnection = async () => {
-    if (!provider || (!apiKey && !hasSavedKey)) {
-      toast.error("Please select a provider and enter your API key before testing");
-      return;
-    }
-
-    setIsTesting(true);
-    try {
-      // Simulate API test — in production, call an edge function
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      const keyToTest = apiKey || "saved";
-      if (keyToTest.length < 10 && keyToTest !== "saved") {
-        setStatus("invalid_key");
-        toast.error("Invalid API key format");
-      } else {
-        setStatus("connected");
-        toast.success("Connection successful — model is accessible");
-      }
-    } catch {
-      setStatus("error");
-      toast.error("Connection test failed");
-    } finally {
-      setIsTesting(false);
-    }
-  };
-
   const handleSave = async () => {
     if (!provider) {
       toast.error("Please select a provider");
-      return;
-    }
-    if (!apiKey && !hasSavedKey) {
-      toast.error("Please enter your API key");
       return;
     }
 
@@ -164,14 +116,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
         savePref(PREF_KEYS.enabled, String(enabled)),
         savePref(PREF_KEYS.provider, provider),
         savePref(PREF_KEYS.status, status),
-        ...(apiKey ? [savePref(PREF_KEYS.apiKey, apiKey)] : []),
       ]);
-
-      if (apiKey) {
-        setHasSavedKey(true);
-        setApiKey("");
-      }
-
       toast.success("AI integration settings saved");
     } catch {
       toast.error("Failed to save settings");
@@ -190,9 +135,7 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
 
       setEnabled(false);
       setProvider("");
-      setApiKey("");
       setStatus("not_configured");
-      setHasSavedKey(false);
 
       toast.success("AI integration removed");
     } catch {
@@ -208,8 +151,6 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
   const handleProviderChange = (newProvider: string) => {
     setProvider(newProvider);
     setStatus("not_configured");
-    setHasSavedKey(false);
-    setApiKey("");
   };
 
   if (loading) {
@@ -293,56 +234,23 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
           </div>
         </div>
 
-        {/* API Key */}
+        {/* API Key (managed server-side) */}
         {provider && (
           <div className="mb-4">
             <span className="text-sm font-semibold text-neutral-400 tracking-wider block mb-1">
               API Key
             </span>
-            <div className="bg-neutral-800/60 rounded-2xl overflow-hidden p-4">
-              {hasSavedKey && !apiKey ? (
-                <div className="flex items-center justify-between">
-                  <span className="text-neutral-400 text-base font-mono">
-                    {maskKey("sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")}
-                  </span>
-                  <button
-                    onClick={() => setHasSavedKey(false)}
-                    className="text-sm text-primary font-medium active:opacity-70"
-                  >
-                    Update
-                  </button>
-                </div>
-              ) : (
-                <div className="relative">
-                  <Input
-                    type={showKey ? "text" : "password"}
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    placeholder={provider === "openai" ? "sk-..." : provider === "maya" ? "maya-..." : "AIza..."}
-                    className="bg-neutral-700/50 border-neutral-600 text-foreground pr-10 font-mono text-sm"
-                  />
-                  <button
-                    onClick={() => setShowKey(!showKey)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 active:opacity-70"
-                  >
-                    {showKey ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                  </button>
-                </div>
-              )}
+            <div className="bg-neutral-800/60 rounded-2xl p-4 flex gap-3">
+              <ShieldCheck className="w-5 h-5 text-green-400 shrink-0 mt-0.5" />
+              <p className="text-sm text-neutral-300 leading-relaxed">
+                For security, provider API keys are now configured server-side as
+                a project secret (<span className="font-mono">EXTERNAL_AI_API_KEY</span>).
+                Ask your workspace admin to set or rotate the key in Project
+                Settings → Secrets. Keys are never stored in the database or sent
+                to the browser.
+              </p>
             </div>
           </div>
-        )}
-
-        {/* Test Connection Button */}
-        {provider && (
-          <button
-            onClick={handleTestConnection}
-            disabled={isTesting}
-            className="w-full bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-foreground font-semibold py-3.5 rounded-2xl text-sm tracking-wide transition-colors mb-4 flex items-center justify-center gap-2"
-          >
-            <RefreshCw className={`w-4 h-4 ${isTesting ? "animate-spin" : ""}`} />
-            {isTesting ? "Testing..." : "Test Connection"}
-          </button>
         )}
 
         {/* Action Buttons */}
@@ -353,17 +261,14 @@ const AIIntegrationContent = ({ showHeader = true, onBack, onAIClick }: AIIntegr
               disabled={isSaving}
               className="flex-1 bg-neutral-700 hover:bg-neutral-600 disabled:opacity-50 text-white font-semibold py-3.5 rounded-2xl text-sm tracking-wide transition-colors text-center"
             >
-              {isSaving ? "Saving..." : hasSavedKey ? "Update" : "Save"}
+              {isSaving ? "Saving..." : "Save"}
             </button>
-            {hasSavedKey && (
-              <button
-                onClick={handleRemove}
-                className="flex-1 bg-transparent border border-red-500/50 hover:bg-red-500/10 text-red-400 font-semibold py-3.5 rounded-2xl text-sm tracking-wide transition-colors text-center flex items-center justify-center gap-2"
-              >
-                <Trash2 className="w-4 h-4" />
-                Remove
-              </button>
-            )}
+            <button
+              onClick={handleRemove}
+              className="flex-1 bg-transparent border border-red-500/50 hover:bg-red-500/10 text-red-400 font-semibold py-3.5 rounded-2xl text-sm tracking-wide transition-colors text-center"
+            >
+              Reset
+            </button>
           </div>
         )}
 

@@ -366,7 +366,7 @@ const OnboardingAppSignupLookup = () => {
   const continueBtn = selected && (
     <button
       onClick={handleContinue}
-      className="w-full min-h-[44px] py-3 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-full bg-primary text-primary-foreground text-sm font-semibold active:opacity-80 transition-opacity"
     >
       Continue
     </button>

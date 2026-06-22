@@ -363,7 +363,7 @@ const OnboardingAppSignupManual = () => {
         else if (step === 3) handleConfirm();
       }}
       disabled={(step === 1 && !step1Valid) || (step === 2 && !step2Valid)}
-      className="w-full min-h-[44px] py-3 rounded-2xl bg-primary text-primary-foreground text-sm font-semibold active:opacity-80 transition-opacity disabled:opacity-40"
+      className="w-full min-h-[44px] py-3 rounded-full bg-primary text-primary-foreground text-sm font-semibold active:opacity-80 transition-opacity disabled:opacity-40"
     >
       {step === 3 ? "Confirm & continue" : "Continue"}
     </button>

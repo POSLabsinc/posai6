@@ -117,7 +117,7 @@ const OnboardingAppActivateHelp = () => {
   const ctaButton = (
     <button
       onClick={() => navigate("/onboarding/app/activate")}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
     >
       Got it, enter my code
     </button>

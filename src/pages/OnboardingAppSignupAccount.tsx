@@ -399,7 +399,7 @@ const OnboardingAppSignupAccount = () => {
     <button
       onClick={handleSubmit}
       disabled={!isFormValid || submitting}
-      className={`w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold transition-opacity ${
+      className={`w-full min-h-[44px] py-3 rounded-full text-sm font-semibold transition-opacity ${
         isPersonal
           ? "bg-foreground/[0.08] text-foreground border border-foreground/[0.12] active:opacity-80"
           : "bg-primary text-primary-foreground active:opacity-80"

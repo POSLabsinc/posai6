@@ -32,7 +32,7 @@ const OnboardingAppSigninForgotSuccess = () => {
   const ctaButton = (
     <button
       onClick={handleBackToSignIn}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
     >
       Back to sign in
     </button>

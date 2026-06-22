@@ -219,7 +219,7 @@ const OnboardingAppSignupTrial = () => {
   const webPrimaryCta = (
     <button
       onClick={handleGoDashboard}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-emerald-500 text-white active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold bg-emerald-500 text-white active:opacity-80 transition-opacity"
     >
       Go to dashboard
     </button>
@@ -228,14 +228,14 @@ const OnboardingAppSignupTrial = () => {
   const primaryCta = isOrg ? (
     <button
       onClick={handleStartTrial}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
     >
       Start free trial
     </button>
   ) : (
     <button
       onClick={handleAddBusinessEmail}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-amber-500 text-black active:opacity-80 transition-opacity"
+      className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold bg-amber-500 text-black active:opacity-80 transition-opacity"
     >
       Add business email
     </button>
@@ -244,7 +244,7 @@ const OnboardingAppSignupTrial = () => {
   const secondaryCta = (
     <button
       onClick={handleLater}
-      className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold border border-foreground/[0.12] text-foreground bg-transparent active:bg-foreground/[0.04] transition-colors"
+      className="w-full min-h-[44px] py-3 rounded-full text-sm font-semibold border border-foreground/[0.12] text-foreground bg-transparent active:bg-foreground/[0.04] transition-colors"
     >
       {isOrg ? "I'll do this later" : "Continue in demo"}
     </button>

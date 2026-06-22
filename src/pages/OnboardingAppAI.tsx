@@ -180,6 +180,10 @@ const OnboardingAppAI = () => {
   const handleEditLast = (msg: Message) => {
     if (!msg.step) return;
     if (msg.step === "su-password" || msg.step === "si-password") return;
+    if (msg.step === "su-country") {
+      setCountryPickerOpen(true);
+      return;
+    }
     setMessages((prev) => {
       const idx = prev.findIndex((m) => m.id === msg.id);
       return idx === -1 ? prev : prev.slice(0, idx);
@@ -190,6 +194,22 @@ const OnboardingAppAI = () => {
     setError(null);
     setPlaceResults([]);
     setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const updateCountrySelection = (country: string) => {
+    setCollected((c) => ({ ...c, country }));
+    setMessages((prev) => {
+      // Update the last su-country user message in place
+      for (let i = prev.length - 1; i >= 0; i--) {
+        if (prev[i].role === "user" && prev[i].step === "su-country") {
+          const next = [...prev];
+          next[i] = { ...next[i], content: country };
+          return next;
+        }
+      }
+      return prev;
+    });
+    setCountryPickerOpen(false);
   };
 
   const lastUserIdx = (() => {

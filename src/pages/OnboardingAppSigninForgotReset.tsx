@@ -93,7 +93,7 @@ const OnboardingAppSigninForgotReset = () => {
       >
         New password
       </label>
-      <div className="relative flex items-center rounded-2xl border bg-foreground/[0.04] transition-colors border-foreground/[0.08] focus-within:border-primary">
+      <div className="relative flex items-center rounded-full border bg-foreground/[0.04] transition-colors border-foreground/[0.08] focus-within:border-primary">
         <input
           id="new-password"
           type={showPw ? "text" : "password"}
@@ -136,7 +136,7 @@ const OnboardingAppSigninForgotReset = () => {
         Confirm password
       </label>
       <div
-        className={`relative flex items-center rounded-2xl border bg-foreground/[0.04] transition-colors ${
+        className={`relative flex items-center rounded-full border bg-foreground/[0.04] transition-colors ${
           mismatch ? "border-destructive" : "border-foreground/[0.08] focus-within:border-primary"
         }`}
       >

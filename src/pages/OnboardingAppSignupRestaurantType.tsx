@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
@@ -43,11 +43,30 @@ const OnboardingAppSignupRestaurantType = () => {
   const [selected, setSelected] = useState<string | null>(
     (incoming.restaurantType as string) ?? null,
   );
+  const [otherText, setOtherText] = useState<string>(
+    (incoming.restaurantTypeOther as string) ?? "",
+  );
+  const otherInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (selected === "other") {
+      otherInputRef.current?.focus();
+    }
+  }, [selected]);
+
+  const otherValid = otherText.trim().length >= 2;
+  const canContinue = !!selected && (selected !== "other" || otherValid);
 
   const handleNext = () => {
-    if (!selected) return;
+    if (!canContinue) return;
     navigate("/onboarding/app/signup/locations", {
-      state: { ...incoming, restaurantType: selected },
+      state: {
+        ...incoming,
+        restaurantType: selected,
+        ...(selected === "other"
+          ? { restaurantTypeOther: otherText.trim() }
+          : { restaurantTypeOther: undefined }),
+      },
     });
   };
 
@@ -105,42 +124,64 @@ const OnboardingAppSignupRestaurantType = () => {
   );
 
   const optionsGrid = (
-    <div className="grid grid-cols-2 gap-2">
-      {OPTIONS.map((option) => {
-        const Icon = option.icon;
-        const isSelected = selected === option.id;
-        return (
-          <button
-            key={option.id}
-            onClick={() => setSelected(option.id)}
-            className={`flex flex-col items-start gap-2 p-3 rounded-2xl border text-left transition-colors ${
-              isSelected
-                ? "border-primary bg-primary/[0.08]"
-                : "border-foreground/[0.08] bg-foreground/[0.04] active:bg-foreground/[0.06]"
-            }`}
-          >
-            <span
-              className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+    <div className="space-y-3">
+      <div className="grid grid-cols-2 gap-2">
+        {OPTIONS.map((option) => {
+          const Icon = option.icon;
+          const isSelected = selected === option.id;
+          return (
+            <button
+              key={option.id}
+              onClick={() => setSelected(option.id)}
+              className={`flex flex-col items-start gap-2 p-3 rounded-2xl border text-left transition-colors ${
                 isSelected
-                  ? "bg-primary/15 text-primary"
-                  : "bg-foreground/[0.06] text-foreground/70"
+                  ? "border-primary bg-primary/[0.08]"
+                  : "border-foreground/[0.08] bg-foreground/[0.04] active:bg-foreground/[0.06]"
               }`}
             >
-              <Icon className="w-5 h-5" />
-            </span>
-            <span className="text-sm font-medium text-foreground">
-              {option.label}
-            </span>
-          </button>
-        );
-      })}
+              <span
+                className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                  isSelected
+                    ? "bg-primary/15 text-primary"
+                    : "bg-foreground/[0.06] text-foreground/70"
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+              </span>
+              <span className="text-sm font-medium text-foreground">
+                {option.label}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+      {selected === "other" && (
+        <div className="space-y-1.5">
+          <label
+            htmlFor="restaurant-type-other"
+            className="text-xs font-medium text-foreground/70"
+          >
+            Tell us about your business
+          </label>
+          <input
+            ref={otherInputRef}
+            id="restaurant-type-other"
+            type="text"
+            value={otherText}
+            onChange={(e) => setOtherText(e.target.value)}
+            maxLength={60}
+            placeholder="Juice bar, ghost kitchen, catering..."
+            className="w-full h-11 px-3 rounded-2xl border border-foreground/[0.08] bg-foreground/[0.04] text-sm text-foreground placeholder:text-foreground/40 focus:outline-none focus:border-primary"
+          />
+        </div>
+      )}
     </div>
   );
 
   const ctaButton = (
     <button
       onClick={handleNext}
-      disabled={!selected}
+      disabled={!canContinue}
       className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity disabled:opacity-40 disabled:pointer-events-none"
     >
       Next

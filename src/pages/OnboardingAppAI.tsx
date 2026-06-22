@@ -1217,6 +1217,100 @@ const OnboardingAppAI = () => {
           );
         })()}
       </AnimatePresence>
+
+      <AnimatePresence>
+        {modeDetailOpen && (() => {
+          const MODE_DETAIL: Record<string, { title: string; subtitle: string; features: { title: string; description: string }[] }> = {
+            standard: {
+              title: "Standard mode",
+              subtitle: "Take payments quickly with a flexible setup.",
+              features: [
+                { title: "Fast payments", description: "Accept cash, card, and digital payments instantly." },
+                { title: "Simple checkout", description: "Customisable layout to match how you work." },
+                { title: "Sales reports", description: "Real-time sales and transaction history." },
+              ],
+            },
+            quickservice: {
+              title: "Quick Service mode",
+              subtitle: "Speed up ordering with smart menus and kitchen routing.",
+              features: [
+                { title: "Multi-channel menus", description: "Dine-in, takeaway, and delivery from one screen." },
+                { title: "Kitchen routing", description: "Orders sent to kitchen display in real time." },
+                { title: "Fast checkout", description: "Split payments, discounts, and tips in seconds." },
+              ],
+            },
+            fullservice: {
+              title: "Full Service mode",
+              subtitle: "Optimise restaurant service with open checks, coursing, and floor plans.",
+              features: [
+                { title: "Table management", description: "Seat guests, manage covers, and track wait times." },
+                { title: "Course management", description: "Organise checks and kitchen tickets by course." },
+                { title: "Floor plan", description: "Drag-and-drop layout with colour-coded table status." },
+              ],
+            },
+          };
+          const detail = MODE_DETAIL[modeDetailOpen];
+          if (!detail) return null;
+          const continueAndCreate = () => {
+            const mode = collected.mode || "";
+            setModeDetailOpen(null);
+            proceedToCreate(mode);
+          };
+          return (
+            <motion.div
+              className="fixed inset-0 z-[10000] flex items-end sm:items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.18 }}
+            >
+              <div
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                onClick={() => setModeDetailOpen(null)}
+              />
+              <motion.div
+                className="relative w-full sm:max-w-md bg-card border border-border rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[85vh] flex flex-col"
+                initial={{ y: 40, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                exit={{ y: 40, opacity: 0 }}
+                transition={{ duration: 0.22 }}
+              >
+                <div className="flex items-center justify-between px-5 py-4 border-b border-border">
+                  <h2 className="text-base font-semibold">{detail.title}</h2>
+                  <button
+                    type="button"
+                    onClick={() => setModeDetailOpen(null)}
+                    aria-label="Close"
+                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-muted active:opacity-70 transition-opacity"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+                <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                  <p className="text-sm text-foreground/70">{detail.subtitle}</p>
+                  <div className="space-y-3">
+                    {detail.features.map((f) => (
+                      <div key={f.title} className="rounded-xl border border-border bg-muted/30 px-4 py-3">
+                        <div className="text-sm font-semibold">{f.title}</div>
+                        <p className="text-xs text-foreground/60 mt-0.5">{f.description}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="px-5 py-4 border-t border-border">
+                  <button
+                    type="button"
+                    onClick={continueAndCreate}
+                    className="w-full h-11 rounded-full bg-primary text-primary-foreground text-sm font-semibold active:opacity-80 transition-opacity"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
     </div>
 
   );

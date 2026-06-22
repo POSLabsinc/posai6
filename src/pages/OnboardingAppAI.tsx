@@ -645,8 +645,17 @@ const OnboardingAppAI = () => {
     if (step === "su-mode") {
       const best = bestModeFor(collected.restaurantType);
       return (
-        <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">
-          {MODE_OPTIONS.map((m) => <Chip key={m} label={m} accent={m === best} onClick={() => pickMode(m)} />)}
+        <div className="pl-7 pt-3 pb-2">
+          <div className="flex flex-wrap gap-2">
+            {MODE_OPTIONS.map((m) => <Chip key={m} label={m} accent={m === best} onClick={() => pickMode(m)} />)}
+          </div>
+          <button
+            type="button"
+            onClick={() => setComparePlansOpen(true)}
+            className="mt-2 text-xs font-semibold text-primary hover:underline underline-offset-4 active:opacity-70 transition-opacity"
+          >
+            Compare plans
+          </button>
         </div>
       );
     }

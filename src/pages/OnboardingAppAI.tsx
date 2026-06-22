@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Send, Loader2, Eye, EyeOff, MapPin, Search } from "lucide-react";
+import { X, Send, Loader2, Eye, EyeOff, MapPin, Search, Pencil } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
@@ -10,6 +10,7 @@ interface Message {
   id: string;
   role: Role;
   content: string;
+  step?: Step;
 }
 
 type Step =
@@ -136,8 +137,28 @@ const OnboardingAppAI = () => {
 
   const pushAssistant = (content: string) =>
     setMessages((prev) => [...prev, { id: `${Date.now()}-a-${Math.random()}`, role: "assistant", content }]);
-  const pushUser = (content: string) =>
-    setMessages((prev) => [...prev, { id: `${Date.now()}-u-${Math.random()}`, role: "user", content }]);
+  const pushUser = (content: string, msgStep?: Step) =>
+    setMessages((prev) => [...prev, { id: `${Date.now()}-u-${Math.random()}`, role: "user", content, step: msgStep ?? step }]);
+
+  const handleEditLast = (msg: Message) => {
+    if (!msg.step) return;
+    if (msg.step === "su-password" || msg.step === "si-password") return;
+    setMessages((prev) => {
+      const idx = prev.findIndex((m) => m.id === msg.id);
+      return idx === -1 ? prev : prev.slice(0, idx);
+    });
+    setStep(msg.step);
+    setInput(msg.content);
+    setPassword("");
+    setError(null);
+    setPlaceResults([]);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const lastUserIdx = (() => {
+    for (let i = messages.length - 1; i >= 0; i--) if (messages[i].role === "user") return i;
+    return -1;
+  })();
 
   const handleClose = () => {
     const params = new URLSearchParams();
@@ -654,13 +675,23 @@ const OnboardingAppAI = () => {
                 transition={{ duration: 0.35, delay: 0.05 }}
               >
                 <div className="flex-1 space-y-4">
-                  {messages.map((msg, i) => (
+                  {messages.map((msg, i) => {
+                    const isEditable =
+                      msg.role === "user" &&
+                      i === lastUserIdx &&
+                      !isLoading &&
+                      msg.step &&
+                      msg.step !== "su-password" &&
+                      msg.step !== "si-password" &&
+                      msg.step !== "su-creating" &&
+                      msg.step !== "si-submitting";
+                    return (
                     <motion.div
                       key={msg.id}
                       initial={{ opacity: 0, y: 12 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.3, delay: Math.min(i, 4) * 0.05, ease: "easeOut" }}
-                      className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                      className={`flex items-end gap-1.5 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                     >
                       {msg.role === "assistant" && (
                         <div className="flex-shrink-0 mr-2 mt-1">
@@ -682,8 +713,18 @@ const OnboardingAppAI = () => {
                           <p className="whitespace-pre-wrap">{msg.content}</p>
                         )}
                       </div>
+                      {isEditable && (
+                        <button
+                          onClick={() => handleEditLast(msg)}
+                          className="flex-shrink-0 w-6 h-6 rounded-full bg-foreground/[0.06] hover:bg-foreground/[0.12] flex items-center justify-center transition-colors mb-1"
+                          aria-label="Edit"
+                        >
+                          <Pencil className="w-3 h-3 text-foreground/60" />
+                        </button>
+                      )}
                     </motion.div>
-                  ))}
+                    );
+                  })}
                   {isLoading && (
                     <div className="flex items-center gap-2 text-foreground/40">
                       <AnimatedAIIcon size={18} />

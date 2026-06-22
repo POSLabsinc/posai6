@@ -21,6 +21,7 @@ type Step =
   | "su-password"
   | "su-country"
   | "su-type"
+  | "su-type-other"
   | "su-locations"
   | "su-revenue"
   | "su-mode"
@@ -98,10 +99,27 @@ const detectCountry = (): string => {
   return "United States";
 };
 
-const RESTAURANT_TYPES = ["Restaurant", "Cafe", "Bar", "Bakery", "Food Truck", "Quick Service", "Fine Dining"];
+const RESTAURANT_TYPES = [
+  "Cafe", "Quick Service", "Food Truck", "Bakery", "Cloud Kitchen",
+  "Full Service", "Fine Dining", "Bar and Pub", "Food Court", "Other",
+];
 const LOCATION_OPTIONS = ["1", "2-5", "6-10", "11+"];
 const REVENUE_OPTIONS = ["< $250K", "$250K - $1M", "$1M - $5M", "$5M+"];
 const MODE_OPTIONS = ["Standard", "Quick Service", "Full Service"];
+
+const TYPE_TO_BEST_MODE: Record<string, string> = {
+  "Cafe": "Quick Service",
+  "Quick Service": "Quick Service",
+  "Food Truck": "Quick Service",
+  "Bakery": "Quick Service",
+  "Cloud Kitchen": "Quick Service",
+  "Food Court": "Quick Service",
+  "Full Service": "Full Service",
+  "Fine Dining": "Full Service",
+  "Bar and Pub": "Full Service",
+};
+const bestModeFor = (type?: string) =>
+  (type && TYPE_TO_BEST_MODE[type]) || "Standard";
 
 type Collected = {
   place?: PlaceResult | null;
@@ -366,8 +384,25 @@ const OnboardingAppAI = () => {
   };
 
   const pickType = (type: string) => {
+    if (type === "Other") {
+      pushUser("Other");
+      pushAssistant("No problem. What type of business is it?");
+      setInput("");
+      setStep("su-type-other");
+      return;
+    }
     pushUser(type);
     setCollected((c) => ({ ...c, restaurantType: type }));
+    pushAssistant("How many locations do you operate?");
+    setStep("su-locations");
+  };
+
+  const submitTypeOther = () => {
+    const t = input.trim();
+    if (t.length < 2) return;
+    pushUser(t);
+    setCollected((c) => ({ ...c, restaurantType: t }));
+    setInput("");
     pushAssistant("How many locations do you operate?");
     setStep("su-locations");
   };
@@ -382,7 +417,9 @@ const OnboardingAppAI = () => {
   const pickRevenue = (rev: string) => {
     pushUser(rev);
     setCollected((c) => ({ ...c, revenue: rev }));
-    pushAssistant("Last step. Which Point of Sale mode fits your business best?");
+    const best = bestModeFor(collected.restaurantType);
+    const typeLabel = collected.restaurantType ? `**${collected.restaurantType}**` : "your business";
+    pushAssistant(`Last step. Which Point of Sale mode fits your business best? Based on ${typeLabel}, **${best}** is usually the best match.`);
     setStep("su-mode");
   };
 
@@ -503,9 +540,10 @@ const OnboardingAppAI = () => {
       );
     }
     if (step === "su-mode") {
+      const best = bestModeFor(collected.restaurantType);
       return (
         <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">
-          {MODE_OPTIONS.map((m, i) => <Chip key={m} label={m} accent={i === 0} onClick={() => pickMode(m)} />)}
+          {MODE_OPTIONS.map((m) => <Chip key={m} label={m} accent={m === best} onClick={() => pickMode(m)} />)}
         </div>
       );
     }
@@ -584,11 +622,13 @@ const OnboardingAppAI = () => {
       if (step === "su-restaurant") useTypedRestaurantName();
       else if (step === "su-email") submitSignupEmail();
       else if (step === "si-email") submitSigninEmail();
+      else if (step === "su-type-other") submitTypeOther();
     };
 
     const placeholder =
       step === "su-restaurant" ? "Search for your restaurant..." :
       step === "su-email" || step === "si-email" ? "name@example.com" :
+      step === "su-type-other" ? "e.g. Juice Bar, Ghost Kitchen..." :
       "Type a message...";
 
     return (

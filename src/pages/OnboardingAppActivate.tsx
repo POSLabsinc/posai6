@@ -193,7 +193,7 @@ const OnboardingAppActivate = () => {
     <div className="flex items-start gap-2 rounded-2xl border border-primary/30 bg-primary/10 p-3">
       <Info className="w-4 h-4 text-primary shrink-0 mt-0.5" />
       <p className="text-xs text-foreground/80 leading-relaxed">
-        Open eatos.com/dashboard on another device, go to Devices, and tap Generate code.
+        Open <a href="https://www.eatos.com/" target="_blank" rel="noopener noreferrer" className="text-primary underline underline-offset-2">eatos.com/dashboard</a> on another device, go to Devices, and tap Generate code.
       </p>
     </div>
   );

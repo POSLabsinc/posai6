@@ -508,7 +508,7 @@ const OnboardingAppSignupManual = () => {
     <div className="fixed inset-0 login-bg flex flex-col overflow-hidden">
       <div className="absolute inset-0 gradient-mesh opacity-30 pointer-events-none" />
       <div className="relative z-10 flex flex-col h-full w-full max-w-md mx-auto px-6 pt-6">
-        <div className="mb-4">{backBtn}</div>
+        <div className="mb-4 flex items-center justify-between">{backBtn}{skipBtn}</div>
         {stepLabel}
         {title}
         {subtitle}

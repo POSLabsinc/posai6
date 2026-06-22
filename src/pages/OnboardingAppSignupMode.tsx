@@ -355,8 +355,40 @@ const OnboardingAppSignupMode = () => {
   );
 
 
+  const demoPopup = showDemoPopup && (
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm px-4 pb-6 pt-6">
+      <div className="w-full max-w-sm rounded-3xl bg-neutral-900 border border-foreground/10 p-6 shadow-2xl">
+        <div className="flex items-start gap-3">
+          <div className="w-9 h-9 rounded-full bg-primary/15 flex items-center justify-center flex-shrink-0">
+            <svg className="w-5 h-5 text-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+          <div className="flex-1">
+            <p className="text-base font-semibold text-primary">Demo mode, read only</p>
+            <p className="text-sm text-foreground/70 mt-1">Add a business email to unlock full access.</p>
+          </div>
+        </div>
+        <div className="mt-5 flex flex-col gap-2">
+          <button
+            onClick={() => navigate("/onboarding/app/signup/account", { state: incoming })}
+            className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold bg-primary text-primary-foreground active:opacity-80 transition-opacity"
+          >
+            Add business email
+          </button>
+          <button
+            onClick={() => { setShowDemoPopup(false); proceedToTrial(); }}
+            className="w-full min-h-[44px] py-3 rounded-2xl text-sm font-semibold border border-foreground/15 text-foreground active:opacity-80 transition-opacity"
+          >
+            Continue exploring demo
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
   if (isLandscape) {
     return (
+      <>
+      {demoPopup}
       <div className="fixed inset-0 login-bg overflow-hidden">
         <div className="absolute inset-0 gradient-mesh opacity-30 pointer-events-none" />
         <div

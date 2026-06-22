@@ -36,7 +36,7 @@ const slides: Slide[] = [
   {
     eyebrow: "PointofSaleAi",
     headline: "The AI-first restaurant operating system",
-    body: "One platform for your kiosk, Point of Sale, and kitchen display.",
+    body: "One platform for your Self Service Kiosk, Point of Sale, and Kitchen Display System.",
   },
   {
     eyebrow: "PointofSaleAi Point of Sale",

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import MarketingPanel from "@/components/onboarding/MarketingPanel";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
@@ -14,23 +14,27 @@ const REVENUE_OPTIONS = [
 
 const OnboardingAppSignupRevenue = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isLandscape = useIsLandscape();
-  const [selected, setSelected] = useState<string | null>(null);
+  const incoming = (location.state as Record<string, unknown>) ?? {};
+  const [selected, setSelected] = useState<string | null>(
+    (incoming.revenue as string) ?? null,
+  );
 
   const handleNext = () => {
     if (!selected) return;
     navigate("/onboarding/app/signup/mode", {
-      state: { revenue: selected },
+      state: { ...incoming, revenue: selected },
     });
   };
 
   const handleSkip = () => {
-    navigate("/onboarding/app/signup/mode");
+    navigate("/onboarding/app/signup/mode", { state: incoming });
   };
 
   const backBtn = (
     <button
-      onClick={() => navigate("/onboarding/app/signup/verify")}
+      onClick={() => navigate("/onboarding/app/signup/locations", { state: incoming })}
       className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
       aria-label="Back"
     >

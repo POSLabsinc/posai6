@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { UserPlus, LogIn } from "lucide-react";
 import { useThemeLogo } from "@/components/ThemeLogo";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 const OnboardingAppSignupSignin = () => {
   const navigate = useNavigate();

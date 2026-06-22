@@ -718,6 +718,14 @@ const OnboardingAppAI = () => {
         </div>
       );
     }
+    if (step === "su-email-personal") {
+      return (
+        <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">
+          <Chip label="Use a business email" accent onClick={switchToBusinessEmail} />
+          <Chip label="Continue with demo" onClick={continueAfterPersonalEmail} />
+        </div>
+      );
+    }
     if (step === "si-error") {
       return (
         <div className="flex flex-wrap gap-2 pl-7 pt-3 pb-2">

@@ -272,10 +272,13 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
 
         </div>
       </div>
+      </>
     );
   }
 
   return (
+    <>
+    {demoPopup}
     <div className="fixed inset-0 login-bg flex flex-col overflow-hidden">
       <div className="absolute inset-0 gradient-mesh opacity-30 pointer-events-none" />
       <div

@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft, LayoutGrid, Zap, ChefHat, Check, Minus, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronDown, LayoutGrid, Zap, ChefHat, Check, Minus, Sparkles } from "lucide-react";
+
 import { useIsLandscape } from "@/hooks/use-landscape";
 
 type ModeId = "standard" | "quickservice" | "fullservice";
@@ -149,6 +150,7 @@ const OnboardingAppSignupMode = () => {
 
   const recommended = useMemo(() => recommendFor(incoming.restaurantType), [incoming.restaurantType]);
   const [selected, setSelected] = useState<ModeId>(incoming.selectedMode ?? recommended);
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
   const recoLabel = RESTAURANT_TYPE_LABEL[incoming.restaurantType ?? ""] ?? "your business";
 
@@ -194,7 +196,6 @@ const OnboardingAppSignupMode = () => {
     </button>
   );
 
-  // Comparison table
   const ColHeader = ({ mode }: { mode: Mode }) => {
     const isSel = selected === mode.id;
     const Icon = mode.icon;
@@ -204,8 +205,8 @@ const OnboardingAppSignupMode = () => {
         onClick={() => setSelected(mode.id)}
         className={`relative flex flex-col items-center justify-start gap-1 px-1 pt-3 pb-2 w-full transition-colors ${
           isSel
-            ? "bg-primary/[0.07] border-t-[1.5px] border-l-[1.5px] border-r-[1.5px] border-primary rounded-t-xl"
-            : "border-t-[1.5px] border-l-[1.5px] border-r-[1.5px] border-transparent"
+            ? "bg-primary/[0.07] border-[1.5px] border-primary rounded-xl"
+            : "border-[1.5px] border-transparent"
         }`}
       >
         {isSel && (
@@ -224,13 +225,13 @@ const OnboardingAppSignupMode = () => {
     );
   };
 
-  const Cell = ({ on, isSel, isLast }: { on: boolean; isSel: boolean; isLast: boolean }) => (
+  const Cell = ({ on, isSel, isFirst, isLast }: { on: boolean; isSel: boolean; isFirst: boolean; isLast: boolean }) => (
     <div
-      className={`flex items-center justify-center py-1 ${
+      className={`flex items-center justify-center py-1.5 ${
         isSel
           ? `bg-primary/[0.07] border-l-[1.5px] border-r-[1.5px] border-primary ${
-              isLast ? "border-b-[1.5px] rounded-b-xl" : ""
-            }`
+              isFirst ? "border-t-[1.5px] rounded-t-xl" : ""
+            } ${isLast ? "border-b-[1.5px] rounded-b-xl" : ""}`
           : ""
       }`}
     >
@@ -242,75 +243,87 @@ const OnboardingAppSignupMode = () => {
     </div>
   );
 
-  const totalRows = SECTIONS.reduce((n, s) => n + s.rows.length, 0);
+  const toggleSection = (label: string) =>
+    setOpenSections((s) => ({ ...s, [label]: !s[label] }));
 
   const table = (
     <div className="w-full pt-4">
-      {/* Headers */}
-      <div className="grid" style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}>
+      <div className="grid gap-x-1" style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}>
         <div />
         {MODES.map((m) => (
           <ColHeader key={m.id} mode={m} />
         ))}
       </div>
 
-      {/* Sections */}
-      {SECTIONS.map((section, sIdx) => {
-        let globalRowOffset = 0;
-        for (let i = 0; i < sIdx; i++) globalRowOffset += SECTIONS[i].rows.length;
-        return (
-          <div key={section.label}>
-            <div
-              className="grid"
-              style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}
-            >
-              <div className="px-1 pt-0.5 pb-0">
+      <div className="mt-3 flex flex-col gap-1.5">
+        {SECTIONS.map((section) => {
+          const isOpen = !!openSections[section.label];
+          const count = section.rows.filter((r) => r.values[selected]).length;
+          return (
+            <div key={section.label} className="rounded-xl bg-foreground/[0.03]">
+              <button
+                type="button"
+                onClick={() => toggleSection(section.label)}
+                className="w-full flex items-center justify-between px-3 py-2.5 active:opacity-70 transition-opacity"
+                aria-expanded={isOpen}
+              >
                 <span
-                  className="block font-semibold uppercase text-foreground/50"
-                  style={{ fontSize: "8px", letterSpacing: "0.5px", lineHeight: 0.95 }}
+                  className="font-semibold uppercase text-foreground/50"
+                  style={{ fontSize: "10px", letterSpacing: "0.6px" }}
                 >
                   {section.label}
                 </span>
-              </div>
-              {MODES.map((m) => (
-                <div
-                  key={m.id}
-                  className={`${
-                    selected === m.id
-                      ? "bg-primary/[0.07] border-l-[1.5px] border-r-[1.5px] border-primary"
-                      : ""
-                  }`}
-                />
-              ))}
-            </div>
-            {section.rows.map((row, rIdx) => {
-              const absoluteIndex = globalRowOffset + rIdx;
-              const isLastOverall = absoluteIndex === totalRows - 1;
-              return (
-                <div
-                  key={row.label}
-                  className="grid items-stretch"
-                  style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}
-                >
-                  <div className="px-1 py-1 text-xs font-semibold text-foreground">
-                    {row.label}
+                <span className="flex items-center gap-2">
+                  <span className="text-[11px] font-semibold text-foreground/60 tabular-nums">
+                    {count}/{section.rows.length}
+                  </span>
+                  <ChevronDown
+                    className={`w-4 h-4 text-foreground/50 transition-transform duration-200 ${
+                      isOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </span>
+              </button>
+              <div
+                className="grid transition-[grid-template-rows] duration-200 ease-out"
+                style={{ gridTemplateRows: isOpen ? "1fr" : "0fr" }}
+              >
+                <div className="overflow-hidden">
+                  <div className="px-2 pb-2">
+                    {section.rows.map((row, rIdx) => {
+                      const isFirst = rIdx === 0;
+                      const isLast = rIdx === section.rows.length - 1;
+                      return (
+                        <div
+                          key={row.label}
+                          className="grid items-stretch"
+                          style={{ gridTemplateColumns: "1.6fr 1fr 1fr 1fr" }}
+                        >
+                          <div className="px-1 py-1.5 text-xs font-medium text-foreground">
+                            {row.label}
+                          </div>
+                          {MODES.map((m) => (
+                            <Cell
+                              key={m.id}
+                              on={row.values[m.id]}
+                              isSel={selected === m.id}
+                              isFirst={isFirst}
+                              isLast={isLast}
+                            />
+                          ))}
+                        </div>
+                      );
+                    })}
                   </div>
-                  {MODES.map((m) => (
-                    <Cell
-                      key={m.id}
-                      on={row.values[m.id]}
-                      isSel={selected === m.id}
-                      isLast={isLastOverall}
-                    />
-                  ))}
                 </div>
-              );
-            })}
-          </div>
-        );
-      })}
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
+
 
   if (isLandscape) {
     return (

@@ -4,37 +4,38 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
-const REVENUE_OPTIONS = [
-  "Less than $100k",
-  "$100k - $250k",
-  "$250k - $1M",
-  "$1M - $5M",
-  "$5M+",
+const LOCATION_OPTIONS = [
+  { id: "1", label: "1 location", caption: "Single venue" },
+  { id: "2-5", label: "2 to 5", caption: "Small group" },
+  { id: "6-20", label: "6 to 20", caption: "Growing chain" },
+  { id: "21+", label: "21 plus", caption: "Enterprise" },
 ];
 
-const OnboardingAppSignupRevenue = () => {
+const OnboardingAppSignupLocations = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isLandscape = useIsLandscape();
   const incoming = (location.state as Record<string, unknown>) ?? {};
   const [selected, setSelected] = useState<string | null>(
-    (incoming.revenue as string) ?? null,
+    (incoming.locationCount as string) ?? null,
   );
 
   const handleNext = () => {
     if (!selected) return;
-    navigate("/onboarding/app/signup/mode", {
-      state: { ...incoming, revenue: selected },
+    navigate("/onboarding/app/signup/revenue", {
+      state: { ...incoming, locationCount: selected },
     });
   };
 
   const handleSkip = () => {
-    navigate("/onboarding/app/signup/mode", { state: incoming });
+    navigate("/onboarding/app/signup/revenue", {
+      state: { ...incoming, locationCount: "1" },
+    });
   };
 
   const backBtn = (
     <button
-      onClick={() => navigate("/onboarding/app/signup/locations", { state: incoming })}
+      onClick={() => navigate("/onboarding/app/signup/type", { state: incoming })}
       className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
       aria-label="Back"
     >
@@ -56,49 +57,47 @@ const OnboardingAppSignupRevenue = () => {
       <div className="h-1 flex-1 rounded-full bg-primary" />
       <div className="h-1 flex-1 rounded-full bg-primary" />
       <div className="h-1 flex-1 rounded-full bg-primary" />
-      <div className="h-1 flex-1 rounded-full bg-primary" />
+      <div className="h-1 flex-1 rounded-full bg-primary/40" />
       <div className="h-1 flex-1 rounded-full bg-primary/40" />
     </div>
   );
 
   const eyebrow = (
-    <div className="flex items-center gap-2">
-      <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-primary">
-        Step 4
-      </p>
-      <span className="px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-foreground/[0.06] text-foreground/50">
-        optional
-      </span>
-    </div>
+    <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-primary">
+      Step 3
+    </p>
   );
 
   const title = (
     <h1 className="text-2xl font-bold text-foreground mt-2">
-      What's your annual revenue?
+      How many locations do you operate?
     </h1>
   );
 
   const subtitle = (
     <p className="text-sm text-foreground/60 mt-0.5">
-      Helps us recommend the right plan for your business.
+      We will scale your setup to fit how many venues you run.
     </p>
   );
 
   const optionsList = (
     <div className="flex flex-col gap-2">
-      {REVENUE_OPTIONS.map((option) => {
-        const isSelected = selected === option;
+      {LOCATION_OPTIONS.map((option) => {
+        const isSelected = selected === option.id;
         return (
           <button
-            key={option}
-            onClick={() => setSelected(option)}
-            className={`w-full text-left px-4 py-3 rounded-2xl border text-sm font-medium transition-colors ${
+            key={option.id}
+            onClick={() => setSelected(option.id)}
+            className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl border text-left transition-colors ${
               isSelected
-                ? "border-primary bg-primary/[0.08] text-foreground"
-                : "border-foreground/[0.08] bg-foreground/[0.04] text-foreground active:bg-foreground/[0.06]"
+                ? "border-primary bg-primary/[0.08]"
+                : "border-foreground/[0.08] bg-foreground/[0.04] active:bg-foreground/[0.06]"
             }`}
           >
-            {option}
+            <span className="text-sm font-medium text-foreground">
+              {option.label}
+            </span>
+            <span className="text-xs text-foreground/50">{option.caption}</span>
           </button>
         );
       })}
@@ -131,8 +130,8 @@ const OnboardingAppSignupRevenue = () => {
             style={{ width: "45%" }}
           >
             <MarketingPanel
-              eyebrow="Revenue preview"
-              caption="Calibrates pricing tier and feature mix to your expected sales volume."
+              eyebrow="Locations"
+              caption="Used to provision menus, pricing rules and reporting roll-ups across venues."
             />
           </div>
           <div
@@ -179,9 +178,7 @@ const OnboardingAppSignupRevenue = () => {
           {title}
           {subtitle}
         </div>
-        <div className="flex-1 overflow-y-auto mt-6 pb-4">
-          {optionsList}
-        </div>
+        <div className="flex-1 overflow-y-auto mt-6 pb-4">{optionsList}</div>
         <div
           className="pt-2"
           style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
@@ -193,4 +190,4 @@ const OnboardingAppSignupRevenue = () => {
   );
 };
 
-export default OnboardingAppSignupRevenue;
+export default OnboardingAppSignupLocations;

@@ -1,40 +1,65 @@
 import { useState } from "react";
 import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import {
+  ChevronLeft,
+  Coffee,
+  Zap,
+  Truck,
+  Croissant,
+  CloudSun,
+  ChefHat,
+  Utensils,
+  Wine,
+  Store,
+  LayoutGrid,
+} from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
 
-const REVENUE_OPTIONS = [
-  "Less than $100k",
-  "$100k - $250k",
-  "$250k - $1M",
-  "$1M - $5M",
-  "$5M+",
+type TypeOption = {
+  id: string;
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+};
+
+const OPTIONS: TypeOption[] = [
+  { id: "cafe", label: "Cafe", icon: Coffee },
+  { id: "quick_service", label: "Quick Service", icon: Zap },
+  { id: "food_truck", label: "Food Truck", icon: Truck },
+  { id: "bakery", label: "Bakery", icon: Croissant },
+  { id: "cloud_kitchen", label: "Cloud Kitchen", icon: CloudSun },
+  { id: "full_service", label: "Full Service", icon: ChefHat },
+  { id: "fine_dining", label: "Fine Dining", icon: Utensils },
+  { id: "bar_pub", label: "Bar and Pub", icon: Wine },
+  { id: "food_court", label: "Food Court", icon: Store },
+  { id: "other", label: "Other", icon: LayoutGrid },
 ];
 
-const OnboardingAppSignupRevenue = () => {
+const OnboardingAppSignupRestaurantType = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const isLandscape = useIsLandscape();
   const incoming = (location.state as Record<string, unknown>) ?? {};
   const [selected, setSelected] = useState<string | null>(
-    (incoming.revenue as string) ?? null,
+    (incoming.restaurantType as string) ?? null,
   );
 
   const handleNext = () => {
     if (!selected) return;
-    navigate("/onboarding/app/signup/mode", {
-      state: { ...incoming, revenue: selected },
+    navigate("/onboarding/app/signup/locations", {
+      state: { ...incoming, restaurantType: selected },
     });
   };
 
   const handleSkip = () => {
-    navigate("/onboarding/app/signup/mode", { state: incoming });
+    navigate("/onboarding/app/signup/locations", {
+      state: { ...incoming, restaurantType: "other" },
+    });
   };
 
   const backBtn = (
     <button
-      onClick={() => navigate("/onboarding/app/signup/locations", { state: incoming })}
+      onClick={() => navigate("/onboarding/app/signup/verify")}
       className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
       aria-label="Back"
     >
@@ -55,50 +80,57 @@ const OnboardingAppSignupRevenue = () => {
     <div className="flex items-center gap-1.5 w-full">
       <div className="h-1 flex-1 rounded-full bg-primary" />
       <div className="h-1 flex-1 rounded-full bg-primary" />
-      <div className="h-1 flex-1 rounded-full bg-primary" />
-      <div className="h-1 flex-1 rounded-full bg-primary" />
+      <div className="h-1 flex-1 rounded-full bg-primary/40" />
+      <div className="h-1 flex-1 rounded-full bg-primary/40" />
       <div className="h-1 flex-1 rounded-full bg-primary/40" />
     </div>
   );
 
   const eyebrow = (
-    <div className="flex items-center gap-2">
-      <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-primary">
-        Step 4
-      </p>
-      <span className="px-1.5 py-0.5 rounded-md text-[10px] font-medium bg-foreground/[0.06] text-foreground/50">
-        optional
-      </span>
-    </div>
+    <p className="text-[11px] font-semibold tracking-[0.14em] uppercase text-primary">
+      Step 2
+    </p>
   );
 
   const title = (
     <h1 className="text-2xl font-bold text-foreground mt-2">
-      What's your annual revenue?
+      What type of restaurant?
     </h1>
   );
 
   const subtitle = (
     <p className="text-sm text-foreground/60 mt-0.5">
-      Helps us recommend the right plan for your business.
+      We use this to recommend the right Point of Sale mode for you.
     </p>
   );
 
-  const optionsList = (
-    <div className="flex flex-col gap-2">
-      {REVENUE_OPTIONS.map((option) => {
-        const isSelected = selected === option;
+  const optionsGrid = (
+    <div className="grid grid-cols-2 gap-2">
+      {OPTIONS.map((option) => {
+        const Icon = option.icon;
+        const isSelected = selected === option.id;
         return (
           <button
-            key={option}
-            onClick={() => setSelected(option)}
-            className={`w-full text-left px-4 py-3 rounded-2xl border text-sm font-medium transition-colors ${
+            key={option.id}
+            onClick={() => setSelected(option.id)}
+            className={`flex flex-col items-start gap-2 p-3 rounded-2xl border text-left transition-colors ${
               isSelected
-                ? "border-primary bg-primary/[0.08] text-foreground"
-                : "border-foreground/[0.08] bg-foreground/[0.04] text-foreground active:bg-foreground/[0.06]"
+                ? "border-primary bg-primary/[0.08]"
+                : "border-foreground/[0.08] bg-foreground/[0.04] active:bg-foreground/[0.06]"
             }`}
           >
-            {option}
+            <span
+              className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                isSelected
+                  ? "bg-primary/15 text-primary"
+                  : "bg-foreground/[0.06] text-foreground/70"
+              }`}
+            >
+              <Icon className="w-5 h-5" />
+            </span>
+            <span className="text-sm font-medium text-foreground">
+              {option.label}
+            </span>
           </button>
         );
       })}
@@ -131,8 +163,8 @@ const OnboardingAppSignupRevenue = () => {
             style={{ width: "45%" }}
           >
             <MarketingPanel
-              eyebrow="Revenue preview"
-              caption="Calibrates pricing tier and feature mix to your expected sales volume."
+              eyebrow="Restaurant type"
+              caption="Tells the setup which workflows, layouts and defaults to enable."
             />
           </div>
           <div
@@ -149,7 +181,7 @@ const OnboardingAppSignupRevenue = () => {
               {title}
               {subtitle}
             </div>
-            <div className="flex-1 overflow-y-auto mt-5 pb-4">{optionsList}</div>
+            <div className="flex-1 overflow-y-auto mt-5 pb-4">{optionsGrid}</div>
             <div
               className="pt-2"
               style={{ paddingBottom: "max(0.5rem, env(safe-area-inset-bottom))" }}
@@ -179,9 +211,7 @@ const OnboardingAppSignupRevenue = () => {
           {title}
           {subtitle}
         </div>
-        <div className="flex-1 overflow-y-auto mt-6 pb-4">
-          {optionsList}
-        </div>
+        <div className="flex-1 overflow-y-auto mt-6 pb-4">{optionsGrid}</div>
         <div
           className="pt-2"
           style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
@@ -193,4 +223,4 @@ const OnboardingAppSignupRevenue = () => {
   );
 };
 
-export default OnboardingAppSignupRevenue;
+export default OnboardingAppSignupRestaurantType;

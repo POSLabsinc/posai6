@@ -118,6 +118,8 @@ const OnboardingAppActivateValidating = lazyWithImportRecovery(() => import("./p
 const OnboardingAppActivateSuccess = lazyWithImportRecovery(() => import("./pages/OnboardingAppActivateSuccess"));
 const OnboardingAppSignupVerify = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupVerify"));
 const OnboardingAppSignupRevenue = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupRevenue"));
+const OnboardingAppSignupRestaurantType = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupRestaurantType"));
+const OnboardingAppSignupLocations = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupLocations"));
 const OnboardingAppSignupMode = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupMode"));
 const OnboardingAppSignupModeStandard = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupModeStandard"));
 const OnboardingAppSignupModeQuickService = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupModeQuickService"));
@@ -260,6 +262,8 @@ const AppInner = () => {
           <Route path="/onboarding/app/signup/demo" element={<OnboardingAppSignupDemo />} />
           <Route path="/onboarding/app/signup/upgrade" element={<OnboardingAppSignupUpgrade />} />
           <Route path="/onboarding/app/signup/verify" element={<OnboardingAppSignupVerify />} />
+          <Route path="/onboarding/app/signup/type" element={<OnboardingAppSignupRestaurantType />} />
+          <Route path="/onboarding/app/signup/locations" element={<OnboardingAppSignupLocations />} />
           <Route path="/onboarding/app/signup/revenue" element={<OnboardingAppSignupRevenue />} />
           <Route path="/onboarding/app/signup/mode" element={<OnboardingAppSignupMode />} />
           <Route path="/onboarding/app/signup/mode/standard" element={<OnboardingAppSignupModeStandard />} />

@@ -650,7 +650,7 @@ const OnboardingAppAI = () => {
                     <div className="flex-shrink-0 mr-2 mt-1">
                       <AnimatedAIIcon size={18} />
                     </div>
-                    <div className="max-w-[80%] rounded-2xl px-3.5 py-2.5 text-lg bg-foreground/[0.04] text-foreground">
+                    <div className="max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm bg-foreground/[0.04] text-foreground">
                       <p>Hi! I'm Point of Sale Ai. I can help you sign up, sign in, or set up your account. What would you like to do?</p>
                     </div>
                   </motion.div>
@@ -699,14 +699,14 @@ const OnboardingAppAI = () => {
                         </div>
                       )}
                       <div
-                        className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-lg ${
+                        className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm ${
                           msg.role === "user"
                             ? "bg-primary text-primary-foreground"
                             : "bg-foreground/[0.04] text-foreground"
                         }`}
                       >
                         {msg.role === "assistant" ? (
-                          <div className="prose prose-lg prose-invert max-w-none [&>p]:m-0 [&>p+p]:mt-2">
+                          <div className="prose prose-sm prose-invert max-w-none [&>p]:m-0 [&>p+p]:mt-2">
                             <ReactMarkdown>{msg.content || "..."}</ReactMarkdown>
                           </div>
                         ) : (
@@ -730,7 +730,7 @@ const OnboardingAppAI = () => {
                       <AnimatedAIIcon size={18} />
                       <div className="flex items-center gap-1.5 bg-foreground/[0.04] rounded-2xl px-3.5 py-2.5">
                         <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        <span className="text-base">Thinking...</span>
+                        <span className="text-sm">Thinking...</span>
                       </div>
                     </div>
                   )}

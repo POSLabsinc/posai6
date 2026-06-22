@@ -495,6 +495,7 @@ const OnboardingAppSignupManual = () => {
             </div>
           </div>
         </div>
+        {countryPicker}
       </div>
     );
   }

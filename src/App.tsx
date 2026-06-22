@@ -101,6 +101,7 @@ const OnboardingWebSignin = lazyWithImportRecovery(() => import("./pages/Onboard
 const OnboardingWebSigninSuccess = lazyWithImportRecovery(() => import("./pages/OnboardingWebSigninSuccess"));
 const OnboardingApp = lazyWithImportRecovery(() => import("./pages/OnboardingApp"));
 const OnboardingAppCarousel = lazyWithImportRecovery(() => import("./pages/OnboardingAppCarousel"));
+const OnboardingAppAI = lazyWithImportRecovery(() => import("./pages/OnboardingAppAI"));
 const OnboardingAppSignupSignin = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignupSignin"));
 const OnboardingAppSignin = lazyWithImportRecovery(() => import("./pages/OnboardingAppSignin"));
 const OnboardingAppSigninForgot = lazyWithImportRecovery(() => import("./pages/OnboardingAppSigninForgot"));
@@ -247,6 +248,7 @@ const AppInner = () => {
           <Route path="/onboarding/app" element={<OnboardingApp />} />
           <Route path="/onboarding/app/carousel" element={<OnboardingAppCarousel />} />
           <Route path="/onboarding/app/signup-signin" element={<OnboardingAppSignupSignin />} />
+          <Route path="/onboarding/app/ai" element={<OnboardingAppAI />} />
           <Route path="/onboarding/app/signin" element={<OnboardingAppSignin />} />
           <Route path="/onboarding/app/signin/forgot" element={<OnboardingAppSigninForgot />} />
           <Route path="/onboarding/app/signin/forgot/verify" element={<OnboardingAppSigninForgotVerify />} />

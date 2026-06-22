@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { UserPlus, LogIn } from "lucide-react";
 import { useThemeLogo } from "@/components/ThemeLogo";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 
 const OnboardingAppSignupSignin = () => {
   const navigate = useNavigate();
@@ -102,6 +103,20 @@ const OnboardingAppSignupSignin = () => {
     </motion.p>
   );
 
+  const floatingAIButton = (
+    <button
+      onClick={() => navigate("/onboarding/app/ai")}
+      aria-label="Open Point of Sale Ai"
+      className="fixed z-50 rounded-full bg-foreground/[0.06] border border-foreground/[0.08] backdrop-blur-md shadow-2xl flex items-center justify-center hover:bg-foreground/[0.1] active:scale-95 transition-all w-14 h-14"
+      style={{
+        right: "max(1.25rem, env(safe-area-inset-right))",
+        bottom: "max(1.5rem, env(safe-area-inset-bottom))",
+      }}
+    >
+      <AnimatedAIIcon size={28} />
+    </button>
+  );
+
   if (isLandscape) {
     return (
       <div className="fixed inset-0 login-bg overflow-hidden">
@@ -142,9 +157,11 @@ const OnboardingAppSignupSignin = () => {
             </div>
           </div>
         </div>
+        {floatingAIButton}
       </div>
     );
   }
+
 
   return (
     <div className="fixed inset-0 login-bg flex flex-col overflow-hidden">
@@ -158,6 +175,7 @@ const OnboardingAppSignupSignin = () => {
         </div>
         {legal}
       </div>
+      {floatingAIButton}
     </div>
   );
 };

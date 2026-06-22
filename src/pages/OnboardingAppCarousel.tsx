@@ -189,7 +189,7 @@ const OnboardingAppCarousel = () => {
 
   const goNext = () => {
     if (isLast) {
-      navigate("/onboarding/app/signup-signin");
+      navigate("/onboarding/app/ai");
     } else {
       setIndex((i) => Math.min(i + 1, slides.length - 1));
     }
@@ -257,7 +257,7 @@ const OnboardingAppCarousel = () => {
 
   const skipBtn = (
     <button
-      onClick={() => navigate("/onboarding/app/signup-signin")}
+      onClick={() => navigate("/onboarding/app/ai")}
       className="h-12 min-h-[44px] rounded-2xl border border-foreground/[0.08] bg-transparent text-sm font-semibold text-foreground/70 hover:bg-foreground/[0.04] transition-all px-5"
     >
       Skip
@@ -316,7 +316,7 @@ const OnboardingAppCarousel = () => {
           {/* Right: content */}
           <div className="relative flex flex-col h-full" style={{ width: "50%", padding: "24px" }}>
             <button
-              onClick={() => navigate("/onboarding/app/signup-signin")}
+              onClick={() => navigate("/onboarding/app/ai")}
               className="absolute top-6 right-6 h-11 min-h-[44px] px-4 rounded-xl text-sm font-semibold text-foreground/70 hover:bg-foreground/[0.04] transition-all"
             >
               Skip

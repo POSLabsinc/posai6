@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { z } from "zod";
 import { Search, X, Home, MapPin, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
@@ -6,6 +7,33 @@ import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "
 import { Customer } from "@/services/customerService";
 import { useCustomerSearch, usePhoneConflict } from "@/hooks/useCustomerSearch";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
+
+const sanitize = (v: unknown, max: number): string => {
+  if (typeof v !== "string") return "";
+  // Strip control chars and tags, clamp length
+  return v.replace(/[\u0000-\u001F<>]/g, "").trim().slice(0, max);
+};
+
+const NominatimAddressSchema = z
+  .object({
+    house_number: z.string().max(20).optional(),
+    road: z.string().max(200).optional(),
+    city: z.string().max(100).optional(),
+    town: z.string().max(100).optional(),
+    village: z.string().max(100).optional(),
+    municipality: z.string().max(100).optional(),
+    state: z.string().max(100).optional(),
+    postcode: z.string().max(20).optional(),
+  })
+  .partial()
+  .passthrough();
+
+const NominatimResponseSchema = z
+  .object({
+    display_name: z.string().max(500).optional(),
+    address: NominatimAddressSchema.optional(),
+  })
+  .passthrough();
 
 interface DeliveryGuestFormProps {
   onSave: (data: DeliveryGuestData) => void;
@@ -151,19 +179,39 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
         const { latitude, longitude } = position.coords;
         
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(
+              latitude.toFixed(6)
+            )}&lon=${encodeURIComponent(longitude.toFixed(6))}&addressdetails=1`,
+            { signal: controller.signal, headers: { Accept: "application/json" } }
           );
-          
+          clearTimeout(timeoutId);
+
           if (response.ok) {
-            const data = await response.json();
-            const address = data.address || {};
-            
-            const address1 = [address.house_number, address.road].filter(Boolean).join(' ') || data.display_name?.split(',')[0] || '';
-            const city = address.city || address.town || address.village || address.municipality || '';
-            const state = address.state || '';
-            const zip = address.postcode || '';
-            
+            const raw = await response.json().catch(() => null);
+            const parsed = NominatimResponseSchema.safeParse(raw);
+            if (!parsed.success) {
+              throw new Error("Invalid address data");
+            }
+            const data = parsed.data;
+            const address = data.address ?? {};
+
+            const houseNumber = sanitize(address.house_number, 20);
+            const road = sanitize(address.road, 200);
+            const displayName = sanitize(data.display_name, 500);
+            const address1 =
+              [houseNumber, road].filter(Boolean).join(" ") ||
+              displayName.split(",")[0] ||
+              "";
+            const city = sanitize(
+              address.city || address.town || address.village || address.municipality,
+              100
+            );
+            const state = sanitize(address.state, 100);
+            const zip = sanitize(address.postcode, 20);
+
             setFormData((prev) => ({
               ...prev,
               address: {
@@ -173,10 +221,10 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
                 city: city,
                 state: state,
                 zip: zip,
-                fullAddress: data.display_name || `${address1}, ${city} ${state}, ${zip}`,
+                fullAddress: displayName || `${address1}, ${city} ${state}, ${zip}`,
               },
             }));
-            
+
             toast({
               title: "Location found",
               description: "Your current address has been added.",

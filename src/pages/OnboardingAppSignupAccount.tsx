@@ -114,6 +114,7 @@ const OnboardingAppSignupAccount = () => {
 
   const [selectedCountry, setSelectedCountry] = useState(derivedCountry || "United States");
   const [submitting, setSubmitting] = useState(false);
+  const [countryPickerOpen, setCountryPickerOpen] = useState(false);
 
   useEffect(() => {
     if (derivedCountry) setSelectedCountry(derivedCountry);

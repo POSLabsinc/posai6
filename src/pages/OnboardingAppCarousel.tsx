@@ -16,6 +16,15 @@ import {
   Salad,
 } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import mobile1 from "@/assets/onboarding/mobile-1.png.asset.json";
+import mobile2 from "@/assets/onboarding/mobile-2.png.asset.json";
+import mobile3 from "@/assets/onboarding/mobile-3.png.asset.json";
+import landscape1 from "@/assets/onboarding/landscape-1.png.asset.json";
+import landscape2 from "@/assets/onboarding/landscape-2.png.asset.json";
+import landscape3 from "@/assets/onboarding/landscape-3.png.asset.json";
+
+const mobileImages = [mobile1.url, mobile2.url, mobile3.url];
+const landscapeImages = [landscape1.url, landscape2.url, landscape3.url];
 
 type Slide = {
   eyebrow: string;
@@ -292,8 +301,14 @@ const OnboardingAppCarousel = () => {
                 className="w-full flex justify-center"
               >
                 {(() => {
-                  const Preview = previews[index] ?? previews[0];
-                  return <Preview />;
+                  const src = landscapeImages[index] ?? landscapeImages[0];
+                  return (
+                    <img
+                      src={src}
+                      alt={`Point of Sale preview ${index + 1}`}
+                      className="w-full max-w-[640px] h-auto object-contain drop-shadow-2xl"
+                    />
+                  );
                 })()}
               </motion.div>
             </AnimatePresence>
@@ -329,9 +344,23 @@ const OnboardingAppCarousel = () => {
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.2}
           onDragEnd={onDragEnd}
-          className="rounded-3xl border border-foreground/[0.08] bg-foreground/[0.04] w-full"
+          className="rounded-3xl w-full overflow-hidden flex items-center justify-center"
           style={{ height: "45vh" }}
-        />
+        >
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={index}
+              src={mobileImages[index] ?? mobileImages[0]}
+              alt={`Point of Sale preview ${index + 1}`}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.3 }}
+              className="w-full h-full object-contain pointer-events-none select-none"
+              draggable={false}
+            />
+          </AnimatePresence>
+        </motion.div>
 
         <div className="flex-1 flex flex-col justify-center mt-8">
           {textBlock}

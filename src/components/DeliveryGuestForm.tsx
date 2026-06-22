@@ -179,19 +179,39 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
         const { latitude, longitude } = position.coords;
         
         try {
+          const controller = new AbortController();
+          const timeoutId = setTimeout(() => controller.abort(), 8000);
           const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${encodeURIComponent(
+              latitude.toFixed(6)
+            )}&lon=${encodeURIComponent(longitude.toFixed(6))}&addressdetails=1`,
+            { signal: controller.signal, headers: { Accept: "application/json" } }
           );
-          
+          clearTimeout(timeoutId);
+
           if (response.ok) {
-            const data = await response.json();
-            const address = data.address || {};
-            
-            const address1 = [address.house_number, address.road].filter(Boolean).join(' ') || data.display_name?.split(',')[0] || '';
-            const city = address.city || address.town || address.village || address.municipality || '';
-            const state = address.state || '';
-            const zip = address.postcode || '';
-            
+            const raw = await response.json().catch(() => null);
+            const parsed = NominatimResponseSchema.safeParse(raw);
+            if (!parsed.success) {
+              throw new Error("Invalid address data");
+            }
+            const data = parsed.data;
+            const address = data.address ?? {};
+
+            const houseNumber = sanitize(address.house_number, 20);
+            const road = sanitize(address.road, 200);
+            const displayName = sanitize(data.display_name, 500);
+            const address1 =
+              [houseNumber, road].filter(Boolean).join(" ") ||
+              displayName.split(",")[0] ||
+              "";
+            const city = sanitize(
+              address.city || address.town || address.village || address.municipality,
+              100
+            );
+            const state = sanitize(address.state, 100);
+            const zip = sanitize(address.postcode, 20);
+
             setFormData((prev) => ({
               ...prev,
               address: {
@@ -201,10 +221,10 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
                 city: city,
                 state: state,
                 zip: zip,
-                fullAddress: data.display_name || `${address1}, ${city} ${state}, ${zip}`,
+                fullAddress: displayName || `${address1}, ${city} ${state}, ${zip}`,
               },
             }));
-            
+
             toast({
               title: "Location found",
               description: "Your current address has been added.",

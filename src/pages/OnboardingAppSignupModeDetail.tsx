@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import {

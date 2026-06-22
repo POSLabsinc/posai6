@@ -25,6 +25,7 @@ type Step =
   | "su-locations"
   | "su-revenue"
   | "su-mode"
+  | "su-mode-learn"
   | "su-creating"
   | "si-email"
   | "si-password"

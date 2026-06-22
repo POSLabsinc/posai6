@@ -12,6 +12,16 @@ import {
   LayoutGrid,
 } from "lucide-react";
 import { useIsLandscape } from "@/hooks/use-landscape";
+import standardVideo from "@/assets/onboarding/mode-standard.mp4.asset.json";
+import quickserviceVideo from "@/assets/onboarding/mode-quickservice.mp4.asset.json";
+import fullserviceVideo from "@/assets/onboarding/mode-fullservice.mp4.asset.json";
+
+const MODE_VIDEO: Record<string, string> = {
+  standard: standardVideo.url,
+  quickservice: quickserviceVideo.url,
+  fullservice: fullserviceVideo.url,
+};
+
 
 type Feature = {
   icon: React.ReactNode;
@@ -147,8 +157,19 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
   );
 
   const illustration = (
-    <div className="w-full h-full rounded-2xl bg-foreground/[0.04] border border-foreground/[0.08]" />
+    <div className="w-full h-full rounded-2xl overflow-hidden bg-foreground/[0.04] border border-foreground/[0.08]">
+      <video
+        key={modeId}
+        src={MODE_VIDEO[modeId]}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="w-full h-full object-cover"
+      />
+    </div>
   );
+
 
   const featureList = (
     <div className="flex flex-col gap-2">

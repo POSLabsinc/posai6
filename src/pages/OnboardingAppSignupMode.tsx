@@ -1,7 +1,8 @@
 import { useMemo, useState } from "react";
 import MarketingPanel from "@/components/onboarding/MarketingPanel";
 import { useLocation, useNavigate } from "react-router-dom";
-import { ChevronLeft, LayoutGrid, Zap, ChefHat, Check, Minus, Sparkles } from "lucide-react";
+import { ChevronLeft, ChevronDown, LayoutGrid, Zap, ChefHat, Check, Minus, Sparkles } from "lucide-react";
+
 import { useIsLandscape } from "@/hooks/use-landscape";
 
 type ModeId = "standard" | "quickservice" | "fullservice";

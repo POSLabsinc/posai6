@@ -347,8 +347,15 @@ const OnboardingAppAI = () => {
     pushUser("••••••••");
     setCollected((c) => ({ ...c, password }));
     setPassword("");
-    pushAssistant("Which country is your business in?");
-    setStep("su-country");
+    const detected = detectCountry();
+    pushAssistant(`I detected your country as **${detected}**. You can tap edit to change it.`);
+    setMessages((prev) => [
+      ...prev,
+      { id: `${Date.now()}-u-country-${Math.random()}`, role: "user", content: detected, step: "su-country" },
+    ]);
+    setCollected((c) => ({ ...c, country: detected }));
+    pushAssistant("What type of business do you run?");
+    setStep("su-type");
   };
 
   const pickCountry = (country: string) => {

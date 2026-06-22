@@ -193,10 +193,7 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
             className="flex flex-col px-6 py-6 flex-1 min-h-0"
             style={{ width: "55%" }}
           >
-            <div className="flex items-center justify-between">
-              {backBtn}
-              {useBtn}
-            </div>
+            <div>{backBtn}</div>
             <div className="mt-4">
               {title}
               {subtitle}
@@ -205,7 +202,9 @@ const OnboardingAppSignupModeDetail = ({ modeId }: Props) => {
               {illustration}
             </div>
             <div className="flex-1 overflow-y-auto mt-4 pb-4">{featureList}</div>
+            <div className="pt-2">{useBtn}</div>
           </div>
+
         </div>
       </div>
     );

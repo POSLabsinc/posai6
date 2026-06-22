@@ -27,6 +27,7 @@ type Step =
   | "intent"
   | "su-restaurant"
   | "su-email"
+  | "su-email-personal"
   | "su-password"
   | "su-country"
   | "su-type"

@@ -177,7 +177,7 @@ const OnboardingAppSignupVerify = () => {
         return;
       }
       if (intent === "signup_org") {
-        navigate("/onboarding/app/signup/revenue", { state });
+        navigate("/onboarding/app/signup/type", { state });
       } else if (intent === "signup_demo") {
         navigate("/onboarding/app/signup/demo", { state });
       } else {

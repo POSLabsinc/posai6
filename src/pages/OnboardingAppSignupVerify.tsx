@@ -210,7 +210,7 @@ const OnboardingAppSignupVerify = () => {
 
   const backBtn = (
     <button
-      onClick={() => navigate(-1)}
+      onClick={() => navigate("/onboarding/app/signup/account")}
       className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
       aria-label="Back"
     >

@@ -344,9 +344,23 @@ const OnboardingAppCarousel = () => {
           dragConstraints={{ left: 0, right: 0 }}
           dragElastic={0.2}
           onDragEnd={onDragEnd}
-          className="rounded-3xl border border-foreground/[0.08] bg-foreground/[0.04] w-full"
+          className="rounded-3xl w-full overflow-hidden flex items-center justify-center"
           style={{ height: "45vh" }}
-        />
+        >
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={index}
+              src={mobileImages[index] ?? mobileImages[0]}
+              alt={`Point of Sale preview ${index + 1}`}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
+              transition={{ duration: 0.3 }}
+              className="w-full h-full object-contain pointer-events-none select-none"
+              draggable={false}
+            />
+          </AnimatePresence>
+        </motion.div>
 
         <div className="flex-1 flex flex-col justify-center mt-8">
           {textBlock}

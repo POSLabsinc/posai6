@@ -106,6 +106,104 @@ const RESTAURANT_TYPES = [
 const LOCATION_OPTIONS = ["1", "2-5", "6-10", "11+"];
 const REVENUE_OPTIONS = ["< $250K", "$250K - $1M", "$1M - $5M", "$5M+"];
 const MODE_OPTIONS = ["Standard", "Quick Service", "Full Service"];
+type ModeKey = "standard" | "quickservice" | "fullservice";
+const MODE_META: { id: ModeKey; title: string; icon: React.ComponentType<{ className?: string }> }[] = [
+  { id: "standard", title: "Standard", icon: LayoutGrid },
+  { id: "quickservice", title: "Quick Service", icon: Zap },
+  { id: "fullservice", title: "Full Service", icon: ChefHat },
+];
+const PLAN_SECTIONS: { label: string; rows: { label: string; values: Record<ModeKey, boolean> }[] }[] = [
+  { label: "Orders", rows: [
+    { label: "Quick orders", values: { standard: true, quickservice: true, fullservice: true } },
+    { label: "Custom products", values: { standard: true, quickservice: true, fullservice: true } },
+    { label: "Notes and modifiers", values: { standard: true, quickservice: true, fullservice: true } },
+    { label: "Hold and fire", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Course management", values: { standard: false, quickservice: false, fullservice: true } },
+  ]},
+  { label: "Payments", rows: [
+    { label: "Card / cash", values: { standard: true, quickservice: true, fullservice: true } },
+    { label: "Split payments", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Tips and gratuity", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Vouchers and gift cards", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Refunds and voids", values: { standard: true, quickservice: true, fullservice: true } },
+  ]},
+  { label: "Kitchen", rows: [
+    { label: "KDS routing", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Multi-channel menus", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Bump and recall", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Prep stations", values: { standard: false, quickservice: false, fullservice: true } },
+  ]},
+  { label: "Table management", rows: [
+    { label: "Floor plans", values: { standard: false, quickservice: false, fullservice: true } },
+    { label: "Open checks", values: { standard: false, quickservice: false, fullservice: true } },
+    { label: "Coursing", values: { standard: false, quickservice: false, fullservice: true } },
+    { label: "Transfers and merges", values: { standard: false, quickservice: false, fullservice: true } },
+    { label: "Split check", values: { standard: false, quickservice: false, fullservice: true } },
+  ]},
+  { label: "Guests and reservations", rows: [
+    { label: "Guest profiles", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Reservations", values: { standard: false, quickservice: false, fullservice: true } },
+    { label: "Waitlist", values: { standard: false, quickservice: false, fullservice: true } },
+  ]},
+  { label: "Inventory", rows: [
+    { label: "Stock deduction on fire", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Low-stock alerts", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Write-off tracking", values: { standard: false, quickservice: false, fullservice: true } },
+  ]},
+  { label: "Workforce", rows: [
+    { label: "Clock in and out", values: { standard: true, quickservice: true, fullservice: true } },
+    { label: "Roles and permissions", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Shift summary", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "Cash drawer sessions", values: { standard: false, quickservice: true, fullservice: true } },
+  ]},
+  { label: "Reports and AI", rows: [
+    { label: "End of day", values: { standard: true, quickservice: true, fullservice: true } },
+    { label: "Sales analytics", values: { standard: false, quickservice: true, fullservice: true } },
+    { label: "AI report generation", values: { standard: false, quickservice: true, fullservice: true } },
+  ]},
+  { label: "Security", rows: [
+    { label: "MPIN gate", values: { standard: true, quickservice: true, fullservice: true } },
+    { label: "Device PIN lockout", values: { standard: true, quickservice: true, fullservice: true } },
+    { label: "Audit log", values: { standard: false, quickservice: false, fullservice: true } },
+  ]},
+];
+const MODE_TITLE_TO_KEY: Record<string, ModeKey> = { "Standard": "standard", "Quick Service": "quickservice", "Full Service": "fullservice" };
+
+const answerPlanQuestion = (q: string, bestTitle: string): string => {
+  const t = q.toLowerCase();
+  const featureHit = (kw: string[]) => {
+    for (const section of PLAN_SECTIONS) {
+      for (const row of section.rows) {
+        const lbl = row.label.toLowerCase();
+        if (kw.some((k) => lbl.includes(k))) {
+          const modes = MODE_META.filter((m) => row.values[m.id]).map((m) => m.title);
+          return `**${row.label}** is available in ${modes.length ? modes.join(", ") : "no plans"}.`;
+        }
+      }
+    }
+    return null;
+  };
+  if (/differen|compare|vs|between/.test(t)) {
+    return `**Standard** covers the basics: quick orders, card or cash, end of day. **Quick Service** adds hold and fire, split payments, tips, KDS, guest profiles, inventory, and shift summaries. **Full Service** adds floor plans, open checks, coursing, reservations, transfers, split checks, and audit logs.`;
+  }
+  if (/recommend|best|suggest|which/.test(t)) {
+    return `Based on your business, **${bestTitle}** is the best match. You can still pick any plan; you can switch later.`;
+  }
+  if (/price|cost|trial|free|pay/.test(t)) {
+    return `All plans start with a 14-day free trial. You can change plans anytime from settings.`;
+  }
+  const hit =
+    featureHit(["kds", "kitchen"]) ||
+    featureHit(["table", "floor"]) ||
+    featureHit(["reservation", "waitlist"]) ||
+    featureHit(["tip", "gratuity"]) ||
+    featureHit(["split"]) ||
+    featureHit(["inventory", "stock"]) ||
+    featureHit(["report", "analytics", "ai"]) ||
+    featureHit(["audit"]);
+  if (hit) return hit;
+  return `Good question. ${bestTitle} is the best match for your business. Open the comparison above to see which features are in each plan, or ask about a specific feature like KDS, tables, tips, or reports.`;
+};
 
 const TYPE_TO_BEST_MODE: Record<string, string> = {
   "Cafe": "Quick Service",

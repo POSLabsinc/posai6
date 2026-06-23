@@ -431,18 +431,18 @@ const AddGuestFormLegacy = ({ onClose, onSave }: Props) => {
       </div>
 
       {/* Footer */}
-      <div className="flex gap-3 px-4 py-3 border-t border-white/10 flex-shrink-0">
+      <div className="flex gap-3 px-5 py-4 border-t border-white/[0.06] flex-shrink-0 bg-gradient-to-t from-black/30 to-transparent">
         <Button
           variant="outline"
           onClick={onClose}
-          className="flex-1 bg-white/5 border-white/15 text-foreground hover:bg-white/10"
+          className="flex-1 h-11 bg-[#2a2a2a] border-white/[0.08] text-foreground hover:bg-[#333] rounded-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_1px_2px_rgba(0,0,0,0.4)]"
         >
           Cancel
         </Button>
         <Button
           onClick={handleSave}
           disabled={isSaving || !isValid}
-          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          className="flex-1 h-11 bg-[#2a2a2a] text-foreground hover:bg-[#333] rounded-xl border border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_1px_2px_rgba(0,0,0,0.4)] disabled:opacity-100 disabled:text-neutral-400"
         >
           {isSaving ? "Saving..." : "Save Guest"}
         </Button>

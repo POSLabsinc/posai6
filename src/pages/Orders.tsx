@@ -3287,7 +3287,7 @@ const Orders = () => {
               {/* Add Guest Form Overlay */}
               {showAddGuestForm &&
             <div className="absolute inset-0 z-10 bg-background">
-                  <AddGuestForm
+                  <AddGuestFormLegacy
                 onClose={() => setShowAddGuestForm(false)}
                 onSave={(guestData) => {
                   const fullName = `${guestData.firstName} ${guestData.lastName}`;
@@ -3295,8 +3295,7 @@ const Orders = () => {
                   setGuestPhone(guestData.phoneNumber);
                   setShowAddGuestForm(false);
                   fetchPastOrdersForGuest(fullName);
-                }}
-                compact />
+                }} />
 
                 </div>
             }

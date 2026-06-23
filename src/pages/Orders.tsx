@@ -90,6 +90,7 @@ import { usePanelPosition } from "@/contexts/PanelPositionContext";
 import { PanelDropZones } from "@/components/PanelDropZone";
 import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
 import AddGuestForm from "@/components/AddGuestForm";
+import AddGuestFormLegacy from "@/components/AddGuestFormLegacy";
 import DineInGuestForm from "@/components/DineInGuestForm";
 import TakeOutGuestForm from "@/components/TakeOutGuestForm";
 import DeliveryGuestForm from "@/components/DeliveryGuestForm";
@@ -2157,9 +2158,9 @@ const Orders = () => {
 
           {/* Mobile Add Guest Form Overlay */}
           {showAddGuestForm &&
-        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
-              <div className="w-full max-w-md h-[85vh] rounded-xl overflow-hidden relative bg-card">
-                <AddGuestForm
+        <div className="fixed inset-0 z-[100] bg-black/50 flex items-end justify-center">
+              <div className="w-full max-w-md h-[85vh] rounded-t-2xl overflow-hidden relative bg-card">
+                <AddGuestFormLegacy
               onClose={() => setShowAddGuestForm(false)}
               onSave={(guestData) => {
                 const fullName = `${guestData.firstName} ${guestData.lastName}`;
@@ -2167,8 +2168,7 @@ const Orders = () => {
                 setGuestPhone(guestData.phoneNumber);
                 setShowAddGuestForm(false);
                 fetchPastOrdersForGuest(fullName);
-              }}
-              compact />
+              }} />
 
               </div>
             </div>
@@ -3287,7 +3287,7 @@ const Orders = () => {
               {/* Add Guest Form Overlay */}
               {showAddGuestForm &&
             <div className="absolute inset-0 z-10 bg-background">
-                  <AddGuestForm
+                  <AddGuestFormLegacy
                 onClose={() => setShowAddGuestForm(false)}
                 onSave={(guestData) => {
                   const fullName = `${guestData.firstName} ${guestData.lastName}`;
@@ -3295,8 +3295,7 @@ const Orders = () => {
                   setGuestPhone(guestData.phoneNumber);
                   setShowAddGuestForm(false);
                   fetchPastOrdersForGuest(fullName);
-                }}
-                compact />
+                }} />
 
                 </div>
             }

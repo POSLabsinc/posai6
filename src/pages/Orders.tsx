@@ -90,6 +90,7 @@ import { usePanelPosition } from "@/contexts/PanelPositionContext";
 import { PanelDropZones } from "@/components/PanelDropZone";
 import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
 import AddGuestForm from "@/components/AddGuestForm";
+import AddGuestFormLegacy from "@/components/AddGuestFormLegacy";
 import DineInGuestForm from "@/components/DineInGuestForm";
 import TakeOutGuestForm from "@/components/TakeOutGuestForm";
 import DeliveryGuestForm from "@/components/DeliveryGuestForm";

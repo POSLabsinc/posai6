@@ -189,12 +189,12 @@ const AddGuestFormLegacy = ({ onClose, onSave }: Props) => {
   );
 
   return (
-    <div className="flex flex-col h-full bg-background overflow-hidden">
+    <div className="flex flex-col h-full bg-[#1c1c1e] overflow-hidden rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.06)]">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 flex-shrink-0">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06] flex-shrink-0 bg-gradient-to-b from-white/[0.03] to-transparent">
         <div className="flex items-center gap-2">
           <img src={addGuestIcon} alt="" className="w-5 h-5" />
-          <h2 className="text-base font-semibold text-foreground">Add Guest</h2>
+          <h2 className="text-[15px] font-semibold text-foreground">Add Guest</h2>
         </div>
         <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full transition-colors">
           <X className="w-4 h-4 text-foreground/70" />

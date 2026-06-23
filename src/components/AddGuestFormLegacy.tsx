@@ -51,9 +51,9 @@ const vehicleBrands: Record<string, string[]> = {
 };
 
 const inputCls =
-  "w-full h-10 px-3 text-sm bg-neutral-900/60 border border-white/10 rounded-lg text-foreground placeholder:text-neutral-500 outline-none focus:border-white/20";
+  "w-full h-11 px-3 text-sm bg-[#2a2a2a] border border-white/5 rounded-xl text-foreground placeholder:text-neutral-500 outline-none focus:border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_1px_2px_rgba(0,0,0,0.4)]";
 
-const labelCls = "text-xs font-medium text-neutral-300 mb-1.5 block";
+const labelCls = "text-[13px] font-medium text-neutral-200 mb-2 block";
 
 const AddGuestFormLegacy = ({ onClose, onSave }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);

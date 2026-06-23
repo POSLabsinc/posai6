@@ -51,9 +51,9 @@ const vehicleBrands: Record<string, string[]> = {
 };
 
 const inputCls =
-  "w-full h-10 px-3 text-sm bg-neutral-900/60 border border-white/10 rounded-lg text-foreground placeholder:text-neutral-500 outline-none focus:border-white/20";
+  "w-full h-11 px-3 text-sm bg-[#2a2a2a] border border-white/5 rounded-xl text-foreground placeholder:text-neutral-500 outline-none focus:border-white/15 shadow-[inset_0_1px_0_rgba(255,255,255,0.04),0_1px_2px_rgba(0,0,0,0.4)]";
 
-const labelCls = "text-xs font-medium text-neutral-300 mb-1.5 block";
+const labelCls = "text-[13px] font-medium text-neutral-200 mb-2 block";
 
 const AddGuestFormLegacy = ({ onClose, onSave }: Props) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -189,12 +189,12 @@ const AddGuestFormLegacy = ({ onClose, onSave }: Props) => {
   );
 
   return (
-    <div className="flex flex-col h-full bg-background overflow-hidden">
+    <div className="flex flex-col h-full bg-[#1c1c1e] overflow-hidden rounded-2xl shadow-[0_24px_60px_rgba(0,0,0,0.55),0_0_0_1px_rgba(255,255,255,0.06)]">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 flex-shrink-0">
+      <div className="flex items-center justify-between px-5 py-4 border-b border-white/[0.06] flex-shrink-0 bg-gradient-to-b from-white/[0.03] to-transparent">
         <div className="flex items-center gap-2">
           <img src={addGuestIcon} alt="" className="w-5 h-5" />
-          <h2 className="text-base font-semibold text-foreground">Add Guest</h2>
+          <h2 className="text-[15px] font-semibold text-foreground">Add Guest</h2>
         </div>
         <button onClick={onClose} className="p-1 hover:bg-white/10 rounded-full transition-colors">
           <X className="w-4 h-4 text-foreground/70" />
@@ -431,18 +431,18 @@ const AddGuestFormLegacy = ({ onClose, onSave }: Props) => {
       </div>
 
       {/* Footer */}
-      <div className="flex gap-3 px-4 py-3 border-t border-white/10 flex-shrink-0">
+      <div className="flex gap-3 px-5 py-4 border-t border-white/[0.06] flex-shrink-0 bg-gradient-to-t from-black/30 to-transparent">
         <Button
           variant="outline"
           onClick={onClose}
-          className="flex-1 bg-white/5 border-white/15 text-foreground hover:bg-white/10"
+          className="flex-1 h-11 bg-[#2a2a2a] border-white/[0.08] text-foreground hover:bg-[#333] rounded-xl shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_1px_2px_rgba(0,0,0,0.4)]"
         >
           Cancel
         </Button>
         <Button
           onClick={handleSave}
           disabled={isSaving || !isValid}
-          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          className="flex-1 h-11 bg-[#2a2a2a] text-foreground hover:bg-[#333] rounded-xl border border-white/[0.08] shadow-[inset_0_1px_0_rgba(255,255,255,0.06),0_1px_2px_rgba(0,0,0,0.4)] disabled:opacity-100 disabled:text-neutral-400"
         >
           {isSaving ? "Saving..." : "Save Guest"}
         </Button>

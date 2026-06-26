@@ -106,7 +106,7 @@ const SystemSettings = () => {
           <SettingsOption
             icon={aiIntegrationIcon}
             iconBgColor="#3B82F6"
-            label="AI Integration & Settings"
+            label="AI Integration"
             onClick={() => navigate('/settings/network/ai-integration')}
             showDivider={false}
           />

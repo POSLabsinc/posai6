@@ -820,6 +820,18 @@ const Orders = () => {
     });
   });
 
+  // Prefill guest info when navigating from Guest Book "New Order"
+  useEffect(() => {
+    try {
+      const raw = sessionStorage.getItem("pos-guest-book-selected");
+      if (!raw) return;
+      sessionStorage.removeItem("pos-guest-book-selected");
+      const data = JSON.parse(raw);
+      if (data?.name) setGuestName(data.name);
+      if (data?.phone) setGuestPhone(String(data.phone).replace(/\D/g, ""));
+    } catch {}
+  }, []);
+
   // Initialize order with existing items when in add-item mode
   useEffect(() => {
     if (!addItemMode) return;

@@ -786,7 +786,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
       )}
 
       {/* Tabs */}
-      <div className="flex justify-center mb-6">
+      <div className="flex items-center justify-between gap-3 mb-6">
         <div className="inline-flex gap-1 bg-neutral-800/40 rounded-full p-1 overflow-x-auto scrollbar-hide">
           {tabs.map(tab => (
             <button
@@ -802,6 +802,20 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
             </button>
           ))}
         </div>
+        <button
+          onClick={() => {
+            try {
+              sessionStorage.setItem(
+                "pos-guest-book-selected",
+                JSON.stringify({ name: guest.name, phone: guest.phone })
+              );
+            } catch {}
+            navigate("/orders");
+          }}
+          className="flex-shrink-0 px-5 py-2 rounded-full bg-[#F9900E] text-white text-sm font-semibold hover:bg-[#e8830a] active:opacity-80 transition-all whitespace-nowrap"
+        >
+          New Order
+        </button>
       </div>
 
       {activeTab === "profile" && (

@@ -641,6 +641,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
   const [showTagPicker, setShowTagPicker] = useState(false);
   const { getIconBgColor } = useAppearance();
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const [newTagInput, setNewTagInput] = useState("");
   const [showAllergyPicker, setShowAllergyPicker] = useState(false);
   const [newAllergyInput, setNewAllergyInput] = useState("");

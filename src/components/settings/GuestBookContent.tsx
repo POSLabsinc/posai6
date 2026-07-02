@@ -813,8 +813,9 @@ const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; 
             } catch {}
             navigate("/orders");
           }}
-          className="flex-shrink-0 px-5 py-2 rounded-full bg-[#F9900E] text-white text-sm font-semibold hover:bg-[#e8830a] active:opacity-80 transition-all whitespace-nowrap"
+          className="flex-shrink-0 px-5 py-2 rounded-full bg-white text-neutral-900 text-sm font-semibold hover:bg-neutral-100 active:opacity-80 transition-all whitespace-nowrap flex items-center gap-1.5"
         >
+          <Plus className="w-4 h-4" />
           New Order
         </button>
       </div>

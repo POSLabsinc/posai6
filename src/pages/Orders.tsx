@@ -304,10 +304,10 @@ const Orders = () => {
   });
 
   // Fetch menus from database - only enabled & non-archived menus appear
-  const { menuList, menuCategories } = useSupabaseMenus();
+  const { menuList, menuCategories, menuCategoryMeta } = useSupabaseMenus();
 
   // Fetch products from the database so newly added products show on the Orders screen
-  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; price: number; category_name: string; price_type: string; active: boolean; archived: boolean; stock_count: number | null; is_available: boolean }>>([]);
+  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; price: number; category_id: string; category_name: string; price_type: string; active: boolean; archived: boolean; stock_count: number | null; is_available: boolean }>>([]);
   const dbProductsByNormalizedName = useMemo(
     () => new Map(dbProducts.map((product) => [normalizeProductKey(product.name), product])),
     [dbProducts]
@@ -324,6 +324,7 @@ const Orders = () => {
         id: p.id,
         name: p.name,
         price: Number(p.price),
+        category_id: p.category_id,
         category_name: p.categories?.name ?? '',
         price_type: p.price_type,
         active: p.active,
@@ -371,9 +372,18 @@ const Orders = () => {
   // Merge dynamic subcategories from category settings with hardcoded fallback
   const dynamicSubcategories = useMemo(() => getDynamicCategorySubcategories(), []);
   const mergedCategorySubcategories = useMemo(() => {
-    // Dynamic takes priority, fall back to hardcoded
-    return { ...categorySubcategories, ...dynamicSubcategories };
-  }, [dynamicSubcategories]);
+    const result: Record<string, string[]> = { ...categorySubcategories, ...dynamicSubcategories };
+    const menuCategoryNames = new Set(
+      Object.values(menuCategories).flat().filter(Boolean)
+    );
+
+    for (const categoryName of menuCategoryNames) {
+      const existing = result[categoryName] || [];
+      result[categoryName] = [categoryName, ...existing.filter((sub) => sub !== categoryName)];
+    }
+
+    return result;
+  }, [dynamicSubcategories, menuCategories]);
 
   // Augment menuCategories with localStorage-only parent categories + DB product categories
   const augmentedMenuCategories = useMemo(() => {
@@ -397,12 +407,14 @@ const Orders = () => {
     // For each menu, build category → subcategory → products
     for (const menuName of menuList) {
       const cats = augmentedMenuCategories[menuName] || [];
+      const categoryMetaByName = new Map((menuCategoryMeta[menuName] || []).map((category) => [category.name.toLowerCase(), category]));
       const catItems: CategoryItems = {};
       for (const cat of cats) {
         const subs = dynamicSubcategories[cat] || categorySubcategories[cat] || [];
         const subItems: SubcategoryItems = {};
+        const categoryMeta = categoryMetaByName.get(cat.toLowerCase());
         const dbCatProducts = dbProducts.filter(
-          (p) => p.category_name.toLowerCase() === cat.toLowerCase()
+          (p) => p.category_id === categoryMeta?.id || p.category_name.toLowerCase() === cat.toLowerCase()
         );
         const dbProductsByName = new Map(
           dbCatProducts.map((product) => [normalizeProductKey(product.name), product])
@@ -464,8 +476,8 @@ const Orders = () => {
             }));
 
           if (newDbItems.length > 0) {
-            // Always add DB-only products under the parent category key so they're visible
-            // without needing to click a specific subcategory
+            // Always add backend products under the parent category key so they remain visible
+            // even when no child subcategory hierarchy exists in device storage.
             subItems[cat] = [...(subItems[cat] || []), ...newDbItems];
           }
         }
@@ -505,7 +517,7 @@ const Orders = () => {
       }
     }
     return result;
-  }, [menuList, augmentedMenuCategories, dynamicSubcategories, dbProducts, dbProductsByNormalizedName]);
+  }, [menuList, augmentedMenuCategories, menuCategoryMeta, dynamicSubcategories, dbProducts, dbProductsByNormalizedName]);
 
   const addItemMode = searchParams.get('mode') === 'addItem';
   const transferNewMode = searchParams.get('mode') === 'transferNew';

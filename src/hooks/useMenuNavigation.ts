@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 
 interface UseMenuNavigationProps {
   menuList: string[];
@@ -22,7 +22,7 @@ export function useMenuNavigation({
     [augmentedMenuCategories, mergedCategorySubcategories]
   );
 
-  const defaultMenu = menuList[0] || "";
+  const defaultMenu = "BAR MENU";
   const { firstCategory: defaultCategory, firstSubcategory: defaultSubcategory } =
     getFirstCategoryAndSubcategory(defaultMenu);
 
@@ -34,44 +34,23 @@ export function useMenuNavigation({
 
   // Sync selected menu when menu list changes
   useEffect(() => {
-    if (menuList.length === 0) {
-      if (selectedMenu) setSelectedMenu("");
-      if (activeCategory) setActiveCategory("");
-      if (activeSubcategory) setActiveSubcategory("");
-      return;
+    if (menuList.length > 0 && !menuList.includes(selectedMenu)) {
+      setSelectedMenu(menuList[0]);
     }
-
-    if (!selectedMenu || !menuList.includes(selectedMenu)) {
-      const nextMenu = menuList[0];
-      const { firstCategory, firstSubcategory } = getFirstCategoryAndSubcategory(nextMenu);
-      setSelectedMenu(nextMenu);
-      setActiveCategory(firstCategory);
-      setActiveSubcategory(firstSubcategory);
-    }
-  }, [menuList, selectedMenu, activeCategory, activeSubcategory, getFirstCategoryAndSubcategory]);
+  }, [menuList]);
 
   // Sync active category/subcategory when menu data loads from DB
   useEffect(() => {
-    if (!selectedMenu || menuList.length === 0) return;
-
-    const cats = augmentedMenuCategories[selectedMenu] || [];
-    if (cats.length === 0) {
-      if (activeCategory) setActiveCategory("");
-      if (activeSubcategory) setActiveSubcategory("");
-      return;
+    if (menuList.length > 0 && augmentedMenuCategories[selectedMenu]?.length) {
+      const cats = augmentedMenuCategories[selectedMenu];
+      if (!activeCategory || !cats.includes(activeCategory)) {
+        const firstCat = cats[0] || "";
+        setActiveCategory(firstCat);
+        const subs = mergedCategorySubcategories[firstCat] || [];
+        setActiveSubcategory(subs[0] || "");
+      }
     }
-
-    const nextCategory = activeCategory && cats.includes(activeCategory) ? activeCategory : cats[0];
-    if (nextCategory !== activeCategory) {
-      setActiveCategory(nextCategory);
-    }
-
-    const subs = mergedCategorySubcategories[nextCategory] || [];
-    const nextSubcategory = activeSubcategory && subs.includes(activeSubcategory) ? activeSubcategory : subs[0] || "";
-    if (nextSubcategory !== activeSubcategory) {
-      setActiveSubcategory(nextSubcategory);
-    }
-  }, [menuList, augmentedMenuCategories, mergedCategorySubcategories, selectedMenu, activeCategory, activeSubcategory]);
+  }, [menuList, augmentedMenuCategories, selectedMenu]);
 
   const handleMenuSelect = useCallback(
     (value: string) => {

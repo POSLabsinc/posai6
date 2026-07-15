@@ -270,6 +270,20 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
     };
   }, [showAutoLockDropdown]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (holdTimeDropdownRef.current && !holdTimeDropdownRef.current.contains(event.target as Node)) {
+        setShowHoldTimeDropdown(false);
+      }
+    };
+    if (showHoldTimeDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showHoldTimeDropdown]);
+
   const getAutoLockLabel = () => {
     const option = autoLockOptions.find(opt => opt.value === autoLockTimer);
     return option?.label || "30 Minutes";

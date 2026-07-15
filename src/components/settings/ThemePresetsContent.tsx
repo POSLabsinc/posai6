@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useThemePresets, themePresets } from "@/contexts/ThemePresetsContext";
 import ThemePresetCard from "@/components/settings/ThemePresetCard";
 import { toast } from "@/hooks/use-toast";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 const downloadThemes = () => {
   const blob = new Blob([JSON.stringify(themePresets, null, 2)], { type: "application/json" });
@@ -30,6 +31,22 @@ const ThemePresetsContent = ({
     setSelectedThemeId,
     selectedTheme
   } = useThemePresets();
+  const { setThemeColor, applyThemeColor } = useAppearance();
+
+  const hexOnly = (v: string) => /^#[0-9A-Fa-f]{6}$/.test(v);
+
+  const handleApply = () => {
+    if (!selectedTheme) return;
+    // Prefer accent; fall back to surface/bg if accent isn't a solid hex
+    const candidate = [selectedTheme.accent, selectedTheme.accent2, selectedTheme.surface, selectedTheme.bg]
+      .find(hexOnly);
+    if (candidate) {
+      setThemeColor(candidate);
+      applyThemeColor(candidate);
+    }
+    toast({ title: "Theme applied", description: `${selectedTheme.name} is now active.` });
+  };
+
   return <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Header */}
       {showHeader && <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">
@@ -50,7 +67,7 @@ const ThemePresetsContent = ({
               </div>
               <div className="flex items-center justify-center gap-3">
                 <button
-                  onClick={() => toast({ title: "Theme applied", description: `${selectedTheme.name} is now active.` })}
+                  onClick={handleApply}
                   className="px-6 h-10 rounded-full bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors"
                 >
                   Apply

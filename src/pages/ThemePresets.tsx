@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useThemePresets, themePresets } from "@/contexts/ThemePresetsContext";
 import ThemePresetCard from "@/components/settings/ThemePresetCard";
 import { toast } from "@/hooks/use-toast";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 const downloadThemes = () => {
   const blob = new Blob([JSON.stringify(themePresets, null, 2)], { type: "application/json" });
@@ -17,6 +18,18 @@ const downloadThemes = () => {
 const ThemePresets = () => {
   const navigate = useNavigate();
   const { selectedThemeId, setSelectedThemeId, selectedTheme } = useThemePresets();
+  const { setThemeColor, applyThemeColor } = useAppearance();
+
+  const handleApply = () => {
+    if (!selectedTheme) return;
+    const hexOnly = (v: string) => /^#[0-9A-Fa-f]{6}$/.test(v);
+    const candidate = [selectedTheme.accent, selectedTheme.accent2, selectedTheme.surface, selectedTheme.bg].find(hexOnly);
+    if (candidate) {
+      setThemeColor(candidate);
+      applyThemeColor(candidate);
+    }
+    toast({ title: "Theme applied", description: `${selectedTheme.name} is now active.` });
+  };
 
   return (
     <div className="fixed inset-0 bg-background flex flex-col overflow-hidden z-50">
@@ -43,7 +56,7 @@ const ThemePresets = () => {
                 </div>
                 <div className="flex items-center justify-center gap-3">
                   <button
-                    onClick={() => toast({ title: "Theme applied", description: `${selectedTheme.name} is now active.` })}
+                    onClick={handleApply}
                     className="px-6 h-10 rounded-full bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors"
                   >
                     Apply

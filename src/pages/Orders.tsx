@@ -316,7 +316,7 @@ const Orders = () => {
   const fetchDbProducts = useCallback(async () => {
     const { data } = await (supabase as any)
       .from('products')
-      .select('id, name, price, price_type, active, archived, stock_count, is_available, categories(name)')
+      .select('id, category_id, name, price, price_type, active, archived, stock_count, is_available, categories(name)')
       .eq('active', true)
       .eq('archived', false);
     if (data) {
@@ -2895,6 +2895,11 @@ const Orders = () => {
           {(augmentedMenuCategories[selectedMenu] || []).map((cat) => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} style={activeCategory === cat ? undefined : { backgroundColor: '#1f1f1f', color: '#ffffff' }} className={`rounded-full px-2.5 md:px-4 lg:px-6 h-7 md:h-8 lg:h-9 text-[11px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `${getCategoryBorderColor(cat)} hover:opacity-90`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
+          {menuList.length > 0 && (augmentedMenuCategories[selectedMenu] || []).length === 0 && (
+            <div className="h-8 px-3 flex items-center rounded-full bg-neutral-800 text-neutral-400 text-xs border border-neutral-700">
+              No categories linked to this menu
+            </div>
+          )}
         </div>
 
         <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />
@@ -2953,6 +2958,17 @@ const Orders = () => {
               const filteredItems = searchQuery.trim()
                 ? dedupedItems.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
                 : dedupedItems;
+              if (filteredItems.length === 0) {
+                return <div className="h-full min-h-[220px] flex flex-col items-center justify-center gap-2 text-center px-4">
+                  <FolderOpen className="w-9 h-9 text-neutral-500" />
+                  <p className="text-sm font-semibold text-neutral-300">
+                    {searchQuery.trim() ? "No products match your search" : "No products in this category"}
+                  </p>
+                  <p className="text-xs text-neutral-500 max-w-[260px]">
+                    {searchQuery.trim() ? "Try another product name." : "Choose another category or link products to this menu in settings."}
+                  </p>
+                </div>;
+              }
               return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2 pb-4 md:pb-0">
                 {filteredItems.map((item, index) => {
                   const menuItem = item as MenuItem;

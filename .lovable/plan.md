@@ -1,90 +1,92 @@
-## Diagnosis
+# Move the POS App to a LocalStorage-Only Data Layer
 
-The Orders screen is mixing two different menu systems:
+## Goal
 
-1. **Backend menus and categories are flat**
-   - `menus`, `menu_categories`, `categories`, and `products` are loading from the backend.
-   - The backend does not currently store subcategory hierarchy, only category links.
+Stop relying on the Lovable Cloud backend for any runtime data. All menus, categories, products, orders, tickets, guests, settings, employees, and appearance preferences will be read from and written to `localStorage`. The app will behave identically on every device but will no longer sync across devices or require authentication to load data.
 
-2. **Orders expects subcategories from local device storage**
-   - `Orders.tsx` builds subcategories from `getDynamicCategorySubcategories()`.
-   - That function only reads `localStorage` key `categories-settings`.
-   - If the authenticated account, browser, or workspace does not have that local storage data, subcategories are empty even though backend categories and products exist.
+## Important Constraint
 
-3. **The product grid depends on subcategory selection**
-   - Subcategory chips are filtered out unless `dynamicMenuItems[selectedMenu][activeCategory][sub]` has products.
-   - Backend products are currently placed under the parent category key, not reliably under subcategory keys.
-   - Result: categories may appear but subcategories and products can disappear or feel inconsistent when selecting menus.
+Lovable Cloud cannot be fully removed from a project once it has been added. What we CAN do is stop using it at runtime: remove every Supabase client call from the app so the backend is dormant. The user will not notice any Cloud presence, and there will be no auth/RLS/GRANT errors like the ones blocking the Orders screen today.
 
-4. **Menu state can point to stale values**
-   - `useMenuNavigation` defaults to `BAR MENU`, but the live backend menus are names like `Add This`, `Grilled Menu`, `Weekend`, `LE DINER MENU`, etc.
-   - It eventually updates, but active category and subcategory synchronization is fragile.
+## Scope of Change
 
-## Fix plan
+### 1. Introduce a single local data layer
 
-### 1. Make backend data the source of truth for Orders
-Update `useSupabaseMenus` to return richer menu data:
+Create `src/lib/localDataStore.ts` as the one source of truth for:
 
-- Enabled, non-archived menus.
-- Categories linked to each menu.
-- Category IDs and names, not just names.
-- Product counts per category so Orders can avoid hiding valid categories.
+- Menus, categories, subcategories, products, modifiers, add-ons
+- Orders, tickets, order items, ticket order items
+- Guests, guest feedback, reservations
+- Employees, shifts, roles, cash drawer sessions
+- Settings (control center, appearance, cash management, timed pricing, taxes, service charges, etc.)
+- Restaurant tables, floor plans
 
-### 2. Stop requiring localStorage for subcategories
-In `Orders.tsx`, build a safe navigation structure from backend categories:
+Each entity gets a versioned `localStorage` key (e.g. `pos.menus.v1`), a typed getter/setter, and a lightweight pub/sub so components re-render when data changes in another tab or component.
 
-- If a category has backend subcategories in the future, use them.
-- If no backend subcategories exist today, treat the parent category as its own selectable group.
-- Example: `Appetizers` should render as both the category and the fallback subcategory container, so products assigned to `Appetizers` always show.
+Seed data comes from the existing static files (`src/data/orderMenuData.ts`, defaults in `settingsManager.ts`) on first load.
 
-### 3. Fix product grouping
-Update `dynamicMenuItems` so backend products are grouped consistently:
+### 2. Remove Supabase from runtime code
 
-- Products assigned to `category_id` should appear under that category.
-- If no child subcategory exists, place products under the parent category key.
-- Do not depend on `getCategoryProducts()` unless local category settings actually exist.
-- Keep existing hardcoded fallback menu data as fallback only.
+- Replace every `import { supabase } from "@/integrations/supabase/client"` usage with the local data layer.
+- Delete/short-circuit hooks that fetch from Supabase: `useSupabaseMenus`, `useSupabaseOrders`, `useSupabaseGuests`, etc. They will return data from the local store instead, keeping the same interface so pages don't need major rewrites.
+- Remove edge-function calls made from the client. Any AI features that used `ai-settings-chat` / `device-setup-chat` will need a decision (see open question below).
+- The auto-generated files `src/integrations/supabase/client.ts` and `types.ts` stay on disk (they are auto-managed) but nothing will import from them.
 
-### 4. Fix menu/category/subcategory synchronization
-Update `useMenuNavigation` so when menus or categories load:
+### 3. Rework authentication
 
-- The first available backend menu is selected.
-- The first category with products is selected when possible.
-- The first valid subcategory or fallback parent bucket is selected.
-- If the selected menu changes, stale category/subcategory values are cleared immediately.
+The current onboarding, sign-in, activation, and clock-in flows use Supabase Auth. With no backend:
 
-### 5. Improve empty states for debugging and staff clarity
-On the Orders screen:
+- Convert auth to a purely local session stored in `localStorage` (device PIN, employee PIN, demo mode flag).
+- Remove Google OAuth, email OTP verification, and any `auth.users` dependencies.
+- Keep the existing UI screens; only the underlying "who is signed in" state moves to local.
 
-- If a selected menu has no linked categories, show a simple empty state instead of a blank section.
-- If a category has no products, show a short empty state in the product grid.
-- Do not hide all navigation silently.
+### 4. Fix the Orders screen (the immediate pain point)
 
-### 6. Validate with an authenticated session
-After implementation:
+Once step 1 is in place, `Orders.tsx` reads categories, subcategories, and products from the local store. No auth required, works in demo mode, works offline. The blank-menu bug goes away completely.
 
-- Open Orders while authenticated.
-- Select `Grilled Menu`, `Weekend`, and `LE DINER MENU`.
-- Confirm category chips render.
-- Confirm subcategory/fallback chips render.
-- Confirm product cards render for selected categories.
-- Confirm no backend permission errors appear in network logs.
+### 5. Settings sync across the app
 
-## Technical changes
+All settings (Control Center toggles, Appearance theme, Cash Management, Order Hold, Timed Pricing, etc.) already have a `settingsManager` pattern. We extend it so:
 
-Files to update:
+- Every settings screen writes to `localStorage` through the same store.
+- A `storage` event listener + in-memory event bus makes changes propagate live to every open screen and component in the same browser.
 
-- `src/hooks/useSupabaseMenus.ts`
-  - Return menu/category metadata and category product counts.
+### 6. Cleanup
 
-- `src/hooks/useMenuNavigation.ts`
-  - Make active menu/category/subcategory state resilient to async backend data.
+- Remove Supabase migration files from the working set (they stay in history but won't run).
+- Remove `.env` `VITE_SUPABASE_*` reads from any custom code (the auto-generated client file keeps them but is no longer imported).
+- Update the AI Assistant, Setup Assistant, and any "sync" language to reflect device-local storage.
 
-- `src/pages/Orders.tsx`
-  - Build category/subcategory/product maps from backend data first.
-  - Use localStorage category hierarchy only as optional enhancement.
-  - Add clear empty states instead of blank rendering.
+## Trade-offs the User Should Know
 
-## Security note
+- **No cross-device sync.** A menu edit on one device stays on that device. A second tablet will start from seed data.
+- **No cross-tenant / multi-merchant support** at runtime. Each browser is its own tenant.
+- **Data can be lost** if the user clears browser storage or uses a different browser/device.
+- **AI features that called edge functions** stop working unless we route them somewhere else.
+- **Reports and analytics** become device-local only.
 
-There are still active backend security findings unrelated to the menu rendering issue, covering publicly writable financial configuration, employee shift/store assignment data, and guest feedback access. These should be fixed after the Orders rendering fix, but they are separate from the category/subcategory bug and should be handled carefully because they change data access rules.
+## Technical Notes
+
+- `localStorage` has a ~5–10 MB per-origin limit. For a POS with heavy order history this can be tight; we may need an IndexedDB fallback for `orders` and `tickets`. Recommend using `localStorage` for settings/menu/config and IndexedDB (via a tiny wrapper like `idb-keyval`) for transactional data. Both are fully local.
+- Keep a JSON export/import button in Settings so users can back up and move data between devices manually.
+- Keep types identical to today's Supabase-generated types so component code doesn't churn.
+
+## Rollout
+
+1. Build `localDataStore` + seed from static data.
+2. Swap `useSupabaseMenus` and Orders reads first — this unblocks the current bug.
+3. Swap settings screens.
+4. Swap orders / tickets / guests / employees.
+5. Rip out auth (last, because many screens gate on it).
+6. Final pass: remove unused Supabase imports and dead code.
+
+## Open Questions
+
+1. **AI features** — The Setup Assistant, AI Integration screen, and in-app AI chat currently call Lovable AI via edge functions. Do you want to:
+   a. Remove AI features entirely, or
+   b. Keep them by calling Lovable AI directly from the client (still counts as a Lovable Cloud service), or
+   c. Route them through your own separate API when you have one?
+
+2. **Backup / restore** — Should we add an Export/Import JSON in Settings so a device's data can be moved manually?
+
+3. **Multi-user on one device** — Do employee PINs still need to distinguish sessions on the same tablet, or is one device = one shared login?

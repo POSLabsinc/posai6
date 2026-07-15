@@ -10,7 +10,7 @@ const DEFAULT_HOVER_COLOR = '#1C1C1C';
 const DEFAULT_SPLASH_BG_COLOR = '#131316';
 const DEFAULT_TOP_BAR_COLOR = '#212121';
 const DEFAULT_SETTINGS_ICON_COLOR = '';  // empty = use per-icon defaults
-const DEFAULT_THEME_COLOR = ''; // empty = no theme applied, use individual defaults
+const DEFAULT_THEME_COLOR = '#1C1C1E'; // black shade default
 
 // Derive colors from a theme color
 function deriveColorsFromTheme(themeHex: string) {

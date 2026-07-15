@@ -5,7 +5,7 @@ export type IconStyle = 'Default' | 'Dark' | 'Clear' | 'Tinted' | 'Color';
 export type IconSize = 'Default' | 'Small' | 'Medium' | 'Large';
 
 // Advanced customization defaults
-const DEFAULT_SELECTION_COLOR = '#F97316'; // orange
+const DEFAULT_SELECTION_COLOR = '#3A3A3C'; // neutral grey
 const DEFAULT_HOVER_COLOR = '#1C1C1C';
 const DEFAULT_SPLASH_BG_COLOR = '#131316';
 const DEFAULT_TOP_BAR_COLOR = '#212121';

@@ -286,6 +286,9 @@ const Orders = () => {
   const { processCancelledItems } = useWriteOffProcessor();
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
+  // Lock Hold/Fire buttons once tapped until cart contents change
+  const [orderActionLocked, setOrderActionLocked] = useState(false);
+  const lockedItemsSigRef = useRef<string>('');
 
   // Listen for header AI icon click
   useEffect(() => {

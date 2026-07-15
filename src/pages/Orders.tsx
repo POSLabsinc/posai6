@@ -1710,42 +1710,17 @@ const Orders = () => {
         return prev.map((item) => ({ ...item, isFired: true }));
       });
 
-      const quickTotal = subtotal - discount + serviceCharge + tax;
-      addTicketOrder({
-        name: guestName || 'Quick Order',
-        phone: guestPhone || '',
-        partySize: 1,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        timer: '0:00',
-        server: '',
-        check: '',
-        paymentType: '',
-        revenueCenter: '',
-        status: 'ORDERED',
-        notes: orderNotes || '',
-        table: '',
-        orderType: orderType || 'DINE IN',
-        subtotal,
-        discount,
-        serviceCharge,
-        tax,
-        tip: 0,
-        total: quickTotal,
-        items: orderItems.map(item => ({
-          qty: item.qty,
-          name: item.name,
-          price: item.price,
-          seats: item.assignedSeats || [],
-          modifiers: item.modifiers || [],
-          isShared: false,
-          isFired: true,
-          noTax: item.noTax || false,
-        })),
-      }).then((data: any) => {
-        if (data?.id) {
-          setQuickOrderDbId(data.id);
-        }
-      }).catch(console.error);
+      const payload = buildTicketPayload('ORDERED', true);
+      const { items, ...rest } = payload;
+      if (quickOrderDbId) {
+        // A held/existing ticket already exists — update it instead of creating a duplicate
+        updateTicketOrder(quickOrderDbId, rest).catch(console.error);
+        updateTicketOrderItems(quickOrderDbId, items).catch(console.error);
+      } else {
+        addTicketOrder(payload).then((data: any) => {
+          if (data?.id) setQuickOrderDbId(data.id);
+        }).catch(console.error);
+      }
 
       toast.success("Order fired to kitchen!");
       return;

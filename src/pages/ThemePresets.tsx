@@ -56,7 +56,7 @@ const ThemePresets = () => {
                 </div>
                 <div className="flex items-center justify-center gap-3">
                   <button
-                    onClick={() => toast({ title: "Theme applied", description: `${selectedTheme.name} is now active.` })}
+                    onClick={handleApply}
                     className="px-6 h-10 rounded-full bg-orange-500 text-white text-sm font-semibold hover:bg-orange-600 transition-colors"
                   >
                     Apply

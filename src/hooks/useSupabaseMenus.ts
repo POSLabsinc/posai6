@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { menuItemsData } from "@/data/orderMenuData";
 
 interface MenuRow {
   id: string;
@@ -24,13 +25,40 @@ export interface MenuCategoryMeta {
 }
 
 /**
+ * Builds a menu/category map from the bundled static menu data. Used as a
+ * fallback so the Orders screen always renders even when the backend is
+ * unreachable, empty, or the user is not authenticated.
+ */
+function buildLocalMenuData() {
+  const localMenuList = Object.keys(menuItemsData);
+  const localMenuCategories: Record<string, string[]> = {};
+  const localMenuCategoryMeta: Record<string, MenuCategoryMeta[]> = {};
+
+  localMenuList.forEach((menuName, menuIndex) => {
+    const categories = Object.keys(menuItemsData[menuName] || {});
+    localMenuCategories[menuName] = categories;
+    localMenuCategoryMeta[menuName] = categories.map((catName, idx) => {
+      const subcats = menuItemsData[menuName]?.[catName] || {};
+      const productCount = Object.values(subcats).reduce(
+        (sum, items) => sum + (Array.isArray(items) ? items.length : 0),
+        0
+      );
+      return {
+        id: `local-${menuIndex}-${idx}-${catName}`,
+        name: catName,
+        sortOrder: idx,
+        productCount,
+      };
+    });
+  });
+
+  return { localMenuList, localMenuCategories, localMenuCategoryMeta };
+}
+
+/**
  * Fetches enabled, non-archived menus from the database along with their
- * linked category names. Returns the same shape as the old hardcoded data:
- *   menuList: string[]
- *   menuCategories: Record<string, string[]>
- *
- * Subscribes to realtime changes on the `menus` table so toggling
- * enabled/disabled in Settings is reflected instantly on the Orders screen.
+ * linked category names. Falls back to the bundled static menu data whenever
+ * the backend returns nothing so the Orders screen is always populated.
  */
 export function useSupabaseMenus() {
   const [menus, setMenus] = useState<MenuRow[]>([]);
@@ -39,83 +67,117 @@ export function useSupabaseMenus() {
   const [loading, setLoading] = useState(true);
 
   const fetchMenus = async () => {
-    const { data } = await supabase
-      .from("menus")
-      .select("id, name, enabled, archived, sort_order")
-      .order("sort_order");
-    if (data) setMenus(data);
+    try {
+      const { data } = await supabase
+        .from("menus")
+        .select("id, name, enabled, archived, sort_order")
+        .order("sort_order");
+      if (data) setMenus(data);
+    } catch {
+      // ignore, fallback handles it
+    }
   };
 
   const fetchMenuCategories = async () => {
-    const { data } = await supabase
-      .from("menu_categories")
-      .select("menu_id, category_id, sort_order, categories(name)")
-      .order("sort_order");
-    if (data) setMenuCatRows(data as unknown as MenuCategoryRow[]);
+    try {
+      const { data } = await supabase
+        .from("menu_categories")
+        .select("menu_id, category_id, sort_order, categories(name)")
+        .order("sort_order");
+      if (data) setMenuCatRows(data as unknown as MenuCategoryRow[]);
+    } catch {
+      // ignore
+    }
   };
 
   const fetchCategoryProductCounts = async () => {
-    const { data } = await (supabase as any)
-      .from("products")
-      .select("category_id")
-      .eq("active", true)
-      .eq("archived", false);
+    try {
+      const { data } = await (supabase as any)
+        .from("products")
+        .select("category_id")
+        .eq("active", true)
+        .eq("archived", false);
 
-    if (!data) return;
+      if (!data) return;
 
-    const counts: Record<string, number> = {};
-    for (const product of data as Array<{ category_id: string | null }>) {
-      if (!product.category_id) continue;
-      counts[product.category_id] = (counts[product.category_id] || 0) + 1;
+      const counts: Record<string, number> = {};
+      for (const product of data as Array<{ category_id: string | null }>) {
+        if (!product.category_id) continue;
+        counts[product.category_id] = (counts[product.category_id] || 0) + 1;
+      }
+      setCategoryProductCounts(counts);
+    } catch {
+      // ignore
     }
-    setCategoryProductCounts(counts);
   };
 
   useEffect(() => {
-    Promise.all([fetchMenus(), fetchMenuCategories(), fetchCategoryProductCounts()]).then(() => setLoading(false));
+    Promise.all([fetchMenus(), fetchMenuCategories(), fetchCategoryProductCounts()]).then(() =>
+      setLoading(false)
+    );
 
-    // Realtime: refresh when menus table changes
-    const channel = supabase
-      .channel("menus-realtime")
-      .on("postgres_changes", { event: "*", schema: "public", table: "menus" }, () => {
-        fetchMenus();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "menu_categories" }, () => {
-        fetchMenuCategories();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => {
-        fetchCategoryProductCounts();
-      })
-      .subscribe();
+    let channel: ReturnType<typeof supabase.channel> | null = null;
+    try {
+      channel = supabase
+        .channel("menus-realtime")
+        .on("postgres_changes", { event: "*", schema: "public", table: "menus" }, () => {
+          fetchMenus();
+        })
+        .on("postgres_changes", { event: "*", schema: "public", table: "menu_categories" }, () => {
+          fetchMenuCategories();
+        })
+        .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => {
+          fetchCategoryProductCounts();
+        })
+        .subscribe();
+    } catch {
+      // realtime not available; static fallback still works
+    }
 
     return () => {
-      supabase.removeChannel(channel);
+      if (channel) {
+        try {
+          supabase.removeChannel(channel);
+        } catch {
+          // ignore
+        }
+      }
     };
   }, []);
 
-  const menuList = useMemo(
-    () =>
-      menus
-        .filter((m) => m.enabled && !m.archived)
-        .map((m) => m.name),
+  const localData = useMemo(() => buildLocalMenuData(), []);
+
+  const backendMenuList = useMemo(
+    () => menus.filter((m) => m.enabled && !m.archived).map((m) => m.name),
     [menus]
   );
 
+  const menuList = useMemo(
+    () => (backendMenuList.length > 0 ? backendMenuList : localData.localMenuList),
+    [backendMenuList, localData.localMenuList]
+  );
+
   const menuCategories = useMemo(() => {
+    if (backendMenuList.length === 0) return localData.localMenuCategories;
     const map: Record<string, string[]> = {};
     for (const m of menus.filter((m) => m.enabled && !m.archived)) {
-      map[m.name] = menuCatRows
+      const backendCats = menuCatRows
         .filter((mc) => mc.menu_id === m.id)
         .map((mc) => mc.categories?.name ?? "")
         .filter(Boolean);
+      map[m.name] =
+        backendCats.length > 0
+          ? backendCats
+          : localData.localMenuCategories[m.name] ?? [];
     }
     return map;
-  }, [menus, menuCatRows]);
+  }, [menus, menuCatRows, backendMenuList, localData]);
 
   const menuCategoryMeta = useMemo(() => {
+    if (backendMenuList.length === 0) return localData.localMenuCategoryMeta;
     const map: Record<string, MenuCategoryMeta[]> = {};
     for (const menu of menus.filter((m) => m.enabled && !m.archived)) {
-      map[menu.name] = menuCatRows
+      const backendMeta = menuCatRows
         .filter((row) => row.menu_id === menu.id && row.categories?.name)
         .map((row) => ({
           id: row.category_id,
@@ -124,9 +186,13 @@ export function useSupabaseMenus() {
           productCount: categoryProductCounts[row.category_id] || 0,
         }))
         .filter((category) => category.name.length > 0);
+      map[menu.name] =
+        backendMeta.length > 0
+          ? backendMeta
+          : localData.localMenuCategoryMeta[menu.name] ?? [];
     }
     return map;
-  }, [menus, menuCatRows, categoryProductCounts]);
+  }, [menus, menuCatRows, categoryProductCounts, backendMenuList, localData]);
 
   return { menuList, menuCategories, menuCategoryMeta, loading };
 }

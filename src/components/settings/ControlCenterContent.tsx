@@ -86,7 +86,9 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const [orderHold, setOrderHold] = useState(() => loadSettings().orderHold);
   const [orderHoldTime, setOrderHoldTime] = useState(() => loadSettings().orderHoldTime);
   const [showHoldTimeDropdown, setShowHoldTimeDropdown] = useState(false);
+  const [holdTimePos, setHoldTimePos] = useState<{ top: number; right: number } | null>(null);
   const holdTimeDropdownRef = useRef<HTMLDivElement>(null);
+  const holdTimeButtonRef = useRef<HTMLButtonElement>(null);
   const [dashboardMetrics, setDashboardMetrics] = useState<DashboardMetricsVisibility>(() => loadSettings().dashboardMetrics);
   const [showMetricsPinModal, setShowMetricsPinModal] = useState(false);
   const [pendingMetricToggle, setPendingMetricToggle] = useState<{ key: keyof DashboardMetricsVisibility; value: boolean } | null>(null);
@@ -574,9 +576,16 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
             {orderHold && (
               <>
                 <div className="h-px bg-neutral-700/50 mx-4" />
-                <div className="relative py-3.5 px-4" ref={holdTimeDropdownRef}>
+                <div className="py-3.5 px-4" ref={holdTimeDropdownRef}>
                   <button
-                    onClick={() => setShowHoldTimeDropdown(!showHoldTimeDropdown)}
+                    ref={holdTimeButtonRef}
+                    onClick={() => {
+                      if (!showHoldTimeDropdown && holdTimeButtonRef.current) {
+                        const r = holdTimeButtonRef.current.getBoundingClientRect();
+                        setHoldTimePos({ top: r.bottom + 4, right: window.innerWidth - r.right });
+                      }
+                      setShowHoldTimeDropdown(!showHoldTimeDropdown);
+                    }}
                     className="flex items-center justify-between w-full active:opacity-70 transition-opacity"
                   >
                     <span className="text-foreground text-lg font-medium">Hold time</span>
@@ -586,8 +595,11 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
                     </div>
                   </button>
                   <p className="text-neutral-500 text-sm mt-1">Sets how long new orders wait before the kitchen sees them.</p>
-                  {showHoldTimeDropdown && (
-                    <div className="absolute right-4 top-full mt-1 z-50 w-48 bg-neutral-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                  {showHoldTimeDropdown && holdTimePos && (
+                    <div
+                      style={{ position: 'fixed', top: holdTimePos.top, right: holdTimePos.right }}
+                      className="z-[9999] w-48 bg-neutral-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+                    >
                       {holdTimeOptions.map((option, index) => (
                         <button
                           key={option.value}

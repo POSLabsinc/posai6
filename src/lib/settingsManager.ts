@@ -268,6 +268,8 @@ export interface ControlCenterSettings {
   hideSeatSelector: boolean;
   resetTablesDaily: boolean;
   enableWriteOff: boolean;
+  orderHold: boolean;
+  orderHoldTime: string;
   businessHoursStart: string;
   businessHoursEnd: string;
   dashboardMetrics: DashboardMetricsVisibility;

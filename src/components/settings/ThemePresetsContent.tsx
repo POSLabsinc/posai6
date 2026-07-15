@@ -31,6 +31,22 @@ const ThemePresetsContent = ({
     setSelectedThemeId,
     selectedTheme
   } = useThemePresets();
+  const { setThemeColor, applyThemeColor } = useAppearance();
+
+  const hexOnly = (v: string) => /^#[0-9A-Fa-f]{6}$/.test(v);
+
+  const handleApply = () => {
+    if (!selectedTheme) return;
+    // Prefer accent; fall back to surface/bg if accent isn't a solid hex
+    const candidate = [selectedTheme.accent, selectedTheme.accent2, selectedTheme.surface, selectedTheme.bg]
+      .find(hexOnly);
+    if (candidate) {
+      setThemeColor(candidate);
+      applyThemeColor(candidate);
+    }
+    toast({ title: "Theme applied", description: `${selectedTheme.name} is now active.` });
+  };
+
   return <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Header */}
       {showHeader && <div className="flex items-center justify-between pt-0 pb-2 relative overflow-visible px-4">

@@ -1622,6 +1622,58 @@ const Orders = () => {
     });
   };
 
+  // Handler to hold the order - creates a ticket with HOLD status
+  const handleHoldOrder = () => {
+    if (orderItems.length === 0) {
+      toast.error("Please add products before holding the order");
+      return;
+    }
+    if (requireOrderType && !orderType) {
+      toast.error("Please select an order type before holding");
+      return;
+    }
+    if (requireGuestName && !guestName.trim()) {
+      toast.error("Please enter a guest name before holding");
+      return;
+    }
+    const quickTotal = subtotal - discount + serviceCharge + tax;
+    const holdStatus = `HOLD (${orderHoldMinutes} min)`;
+    addTicketOrder({
+      name: guestName || 'Quick Order',
+      phone: guestPhone || '',
+      partySize: 1,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      timer: '0:00',
+      server: '',
+      check: '',
+      paymentType: '',
+      revenueCenter: '',
+      status: holdStatus,
+      notes: orderNotes || '',
+      table: '',
+      orderType: orderType || 'DINE IN',
+      subtotal,
+      discount,
+      serviceCharge,
+      tax,
+      tip: 0,
+      total: quickTotal,
+      items: orderItems.map(item => ({
+        qty: item.qty,
+        name: item.name,
+        price: item.price,
+        seats: item.assignedSeats || [],
+        modifiers: item.modifiers || [],
+        isShared: false,
+        isFired: false,
+        noTax: item.noTax || false,
+      })),
+    }).then((data: any) => {
+      if (data?.id) setQuickOrderDbId(data.id);
+    }).catch(console.error);
+    toast.success(`Order held for ${orderHoldTimeLabel} before reaching the kitchen`);
+  };
+
   // Handler to fire the entire order (session orders)
   const handleFireOrder = () => {
     if (requireOrderType && !orderType) {

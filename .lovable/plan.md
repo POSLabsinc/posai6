@@ -1,53 +1,90 @@
-## Investigation findings
+## Diagnosis
 
-The issue is likely not the table GRANTs anymore. Effective backend permissions now allow reads on `menus`, `menu_categories`, `categories`, and `products`, and the backend has menu/category/product data.
+The Orders screen is mixing two different menu systems:
 
-The current failure appears to come from the Orders screen data flow:
+1. **Backend menus and categories are flat**
+   - `menus`, `menu_categories`, `categories`, and `products` are loading from the backend.
+   - The backend does not currently store subcategory hierarchy, only category links.
 
-1. `src/pages/Orders.tsx` fetches menus from the backend using `useSupabaseMenus()`.
-2. It builds subcategories from `getDynamicCategorySubcategories()`, but that function only reads `categories-settings` from browser localStorage.
-3. Backend categories and subcategory relationships are not used to build the subcategory row.
-4. The subcategory UI filters out any subcategory unless `dynamicMenuItems[selectedMenu][activeCategory][sub]` has products.
-5. If the selected menu/category comes from backend data, but localStorage does not have matching subcategory setup, the subcategory row becomes empty. This also affects product visibility because active subcategory can point to a stale or non-existent subcategory.
-6. There is also a weak state sync issue: `useMenuNavigation` only resets the active category when the current category is invalid. If the category is valid but its selected subcategory is stale or empty for the new menu/category, the UI can remain blank.
+2. **Orders expects subcategories from local device storage**
+   - `Orders.tsx` builds subcategories from `getDynamicCategorySubcategories()`.
+   - That function only reads `localStorage` key `categories-settings`.
+   - If the authenticated account, browser, or workspace does not have that local storage data, subcategories are empty even though backend categories and products exist.
 
-## Plan to fix
+3. **The product grid depends on subcategory selection**
+   - Subcategory chips are filtered out unless `dynamicMenuItems[selectedMenu][activeCategory][sub]` has products.
+   - Backend products are currently placed under the parent category key, not reliably under subcategory keys.
+   - Result: categories may appear but subcategories and products can disappear or feel inconsistent when selecting menus.
 
-1. **Add backend category hierarchy loading**
-   - Create or extend a hook to fetch backend categories with `id`, `name`, `parent_id`, `sort_order`, `archived`, and enough fields to derive parent categories and subcategories.
-   - Build a map of `parent category name -> child category names[]` from backend category relationships.
-   - Keep the existing localStorage category map as a fallback only.
+4. **Menu state can point to stale values**
+   - `useMenuNavigation` defaults to `BAR MENU`, but the live backend menus are names like `Add This`, `Grilled Menu`, `Weekend`, `LE DINER MENU`, etc.
+   - It eventually updates, but active category and subcategory synchronization is fragile.
 
-2. **Make Orders use one consistent menu source**
-   - Keep `useSupabaseMenus()` for the menu list and assigned parent categories.
-   - Merge backend category hierarchy with the existing static fallback in `Orders.tsx`.
-   - Stop relying only on `categories-settings` localStorage for subcategories.
+## Fix plan
 
-3. **Fix selected menu/category/subcategory synchronization**
-   - Update `useMenuNavigation` so when `selectedMenu`, `activeCategory`, or the subcategory map changes, it also validates `activeSubcategory`.
-   - If the current subcategory is missing or has no products, auto-select the first available subcategory for the active category.
-   - If no subcategory exists, leave `activeSubcategory` empty so the screen shows all products in that category instead of a blank state.
+### 1. Make backend data the source of truth for Orders
+Update `useSupabaseMenus` to return richer menu data:
 
-4. **Avoid hiding all subcategories unnecessarily**
-   - Adjust the subcategory rendering so backend subcategories appear even if they do not yet have products, or at minimum fall back to showing the category-level products.
-   - This prevents the UI from looking broken when category setup exists but products are directly assigned to the parent category.
+- Enabled, non-archived menus.
+- Categories linked to each menu.
+- Category IDs and names, not just names.
+- Product counts per category so Orders can avoid hiding valid categories.
 
-5. **Add safe fallbacks for empty menus**
-   - If a selected menu has zero assigned categories, show an empty-state message such as “No categories assigned to this menu” instead of silently showing nothing.
-   - If categories exist but no products are found, show “No products in this category” in the product grid.
+### 2. Stop requiring localStorage for subcategories
+In `Orders.tsx`, build a safe navigation structure from backend categories:
 
-6. **Verify with authenticated preview**
-   - Use the injected authenticated preview session, open `/orders`, select several backend menus, and confirm:
-     - menu dropdown options render,
-     - categories update after selecting a menu,
-     - subcategories render for selected categories,
-     - products render or a clear empty state appears,
-     - no permission errors appear in network or console.
+- If a category has backend subcategories in the future, use them.
+- If no backend subcategories exist today, treat the parent category as its own selectable group.
+- Example: `Appetizers` should render as both the category and the fallback subcategory container, so products assigned to `Appetizers` always show.
 
-## Technical files likely to change
+### 3. Fix product grouping
+Update `dynamicMenuItems` so backend products are grouped consistently:
+
+- Products assigned to `category_id` should appear under that category.
+- If no child subcategory exists, place products under the parent category key.
+- Do not depend on `getCategoryProducts()` unless local category settings actually exist.
+- Keep existing hardcoded fallback menu data as fallback only.
+
+### 4. Fix menu/category/subcategory synchronization
+Update `useMenuNavigation` so when menus or categories load:
+
+- The first available backend menu is selected.
+- The first category with products is selected when possible.
+- The first valid subcategory or fallback parent bucket is selected.
+- If the selected menu changes, stale category/subcategory values are cleared immediately.
+
+### 5. Improve empty states for debugging and staff clarity
+On the Orders screen:
+
+- If a selected menu has no linked categories, show a simple empty state instead of a blank section.
+- If a category has no products, show a short empty state in the product grid.
+- Do not hide all navigation silently.
+
+### 6. Validate with an authenticated session
+After implementation:
+
+- Open Orders while authenticated.
+- Select `Grilled Menu`, `Weekend`, and `LE DINER MENU`.
+- Confirm category chips render.
+- Confirm subcategory/fallback chips render.
+- Confirm product cards render for selected categories.
+- Confirm no backend permission errors appear in network logs.
+
+## Technical changes
+
+Files to update:
 
 - `src/hooks/useSupabaseMenus.ts`
-- `src/hooks/useMenuNavigation.ts`
-- `src/pages/Orders.tsx`
+  - Return menu/category metadata and category product counts.
 
-No backend schema change is planned unless verification shows an actual missing category relationship or policy problem.
+- `src/hooks/useMenuNavigation.ts`
+  - Make active menu/category/subcategory state resilient to async backend data.
+
+- `src/pages/Orders.tsx`
+  - Build category/subcategory/product maps from backend data first.
+  - Use localStorage category hierarchy only as optional enhancement.
+  - Add clear empty states instead of blank rendering.
+
+## Security note
+
+There are still active backend security findings unrelated to the menu rendering issue, covering publicly writable financial configuration, employee shift/store assignment data, and guest feedback access. These should be fixed after the Orders rendering fix, but they are separate from the category/subcategory bug and should be handled carefully because they change data access rules.

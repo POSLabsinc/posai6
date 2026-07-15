@@ -304,10 +304,10 @@ const Orders = () => {
   });
 
   // Fetch menus from database - only enabled & non-archived menus appear
-  const { menuList, menuCategories } = useSupabaseMenus();
+  const { menuList, menuCategories, menuCategoryMeta } = useSupabaseMenus();
 
   // Fetch products from the database so newly added products show on the Orders screen
-  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; price: number; category_name: string; price_type: string; active: boolean; archived: boolean; stock_count: number | null; is_available: boolean }>>([]);
+  const [dbProducts, setDbProducts] = useState<Array<{ id: string; name: string; price: number; category_id: string; category_name: string; price_type: string; active: boolean; archived: boolean; stock_count: number | null; is_available: boolean }>>([]);
   const dbProductsByNormalizedName = useMemo(
     () => new Map(dbProducts.map((product) => [normalizeProductKey(product.name), product])),
     [dbProducts]
@@ -316,7 +316,7 @@ const Orders = () => {
   const fetchDbProducts = useCallback(async () => {
     const { data } = await (supabase as any)
       .from('products')
-      .select('id, name, price, price_type, active, archived, stock_count, is_available, categories(name)')
+      .select('id, category_id, name, price, price_type, active, archived, stock_count, is_available, categories(name)')
       .eq('active', true)
       .eq('archived', false);
     if (data) {
@@ -324,6 +324,7 @@ const Orders = () => {
         id: p.id,
         name: p.name,
         price: Number(p.price),
+        category_id: p.category_id,
         category_name: p.categories?.name ?? '',
         price_type: p.price_type,
         active: p.active,
@@ -371,9 +372,18 @@ const Orders = () => {
   // Merge dynamic subcategories from category settings with hardcoded fallback
   const dynamicSubcategories = useMemo(() => getDynamicCategorySubcategories(), []);
   const mergedCategorySubcategories = useMemo(() => {
-    // Dynamic takes priority, fall back to hardcoded
-    return { ...categorySubcategories, ...dynamicSubcategories };
-  }, [dynamicSubcategories]);
+    const result: Record<string, string[]> = { ...categorySubcategories, ...dynamicSubcategories };
+    const menuCategoryNames = new Set(
+      Object.values(menuCategories).flat().filter(Boolean)
+    );
+
+    for (const categoryName of menuCategoryNames) {
+      const existing = result[categoryName] || [];
+      result[categoryName] = [categoryName, ...existing.filter((sub) => sub !== categoryName)];
+    }
+
+    return result;
+  }, [dynamicSubcategories, menuCategories]);
 
   // Augment menuCategories with localStorage-only parent categories + DB product categories
   const augmentedMenuCategories = useMemo(() => {
@@ -397,12 +407,14 @@ const Orders = () => {
     // For each menu, build category → subcategory → products
     for (const menuName of menuList) {
       const cats = augmentedMenuCategories[menuName] || [];
+      const categoryMetaByName = new Map((menuCategoryMeta[menuName] || []).map((category) => [category.name.toLowerCase(), category]));
       const catItems: CategoryItems = {};
       for (const cat of cats) {
         const subs = dynamicSubcategories[cat] || categorySubcategories[cat] || [];
         const subItems: SubcategoryItems = {};
+        const categoryMeta = categoryMetaByName.get(cat.toLowerCase());
         const dbCatProducts = dbProducts.filter(
-          (p) => p.category_name.toLowerCase() === cat.toLowerCase()
+          (p) => p.category_id === categoryMeta?.id || p.category_name.toLowerCase() === cat.toLowerCase()
         );
         const dbProductsByName = new Map(
           dbCatProducts.map((product) => [normalizeProductKey(product.name), product])
@@ -464,8 +476,8 @@ const Orders = () => {
             }));
 
           if (newDbItems.length > 0) {
-            // Always add DB-only products under the parent category key so they're visible
-            // without needing to click a specific subcategory
+            // Always add backend products under the parent category key so they remain visible
+            // even when no child subcategory hierarchy exists in device storage.
             subItems[cat] = [...(subItems[cat] || []), ...newDbItems];
           }
         }
@@ -505,7 +517,7 @@ const Orders = () => {
       }
     }
     return result;
-  }, [menuList, augmentedMenuCategories, dynamicSubcategories, dbProducts, dbProductsByNormalizedName]);
+  }, [menuList, augmentedMenuCategories, menuCategoryMeta, dynamicSubcategories, dbProducts, dbProductsByNormalizedName]);
 
   const addItemMode = searchParams.get('mode') === 'addItem';
   const transferNewMode = searchParams.get('mode') === 'transferNew';
@@ -2883,6 +2895,11 @@ const Orders = () => {
           {(augmentedMenuCategories[selectedMenu] || []).map((cat) => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} style={activeCategory === cat ? undefined : { backgroundColor: '#1f1f1f', color: '#ffffff' }} className={`rounded-full px-2.5 md:px-4 lg:px-6 h-7 md:h-8 lg:h-9 text-[11px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `${getCategoryBorderColor(cat)} hover:opacity-90`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
+          {menuList.length > 0 && (augmentedMenuCategories[selectedMenu] || []).length === 0 && (
+            <div className="h-8 px-3 flex items-center rounded-full bg-neutral-800 text-neutral-400 text-xs border border-neutral-700">
+              No categories linked to this menu
+            </div>
+          )}
         </div>
 
         <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />
@@ -2941,6 +2958,17 @@ const Orders = () => {
               const filteredItems = searchQuery.trim()
                 ? dedupedItems.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
                 : dedupedItems;
+              if (filteredItems.length === 0) {
+                return <div className="h-full min-h-[220px] flex flex-col items-center justify-center gap-2 text-center px-4">
+                  <FolderOpen className="w-9 h-9 text-neutral-500" />
+                  <p className="text-sm font-semibold text-neutral-300">
+                    {searchQuery.trim() ? "No products match your search" : "No products in this category"}
+                  </p>
+                  <p className="text-xs text-neutral-500 max-w-[260px]">
+                    {searchQuery.trim() ? "Try another product name." : "Choose another category or link products to this menu in settings."}
+                  </p>
+                </div>;
+              }
               return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2 pb-4 md:pb-0">
                 {filteredItems.map((item, index) => {
                   const menuItem = item as MenuItem;

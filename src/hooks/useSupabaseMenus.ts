@@ -16,6 +16,13 @@ interface MenuCategoryRow {
   categories: { name: string } | null;
 }
 
+export interface MenuCategoryMeta {
+  id: string;
+  name: string;
+  sortOrder: number;
+  productCount: number;
+}
+
 /**
  * Fetches enabled, non-archived menus from the database along with their
  * linked category names. Returns the same shape as the old hardcoded data:
@@ -28,6 +35,7 @@ interface MenuCategoryRow {
 export function useSupabaseMenus() {
   const [menus, setMenus] = useState<MenuRow[]>([]);
   const [menuCatRows, setMenuCatRows] = useState<MenuCategoryRow[]>([]);
+  const [categoryProductCounts, setCategoryProductCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
 
   const fetchMenus = async () => {
@@ -46,8 +54,25 @@ export function useSupabaseMenus() {
     if (data) setMenuCatRows(data as unknown as MenuCategoryRow[]);
   };
 
+  const fetchCategoryProductCounts = async () => {
+    const { data } = await (supabase as any)
+      .from("products")
+      .select("category_id")
+      .eq("active", true)
+      .eq("archived", false);
+
+    if (!data) return;
+
+    const counts: Record<string, number> = {};
+    for (const product of data as Array<{ category_id: string | null }>) {
+      if (!product.category_id) continue;
+      counts[product.category_id] = (counts[product.category_id] || 0) + 1;
+    }
+    setCategoryProductCounts(counts);
+  };
+
   useEffect(() => {
-    Promise.all([fetchMenus(), fetchMenuCategories()]).then(() => setLoading(false));
+    Promise.all([fetchMenus(), fetchMenuCategories(), fetchCategoryProductCounts()]).then(() => setLoading(false));
 
     // Realtime: refresh when menus table changes
     const channel = supabase
@@ -57,6 +82,9 @@ export function useSupabaseMenus() {
       })
       .on("postgres_changes", { event: "*", schema: "public", table: "menu_categories" }, () => {
         fetchMenuCategories();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "products" }, () => {
+        fetchCategoryProductCounts();
       })
       .subscribe();
 
@@ -84,5 +112,21 @@ export function useSupabaseMenus() {
     return map;
   }, [menus, menuCatRows]);
 
-  return { menuList, menuCategories, loading };
+  const menuCategoryMeta = useMemo(() => {
+    const map: Record<string, MenuCategoryMeta[]> = {};
+    for (const menu of menus.filter((m) => m.enabled && !m.archived)) {
+      map[menu.name] = menuCatRows
+        .filter((row) => row.menu_id === menu.id && row.categories?.name)
+        .map((row) => ({
+          id: row.category_id,
+          name: row.categories?.name ?? "",
+          sortOrder: row.sort_order,
+          productCount: categoryProductCounts[row.category_id] || 0,
+        }))
+        .filter((category) => category.name.length > 0);
+    }
+    return map;
+  }, [menus, menuCatRows, categoryProductCounts]);
+
+  return { menuList, menuCategories, menuCategoryMeta, loading };
 }

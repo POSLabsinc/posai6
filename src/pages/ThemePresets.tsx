@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useThemePresets, themePresets } from "@/contexts/ThemePresetsContext";
 import ThemePresetCard from "@/components/settings/ThemePresetCard";
 import { toast } from "@/hooks/use-toast";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 const downloadThemes = () => {
   const blob = new Blob([JSON.stringify(themePresets, null, 2)], { type: "application/json" });

@@ -550,6 +550,14 @@ const Orders = () => {
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
   const checkoutOptionsSettings = useMemo(() => SettingsManager.getCheckoutOptionsSettings(), []);
+  const orderHoldEnabled = useMemo(() => SettingsManager.getControlCenterSettings().orderHold, []);
+  const orderHoldTimeLabel = useMemo(() => {
+    const t = SettingsManager.getControlCenterSettings().orderHoldTime || "5";
+    return `${t} minute${t === "1" ? "" : "s"}`;
+  }, []);
+  const handleHoldOrder = useCallback(() => {
+    toast.success(`Order held for ${orderHoldTimeLabel} before reaching the kitchen`);
+  }, [orderHoldTimeLabel]);
   const requireOrderType = checkoutOptionsSettings.requireOrderType;
   const requireGuestName = checkoutOptionsSettings.requireGuestName;
   const showSaveButton = checkoutOptionsSettings.showSaveButton;
@@ -2440,6 +2448,16 @@ const Orders = () => {
                 <img src={saveIcon} alt="Save" className="w-4 h-4" />
               </button>
               )}
+
+              {orderHoldEnabled && (
+                <button
+                  onClick={handleHoldOrder}
+                  disabled={orderItems.length === 0 || orderItems.every(i => i.isFired)}
+                  title={`Hold ${orderHoldTimeLabel}`}
+                  className={`w-8 h-8 rounded-full bg-[#3A3A3C] hover:bg-[#4A4A4C] flex items-center justify-center flex-shrink-0 ${orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  <Clock className="w-4 h-4 text-white" />
+                </button>
+              )}
               <button
             onClick={handleFireOrder}
             disabled={orderItems.length === 0 || orderItems.every(i => i.isFired)}
@@ -3859,6 +3877,15 @@ const Orders = () => {
                   }}>
                     <img src={saveIcon} alt="Save" className="w-4 h-4" />
                   </button>
+                  )}
+                  {orderHoldEnabled && (
+                    <button
+                      onClick={handleHoldOrder}
+                      disabled={isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired)}
+                      title={`Hold ${orderHoldTimeLabel}`}
+                      className={`w-8 h-8 rounded-full bg-[#3A3A3C] hover:bg-[#4A4A4C] flex items-center justify-center flex-shrink-0 ${isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      <Clock className="w-4 h-4 text-white" />
+                    </button>
                   )}
                   <button
                     onClick={handleFireOrder}

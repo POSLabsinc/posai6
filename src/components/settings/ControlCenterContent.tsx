@@ -519,7 +519,56 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
               </div>
               <p className="text-neutral-500 text-sm mt-1">Hide employee feedback options.</p>
             </div>
+            <div className="h-px bg-neutral-700/50 mx-4" />
+
+            {/* Order Hold */}
+            <div className="py-3.5 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-lg font-medium">Order hold</span>
+                <Switch checked={orderHold} onCheckedChange={handleOrderHoldChange} />
+              </div>
+              <p className="text-neutral-500 text-sm mt-1">Holds new orders for a set time before the kitchen sees them.</p>
+            </div>
+            {orderHold && (
+              <>
+                <div className="h-px bg-neutral-700/50 mx-4" />
+                <div className="relative py-3.5 px-4" ref={holdTimeDropdownRef}>
+                  <button
+                    onClick={() => setShowHoldTimeDropdown(!showHoldTimeDropdown)}
+                    className="flex items-center justify-between w-full active:opacity-70 transition-opacity"
+                  >
+                    <span className="text-foreground text-lg font-medium">Hold time</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-neutral-400 text-base">{getHoldTimeLabel()}</span>
+                      <ChevronRight className="w-5 h-5 text-neutral-500" />
+                    </div>
+                  </button>
+                  <p className="text-neutral-500 text-sm mt-1">Sets how long new orders wait before the kitchen sees them.</p>
+                  {showHoldTimeDropdown && (
+                    <div className="absolute right-4 top-full mt-1 z-50 w-48 bg-neutral-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                      {holdTimeOptions.map((option, index) => (
+                        <button
+                          key={option.value}
+                          onClick={() => {
+                            handleOrderHoldTimeChange(option.value);
+                            setShowHoldTimeDropdown(false);
+                          }}
+                          className={`w-full text-left py-3 px-4 text-base transition-colors ${
+                            orderHoldTime === option.value
+                              ? 'text-primary bg-neutral-700/50'
+                              : 'text-foreground hover:bg-neutral-700/30'
+                          } ${index !== holdTimeOptions.length - 1 ? 'border-b border-neutral-700/50' : ''}`}
+                        >
+                          {option.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </>
+            )}
           </div>
+
 
           {/* Table Section */}
            <p className="text-neutral-500 text-base font-medium mb-0.5 px-1">Table</p>

@@ -2018,8 +2018,10 @@ const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
   };
 
   const getStatusColor = (status: string) => {
+    if (status?.startsWith("HOLD")) return "text-yellow-400";
     switch (status) {
       case "ORDERING": return "text-[#F87171]";
+      case "ORDERED": return "text-orange-400";
       case "PAID": return "text-amber-500";
       case "UNPAID": return "text-red-400";
       case "COMPLETED": return "text-amber-500";

@@ -282,7 +282,7 @@ const Orders = () => {
   const themeSoftBorder = `${themeColor}80`; // ~50% alpha
   const themeOnAccent = getContrastText(themeColor); // auto black/white for contrast
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
-  const { addOrder: addTicketOrder, updateOrder: updateTicketOrder, orders: allTicketOrders } = useTicketOrders();
+  const { addOrder: addTicketOrder, updateOrder: updateTicketOrder, updateOrderItems: updateTicketOrderItems, orders: allTicketOrders } = useTicketOrders();
   const { processCancelledItems } = useWriteOffProcessor();
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);

@@ -18,6 +18,18 @@ const downloadThemes = () => {
 const ThemePresets = () => {
   const navigate = useNavigate();
   const { selectedThemeId, setSelectedThemeId, selectedTheme } = useThemePresets();
+  const { setThemeColor, applyThemeColor } = useAppearance();
+
+  const handleApply = () => {
+    if (!selectedTheme) return;
+    const hexOnly = (v: string) => /^#[0-9A-Fa-f]{6}$/.test(v);
+    const candidate = [selectedTheme.accent, selectedTheme.accent2, selectedTheme.surface, selectedTheme.bg].find(hexOnly);
+    if (candidate) {
+      setThemeColor(candidate);
+      applyThemeColor(candidate);
+    }
+    toast({ title: "Theme applied", description: `${selectedTheme.name} is now active.` });
+  };
 
   return (
     <div className="fixed inset-0 bg-background flex flex-col overflow-hidden z-50">

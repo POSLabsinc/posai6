@@ -86,7 +86,9 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const [orderHold, setOrderHold] = useState(() => loadSettings().orderHold);
   const [orderHoldTime, setOrderHoldTime] = useState(() => loadSettings().orderHoldTime);
   const [showHoldTimeDropdown, setShowHoldTimeDropdown] = useState(false);
+  const [holdTimePos, setHoldTimePos] = useState<{ top: number; right: number } | null>(null);
   const holdTimeDropdownRef = useRef<HTMLDivElement>(null);
+  const holdTimeButtonRef = useRef<HTMLButtonElement>(null);
   const [dashboardMetrics, setDashboardMetrics] = useState<DashboardMetricsVisibility>(() => loadSettings().dashboardMetrics);
   const [showMetricsPinModal, setShowMetricsPinModal] = useState(false);
   const [pendingMetricToggle, setPendingMetricToggle] = useState<{ key: keyof DashboardMetricsVisibility; value: boolean } | null>(null);

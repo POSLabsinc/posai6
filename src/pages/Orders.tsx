@@ -1663,6 +1663,17 @@ const Orders = () => {
   };
 
   // Handler to hold the order - creates or updates ticket with HOLD status
+  // Compute a signature over cart contents (ignoring isFired) to auto-unlock when cart changes
+  const cartSignature = useMemo(
+    () => orderItems.map(i => `${i.id}:${i.qty}:${i.price}`).join('|'),
+    [orderItems]
+  );
+  useEffect(() => {
+    if (orderActionLocked && cartSignature !== lockedItemsSigRef.current) {
+      setOrderActionLocked(false);
+    }
+  }, [cartSignature, orderActionLocked]);
+
   const handleHoldOrder = () => {
     if (orderItems.length === 0) {
       toast.error("Please add products before holding the order");

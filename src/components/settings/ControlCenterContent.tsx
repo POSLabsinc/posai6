@@ -216,6 +216,20 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
     updateSetting('enableWriteOff', value);
   };
 
+  const handleOrderHoldChange = (value: boolean) => {
+    setOrderHold(value);
+    updateSetting('orderHold', value);
+  };
+
+  const handleOrderHoldTimeChange = (value: string) => {
+    setOrderHoldTime(value);
+    updateSetting('orderHoldTime', value);
+  };
+
+  const getHoldTimeLabel = () => {
+    return holdTimeOptions.find(o => o.value === orderHoldTime)?.label || "5 minutes";
+  };
+
   const handleDashboardMetricToggle = (metric: keyof DashboardMetricsVisibility, value: boolean) => {
     if (metricsUnlocked) {
       const updated = { ...dashboardMetrics, [metric]: value };

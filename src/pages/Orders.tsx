@@ -550,6 +550,14 @@ const Orders = () => {
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
   const checkoutOptionsSettings = useMemo(() => SettingsManager.getCheckoutOptionsSettings(), []);
+  const orderHoldEnabled = useMemo(() => SettingsManager.getControlCenterSettings().orderHold, []);
+  const orderHoldTimeLabel = useMemo(() => {
+    const t = SettingsManager.getControlCenterSettings().orderHoldTime || "5";
+    return `${t} minute${t === "1" ? "" : "s"}`;
+  }, []);
+  const handleHoldOrder = useCallback(() => {
+    toast.success(`Order held for ${orderHoldTimeLabel} before reaching the kitchen`);
+  }, [orderHoldTimeLabel]);
   const requireOrderType = checkoutOptionsSettings.requireOrderType;
   const requireGuestName = checkoutOptionsSettings.requireGuestName;
   const showSaveButton = checkoutOptionsSettings.showSaveButton;

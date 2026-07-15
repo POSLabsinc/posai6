@@ -286,6 +286,9 @@ const Orders = () => {
   const { processCancelledItems } = useWriteOffProcessor();
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
+  // Lock Hold/Fire buttons once tapped until cart contents change
+  const [orderActionLocked, setOrderActionLocked] = useState(false);
+  const lockedItemsSigRef = useRef<string>('');
 
   // Listen for header AI icon click
   useEffect(() => {
@@ -1660,6 +1663,17 @@ const Orders = () => {
   };
 
   // Handler to hold the order - creates or updates ticket with HOLD status
+  // Compute a signature over cart contents (ignoring isFired) to auto-unlock when cart changes
+  const cartSignature = useMemo(
+    () => orderItems.map(i => `${i.id}:${i.qty}:${i.price}`).join('|'),
+    [orderItems]
+  );
+  useEffect(() => {
+    if (orderActionLocked && cartSignature !== lockedItemsSigRef.current) {
+      setOrderActionLocked(false);
+    }
+  }, [cartSignature, orderActionLocked]);
+
   const handleHoldOrder = () => {
     if (orderItems.length === 0) {
       toast.error("Please add products before holding the order");
@@ -1684,6 +1698,8 @@ const Orders = () => {
         if (data?.id) setQuickOrderDbId(data.id);
       }).catch(console.error);
     }
+    lockedItemsSigRef.current = cartSignature;
+    setOrderActionLocked(true);
     toast.success(`Order held for ${orderHoldTimeLabel} before reaching the kitchen`);
   };
 
@@ -1698,6 +1714,8 @@ const Orders = () => {
       toast.error("Please enter a guest name before firing");
       return;
     }
+    lockedItemsSigRef.current = cartSignature;
+    setOrderActionLocked(true);
     if (!isSessionOrderMode || !sessionIdFromParams) {
       // Not a session order - create DB record and mark items as fired
       setOrderItems((prev) => {
@@ -2490,16 +2508,16 @@ const Orders = () => {
               {orderHoldEnabled && (
                 <button
                   onClick={handleHoldOrder}
-                  disabled={orderItems.length === 0 || orderItems.every(i => i.isFired)}
+                  disabled={orderActionLocked || orderItems.length === 0 || orderItems.every(i => i.isFired)}
                   title={`Hold ${orderHoldTimeLabel}`}
-                  className={`w-8 h-8 rounded-full bg-[#3A3A3C] hover:bg-[#4A4A4C] flex items-center justify-center flex-shrink-0 ${orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  className={`w-8 h-8 rounded-full bg-[#3A3A3C] hover:bg-[#4A4A4C] flex items-center justify-center flex-shrink-0 ${orderActionLocked || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}>
                   <Clock className="w-4 h-4 text-white" />
                 </button>
               )}
               <button
             onClick={handleFireOrder}
-            disabled={orderItems.length === 0 || orderItems.every(i => i.isFired)}
-            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={orderActionLocked || orderItems.length === 0 || orderItems.every(i => i.isFired)}
+            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderActionLocked || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               background: themeGradient
             }}>
@@ -3919,17 +3937,17 @@ const Orders = () => {
                   {orderHoldEnabled && (
                     <button
                       onClick={handleHoldOrder}
-                      disabled={isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired)}
+                      disabled={orderActionLocked || isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired)}
                       title={`Hold ${orderHoldTimeLabel}`}
-                      className={`w-8 h-8 rounded-full bg-[#3A3A3C] hover:bg-[#4A4A4C] flex items-center justify-center flex-shrink-0 ${isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                      className={`w-8 h-8 rounded-full bg-[#3A3A3C] hover:bg-[#4A4A4C] flex items-center justify-center flex-shrink-0 ${orderActionLocked || isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}>
                       <Clock className="w-4 h-4 text-white" />
                     </button>
                   )}
                   <button
                     onClick={handleFireOrder}
-                    disabled={isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired)}
+                    disabled={orderActionLocked || isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired)}
                     className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${
-                    isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`
+                    orderActionLocked || isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`
                     }
                     style={{
                       background: themeGradient

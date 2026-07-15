@@ -282,7 +282,7 @@ const Orders = () => {
   const themeSoftBorder = `${themeColor}80`; // ~50% alpha
   const themeOnAccent = getContrastText(themeColor); // auto black/white for contrast
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
-  const { addOrder: addTicketOrder, updateOrder: updateTicketOrder, orders: allTicketOrders } = useTicketOrders();
+  const { addOrder: addTicketOrder, updateOrder: updateTicketOrder, updateOrderItems: updateTicketOrderItems, orders: allTicketOrders } = useTicketOrders();
   const { processCancelledItems } = useWriteOffProcessor();
   const [quickOrderDbId, setQuickOrderDbId] = useState<string | null>(null);
   const [isAIChatOpen, setIsAIChatOpen] = useState(false);
@@ -792,6 +792,7 @@ const Orders = () => {
     }
     
     setOrderItems(() => []);
+    setQuickOrderDbId(null);
     setSelectedDiscounts([]);
     setAppliedServiceCharge(0);
     setAppliedServiceChargeName('');
@@ -1622,23 +1623,10 @@ const Orders = () => {
     });
   };
 
-  // Handler to hold the order - creates a ticket with HOLD status
-  const handleHoldOrder = () => {
-    if (orderItems.length === 0) {
-      toast.error("Please add products before holding the order");
-      return;
-    }
-    if (requireOrderType && !orderType) {
-      toast.error("Please select an order type before holding");
-      return;
-    }
-    if (requireGuestName && !guestName.trim()) {
-      toast.error("Please enter a guest name before holding");
-      return;
-    }
+  // Build a ticket payload from current order state (used by Hold and Fire)
+  const buildTicketPayload = (status: string, itemsFired: boolean) => {
     const quickTotal = subtotal - discount + serviceCharge + tax;
-    const holdStatus = `HOLD (${orderHoldMinutes} min)`;
-    addTicketOrder({
+    return {
       name: guestName || 'Quick Order',
       phone: guestPhone || '',
       partySize: 1,
@@ -1648,7 +1636,7 @@ const Orders = () => {
       check: '',
       paymentType: '',
       revenueCenter: '',
-      status: holdStatus,
+      status,
       notes: orderNotes || '',
       table: '',
       orderType: orderType || 'DINE IN',
@@ -1665,14 +1653,40 @@ const Orders = () => {
         seats: item.assignedSeats || [],
         modifiers: item.modifiers || [],
         isShared: false,
-        isFired: false,
+        isFired: itemsFired,
         noTax: item.noTax || false,
       })),
-    }).then((data: any) => {
-      if (data?.id) setQuickOrderDbId(data.id);
-    }).catch(console.error);
+    };
+  };
+
+  // Handler to hold the order - creates or updates ticket with HOLD status
+  const handleHoldOrder = () => {
+    if (orderItems.length === 0) {
+      toast.error("Please add products before holding the order");
+      return;
+    }
+    if (requireOrderType && !orderType) {
+      toast.error("Please select an order type before holding");
+      return;
+    }
+    if (requireGuestName && !guestName.trim()) {
+      toast.error("Please enter a guest name before holding");
+      return;
+    }
+    const holdStatus = `HOLD (${orderHoldMinutes} min)`;
+    const payload = buildTicketPayload(holdStatus, false);
+    const { items, ...rest } = payload;
+    if (quickOrderDbId) {
+      updateTicketOrder(quickOrderDbId, rest).catch(console.error);
+      updateTicketOrderItems(quickOrderDbId, items).catch(console.error);
+    } else {
+      addTicketOrder(payload).then((data: any) => {
+        if (data?.id) setQuickOrderDbId(data.id);
+      }).catch(console.error);
+    }
     toast.success(`Order held for ${orderHoldTimeLabel} before reaching the kitchen`);
   };
+
 
   // Handler to fire the entire order (session orders)
   const handleFireOrder = () => {
@@ -1697,42 +1711,17 @@ const Orders = () => {
         return prev.map((item) => ({ ...item, isFired: true }));
       });
 
-      const quickTotal = subtotal - discount + serviceCharge + tax;
-      addTicketOrder({
-        name: guestName || 'Quick Order',
-        phone: guestPhone || '',
-        partySize: 1,
-        time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        timer: '0:00',
-        server: '',
-        check: '',
-        paymentType: '',
-        revenueCenter: '',
-        status: 'ORDERED',
-        notes: orderNotes || '',
-        table: '',
-        orderType: orderType || 'DINE IN',
-        subtotal,
-        discount,
-        serviceCharge,
-        tax,
-        tip: 0,
-        total: quickTotal,
-        items: orderItems.map(item => ({
-          qty: item.qty,
-          name: item.name,
-          price: item.price,
-          seats: item.assignedSeats || [],
-          modifiers: item.modifiers || [],
-          isShared: false,
-          isFired: true,
-          noTax: item.noTax || false,
-        })),
-      }).then((data: any) => {
-        if (data?.id) {
-          setQuickOrderDbId(data.id);
-        }
-      }).catch(console.error);
+      const payload = buildTicketPayload('ORDERED', true);
+      const { items, ...rest } = payload;
+      if (quickOrderDbId) {
+        // A held/existing ticket already exists — update it instead of creating a duplicate
+        updateTicketOrder(quickOrderDbId, rest).catch(console.error);
+        updateTicketOrderItems(quickOrderDbId, items).catch(console.error);
+      } else {
+        addTicketOrder(payload).then((data: any) => {
+          if (data?.id) setQuickOrderDbId(data.id);
+        }).catch(console.error);
+      }
 
       toast.success("Order fired to kitchen!");
       return;

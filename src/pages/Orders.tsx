@@ -1698,6 +1698,8 @@ const Orders = () => {
         if (data?.id) setQuickOrderDbId(data.id);
       }).catch(console.error);
     }
+    lockedItemsSigRef.current = cartSignature;
+    setOrderActionLocked(true);
     toast.success(`Order held for ${orderHoldTimeLabel} before reaching the kitchen`);
   };
 

@@ -2448,13 +2448,6 @@ const Orders = () => {
                 <img src={saveIcon} alt="Save" className="w-4 h-4" />
               </button>
               )}
-              <button
-            onClick={handleFireOrder}
-            disabled={orderItems.length === 0 || orderItems.every(i => i.isFired)}
-            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}
-            style={{
-              background: themeGradient
-            }}>
 
               {orderHoldEnabled && (
                 <button

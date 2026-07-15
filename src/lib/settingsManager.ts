@@ -369,6 +369,8 @@ const defaultControlCenterSettings: ControlCenterSettings = {
   hideSeatSelector: false,
   resetTablesDaily: false,
   enableWriteOff: true,
+  orderHold: false,
+  orderHoldTime: "5",
   businessHoursStart: "6:00 AM",
   businessHoursEnd: "1:00 AM",
   dashboardMetrics: {

@@ -1,37 +1,53 @@
-## Root cause
+## Investigation findings
 
-The Orders screen fetches `menu_categories` with an embedded `categories(name)` join. The network call is returning:
+The issue is likely not the table GRANTs anymore. Effective backend permissions now allow reads on `menus`, `menu_categories`, `categories`, and `products`, and the backend has menu/category/product data.
 
-```
-401 permission denied for table categories
-```
+The current failure appears to come from the Orders screen data flow:
 
-Even though I added an RLS policy allowing authenticated users to read `categories` and `menus`, the underlying Postgres table `GRANT`s were never issued to the `anon` / `authenticated` roles. Supabase's Data API (PostgREST) requires both:
+1. `src/pages/Orders.tsx` fetches menus from the backend using `useSupabaseMenus()`.
+2. It builds subcategories from `getDynamicCategorySubcategories()`, but that function only reads `categories-settings` from browser localStorage.
+3. Backend categories and subcategory relationships are not used to build the subcategory row.
+4. The subcategory UI filters out any subcategory unless `dynamicMenuItems[selectedMenu][activeCategory][sub]` has products.
+5. If the selected menu/category comes from backend data, but localStorage does not have matching subcategory setup, the subcategory row becomes empty. This also affects product visibility because active subcategory can point to a stale or non-existent subcategory.
+6. There is also a weak state sync issue: `useMenuNavigation` only resets the active category when the current category is invalid. If the category is valid but its selected subcategory is stale or empty for the new menu/category, the UI can remain blank.
 
-1. A `GRANT SELECT` on the table to the role
-2. A matching RLS policy
+## Plan to fix
 
-Without step 1, PostgREST rejects the request before RLS is even evaluated, so the join fails and no categories or subcategories render.
+1. **Add backend category hierarchy loading**
+   - Create or extend a hook to fetch backend categories with `id`, `name`, `parent_id`, `sort_order`, `archived`, and enough fields to derive parent categories and subcategories.
+   - Build a map of `parent category name -> child category names[]` from backend category relationships.
+   - Keep the existing localStorage category map as a fallback only.
 
-Confirmed via `information_schema.role_table_grants`: `categories`, `menus`, and `menu_categories` have no grants to `authenticated`, `anon`, or `service_role`.
+2. **Make Orders use one consistent menu source**
+   - Keep `useSupabaseMenus()` for the menu list and assigned parent categories.
+   - Merge backend category hierarchy with the existing static fallback in `Orders.tsx`.
+   - Stop relying only on `categories-settings` localStorage for subcategories.
 
-## Fix (single migration)
+3. **Fix selected menu/category/subcategory synchronization**
+   - Update `useMenuNavigation` so when `selectedMenu`, `activeCategory`, or the subcategory map changes, it also validates `activeSubcategory`.
+   - If the current subcategory is missing or has no products, auto-select the first available subcategory for the active category.
+   - If no subcategory exists, leave `activeSubcategory` empty so the screen shows all products in that category instead of a blank state.
 
-Grant table-level read privileges so RLS policies can actually apply:
+4. **Avoid hiding all subcategories unnecessarily**
+   - Adjust the subcategory rendering so backend subcategories appear even if they do not yet have products, or at minimum fall back to showing the category-level products.
+   - This prevents the UI from looking broken when category setup exists but products are directly assigned to the parent category.
 
-```sql
-GRANT SELECT ON public.categories       TO authenticated, anon;
-GRANT SELECT ON public.menus            TO authenticated, anon;
-GRANT SELECT ON public.menu_categories  TO authenticated, anon;
-GRANT ALL    ON public.categories       TO service_role;
-GRANT ALL    ON public.menus            TO service_role;
-GRANT ALL    ON public.menu_categories  TO service_role;
-```
+5. **Add safe fallbacks for empty menus**
+   - If a selected menu has zero assigned categories, show an empty-state message such as “No categories assigned to this menu” instead of silently showing nothing.
+   - If categories exist but no products are found, show “No products in this category” in the product grid.
 
-RLS remains enabled and existing policies stay untouched, so row-level scoping (merchant-based writes, super_admin reads) still governs which rows are visible/mutable. Grants only unlock the tables so PostgREST can even run the query.
+6. **Verify with authenticated preview**
+   - Use the injected authenticated preview session, open `/orders`, select several backend menus, and confirm:
+     - menu dropdown options render,
+     - categories update after selecting a menu,
+     - subcategories render for selected categories,
+     - products render or a clear empty state appears,
+     - no permission errors appear in network or console.
 
-## Verification
+## Technical files likely to change
 
-After the migration:
-1. Reload `/orders` and confirm the network call to `menu_categories` returns 200 with rows.
-2. Verify category chips (Food, Desserts, Drinks, etc.) and their subcategory chips render as in the reference screenshot.
+- `src/hooks/useSupabaseMenus.ts`
+- `src/hooks/useMenuNavigation.ts`
+- `src/pages/Orders.tsx`
+
+No backend schema change is planned unless verification shows an actual missing category relationship or policy problem.

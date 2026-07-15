@@ -2508,16 +2508,16 @@ const Orders = () => {
               {orderHoldEnabled && (
                 <button
                   onClick={handleHoldOrder}
-                  disabled={orderItems.length === 0 || orderItems.every(i => i.isFired)}
+                  disabled={orderActionLocked || orderItems.length === 0 || orderItems.every(i => i.isFired)}
                   title={`Hold ${orderHoldTimeLabel}`}
-                  className={`w-8 h-8 rounded-full bg-[#3A3A3C] hover:bg-[#4A4A4C] flex items-center justify-center flex-shrink-0 ${orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}>
+                  className={`w-8 h-8 rounded-full bg-[#3A3A3C] hover:bg-[#4A4A4C] flex items-center justify-center flex-shrink-0 ${orderActionLocked || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}>
                   <Clock className="w-4 h-4 text-white" />
                 </button>
               )}
               <button
             onClick={handleFireOrder}
-            disabled={orderItems.length === 0 || orderItems.every(i => i.isFired)}
-            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={orderActionLocked || orderItems.length === 0 || orderItems.every(i => i.isFired)}
+            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderActionLocked || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               background: themeGradient
             }}>

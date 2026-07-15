@@ -1714,6 +1714,8 @@ const Orders = () => {
       toast.error("Please enter a guest name before firing");
       return;
     }
+    lockedItemsSigRef.current = cartSignature;
+    setOrderActionLocked(true);
     if (!isSessionOrderMode || !sessionIdFromParams) {
       // Not a session order - create DB record and mark items as fired
       setOrderItems((prev) => {

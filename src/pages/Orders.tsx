@@ -792,6 +792,7 @@ const Orders = () => {
     }
     
     setOrderItems(() => []);
+    setQuickOrderDbId(null);
     setSelectedDiscounts([]);
     setAppliedServiceCharge(0);
     setAppliedServiceChargeName('');

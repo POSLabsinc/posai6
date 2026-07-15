@@ -268,6 +268,8 @@ export interface ControlCenterSettings {
   hideSeatSelector: boolean;
   resetTablesDaily: boolean;
   enableWriteOff: boolean;
+  orderHold: boolean;
+  orderHoldTime: string;
   businessHoursStart: string;
   businessHoursEnd: string;
   dashboardMetrics: DashboardMetricsVisibility;
@@ -367,6 +369,8 @@ const defaultControlCenterSettings: ControlCenterSettings = {
   hideSeatSelector: false,
   resetTablesDaily: false,
   enableWriteOff: true,
+  orderHold: false,
+  orderHoldTime: "5",
   businessHoursStart: "6:00 AM",
   businessHoursEnd: "1:00 AM",
   dashboardMetrics: {

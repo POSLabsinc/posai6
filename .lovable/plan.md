@@ -1,126 +1,127 @@
-## Goal
+# POS AI 6.0 — Project Guardrails Document
 
-The scanner flagged that **all pricing, tax, discount, gratuity, and "mark as paid" logic runs in the browser**. A malicious user can edit a single number in the dev tools and pay $0.01 for a $200 ticket, or mark unpaid orders as paid. The fix is to make the browser strictly a *display + intent* layer and move every money-affecting calculation behind an edge function that the client cannot bypass.
+Create a single, authoritative markdown document that serves as the source of truth for Lovable, Cursor, and any other AI tool working on this project. It will consolidate everything established across the full chat history: design rules, UX standards, technical patterns, recurring mistakes, corrections, and preventive guardrails.
 
-The good news: your database already has the right tables (`orders`, `order_items`, `products`, `taxes`, `discounts`, `service_charges`, `gratuity_settings`, `payment_methods`, `ticket_orders`, `ticket_order_items`, `vouchers`, `cash_drawer_sessions`, `cash_transactions`). So this is mostly about *what computes the numbers*, not new schema.
+## Deliverable
 
-## What is wrong today (in plain language)
+**File:** `docs/PROJECT_GUARDRAILS.md` (primary, in repo)
+**Mirror:** `/mnt/documents/POS_AI_Project_Guardrails.md` (downloadable artifact)
 
-1. **Totals are trusted from the client.** The browser sums line items, applies tax/discount/service charge/tip, and sends the final number to the database. Anyone can change that number in flight.
-2. **"Paid" is a client decision.** Tapping a payment method in `LiquidGlassCheckout` writes `status: PAID` directly from the browser, with no verification that money actually moved.
-3. **Discounts and comps have no server check.** A 100% comp or a manager-approved discount is enforced only by the UI flow.
-4. **Refunds, voids, and reopens** are direct DB writes from the client.
-5. **Cash drawer reconciliation** (opening float, cash in/out, drop, expected vs actual) is computed in the browser and written as the final truth.
+Both files will contain identical content. The `/mnt/documents` copy is delivered as a `<presentation-artifact>` so you can download/share it.
 
-## What we will build (high level)
-
-A small set of edge functions that own all money math, plus tightened RLS so the anon key can no longer write to money-bearing columns.
+## Document Structure
 
 ```text
- Browser (UI)                       Edge Functions (trusted)              Database
- ────────────                       ───────────────────────              ────────
- Add product to order      ───►   add-order-item    ───►   recompute order totals from products table
- Apply discount/comp       ───►   apply-discount    ───►   validate discount rules, manager PIN, write
- Apply service charge/tip  ───►   apply-charges     ───►   validate against settings, write
- Tap "Charge"              ───►   start-payment     ───►   lock order, return server-computed total
- Tender (cash/card/etc)    ───►   capture-payment   ───►   record payment, mark PAID only when balance = 0
- Refund / void / reopen    ───►   refund-order      ───►   manager auth, write payment + status
- Open / close drawer       ───►   cash-session      ───►   compute expected from server-side ledger
+1.  Purpose & How to Use This Document
+2.  Product Vision & Platform Principles
+3.  Terminology Standards (Product vs Item, Point of Sale, PAID, etc.)
+4.  Design System Rules
+      - Liquid Glass theme, dark mode default
+      - Semantic tokens only (no hardcoded colors)
+      - Typography: Montserrat, 14px root
+      - Settings UI: iOS 26 dark theme, #131316 / #252525 / #1C1C1C
+      - Status color mapping (ORDERING, ORDERED, PAID, UNPAID, HOLD)
+      - Rounded corners, spacing, no scrollbars
+5.  UX Operational Rules
+      - 1–2 taps for core flows
+      - KPI limit (max 6), no analytics on operational screens
+      - Order/table visibility (ID, status, count, elapsed time)
+      - Save-on-back pattern
+      - Explicit X close on modals
+6.  Component & Interaction Standards
+      - Swipe-to-reveal (single open, 20px threshold)
+      - Phone input (auto-detect flag, manual selector)
+      - OTP (6 boxes, auto-verify, 300ms delay)
+      - Wheel pickers for date/time
+      - Custom keyboard system
+      - Sort icons (expand-arrows.svg) on every table header
+7.  Feature-Specific Guardrails
+      - Orders / Quick Order persistence (Fire vs Hold)
+      - Order Hold flow (ticket status update, no duplicates)
+      - Tickets, split check, transfer, merge
+      - KDS, inventory deduct/restore, discounts, vouchers
+      - Guests, reservations, workforce, cash management
+      - Onboarding (manual + AI parity)
+      - Demo mode popup (personal email → read-only)
+8.  Architecture Rules
+      - dbId for DB ops (not truncated id)
+      - SHARED_DEVICE_ID = "shared" for global tables
+      - Appearance persistence: DB overrides localStorage
+      - Order numbering (max + 1)
+      - Dashboard ID mapping
+9.  Backend / Lovable Cloud Rules
+      - RLS on every public table + GRANT statements
+      - Roles in separate table via has_role() SECURITY DEFINER
+      - No client-side admin checks
+      - Payment finalization must be server-side
+      - Never expose service_role or DB password
+      - Never say "Supabase" in user-facing copy
+10. Security Guardrails (from scan findings)
+      - AI API keys never in DB
+      - Employee PINs never exposed to client
+      - Geolocation via server proxy
+      - No localStorage tampering for auth/roles
+      - Payments validated server-side
+      - Edge functions authenticated by default
+11. Onboarding & Auth Guardrails
+      - "Activate with AI" prioritized
+      - Rounded-full inputs & CTAs throughout signup/signin
+      - Back navigation must not loop (explicit routes, not navigate(-1))
+      - Personal email → mirror business flow, gate at "Use mode" with demo popup
+      - AI chat flow mirrors manual flow, prompt-driven
+12. AI Assistant Behavior
+      - Settings-only scope, no Lovable AI Assistant coupling
+      - Contextual welcomes, inline theme/logo actions
+      - Compare-plans bottom sheet in AI signup
+13. Credit & Efficiency Guardrails
+      - Lowest-credit approach first
+      - Reuse existing components (e.g., DeviceSetupAIChat)
+      - Prefer search-replace over full rewrites
+14. Recurring Mistakes & Corrections (Case Log)
+      Chronological table capturing: what went wrong, what you asked for,
+      how it was fixed, and the guardrail that now prevents recurrence.
+      Examples to include:
+        - Mode explanation container left empty → added looping videos
+        - Back on "Check your email" looped to type selection → explicit route
+        - Personal email blocked signup → mirror flow + demo popup
+        - Buttons/inputs inconsistent radii → rounded-full standardized
+        - AI signup didn't show Places suggestions → fallback + geo bias
+        - Country not auto-detected in AI chat → detectCountry + edit sheet
+        - Mode explanation missing after selection → learn step + sheet
+        - Payment lacked server validation → 7-phase server-side plan
+        - Add Guest UI regressed → legacy component with exact styling
+        - Theme preset Apply did nothing → wired to AppearanceContext
+        - Theme color burgundy/red default → black/grey defaults
+        - Order Hold created duplicate tickets → quickOrderDbId + update
+        - Fire/Hold could be double-tapped → lock + cartSignature reset
+        - Hold-time dropdown clipped → position:fixed popover
+        - eatos.com/dashboard not linked → hyperlink added
+        - "Where do I find my code?" placement → moved below info box
+        - "AI Integration & Settings" naming → renamed "AI Integration"
+        - Guest Book "New Order" color/icon → white + plus icon
+        - RLS/GRANT gaps flagged by scanner → policies tightened per table
+15. Lessons Learned (Principles distilled from the case log)
+16. Definition of Done Checklist
+      Pre-merge checks: terminology, tokens, RLS+GRANT, no hardcoded colors,
+      rounded-full inputs/CTAs in auth flows, no navigate(-1) loops,
+      dbId usage, no duplicate ticket creation, save-on-back respected,
+      screenshots verified for visual changes.
+17. Change Management
+      How to update this document when a new rule is agreed.
 ```
 
-The UI keeps showing the same numbers, but every number now comes from the server response, not from `useState`.
+## Method
 
-## Step-by-step rollout
+1. Sweep the full chat history with `chat_search`/`recall_chat_history` to recover every explicit rule, correction, and rejected idea not already in `mem://index.md`.
+2. Merge those findings with the existing memory files (design, features, architecture, auth, security) — memory is already the distilled rule set; the guide will reference and expand it.
+3. Write the document in one pass, keeping each rule short and prescriptive ("Do / Don't"), with a "Why" line where the reason isn't obvious.
+4. Add the Case Log as a table so mistakes are easy to scan.
+5. Save to both paths and emit the artifact tag.
 
-This is intentionally staged so the POS keeps working at every step.
+## Scope Notes
 
-### Phase 1: Lock down the database (no UI change)
+- Documentation only. No code, schema, or config changes.
+- Content is drawn from prior conversation and existing `mem://` memories — no new product decisions are introduced.
+- If, while writing, I find a rule that contradicts another, I'll flag it in a "Conflicts to Resolve" appendix rather than silently pick one.
 
-- Drop all `Anon insert/update/delete` policies on `orders`, `order_items`, `ticket_orders`, `ticket_order_items`, `cash_transactions`, `cash_drops`, `cash_drawer_sessions`.
-- Replace with policies that only allow `service_role` (the role used by edge functions) to write.
-- Keep anon `SELECT` for the columns the POS needs to render (id, status, totals, line items), so screens still load.
-- Add a database trigger that recomputes `subtotal`, `tax_total`, `discount_total`, `total`, `balance_due` from `order_items` whenever a row changes, so even direct service-role writes cannot store inconsistent totals.
-
-### Phase 2: Order math edge functions
-
-Create `order-mutations` (one function, several actions) that owns:
-
-- `add_item`, `update_item_quantity`, `remove_item`, `void_item`
-- `apply_discount` (validates the discount row from `discounts`, checks `requires_manager_pin`, accepts a PIN verified server-side)
-- `apply_service_charge`, `set_gratuity`, `set_tip`
-- `change_order_type`, `assign_guest`, `transfer_seat`
-
-Each action: reads the order, recomputes totals from current `products`/`taxes`/`discounts`/`service_charges`/`gratuity_settings`, writes the new state, returns the canonical order. The UI replaces all local arithmetic with a single call and re-renders from the response.
-
-### Phase 3: Payment finalization
-
-Create `capture-payment`:
-
-- Input: `order_id`, `payment_method_id`, `amount`, optional `tip`, optional `tendered`, optional `manager_pin`.
-- Server re-fetches the order, re-validates the balance due, refuses to mark `PAID` until `sum(payments) >= total`.
-- For cash: records the tender, computes change server-side, links to the open `cash_drawer_session`.
-- For card/voucher/external: writes the payment row with a `provider_reference` field. (Real card capture is a separate provider integration; this function just makes the *finalization* server-authoritative.)
-- For vouchers: deducts `remaining_balance` from `vouchers` atomically.
-- Returns the updated order and a `paid_at` timestamp.
-
-Create `refund-order` and `void-order` with the same shape, both requiring a manager PIN verified through the existing `verify-employee-pin` function.
-
-### Phase 4: Cash drawer integrity
-
-Create `cash-session`:
-
-- `open` (records opening float, writes `cash_drawer_sessions`).
-- `pay_in` / `pay_out` / `cash_drop` (writes `cash_transactions` / `cash_drops`).
-- `close` (computes expected = opening + cash sales + pay-ins - pay-outs - drops from the **database**, compares to counted, records variance).
-
-The UI stops doing any of that math.
-
-### Phase 5: Settings hardening
-
-- `payment_methods`, `checkout_options`, `gratuity_settings`, `discounts`, `taxes`, `service_charges`: revoke anon writes. Add an `update-settings` edge function that checks for a manager role via `has_role()` before writing.
-- Move the localStorage `payment-methods-state`, `checkout-options-settings`, and `pos_user_pins` reads to **DB reads on app start**, with the DB as the only source of truth. (This also closes the related `localStorage_tampering` finding.)
-
-### Phase 6: Frontend swap
-
-This is the biggest UI-side change but it is mechanical:
-
-- Replace direct `supabase.from('order_items').insert/update/delete` calls with `supabase.functions.invoke('order-mutations', { body: { action, ... } })`.
-- Replace the "Charge" / "Mark paid" code in `LiquidGlassCheckout`, `OrderLayoutTemplate`, `TableOrderDetails`, `Tickets`, and split-check flows with `capture-payment`.
-- Remove every line that computes a price, tax, discount, tip, or total in JS; render directly from the order returned by the edge function.
-- Keep optimistic UI where it's nice to have (e.g. instantly show the added line), but reconcile to the server response.
-
-### Phase 7: Audit + verification
-
-- Add an `order_events` audit table (already partially present as `activity_log`). Every edge function writes an event with `actor`, `device_id`, `before`, `after`.
-- Manual test matrix: add item, apply 100% comp, split check, partial cash + card, refund a paid order, void an item, close a drawer with variance. Each one should be impossible to fake by editing the request body.
-- Re-run the security scan to confirm `payment_client_only` clears.
-
-## Technical notes
-
-- **No new tables required** for Phases 1-4. The existing schema already has the columns we need (`orders.total`, `orders.balance_due`, `orders.status`, `order_items.unit_price`, etc.). We only add an `order_events` table in Phase 7.
-- **Manager PIN checks** reuse the `verify-employee-pin` edge function already deployed; just add an `action: "verify_role"` branch that also returns the employee's role so payment/refund/comp can check it.
-- **Edge function auth**: same pattern we just shipped (require `Authorization` / `apikey` header, validate input with strict schemas, cap array sizes).
-- **Real card processing** is out of scope for closing this finding. The finding is about *who decides an order is paid*, not about whether a card was actually charged. If you also want true card capture, that's a separate Stripe/Paddle integration we can plan after.
-- **Backwards compatibility**: Phases 1-5 can ship without breaking the UI if Phase 6 lands in the same release. We will keep the current code path working until each screen is swapped over, then remove the dead code in one cleanup PR.
-
-## Effort and sequencing
-
-Realistic estimate, in calendar terms, working incrementally:
-
-- Phase 1 (RLS + triggers): 0.5 day
-- Phase 2 (order mutations function + frontend swap): 2-3 days
-- Phase 3 (payment finalization + frontend swap): 2-3 days
-- Phase 4 (cash drawer): 1-2 days
-- Phase 5 (settings hardening): 1 day
-- Phase 6 (full frontend cleanup): 1-2 days
-- Phase 7 (audit + manual test pass + re-scan): 1 day
-
-Roughly 8-12 working days end-to-end. Each phase is independently shippable.
-
-## What I need from you to start
-
-1. Confirm you want to proceed and we will treat this as a multi-step engagement (one phase per turn, each phase landed and verified before the next).
-2. Confirm there is no real payment processor to integrate right now (just server-authoritative "mark paid"), or tell me which processor (Stripe, Paddle, Square) so I can fold card capture into Phase 3.
-3. Confirm whether `localStorage_tampering` (`pos_session`, `pos_user_pins`, `payment-methods-state`, `checkout-options-settings`) should be closed in the same engagement. Phase 5 covers the config piece; the session piece needs a small extra step (server-validated session tokens) that I can add to Phase 5 if you say yes.
-
-Once you approve, I will start with Phase 1.
+Approve and I'll generate the document.

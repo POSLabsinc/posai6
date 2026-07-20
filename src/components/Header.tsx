@@ -240,9 +240,8 @@ const Header = () => {
 
             <span className="hidden md:inline text-sm">Dinner Service (9:00 PM)</span>
 
-            {/* Clock-in time */}
-            <div className="hidden md:block w-px h-4 bg-sidebar-foreground/30 mx-1" />
-            <span className="hidden md:inline text-xs text-neutral-400">Clocked in {clockInTime}</span>
+
+
           </button>
         </div>
 

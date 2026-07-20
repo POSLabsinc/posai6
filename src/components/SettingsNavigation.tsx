@@ -135,7 +135,6 @@ const SearchResultRow = ({
 
 // Tablet/Desktop/Mobile settings items (unified)
 const allSettingsItems: SettingsItemData[] = [
-  { id: "account", iconSrc: accountIcon, label: "Account", iconBgColor: "#0A84FF", group: "main" },
   { id: "system", iconSrc: systemIcon, label: "System", iconBgColor: "#34A885", group: "main" },
   { id: "payments", iconSrc: paymentsIcon, label: "Payments", iconBgColor: "#4200FF", group: "main" },
   { id: "menu", iconSrc: menuIcon, label: "Menu", iconBgColor: "#F82536", group: "main" },
@@ -149,6 +148,51 @@ const allSettingsItems: SettingsItemData[] = [
   { id: "network", iconSrc: networkIcon, label: "Network", iconBgColor: "#5AB0EE", group: "system" },
   { id: "support", iconSrc: supportIcon, label: "Support", iconBgColor: "#FF0028", group: "system" },
 ];
+
+// User profile card shown above the settings items (replaces the "Account" list entry)
+const UserProfileCard = ({ onClick, isActive, variant }: { onClick: () => void; isActive?: boolean; variant: "mobile" | "tablet" }) => {
+  const avatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face";
+  const name = "Jim Hopper";
+  const role = "Executive Assistant Manager";
+  const clockInTime = "10:00 AM";
+
+  if (variant === "mobile") {
+    return (
+      <button
+        onClick={onClick}
+        className="w-full flex items-center gap-3 py-3 px-4 bg-surface rounded-2xl mb-4 active:opacity-70 transition-opacity text-left"
+      >
+        <img src={avatar} alt={name} className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+        <div className="flex flex-col min-w-0 flex-1">
+          <span className="text-foreground font-semibold text-[1rem] truncate">{name}</span>
+          <span className="text-muted-foreground text-xs truncate">{role}</span>
+          <span className="text-muted-foreground text-xs mt-0.5 flex items-center gap-1.5">
+            Clocked In At {clockInTime}
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+          </span>
+        </div>
+        <ChevronRight className="w-5 h-5 text-neutral-500 flex-shrink-0" />
+      </button>
+    );
+  }
+
+  return (
+    <button
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 py-2.5 px-3 mb-3 rounded-2xl active:opacity-70 transition-all text-left settings-nav-item ${isActive ? 'settings-nav-active' : ''}`}
+    >
+      <img src={avatar} alt={name} className="w-[2.6rem] h-[2.6rem] rounded-full object-cover flex-shrink-0" />
+      <div className="flex flex-col min-w-0 flex-1">
+        <span className="text-foreground font-semibold text-[0.95rem] truncate leading-tight">{name}</span>
+        <span className="text-muted-foreground text-[0.75rem] truncate leading-tight mt-0.5">{role}</span>
+        <span className="text-muted-foreground text-[0.7rem] mt-1 flex items-center gap-1.5 leading-none">
+          Clocked In At {clockInTime}
+          <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+        </span>
+      </div>
+    </button>
+  );
+};
 
 interface SettingsNavigationProps {
   onUserProfileClick?: () => void;
@@ -340,6 +384,11 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
             )
           ) : (
             <>
+              <UserProfileCard
+                variant="mobile"
+                isActive={activeItemId === 'account'}
+                onClick={() => handleItemClick('account')}
+              />
               {mainItems.length > 0 && (
                 <div className="bg-surface rounded-2xl overflow-hidden mb-4">
                   {mainItems.map((item, index) => (
@@ -407,6 +456,11 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
           )
         ) : (
           <>
+            <UserProfileCard
+              variant="tablet"
+              isActive={activeItemId === 'account'}
+              onClick={() => handleItemClick('account')}
+            />
             {mainItems.length > 0 && (
               <div className="mb-2">
                 {mainItems.map((item) => (

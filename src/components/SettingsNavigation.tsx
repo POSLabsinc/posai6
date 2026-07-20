@@ -384,6 +384,11 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
             )
           ) : (
             <>
+              <UserProfileCard
+                variant="mobile"
+                isActive={activeItemId === 'account'}
+                onClick={() => handleItemClick('account')}
+              />
               {mainItems.length > 0 && (
                 <div className="bg-surface rounded-2xl overflow-hidden mb-4">
                   {mainItems.map((item, index) => (

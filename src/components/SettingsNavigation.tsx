@@ -456,6 +456,11 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
           )
         ) : (
           <>
+            <UserProfileCard
+              variant="tablet"
+              isActive={activeItemId === 'account'}
+              onClick={() => handleItemClick('account')}
+            />
             {mainItems.length > 0 && (
               <div className="mb-2">
                 {mainItems.map((item) => (

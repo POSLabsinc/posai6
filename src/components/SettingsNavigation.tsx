@@ -151,10 +151,29 @@ const allSettingsItems: SettingsItemData[] = [
 
 // User profile card shown above the settings items (replaces the "Account" list entry)
 const UserProfileCard = ({ onClick, isActive, variant }: { onClick: () => void; isActive?: boolean; variant: "mobile" | "tablet" }) => {
-  const avatar = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face";
-  const name = "Jim Hopper";
-  const role = "Executive Assistant Manager";
-  const clockInTime = "10:00 AM";
+  const [session, setSession] = useState<any>(null);
+
+  useEffect(() => {
+    const load = () => {
+      try {
+        const raw = localStorage.getItem("pos_session");
+        setSession(raw ? JSON.parse(raw) : null);
+      } catch {
+        setSession(null);
+      }
+    };
+    load();
+    const t = setInterval(load, 2000);
+    return () => clearInterval(t);
+  }, []);
+
+  const avatar = session?.employeeAvatar || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face";
+  const name = session?.employeeName || "Guest";
+  const role = (session?.jobType || session?.employeeRole || "Staff").toString();
+  const loginTimeIso = session?.loginTime || session?.clockInTime;
+  const clockInTime = loginTimeIso
+    ? new Date(loginTimeIso).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    : null;
 
   if (variant === "mobile") {
     return (
@@ -166,10 +185,12 @@ const UserProfileCard = ({ onClick, isActive, variant }: { onClick: () => void; 
         <div className="flex flex-col min-w-0 flex-1">
           <span className="text-foreground font-semibold text-[1rem] truncate">{name}</span>
           <span className="text-muted-foreground text-xs truncate">{role}</span>
-          <span className="text-muted-foreground text-xs mt-0.5 flex items-center gap-1.5">
-            Clocked In At {clockInTime}
-            <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-          </span>
+          {clockInTime && (
+            <span className="text-muted-foreground text-xs mt-0.5 flex items-center gap-1.5">
+              Clocked In At {clockInTime}
+              <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+            </span>
+          )}
         </div>
         <ChevronRight className="w-5 h-5 text-neutral-500 flex-shrink-0" />
       </button>
@@ -185,14 +206,17 @@ const UserProfileCard = ({ onClick, isActive, variant }: { onClick: () => void; 
       <div className="flex flex-col min-w-0 flex-1">
         <span className="text-foreground font-semibold text-[0.95rem] truncate leading-tight">{name}</span>
         <span className="text-muted-foreground text-[0.75rem] truncate leading-tight mt-0.5">{role}</span>
-        <span className="text-muted-foreground text-[0.7rem] mt-1 flex items-center gap-1.5 leading-none">
-          Clocked In At {clockInTime}
-          <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-        </span>
+        {clockInTime && (
+          <span className="text-muted-foreground text-[0.7rem] mt-1 flex items-center gap-1.5 leading-none">
+            Clocked In At {clockInTime}
+            <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
+          </span>
+        )}
       </div>
     </button>
   );
 };
+
 
 interface SettingsNavigationProps {
   onUserProfileClick?: () => void;

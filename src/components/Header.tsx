@@ -416,7 +416,7 @@ const Header = () => {
       {showProfilePopup && !showShiftSummary && (
         <div className="fixed inset-0 z-[9998] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60" onClick={() => setShowProfilePopup(false)} />
-          <div className="relative z-10 w-[380px] bg-[#1C1C1E] rounded-3xl shadow-2xl overflow-hidden">
+          <div className="relative z-10 w-[520px] max-w-[92vw] bg-[#1C1C1E] rounded-3xl shadow-2xl overflow-hidden">
             <button
               onClick={() => setShowProfilePopup(false)}
               className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
@@ -434,25 +434,26 @@ const Header = () => {
 
               {/* Details row */}
               <div className="mt-6 flex items-center justify-between w-full divide-x divide-white/10">
-                <div className="flex-1 text-center px-2">
-                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-wide whitespace-nowrap">Clocked In</p>
+                <div className="flex-1 text-center px-3">
+                  <p className="text-[13px] font-light text-neutral-400 uppercase tracking-wide whitespace-nowrap">Clocked In</p>
                   <p className="text-xl font-bold text-white mt-1 whitespace-nowrap">{clockInTime}</p>
                 </div>
-                <div className="flex-1 text-center px-2">
-                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-wide whitespace-nowrap">Total Hours</p>
+                <div className="flex-1 text-center px-3">
+                  <p className="text-[13px] font-light text-neutral-400 uppercase tracking-wide whitespace-nowrap">Total Hours</p>
                   <p className="text-xl font-bold text-white mt-1 whitespace-nowrap">{totalHours}h</p>
                 </div>
-                <div className="flex-1 text-center px-2">
-                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-wide whitespace-nowrap">Shift End</p>
+                <div className="flex-1 text-center px-3">
+                  <p className="text-[13px] font-light text-neutral-400 uppercase tracking-wide whitespace-nowrap">Shift End</p>
                   <p className="text-xl font-bold text-white mt-1 whitespace-nowrap">{shiftEndStr}</p>
                 </div>
-                <div className="flex-1 text-center px-2">
-                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-wide whitespace-nowrap">Break Taken</p>
+                <div className="flex-1 text-center px-3">
+                  <p className="text-[13px] font-light text-neutral-400 uppercase tracking-wide whitespace-nowrap">Break Taken</p>
                   <p className="text-xl font-bold text-white mt-1 whitespace-nowrap">{isOnBreak ? "Active" : "0m"}</p>
                 </div>
               </div>
 
             </div>
+
 
             {/* View Shift Summary button */}
             <div className="px-5 pb-5">

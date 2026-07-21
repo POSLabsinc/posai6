@@ -433,24 +433,25 @@ const Header = () => {
               <span className="mt-1 text-xs px-3 py-1 bg-white/10 text-neutral-300 rounded-full font-medium uppercase tracking-wide">{employeeRole}</span>
 
               {/* Details row */}
-              <div className="mt-6 grid grid-cols-4 gap-3 w-full">
-                <div className="text-center">
-                  <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Clocked In</p>
-                  <p className="text-lg font-bold text-white mt-1">{clockInTime}</p>
+              <div className="mt-6 flex items-center justify-between w-full divide-x divide-white/10">
+                <div className="flex-1 text-center px-2">
+                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-wide whitespace-nowrap">Clocked In</p>
+                  <p className="text-xl font-bold text-white mt-1 whitespace-nowrap">{clockInTime}</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Hours</p>
-                  <p className="text-lg font-bold text-white mt-1">{totalHours}h</p>
+                <div className="flex-1 text-center px-2">
+                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-wide whitespace-nowrap">Total Hours</p>
+                  <p className="text-xl font-bold text-white mt-1 whitespace-nowrap">{totalHours}h</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Shift End</p>
-                  <p className="text-lg font-bold text-white mt-1">{shiftEndStr}</p>
+                <div className="flex-1 text-center px-2">
+                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-wide whitespace-nowrap">Shift End</p>
+                  <p className="text-xl font-bold text-white mt-1 whitespace-nowrap">{shiftEndStr}</p>
                 </div>
-                <div className="text-center">
-                  <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Break Taken</p>
-                  <p className="text-lg font-bold text-white mt-1">{isOnBreak ? "Active" : "0m"}</p>
+                <div className="flex-1 text-center px-2">
+                  <p className="text-xs font-bold text-neutral-400 uppercase tracking-wide whitespace-nowrap">Break Taken</p>
+                  <p className="text-xl font-bold text-white mt-1 whitespace-nowrap">{isOnBreak ? "Active" : "0m"}</p>
                 </div>
               </div>
+
             </div>
 
             {/* View Shift Summary button */}

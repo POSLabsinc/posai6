@@ -416,7 +416,7 @@ const Header = () => {
       {showProfilePopup && !showShiftSummary && (
         <div className="fixed inset-0 z-[9998] flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60" onClick={() => setShowProfilePopup(false)} />
-          <div className="relative z-10 w-[360px] bg-[#1C1C1E] rounded-2xl shadow-2xl overflow-hidden">
+          <div className="relative z-10 w-[380px] bg-[#1C1C1E] rounded-3xl shadow-2xl overflow-hidden">
             <button
               onClick={() => setShowProfilePopup(false)}
               className="absolute top-3 right-3 w-7 h-7 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
@@ -424,46 +424,32 @@ const Header = () => {
               <X className="w-4 h-4 text-neutral-400" />
             </button>
 
-            <div className="flex flex-col items-center pt-8 pb-5 px-6">
+            <div className="flex flex-col items-center pt-8 pb-6 px-6">
               <Avatar className="w-16 h-16 border-2 border-white/20">
                 <AvatarImage src="" alt={employeeName} />
                 <AvatarFallback className="text-lg font-semibold bg-neutral-700 text-white">{initials}</AvatarFallback>
               </Avatar>
               <h3 className="mt-3 text-lg font-semibold text-white">{employeeName}</h3>
               <span className="mt-1 text-xs px-3 py-1 bg-white/10 text-neutral-300 rounded-full font-medium uppercase tracking-wide">{employeeRole}</span>
-              
-              {/* Clock-in info */}
-              <div className="mt-5 flex items-center gap-6">
+
+              {/* Details row */}
+              <div className="mt-6 grid grid-cols-4 gap-3 w-full">
                 <div className="text-center">
                   <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Clocked In</p>
-                  <p className="text-2xl font-bold text-white mt-0.5">{clockInTime}</p>
-                  {clockInDate && <p className="text-[10px] text-neutral-500 mt-0.5">{clockInDate}</p>}
+                  <p className="text-lg font-bold text-white mt-1">{clockInTime}</p>
                 </div>
-                <div className="w-px h-10 bg-white/10" />
                 <div className="text-center">
                   <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Total Hours</p>
-                  <p className="text-2xl font-bold text-white mt-0.5">{totalHours}h</p>
-                  <p className="text-[10px] text-neutral-500 mt-0.5">{durationStr}</p>
+                  <p className="text-lg font-bold text-white mt-1">{totalHours}h</p>
                 </div>
-              </div>
-            </div>
-
-            {/* Stats row */}
-            <div className="grid grid-cols-3 gap-2 px-5 pb-5">
-              <div className="bg-white/5 rounded-xl p-3 text-center">
-                <Timer className="w-4 h-4 text-emerald-400 mx-auto mb-1" />
-                <p className="text-sm font-semibold text-white">{durationStr}</p>
-                <p className="text-[10px] text-neutral-500 mt-0.5">Duration</p>
-              </div>
-              <div className="bg-white/5 rounded-xl p-3 text-center">
-                <Clock className="w-4 h-4 text-amber-400 mx-auto mb-1" />
-                <p className="text-sm font-semibold text-white">{shiftEndStr}</p>
-                <p className="text-[10px] text-neutral-500 mt-0.5">Shift End</p>
-              </div>
-              <div className="bg-white/5 rounded-xl p-3 text-center">
-                <Coffee className="w-4 h-4 text-orange-400 mx-auto mb-1" />
-                <p className="text-sm font-semibold text-white">{isOnBreak ? "Active" : "0m"}</p>
-                <p className="text-[10px] text-neutral-500 mt-0.5">Break Taken</p>
+                <div className="text-center">
+                  <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Shift End</p>
+                  <p className="text-lg font-bold text-white mt-1">{shiftEndStr}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-neutral-500 uppercase tracking-wide">Break Taken</p>
+                  <p className="text-lg font-bold text-white mt-1">{isOnBreak ? "Active" : "0m"}</p>
+                </div>
               </div>
             </div>
 
@@ -471,7 +457,7 @@ const Header = () => {
             <div className="px-5 pb-5">
               <button
                 onClick={() => setShowShiftSummary(true)}
-                className="w-full py-3 bg-white/10 hover:bg-white/15 text-white text-sm font-semibold rounded-xl transition-colors"
+                className="w-full py-3 bg-white/10 hover:bg-white/15 text-white text-sm font-semibold rounded-full transition-colors"
               >
                 View Shift Summary
               </button>

@@ -206,8 +206,25 @@ const AccountPanel = ({
           </div>
           
           {/* User Name */}
-          <h2 className="text-xl font-semibold text-foreground mb-0.5">John Smith</h2>
-          <p className="text-neutral-400 text-sm">Server</p>
+          {(() => {
+            let name = "Guest";
+            let role = "Staff";
+            try {
+              const raw = localStorage.getItem("pos_session");
+              if (raw) {
+                const s = JSON.parse(raw);
+                name = s?.employeeName || name;
+                role = (s?.jobType || s?.employeeRole || role).toString();
+              }
+            } catch {}
+            return (
+              <>
+                <h2 className="text-xl font-semibold text-foreground mb-0.5">{name}</h2>
+                <p className="text-neutral-400 text-sm uppercase tracking-wide">{role}</p>
+              </>
+            );
+          })()}
+
         </div>
 
 

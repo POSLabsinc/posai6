@@ -535,15 +535,6 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
             </div>
             <div className="h-px bg-neutral-700/50 mx-4" />
 
-            {/* Hide Performance Summary */}
-            <div className="py-3.5 px-4">
-              <div className="flex items-center justify-between">
-                <span className="text-foreground text-lg font-medium">Hide Performance Summary</span>
-                <Switch checked={hidePerformanceSummary} onCheckedChange={handleHidePerformanceSummaryChange} />
-              </div>
-              <p className="text-neutral-500 text-sm mt-1">Hide the employee performance stats from the Account screen.</p>
-            </div>
-            <div className="h-px bg-neutral-700/50 mx-4" />
 
             {/* Hide Break Button */}
             <div className="py-3.5 px-4">

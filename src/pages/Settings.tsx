@@ -27,6 +27,7 @@ import CashManagementContent from "@/components/settings/CashManagementContent";
 import CashDrawerDetailsContent from "@/components/settings/CashDrawerDetailsContent";
 import PayInOutContent from "@/components/settings/PayInOutContent";
 import CheckoutOptionsContent from "@/components/settings/CheckoutOptionsContent";
+import ReceiptsContent from "@/components/settings/ReceiptsContent";
 
 import MenuSettingsContent from "@/components/settings/MenuSettingsContent";
 
@@ -346,6 +347,9 @@ const getContentForRoute = (
   }
   if (pathname === '/settings/payments/checkout-options') {
     return <CheckoutOptionsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/payments/receipts') {
+    return <ReceiptsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
   }
   if (pathname === '/settings/payments/payment-pricing') {
     return <PaymentPricingContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;

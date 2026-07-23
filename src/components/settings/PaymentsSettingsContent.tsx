@@ -15,6 +15,7 @@ import serviceChargeIcon from "@/assets/icons/service-charge.png";
 import cashManagementIcon from "@/assets/icons/cash-management.png";
 import checkoutOptionsIcon from "@/assets/icons/checkout-options.png";
 import voucherIcon from "@/assets/icons/voucher.svg";
+import receiptIcon from "@/assets/icons/receipt.svg";
 
 interface SettingsOptionProps {
   icon: string;

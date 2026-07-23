@@ -212,7 +212,6 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                       }`}
                     >
                       <span className="text-sm font-medium">{s.label}</span>
-                      {selected && <Check className="w-4 h-4 text-primary" />}
                     </button>
                   );
                 })}

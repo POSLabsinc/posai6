@@ -10,7 +10,7 @@ interface ReceiptsContentProps {
 
 type TabId = "kot" | "payment-receipt" | "receipt" | "email-receipt" | "sms-receipt";
 type StyleId = "classic-thermal" | "compact-service" | "guest-table" | "modern-bistro";
-type FontStyle = "thermal" | "clean";
+type FontStyle = "thermal" | "clean" | "serif" | "rounded";
 type FontSize = "s" | "m" | "l";
 
 interface ChannelState {
@@ -62,9 +62,14 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
   };
 
   const renderPreview = () => {
-    const fontFamily = current.fontStyle === "thermal"
-      ? '"SFMono-Regular", ui-monospace, Menlo, Consolas, monospace'
-      : '"Inter", system-ui, -apple-system, sans-serif';
+    const fontFamily =
+      current.fontStyle === "thermal"
+        ? '"SFMono-Regular", ui-monospace, Menlo, Consolas, monospace'
+        : current.fontStyle === "serif"
+        ? '"Georgia", "Times New Roman", serif'
+        : current.fontStyle === "rounded"
+        ? '"Nunito", "Quicksand", system-ui, sans-serif'
+        : '"Inter", system-ui, -apple-system, sans-serif';
     const baseSize = fontSizePx[current.fontSize];
 
     const items = [
@@ -108,7 +113,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
           >
             {isGuestTable ? (
               <div className="text-center mb-3 pt-2">
-                <div style={{ fontSize: baseSize * 1.6, fontWeight: 700 }}>Order #1042 · Table 7</div>
+                <div style={{ fontSize: baseSize * 1.6, fontWeight: 700 }}>Order 1042 · Table 7</div>
                 <div className="text-neutral-500" style={{ fontSize: baseSize * 0.9, marginTop: 2 }}>
                   The Rustic Table
                 </div>
@@ -132,7 +137,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                 <div className="text-neutral-500" style={{ fontSize: baseSize * 0.85 }}>
                   Jul 23, 2026 · 7:14 PM
                 </div>
-                <div className="mt-2" style={{ fontWeight: 600 }}>Order #1042</div>
+                <div className="mt-2" style={{ fontWeight: 600 }}>Order 1042</div>
                 <div style={{ fontSize: baseSize * 0.9 }}>Table 7 · Server: Alex</div>
                 {showDeviceLines && (
                   <div className="text-neutral-500 mt-1" style={{ fontSize: baseSize * 0.85 }}>
@@ -293,19 +298,20 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
               <div>
                 <h3 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Font Style</h3>
                 <div className="flex gap-2">
-                  {(["thermal", "clean"] as FontStyle[]).map((fs) => {
+                  {(["thermal", "clean", "serif", "rounded"] as FontStyle[]).map((fs) => {
                     const active = current.fontStyle === fs;
+                    const label = fs.charAt(0).toUpperCase() + fs.slice(1);
                     return (
                       <button
                         key={fs}
                         onClick={() => updateChannel({ fontStyle: fs })}
-                        className={`flex-1 px-4 py-2 rounded-full text-sm font-medium capitalize transition-colors ${
+                        className={`flex-1 px-3 py-2 rounded-full text-sm font-medium capitalize transition-colors ${
                           active
                             ? "bg-primary text-primary-foreground"
                             : "bg-neutral-800/60 text-foreground/80 hover:bg-neutral-800"
                         }`}
                       >
-                        {fs === "thermal" ? "Thermal" : "Clean"}
+                        {label}
                       </button>
                     );
                   })}
@@ -316,17 +322,18 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                 <div className="flex gap-2">
                   {(["s", "m", "l"] as FontSize[]).map((sz) => {
                     const active = current.fontSize === sz;
+                    const label = sz === "s" ? "Small" : sz === "m" ? "Medium" : "Large";
                     return (
                       <button
                         key={sz}
                         onClick={() => updateChannel({ fontSize: sz })}
-                        className={`flex-1 px-4 py-2 rounded-full text-sm font-semibold uppercase transition-colors ${
+                        className={`flex-1 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                           active
                             ? "bg-primary text-primary-foreground"
                             : "bg-neutral-800/60 text-foreground/80 hover:bg-neutral-800"
                         }`}
                       >
-                        {sz}
+                        {label}
                       </button>
                     );
                   })}

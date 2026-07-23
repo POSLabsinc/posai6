@@ -83,15 +83,14 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
     const isGuestTable = current.style === "guest-table";
     const isModern = current.style === "modern-bistro";
     const showLogo = current.showLogo && !isGuestTable;
-    const lineGap = 4;
-    const totalScale = 1;
+    const lineGap = isModern ? 10 : 4;
+    const totalScale = isModern ? 1.35 : 1;
 
     const zigzag =
       "polygon(0 8px, 5% 0, 10% 8px, 15% 0, 20% 8px, 25% 0, 30% 8px, 35% 0, 40% 8px, 45% 0, 50% 8px, 55% 0, 60% 8px, 65% 0, 70% 8px, 75% 0, 80% 8px, 85% 0, 90% 8px, 95% 0, 100% 8px, 100% calc(100% - 8px), 95% 100%, 90% calc(100% - 8px), 85% 100%, 80% calc(100% - 8px), 75% 100%, 70% calc(100% - 8px), 65% 100%, 60% calc(100% - 8px), 55% 100%, 50% calc(100% - 8px), 45% 100%, 40% calc(100% - 8px), 35% 100%, 30% calc(100% - 8px), 25% 100%, 20% calc(100% - 8px), 15% 100%, 10% calc(100% - 8px), 5% 100%, 0 calc(100% - 8px))";
 
     return (
-      <div style={{ width: 300 }} className="mx-auto">
-
+      <div className="w-full max-w-[300px] mx-auto">
         {/* Drop shadow wrapper (clip-path removes native shadow, so simulate it) */}
         <div
           className="relative"
@@ -247,10 +246,9 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
 
         <p className="text-xs text-muted-foreground mt-3 mb-5 px-1">{activeTabMeta.helper}</p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[420px_360px] gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,420px)_1fr] gap-6">
           {/* Controls */}
-          <div className="space-y-6 w-[420px] max-w-full">
-
+          <div className="space-y-6 max-w-[420px]">
             {/* Style */}
             <section>
               <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Style</h2>
@@ -345,13 +343,12 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
           </div>
 
           {/* Live preview */}
-          <div className="flex justify-start items-start">
-            <div className="flex flex-col items-start w-[360px]">
+          <div className="flex justify-center lg:justify-end items-center self-stretch">
+            <div className="w-full flex flex-col items-center lg:items-end">
               <div className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1 self-start">Live Preview</div>
               {renderPreview()}
             </div>
           </div>
-
         </div>
       </div>
     </div>

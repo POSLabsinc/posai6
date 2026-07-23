@@ -169,7 +169,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
             </div>
 
             <div
-              className="text-center text-neutral-500 mt-3"
+              className="text-center text-neutral-500 mt-3 whitespace-nowrap"
               style={{ fontSize: baseSize * 0.8 }}
             >
               Thank you · Powered by Point of Sale AI

@@ -10,7 +10,7 @@ interface ReceiptsContentProps {
 
 type TabId = "kot" | "payment-receipt" | "receipt" | "email-receipt" | "sms-receipt";
 type StyleId = "classic-thermal" | "compact-service" | "guest-table" | "modern-bistro";
-type FontStyle = "thermal" | "clean";
+type FontStyle = "thermal" | "clean" | "serif" | "rounded";
 type FontSize = "s" | "m" | "l";
 
 interface ChannelState {

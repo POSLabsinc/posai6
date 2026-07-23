@@ -322,17 +322,18 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                 <div className="flex gap-2">
                   {(["s", "m", "l"] as FontSize[]).map((sz) => {
                     const active = current.fontSize === sz;
+                    const label = sz === "s" ? "Small" : sz === "m" ? "Medium" : "Large";
                     return (
                       <button
                         key={sz}
                         onClick={() => updateChannel({ fontSize: sz })}
-                        className={`flex-1 px-4 py-2 rounded-full text-sm font-semibold uppercase transition-colors ${
+                        className={`flex-1 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                           active
                             ? "bg-primary text-primary-foreground"
                             : "bg-neutral-800/60 text-foreground/80 hover:bg-neutral-800"
                         }`}
                       >
-                        {sz}
+                        {label}
                       </button>
                     );
                   })}

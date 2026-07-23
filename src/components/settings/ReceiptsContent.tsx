@@ -312,7 +312,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                 </div>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Font size</h3>
+                <h3 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Font Size</h3>
                 <div className="flex gap-2">
                   {(["s", "m", "l"] as FontSize[]).map((sz) => {
                     const active = current.fontSize === sz;

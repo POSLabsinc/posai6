@@ -348,6 +348,9 @@ const getContentForRoute = (
   if (pathname === '/settings/payments/checkout-options') {
     return <CheckoutOptionsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
   }
+  if (pathname === '/settings/payments/receipts') {
+    return <ReceiptsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
+  }
   if (pathname === '/settings/payments/payment-pricing') {
     return <PaymentPricingContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
   }

@@ -137,7 +137,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                 <div className="text-neutral-500" style={{ fontSize: baseSize * 0.85 }}>
                   Jul 23, 2026 · 7:14 PM
                 </div>
-                <div className="mt-2" style={{ fontWeight: 600 }}>Order #1042</div>
+                <div className="mt-2" style={{ fontWeight: 600 }}>Order 1042</div>
                 <div style={{ fontSize: baseSize * 0.9 }}>Table 7 · Server: Alex</div>
                 {showDeviceLines && (
                   <div className="text-neutral-500 mt-1" style={{ fontSize: baseSize * 0.85 }}>

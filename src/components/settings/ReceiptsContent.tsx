@@ -172,7 +172,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
               className="text-center text-neutral-500 mt-3"
               style={{ fontSize: baseSize * 0.8 }}
             >
-              Thank you · Powered by Point of Sale
+              Thank you · Powered by Point of Sale AI
             </div>
 
             {/* Faux barcode */}

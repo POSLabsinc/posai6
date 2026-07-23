@@ -90,7 +90,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
       "polygon(0 8px, 5% 0, 10% 8px, 15% 0, 20% 8px, 25% 0, 30% 8px, 35% 0, 40% 8px, 45% 0, 50% 8px, 55% 0, 60% 8px, 65% 0, 70% 8px, 75% 0, 80% 8px, 85% 0, 90% 8px, 95% 0, 100% 8px, 100% calc(100% - 8px), 95% 100%, 90% calc(100% - 8px), 85% 100%, 80% calc(100% - 8px), 75% 100%, 70% calc(100% - 8px), 65% 100%, 60% calc(100% - 8px), 55% 100%, 50% calc(100% - 8px), 45% 100%, 40% calc(100% - 8px), 35% 100%, 30% calc(100% - 8px), 25% 100%, 20% calc(100% - 8px), 15% 100%, 10% calc(100% - 8px), 5% 100%, 0 calc(100% - 8px))";
 
     return (
-      <div className="w-full max-w-[300px]">
+      <div className="w-full max-w-[300px] mx-auto">
         {/* Drop shadow wrapper (clip-path removes native shadow, so simulate it) */}
         <div
           className="relative"
@@ -343,9 +343,9 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
           </div>
 
           {/* Live preview */}
-          <div className="flex justify-center lg:justify-start items-center self-stretch">
-            <div className="w-full max-w-[300px] flex flex-col items-start">
-              <div className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Live Preview</div>
+          <div className="flex justify-center lg:justify-end items-center self-stretch">
+            <div className="w-full flex flex-col items-center lg:items-end">
+              <div className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1 self-start">Live Preview</div>
               {renderPreview()}
             </div>
           </div>

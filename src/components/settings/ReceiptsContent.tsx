@@ -291,7 +291,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
             {/* Font style + size */}
             <section className="grid grid-cols-2 gap-3">
               <div>
-                <h3 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Font style</h3>
+                <h3 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Font Style</h3>
                 <div className="flex gap-2">
                   {(["thermal", "clean"] as FontStyle[]).map((fs) => {
                     const active = current.fontStyle === fs;
@@ -312,7 +312,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                 </div>
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Font size</h3>
+                <h3 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Font Size</h3>
                 <div className="flex gap-2">
                   {(["s", "m", "l"] as FontSize[]).map((sz) => {
                     const active = current.fontSize === sz;
@@ -338,7 +338,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
           {/* Live preview */}
           <div className="flex justify-center lg:justify-end items-center self-stretch">
             <div className="w-full flex flex-col items-center lg:items-end">
-              <div className="text-xs uppercase tracking-wider text-muted-foreground mb-2 self-start">Live preview</div>
+              <div className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1 self-start">Live Preview</div>
               {renderPreview()}
             </div>
           </div>

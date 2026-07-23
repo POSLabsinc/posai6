@@ -289,7 +289,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
             </section>
 
             {/* Font style + size */}
-            <section className="grid grid-cols-2 gap-3">
+            <section className="flex flex-col gap-4">
               <div>
                 <h3 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Font Style</h3>
                 <div className="flex gap-2">

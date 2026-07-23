@@ -298,19 +298,20 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
               <div>
                 <h3 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Font Style</h3>
                 <div className="flex gap-2">
-                  {(["thermal", "clean"] as FontStyle[]).map((fs) => {
+                  {(["thermal", "clean", "serif", "rounded"] as FontStyle[]).map((fs) => {
                     const active = current.fontStyle === fs;
+                    const label = fs.charAt(0).toUpperCase() + fs.slice(1);
                     return (
                       <button
                         key={fs}
                         onClick={() => updateChannel({ fontStyle: fs })}
-                        className={`flex-1 px-4 py-2 rounded-full text-sm font-medium capitalize transition-colors ${
+                        className={`flex-1 px-3 py-2 rounded-full text-sm font-medium capitalize transition-colors ${
                           active
                             ? "bg-primary text-primary-foreground"
                             : "bg-neutral-800/60 text-foreground/80 hover:bg-neutral-800"
                         }`}
                       >
-                        {fs === "thermal" ? "Thermal" : "Clean"}
+                        {label}
                       </button>
                     );
                   })}

@@ -291,7 +291,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
             {/* Font style + size */}
             <section className="grid grid-cols-2 gap-3">
               <div>
-                <h3 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Font style</h3>
+                <h3 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Font Style</h3>
                 <div className="flex gap-2">
                   {(["thermal", "clean"] as FontStyle[]).map((fs) => {
                     const active = current.fontStyle === fs;

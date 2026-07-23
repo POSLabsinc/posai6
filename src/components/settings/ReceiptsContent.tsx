@@ -192,9 +192,9 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
 
         <p className="text-xs text-muted-foreground mt-3 mb-5 px-1">{activeTabMeta.helper}</p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_auto] gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,420px)_1fr] gap-6">
           {/* Controls */}
-          <div className="space-y-6">
+          <div className="space-y-6 max-w-[420px]">
             {/* Style */}
             <section>
               <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Style</h2>

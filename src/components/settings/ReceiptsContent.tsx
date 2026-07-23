@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ChevronLeft, Check } from "lucide-react";
+import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 
 interface ReceiptsContentProps {
   showHeader?: boolean;

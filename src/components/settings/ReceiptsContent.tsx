@@ -343,9 +343,9 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
           </div>
 
           {/* Live preview */}
-          <div className="flex justify-center lg:justify-end items-center self-stretch">
-            <div className="w-full flex flex-col items-center lg:items-end">
-              <div className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1 self-start">Live Preview</div>
+          <div className="flex justify-center lg:justify-start items-center self-stretch">
+            <div className="w-full max-w-[300px] flex flex-col items-start">
+              <div className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Live Preview</div>
               {renderPreview()}
             </div>
           </div>

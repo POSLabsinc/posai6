@@ -174,8 +174,8 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
             </div>
 
             <div
-              className="text-center text-neutral-500 mt-3 whitespace-nowrap"
-              style={{ fontSize: baseSize * 0.8 }}
+              className="text-center text-neutral-500 mt-3 leading-tight"
+              style={{ fontSize: baseSize * 0.75 }}
             >
               Thank you · Powered by Point of Sale AI
             </div>
@@ -246,9 +246,9 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
 
         <p className="text-xs text-muted-foreground mt-3 mb-5 px-1">{activeTabMeta.helper}</p>
 
-        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,420px)_1fr] gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,340px)_1fr] gap-6">
           {/* Controls */}
-          <div className="space-y-6 max-w-[420px]">
+          <div className="space-y-6 max-w-[340px]">
             {/* Style */}
             <section>
               <h2 className="text-sm font-semibold text-neutral-400 tracking-wider mb-2 px-1">Style</h2>

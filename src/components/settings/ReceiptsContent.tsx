@@ -61,10 +61,8 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
   };
 
   const renderPreview = () => {
-    const fontFamily = current.fontStyle === "thermal"
-      ? '"SFMono-Regular", ui-monospace, Menlo, Consolas, monospace'
-      : '"Inter", system-ui, -apple-system, sans-serif';
-    const baseSize = fontSizePx[current.fontSize];
+    const fontFamily = '"SFMono-Regular", ui-monospace, Menlo, Consolas, monospace';
+    const baseSize = fontSizePx.m;
 
     const items = [
       { name: "Margherita Pizza", qty: 1 },
@@ -72,56 +70,33 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
       { name: "Sparkling Water", qty: 1 },
     ];
 
-    const showDeviceLines = current.style === "classic-thermal";
-    const showShortHeader = current.style === "compact-service";
-    const isGuestTable = current.style === "guest-table";
-    const isModern = current.style === "modern-bistro";
-    const showLogo = current.showLogo && !isGuestTable;
-    const lineGap = isModern ? 10 : 4;
-    const totalScale = isModern ? 1.35 : 1;
-
     return (
       <div
         className="bg-white text-black rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] p-6 w-full max-w-[320px]"
         style={{ fontFamily, fontSize: baseSize, lineHeight: 1.4 }}
       >
-        {isGuestTable ? (
-          <div className="text-center mb-3">
-            <div style={{ fontSize: baseSize * 1.6, fontWeight: 700 }}>Order #1042 · Table 7</div>
-            <div className="text-neutral-500" style={{ fontSize: baseSize * 0.9, marginTop: 2 }}>
-              The Rustic Table
-            </div>
+        <div className="text-center mb-3">
+          <div
+            className="mx-auto mb-2 rounded-md bg-neutral-900 text-white flex items-center justify-center"
+            style={{ width: 44, height: 44, fontSize: 10, letterSpacing: 1 }}
+          >
+            LOGO
           </div>
-        ) : (
-          <div className="text-center mb-3">
-            {showLogo && (
-              <div
-                className="mx-auto mb-2 rounded-md bg-neutral-900 text-white flex items-center justify-center"
-                style={{ width: 44, height: 44, fontSize: 10, letterSpacing: 1 }}
-              >
-                LOGO
-              </div>
-            )}
-            <div style={{ fontWeight: 700 }}>The Rustic Table</div>
-            {!showShortHeader && (
-              <div className="text-neutral-500" style={{ fontSize: baseSize * 0.9 }}>
-                123 Market St · (555) 010-2200
-              </div>
-            )}
-            <div className="mt-2" style={{ fontWeight: 600 }}>Order #1042</div>
-            <div style={{ fontSize: baseSize * 0.9 }}>Table 7</div>
-            {showDeviceLines && (
-              <div className="text-neutral-500 mt-1" style={{ fontSize: baseSize * 0.85 }}>
-                <div>Device: Rustic Table POS 1</div>
-                <div>Printer: Kitchen Printer 1</div>
-              </div>
-            )}
+          <div style={{ fontWeight: 700 }}>The Rustic Table</div>
+          <div className="text-neutral-500" style={{ fontSize: baseSize * 0.9 }}>
+            123 Market St · (555) 010-2200
           </div>
-        )}
+          <div className="mt-2" style={{ fontWeight: 600 }}>Order #1042</div>
+          <div style={{ fontSize: baseSize * 0.9 }}>Table 7</div>
+          <div className="text-neutral-500 mt-1" style={{ fontSize: baseSize * 0.85 }}>
+            <div>Device: Rustic Table POS 1</div>
+            <div>Printer: Kitchen Printer 1</div>
+          </div>
+        </div>
 
         <div className="border-t border-dashed border-neutral-300 my-2" />
 
-        <div style={{ display: "flex", flexDirection: "column", gap: lineGap }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           {items.map((it) => (
             <div key={it.name} className="flex justify-between">
               <span>{it.qty} × {it.name}</span>
@@ -133,11 +108,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
 
         <div
           className="text-center"
-          style={{
-            fontWeight: isModern ? 800 : 600,
-            fontSize: baseSize * totalScale,
-            marginTop: isModern ? 8 : 4,
-          }}
+          style={{ fontWeight: 600, fontSize: baseSize, marginTop: 4 }}
         >
           — FIRE NOW —
         </div>

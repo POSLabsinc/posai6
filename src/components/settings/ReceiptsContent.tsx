@@ -62,9 +62,14 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
   };
 
   const renderPreview = () => {
-    const fontFamily = current.fontStyle === "thermal"
-      ? '"SFMono-Regular", ui-monospace, Menlo, Consolas, monospace'
-      : '"Inter", system-ui, -apple-system, sans-serif';
+    const fontFamily =
+      current.fontStyle === "thermal"
+        ? '"SFMono-Regular", ui-monospace, Menlo, Consolas, monospace'
+        : current.fontStyle === "serif"
+        ? '"Georgia", "Times New Roman", serif'
+        : current.fontStyle === "rounded"
+        ? '"Nunito", "Quicksand", system-ui, sans-serif'
+        : '"Inter", system-ui, -apple-system, sans-serif';
     const baseSize = fontSizePx[current.fontSize];
 
     const items = [

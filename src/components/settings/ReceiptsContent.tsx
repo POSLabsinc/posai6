@@ -116,12 +116,12 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
             ) : (
               <div className="text-center mb-3 pt-2">
                 {showLogo && (
-                  <div
-                    className="mx-auto mb-2 rounded-md bg-neutral-900 text-white flex items-center justify-center"
-                    style={{ width: 44, height: 44, fontSize: 10, letterSpacing: 1 }}
-                  >
-                    LOGO
-                  </div>
+                  <img
+                    src={restaurantLogo}
+                    alt="The Rustic Table logo"
+                    className="mx-auto mb-2 object-contain"
+                    style={{ width: 56, height: 56 }}
+                  />
                 )}
                 <div style={{ fontWeight: 700, letterSpacing: 0.5 }}>THE RUSTIC TABLE</div>
                 {!showShortHeader && (

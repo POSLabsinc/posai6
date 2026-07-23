@@ -80,66 +80,114 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
     const lineGap = isModern ? 10 : 4;
     const totalScale = isModern ? 1.35 : 1;
 
+    const zigzag =
+      "polygon(0 8px, 5% 0, 10% 8px, 15% 0, 20% 8px, 25% 0, 30% 8px, 35% 0, 40% 8px, 45% 0, 50% 8px, 55% 0, 60% 8px, 65% 0, 70% 8px, 75% 0, 80% 8px, 85% 0, 90% 8px, 95% 0, 100% 8px, 100% calc(100% - 8px), 95% 100%, 90% calc(100% - 8px), 85% 100%, 80% calc(100% - 8px), 75% 100%, 70% calc(100% - 8px), 65% 100%, 60% calc(100% - 8px), 55% 100%, 50% calc(100% - 8px), 45% 100%, 40% calc(100% - 8px), 35% 100%, 30% calc(100% - 8px), 25% 100%, 20% calc(100% - 8px), 15% 100%, 10% calc(100% - 8px), 5% 100%, 0 calc(100% - 8px))";
+
     return (
-      <div
-        className="bg-white text-black rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.35)] p-6 w-full max-w-[320px]"
-        style={{ fontFamily, fontSize: baseSize, lineHeight: 1.4 }}
-      >
-        {isGuestTable ? (
-          <div className="text-center mb-3">
-            <div style={{ fontSize: baseSize * 1.6, fontWeight: 700 }}>Order #1042 · Table 7</div>
-            <div className="text-neutral-500" style={{ fontSize: baseSize * 0.9, marginTop: 2 }}>
-              The Rustic Table
-            </div>
-          </div>
-        ) : (
-          <div className="text-center mb-3">
-            {showLogo && (
-              <div
-                className="mx-auto mb-2 rounded-md bg-neutral-900 text-white flex items-center justify-center"
-                style={{ width: 44, height: 44, fontSize: 10, letterSpacing: 1 }}
-              >
-                LOGO
-              </div>
-            )}
-            <div style={{ fontWeight: 700 }}>The Rustic Table</div>
-            {!showShortHeader && (
-              <div className="text-neutral-500" style={{ fontSize: baseSize * 0.9 }}>
-                123 Market St · (555) 010-2200
-              </div>
-            )}
-            <div className="mt-2" style={{ fontWeight: 600 }}>Order #1042</div>
-            <div style={{ fontSize: baseSize * 0.9 }}>Table 7</div>
-            {showDeviceLines && (
-              <div className="text-neutral-500 mt-1" style={{ fontSize: baseSize * 0.85 }}>
-                <div>Device: Rustic Table POS 1</div>
-                <div>Printer: Kitchen Printer 1</div>
-              </div>
-            )}
-          </div>
-        )}
-
-        <div className="border-t border-dashed border-neutral-300 my-2" />
-
-        <div style={{ display: "flex", flexDirection: "column", gap: lineGap }}>
-          {items.map((it) => (
-            <div key={it.name} className="flex justify-between">
-              <span>{it.qty} × {it.name}</span>
-            </div>
-          ))}
-        </div>
-
-        <div className="border-t border-dashed border-neutral-300 my-2" />
-
+      <div className="w-full max-w-[300px] mx-auto">
+        {/* Drop shadow wrapper (clip-path removes native shadow, so simulate it) */}
         <div
-          className="text-center"
+          className="relative"
           style={{
-            fontWeight: isModern ? 800 : 600,
-            fontSize: baseSize * totalScale,
-            marginTop: isModern ? 8 : 4,
+            filter: "drop-shadow(0 14px 24px rgba(0,0,0,0.45)) drop-shadow(0 2px 4px rgba(0,0,0,0.25))",
           }}
         >
-          — FIRE NOW —
+          <div
+            className="text-black"
+            style={{
+              fontFamily,
+              fontSize: baseSize,
+              lineHeight: 1.45,
+              background:
+                "repeating-linear-gradient(0deg, #fdfdfb 0px, #fdfdfb 2px, #f6f5f1 2px, #f6f5f1 3px), #fdfdfb",
+              clipPath: zigzag,
+              WebkitClipPath: zigzag,
+              padding: "22px 20px 26px",
+            }}
+          >
+            {isGuestTable ? (
+              <div className="text-center mb-3 pt-2">
+                <div style={{ fontSize: baseSize * 1.6, fontWeight: 700 }}>Order #1042 · Table 7</div>
+                <div className="text-neutral-500" style={{ fontSize: baseSize * 0.9, marginTop: 2 }}>
+                  The Rustic Table
+                </div>
+              </div>
+            ) : (
+              <div className="text-center mb-3 pt-2">
+                {showLogo && (
+                  <div
+                    className="mx-auto mb-2 rounded-md bg-neutral-900 text-white flex items-center justify-center"
+                    style={{ width: 44, height: 44, fontSize: 10, letterSpacing: 1 }}
+                  >
+                    LOGO
+                  </div>
+                )}
+                <div style={{ fontWeight: 700, letterSpacing: 0.5 }}>THE RUSTIC TABLE</div>
+                {!showShortHeader && (
+                  <div className="text-neutral-500" style={{ fontSize: baseSize * 0.9 }}>
+                    123 Market St · (555) 010-2200
+                  </div>
+                )}
+                <div className="text-neutral-500" style={{ fontSize: baseSize * 0.85 }}>
+                  Jul 23, 2026 · 7:14 PM
+                </div>
+                <div className="mt-2" style={{ fontWeight: 600 }}>Order #1042</div>
+                <div style={{ fontSize: baseSize * 0.9 }}>Table 7 · Server: Alex</div>
+                {showDeviceLines && (
+                  <div className="text-neutral-500 mt-1" style={{ fontSize: baseSize * 0.85 }}>
+                    <div>Device: Rustic Table POS 1</div>
+                    <div>Printer: Kitchen Printer 1</div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="border-t border-dashed border-neutral-400 my-2" />
+
+            <div style={{ display: "flex", flexDirection: "column", gap: lineGap }}>
+              {items.map((it) => (
+                <div key={it.name} className="flex justify-between">
+                  <span style={{ fontWeight: 600 }}>{it.qty} ×</span>
+                  <span className="flex-1 ml-2">{it.name}</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="border-t border-dashed border-neutral-400 my-2" />
+
+            <div
+              className="text-center"
+              style={{
+                fontWeight: isModern ? 800 : 700,
+                fontSize: baseSize * totalScale,
+                marginTop: isModern ? 8 : 4,
+                letterSpacing: 1,
+              }}
+            >
+              ★ FIRE NOW ★
+            </div>
+
+            <div
+              className="text-center text-neutral-500 mt-3"
+              style={{ fontSize: baseSize * 0.8 }}
+            >
+              Thank you · Powered by Point of Sale
+            </div>
+
+            {/* Faux barcode */}
+            <div className="flex justify-center gap-[2px] mt-3">
+              {[2, 1, 3, 1, 2, 1, 1, 3, 2, 1, 2, 1, 3, 1, 2, 1, 2, 3, 1, 2, 1, 3, 1, 2].map((w, i) => (
+                <div
+                  key={i}
+                  style={{
+                    width: w,
+                    height: 26,
+                    background: "#111",
+                  }}
+                />
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     );

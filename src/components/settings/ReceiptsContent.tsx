@@ -16,6 +16,7 @@ type FontSize = "s" | "m" | "l";
 interface ChannelState {
   style: StyleId;
   showLogo: boolean;
+  blankSpaceTop: boolean;
   fontStyle: FontStyle;
   fontSize: FontSize;
 }
@@ -38,9 +39,15 @@ const STYLES: { id: StyleId; label: string }[] = [
 const DEFAULT_CHANNEL: ChannelState = {
   style: "classic-thermal",
   showLogo: true,
+  blankSpaceTop: false,
   fontStyle: "thermal",
   fontSize: "m",
 };
+
+const BLANK_SPACE_TOP_PX = 72;
+
+const SUPPORTS_BLANK_SPACE: TabId[] = ["kot", "payment-receipt", "receipt"];
+
 
 const fontSizePx: Record<FontSize, number> = { s: 11, m: 13, l: 15 };
 

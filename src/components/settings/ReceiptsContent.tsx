@@ -398,7 +398,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                           : "border-neutral-700/60 bg-neutral-800/60 text-foreground/80 hover:bg-neutral-800"
                       }`}
                     >
-                      <span className="text-sm font-medium">{s.label}</span>
+                      <span className="text-sm font-medium">{activeTab === "kot" ? KOT_STYLE_LABELS[s.id] : s.label}</span>
                     </button>
                   );
                 })}

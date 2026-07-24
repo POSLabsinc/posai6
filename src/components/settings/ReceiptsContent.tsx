@@ -242,7 +242,9 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
           className="rounded-lg overflow-hidden border bg-white text-[#2C3E50] border-neutral-200"
           style={{ boxShadow: "0 14px 24px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)" }}
         >
+          {current.blankSpaceTop && <div style={{ height: BLANK_SPACE_TOP_PX, background: "#fff" }} />}
           {/* Header */}
+
           <div className="px-3 py-2 flex justify-between items-center bg-[#1A1A2E] text-white">
             <span className="inline-flex items-center h-5 px-2 rounded-full font-bold tracking-wide bg-white text-[#1A1A2E]" style={{ fontSize: baseSize * 0.78 }}>
               TABLE 4

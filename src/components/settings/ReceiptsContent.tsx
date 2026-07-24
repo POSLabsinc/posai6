@@ -199,6 +199,118 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
     );
   };
 
+  const renderKotPreview = () => {
+    const fontFamily =
+      current.fontStyle === "thermal"
+        ? '"SFMono-Regular", ui-monospace, Menlo, Consolas, monospace'
+        : current.fontStyle === "serif"
+        ? '"Georgia", "Times New Roman", serif'
+        : current.fontStyle === "rounded"
+        ? '"Nunito", "Quicksand", system-ui, sans-serif'
+        : '"Inter", system-ui, -apple-system, sans-serif';
+    const baseSize = fontSizePx[current.fontSize];
+
+    type Mod = { text: string; kind: "add" | "remove" | "mod" };
+    type Product = { course: string; name: string; qty: number; modifiers?: Mod[]; note?: string; allergens?: string[] };
+    const products: Product[] = [
+      { course: "APPETIZER", name: "Cheese Selection", qty: 1, modifiers: [{ text: "Extra crackers", kind: "add" }], allergens: ["DAIRY", "GLUTEN"] },
+      { course: "ENTREE", name: "Meatballs", qty: 2, modifiers: [{ text: "Extra parmesan", kind: "add" }, { text: "No basil", kind: "remove" }], note: "One plate split for sharing" },
+      { course: "ENTREE", name: "Filet Mignon", qty: 1, modifiers: [{ text: "Medium rare", kind: "mod" }], allergens: ["NUT"] },
+      { course: "DESSERT", name: "Tiramisu", qty: 1 },
+    ];
+    const courseOrder = ["APPETIZER", "ENTREE", "DESSERT", "SIDES"];
+    const grouped = products.reduce<Record<string, Product[]>>((acc, p) => {
+      (acc[p.course] = acc[p.course] || []).push(p);
+      return acc;
+    }, {});
+    const sortedCourses = courseOrder.filter((c) => grouped[c]);
+
+    return (
+      <div className="w-full max-w-[320px] mx-auto" style={{ fontFamily, fontSize: baseSize }}>
+        <div
+          className="rounded-lg overflow-hidden border bg-white text-[#2C3E50] border-neutral-200"
+          style={{ boxShadow: "0 14px 24px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)" }}
+        >
+          {/* Header */}
+          <div className="px-3 py-2 flex justify-between items-center bg-[#1A1A2E] text-white">
+            <span className="inline-flex items-center h-5 px-2 rounded-full font-bold tracking-wide bg-white text-[#1A1A2E]" style={{ fontSize: baseSize * 0.78 }}>
+              TABLE 4
+            </span>
+            <span className="font-semibold tracking-wide" style={{ fontSize: baseSize * 0.85 }}>DINE IN</span>
+          </div>
+
+          {/* Sub header */}
+          <div className="px-3 py-1.5 flex justify-between border-b border-neutral-200" style={{ fontSize: baseSize * 0.8 }}>
+            <span><span className="font-bold">23</span> John Peterson</span>
+            <span className="text-neutral-500">Maria S. · 8:00 PM</span>
+          </div>
+
+          {/* Allergens summary */}
+          <div className="px-3 py-1 font-bold text-[#C0392B] border-b border-neutral-200 tracking-wide" style={{ fontSize: baseSize * 0.72 }}>
+            ALLERGENS: PEANUT, GLUTEN, NUT
+          </div>
+
+          {/* Order note */}
+          <div className="px-3 pt-2">
+            <div className="rounded-md bg-[#FFF8E1] border border-[#F5D57A] px-2 py-1 text-[#8A5A00] leading-snug" style={{ fontSize: baseSize * 0.78 }}>
+              <span className="font-bold uppercase tracking-wide mr-1">Order Note</span>
+              Anniversary, please pace mains after apps.
+            </div>
+          </div>
+
+          {/* Courses */}
+          <div className="px-3 py-2 space-y-1.5">
+            {sortedCourses.map((course) => (
+              <div key={course}>
+                <div className="font-bold text-neutral-500 tracking-wide" style={{ fontSize: baseSize * 0.7 }}>{course}</div>
+                <div className="space-y-1.5">
+                  {grouped[course].map((p) => (
+                    <div key={p.name} className="flex items-baseline gap-2">
+                      <span className="text-neutral-500 shrink-0" style={{ fontSize: baseSize * 0.92 }}>{p.qty}x</span>
+                      <div className="min-w-0 flex-1">
+                        <div className="font-semibold leading-tight" style={{ fontSize: baseSize * 0.95 }}>{p.name}</div>
+                        {p.modifiers?.map((m, i) => (
+                          <div
+                            key={i}
+                            className={`leading-tight ${
+                              m.kind === "add"
+                                ? "text-[#2471A3] font-semibold"
+                                : m.kind === "remove"
+                                ? "text-[#C0392B] font-semibold line-through"
+                                : "text-neutral-500"
+                            }`}
+                            style={{ fontSize: baseSize * 0.78 }}
+                          >
+                            {m.kind === "add" ? "+ " : m.kind === "remove" ? "- " : ""}
+                            {m.text}
+                          </div>
+                        ))}
+                        {p.note && (
+                          <div className="italic text-neutral-500 leading-tight" style={{ fontSize: baseSize * 0.78 }}>
+                            &ldquo;{p.note}&rdquo;
+                          </div>
+                        )}
+                        {p.allergens && p.allergens.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-0.5">
+                            {p.allergens.map((a) => (
+                              <span key={a} className="inline-block px-1.5 py-[1px] rounded font-bold uppercase tracking-wide bg-[#FBEAEA] text-[#C0392B]" style={{ fontSize: baseSize * 0.66 }}>
+                                {a}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {showHeader && (

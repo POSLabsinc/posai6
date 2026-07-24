@@ -345,7 +345,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                   onClick={() => setActiveTab(t.id)}
                   className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
                     active
-                      ? "bg-primary text-primary-foreground"
+                      ? "bg-white text-neutral-900"
                       : "bg-neutral-800/60 text-foreground/80 hover:bg-neutral-800"
                   }`}
                 >
@@ -373,7 +373,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                       onClick={() => updateChannel({ style: s.id })}
                       className={`flex items-center justify-between px-4 py-3 rounded-2xl border transition-colors ${
                         selected
-                          ? "border-primary bg-primary/10 text-foreground"
+                          ? "border-white bg-white text-neutral-900"
                           : "border-neutral-700/60 bg-neutral-800/60 text-foreground/80 hover:bg-neutral-800"
                       }`}
                     >
@@ -419,7 +419,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                         onClick={() => updateChannel({ fontStyle: fs })}
                         className={`flex-1 px-3 py-2 rounded-full text-sm font-medium capitalize transition-colors ${
                           active
-                            ? "bg-primary text-primary-foreground"
+                            ? "bg-white text-neutral-900"
                             : "bg-neutral-800/60 text-foreground/80 hover:bg-neutral-800"
                         }`}
                       >
@@ -441,7 +441,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                         onClick={() => updateChannel({ fontSize: sz })}
                         className={`flex-1 px-4 py-2 rounded-full text-sm font-semibold transition-colors ${
                           active
-                            ? "bg-primary text-primary-foreground"
+                            ? "bg-white text-neutral-900"
                             : "bg-neutral-800/60 text-foreground/80 hover:bg-neutral-800"
                         }`}
                       >

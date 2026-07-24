@@ -36,12 +36,12 @@ const STYLES: { id: StyleId; label: string }[] = [
   { id: "modern-bistro", label: "Modern Bistro" },
 ];
 
-// KOT-specific labels (styles reused, layouts differ per tab)
+// KOT-specific labels (each maps to a distinct KDS ticket design)
 const KOT_STYLE_LABELS: Record<StyleId, string> = {
-  "classic-thermal": "Classic KDS",
-  "compact-service": "Stacked Courses",
+  "classic-thermal": "Classic",
+  "compact-service": "Compact",
   "guest-table": "Typed Header",
-  "modern-bistro": "Compact Strip",
+  "modern-bistro": "Pill Cards",
 };
 
 const DEFAULT_CHANNEL: ChannelState = {

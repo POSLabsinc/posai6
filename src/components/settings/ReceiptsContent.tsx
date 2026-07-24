@@ -36,6 +36,14 @@ const STYLES: { id: StyleId; label: string }[] = [
   { id: "modern-bistro", label: "Modern Bistro" },
 ];
 
+// KOT-specific labels (styles reused, layouts differ per tab)
+const KOT_STYLE_LABELS: Record<StyleId, string> = {
+  "classic-thermal": "Classic KDS",
+  "compact-service": "Stacked Courses",
+  "guest-table": "Typed Header",
+  "modern-bistro": "Compact Strip",
+};
+
 const DEFAULT_CHANNEL: ChannelState = {
   style: "classic-thermal",
   showLogo: true,
@@ -236,82 +244,228 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
     }, {});
     const sortedCourses = courseOrder.filter((c) => grouped[c]);
 
-    return (
-      <div className="w-full max-w-[320px] mx-auto" style={{ fontFamily, fontSize: baseSize }}>
-        <div
-          className="rounded-lg overflow-hidden border bg-white text-[#2C3E50] border-neutral-200"
-          style={{ boxShadow: "0 14px 24px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)" }}
-        >
-          {current.blankSpaceTop && <div style={{ height: BLANK_SPACE_TOP_PX, background: "#fff" }} />}
-          {/* Header */}
-
-          <div className="px-3 py-2 flex justify-between items-center bg-[#1A1A2E] text-white">
-            <span className="inline-flex items-center h-5 px-2 rounded-full font-bold tracking-wide bg-white text-[#1A1A2E]" style={{ fontSize: baseSize * 0.78 }}>
-              TABLE 4
-            </span>
-            <span className="font-semibold tracking-wide" style={{ fontSize: baseSize * 0.85 }}>DINE IN</span>
-          </div>
-
-          {/* Sub header */}
-          <div className="px-3 py-1.5 flex justify-between border-b border-neutral-200" style={{ fontSize: baseSize * 0.8 }}>
-            <span><span className="font-bold">23</span> John Peterson</span>
-            <span className="text-neutral-500">Maria S. · 8:00 PM</span>
-          </div>
-
-          {/* Allergens summary */}
-          <div className="px-3 py-1 font-bold text-[#C0392B] border-b border-neutral-200 tracking-wide" style={{ fontSize: baseSize * 0.72 }}>
-            ALLERGENS: PEANUT, GLUTEN, NUT
-          </div>
-
-          {/* Order note */}
-          <div className="px-3 pt-2">
-            <div className="rounded-md bg-[#FFF8E1] border border-[#F5D57A] px-2 py-1 text-[#8A5A00] leading-snug" style={{ fontSize: baseSize * 0.78 }}>
-              <span className="font-bold uppercase tracking-wide mr-1">Order Note</span>
-              Anniversary, please pace mains after apps.
+    // Shared building blocks
+    const ProductsCourseBlock = ({ compact = false }: { compact?: boolean }) => (
+      <div className={compact ? "px-3 py-1.5 space-y-1" : "px-3 py-2 space-y-1.5"}>
+        {sortedCourses.map((course) => (
+          <div key={course}>
+            <div className="font-bold text-neutral-500 tracking-wide" style={{ fontSize: baseSize * 0.7 }}>{course}</div>
+            <div className={compact ? "space-y-1" : "space-y-1.5"}>
+              {grouped[course].map((p) => (
+                <div key={p.name} className="flex items-baseline gap-2">
+                  <span className="text-neutral-500 shrink-0" style={{ fontSize: baseSize * 0.92 }}>{p.qty}x</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-semibold leading-tight" style={{ fontSize: baseSize * 0.95 }}>{p.name}</div>
+                    {p.modifiers?.map((m, i) => (
+                      <div
+                        key={i}
+                        className={`leading-tight ${
+                          m.kind === "add"
+                            ? "text-[#2471A3] font-semibold"
+                            : m.kind === "remove"
+                            ? "text-[#C0392B] font-semibold line-through"
+                            : "text-neutral-500"
+                        }`}
+                        style={{ fontSize: baseSize * 0.78 }}
+                      >
+                        {m.kind === "add" ? "+ " : m.kind === "remove" ? "- " : ""}
+                        {m.text}
+                      </div>
+                    ))}
+                    {p.note && (
+                      <div className="italic text-neutral-500 leading-tight" style={{ fontSize: baseSize * 0.78 }}>
+                        &ldquo;{p.note}&rdquo;
+                      </div>
+                    )}
+                    {p.allergens && p.allergens.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-0.5">
+                        {p.allergens.map((a) => (
+                          <span key={a} className="inline-block px-1.5 py-[1px] rounded font-bold uppercase tracking-wide bg-[#FBEAEA] text-[#C0392B]" style={{ fontSize: baseSize * 0.66 }}>
+                            {a}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
+        ))}
+      </div>
+    );
 
-          {/* Courses */}
-          <div className="px-3 py-2 space-y-1.5">
+    const ProductsBandedBlock = () => (
+      <div>
+        {sortedCourses.map((course) => (
+          <div key={course}>
+            <div className="flex items-center justify-between px-3 py-1" style={{ background: "#EFF6FF", color: "#1D4ED8" }}>
+              <span className="font-bold uppercase tracking-wide" style={{ fontSize: baseSize * 0.72 }}>{course}</span>
+              <span className="font-semibold" style={{ fontSize: baseSize * 0.72 }}>Products: {grouped[course].length}</span>
+            </div>
+            <div>
+              {grouped[course].map((p) => (
+                <div key={p.name} className="flex items-start gap-2 px-3 py-1.5 border-b border-neutral-100 last:border-b-0" style={{ borderLeft: "3px solid #2563EB" }}>
+                  <span className="font-bold shrink-0 text-center" style={{ color: "#2563EB", fontSize: baseSize * 0.95, minWidth: 18 }}>{p.qty}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-x-1.5">
+                      <span style={{ fontSize: baseSize * 0.95, fontWeight: 700, lineHeight: 1.3 }}>{p.name}</span>
+                      {p.allergens?.map((a) => (
+                        <span key={a} className="inline-block px-1.5 py-[1px] rounded font-bold uppercase tracking-wide bg-[#FBEAEA] text-[#C0392B]" style={{ fontSize: baseSize * 0.62 }}>{a}</span>
+                      ))}
+                    </div>
+                    {p.modifiers?.map((m, i) => (
+                      <div key={i} className={`leading-tight ${
+                        m.kind === "add" ? "text-[#2471A3] font-semibold"
+                        : m.kind === "remove" ? "text-[#C0392B] font-semibold line-through"
+                        : "text-neutral-500"
+                      }`} style={{ fontSize: baseSize * 0.78 }}>
+                        {m.kind === "add" ? "+ " : m.kind === "remove" ? "- " : ""}{m.text}
+                      </div>
+                    ))}
+                    {p.note && <div className="italic text-neutral-500 leading-tight" style={{ fontSize: baseSize * 0.78 }}>&ldquo;{p.note}&rdquo;</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+
+    const ProductsFlatBlock = () => (
+      <div>
+        {products.map((p) => (
+          <div key={p.name} className="flex items-start gap-2 px-3 py-1.5 border-b border-neutral-100 last:border-b-0">
+            <span className="font-bold shrink-0 text-center text-neutral-800" style={{ fontSize: baseSize * 0.92, minWidth: 18 }}>{p.qty}</span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-1.5">
+                <span style={{ fontSize: baseSize * 0.95, fontWeight: 700, lineHeight: 1.2 }}>{p.name}</span>
+                {p.allergens?.map((a) => (
+                  <span key={a} className="inline-block px-1.5 py-[1px] rounded font-bold uppercase tracking-wide bg-[#FBEAEA] text-[#C0392B]" style={{ fontSize: baseSize * 0.62 }}>{a}</span>
+                ))}
+              </div>
+              {p.modifiers?.map((m, i) => (
+                <div key={i} className={`leading-tight ${
+                  m.kind === "add" ? "text-[#2471A3] font-semibold"
+                  : m.kind === "remove" ? "text-[#C0392B] font-semibold line-through"
+                  : "text-neutral-500"
+                }`} style={{ fontSize: baseSize * 0.78 }}>
+                  {m.kind === "add" ? "+ " : m.kind === "remove" ? "- " : ""}{m.text}
+                </div>
+              ))}
+              {p.note && <div className="italic text-neutral-500 leading-tight" style={{ fontSize: baseSize * 0.78 }}>&ldquo;{p.note}&rdquo;</div>}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+
+    // Style: Stacked Courses (V1-inspired) — dark table strip, compact info bar, flat course list
+    if (current.style === "compact-service") {
+      return (
+        <div className="w-full max-w-[320px] mx-auto" style={{ fontFamily, fontSize: baseSize }}>
+          <div className="rounded-lg overflow-hidden border bg-white text-[#2C3E50] border-neutral-200" style={{ boxShadow: "0 14px 24px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)" }}>
+            {current.blankSpaceTop && <div style={{ height: BLANK_SPACE_TOP_PX, background: "#fff" }} />}
+            <div className="text-center px-3 py-1.5 bg-[#1A1A2E] text-white" style={{ fontSize: baseSize * 1.05, fontWeight: 700 }}>
+              Table 4
+            </div>
+            <div className="flex items-center justify-between px-3 py-1 border-b border-neutral-200" style={{ fontSize: baseSize * 0.8 }}>
+              <span className="font-bold">23 · John Peterson</span>
+              <span className="text-neutral-500">8:00 PM</span>
+            </div>
+            <div className="px-3 py-1 font-bold text-[#C0392B] border-b border-neutral-200 tracking-wide" style={{ fontSize: baseSize * 0.72 }}>
+              ALLERGENS: PEANUT, GLUTEN, NUT
+            </div>
+            <div className="px-3 pt-2">
+              <div className="rounded-md bg-[#FFF8E1] border border-[#F5D57A] px-2 py-1 text-[#8A5A00] leading-snug" style={{ fontSize: baseSize * 0.78 }}>
+                <span className="font-bold uppercase tracking-wide mr-1">Order Note</span>
+                Anniversary, please pace mains after apps.
+              </div>
+            </div>
+            <ProductsCourseBlock compact />
+          </div>
+        </div>
+      );
+    }
+
+    // Style: Typed Header (V3-inspired) — colored order-type accent + 2x2 metadata + banded courses
+    if (current.style === "guest-table") {
+      return (
+        <div className="w-full max-w-[320px] mx-auto" style={{ fontFamily, fontSize: baseSize }}>
+          <div className="rounded-lg overflow-hidden border bg-white text-[#2C3E50] border-neutral-200" style={{ boxShadow: "0 14px 24px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)" }}>
+            {current.blankSpaceTop && <div style={{ height: BLANK_SPACE_TOP_PX, background: "#fff" }} />}
+            <div style={{ height: 4, background: "#1A1A2E" }} />
+            <div className="px-3 py-1 font-bold uppercase tracking-wide" style={{ background: "#1A1A2E", color: "#fff", fontSize: baseSize * 0.85 }}>
+              DINE IN · TABLE 4
+            </div>
+            <div className="grid grid-cols-2 border-b border-neutral-200">
+              <div className="px-3 py-1.5">
+                <div className="font-bold leading-tight" style={{ fontSize: baseSize * 0.95 }}>23</div>
+                <div className="text-neutral-500 leading-tight" style={{ fontSize: baseSize * 0.75 }}>John Peterson</div>
+              </div>
+              <div className="px-3 py-1.5 border-l border-neutral-200">
+                <div className="font-bold leading-tight" style={{ fontSize: baseSize * 0.95 }}>Maria S.</div>
+                <div className="text-neutral-500 leading-tight" style={{ fontSize: baseSize * 0.75 }}>8:00 PM</div>
+              </div>
+            </div>
+            <div className="px-3 py-1 font-bold text-[#C0392B] border-b border-neutral-200 tracking-wide" style={{ fontSize: baseSize * 0.72 }}>
+              ALLERGENS: PEANUT, GLUTEN, NUT
+            </div>
+            <div className="px-3 pt-2 pb-1">
+              <div className="rounded-md bg-[#FFF8E1] border border-[#F5D57A] px-2 py-1 text-[#8A5A00] leading-snug" style={{ fontSize: baseSize * 0.78 }}>
+                <span className="font-bold uppercase tracking-wide mr-1">Order Note</span>
+                Anniversary, please pace mains after apps.
+              </div>
+            </div>
+            <ProductsBandedBlock />
+          </div>
+        </div>
+      );
+    }
+
+    // Style: Compact Strip (V4-inspired) — single colored strip + inline meta + flat list
+    if (current.style === "modern-bistro") {
+      return (
+        <div className="w-full max-w-[320px] mx-auto" style={{ fontFamily, fontSize: baseSize }}>
+          <div className="rounded-lg overflow-hidden border bg-white text-[#2C3E50] border-neutral-200" style={{ boxShadow: "0 14px 24px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)" }}>
+            {current.blankSpaceTop && <div style={{ height: BLANK_SPACE_TOP_PX, background: "#fff" }} />}
+            <div className="text-center px-3 py-1.5" style={{ background: "#1A1A2E", color: "#fff", fontSize: baseSize * 1.05, fontWeight: 600 }}>
+              Table 4
+            </div>
+            <div className="flex items-center justify-between px-3 py-1 border-b border-neutral-200" style={{ fontSize: baseSize * 0.85 }}>
+              <span className="font-bold">23</span>
+              <span className="text-neutral-500">8:00 PM</span>
+            </div>
+            <div className="px-3 py-1 text-[#C0392B] font-bold border-b border-neutral-200 tracking-wide" style={{ fontSize: baseSize * 0.72 }}>
+              ! PEANUT, GLUTEN, NUT
+            </div>
             {sortedCourses.map((course) => (
               <div key={course}>
-                <div className="font-bold text-neutral-500 tracking-wide" style={{ fontSize: baseSize * 0.7 }}>{course}</div>
-                <div className="space-y-1.5">
+                <div className="px-3 py-1 uppercase tracking-wide text-neutral-500 font-medium" style={{ background: "#F3F4F6", fontSize: baseSize * 0.7 }}>
+                  {course}
+                </div>
+                <div>
                   {grouped[course].map((p) => (
-                    <div key={p.name} className="flex items-baseline gap-2">
-                      <span className="text-neutral-500 shrink-0" style={{ fontSize: baseSize * 0.92 }}>{p.qty}x</span>
+                    <div key={p.name} className="flex items-start gap-2 px-3 py-1.5 border-b border-neutral-100 last:border-b-0">
+                      <span className="font-bold text-neutral-800 shrink-0 text-center" style={{ fontSize: baseSize * 0.92, minWidth: 18 }}>{p.qty}</span>
                       <div className="min-w-0 flex-1">
-                        <div className="font-semibold leading-tight" style={{ fontSize: baseSize * 0.95 }}>{p.name}</div>
+                        <div className="flex flex-wrap items-center gap-x-1.5">
+                          <span style={{ fontSize: baseSize * 0.95, fontWeight: 700, lineHeight: 1.2 }}>{p.name}</span>
+                          {p.allergens?.map((a) => (
+                            <span key={a} className="inline-block px-1.5 py-[1px] rounded font-bold uppercase tracking-wide bg-[#FBEAEA] text-[#C0392B]" style={{ fontSize: baseSize * 0.62 }}>{a}</span>
+                          ))}
+                        </div>
                         {p.modifiers?.map((m, i) => (
-                          <div
-                            key={i}
-                            className={`leading-tight ${
-                              m.kind === "add"
-                                ? "text-[#2471A3] font-semibold"
-                                : m.kind === "remove"
-                                ? "text-[#C0392B] font-semibold line-through"
-                                : "text-neutral-500"
-                            }`}
-                            style={{ fontSize: baseSize * 0.78 }}
-                          >
-                            {m.kind === "add" ? "+ " : m.kind === "remove" ? "- " : ""}
-                            {m.text}
+                          <div key={i} className={`leading-tight ${
+                            m.kind === "add" ? "text-[#2471A3] font-semibold"
+                            : m.kind === "remove" ? "text-[#C0392B] font-semibold line-through"
+                            : "text-neutral-500"
+                          }`} style={{ fontSize: baseSize * 0.78 }}>
+                            {m.kind === "add" ? "+ " : m.kind === "remove" ? "- " : ""}{m.text}
                           </div>
                         ))}
-                        {p.note && (
-                          <div className="italic text-neutral-500 leading-tight" style={{ fontSize: baseSize * 0.78 }}>
-                            &ldquo;{p.note}&rdquo;
-                          </div>
-                        )}
-                        {p.allergens && p.allergens.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-0.5">
-                            {p.allergens.map((a) => (
-                              <span key={a} className="inline-block px-1.5 py-[1px] rounded font-bold uppercase tracking-wide bg-[#FBEAEA] text-[#C0392B]" style={{ fontSize: baseSize * 0.66 }}>
-                                {a}
-                              </span>
-                            ))}
-                          </div>
-                        )}
+                        {p.note && <div className="italic text-neutral-500 leading-tight" style={{ fontSize: baseSize * 0.78 }}>&ldquo;{p.note}&rdquo;</div>}
                       </div>
                     </div>
                   ))}
@@ -319,6 +473,38 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
               </div>
             ))}
           </div>
+        </div>
+      );
+    }
+
+    // Default: Classic KDS (original layout)
+    return (
+      <div className="w-full max-w-[320px] mx-auto" style={{ fontFamily, fontSize: baseSize }}>
+        <div
+          className="rounded-lg overflow-hidden border bg-white text-[#2C3E50] border-neutral-200"
+          style={{ boxShadow: "0 14px 24px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)" }}
+        >
+          {current.blankSpaceTop && <div style={{ height: BLANK_SPACE_TOP_PX, background: "#fff" }} />}
+          <div className="px-3 py-2 flex justify-between items-center bg-[#1A1A2E] text-white">
+            <span className="inline-flex items-center h-5 px-2 rounded-full font-bold tracking-wide bg-white text-[#1A1A2E]" style={{ fontSize: baseSize * 0.78 }}>
+              TABLE 4
+            </span>
+            <span className="font-semibold tracking-wide" style={{ fontSize: baseSize * 0.85 }}>DINE IN</span>
+          </div>
+          <div className="px-3 py-1.5 flex justify-between border-b border-neutral-200" style={{ fontSize: baseSize * 0.8 }}>
+            <span><span className="font-bold">23</span> John Peterson</span>
+            <span className="text-neutral-500">Maria S. · 8:00 PM</span>
+          </div>
+          <div className="px-3 py-1 font-bold text-[#C0392B] border-b border-neutral-200 tracking-wide" style={{ fontSize: baseSize * 0.72 }}>
+            ALLERGENS: PEANUT, GLUTEN, NUT
+          </div>
+          <div className="px-3 pt-2">
+            <div className="rounded-md bg-[#FFF8E1] border border-[#F5D57A] px-2 py-1 text-[#8A5A00] leading-snug" style={{ fontSize: baseSize * 0.78 }}>
+              <span className="font-bold uppercase tracking-wide mr-1">Order Note</span>
+              Anniversary, please pace mains after apps.
+            </div>
+          </div>
+          <ProductsCourseBlock />
         </div>
       </div>
     );
@@ -390,7 +576,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                           : "border-neutral-700/60 bg-neutral-800/60 text-foreground/80 hover:bg-neutral-800"
                       }`}
                     >
-                      <span className="text-sm font-medium">{s.label}</span>
+                      <span className="text-sm font-medium">{activeTab === "kot" ? KOT_STYLE_LABELS[s.id] : s.label}</span>
                     </button>
                   );
                 })}

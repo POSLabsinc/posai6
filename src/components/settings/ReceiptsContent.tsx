@@ -275,7 +275,7 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
             {/* Logo toggle */}
             <section className="bg-neutral-800/60 rounded-2xl px-4 py-3.5 flex items-center justify-between">
               <div>
-                <div className="text-foreground text-base font-medium">Show store logo</div>
+                <div className="text-foreground text-base font-medium">Merchant Logo</div>
                 <div className="text-xs text-muted-foreground">Display your brand logo at the top of the receipt.</div>
               </div>
               <button

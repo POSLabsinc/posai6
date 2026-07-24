@@ -36,12 +36,12 @@ const STYLES: { id: StyleId; label: string }[] = [
   { id: "modern-bistro", label: "Modern Bistro" },
 ];
 
-// KOT-specific labels (styles reused, layouts differ per tab)
+// KOT-specific labels (each maps to a distinct KDS ticket design)
 const KOT_STYLE_LABELS: Record<StyleId, string> = {
-  "classic-thermal": "Classic KDS",
-  "compact-service": "Stacked Courses",
+  "classic-thermal": "Classic",
+  "compact-service": "Compact",
   "guest-table": "Typed Header",
-  "modern-bistro": "Compact Strip",
+  "modern-bistro": "Pill Cards",
 };
 
 const DEFAULT_CHANNEL: ChannelState = {
@@ -424,54 +424,97 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
       );
     }
 
-    // Style: Compact Strip (V4-inspired) — single colored strip + inline meta + flat list
+    // Style: Pill Cards (V5-inspired) — V2Header + pill product cards with tree modifiers
     if (current.style === "modern-bistro") {
+      const allAllergens = ["PEANUT", "GLUTEN", "NUT"];
       return (
         <div className="w-full max-w-[320px] mx-auto" style={{ fontFamily, fontSize: baseSize }}>
           <div className="rounded-lg overflow-hidden border bg-white text-[#2C3E50] border-neutral-200" style={{ boxShadow: "0 14px 24px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)" }}>
             {current.blankSpaceTop && <div style={{ height: BLANK_SPACE_TOP_PX, background: "#fff" }} />}
-            <div className="text-center px-3 py-1.5" style={{ background: "#1A1A2E", color: "#fff", fontSize: baseSize * 1.05, fontWeight: 600 }}>
-              Table 4
-            </div>
-            <div className="flex items-center justify-between px-3 py-1 border-b border-neutral-200" style={{ fontSize: baseSize * 0.85 }}>
-              <span className="font-bold">23</span>
-              <span className="text-neutral-500">8:00 PM</span>
-            </div>
-            <div className="px-3 py-1 text-[#C0392B] font-bold border-b border-neutral-200 tracking-wide" style={{ fontSize: baseSize * 0.72 }}>
-              ! PEANUT, GLUTEN, NUT
-            </div>
-            {sortedCourses.map((course) => (
-              <div key={course}>
-                <div className="px-3 py-1 uppercase tracking-wide text-neutral-500 font-medium" style={{ background: "#F3F4F6", fontSize: baseSize * 0.7 }}>
-                  {course}
-                </div>
-                <div>
-                  {grouped[course].map((p) => (
-                    <div key={p.name} className="flex items-start gap-2 px-3 py-1.5 border-b border-neutral-100 last:border-b-0">
-                      <span className="font-bold text-neutral-800 shrink-0 text-center" style={{ fontSize: baseSize * 0.92, minWidth: 18 }}>{p.qty}</span>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex flex-wrap items-center gap-x-1.5">
-                          <span style={{ fontSize: baseSize * 0.95, fontWeight: 700, lineHeight: 1.2 }}>{p.name}</span>
-                          {p.allergens?.map((a) => (
-                            <span key={a} className="inline-block px-1.5 py-[1px] rounded font-bold uppercase tracking-wide bg-[#FBEAEA] text-[#C0392B]" style={{ fontSize: baseSize * 0.62 }}>{a}</span>
-                          ))}
-                        </div>
-                        {p.modifiers?.map((m, i) => (
-                          <div key={i} className={`leading-tight ${
-                            m.kind === "add" ? "text-[#2471A3] font-semibold"
-                            : m.kind === "remove" ? "text-[#C0392B] font-semibold line-through"
-                            : "text-neutral-500"
-                          }`} style={{ fontSize: baseSize * 0.78 }}>
-                            {m.kind === "add" ? "+ " : m.kind === "remove" ? "- " : ""}{m.text}
-                          </div>
-                        ))}
-                        {p.note && <div className="italic text-neutral-500 leading-tight" style={{ fontSize: baseSize * 0.78 }}>&ldquo;{p.note}&rdquo;</div>}
-                      </div>
-                    </div>
-                  ))}
+            {/* V2 Header */}
+            <div className="px-2.5 py-2 bg-[#F3F4F6]">
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-1.5 min-w-0">
+                  <span className="rounded-full px-2 py-0.5 font-semibold uppercase shrink-0" style={{ background: "#1A1A2E", color: "#fff", fontSize: baseSize * 0.7 }}>
+                    Table 4
+                  </span>
+                  <span className="font-bold shrink-0 truncate" style={{ fontSize: baseSize * 1 }}>23</span>
                 </div>
               </div>
-            ))}
+              <div className="flex items-center justify-between gap-2 mt-0.5">
+                <span className="font-medium truncate" style={{ fontSize: baseSize * 0.85 }}>John Peterson</span>
+                <span className="text-neutral-500 shrink-0 truncate" style={{ fontSize: baseSize * 0.78 }}>
+                  Maria S. · 8:00 PM
+                </span>
+              </div>
+            </div>
+
+            {/* Allergen strip (tree style) */}
+            <div className="px-2 pt-1 flex items-center gap-1.5">
+              <span className="shrink-0 text-[#C0392B]" style={{ fontSize: baseSize * 0.78, fontWeight: 700, width: 10, textAlign: "center" }}>!</span>
+              <span className="text-[#C0392B] break-words" style={{ fontSize: baseSize * 0.78, fontWeight: 700 }}>
+                {allAllergens.join(", ")}
+              </span>
+            </div>
+
+            {/* Order notes pill */}
+            <div className="px-2 pt-2">
+              <div className="rounded-xl px-2.5 py-2 flex items-start gap-2 bg-[#F3F4F6] border border-neutral-200/80">
+                <span className="text-neutral-500 shrink-0 mt-0.5" style={{ fontSize: baseSize * 0.85 }}>📝</span>
+                <div className="min-w-0 flex-1 break-words" style={{ fontSize: baseSize * 0.88, fontWeight: 500 }}>
+                  Anniversary, please pace mains after apps.
+                </div>
+              </div>
+            </div>
+
+            {/* Product pills */}
+            <div className="px-2 py-2 space-y-1.5">
+              {products.map((p) => (
+                <div key={p.name} className="rounded-xl bg-[#F3F4F6] border border-neutral-200/80" style={{ padding: "6px 10px" }}>
+                  <div className="flex items-center gap-2">
+                    <span className="shrink-0 inline-flex items-center justify-center rounded-full bg-white text-neutral-900" style={{ width: 22, height: 22, fontSize: baseSize * 0.82, fontWeight: 700 }}>
+                      {p.qty}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="truncate" style={{ fontSize: baseSize * 0.95, fontWeight: 700 }}>{p.name}</div>
+                    </div>
+                  </div>
+                  {(p.modifiers?.length || p.note || p.allergens?.length) && (
+                    <div className="mt-1.5 pl-2 space-y-0.5">
+                      {p.modifiers?.map((m, i) => (
+                        <div key={i} className="flex items-center gap-1.5" style={{ lineHeight: 1.25 }}>
+                          <span aria-hidden className="shrink-0 text-neutral-400" style={{ fontFamily: "monospace", fontSize: baseSize * 0.78 }}>└─</span>
+                          <span className={`shrink-0 ${
+                            m.kind === "add" ? "text-[#2471A3]" : m.kind === "remove" ? "text-[#C0392B]" : "text-neutral-500"
+                          }`} style={{ fontSize: baseSize * 0.78, width: 10, textAlign: "center", fontWeight: 600 }}>
+                            {m.kind === "add" ? "+" : m.kind === "remove" ? "-" : "•"}
+                          </span>
+                          <span className={`break-words ${
+                            m.kind === "add" ? "text-[#2471A3]" : m.kind === "remove" ? "text-[#C0392B] line-through" : "text-neutral-600"
+                          }`} style={{ fontSize: baseSize * 0.78, fontWeight: 500 }}>
+                            {m.text}
+                          </span>
+                        </div>
+                      ))}
+                      {p.allergens?.map((a) => (
+                        <div key={a} className="flex items-center gap-1.5" style={{ lineHeight: 1.25 }}>
+                          <span aria-hidden className="shrink-0 text-neutral-400" style={{ fontFamily: "monospace", fontSize: baseSize * 0.78 }}>└─</span>
+                          <span className="shrink-0 text-[#C0392B]" style={{ fontSize: baseSize * 0.78, width: 10, textAlign: "center", fontWeight: 700 }}>!</span>
+                          <span className="text-[#C0392B] break-words" style={{ fontSize: baseSize * 0.78, fontWeight: 700 }}>{a}</span>
+                        </div>
+                      ))}
+                      {p.note && (
+                        <div className="flex items-center gap-1.5" style={{ lineHeight: 1.25 }}>
+                          <span aria-hidden className="shrink-0 text-neutral-400" style={{ fontFamily: "monospace", fontSize: baseSize * 0.78 }}>└─</span>
+                          <span className="shrink-0 text-neutral-400" style={{ fontSize: baseSize * 0.78, width: 10, textAlign: "center" }}>•</span>
+                          <span className="italic text-neutral-500 break-words" style={{ fontSize: baseSize * 0.78 }}>&ldquo;{p.note}&rdquo;</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       );

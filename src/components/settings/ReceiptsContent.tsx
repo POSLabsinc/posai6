@@ -418,6 +418,30 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
               </button>
             </section>
 
+            {/* Blank space above receipt toggle (KOT, Payment Receipt, Receipt only) */}
+            {SUPPORTS_BLANK_SPACE.includes(activeTab) && (
+              <section className="bg-neutral-800/60 rounded-2xl px-4 py-3.5 flex items-center justify-between">
+                <div className="pr-3">
+                  <div className="text-foreground text-base font-medium">Blank Space Above Receipt</div>
+                  <div className="text-xs text-muted-foreground">Leaves blank space at the top of the printed receipt for stickers, stamps, or handwritten notes.</div>
+                </div>
+                <button
+                  onClick={() => updateChannel({ blankSpaceTop: !current.blankSpaceTop })}
+                  className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
+                    current.blankSpaceTop ? "bg-primary" : "bg-neutral-600"
+                  }`}
+                  aria-pressed={current.blankSpaceTop}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                      current.blankSpaceTop ? "translate-x-5" : ""
+                    }`}
+                  />
+                </button>
+              </section>
+            )}
+
+
             {/* Font style + size */}
             <section className="flex flex-col gap-4">
               <div>

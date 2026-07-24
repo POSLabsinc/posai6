@@ -16,6 +16,7 @@ type FontSize = "s" | "m" | "l";
 interface ChannelState {
   style: StyleId;
   showLogo: boolean;
+  blankSpaceTop: boolean;
   fontStyle: FontStyle;
   fontSize: FontSize;
 }
@@ -38,9 +39,15 @@ const STYLES: { id: StyleId; label: string }[] = [
 const DEFAULT_CHANNEL: ChannelState = {
   style: "classic-thermal",
   showLogo: true,
+  blankSpaceTop: false,
   fontStyle: "thermal",
   fontSize: "m",
 };
+
+const BLANK_SPACE_TOP_PX = 72;
+
+const SUPPORTS_BLANK_SPACE: TabId[] = ["kot", "payment-receipt", "receipt"];
+
 
 const fontSizePx: Record<FontSize, number> = { s: 11, m: 13, l: 15 };
 
@@ -111,7 +118,9 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
               padding: "22px 20px 26px",
             }}
           >
+            {current.blankSpaceTop && <div style={{ height: BLANK_SPACE_TOP_PX }} />}
             {isGuestTable ? (
+
               <div className="text-center mb-3 pt-2">
                 <div style={{ fontSize: baseSize * 1.6, fontWeight: 700 }}>Order 1042 · Table 7</div>
                 <div className="text-neutral-500" style={{ fontSize: baseSize * 0.9, marginTop: 2 }}>
@@ -233,7 +242,9 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
           className="rounded-lg overflow-hidden border bg-white text-[#2C3E50] border-neutral-200"
           style={{ boxShadow: "0 14px 24px rgba(0,0,0,0.35), 0 2px 4px rgba(0,0,0,0.2)" }}
         >
+          {current.blankSpaceTop && <div style={{ height: BLANK_SPACE_TOP_PX, background: "#fff" }} />}
           {/* Header */}
+
           <div className="px-3 py-2 flex justify-between items-center bg-[#1A1A2E] text-white">
             <span className="inline-flex items-center h-5 px-2 rounded-full font-bold tracking-wide bg-white text-[#1A1A2E]" style={{ fontSize: baseSize * 0.78 }}>
               TABLE 4
@@ -406,6 +417,30 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
                 />
               </button>
             </section>
+
+            {/* Blank space above receipt toggle (KOT, Payment Receipt, Receipt only) */}
+            {SUPPORTS_BLANK_SPACE.includes(activeTab) && (
+              <section className="bg-neutral-800/60 rounded-2xl px-4 py-3.5 flex items-center justify-between">
+                <div className="pr-3">
+                  <div className="text-foreground text-base font-medium">Blank Space Above Receipt</div>
+                  <div className="text-xs text-muted-foreground">Leaves blank space at the top of the printed receipt for stickers, stamps, or handwritten notes.</div>
+                </div>
+                <button
+                  onClick={() => updateChannel({ blankSpaceTop: !current.blankSpaceTop })}
+                  className={`relative w-11 h-6 rounded-full transition-colors shrink-0 ${
+                    current.blankSpaceTop ? "bg-primary" : "bg-neutral-600"
+                  }`}
+                  aria-pressed={current.blankSpaceTop}
+                >
+                  <span
+                    className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white transition-transform ${
+                      current.blankSpaceTop ? "translate-x-5" : ""
+                    }`}
+                  />
+                </button>
+              </section>
+            )}
+
 
             {/* Font style + size */}
             <section className="flex flex-col gap-4">

@@ -118,7 +118,9 @@ const ReceiptsContent = ({ showHeader = true, onBack }: ReceiptsContentProps) =>
               padding: "22px 20px 26px",
             }}
           >
+            {current.blankSpaceTop && <div style={{ height: BLANK_SPACE_TOP_PX }} />}
             {isGuestTable ? (
+
               <div className="text-center mb-3 pt-2">
                 <div style={{ fontSize: baseSize * 1.6, fontWeight: 700 }}>Order 1042 · Table 7</div>
                 <div className="text-neutral-500" style={{ fontSize: baseSize * 0.9, marginTop: 2 }}>

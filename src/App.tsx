@@ -198,6 +198,8 @@ const AppInner = () => {
           <Route path="/" element={<Dashboard />} />
           <Route path="/home" element={<Dashboard />} />
           <Route path="/handoff" element={<Handoff />} />
+          <Route path="/clock-in-pin" element={<ClockInPin />} />
+
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders-a" element={<OrdersA />} />
           <Route path="/orders-d" element={<OrdersD />} />

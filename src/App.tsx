@@ -23,6 +23,7 @@ import { SettingsManager } from "@/lib/settingsManager";
 import ThemeBridge from "@/components/ThemeBridge";
 import Dashboard from "./pages/Dashboard";
 import Handoff from "./pages/Handoff";
+import ClockInPin from "./pages/ClockInPin";
 
 const lazyWithImportRecovery = <T extends ComponentType<unknown>>(
   loader: () => Promise<{ default: T }>,
@@ -197,6 +198,8 @@ const AppInner = () => {
           <Route path="/" element={<Dashboard />} />
           <Route path="/home" element={<Dashboard />} />
           <Route path="/handoff" element={<Handoff />} />
+          <Route path="/clock-in-pin" element={<ClockInPin />} />
+
           <Route path="/orders" element={<Orders />} />
           <Route path="/orders-a" element={<OrdersA />} />
           <Route path="/orders-d" element={<OrdersD />} />

@@ -23,6 +23,7 @@ import { SettingsManager } from "@/lib/settingsManager";
 import ThemeBridge from "@/components/ThemeBridge";
 import Dashboard from "./pages/Dashboard";
 import Handoff from "./pages/Handoff";
+import ClockInPin from "./pages/ClockInPin";
 
 const lazyWithImportRecovery = <T extends ComponentType<unknown>>(
   loader: () => Promise<{ default: T }>,

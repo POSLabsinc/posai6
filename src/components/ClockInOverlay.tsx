@@ -1124,7 +1124,7 @@ export const ClockInOverlay = ({
             0
           </button>
           <button onClick={handleEnter} disabled={isVerifying || pin.length !== PIN_LENGTH} className="h-[68px] md:h-16 lg:h-[72px] keypad-btn-3d-enter rounded-lg text-black text-base md:text-lg font-bold disabled:opacity-50">
-            ENTER
+            {isClockedIn ? "ENTER" : "CLOCK IN"}
           </button>
         </div>
 

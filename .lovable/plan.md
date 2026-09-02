@@ -1,127 +1,42 @@
-# POS AI 6.0 — Project Guardrails Document
+# Application Tour Video (Login to Maya AI)
 
-Create a single, authoritative markdown document that serves as the source of truth for Lovable, Cursor, and any other AI tool working on this project. It will consolidate everything established across the full chat history: design rules, UX standards, technical patterns, recurring mistakes, corrections, and preventive guardrails.
+A rendered 1920x1080 MP4, about 45 seconds, built from real screenshots of the live product. No captions, no subtitles, no marketing text: screens only, with smooth transitions and a realistic touch effect at each interaction point.
 
-## Deliverable
+## Flow shown in the video
 
-**File:** `docs/PROJECT_GUARDRAILS.md` (primary, in repo)
-**Mirror:** `/mnt/documents/POS_AI_Project_Guardrails.md` (downloadable artifact)
+1. Login: the dark sign-in screen from the onboarding link, exactly as-is
+2. Select Product: Orders screen, tap on a product tile
+3. Add Modifiers: modifier screen, tap two modifier options
+4. Payment: checkout screen, tap the charge/pay action
+5. Settings: settings interface with a slow drift across the panels
+6. Maya AI: AI Integration screen with a subtle glow emphasis as it appears
 
-Both files will contain identical content. The `/mnt/documents` copy is delivered as a `<presentation-artifact>` so you can download/share it.
+## How the screens are captured
 
-## Document Structure
+- Login frames come from https://posaionboarding.lovable.app/eatos/signup/dark/sq
+- All other frames come from the live app preview: Orders, the modifier sheet, checkout, Settings, and the Maya AI section under Settings > System > AI Integration
+- Each step is captured as a before-tap and after-tap pair so the video shows the real UI reacting, never a redrawn or redesigned version of it
 
-```text
-1.  Purpose & How to Use This Document
-2.  Product Vision & Platform Principles
-3.  Terminology Standards (Product vs Item, Point of Sale, PAID, etc.)
-4.  Design System Rules
-      - Liquid Glass theme, dark mode default
-      - Semantic tokens only (no hardcoded colors)
-      - Typography: Montserrat, 14px root
-      - Settings UI: iOS 26 dark theme, #131316 / #252525 / #1C1C1C
-      - Status color mapping (ORDERING, ORDERED, PAID, UNPAID, HOLD)
-      - Rounded corners, spacing, no scrollbars
-5.  UX Operational Rules
-      - 1–2 taps for core flows
-      - KPI limit (max 6), no analytics on operational screens
-      - Order/table visibility (ID, status, count, elapsed time)
-      - Save-on-back pattern
-      - Explicit X close on modals
-6.  Component & Interaction Standards
-      - Swipe-to-reveal (single open, 20px threshold)
-      - Phone input (auto-detect flag, manual selector)
-      - OTP (6 boxes, auto-verify, 300ms delay)
-      - Wheel pickers for date/time
-      - Custom keyboard system
-      - Sort icons (expand-arrows.svg) on every table header
-7.  Feature-Specific Guardrails
-      - Orders / Quick Order persistence (Fire vs Hold)
-      - Order Hold flow (ticket status update, no duplicates)
-      - Tickets, split check, transfer, merge
-      - KDS, inventory deduct/restore, discounts, vouchers
-      - Guests, reservations, workforce, cash management
-      - Onboarding (manual + AI parity)
-      - Demo mode popup (personal email → read-only)
-8.  Architecture Rules
-      - dbId for DB ops (not truncated id)
-      - SHARED_DEVICE_ID = "shared" for global tables
-      - Appearance persistence: DB overrides localStorage
-      - Order numbering (max + 1)
-      - Dashboard ID mapping
-9.  Backend / Lovable Cloud Rules
-      - RLS on every public table + GRANT statements
-      - Roles in separate table via has_role() SECURITY DEFINER
-      - No client-side admin checks
-      - Payment finalization must be server-side
-      - Never expose service_role or DB password
-      - Never say "Supabase" in user-facing copy
-10. Security Guardrails (from scan findings)
-      - AI API keys never in DB
-      - Employee PINs never exposed to client
-      - Geolocation via server proxy
-      - No localStorage tampering for auth/roles
-      - Payments validated server-side
-      - Edge functions authenticated by default
-11. Onboarding & Auth Guardrails
-      - "Activate with AI" prioritized
-      - Rounded-full inputs & CTAs throughout signup/signin
-      - Back navigation must not loop (explicit routes, not navigate(-1))
-      - Personal email → mirror business flow, gate at "Use mode" with demo popup
-      - AI chat flow mirrors manual flow, prompt-driven
-12. AI Assistant Behavior
-      - Settings-only scope, no Lovable AI Assistant coupling
-      - Contextual welcomes, inline theme/logo actions
-      - Compare-plans bottom sheet in AI signup
-13. Credit & Efficiency Guardrails
-      - Lowest-credit approach first
-      - Reuse existing components (e.g., DeviceSetupAIChat)
-      - Prefer search-replace over full rewrites
-14. Recurring Mistakes & Corrections (Case Log)
-      Chronological table capturing: what went wrong, what you asked for,
-      how it was fixed, and the guardrail that now prevents recurrence.
-      Examples to include:
-        - Mode explanation container left empty → added looping videos
-        - Back on "Check your email" looped to type selection → explicit route
-        - Personal email blocked signup → mirror flow + demo popup
-        - Buttons/inputs inconsistent radii → rounded-full standardized
-        - AI signup didn't show Places suggestions → fallback + geo bias
-        - Country not auto-detected in AI chat → detectCountry + edit sheet
-        - Mode explanation missing after selection → learn step + sheet
-        - Payment lacked server validation → 7-phase server-side plan
-        - Add Guest UI regressed → legacy component with exact styling
-        - Theme preset Apply did nothing → wired to AppearanceContext
-        - Theme color burgundy/red default → black/grey defaults
-        - Order Hold created duplicate tickets → quickOrderDbId + update
-        - Fire/Hold could be double-tapped → lock + cartSignature reset
-        - Hold-time dropdown clipped → position:fixed popover
-        - eatos.com/dashboard not linked → hyperlink added
-        - "Where do I find my code?" placement → moved below info box
-        - "AI Integration & Settings" naming → renamed "AI Integration"
-        - Guest Book "New Order" color/icon → white + plus icon
-        - RLS/GRANT gaps flagged by scanner → policies tightened per table
-15. Lessons Learned (Principles distilled from the case log)
-16. Definition of Done Checklist
-      Pre-merge checks: terminology, tokens, RLS+GRANT, no hardcoded colors,
-      rounded-full inputs/CTAs in auth flows, no navigate(-1) loops,
-      dbId usage, no duplicate ticket creation, save-on-back respected,
-      screenshots verified for visual changes.
-17. Change Management
-      How to update this document when a new rule is agreed.
-```
+## Motion design
 
-## Method
+- Touch effect: a soft circular finger press with an expanding ripple, landing on the exact pixel coordinate of the real control
+- Transitions: consistent push/fade between steps, no fade-to-black
+- Camera: slow scale and pan drift within each step so nothing feels static
+- Maya AI: extra emphasis with a short vignette pull-in and a soft accent glow around the panel
+- Pacing: roughly 7 to 8 seconds per step, Payment and Maya AI held slightly longer
 
-1. Sweep the full chat history with `chat_search`/`recall_chat_history` to recover every explicit rule, correction, and rejected idea not already in `mem://index.md`.
-2. Merge those findings with the existing memory files (design, features, architecture, auth, security) — memory is already the distilled rule set; the guide will reference and expand it.
-3. Write the document in one pass, keeping each rule short and prescriptive ("Do / Don't"), with a "Why" line where the reason isn't obvious.
-4. Add the Case Log as a table so mistakes are easy to scan.
-5. Save to both paths and emit the artifact tag.
+## Technical notes
 
-## Scope Notes
+- Playwright drives the login URL and the local preview to capture PNG frames plus the click coordinates for each interaction
+- Remotion project under `remotion/` renders the composition; all motion is frame based (`interpolate` / `spring`), scenes split into one file per step
+- Output written to `/mnt/documents/app-tour.mp4` at 1920x1080, 30fps
+- Silent video (no soundtrack), since no narration or captions were requested
+- No application source files are modified; the tour is built from screenshots only
 
-- Documentation only. No code, schema, or config changes.
-- Content is drawn from prior conversation and existing `mem://` memories — no new product decisions are introduced.
-- If, while writing, I find a rule that contradicts another, I'll flag it in a "Conflicts to Resolve" appendix rather than silently pick one.
+## Security work included in this pass
 
-Approve and I'll generate the document.
+Alongside the video, three database access issues are fixed so business and order data is no longer readable by unauthenticated visitors:
+
+- `merchants`, `brands`, `resellers`: remove public read of contact and revenue data, restrict to signed-in owners/admins
+- `stores`: remove public create/read/update/delete, restrict to signed-in merchant-scoped users
+- `ticket_orders` and `ticket_order_items`: remove public access to guest and payment data, restrict to signed-in merchant-scoped users

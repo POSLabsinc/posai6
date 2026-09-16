@@ -684,3 +684,39 @@
   color: #6f6a64;
   opacity: 1;
 }
+
+/* Fire and Charge footer buttons (Ploy typography) */
+.ploy-pos-theme .ploy-order-page [data-ploy-fire-action="true"],
+.ploy-pos-theme .ploy-order-page [data-ploy-charge-action="true"] {
+  background: var(--ploy-accent) !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+.ploy-pos-theme .ploy-order-page [data-ploy-fire-action="true"]:hover,
+.ploy-pos-theme .ploy-order-page [data-ploy-charge-action="true"]:hover {
+  background: #c85e41 !important;
+}
+
+.ploy-pos-theme .ploy-order-page [data-ploy-fire-action="true"] span {
+  font-family: Inter, system-ui, sans-serif !important;
+  font-weight: 700 !important;
+  font-size: 13px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #ffffff !important;
+}
+
+.ploy-pos-theme .ploy-order-page [data-ploy-fire-action="true"] img {
+  filter: brightness(0) invert(1);
+}
+
+.ploy-pos-theme .ploy-order-page [data-ploy-charge-action="true"] span {
+  font-family: "Source Serif 4", Georgia, serif !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+  text-transform: none;
+  letter-spacing: 0.01em;
+  color: #1e1b18 !important;
+}

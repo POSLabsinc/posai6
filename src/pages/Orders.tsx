@@ -4014,7 +4014,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
             {/* Right Side Actions Sidebar */}
             {isOrderActionsSidebarOpen && !showCreateVoucherForm &&
           <div className="w-[70px] flex flex-col flex-shrink-0 animate-slide-in-right">
-                <div className="flex-1 flex flex-col rounded-2xl p-1.5 gap-1" style={{
+                <div data-ploy-actions-panel={isPloyTheme ? "true" : undefined} className="flex-1 flex flex-col rounded-2xl p-1.5 gap-1" style={{
               background: '#7575754D',
               boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
             }}>

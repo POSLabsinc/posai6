@@ -699,7 +699,7 @@
   background: #c85e41 !important;
 }
 
-.ploy-pos-theme .ploy-order-page [data-ploy-fire-action="true"] span {
+.ploy-pos-theme .ploy-order-page button[data-ploy-fire-action="true"][data-ploy-fire-action] span {
   font-family: Inter, system-ui, sans-serif !important;
   font-weight: 700 !important;
   font-size: 13px !important;
@@ -712,7 +712,7 @@
   filter: brightness(0) invert(1);
 }
 
-.ploy-pos-theme .ploy-order-page [data-ploy-charge-action="true"] span {
+.ploy-pos-theme .ploy-order-page button[data-ploy-charge-action="true"][data-ploy-charge-action] span {
   font-family: "Source Serif 4", Georgia, serif !important;
   font-weight: 600 !important;
   font-size: 14px !important;

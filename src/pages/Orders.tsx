@@ -2032,6 +2032,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowGiftCardDialog(true)}
+                  data-ploy-more-action={isPloyTheme ? "true" : undefined}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
                       {isPloyTheme ? <Gift data-ploy-cart-action-icon="true" /> : <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />}
@@ -2039,16 +2040,18 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowServiceChargeDialog(true)}
+                  data-ploy-more-action={isPloyTheme ? "true" : undefined}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={serviceChargeIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <BadgeDollarSign data-ploy-cart-action-icon="true" /> : <img src={serviceChargeIcon} alt="" className="w-3.5 h-3.5" />}
                       Service Charge
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowAddGuestForm(true)}
+                  data-ploy-more-action={isPloyTheme ? "true" : undefined}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={addGuestIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <UserPlus data-ploy-cart-action-icon="true" /> : <img src={addGuestIcon} alt="" className="w-3.5 h-3.5" />}
                       Add Guest
                     </DropdownMenuItem>
                     <DropdownMenuItem
@@ -2062,8 +2065,10 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                       <img src={messageKdsIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
                       Message Kitchen
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <img src={reopenCheckIcon} alt="" className="w-3.5 h-3.5" />
+                    <DropdownMenuItem
+                      data-ploy-more-action={isPloyTheme ? "true" : undefined}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      {isPloyTheme ? <RotateCcw data-ploy-cart-action-icon="true" /> : <img src={reopenCheckIcon} alt="" className="w-3.5 h-3.5" />}
                       Reopen Check
                     </DropdownMenuItem>
                   </DropdownMenuContent>
@@ -4026,16 +4031,18 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   {/* Action Buttons */}
                   <button
                 onClick={() => setShowGiftCardDialog(true)}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
-                    <img src={giftCardBtnIcon} alt="" className="w-5 h-5" />
+                    {isPloyTheme ? <Gift data-ploy-cart-action-icon="true" /> : <img src={giftCardBtnIcon} alt="" className="w-5 h-5" />}
                     <span className="text-[9px] text-white text-center leading-tight">Gift<br />Card</span>
                   </button>
                   <button
                 onClick={() => setShowServiceChargeDialog(true)}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
-                    <img src={serviceChargeIcon} alt="" className="w-5 h-5" />
+                    {isPloyTheme ? <BadgeDollarSign data-ploy-cart-action-icon="true" /> : <img src={serviceChargeIcon} alt="" className="w-5 h-5" />}
                     <span className="text-[9px] text-white text-center leading-tight">Service<br />Charge</span>
                   </button>
                   <button
@@ -4043,9 +4050,10 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   setShowAddGuestForm(true);
                   setIsOrderActionsSidebarOpen(false);
                 }}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
-                    <img src={addGuestIcon} alt="" className="w-5 h-5" />
+                    {isPloyTheme ? <UserPlus data-ploy-cart-action-icon="true" /> : <img src={addGuestIcon} alt="" className="w-5 h-5" />}
                     <span className="text-[9px] text-white text-center leading-tight">Add<br />Guest</span>
                   </button>
                   <button
@@ -4088,8 +4096,10 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                     <img src={messageKdsIcon} alt="" className="w-5 h-5 brightness-0 invert" />
                     <span className="text-[9px] text-white text-center leading-tight">Message<br />Kitchen</span>
                   </button>
-                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <img src={reopenCheckIcon} alt="" className="w-5 h-5" />
+                  <button
+                    data-ploy-more-action={isPloyTheme ? "true" : undefined}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                    {isPloyTheme ? <RotateCcw data-ploy-cart-action-icon="true" /> : <img src={reopenCheckIcon} alt="" className="w-5 h-5" />}
                     <span className="text-[9px] text-white text-center leading-tight">Reopen<br />Check</span>
                   </button>
                 </div>

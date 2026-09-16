@@ -2286,7 +2286,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
           {/* Mobile Cart Items */}
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
             {orderItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
+              <div className="flex flex-col items-center justify-center flex-1 py-6 text-muted-foreground">
                 {isPloyTheme ? <ShoppingCart data-ploy-empty-icon="true" className="mb-2" strokeWidth={1.4} /> : <img src={emptyOrderIcon} alt="Empty order" className="w-8 h-8 opacity-50 mb-2" />}
                 <span className="text-xs">Let's create an order</span>
               </div>
@@ -3643,11 +3643,10 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
               }
 
                   {/* Order Items */}
-                  <ScrollArea key={`desktop-scroll-${clearCounter}`} className="flex-1 min-h-0 px-2">
-                    {orderItems.length === 0 ? <div className="flex flex-col items-center justify-center h-full py-8">
+                  {orderItems.length === 0 ? <div className="flex flex-col items-center justify-center flex-1 min-h-0 py-8">
                         {isPloyTheme ? <ShoppingCart data-ploy-empty-icon="large" className="mb-3" strokeWidth={1.3} /> : <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />}
                         <span className="text-muted-foreground text-sm">Let's create an order</span>
-                      </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
+                      </div> : <ScrollArea key={`desktop-scroll-${clearCounter}`} className="flex-1 min-h-0 px-2"><div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
                         {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
                             <div
                       className={`p-2 md:p-1.5 lg:p-3 border rounded-md md:rounded lg:rounded-lg cursor-pointer ${item.isTransferred ? 'border-[#3B6A9E] bg-accent' : 'border-sidebar-border bg-muted'}`}
@@ -3844,8 +3843,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                               </div>
                             </div>
                           </SwipeableCartItem>)}
-                      </div>}
-                  </ScrollArea>
+                      </div></ScrollArea>}
 
                   {/* Split Order Warning */}
                   {isOrderSplit && orderItems.length > 0 &&

@@ -163,17 +163,20 @@ export function DraggableSidebar() {
   return (
     <TooltipProvider delayDuration={100}>
       <div 
+        data-ploy-sidebar-shell="true"
         className={`${isHorizontal ? 'h-20 w-full' : 'w-20 h-full'} py-2 px-2 flex-shrink-0 transition-all duration-300 ease-out ${getAnimationClass()}`}
       >
         <div 
+          data-ploy-sidebar-rail="true"
           className={`draggable-sidebar h-full rounded-2xl flex ${isHorizontal ? 'flex-row' : 'flex-col'} gap-1 p-1.5`} 
           style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}
         >
           {/* Drag Handle + Lock Toggle */}
-          <div className={`relative flex ${isHorizontal ? 'flex-row' : 'flex-col'} items-center gap-1 shrink-0`}>
+          <div data-ploy-sidebar-tools="true" className={`relative flex ${isHorizontal ? 'flex-row' : 'flex-col'} items-center gap-1 shrink-0`}>
             <Tooltip>
               <TooltipTrigger asChild>
                 <div 
+                  data-ploy-sidebar-drag="true"
                   draggable={!isLocked}
                   onDragStart={handleDragStart}
                   onDrag={handleDrag}
@@ -223,6 +226,7 @@ export function DraggableSidebar() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <button
+                  data-ploy-sidebar-lock="true"
                   onClick={toggleLock}
                   className={`flex items-center justify-center ${isHorizontal ? 'h-full w-8' : 'w-full h-8'} hover:bg-white/20 rounded-lg transition-colors shrink-0`}
                 >
@@ -240,7 +244,7 @@ export function DraggableSidebar() {
           </div>
 
           {/* Restaurant Logo */}
-          <div className={`flex items-center justify-center ${isHorizontal ? 'h-full w-14' : 'w-full h-14'} shrink-0`}>
+          <div data-ploy-sidebar-logo="true" className={`flex items-center justify-center ${isHorizontal ? 'h-full w-14' : 'w-full h-14'} shrink-0`}>
             <img src={partnerLogoUrl || restaurantLogo} alt="Restaurant Logo" className="w-12 h-12 object-contain" />
           </div>
 
@@ -248,6 +252,7 @@ export function DraggableSidebar() {
           {visibleMenuItems.map((item) => (
             <div 
               key={item.title} 
+              data-ploy-sidebar-item={item.title}
               className={`flex items-center justify-center flex-1 min-h-0 min-w-0`}
             >
               <Tooltip>

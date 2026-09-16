@@ -3233,6 +3233,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
             <div className="flex items-center gap-1.5 mb-2">
               <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide gap-1.5">
                 <Button
+                data-ploy-order-pill="true"
                 variant="secondary"
                 size="sm"
                 className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
@@ -3241,6 +3242,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   {showCustomItemPanel ? "Menu" : "Custom Item"}
                 </Button>
                 <Button
+                 data-ploy-order-pill="true"
                  variant="secondary"
                  size="sm"
                  className={`text-[10px] rounded-[10px] ${selectedDiscounts.length > 0 ? 'bg-primary/30 border-primary text-primary' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
@@ -3249,6 +3251,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                    Discount {selectedDiscounts.length > 0 && `(${selectedDiscounts.length})`}
                  </Button>
                 <Button
+                data-ploy-order-pill="true"
                 variant="secondary"
                 size="sm"
                 className={`text-[10px] rounded-[10px] ${isTaxExempt ? '' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
@@ -3263,6 +3266,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                  </Button>
               </div>
               <Button
+              data-ploy-order-more="true"
               variant="secondary"
               size="icon"
               className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border flex-shrink-0"

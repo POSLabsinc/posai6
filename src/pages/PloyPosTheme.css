@@ -45,6 +45,13 @@
   background: var(--ploy-bg);
   color: var(--ploy-ink);
   font-family: Inter, sans-serif;
+  border: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.ploy-orders-active {
+  background: #f7f3ee;
 }
 
 .ploy-pos-theme:has(.ploy-order-page) :is(header, main) {
@@ -57,6 +64,26 @@
   background: var(--ploy-surface);
   border-bottom: 1px solid var(--ploy-border);
   box-shadow: var(--ploy-shadow);
+}
+
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-profile="true"] {
+  background: transparent;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-avatar="true"] {
+  background: var(--ploy-accent-soft) !important;
+  color: var(--ploy-accent-ink);
+}
+
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-support="true"] {
+  background: var(--ploy-bg) !important;
+  border: 0;
+  border-radius: 999px;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-support="true"] img {
+  filter: grayscale(1);
+  opacity: 0.65;
 }
 
 .ploy-pos-theme:has(.ploy-order-page) header > div:first-child > button:nth-child(2),
@@ -74,14 +101,44 @@
 }
 
 .ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar :is(a, button) {
-  color: var(--ploy-muted);
+  color: var(--ploy-tertiary);
 }
 
-.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar a[aria-current="page"] {
-  background: var(--ploy-accent-soft);
-  color: var(--ploy-accent-ink);
-  border-color: var(--ploy-border);
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"] {
+  background: transparent;
+  border: 0 !important;
+  color: var(--ploy-tertiary);
+}
+
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"] img {
+  filter: grayscale(1);
+  opacity: 0.55;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"][aria-current="page"] {
+  background: var(--ploy-accent-soft) !important;
+  color: var(--ploy-accent);
+  border: 0 !important;
   border-radius: 12px;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"]:has(img[alt="Dashboard"]),
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"]:has(img[alt="Orders"]) {
+  background: var(--ploy-accent-soft) !important;
+  color: var(--ploy-accent);
+  border: 0 !important;
+  border-radius: 12px;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"][aria-current="page"] img {
+  filter: sepia(1) saturate(4) hue-rotate(325deg) brightness(0.95);
+  opacity: 1;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"]:has(img[alt="Dashboard"]) img,
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"]:has(img[alt="Orders"]) img {
+  filter: sepia(1) saturate(4) hue-rotate(325deg) brightness(0.95);
+  opacity: 1;
 }
 
 .ploy-pos-theme .ploy-order-page {
@@ -238,6 +295,24 @@
 .ploy-pos-theme .ploy-order-page [data-ploy-region="order"] > div > div:first-child button,
 .ploy-pos-theme .ploy-order-page [data-ploy-region="order"] > div > div:first-child input {
   font-size: 10.5px;
+}
+
+.ploy-pos-theme .ploy-order-page [data-ploy-order-pill="true"] {
+  background: var(--ploy-surface) !important;
+  border-color: var(--ploy-border) !important;
+  color: var(--ploy-ink) !important;
+}
+
+.ploy-pos-theme .ploy-order-page [data-ploy-order-pill="true"] img {
+  filter: grayscale(1);
+  opacity: 0.72;
+}
+
+.ploy-pos-theme .ploy-order-page [data-ploy-order-more="true"] {
+  background: transparent !important;
+  border: 1px solid var(--ploy-border) !important;
+  border-radius: 999px !important;
+  color: var(--ploy-muted) !important;
 }
 
 .ploy-pos-theme .ploy-order-page [data-ploy-region="order"] [class*="border-b"],

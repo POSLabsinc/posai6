@@ -215,12 +215,13 @@ const Header = () => {
           </button>
 
           <button
+            data-ploy-header-profile="true"
             onClick={() => setShowProfilePopup(true)}
             className="flex items-center gap-1 md:gap-2 bg-white/10 pl-0 pr-2 md:pr-3 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
           >
             <Avatar className="w-6 md:w-8 h-6 md:h-8 border-0">
               <AvatarImage src="" alt={employeeName} />
-              <AvatarFallback className="text-xs bg-sidebar-accent text-sidebar-foreground">{initials}</AvatarFallback>
+              <AvatarFallback data-ploy-header-avatar="true" className="text-xs bg-sidebar-accent text-sidebar-foreground">{initials}</AvatarFallback>
             </Avatar>
 
             <span className="font-medium text-xs md:text-sm">{employeeName}</span>
@@ -306,7 +307,7 @@ const Header = () => {
             <img src={refreshIcon} alt="Refresh" className="w-5 h-5" />
           </button>
 
-          <button className="header-support-btn hidden md:block p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
+          <button data-ploy-header-support="true" className="header-support-btn hidden md:block p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
             <img src={supportIcon} alt="Support" className="w-5 h-5" />
           </button>
 

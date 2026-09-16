@@ -110,6 +110,19 @@
   color: hsl(var(--foreground)) !important;
 }
 
+.ploy-pos-theme button[style*="background-color: rgb(28, 28, 30)"],
+.ploy-pos-theme button[style*="background-color: #1C1C1E"],
+.ploy-pos-theme button[style*="linear-gradient(180deg, rgb(28, 28, 30)"],
+.ploy-pos-theme button[style*="linear-gradient(180deg, #1C1C1E"] {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+
+.ploy-pos-theme button[style*="background-color: rgb(28, 28, 30)"] svg,
+.ploy-pos-theme button[style*="background-color: #1C1C1E"] svg {
+  color: hsl(var(--primary-foreground)) !important;
+}
+
 .ploy-pos-theme [style*="linear-gradient(180deg, #4D4D4D"],
 .ploy-pos-theme [style*="linear-gradient(180deg, rgb(77, 77, 77)"] {
   background: hsl(var(--secondary)) !important;

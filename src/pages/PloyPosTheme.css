@@ -174,8 +174,8 @@
 }
 
 .ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"] img {
-  filter: grayscale(1);
-  opacity: 0.58;
+  filter: grayscale(1) brightness(0.62);
+  opacity: 0.82;
 }
 
 .ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"][aria-current="page"] {

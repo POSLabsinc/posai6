@@ -260,6 +260,7 @@ export function DraggableSidebar() {
                   {item.isLast ? (
                     <NavLink
                       to={item.url}
+                      end={item.url === '/ploy-pos'}
                       data-ploy-nav-link="true"
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex flex-col items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
@@ -269,6 +270,7 @@ export function DraggableSidebar() {
                   ) : item.isSettings ? (
                     <NavLink
                       to={item.url}
+                      end={item.url === '/ploy-pos'}
                       data-ploy-nav-link="true"
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
@@ -287,6 +289,7 @@ export function DraggableSidebar() {
                   ) : (
                     <NavLink
                       to={item.url}
+                      end={item.url === '/ploy-pos'}
                       data-ploy-nav-link="true"
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"

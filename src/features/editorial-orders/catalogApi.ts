@@ -22,7 +22,7 @@ export async function getEditorialCatalog(): Promise<EditorialCatalogResponse> {
     .order("name");
 
   const timeout = new Promise<never>((_, reject) => {
-    window.setTimeout(() => reject(new Error("The product catalog took too long to respond.")), 12000);
+    window.setTimeout(() => reject(new Error("The product catalog took too long to respond.")), 3000);
   });
   let data: ProductApiRow[] | null = null;
   let error: { message?: string } | null = null;

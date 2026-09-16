@@ -96,6 +96,7 @@ function LayoutContent({ children }: LayoutProps) {
 
   const isKDSRoute = location.pathname.startsWith('/kds');
   const isEditorialOrdersRoute = location.pathname === '/orders-editorial';
+  const isPloyPosRoute = location.pathname === '/ploy-pos' || location.pathname.startsWith('/ploy-pos/');
 
   // KDS, authentication, and editorial order routes provide their own complete shell.
   if (isKDSRoute || isAuthRoute || isEditorialOrdersRoute) {
@@ -106,7 +107,7 @@ function LayoutContent({ children }: LayoutProps) {
 
   return (
     <div 
-      className="h-screen flex flex-col w-full overflow-hidden bg-background" 
+      className={`h-screen flex flex-col w-full overflow-hidden bg-background ${isPloyPosRoute ? 'ploy-pos-theme' : ''}`}
     >
       {/* Drop zones for drag and drop */}
       <SidebarDropZones />

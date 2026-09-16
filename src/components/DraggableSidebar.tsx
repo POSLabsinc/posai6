@@ -33,7 +33,14 @@ export function DraggableSidebar() {
   const { isVoucherMode, setIsVoucherMode } = useVoucherMode();
   const { partnerLogoUrl } = useAppearance();
   const location = useLocation();
-  const isOrdersVoucherMode = isVoucherMode && location.pathname === '/orders';
+  const isPloyPosRoute = location.pathname === '/ploy-pos' || location.pathname.startsWith('/ploy-pos/');
+  const visibleMenuItems = menuItems.map((item) => {
+    if (!isPloyPosRoute) return item;
+    if (item.url === '/') return { ...item, url: '/ploy-pos' };
+    if (item.url === '/orders') return { ...item, url: '/ploy-pos/orders' };
+    return item;
+  });
+  const isOrdersVoucherMode = isVoucherMode && (location.pathname === '/orders' || location.pathname === '/ploy-pos/orders');
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Show onboarding after a short delay for new users
@@ -238,7 +245,7 @@ export function DraggableSidebar() {
           </div>
 
           {/* Menu items */}
-          {menuItems.map((item) => (
+          {visibleMenuItems.map((item) => (
             <div 
               key={item.title} 
               className={`flex items-center justify-center flex-1 min-h-0 min-w-0`}
@@ -261,7 +268,7 @@ export function DraggableSidebar() {
                     >
                       <item.lucideIcon className="h-5 w-5" />
                     </NavLink>
-                  ) : isOrdersVoucherMode && item.url === '/orders' ? (
+                  ) : isOrdersVoucherMode && (item.url === '/orders' || item.url === '/ploy-pos/orders') ? (
                     <Link
                       to={item.url}
                       onClick={() => setIsVoucherMode(false)}

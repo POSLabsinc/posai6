@@ -6,7 +6,7 @@ import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
 import { getDynamicCategorySubcategories, getCategoryProducts } from "@/lib/productStore";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket, Wallet, CalendarClock, CarFront, PackageCheck, Shapes, ConciergeBell, Percent, ReceiptText, Calculator, type LucideIcon } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket, Wallet, CalendarClock, CarFront, PackageCheck, Shapes, ConciergeBell, Percent, ReceiptText, Calculator, ShoppingCart, Combine, type LucideIcon } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
 import RedeemDepositDialog from "@/components/RedeemDepositDialog";
 import GuestPastOrderPopup from "@/components/GuestPastOrderPopup";
@@ -2287,7 +2287,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
             {orderItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
-                <img src={emptyOrderIcon} alt="Empty order" className="w-8 h-8 opacity-50 mb-2" />
+                {isPloyTheme ? <ShoppingCart data-ploy-empty-icon="true" className="mb-2" strokeWidth={1.4} /> : <img src={emptyOrderIcon} alt="Empty order" className="w-8 h-8 opacity-50 mb-2" />}
                 <span className="text-xs">Let's create an order</span>
               </div>
             ) : <ScrollArea key={`mobile-scroll-${clearCounter}`} className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
@@ -3273,7 +3273,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   {isPloyTheme ? <ReceiptText data-ploy-cart-action-icon="true" /> : <img src={noTaxBtnIcon} alt="" className="w-3 h-3" />}
                   No Tax
                 </Button>
-                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
+                <Button data-ploy-order-pill="true" variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
                    {isPloyTheme ? <Calculator data-ploy-cart-action-icon="true" /> : <img src={registerBtnIcon} alt="" className="w-3 h-3" />}
                    No Sale
                  </Button>
@@ -3645,7 +3645,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   {/* Order Items */}
                   <ScrollArea key={`desktop-scroll-${clearCounter}`} className="flex-1 min-h-0 px-2">
                     {orderItems.length === 0 ? <div className="flex flex-col items-center justify-center h-full py-8">
-                        <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
+                        {isPloyTheme ? <ShoppingCart data-ploy-empty-icon="large" className="mb-3" strokeWidth={1.3} /> : <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />}
                         <span className="text-muted-foreground text-sm">Let's create an order</span>
                       </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
                         {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
@@ -4014,7 +4014,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
             {/* Right Side Actions Sidebar */}
             {isOrderActionsSidebarOpen && !showCreateVoucherForm &&
           <div className="w-[70px] flex flex-col flex-shrink-0 animate-slide-in-right">
-                <div className="flex-1 flex flex-col rounded-2xl p-1.5 gap-1" style={{
+                <div data-ploy-actions-panel={isPloyTheme ? "true" : undefined} className="flex-1 flex flex-col rounded-2xl p-1.5 gap-1" style={{
               background: '#7575754D',
               boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
             }}>
@@ -4022,9 +4022,10 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   {orderItems.length > 0 &&
               <button
                 onClick={() => setShowTransferCheckDialog(true)}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
-                      <img src={transferCheckIcon} alt="" className="w-5 h-5" />
+                      {isPloyTheme ? <ArrowRightLeft data-ploy-cart-action-icon="true" /> : <img src={transferCheckIcon} alt="" className="w-5 h-5" />}
                       <span className="text-[9px] text-white text-center leading-tight">Transfer<br />Check</span>
                     </button>
               }
@@ -4058,25 +4059,28 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   </button>
                   <button
                 onClick={() => { setVoucherMode(true); setEditingVoucherData(null); }}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className={`flex-1 flex flex-col items-center justify-center gap-1 rounded-xl transition-colors ${voucherMode ? 'bg-sidebar-accent text-sidebar-accent-foreground ring-2 ring-white' : 'hover:bg-sidebar-accent'}`}>
 
-                    <Ticket className="w-5 h-5 text-white" />
+                    <Ticket data-ploy-cart-action-icon={isPloyTheme ? "true" : undefined} className={isPloyTheme ? undefined : "w-5 h-5 text-white"} />
                     <span className="text-[9px] text-white text-center leading-tight">Sell<br />Voucher</span>
                   </button>
                   <button
                 onClick={() => {
                   openDepositPanel();
                 }}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
-                    <Wallet className="w-5 h-5 text-white" />
+                    <Wallet data-ploy-cart-action-icon={isPloyTheme ? "true" : undefined} className={isPloyTheme ? undefined : "w-5 h-5 text-white"} />
                     <span className="text-[9px] text-white text-center leading-tight">Create<br />Deposit</span>
                   </button>
                   <button
                 onClick={() => { setShowRedeemDepositDialog(true); setIsOrderActionsSidebarOpen(false); }}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
-                    <QrCode className="w-5 h-5 text-white" />
+                    <QrCode data-ploy-cart-action-icon={isPloyTheme ? "true" : undefined} className={isPloyTheme ? undefined : "w-5 h-5 text-white"} />
                     <span className="text-[9px] text-white text-center leading-tight">Redeem<br />Deposit</span>
                   </button>
                   {/* Merge - Only show when order is split */}
@@ -4086,9 +4090,10 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   setIsOrderSplit(false);
                   setSplitConfiguration(null);
                 }}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
-                      <img src={mergeIcon} alt="" className="w-5 h-5" />
+                      {isPloyTheme ? <Combine data-ploy-cart-action-icon="true" /> : <img src={mergeIcon} alt="" className="w-5 h-5" />}
                       <span className="text-[9px] text-white text-center leading-tight">Merge</span>
                     </button>
               }

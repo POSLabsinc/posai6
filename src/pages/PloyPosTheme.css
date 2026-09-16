@@ -720,3 +720,18 @@
   letter-spacing: 0.01em;
   color: #1e1b18 !important;
 }
+
+.ploy-pos-theme .ploy-order-page [data-ploy-order-number="true"] {
+  background: var(--ploy-accent-soft) !important;
+  color: var(--ploy-accent-ink) !important;
+  font-family: "Source Serif 4", Georgia, serif;
+  font-weight: 600;
+  font-size: 15px;
+  line-height: 1.1;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid #efd5ca;
+  box-shadow: none;
+  min-width: 30px;
+  text-align: center;
+}

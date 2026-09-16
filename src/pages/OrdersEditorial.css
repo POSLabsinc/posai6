@@ -188,8 +188,8 @@
   .editorial-orders__catalog { height: 100%; padding: 24px 20px 100px; }
   .editorial-mobile-cart { display: inline-flex; min-height: 44px; border-radius: 999px; background: hsl(var(--eo-coral)); color: hsl(var(--eo-ink)); }
   .editorial-cart { position: fixed; inset: 0 0 0 auto; z-index: 60; width: min(420px, calc(100vw - 24px)); transform: translateX(100%); box-shadow: var(--eo-shadow-drawer); transition: transform 240ms ease; }
-  .editorial-cart:not(.is-open) { visibility: hidden; }
-  .editorial-cart.is-open { visibility: visible; transform: translateX(0); }
+  .editorial-cart:not(.is-open) { display: none; }
+  .editorial-cart.is-open { display: flex; transform: translateX(0); }
   .editorial-cart__mobile-head { min-height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; border-bottom: 1px solid hsl(var(--eo-border)); }
   .editorial-cart__mobile-head strong { display: block; margin-top: 2px; font-family: Georgia, serif; font-size: 18px; }
   .editorial-backdrop { position: fixed; inset: 0; z-index: 50; display: block; width: 100%; background: hsl(var(--eo-ink) / .28); }

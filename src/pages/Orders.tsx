@@ -6,7 +6,7 @@ import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
 import { getDynamicCategorySubcategories, getCategoryProducts } from "@/lib/productStore";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket, Wallet, CalendarClock, CarFront, PackageCheck, Shapes, ConciergeBell, Percent, ReceiptText, Calculator, type LucideIcon } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket, Wallet, CalendarClock, CarFront, PackageCheck, Shapes, ConciergeBell, Percent, ReceiptText, Calculator, ShoppingCart, Combine, type LucideIcon } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
 import RedeemDepositDialog from "@/components/RedeemDepositDialog";
 import GuestPastOrderPopup from "@/components/GuestPastOrderPopup";
@@ -3645,7 +3645,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   {/* Order Items */}
                   <ScrollArea key={`desktop-scroll-${clearCounter}`} className="flex-1 min-h-0 px-2">
                     {orderItems.length === 0 ? <div className="flex flex-col items-center justify-center h-full py-8">
-                        <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
+                        {isPloyTheme ? <ShoppingCart data-ploy-empty-icon="large" className="mb-3" strokeWidth={1.3} /> : <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />}
                         <span className="text-muted-foreground text-sm">Let's create an order</span>
                       </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
                         {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>

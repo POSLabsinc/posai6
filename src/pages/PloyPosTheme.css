@@ -494,6 +494,18 @@
   stroke-linejoin: round;
 }
 
+.ploy-orders-active [data-ploy-more-action="true"] {
+  color: #1e1b18;
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.ploy-orders-active [data-ploy-more-action="true"]:is(:hover, :focus-visible) [data-ploy-cart-action-icon="true"] {
+  color: #d9694a;
+}
+
 .ploy-pos-theme .ploy-order-page [data-ploy-order-more="true"] {
   background: transparent !important;
   border: 1px solid var(--ploy-border) !important;

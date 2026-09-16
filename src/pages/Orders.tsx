@@ -2032,6 +2032,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowGiftCardDialog(true)}
+                  data-ploy-more-action={isPloyTheme ? "true" : undefined}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
                       {isPloyTheme ? <Gift data-ploy-cart-action-icon="true" /> : <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />}
@@ -2039,16 +2040,18 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowServiceChargeDialog(true)}
+                  data-ploy-more-action={isPloyTheme ? "true" : undefined}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={serviceChargeIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <BadgeDollarSign data-ploy-cart-action-icon="true" /> : <img src={serviceChargeIcon} alt="" className="w-3.5 h-3.5" />}
                       Service Charge
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowAddGuestForm(true)}
+                  data-ploy-more-action={isPloyTheme ? "true" : undefined}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={addGuestIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <UserPlus data-ploy-cart-action-icon="true" /> : <img src={addGuestIcon} alt="" className="w-3.5 h-3.5" />}
                       Add Guest
                     </DropdownMenuItem>
                     <DropdownMenuItem
@@ -2062,8 +2065,10 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                       <img src={messageKdsIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
                       Message Kitchen
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <img src={reopenCheckIcon} alt="" className="w-3.5 h-3.5" />
+                    <DropdownMenuItem
+                      data-ploy-more-action={isPloyTheme ? "true" : undefined}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      {isPloyTheme ? <RotateCcw data-ploy-cart-action-icon="true" /> : <img src={reopenCheckIcon} alt="" className="w-3.5 h-3.5" />}
                       Reopen Check
                     </DropdownMenuItem>
                   </DropdownMenuContent>

@@ -221,7 +221,7 @@ const Header = () => {
           >
             <Avatar className="w-6 md:w-8 h-6 md:h-8 border-0">
               <AvatarImage src="" alt={employeeName} />
-              <AvatarFallback className="text-xs bg-sidebar-accent text-sidebar-foreground">{initials}</AvatarFallback>
+              <AvatarFallback data-ploy-header-avatar="true" className="text-xs bg-sidebar-accent text-sidebar-foreground">{initials}</AvatarFallback>
             </Avatar>
 
             <span className="font-medium text-xs md:text-sm">{employeeName}</span>

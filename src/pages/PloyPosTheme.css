@@ -70,8 +70,8 @@
   background: transparent;
 }
 
-.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-profile="true"] [data-radix-avatar-fallback] {
-  background: var(--ploy-accent-soft);
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-avatar="true"] {
+  background: var(--ploy-accent-soft) !important;
   color: var(--ploy-accent-ink);
 }
 
@@ -116,13 +116,27 @@
 }
 
 .ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"][aria-current="page"] {
-  background: var(--ploy-accent-soft);
+  background: var(--ploy-accent-soft) !important;
+  color: var(--ploy-accent);
+  border: 0 !important;
+  border-radius: 12px;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"]:has(img[alt="Dashboard"]),
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"]:has(img[alt="Orders"]) {
+  background: var(--ploy-accent-soft) !important;
   color: var(--ploy-accent);
   border: 0 !important;
   border-radius: 12px;
 }
 
 .ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"][aria-current="page"] img {
+  filter: sepia(1) saturate(4) hue-rotate(325deg) brightness(0.95);
+  opacity: 1;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"]:has(img[alt="Dashboard"]) img,
+.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"]:has(img[alt="Orders"]) img {
   filter: sepia(1) saturate(4) hue-rotate(325deg) brightness(0.95);
   opacity: 1;
 }

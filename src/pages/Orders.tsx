@@ -3273,7 +3273,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   {isPloyTheme ? <ReceiptText data-ploy-cart-action-icon="true" /> : <img src={noTaxBtnIcon} alt="" className="w-3 h-3" />}
                   No Tax
                 </Button>
-                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
+                <Button data-ploy-order-pill="true" variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
                    {isPloyTheme ? <Calculator data-ploy-cart-action-icon="true" /> : <img src={registerBtnIcon} alt="" className="w-3 h-3" />}
                    No Sale
                  </Button>

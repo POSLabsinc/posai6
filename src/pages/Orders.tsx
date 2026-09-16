@@ -270,17 +270,23 @@ const mockGuestUsers: GuestUser[] = [{
   initials: "ED"
 }];
 
-const Orders = () => {
+interface OrdersProps {
+  themeVariant?: "default" | "ploy";
+}
+
+const Orders = ({ themeVariant = "default" }: OrdersProps) => {
   // Read URL params for add-item mode
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { panelLayout } = usePanelPosition();
-  const { themeColor } = useAppearance();
+  const { themeColor: appearanceThemeColor } = useAppearance();
+  const isPloyTheme = themeVariant === "ploy";
+  const themeColor = isPloyTheme ? '#fa9483' : appearanceThemeColor;
   // Derived theme styles so all primary highlights follow the selected Theme Color
   const themeGradient = `linear-gradient(180deg, ${themeColor} 0%, ${themeColor} 100%)`;
   const themeSoftBg = `${themeColor}33`; // ~20% alpha
   const themeSoftBorder = `${themeColor}80`; // ~50% alpha
-  const themeOnAccent = getContrastText(themeColor); // auto black/white for contrast
+  const themeOnAccent = isPloyTheme ? '#1c1c1c' : getContrastText(themeColor); // auto black/white for contrast
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
   const { addOrder: addTicketOrder, updateOrder: updateTicketOrder, updateOrderItems: updateTicketOrderItems, orders: allTicketOrders } = useTicketOrders();
   const { processCancelledItems } = useWriteOffProcessor();
@@ -1793,7 +1799,7 @@ const Orders = () => {
   const chargeLabel = addItemMode ?
   isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER' :
   '';
-  return <div className="relative flex h-full overflow-hidden">
+  return <div className={`relative flex h-full overflow-hidden ${isPloyTheme ? 'ploy-order-page' : ''}`}>
     <div className={`relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden pt-2 transition-all duration-300 w-full`}>
       {/* Panel Drop Zones for drag and drop repositioning */}
       <PanelDropZones />
@@ -2552,7 +2558,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div ref={menuPanelRef} className={`relative md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto ${panelLayout === 'menu-right' ? 'md:order-2 md:pr-2' : 'md:order-1'}`} style={isDragging && dragOffset !== 0 ? {
+      <div data-ploy-region="catalog" ref={menuPanelRef} className={`relative md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto ${panelLayout === 'menu-right' ? 'md:order-2 md:pr-2' : 'md:order-1'}`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`,
       flexGrow: 0,
       flexShrink: 0,
@@ -2983,7 +2989,7 @@ const Orders = () => {
                   const hasStockCount = menuItem.stock_count !== null && menuItem.stock_count !== undefined;
                   const isOutOfStock = menuItem.is_available === false || (hasStockCount && menuItem.stock_count <= 0);
                   const showStockBadge = hasStockCount;
-                  return <div key={item.id} onClick={() => !isOutOfStock && openCustomizationDialog(item, index)} className={`flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border h-[48px] md:h-[54px] relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
+                  return <div data-ploy-product="true" key={item.id} onClick={() => !isOutOfStock && openCustomizationDialog(item, index)} className={`flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border h-[48px] md:h-[54px] relative ${isOutOfStock ? 'opacity-50 pointer-events-none' : ''}`}>
                     <div className="flex-1 p-1.5 md:p-2 bg-muted flex flex-col justify-center gap-0.5 min-w-0">
                       <div className="flex items-start justify-between gap-1.5">
                         <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2 min-w-0">
@@ -3182,7 +3188,7 @@ const Orders = () => {
       </div>
 
       {/* Right Panel - Order (Desktop only) */}
-      <div className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} overflow-hidden flex-shrink-0 pb-2 pr-2 gap-0 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
+      <div data-ploy-region="order" className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} overflow-hidden flex-shrink-0 pb-2 pr-2 gap-0 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
         {/* Order Panel Content */}
         <div className="flex-1 flex flex-col min-w-0">
           {/* Order Header - Outside background container */}

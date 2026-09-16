@@ -665,3 +665,22 @@
     transition-duration: 0.01ms !important;
   }
 }
+/* Screen mode switcher in the Ploy header */
+.ploy-orders-active [data-ploy-mode-switcher="true"] {
+  background: var(--ploy-surface, #ffffff) !important;
+  border: 1px solid var(--ploy-border, #eae3da) !important;
+  box-shadow: 0 1px 2px rgba(30, 27, 24, 0.03);
+}
+
+.ploy-orders-active [data-ploy-mode-switcher="true"]:hover {
+  background: #fbf8f4 !important;
+}
+
+.ploy-orders-active [data-ploy-mode-switcher="true"] img {
+  filter: brightness(0) saturate(100%) opacity(0.68);
+}
+
+.ploy-orders-active [data-ploy-mode-switcher="true"] svg {
+  color: #6f6a64;
+  opacity: 1;
+}

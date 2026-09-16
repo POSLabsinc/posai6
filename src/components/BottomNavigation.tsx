@@ -15,11 +15,18 @@ const navItems = [
 
 const BottomNavigation = () => {
   const location = useLocation();
+  const isPloyPosRoute = location.pathname === "/ploy-pos" || location.pathname.startsWith("/ploy-pos/");
+  const visibleNavItems = navItems.map((item) => {
+    if (!isPloyPosRoute) return item;
+    if (item.to === "/") return { ...item, to: "/ploy-pos" };
+    if (item.to === "/orders") return { ...item, to: "/ploy-pos/orders" };
+    return item;
+  });
 
   return (
     <div className="md:hidden flex items-center justify-center bg-background">
       <div className="bottom-navigation flex items-center justify-around bg-surface-inset py-1 w-full border-t border-divider">
-        {navItems.map((item) => {
+        {visibleNavItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
             <Link

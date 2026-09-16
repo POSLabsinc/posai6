@@ -286,7 +286,7 @@ const Header = () => {
               const path = location.pathname;
               if (path.startsWith('/settings') && path !== '/settings/ai-assistant') {
                 window.dispatchEvent(new CustomEvent('open-settings-ai-chat'));
-              } else if (path.startsWith('/orders')) {
+              } else if (path.startsWith('/orders') || path === '/ploy-pos/orders') {
                 window.dispatchEvent(new CustomEvent('open-order-ai-chat'));
               } else if (path.startsWith('/tickets')) {
                 window.dispatchEvent(new CustomEvent('open-ticket-ai-chat'));

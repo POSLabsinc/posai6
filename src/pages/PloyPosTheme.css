@@ -1,0 +1,161 @@
+.ploy-pos-theme {
+  --background: 36 33% 96%;
+  --foreground: 30 6% 13%;
+  --card: 0 0% 100%;
+  --card-foreground: 30 6% 13%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 30 6% 13%;
+  --primary: 7 100% 75%;
+  --primary-foreground: 30 6% 13%;
+  --secondary: 36 24% 92%;
+  --secondary-foreground: 30 6% 13%;
+  --muted: 33 18% 91%;
+  --muted-foreground: 24 5% 43%;
+  --accent: 8 76% 91%;
+  --accent-foreground: 8 54% 35%;
+  --border: 30 14% 80%;
+  --input: 30 14% 80%;
+  --ring: 7 100% 75%;
+  --header: 36 33% 96%;
+  --header-foreground: 30 6% 13%;
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 30 6% 13%;
+  --sidebar-primary: 7 100% 75%;
+  --sidebar-primary-foreground: 30 6% 13%;
+  --sidebar-accent: 8 76% 91%;
+  --sidebar-accent-foreground: 8 54% 35%;
+  --sidebar-border: 30 14% 80%;
+  --surface: 36 24% 92%;
+  --surface-elevated: 0 0% 100%;
+  --surface-inset: 33 24% 94%;
+  --divider: 30 14% 80%;
+  --text-subtle: 24 5% 43%;
+  color-scheme: light;
+  background: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: Montserrat, sans-serif;
+}
+
+.ploy-pos-theme header {
+  border-bottom: 1px solid hsl(var(--border));
+  box-shadow: none;
+}
+
+.ploy-pos-theme header > div:first-child > button:nth-child(2) {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+}
+
+.ploy-pos-theme .draggable-sidebar {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border));
+  box-shadow: 0 8px 24px hsl(var(--foreground) / 0.06) !important;
+}
+
+.ploy-pos-theme .draggable-sidebar :is(a, button) {
+  color: hsl(var(--foreground));
+}
+
+.ploy-pos-theme .draggable-sidebar a[aria-current="page"] {
+  background: hsl(var(--accent));
+  border-color: hsl(var(--primary));
+}
+
+.ploy-pos-theme main {
+  background: hsl(var(--background));
+}
+
+.ploy-pos-theme :is(.bg-black, .bg-neutral-950, .bg-neutral-900, .bg-neutral-800, .bg-neutral-700) {
+  background-color: hsl(var(--card)) !important;
+}
+
+.ploy-pos-theme :is(.bg-neutral-600, .bg-neutral-500) {
+  background-color: hsl(var(--muted)) !important;
+}
+
+.ploy-pos-theme :is(.border-white, .border-white\/10, .border-white\/20, .border-neutral-800, .border-neutral-700, .border-neutral-600) {
+  border-color: hsl(var(--border)) !important;
+}
+
+.ploy-pos-theme :is(.text-white, .text-neutral-100, .text-neutral-200, .text-neutral-300) {
+  color: hsl(var(--foreground)) !important;
+}
+
+.ploy-pos-theme :is(.text-neutral-400, .text-neutral-500, .text-gray-400, .text-gray-500) {
+  color: hsl(var(--muted-foreground)) !important;
+}
+
+.ploy-pos-theme [class*="bg-[#7575754D]"],
+.ploy-pos-theme [class*="bg-[#1B1C20]"],
+.ploy-pos-theme [class*="bg-[#1b1c20]"],
+.ploy-pos-theme [class*="bg-[#1A1A1A]"],
+.ploy-pos-theme [class*="bg-[#1a1a1a]"],
+.ploy-pos-theme [class*="bg-[#2A2A2A]"],
+.ploy-pos-theme [class*="bg-[#2a2a2a]"] {
+  background-color: hsl(var(--card)) !important;
+}
+
+.ploy-pos-theme [class*="bg-[#666666]"],
+.ploy-pos-theme [class*="bg-[#555555]"] {
+  background-color: hsl(var(--secondary)) !important;
+}
+
+.ploy-pos-theme [style*="background: rgb(117, 117, 117)"],
+.ploy-pos-theme [style*="background: #7575754D"],
+.ploy-pos-theme [style*="background-color: rgb(27, 28, 32)"],
+.ploy-pos-theme [style*="background: rgb(27, 28, 32)"],
+.ploy-pos-theme [style*="background: #1B1C20"],
+.ploy-pos-theme [style*="background: #1A1A1A"] {
+  background: hsl(var(--card)) !important;
+  color: hsl(var(--foreground)) !important;
+}
+
+.ploy-pos-theme [style*="linear-gradient(180deg, #4D4D4D"],
+.ploy-pos-theme [style*="linear-gradient(180deg, rgb(77, 77, 77)"] {
+  background: hsl(var(--secondary)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+.ploy-pos-theme [style*="linear-gradient(180deg, #C2C2C2"],
+.ploy-pos-theme [style*="linear-gradient(180deg, rgb(194, 194, 194)"] {
+  background: hsl(var(--card)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+
+.ploy-pos-theme :is(h1, h2, h3, [data-order-number="true"] span) {
+  font-family: Georgia, "Times New Roman", serif;
+  letter-spacing: 0;
+}
+
+.ploy-pos-theme :is(button, input, select, textarea, [role="tab"], [role="menuitem"]) {
+  letter-spacing: 0;
+}
+
+.ploy-pos-theme :is(button, a, input, select, textarea) {
+  transition-duration: 160ms;
+}
+
+.ploy-pos-theme :is(button, a, input, textarea):focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+}
+
+.ploy-pos-theme .bottom-navigation {
+  background: hsl(var(--card));
+  border-color: hsl(var(--border));
+}
+
+.ploy-pos-theme ::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ploy-pos-theme *,
+  .ploy-pos-theme *::before,
+  .ploy-pos-theme *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

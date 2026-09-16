@@ -48,13 +48,6 @@ const PloyTicketsIcon = (props: SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const PloySettingsIcon = (props: SVGProps<SVGSVGElement>) => (
-  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
-    <circle cx="12" cy="12" r="3" />
-    <path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M18 6l-1.4 1.4M7.4 16.6 6 18" />
-  </svg>
-);
-
 const menuItems = [
   { title: "Dashboard", url: "/", icon: dashboardIcon, ployIcon: PloyDashboardIcon },
   { title: "Orders", url: "/orders", icon: orderIcon, ployIcon: PloyOrderIcon },
@@ -62,7 +55,7 @@ const menuItems = [
   { title: "Tickets", url: "/tickets", icon: ticketIcon, ployIcon: PloyTicketsIcon },
   { title: "orderOS", url: "/orderos", icon: homeIcon },
   
-  { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, ployIcon: PloySettingsIcon, isSettings: true },
+  { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, ployIcon: Settings, isSettings: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];
 

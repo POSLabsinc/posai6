@@ -257,8 +257,8 @@
 }
 
 .ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-icon="true"] {
-  width: 22px;
-  height: 22px;
+  width: 25px;
+  height: 25px;
   color: currentColor;
   fill: none;
   stroke-linecap: round;

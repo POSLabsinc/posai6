@@ -111,7 +111,7 @@
 .ploy-pos-theme .ploy-order-page [data-ploy-product="true"] {
   height: 56px;
   overflow: hidden;
-  background: var(--ploy-surface);
+  background: var(--ploy-surface) !important;
   border: 1px solid var(--ploy-border);
   border-radius: 14px;
   box-shadow: var(--ploy-shadow);
@@ -165,6 +165,7 @@
 }
 
 .ploy-pos-theme .ploy-order-page [style*="background: rgb(117, 117, 117)"],
+.ploy-pos-theme .ploy-order-page [style*="background: rgba(117, 117, 117"],
 .ploy-pos-theme .ploy-order-page [style*="background: #7575754D"],
 .ploy-pos-theme .ploy-order-page [style*="background-color: rgb(27, 28, 32)"],
 .ploy-pos-theme .ploy-order-page [style*="background: rgb(27, 28, 32)"],

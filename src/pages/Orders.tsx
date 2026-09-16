@@ -2546,6 +2546,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                 <span className="font-semibold text-sm" style={{ color: themeOnAccent }}>FIRE</span>
               </button>
               <button
+            data-ploy-charge-action={isPloyTheme ? "true" : undefined}
             onClick={() => {
               if (requireOrderType && !orderType) {
                 toast.error("Please select an order type before charging");

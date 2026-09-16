@@ -3971,6 +3971,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                     </button>
                   )}
                   <button
+                    data-ploy-fire-action={isPloyTheme ? "true" : undefined}
                     onClick={handleFireOrder}
                     disabled={orderActionLocked || isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired)}
                     className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${

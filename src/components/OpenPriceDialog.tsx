@@ -158,7 +158,7 @@ export const OpenPriceDialog = ({
             disabled={dollarValue <= 0}
             className="w-full py-3 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            {ctaLabel} — ${dollarValue > 0 ? dollarValue.toFixed(2) : "0.00"}
+            {ctaLabel} ${dollarValue > 0 ? dollarValue.toFixed(2) : "0.00"}
           </button>
         </div>
       </DialogContent>

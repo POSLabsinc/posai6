@@ -215,6 +215,7 @@ const Header = () => {
           </button>
 
           <button
+            data-ploy-header-profile="true"
             onClick={() => setShowProfilePopup(true)}
             className="flex items-center gap-1 md:gap-2 bg-white/10 pl-0 pr-2 md:pr-3 rounded-full hover:bg-white/15 transition-colors cursor-pointer"
           >
@@ -306,7 +307,7 @@ const Header = () => {
             <img src={refreshIcon} alt="Refresh" className="w-5 h-5" />
           </button>
 
-          <button className="header-support-btn hidden md:block p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
+          <button data-ploy-header-support="true" className="header-support-btn hidden md:block p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
             <img src={supportIcon} alt="Support" className="w-5 h-5" />
           </button>
 

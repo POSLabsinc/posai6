@@ -255,6 +255,7 @@ export function DraggableSidebar() {
                   {item.isLast ? (
                     <NavLink
                       to={item.url}
+                      data-ploy-nav-link="true"
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex flex-col items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
                     >
@@ -263,6 +264,7 @@ export function DraggableSidebar() {
                   ) : item.isSettings ? (
                     <NavLink
                       to={item.url}
+                      data-ploy-nav-link="true"
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
                     >
@@ -272,6 +274,7 @@ export function DraggableSidebar() {
                     <Link
                       to={item.url}
                       onClick={() => setIsVoucherMode(false)}
+                      data-ploy-nav-link="true"
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                     >
                       <img src={item.icon as string} alt={item.title} className="w-6 h-6" />
@@ -279,6 +282,7 @@ export function DraggableSidebar() {
                   ) : (
                     <NavLink
                       to={item.url}
+                      data-ploy-nav-link="true"
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
                     >

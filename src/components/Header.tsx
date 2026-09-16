@@ -265,7 +265,7 @@ const Header = () => {
                   side="bottom"
                   className="bg-sidebar border-sidebar-border text-sidebar-foreground"
                 >
-                  <p className="text-xs">Sample data only — no real transactions</p>
+                  <p className="text-xs">Sample data only, no real transactions</p>
                 </TooltipContent>
               </Tooltip>
 

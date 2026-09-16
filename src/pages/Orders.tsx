@@ -2002,39 +2002,39 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   onClick={toggleCustomItemPanel}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <Plus data-ploy-cart-action-icon="true" /> : <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />}
                       Custom Item
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowDiscountMpin(true)}
                   className={`${selectedDiscounts.length > 0 ? 'text-primary' : 'text-white'} hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2`}>
 
-                      <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <Percent data-ploy-cart-action-icon="true" /> : <img src={discountIcon} alt="" className="w-3.5 h-3.5" />}
                       Discount {selectedDiscounts.length > 0 && `(${selectedDiscounts.length})`}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={noTaxBtnIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <ReceiptText data-ploy-cart-action-icon="true" /> : <img src={noTaxBtnIcon} alt="" className="w-3.5 h-3.5" />}
                       No Tax
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <Calculator data-ploy-cart-action-icon="true" /> : <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />}
                       No Sale
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowTransferCheckDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <ArrowRightLeft data-ploy-cart-action-icon="true" /> : <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />}
                       Transfer Check
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowGiftCardDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <Gift data-ploy-cart-action-icon="true" /> : <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />}
                       Gift Card
                     </DropdownMenuItem>
                     <DropdownMenuItem

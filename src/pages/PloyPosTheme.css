@@ -483,6 +483,17 @@
   color: #6f6a64;
 }
 
+.ploy-orders-active [role="menuitem"] [data-ploy-cart-action-icon="true"] {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  color: #6f6a64;
+  fill: none;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .ploy-pos-theme .ploy-order-page [data-ploy-order-more="true"] {
   background: transparent !important;
   border: 1px solid var(--ploy-border) !important;

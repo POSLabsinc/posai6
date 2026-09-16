@@ -297,6 +297,56 @@ body:has(.ploy-pos-theme) [role="option"] {
   color: var(--ploy-ink) !important;
 }
 
+body:has(.ploy-pos-theme) [role="dialog"] {
+  --background: 36 50% 96%;
+  --foreground: 0 0% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 0 0% 11%;
+  --primary: 8 93% 75%;
+  --primary-foreground: 0 0% 11%;
+  --secondary: 34 33% 93%;
+  --secondary-foreground: 0 0% 11%;
+  --muted: 34 33% 93%;
+  --muted-foreground: 0 0% 45%;
+  --border: 30 6% 77%;
+  background: #ffffff !important;
+  color: #1c1c1c !important;
+  border: 1px solid #c9c3bc !important;
+  border-radius: 16px !important;
+  box-shadow: 0 18px 60px rgba(28, 28, 28, 0.16) !important;
+  font-family: Inter, "Helvetica Neue", Arial, sans-serif;
+}
+
+body:has(.ploy-pos-theme) [role="dialog"] :is(h1, h2, h3) {
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+body:has(.ploy-pos-theme) [role="dialog"] :is(button, input, [role="button"]) {
+  font-family: Montserrat, "Helvetica Neue", Arial, sans-serif;
+}
+
+body:has(.ploy-pos-theme) [role="dialog"] :is(.bg-black, .bg-neutral-950, .bg-neutral-900, .bg-neutral-800, .bg-neutral-700, .bg-\[\#1A1A1A\], .bg-\[\#2A2A2A\], .bg-\[\#3A3A3C\]) {
+  background: #f3eee7 !important;
+  color: #1c1c1c !important;
+}
+
+body:has(.ploy-pos-theme) [role="dialog"] :is(.text-white, .text-neutral-100, .text-neutral-200, .text-neutral-300) {
+  color: #1c1c1c !important;
+}
+
+body:has(.ploy-pos-theme) [role="dialog"] :is(.border-white, .border-white\/10, .border-white\/20, .border-neutral-800, .border-neutral-700, .border-neutral-600) {
+  border-color: #c9c3bc !important;
+}
+
+body:has(.ploy-pos-theme) [role="dialog"] button[style*="linear-gradient"] {
+  background: #fa9483 !important;
+  color: #1c1c1c !important;
+}
+
+body:has(.ploy-pos-theme) [data-radix-dialog-overlay] {
+  background: rgba(28, 28, 28, 0.42) !important;
+}
+
 .ploy-pos-theme ::-webkit-scrollbar {
   width: 0;
   height: 0;

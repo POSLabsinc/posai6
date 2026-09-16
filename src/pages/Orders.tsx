@@ -2287,7 +2287,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
             {orderItems.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-6 text-muted-foreground">
-                <img src={emptyOrderIcon} alt="Empty order" className="w-8 h-8 opacity-50 mb-2" />
+                {isPloyTheme ? <ShoppingCart data-ploy-empty-icon="true" className="mb-2" strokeWidth={1.4} /> : <img src={emptyOrderIcon} alt="Empty order" className="w-8 h-8 opacity-50 mb-2" />}
                 <span className="text-xs">Let's create an order</span>
               </div>
             ) : <ScrollArea key={`mobile-scroll-${clearCounter}`} className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>

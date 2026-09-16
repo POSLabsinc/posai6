@@ -4022,9 +4022,10 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   {orderItems.length > 0 &&
               <button
                 onClick={() => setShowTransferCheckDialog(true)}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
-                      <img src={transferCheckIcon} alt="" className="w-5 h-5" />
+                      {isPloyTheme ? <ArrowRightLeft data-ploy-cart-action-icon="true" /> : <img src={transferCheckIcon} alt="" className="w-5 h-5" />}
                       <span className="text-[9px] text-white text-center leading-tight">Transfer<br />Check</span>
                     </button>
               }

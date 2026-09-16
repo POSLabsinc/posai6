@@ -460,6 +460,40 @@
   opacity: 0.72;
 }
 
+.ploy-pos-theme .ploy-order-page [data-ploy-cart-action-icon="true"],
+.ploy-pos-theme .ploy-order-page [data-ploy-order-type-icon="true"],
+.ploy-orders-active [data-ploy-order-type-icon="true"] {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  color: var(--ploy-muted, #6f6a64);
+  fill: none;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 1;
+}
+
+.ploy-pos-theme .ploy-order-page [data-ploy-order-pill="true"]:is(:hover, :focus-visible) [data-ploy-cart-action-icon="true"],
+.ploy-pos-theme .ploy-order-page [data-ploy-order-pill="true"][class*="text-primary"] [data-ploy-cart-action-icon="true"] {
+  color: var(--ploy-accent);
+}
+
+.ploy-orders-active [role="menuitem"] [data-ploy-order-type-icon="true"] {
+  color: #6f6a64;
+}
+
+.ploy-orders-active [role="menuitem"] [data-ploy-cart-action-icon="true"] {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 14px;
+  color: #6f6a64;
+  fill: none;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .ploy-pos-theme .ploy-order-page [data-ploy-order-more="true"] {
   background: transparent !important;
   border: 1px solid var(--ploy-border) !important;

@@ -6,7 +6,7 @@ import { useSupabaseMenus } from "@/hooks/useSupabaseMenus";
 import { getDynamicCategorySubcategories, getCategoryProducts } from "@/lib/productStore";
 import { supabase } from "@/integrations/supabase/client";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket, Wallet } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket, Wallet, CalendarClock, CarFront, PackageCheck, Shapes, ConciergeBell, Percent, ReceiptText, Calculator, type LucideIcon } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
 import RedeemDepositDialog from "@/components/RedeemDepositDialog";
 import GuestPastOrderPopup from "@/components/GuestPastOrderPopup";
@@ -144,15 +144,19 @@ interface OrderItem {
 }
 const initialOrderItems: OrderItem[] = [];
 const orderTypes = [
-{ label: "DINE IN", icon: dineInIcon },
-{ label: "TAKE OUT", icon: takeOutIcon },
-{ label: "DELIVERY", icon: deliveryIcon },
-{ label: "BANQUET", icon: banquetIcon },
-{ label: "DRIVE THRU", icon: driveThruIcon },
-{ label: "CURB SIDE", icon: curbSideIcon },
-{ label: "SCHEDULED", icon: scheduledIcon },
-{ label: "PHONE-IN", icon: phoneInIcon },
-{ label: "CUSTOM", icon: customOrderIcon }];
+{ label: "DINE IN", icon: dineInIcon, ployIcon: UtensilsCrossed },
+{ label: "TAKE OUT", icon: takeOutIcon, ployIcon: ShoppingBag },
+{ label: "DELIVERY", icon: deliveryIcon, ployIcon: Truck },
+{ label: "BANQUET", icon: banquetIcon, ployIcon: ConciergeBell },
+{ label: "DRIVE THRU", icon: driveThruIcon, ployIcon: CarFront },
+{ label: "CURB SIDE", icon: curbSideIcon, ployIcon: PackageCheck },
+{ label: "SCHEDULED", icon: scheduledIcon, ployIcon: CalendarClock },
+{ label: "PHONE-IN", icon: phoneInIcon, ployIcon: Phone },
+{ label: "CUSTOM", icon: customOrderIcon, ployIcon: Shapes }];
+
+const PloyOrderTypeIcon = ({ icon: Icon }: { icon: LucideIcon }) => (
+  <Icon data-ploy-order-type-icon="true" aria-hidden="true" />
+);
 
 
 // Payment methods constants
@@ -1959,7 +1963,11 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                 }}>
                       {orderType ? (
                         <>
-                          <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
+                          {isPloyTheme && orderTypes.find((t) => t.label === orderType)?.ployIcon ? (
+                            <PloyOrderTypeIcon icon={orderTypes.find((t) => t.label === orderType)?.ployIcon ?? Shapes} />
+                          ) : (
+                            <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
+                          )}
                           {orderType}
                         </>
                       ) : (
@@ -1973,7 +1981,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   setOrderType(type.label);
                   openFormForType(type.label);
                 }} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2 flex items-center gap-2">
-                        <img src={type.icon} alt="" className="w-4 h-4" />
+                        {isPloyTheme ? <PloyOrderTypeIcon icon={type.ployIcon} /> : <img src={type.icon} alt="" className="w-4 h-4" />}
                         {type.label}
                       </DropdownMenuItem>)}
                   </DropdownMenuContent>
@@ -1994,39 +2002,39 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   onClick={toggleCustomItemPanel}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <Plus data-ploy-cart-action-icon="true" /> : <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />}
                       Custom Item
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowDiscountMpin(true)}
                   className={`${selectedDiscounts.length > 0 ? 'text-primary' : 'text-white'} hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2`}>
 
-                      <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <Percent data-ploy-cart-action-icon="true" /> : <img src={discountIcon} alt="" className="w-3.5 h-3.5" />}
                       Discount {selectedDiscounts.length > 0 && `(${selectedDiscounts.length})`}
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={noTaxBtnIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <ReceiptText data-ploy-cart-action-icon="true" /> : <img src={noTaxBtnIcon} alt="" className="w-3.5 h-3.5" />}
                       No Tax
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <Calculator data-ploy-cart-action-icon="true" /> : <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />}
                       No Sale
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowTransferCheckDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <ArrowRightLeft data-ploy-cart-action-icon="true" /> : <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />}
                       Transfer Check
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowGiftCardDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />
+                      {isPloyTheme ? <Gift data-ploy-cart-action-icon="true" /> : <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />}
                       Gift Card
                     </DropdownMenuItem>
                     <DropdownMenuItem
@@ -3238,7 +3246,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                 size="sm"
                 className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
                 onClick={toggleCustomItemPanel}>
-                  <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-3 h-3" />
+                  {isPloyTheme ? (showCustomItemPanel ? <Utensils data-ploy-cart-action-icon="true" /> : <Plus data-ploy-cart-action-icon="true" />) : <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-3 h-3" />}
                   {showCustomItemPanel ? "Menu" : "Custom Item"}
                 </Button>
                 <Button
@@ -3247,7 +3255,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                  size="sm"
                  className={`text-[10px] rounded-[10px] ${selectedDiscounts.length > 0 ? 'bg-primary/30 border-primary text-primary' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
                  onClick={() => setShowDiscountMpin(true)}>
-                   <img src={discountBtnIcon} alt="" className="w-3 h-3" />
+                   {isPloyTheme ? <Percent data-ploy-cart-action-icon="true" /> : <img src={discountBtnIcon} alt="" className="w-3 h-3" />}
                    Discount {selectedDiscounts.length > 0 && `(${selectedDiscounts.length})`}
                  </Button>
                 <Button
@@ -3257,11 +3265,11 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                 className={`text-[10px] rounded-[10px] ${isTaxExempt ? '' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
                 style={isTaxExempt ? { backgroundColor: themeSoftBg, borderColor: themeColor } : undefined}
                 onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}>
-                  <img src={noTaxBtnIcon} alt="" className="w-3 h-3" />
+                  {isPloyTheme ? <ReceiptText data-ploy-cart-action-icon="true" /> : <img src={noTaxBtnIcon} alt="" className="w-3 h-3" />}
                   No Tax
                 </Button>
                 <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
-                   <img src={registerBtnIcon} alt="" className="w-3 h-3" />
+                   {isPloyTheme ? <Calculator data-ploy-cart-action-icon="true" /> : <img src={registerBtnIcon} alt="" className="w-3 h-3" />}
                    No Sale
                  </Button>
               </div>
@@ -3466,7 +3474,11 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                         <button className="flex items-center gap-1.5 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
                           {orderType ? (
                             <>
-                              <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4" />
+                              {isPloyTheme && orderTypes.find((t) => t.label === orderType)?.ployIcon ? (
+                                <PloyOrderTypeIcon icon={orderTypes.find((t) => t.label === orderType)?.ployIcon ?? Shapes} />
+                              ) : (
+                                <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4" />
+                              )}
                               {orderType}
                             </>
                           ) : (
@@ -3480,7 +3492,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                       setOrderType(type.label);
                       openFormForType(type.label);
                     }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
-                            <img src={type.icon} alt="" className="w-4 h-4" />
+                            {isPloyTheme ? <PloyOrderTypeIcon icon={type.ployIcon} /> : <img src={type.icon} alt="" className="w-4 h-4" />}
                             {type.label}
                           </DropdownMenuItem>)}
                       </DropdownMenuContent>

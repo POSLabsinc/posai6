@@ -95,9 +95,10 @@ function LayoutContent({ children }: LayoutProps) {
   };
 
   const isKDSRoute = location.pathname.startsWith('/kds');
+  const isEditorialOrdersRoute = location.pathname === '/orders-editorial';
 
-  // KDS routes and auth routes have their own layout - render children directly
-  if (isKDSRoute || isAuthRoute) {
+  // KDS, authentication, and editorial order routes provide their own complete shell.
+  if (isKDSRoute || isAuthRoute || isEditorialOrdersRoute) {
     return <div className="h-screen w-full overflow-hidden bg-background">{children}</div>;
   }
 

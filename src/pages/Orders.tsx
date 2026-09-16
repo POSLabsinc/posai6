@@ -4059,25 +4059,28 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   </button>
                   <button
                 onClick={() => { setVoucherMode(true); setEditingVoucherData(null); }}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className={`flex-1 flex flex-col items-center justify-center gap-1 rounded-xl transition-colors ${voucherMode ? 'bg-sidebar-accent text-sidebar-accent-foreground ring-2 ring-white' : 'hover:bg-sidebar-accent'}`}>
 
-                    <Ticket className="w-5 h-5 text-white" />
+                    <Ticket data-ploy-cart-action-icon={isPloyTheme ? "true" : undefined} className={isPloyTheme ? undefined : "w-5 h-5 text-white"} />
                     <span className="text-[9px] text-white text-center leading-tight">Sell<br />Voucher</span>
                   </button>
                   <button
                 onClick={() => {
                   openDepositPanel();
                 }}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
-                    <Wallet className="w-5 h-5 text-white" />
+                    <Wallet data-ploy-cart-action-icon={isPloyTheme ? "true" : undefined} className={isPloyTheme ? undefined : "w-5 h-5 text-white"} />
                     <span className="text-[9px] text-white text-center leading-tight">Create<br />Deposit</span>
                   </button>
                   <button
                 onClick={() => { setShowRedeemDepositDialog(true); setIsOrderActionsSidebarOpen(false); }}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
-                    <QrCode className="w-5 h-5 text-white" />
+                    <QrCode data-ploy-cart-action-icon={isPloyTheme ? "true" : undefined} className={isPloyTheme ? undefined : "w-5 h-5 text-white"} />
                     <span className="text-[9px] text-white text-center leading-tight">Redeem<br />Deposit</span>
                   </button>
                   {/* Merge - Only show when order is split */}
@@ -4087,9 +4090,10 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                   setIsOrderSplit(false);
                   setSplitConfiguration(null);
                 }}
+                data-ploy-more-action={isPloyTheme ? "true" : undefined}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
-                      <img src={mergeIcon} alt="" className="w-5 h-5" />
+                      {isPloyTheme ? <Combine data-ploy-cart-action-icon="true" /> : <img src={mergeIcon} alt="" className="w-5 h-5" />}
                       <span className="text-[9px] text-white text-center leading-tight">Merge</span>
                     </button>
               }

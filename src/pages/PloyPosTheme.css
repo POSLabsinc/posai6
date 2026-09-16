@@ -178,14 +178,6 @@
   opacity: 0.82;
 }
 
-.ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"] svg {
-  width: 23px;
-  height: 23px;
-  color: currentColor;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 .ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"][aria-current="page"] {
   background: var(--ploy-surface) !important;
   color: var(--ploy-accent) !important;

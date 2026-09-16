@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { menuCategories } from "@/data/menuData";
 import type { EditorialCatalogResponse, EditorialProduct } from "./types";
 
 interface ProductApiRow {
@@ -22,7 +21,7 @@ export async function getEditorialCatalog(): Promise<EditorialCatalogResponse> {
     .order("name");
 
   const timeout = new Promise<never>((_, reject) => {
-    window.setTimeout(() => reject(new Error("The product catalog took too long to respond.")), 3000);
+    window.setTimeout(() => reject(new Error("The product catalog took too long to respond.")), 12000);
   });
   let data: ProductApiRow[] | null = null;
   let error: { message?: string } | null = null;
@@ -30,25 +29,10 @@ export async function getEditorialCatalog(): Promise<EditorialCatalogResponse> {
     const response = await Promise.race([request, timeout]);
     data = response.data as ProductApiRow[] | null;
     error = response.error;
-  } catch {
-    // TODO: Remove this fixture fallback after all preview environments have reliable catalog access.
-    const fixtureProducts: EditorialProduct[] = menuCategories.flatMap((category) =>
-      category.items.map((product) => ({
-        id: product.id,
-        name: product.name,
-        price: { amount: product.price, currency: "USD" as const },
-        category: category.name,
-        description: product.description ?? "",
-        imageUrl: product.image,
-        isAvailable: true,
-        isOpenPrice: false,
-      })),
-    );
-    return {
-      products: fixtureProducts,
-      categories: Array.from(new Set(fixtureProducts.map((product) => product.category))),
-      fetchedAt: new Date().toISOString(),
-    };
+  } catch (requestError) {
+    throw requestError instanceof Error
+      ? requestError
+      : new Error("The product catalog could not be loaded.");
   }
 
   if (error) throw new Error(error.message || "The product catalog could not be loaded.");

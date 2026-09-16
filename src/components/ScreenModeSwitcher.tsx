@@ -98,6 +98,7 @@ const ScreenModeSwitcher = () => {
       <div className="relative" ref={wrapRef}>
         <button
           onClick={() => setOpen((v) => !v)}
+          data-ploy-mode-switcher="true"
           className="flex items-center gap-1.5 px-2 md:px-2.5 py-1 md:py-1.5 rounded-full bg-white/10 hover:bg-white/15 transition-colors"
           aria-label={`Screen Mode: ${current.label}`}
           title={current.label}

@@ -2534,6 +2534,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                 </button>
               )}
               <button
+            data-ploy-fire-action={isPloyTheme ? "true" : undefined}
             onClick={handleFireOrder}
             disabled={orderActionLocked || orderItems.length === 0 || orderItems.every(i => i.isFired)}
             className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderActionLocked || orderItems.length === 0 || orderItems.every(i => i.isFired) ? 'opacity-50 cursor-not-allowed' : ''}`}
@@ -2545,6 +2546,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                 <span className="font-semibold text-sm" style={{ color: themeOnAccent }}>FIRE</span>
               </button>
               <button
+            data-ploy-charge-action={isPloyTheme ? "true" : undefined}
             onClick={() => {
               if (requireOrderType && !orderType) {
                 toast.error("Please select an order type before charging");
@@ -3969,6 +3971,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                     </button>
                   )}
                   <button
+                    data-ploy-fire-action={isPloyTheme ? "true" : undefined}
                     onClick={handleFireOrder}
                     disabled={orderActionLocked || isOrderSplit || orderItems.length === 0 || orderItems.every(i => i.isFired)}
                     className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${
@@ -3982,6 +3985,7 @@ const Orders = ({ themeVariant = "default" }: OrdersProps) => {
                     <span className="font-semibold text-sm" style={{ color: themeOnAccent }}>FIRE</span>
                   </button>
                   <button
+                    data-ploy-charge-action={isPloyTheme ? "true" : undefined}
                     onClick={() => {
                       if (requireOrderType && !orderType) {
                         toast.error("Please select an order type before charging");

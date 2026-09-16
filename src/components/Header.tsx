@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Coffee, LogOut, FlaskConical, ChefHat, ShoppingBag, Bell as BellIcon, Clock, Timer, X } from "lucide-react";
+import { Coffee, LogOut, FlaskConical, ChefHat, ShoppingBag, Bell, Clock, Timer, X, ArrowLeftRight, RefreshCw, Headphones, Server, Wifi } from "lucide-react";
 import ScreenModeSwitcher from "@/components/ScreenModeSwitcher";
 import ShiftSummaryModal from "@/components/ShiftSummaryModal";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
@@ -64,6 +64,7 @@ function getTimeAgo(dateStr: string): string {
 const Header = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isPloyOrderRoute = location.pathname === "/ploy-pos/orders";
   useApp();
   // Hourly auto-notifications: weather + AI-generated POS insights
   useWeatherNotification();
@@ -212,7 +213,11 @@ const Header = () => {
             onClick={() => setShowClockOut(true)}
             className="p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors"
           >
-            <img src={switchUserIcon} alt="Clock Out" className="w-4 md:w-5 h-4 md:h-5" />
+            {isPloyOrderRoute ? (
+              <ArrowLeftRight data-ploy-header-icon="true" aria-label="Clock Out" />
+            ) : (
+              <img src={switchUserIcon} alt="Clock Out" className="w-4 md:w-5 h-4 md:h-5" />
+            )}
           </button>
 
           <button
@@ -300,16 +305,28 @@ const Header = () => {
           </div>
 
           <button data-ploy-header-action="true" className="relative p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors">
-            <img src={localHostIcon} alt="Local Host" className="w-4 md:w-5 h-4 md:h-5" />
+            {isPloyOrderRoute ? (
+              <Server data-ploy-header-icon="true" aria-label="Local Host" />
+            ) : (
+              <img src={localHostIcon} alt="Local Host" className="w-4 md:w-5 h-4 md:h-5" />
+            )}
             <span className="absolute -top-0.5 md:-top-1 -right-0.5 md:-right-1 w-2 md:w-2.5 h-2 md:h-2.5 bg-amber-500 rounded-full border border-sidebar" />
           </button>
 
           <button data-ploy-header-action="true" className="hidden md:block p-1 hover:bg-sidebar-accent rounded transition-colors">
-            <img src={refreshIcon} alt="Refresh" className="w-5 h-5" />
+            {isPloyOrderRoute ? (
+              <RefreshCw data-ploy-header-icon="true" aria-label="Refresh" />
+            ) : (
+              <img src={refreshIcon} alt="Refresh" className="w-5 h-5" />
+            )}
           </button>
 
           <button data-ploy-header-action="true" data-ploy-header-support="true" className="header-support-btn hidden md:block p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
-            <img src={supportIcon} alt="Support" className="w-5 h-5" />
+            {isPloyOrderRoute ? (
+              <Headphones data-ploy-header-icon="true" aria-label="Support" />
+            ) : (
+              <img src={supportIcon} alt="Support" className="w-5 h-5" />
+            )}
           </button>
 
           {/* Notification Bell with Popover */}
@@ -319,7 +336,11 @@ const Header = () => {
               className="p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors relative"
               onClick={() => setShowNotifPopover((v) => !v)}
             >
-              <img src={notificationIcon} alt="Notifications" className="w-4 md:w-5 h-4 md:h-5" />
+              {isPloyOrderRoute ? (
+                <Bell data-ploy-header-icon="true" aria-label="Notifications" />
+              ) : (
+                <img src={notificationIcon} alt="Notifications" className="w-4 md:w-5 h-4 md:h-5" />
+              )}
               {unreadCount > 0 && (
                 <span className="absolute -top-0.5 -right-0.5 min-w-[14px] h-[14px] rounded-full bg-[#ED1C24] text-white text-[9px] font-bold flex items-center justify-center px-0.5">
                   {unreadCount}
@@ -357,7 +378,7 @@ const Header = () => {
                         ? <ChefHat className="w-4 h-4 text-orange-400" />
                         : n.title?.includes("Order")
                         ? <ShoppingBag className="w-4 h-4 text-blue-400" />
-                        : <BellIcon className="w-4 h-4 text-neutral-400" />;
+                        : <Bell className="w-4 h-4 text-neutral-400" />;
                       const timeAgo = getTimeAgo(n.created_at);
                       return (
                         <button
@@ -410,7 +431,11 @@ const Header = () => {
             )}
           </div>
 
-          <img data-ploy-header-status="true" src={wifiIcon} alt="Wifi" className="w-4 md:w-5 h-4 md:h-5" />
+          {isPloyOrderRoute ? (
+            <Wifi data-ploy-header-status="true" data-ploy-header-icon="true" aria-label="Wifi" />
+          ) : (
+            <img data-ploy-header-status="true" src={wifiIcon} alt="Wifi" className="w-4 md:w-5 h-4 md:h-5" />
+          )}
 
           <span data-ploy-header-time="true" className="text-xs md:text-sm font-medium">{formattedTime}</span>
         </div>

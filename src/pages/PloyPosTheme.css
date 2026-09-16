@@ -61,13 +61,21 @@
 
 .ploy-pos-theme:has(.ploy-order-page) header {
   min-height: 48px;
-  background: var(--ploy-surface);
+  background: #fbf8f4;
   border-bottom: 1px solid var(--ploy-border);
-  box-shadow: var(--ploy-shadow);
+  box-shadow: none;
+  color: var(--ploy-ink);
+  font-family: Inter, sans-serif;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-profile="true"] {
-  background: transparent;
+  min-height: 34px;
+  background: var(--ploy-surface) !important;
+  border: 1px solid var(--ploy-border);
+  box-shadow: var(--ploy-shadow);
+  color: var(--ploy-ink);
 }
 
 .ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-avatar="true"] {
@@ -75,9 +83,56 @@
   color: var(--ploy-accent-ink);
 }
 
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-name="true"] {
+  color: var(--ploy-ink);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-role="true"] {
+  background: var(--ploy-accent-soft) !important;
+  color: var(--ploy-accent-ink) !important;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-service="true"],
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-time="true"] {
+  color: var(--ploy-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-actions="true"] {
+  gap: 10px;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-action="true"] {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 28px;
+  min-height: 28px;
+  background: transparent !important;
+  border: 1px solid transparent;
+  border-radius: 999px;
+}
+
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-action="true"]:hover {
+  background: var(--ploy-surface) !important;
+  border-color: var(--ploy-border);
+}
+
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-action="true"] img,
+.ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-status="true"] {
+  filter: grayscale(1) brightness(0.62);
+  opacity: 0.78;
+}
+
 .ploy-pos-theme:has(.ploy-order-page) header [data-ploy-header-support="true"] {
-  background: var(--ploy-bg) !important;
-  border: 0;
+  background: var(--ploy-surface) !important;
+  border: 1px solid var(--ploy-border);
   border-radius: 999px;
 }
 
@@ -157,6 +212,14 @@
   max-height: 58px;
 }
 
+.ploy-pos-theme:has(.ploy-order-page) [data-ploy-sidebar-item="Version"] {
+  flex: 0 0 48px;
+  height: 48px;
+  margin-top: auto;
+  padding-top: 6px;
+  border-top: 1px solid var(--ploy-border);
+}
+
 .ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"] {
   position: relative;
   width: 100%;
@@ -194,11 +257,13 @@
 }
 
 .ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-icon="true"] {
-  width: 21px;
-  height: 21px;
+  width: 22px;
+  height: 22px;
   color: currentColor;
+  fill: none;
   stroke-linecap: round;
   stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
 }
 
 .ploy-pos-theme:has(.ploy-order-page) .draggable-sidebar [data-ploy-nav-link="true"] img {
@@ -436,6 +501,16 @@
 
 .ploy-orders-active [data-radix-popper-content-wrapper] {
   font-family: Inter, sans-serif;
+}
+
+.ploy-orders-active [data-ploy-sidebar-tooltip="true"] {
+  background: #ffffff !important;
+  color: #1e1b18 !important;
+  border: 1px solid #eae3da !important;
+  border-radius: 9px !important;
+  box-shadow: 0 5px 16px rgba(30, 27, 24, 0.1) !important;
+  font-size: 11px;
+  font-weight: 600;
 }
 
 .ploy-orders-active :is([role="menu"], [role="listbox"], [role="tooltip"], [role="dialog"]) {

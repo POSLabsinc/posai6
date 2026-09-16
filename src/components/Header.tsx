@@ -208,6 +208,7 @@ const Header = () => {
         {/* Left Section */}
         <div className="flex items-center gap-1.5 md:gap-3">
           <button
+            data-ploy-header-action="true"
             onClick={() => setShowClockOut(true)}
             className="p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors"
           >
@@ -224,8 +225,8 @@ const Header = () => {
               <AvatarFallback data-ploy-header-avatar="true" className="text-xs bg-sidebar-accent text-sidebar-foreground">{initials}</AvatarFallback>
             </Avatar>
 
-            <span className="font-medium text-xs md:text-sm">{employeeName}</span>
-            <span className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 bg-primary/20 text-white rounded-full font-medium uppercase tracking-wide">{employeeRole}</span>
+            <span data-ploy-header-name="true" className="font-medium text-xs md:text-sm">{employeeName}</span>
+            <span data-ploy-header-role="true" className="text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 bg-primary/20 text-white rounded-full font-medium uppercase tracking-wide">{employeeRole}</span>
 
             {/* On Break Status Badge */}
             {isOnBreak && (
@@ -239,7 +240,7 @@ const Header = () => {
 
             <img src={dinnerIcon} alt="Dinner" className="hidden md:block w-4 h-4" />
 
-            <span className="hidden md:inline text-sm">Dinner Service (9:00 PM)</span>
+            <span data-ploy-header-service="true" className="hidden md:inline text-sm">Dinner Service (9:00 PM)</span>
 
 
 
@@ -247,7 +248,7 @@ const Header = () => {
         </div>
 
         {/* Right Section */}
-        <div className="flex items-center gap-2 md:gap-4">
+          <div data-ploy-header-actions="true" className="flex items-center gap-2 md:gap-4">
           {/* Demo Mode Indicator */}
           {isDemoMode && (
             <div className="flex items-center gap-1.5 md:gap-2">
@@ -298,22 +299,23 @@ const Header = () => {
             }} />
           </div>
 
-          <button className="relative p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors">
+          <button data-ploy-header-action="true" className="relative p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors">
             <img src={localHostIcon} alt="Local Host" className="w-4 md:w-5 h-4 md:h-5" />
             <span className="absolute -top-0.5 md:-top-1 -right-0.5 md:-right-1 w-2 md:w-2.5 h-2 md:h-2.5 bg-amber-500 rounded-full border border-sidebar" />
           </button>
 
-          <button className="hidden md:block p-1 hover:bg-sidebar-accent rounded transition-colors">
+          <button data-ploy-header-action="true" className="hidden md:block p-1 hover:bg-sidebar-accent rounded transition-colors">
             <img src={refreshIcon} alt="Refresh" className="w-5 h-5" />
           </button>
 
-          <button data-ploy-header-support="true" className="header-support-btn hidden md:block p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
+          <button data-ploy-header-action="true" data-ploy-header-support="true" className="header-support-btn hidden md:block p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
             <img src={supportIcon} alt="Support" className="w-5 h-5" />
           </button>
 
           {/* Notification Bell with Popover */}
           <div className="relative" ref={notifRef}>
             <button
+              data-ploy-header-action="true"
               className="p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors relative"
               onClick={() => setShowNotifPopover((v) => !v)}
             >
@@ -408,9 +410,9 @@ const Header = () => {
             )}
           </div>
 
-          <img src={wifiIcon} alt="Wifi" className="w-4 md:w-5 h-4 md:h-5" />
+          <img data-ploy-header-status="true" src={wifiIcon} alt="Wifi" className="w-4 md:w-5 h-4 md:h-5" />
 
-          <span className="text-xs md:text-sm font-medium">{formattedTime}</span>
+          <span data-ploy-header-time="true" className="text-xs md:text-sm font-medium">{formattedTime}</span>
         </div>
       </header>
       {/* Employee Profile Popup */}

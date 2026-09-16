@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { LayoutDashboard, ShoppingCart, TableProperties, ReceiptText, Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
+import { useState, useEffect, type SVGProps } from "react";
+import { Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
@@ -16,14 +16,53 @@ import ticketIcon from "@/assets/icons/ticket.png";
 import versionIcon from "@/assets/icons/version.png";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 
+const PloyDashboardIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.5" />
+    <rect x="14" y="3.5" width="6.5" height="6.5" rx="1.5" />
+    <rect x="3.5" y="14" width="6.5" height="6.5" rx="1.5" />
+    <rect x="14" y="14" width="6.5" height="6.5" rx="1.5" />
+  </svg>
+);
+
+const PloyOrderIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <path d="M3.5 5.5h2l1.7 9.1a2 2 0 0 0 2 1.6h7.9a2 2 0 0 0 1.9-1.5l1.2-5.5H6.3" />
+    <path d="M10 6.2h6M13 3.2v6" />
+    <circle cx="9.2" cy="19.3" r="1.15" />
+    <circle cx="17.5" cy="19.3" r="1.15" />
+  </svg>
+);
+
+const PloyTableIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <rect x="4" y="4" width="16" height="16" rx="2" />
+    <path d="M4 10h16M10 4v16M10 15h10" />
+  </svg>
+);
+
+const PloyTicketsIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <path d="M6 3.5h12v17l-2-1.3-2 1.3-2-1.3-2 1.3-2-1.3-2 1.3v-17Z" />
+    <path d="M9 8h6M9 11.5h6M9 15h4" />
+  </svg>
+);
+
+const PloySettingsIcon = (props: SVGProps<SVGSVGElement>) => (
+  <svg viewBox="0 0 24 24" fill="none" aria-hidden="true" {...props}>
+    <circle cx="12" cy="12" r="3" />
+    <path d="M12 3.5v2M12 18.5v2M3.5 12h2M18.5 12h2M6 6l1.4 1.4M16.6 16.6 18 18M18 6l-1.4 1.4M7.4 16.6 6 18" />
+  </svg>
+);
+
 const menuItems = [
-  { title: "Dashboard", url: "/", icon: dashboardIcon, ployIcon: LayoutDashboard },
-  { title: "Orders", url: "/orders", icon: orderIcon, ployIcon: ShoppingCart },
-  { title: "Table Order", url: "/tableorder", icon: tableManagementIcon, ployIcon: TableProperties },
-  { title: "Tickets", url: "/tickets", icon: ticketIcon, ployIcon: ReceiptText },
+  { title: "Dashboard", url: "/", icon: dashboardIcon, ployIcon: PloyDashboardIcon },
+  { title: "Orders", url: "/orders", icon: orderIcon, ployIcon: PloyOrderIcon },
+  { title: "Table Order", url: "/tableorder", icon: tableManagementIcon, ployIcon: PloyTableIcon },
+  { title: "Tickets", url: "/tickets", icon: ticketIcon, ployIcon: PloyTicketsIcon },
   { title: "orderOS", url: "/orderos", icon: homeIcon },
   
-  { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, ployIcon: Settings, isSettings: true },
+  { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, ployIcon: PloySettingsIcon, isSettings: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];
 
@@ -163,7 +202,7 @@ export function DraggableSidebar() {
   const renderMenuIcon = (item: (typeof visibleMenuItems)[number], className: string) => {
     const PloyIcon = item.ployIcon;
     if (isPloyPosRoute && PloyIcon) {
-      return <PloyIcon data-ploy-nav-icon="true" className={className} strokeWidth={1.7} />;
+      return <PloyIcon data-ploy-nav-icon="true" className={className} stroke="currentColor" strokeWidth={1.45} />;
     }
 
     if (item.lucideIcon) {
@@ -200,7 +239,7 @@ export function DraggableSidebar() {
                   <GripVertical className={`w-4 h-4 text-white/60 ${isHorizontal ? '' : 'rotate-90'}`} />
                 </div>
               </TooltipTrigger>
-              <TooltipContent side={tooltipSide} className="bg-neutral-800 text-white border-neutral-700">
+              <TooltipContent data-ploy-sidebar-tooltip="true" side={tooltipSide} className="bg-neutral-800 text-white border-neutral-700">
                 {isLocked ? "Sidebar is locked" : "Drag to reposition"}
               </TooltipContent>
             </Tooltip>
@@ -251,7 +290,7 @@ export function DraggableSidebar() {
                   )}
                 </button>
               </TooltipTrigger>
-              <TooltipContent side={tooltipSide} className="bg-neutral-800 text-white border-neutral-700">
+              <TooltipContent data-ploy-sidebar-tooltip="true" side={tooltipSide} className="bg-neutral-800 text-white border-neutral-700">
                 {isLocked ? "Unlock sidebar" : "Lock sidebar"}
               </TooltipContent>
             </Tooltip>
@@ -312,7 +351,7 @@ export function DraggableSidebar() {
                     </NavLink>
                   )}
                 </TooltipTrigger>
-                <TooltipContent side={tooltipSide} className="bg-neutral-800 text-white border-neutral-700">
+                <TooltipContent data-ploy-sidebar-tooltip="true" side={tooltipSide} className="bg-neutral-800 text-white border-neutral-700">
                   {item.title}
                 </TooltipContent>
               </Tooltip>

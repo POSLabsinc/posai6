@@ -555,10 +555,41 @@
   color: var(--ploy-muted) !important;
 }
 
-.ploy-pos-theme .ploy-order-page [data-ploy-region="order"] button:last-child span {
+.ploy-pos-theme .ploy-order-page [data-ploy-region="order"] button:last-child:not([data-ploy-order-pill="true"]):not([data-ploy-more-action="true"]) span {
   font-family: "Source Serif 4", Georgia, serif;
   font-weight: 400;
   color: var(--ploy-ink) !important;
+}
+
+/* Cart actions column: match the cart card surface, drop the dark-theme tint */
+.ploy-pos-theme .ploy-order-page [data-ploy-actions-panel="true"] {
+  background: var(--ploy-surface) !important;
+  border: 1px solid var(--ploy-border);
+  border-radius: 14px;
+  box-shadow: var(--ploy-shadow) !important;
+}
+
+.ploy-pos-theme .ploy-order-page [data-ploy-actions-panel="true"] button:is(:hover, :focus-visible) {
+  background: var(--ploy-accent-soft) !important;
+}
+
+/* Empty cart illustration */
+.ploy-pos-theme .ploy-order-page [data-ploy-empty-icon] {
+  color: var(--ploy-tertiary);
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 1;
+}
+
+.ploy-pos-theme .ploy-order-page [data-ploy-empty-icon="true"] {
+  width: 32px;
+  height: 32px;
+}
+
+.ploy-pos-theme .ploy-order-page [data-ploy-empty-icon="large"] {
+  width: 56px;
+  height: 56px;
 }
 
 .ploy-pos-theme .ploy-order-page :is(button, a, input, select, textarea) {

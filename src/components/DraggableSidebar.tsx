@@ -1,5 +1,19 @@
 import { useState, useEffect } from "react";
-import { Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
+import {
+  Banknote,
+  CircleDotDashed,
+  Clock3,
+  Globe2,
+  GripVertical,
+  LayoutGrid,
+  Lock,
+  Monitor,
+  Move,
+  ReceiptText,
+  Settings,
+  Unlock,
+  X,
+} from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
@@ -26,6 +40,16 @@ const menuItems = [
   { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, isSettings: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];
+
+const ployMenuIcons = {
+  Dashboard: LayoutGrid,
+  Orders: ReceiptText,
+  "Table Order": CircleDotDashed,
+  Tickets: Banknote,
+  orderOS: Monitor,
+  Settings,
+  Version: Globe2,
+};
 
 export function DraggableSidebar() {
   const { position, setIsDragging, isLocked, setIsLocked, isAnimating, hasSeenOnboarding, dismissOnboarding } = useSidebarPosition();
@@ -249,7 +273,12 @@ export function DraggableSidebar() {
           </div>
 
           {/* Menu items */}
-          {visibleMenuItems.map((item) => (
+          {visibleMenuItems.map((item) => {
+            const PloyIcon = isPloyPosRoute
+              ? ployMenuIcons[item.title as keyof typeof ployMenuIcons]
+              : undefined;
+
+            return (
             <div 
               key={item.title} 
               data-ploy-sidebar-item={item.title}
@@ -265,7 +294,11 @@ export function DraggableSidebar() {
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex flex-col items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
                     >
-                      <img src={item.icon} alt={item.title} className="w-10 h-10" />
+                      {PloyIcon ? (
+                        <PloyIcon aria-label={item.title} className="h-6 w-6" strokeWidth={1.65} />
+                      ) : (
+                        <img src={item.icon} alt={item.title} className="w-10 h-10" />
+                      )}
                     </NavLink>
                   ) : item.isSettings ? (
                     <NavLink
@@ -275,7 +308,11 @@ export function DraggableSidebar() {
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
                     >
-                      <item.lucideIcon className="h-5 w-5" />
+                      {PloyIcon ? (
+                        <PloyIcon aria-label={item.title} className="h-6 w-6" strokeWidth={1.65} />
+                      ) : (
+                        <item.lucideIcon className="h-5 w-5" />
+                      )}
                     </NavLink>
                   ) : isOrdersVoucherMode && (item.url === '/orders' || item.url === '/ploy-pos/orders') ? (
                     <Link
@@ -284,7 +321,11 @@ export function DraggableSidebar() {
                       data-ploy-nav-link="true"
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                     >
-                      <img src={item.icon as string} alt={item.title} className="w-6 h-6" />
+                      {PloyIcon ? (
+                        <PloyIcon aria-label={item.title} className="h-6 w-6" strokeWidth={1.65} />
+                      ) : (
+                        <img src={item.icon as string} alt={item.title} className="w-6 h-6" />
+                      )}
                     </Link>
                   ) : (
                     <NavLink
@@ -294,7 +335,9 @@ export function DraggableSidebar() {
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
                     >
-                      {item.lucideIcon ? (
+                      {PloyIcon ? (
+                        <PloyIcon aria-label={item.title} className="h-6 w-6" strokeWidth={1.65} />
+                      ) : item.lucideIcon ? (
                         <item.lucideIcon className="h-5 w-5" />
                       ) : (
                         <img src={item.icon as string} alt={item.title} className="w-6 h-6" />
@@ -307,7 +350,8 @@ export function DraggableSidebar() {
                 </TooltipContent>
               </Tooltip>
             </div>
-          ))}
+            );
+          })}
         </div>
       </div>
     </TooltipProvider>

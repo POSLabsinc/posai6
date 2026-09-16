@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, TableProperties, ReceiptText, Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { Link, useLocation } from "react-router-dom";
 import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
@@ -17,13 +17,13 @@ import versionIcon from "@/assets/icons/version.png";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 
 const menuItems = [
-  { title: "Dashboard", url: "/", icon: dashboardIcon },
-  { title: "Orders", url: "/orders", icon: orderIcon },
-  { title: "Table Order", url: "/tableorder", icon: tableManagementIcon },
-  { title: "Tickets", url: "/tickets", icon: ticketIcon },
+  { title: "Dashboard", url: "/", icon: dashboardIcon, ployIcon: LayoutDashboard },
+  { title: "Orders", url: "/orders", icon: orderIcon, ployIcon: ShoppingCart },
+  { title: "Table Order", url: "/tableorder", icon: tableManagementIcon, ployIcon: TableProperties },
+  { title: "Tickets", url: "/tickets", icon: ticketIcon, ployIcon: ReceiptText },
   { title: "orderOS", url: "/orderos", icon: homeIcon },
   
-  { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, isSettings: true },
+  { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, ployIcon: Settings, isSettings: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];
 
@@ -160,6 +160,20 @@ export function DraggableSidebar() {
 
   const tooltipSide = getTooltipSide();
 
+  const renderMenuIcon = (item: (typeof visibleMenuItems)[number], className: string) => {
+    const PloyIcon = item.ployIcon;
+    if (isPloyPosRoute && PloyIcon) {
+      return <PloyIcon data-ploy-nav-icon="true" className={className} strokeWidth={1.7} />;
+    }
+
+    if (item.lucideIcon) {
+      const DefaultIcon = item.lucideIcon;
+      return <DefaultIcon className={className} />;
+    }
+
+    return <img src={item.icon as string} alt={item.title} className={className} />;
+  };
+
   return (
     <TooltipProvider delayDuration={100}>
       <div 
@@ -275,7 +289,7 @@ export function DraggableSidebar() {
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
                     >
-                      <item.lucideIcon className="h-5 w-5" />
+                      {renderMenuIcon(item, "h-5 w-5")}
                     </NavLink>
                   ) : isOrdersVoucherMode && (item.url === '/orders' || item.url === '/ploy-pos/orders') ? (
                     <Link
@@ -284,7 +298,7 @@ export function DraggableSidebar() {
                       data-ploy-nav-link="true"
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                     >
-                      <img src={item.icon as string} alt={item.title} className="w-6 h-6" />
+                      {renderMenuIcon(item, "w-6 h-6")}
                     </Link>
                   ) : (
                     <NavLink
@@ -294,11 +308,7 @@ export function DraggableSidebar() {
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
                     >
-                      {item.lucideIcon ? (
-                        <item.lucideIcon className="h-5 w-5" />
-                      ) : (
-                        <img src={item.icon as string} alt={item.title} className="w-6 h-6" />
-                      )}
+                      {renderMenuIcon(item, "w-6 h-6")}
                     </NavLink>
                   )}
                 </TooltipTrigger>

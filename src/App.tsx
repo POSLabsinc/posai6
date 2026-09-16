@@ -49,6 +49,7 @@ const lazyWithImportRecovery = <T extends ComponentType<unknown>>(
 
 // Lazy-loaded route pages for code-splitting
 const Orders = lazyWithImportRecovery(() => import("./pages/Orders"));
+const OrdersEditorial = lazyWithImportRecovery(() => import("./pages/OrdersEditorial"));
 const OrdersDesign1 = lazyWithImportRecovery(() => import("./pages/OrdersDesign1"));
 const OrdersDesign2 = lazyWithImportRecovery(() => import("./pages/OrdersDesign2"));
 const OrdersDesign3 = lazyWithImportRecovery(() => import("./pages/OrdersDesign3"));
@@ -201,6 +202,7 @@ const AppInner = () => {
           <Route path="/clock-in-pin" element={<ClockInPin />} />
 
           <Route path="/orders" element={<Orders />} />
+          <Route path="/orders-editorial" element={<OrdersEditorial />} />
           <Route path="/orders-a" element={<OrdersA />} />
           <Route path="/orders-d" element={<OrdersD />} />
           <Route path="/orders-f" element={<OrdersF />} />
